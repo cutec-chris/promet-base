@@ -154,8 +154,11 @@ type
     { public declarations }
     constructor Create(AOwner: TComponent); override;
     destructor Destroy;override;
+
+    function CanHandleLink(aLink : string): Boolean; override;
     function OpenFromLink(aLink : string) : Boolean;override;
     procedure New;override;
+
     procedure SetLanguage;override;
     procedure SetRights(Editable : Boolean);
     function OpenWikiPage(PageName : string;CreateIfNotExists : Boolean = False) : Boolean;
@@ -174,7 +177,7 @@ implementation
 uses uWiki,uData,WikiToHTML,uDocuments,Utils,LCLIntf,Variants,
   uBaseDbInterface,uscreenshotmain,uMessages,uDocumentFrame,sqlparser,
   sqlscanner, sqltree,uBaseVisualApplication,uStatistic,uspelling,uBaseApplication,
-  uBaseVisualControls,uRTFtoTXT;
+  uBaseVisualControls,uRTFtoTXT,uIntfStrConsts;
 procedure THistory.SetIndex(const AValue: Integer);
 begin
   Move(AValue,Count-1);
@@ -256,6 +259,9 @@ begin
   FHistory.RewAction := acBack;
   Wiki.DataSet := DataSet.DataSet;
   Keywords.DataSet := TWikiList(DataSet).Keywords.DataSet;
+  {$ifdef DARWIN}
+  ipHTML.DefaultFontSize:=14;
+  {$endif}
 end;
 destructor TfWikiFrame.Destroy;
 begin
@@ -267,16 +273,25 @@ begin
     DataSet := nil;
   except
   end;
+  try
   inherited Destroy;
+  except
+  end;
 end;
+
+function TfWikiFrame.CanHandleLink(aLink: string): Boolean;
+begin
+  Result := (copy(aLink,0,pos('@',aLink)-1) = 'WIKI');
+end;
+
 function TfWikiFrame.OpenFromLink(aLink: string) : Boolean;
 begin
-  if not (copy(aLink,0,pos('@',aLink)-1) = 'WIKI') then exit;
+  if not CanHandleLink(aLink) then exit;
   if rpos('{',aLink) > 0 then
     aLink := copy(aLink,0,rpos('{',aLink)-1)
   else if rpos('(',aLink) > 0 then
     aLink := copy(aLink,0,rpos('(',aLink)-1);
-  Result := OpenWikiPage(copy(aLink, pos('@', aLink) + 1, length(aLink)));
+  Result := OpenWikiPage(copy(aLink, pos('@', aLink) + 1, length(aLink)),Data.Users.Rights.Right('WIKI')>RIGHT_READ);
 end;
 procedure TfWikiFrame.TSimpleIpHtmlGetImageX(Sender: TIpHtmlNode;
   const URL: string; var Picture: TPicture);
@@ -970,6 +985,8 @@ var
     FSQLStream.Free;
   end;
 begin
+  with BaseApplication as IBaseApplication do
+    Debug('WikiInclude:'+Inp);
   if pos('datathere(',lowercase(Inp))>0 then
     aDataThere:=False;
   if copy(lowercase(Inp),0,3)='if(' then
@@ -1429,6 +1446,12 @@ begin
     RefreshTimer.Enabled:=True;
 end;
 
+var
+  aEntry : TPrometMenuEntry;
+initialization
+  TBaseVisualApplication(Application).RegisterForm(TfWikiFrame);
+  aEntry := TPrometMenuEntry.Create(strWiki,strWiki,'FOLDER@WIKI',IMAGE_WIKI,'W');
+  AddMenuEntry(aEntry);
 {$R *.lfm}
 end.
 

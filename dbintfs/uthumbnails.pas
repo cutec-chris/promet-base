@@ -27,7 +27,7 @@ uses
   Classes, SysUtils, uDocuments,Utils,variants,
   FPImage,fpreadgif,FPReadPSD,FPReadPCX,FPReadTGA,FPReadJPEGintfd,fpthumbresize,
   FPWriteJPEG,FPReadBMP,process,uBaseDbClasses,FPCanvas,FPImgCanv,
-  uBaseDBInterface,db
+  uBaseDBInterface,db,uBaseDatasetInterfaces
   {$IFDEF LCL}
   ,Graphics
   {$ENDIF}
@@ -48,7 +48,9 @@ function GenerateThumbNail(aName : string;aFileName : string;aStream : TStream;a
 
 implementation
 
-uses uBaseApplication;
+uses uBaseApplication,SecureUtils;
+var
+  ThumbDir : string;
 
 function GetThumbnailPath(aDocument: TDocuments;aWidth : Integer=310;aHeight : Integer=428): string;
 var
@@ -97,12 +99,20 @@ end;
 
 function GetThumbTempDir: string;
 begin
-  Result := GetTempDir+'promet_thumbs';
-  if Assigned(BaseApplication) and (not BaseApplication.ConsoleApplication) then
-    if Supports(BaseApplication,IBaseApplication) then
-      with BaseApplication as IBaseApplication do
-        Result := GetInternalTempDir+'promet_thumbs';
-  ForceDirectories(UniToSys(Result));
+  if ThumbDir='' then
+    begin
+      try
+        Result := GetTempDir+'promet_thumbs';
+        if Assigned(BaseApplication) and (not BaseApplication.ConsoleApplication) then
+          if Supports(BaseApplication,IBaseApplication) then
+            with BaseApplication as IBaseApplication do
+              Result := GetInternalTempDir+'promet_thumbs';
+        ForceDirectories(UniToSys(Result));
+        ThumbDir:=Result;
+      except
+      end;
+    end
+  else Result:=ThumbDir;
 end;
 
 function ClearThumbDir: Boolean;
@@ -238,9 +248,9 @@ begin
       end
     else if (s = 'pdf;') then
       begin
-        Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+'gswin32'+{$ELSE}'gs'+{$ENDIF}' -q -dBATCH -dMaxBitmap=300000000 -dNOPAUSE -dSAFER -sDEVICE=bmp16m -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -dFirstPage=1 -dLastPage=1 -sOutputFile=%s %s -c quit',[aFileName+'.bmp',aFileName]),'.bmp');
+        Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+{$ENDIF}'pdftopng -l 1 %s %s',[aFileName,aFilename]),'-000001.png');
         if not Result then
-          Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+{$ENDIF}'pdftopng -l 1 %s %s',[aFileName,aFilename]),'-000001.png');
+          Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+'gswin32'+{$ELSE}'gs'+{$ENDIF}' -q -dBATCH -dMaxBitmap=300000000 -dNOPAUSE -dSAFER -sDEVICE=bmp16m -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -dFirstPage=1 -dLastPage=1 -sOutputFile=%s %s -c quit',[aFileName+'.bmp',aFileName]),'.bmp');
       end
     else
       begin
@@ -253,7 +263,7 @@ begin
     SysUtils.DeleteFile(aFileName);
     if Assigned(Img) then
       begin
-        iOut := ThumbResize(Img, aWidth, aHeight, area);
+        iOut := DoThumbResize(Img, aWidth, aHeight, area);
         wr := TFPWriterJPEG.Create;
         wr.ProgressiveEncoding:=True;
         aOldPos:=aStream.Position;
@@ -341,7 +351,9 @@ begin
     end;
 end;
 
+initialization
+  ThumbDir := '';
 finalization
-  RemoveDir(GetThumbTempDir);
+  DeleteDirectorySecure(GetThumbTempDir,false);
 end.
 

@@ -10,7 +10,7 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="20">
+    <Files Count="22">
       <Item1>
         <Filename Value="uhistoryframe.lfm"/>
         <Type Value="LFM"/>
@@ -91,8 +91,15 @@
         <Filename Value="uprometframes.pas"/>
         <UnitName Value="uPrometFrames"/>
       </Item20>
+      <Item21>
+        <Filename Value="umeasurements.pas"/>
+        <UnitName Value="umeasurements"/>
+      </Item21>
+      <Item22>
+        <Filename Value="umeasurementoptions.pas"/>
+        <UnitName Value="umeasurementoptions"/>
+      </Item22>
     </Files>
-    <Type Value="RunAndDesignTime"/>
     <RequiredPkgs Count="3">
       <Item1>
         <PackageName Value="phelp"/>

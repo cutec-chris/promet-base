@@ -23,8 +23,12 @@ type
     DBCheckBox2: TDBCheckBox;
     eCustomerNumber2: TDBEdit;
     eCustomerNumber3: TDBEdit;
+    eWorktime: TDBEdit;
+    eWorkpercentage: TDBEdit;
     eEmploymentDate: TDBZVDateTimePicker;
     eLeaveDate: TDBZVDateTimePicker;
+    Label1: TLabel;
+    Label2: TLabel;
     lCustomerNumber3: TLabel;
     lCustomerNumber4: TLabel;
     Paygroups: TDatasource;
@@ -87,6 +91,8 @@ type
 implementation
 {$R *.lfm}
 uses uData,Variants,upaygroups;
+resourcestring
+  strNewUser                         = 'Neuer Benutzer';
 procedure TfUserOptions.tvUsersSelectionChanged(Sender: TObject);
 begin
   if not Assigned(tvUsers.Selected) then exit;
@@ -128,20 +134,20 @@ procedure TfUserOptions.bNewUserClick(Sender: TObject);
 var
   Node1: TTreeNode;
 begin
-  Node1 := tvUsers.Items.AddChildObject(nil,'New User',TUserTreeEntry.Create);
+  Node1 := tvUsers.Items.AddChildObject(nil,strNewUser,TUserTreeEntry.Create);
   Node1.ImageIndex:=21;
   Node1.SelectedIndex:=21;
   aUsers.DataSet.Append;
   aUsers.FieldByName('EMPLOYMENT').AsDateTime := Date;
   aUsers.FieldByName('ACCOUNTNO').AsString := Data.Numbers.GetNewNumber('USERS');
-  aUsers.FieldByName('NAME').AsString := 'New User';
-  aUsers.DataSet.Post;
   TUserTreeEntry(Node1.Data).Rec := aUsers.GetBookmark;
   TUserTreeEntry(Node1.Data).DataSource := UsersDS;
   try
     tvRights.Selected := Node1;
   except
   end;
+  aUsers.FieldByName('NAME').AsString := 'New User';
+  aUsers.DataSet.Post;
   UpdateRights;
 end;
 procedure TfUserOptions.bResetPasswordClick(Sender: TObject);

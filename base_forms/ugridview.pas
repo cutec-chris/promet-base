@@ -29,7 +29,7 @@ uses
   Classes, SysUtils, Utils,  Forms, Controls, DBGrids, ExtCtrls,
   Buttons, ComCtrls, uExtControls, db, Grids, ActnList, Menus, uBaseDBClasses,
   uBaseDbInterface, StdCtrls, Graphics, types, Clipbrd, LMessages,
-  ubasevisualapplicationtools, ZVDateTimePicker, Dialogs, DbCtrls, EditBtn;
+  ubasevisualapplicationtools, ZVDateTimePicker, Dialogs, DbCtrls, EditBtn,uBaseDatasetInterfaces;
 type
   TUnprotectedGrid = class(TCustomGrid);
 
@@ -97,6 +97,8 @@ type
     acOpen: TAction;
     acSearch: TAction;
     acCopyToClipboard: TAction;
+    acChangeRows: TAction;
+    acResetFilter: TAction;
     ActionList: TActionList;
     ActionList1: TActionList;
     bRowEditor: TSpeedButton;
@@ -107,6 +109,10 @@ type
     ImageList1: TImageList;
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
+    MenuItem3: TMenuItem;
+    MenuItem4: TMenuItem;
+    MenuItem5: TMenuItem;
+    MenuItem6: TMenuItem;
     miExport: TMenuItem;
     miImport: TMenuItem;
     miOpen: TMenuItem;
@@ -115,14 +121,16 @@ type
     Panel2: TPanel;
     bEditRows: TSpeedButton;
     pmPopup: TPopupMenu;
+    pmHeader: TPopupMenu;
     sbGrids: TPanel;
     gList: TExtStringgrid;
+    procedure acChangeRowsExecute(Sender: TObject);
     procedure acCopyLinkExecute(Sender: TObject);
     procedure acCopyToClipboardExecute(Sender: TObject);
     procedure acFilterExecute(Sender: TObject);
     procedure acOpenExecute(Sender: TObject);
+    procedure acResetFilterExecute(Sender: TObject);
     procedure acSearchExecute(Sender: TObject);
-    procedure bEditRowsClick(Sender: TObject);
     procedure deDateAcceptDate(Sender: TObject; var ADate: TDateTime;
       var AcceptDate: Boolean);
     procedure dgFakeTitleClick(Column: TColumn);
@@ -136,6 +144,7 @@ type
     procedure gHeaderDrawCell(Sender: TObject; aCol, aRow: Integer;
       aRect: TRect; aState: TGridDrawState);
     procedure gHeaderEditingDone(Sender: TObject);
+    procedure gHeaderEnter(Sender: TObject);
     procedure gHeaderGetCellWidth(aCol: Integer; var aNewWidth: Integer);
     procedure gHeaderHeaderClick(Sender: TObject; IsColumn: Boolean;
       Index: Integer);
@@ -395,12 +404,6 @@ begin
   NeedsAction:='na';
 end;
 
-procedure TfGridView.bEditRowsClick(Sender: TObject);
-begin
-  fRowEditor.Execute(FBaseName,FDataSource,dgFake,FBaseName);
-  Asyncrefresh;
-end;
-
 procedure TfGridView.deDateAcceptDate(Sender: TObject; var ADate: TDateTime;
   var AcceptDate: Boolean);
 begin
@@ -452,11 +455,17 @@ begin
 
 end;
 
+procedure TfGridView.acResetFilterExecute(Sender: TObject);
+begin
+  ClearFilters;
+end;
+
 procedure TfGridView.acSearchExecute(Sender: TObject);
 begin
   if Assigned(OnCellButtonClick) then
     OnCellButtonClick(Self,Point(gList.Selection.Left,gList.Selection.Top),dgFake.Columns[gList.Col-1]);
 end;
+
 procedure TfGridView.acCopyLinkExecute(Sender: TObject);
 var
   aLinks : string;
@@ -469,6 +478,12 @@ begin
       Clipboard.AddFormat(LinkClipboardFormat,Stream);
       Stream.Free;
     end;
+end;
+
+procedure TfGridView.acChangeRowsExecute(Sender: TObject);
+begin
+  fRowEditor.Execute(FBaseName,FDataSource,dgFake,FBaseName);
+  Asyncrefresh;
 end;
 
 procedure TfGridView.acCopyToClipboardExecute(Sender: TObject);
@@ -555,6 +570,12 @@ begin
   if Assigned(FAutoFilterChanged) then
     FAutoFilterChanged(Self);
   acFilter.Execute;
+  gHeader.Options:=gHeader.Options-[goAlwaysShowEditor];
+end;
+
+procedure TfGridView.gHeaderEnter(Sender: TObject);
+begin
+  gHeader.Options:=gHeader.Options+[goAlwaysShowEditor];
 end;
 
 procedure TfGridView.gHeaderGetCellWidth(aCol: Integer; var aNewWidth: Integer);
@@ -1369,13 +1390,8 @@ begin
             WasInsert := FDataSet.State=dsInsert;
             if (FDataSource.DataSet.State = dsInsert) and (not FDataSet.Changed) then
               begin
-                gList.DeleteColRow(False,gList.Row);
-                if gList.RowCount = gList.FixedRows then
-                  begin
-                    CleanList(1);
-                  end;
-                FDataSource.DataSet.Cancel;
                 Key := 0;
+                exit;
               end
             else
               begin
@@ -1394,8 +1410,8 @@ begin
             raise;
           end;
           gList.EditorMode:=False;
-        end;
-      if (gList.Row = gList.RowCount-1) and (goEditing in gList.Options) and FEditable then
+        end
+      else if (gList.Row = gList.RowCount-1) and (goEditing in gList.Options) and FEditable then
         begin
           aBm := DataSet.GetBookmark;
           if TRowObject(gList.Objects[0,gList.Row]).Rec = 0 then
@@ -1410,6 +1426,7 @@ begin
     begin
       if (FDataSource.DataSet.State = dsInsert) and (not FDataSet.Changed) then
         begin
+          EditingDone;
           CleanRow(gList.Row,-2);
           gList.DeleteColRow(False,gList.Row);
           if gList.RowCount = gList.FixedRows then
@@ -1984,6 +2001,7 @@ begin
         if gList.ColCount > i+1 then
           begin
             aText := gList.Cells[i+1,aRow];
+            if aText='' then exit;
             if Assigned(FGetCText) then
               FGetCText(Self,dgFake.Columns[i],aRow,atext,nil);
             TextWidth := gList.CellRect(i+1,aRow).Right-gList.CellRect(i+1,aRow).Left;
@@ -2695,12 +2713,15 @@ var
 begin
   Result := -1;
   if not Assigned(gList) then exit;
+  try
   for i := gList.FixedRows to gList.RowCount-1 do
     if TRowObject(gList.Objects[0,i]).Rec=aTreeBM then
       begin
         Result := i;
         break;
       end;
+  except
+  end;
 end;
 function TfGridView.SyncActiveRow(Bookmark : Int64;DoInsert,UpdateData : Boolean;UpdateRowHeight : Boolean;DoGroup : Boolean = True;AddNotFound : Boolean = False;aIdentField : Integer = -1) : Boolean;
 var

@@ -21,7 +21,7 @@ unit uPerson;
 {$mode objfpc}{$H+}
 interface
 uses
-  Classes, SysUtils, db, uBaseDbClasses, uBaseERPDBClasses, uIntfStrConsts;
+  Classes, SysUtils, db, uBaseDbClasses, uBaseERPDBClasses, uIntfStrConsts,uBaseDatasetInterfaces;
 type
 
   { TPersonList }
@@ -53,6 +53,7 @@ type
     procedure Assign(Source: TPersistent); override;
     procedure FillDefaults(aDataSet : TDataSet);override;
     function ToString: ansistring;override;
+    procedure OpenItem(AccHistory: Boolean=True); override;
     procedure FromString(aStr : AnsiString);virtual;
     property Title : TField read GetTitle;
     property AdressName : TField read GetName;
@@ -136,10 +137,11 @@ type
     property Info : TField read GetInfo;
     function SelectFromLink(aLink : string) : Boolean;override;
     property OnStateChange : TNotifyEvent read FStateChange write FStateChange;
+    procedure GenerateThumbnail; override;
   end;
 
 implementation
-uses uBaseDBInterface, uBaseSearch, uBaseApplication, uData, Utils;
+uses uBaseDBInterface, uBaseSearch, uBaseApplication, uData, Utils,uthumbnails;
 
 procedure TPersonEmployees.DefineFields(aDataSet: TDataSet);
 begin
@@ -487,6 +489,12 @@ begin
   Result := aAddress.Text;
   aAddress.Free;
 end;
+
+procedure TBaseDbAddress.OpenItem(AccHistory: Boolean);
+begin
+  //Do nothing
+end;
+
 procedure TBaseDbAddress.FromString(aStr: AnsiString);
 var
   Addr: TStringList;
@@ -732,7 +740,11 @@ begin
   FEmployees.CreateTable;
 end;
 procedure TPerson.FillDefaults(aDataSet: TDataSet);
+var
+  Languages: TLanguages;
 begin
+  Languages := TLanguages.CreateEx(Self,DataModule,Connection);
+  Languages.Open;
   with aDataSet,BaseApplication as IBaseDBInterface do
     begin
       aDataSet.DisableControls;
@@ -745,10 +757,11 @@ begin
       FieldByName('CHANGEDBY').AsString := Data.Users.IDCode.AsString;
       if Data.Currency.DataSet.Active and Data.Currency.DataSet.Locate('DEFAULTCUR', 'Y', []) then
         FieldByName('CURRENCY').AsString := Data.Currency.FieldByName('SYMBOL').AsString;
-      if Data.Languages.DataSet.Active and Data.Languages.DataSet.Locate('DEFAULTLNG', 'Y', []) then
-        FieldByName('LANGUAGE').AsString := Data.Languages.FieldByName('ISO6391').AsString;
+      if Languages.DataSet.Active and Languages.DataSet.Locate('DEFAULTLNG', 'Y', []) then
+        FieldByName('LANGUAGE').AsString := Languages.FieldByName('ISO6391').AsString;
       aDataSet.EnableControls;
     end;
+  Languages.Free;
 end;
 function TPerson.Find(aIdent: string;Unsharp : Boolean = False): Boolean;
 begin
@@ -787,6 +800,20 @@ begin
   if not Result then
     Result := inherited SelectFromLink(aLink);
 end;
+
+procedure TPerson.GenerateThumbnail;
+var
+  aThumbnail: TThumbnails;
+begin
+  aThumbnail := TThumbnails.CreateEx(nil,DataModule);
+  aThumbnail.CreateTable;
+  aThumbnail.SelectByRefId(Self.Id.AsVariant);
+  aThumbnail.Open;
+  if aThumbnail.Count=0 then
+    Images.GenerateThumbnail(aThumbnail);
+  aThumbnail.Free;
+end;
+
 procedure TPerson.CascadicPost;
 begin
   FHistory.CascadicPost;
@@ -879,7 +906,8 @@ begin
             Add('MATCHCODE','MATCHCODE',[]);
             Add('NAME','NAME',[]);
           end;
-      DefineUserFields(aDataSet);
+      if Data.ShouldCheckTable(TableName) then
+        DefineUserFields(aDataSet);
     end;
 end;
 procedure TPersonList.SelectByAccountNo(aAccountNo: string);

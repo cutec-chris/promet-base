@@ -25,8 +25,8 @@ interface
 
 uses
   Classes, SysUtils, uBaseDbClasses, db, uBaseDbInterface,uIntfStrConsts,
-  sqlparser,sqlscanner,sqltree,httpsend,ssl_openssl,Utils,jsonparser,fpjson,
-  memds;
+  sqlparser,sqlscanner,sqltree,httpsend,Utils,jsonparser,fpjson,
+  memds,uprometscripts,uBaseDatasetInterfaces;
 
 type
   TOwnSQLParser = class(TSQLParser)
@@ -59,6 +59,9 @@ type
   { TStatistic }
 
   TStatistic = class(TBaseDbList)
+  private
+    FInternalScript : string;
+    procedure aScriptWriteln(const s: string);
   public
     function GetTextFieldName: string;override;
     function GetNumberFieldName : string;override;
@@ -507,6 +510,11 @@ end;
 
 { TStatistic }
 
+procedure TStatistic.aScriptWriteln(const s: string);
+begin
+  FInternalScript := FInternalScript+s+#10;
+end;
+
 function TStatistic.GetTextFieldName: string;
 begin
   Result := 'NAME';
@@ -537,6 +545,7 @@ begin
             Add('DETAIL',ftMemo,0,False);
             Add('SUBDETAIL',ftMemo,0,False);
             Add('STATFIELD',ftString,20,False);
+            Add('ISSCRIPT',ftString,1,False);
             Add('STATNFIELD',ftString,20,False);
             Add('CHARTTYPE',ftString,1,False);
             Add('TREEENTRY',ftLargeint,0,false);
@@ -572,8 +581,23 @@ var
   aState: Integer;
   aName: String;
   aType: String;
+  aScript: TBaseScript;
 begin
   aQuerry := FieldByName('QUERRY').AsString;
+
+  if FieldByName('ISSCRIPT').AsString='Y' then
+    begin
+      {
+      aScript := TBaseScript.CreateEx(nil,Data);
+      aScript.Script.Source:=aQuerry;
+      FInternalScript:='';
+      aScript.Writeln:=@aScriptWriteln;
+      aScript.Execute(Null);
+      aQuerry:=FInternalScript;
+      aScript.Free;
+      ]}
+    end;
+
   aState := 1;
   while length(aQuerry)>0 do
     begin

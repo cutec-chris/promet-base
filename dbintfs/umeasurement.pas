@@ -23,7 +23,7 @@ unit uMeasurement;
 interface
 
 uses
-  Classes, SysUtils,uBaseDbClasses,uBaseDBInterface,db;
+  Classes, SysUtils,uBaseDbClasses,uBaseDBInterface,db,uBaseDatasetInterfaces;
 
 
 type
@@ -35,13 +35,18 @@ type
     procedure DefineFields(aDataSet: TDataSet); override;
     constructor CreateEx(aOwner: TComponent; DM: TComponent;
       aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
+    procedure FillDefaults(aDataSet: TDataSet); override;
   end;
 
   { TMeasurement }
 
   TMeasurement = class(TBaseDBDataset)
+    procedure DataSetAfterPost(aDataSet: TDataSet);
+    procedure FDSDataChange(Sender: TObject; Field: TField);
   private
+    CurrentChanged : Boolean;
     FMesdata: TMeasurementData;
+    FDS: TDataSource;
   public
     constructor CreateEx(aOwner: TComponent; DM: TComponent; aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
     destructor Destroy; override;
@@ -54,16 +59,47 @@ implementation
 
 { TMeasurement }
 
+procedure TMeasurement.DataSetAfterPost(aDataSet: TDataSet);
+begin
+  if CurrentChanged then
+    begin
+      Data.Append;
+      Data.FieldByName('DATA').AsFloat:=FieldByName('CURRENT').AsFloat;
+      Data.Post;
+      CurrentChanged:=False;
+    end;
+end;
+
+procedure TMeasurement.FDSDataChange(Sender: TObject; Field: TField);
+begin
+  if not Assigned(Field) then exit;
+  if DataSet.ControlsDisabled then exit;
+  if (Dataset.State <> dsInsert)
+  then
+    begin
+      if (Field.FieldName = 'CURRENT') then
+        begin
+          CurrentChanged := TRue;
+        end;
+    end;
+end;
+
 constructor TMeasurement.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
   FMesdata := TMeasurementData.CreateEx(Self,DM,aConnection,DataSet);
+  FDS := TDataSource.Create(Self);
+  FDS.DataSet := DataSet;
+  FDS.OnDataChange:=@FDSDataChange;
+  CurrentChanged:=False;
+  DataSet.AfterPost:=@DataSetAfterPost;
 end;
 
 destructor TMeasurement.Destroy;
 begin
   FMesdata.Free;
+  FDS.Free;
   inherited Destroy;
 end;
 
@@ -78,6 +114,8 @@ begin
             Add('NAME',ftString,100,True);
             Add('ID',ftString,100,False);
             Add('TYPE',ftString,100,False);
+            Add('CURRENT',ftFloat,0,False);
+            Add('UNIT',ftString,15,False);
             Add('CHART',ftString,1,False);
             Add('COLOR',ftString,30,False);
             Add('RANGE',ftString,20,False);
@@ -114,7 +152,7 @@ begin
       if Assigned(ManagedIndexdefs) then
         with ManagedIndexDefs do
           begin
-            Add('DATE','DATE',[]);
+            Add('DATE','DATE',[ixUnique]);
           end;
     end;
 end;
@@ -128,8 +166,14 @@ begin
       SortFields := 'DATE';
       SortDirection := sdDescending;
       UpdateFloatFields:=True;
-      Limit:=5000;
+      Limit:=100;
     end;
+end;
+
+procedure TMeasurementData.FillDefaults(aDataSet: TDataSet);
+begin
+  inherited FillDefaults(aDataSet);
+  FieldByName('DATE').AsDateTime:=Now();
 end;
 
 end.

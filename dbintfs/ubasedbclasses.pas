@@ -22,14 +22,12 @@ unit uBaseDbClasses;
 interface
 uses
   Classes, SysUtils, db, uBaseDbDataSet, Variants, uIntfStrConsts, DOM,
-  Contnrs
+  Contnrs,uBaseDatasetInterfaces
   {$IFDEF LCL}
   ,Graphics
   {$ENDIF}
   ;
 type
-  TSortDirection = (sdAscending, sdDescending, sdIgnored);
-
   { TBaseDBDataset }
 
   TBaseDBDataset = class(TComponent)
@@ -168,6 +166,7 @@ type
     function  ExportToXML : string;virtual;
     procedure ImportFromXML(XML : string;OverrideFields : Boolean = False;ReplaceFieldFunc : TReplaceFieldFunc = nil);virtual;
     procedure OpenItem(AccHistory: Boolean=True);virtual;
+    procedure BuildSearchIndexes;virtual;
     procedure CascadicPost; override;
     procedure GenerateThumbnail;virtual;
     property Text : TField read GetText;
@@ -404,7 +403,7 @@ type
     constructor CreateEx(aOwner : TComponent;DM : TComponent=nil;aConnection : TComponent = nil;aMasterdata : TDataSet = nil);override;
     procedure Open;override;
     procedure DefineFields(aDataSet : TDataSet);override;
-    procedure Add(aLink : string);
+    function Add(aLink : string) : Boolean;
   end;
   TListEntrys = class(TBaseDBDataSet)
   private
@@ -440,7 +439,7 @@ type
 var ImportAble : TClassList;
 implementation
 uses uBaseDBInterface, uBaseApplication, uBaseSearch,XMLRead,XMLWrite,Utils,
-  md5,sha1,uData,uthumbnails;
+  md5,sha1,uData,uthumbnails,base64;
 resourcestring
   strNumbersetDontExists        = 'Nummernkreis "%s" existiert nicht !';
   strDeletedmessages            = 'gelöschte Narichten';
@@ -598,6 +597,13 @@ begin
   FHistory := TBaseHistory.CreateEx(Self,DM,aConnection,DataSet);
   FImages := TImages.CreateEx(Self,DM,aConnection,DataSet);
   FLinks := TLinks.CreateEx(Self,DM,aConnection);
+  with BaseApplication as IBaseDbInterface do
+    begin
+      with DataSet as IBaseDBFilter do
+        begin
+          UsePermissions:=True;
+        end;
+    end;
 end;
 
 destructor TObjects.Destroy;
@@ -622,7 +628,7 @@ begin
       if Assigned(ManagedFieldDefs) then
         with ManagedFieldDefs do
           begin
-            Add('NUMBER',ftString,60,True);
+            Add('NUMBER',ftString,60,False);
             Add('NAME',ftString,200,False);
             Add('MATCHCODE',ftString,200,False);
             Add('VERSION',ftString,20,False);
@@ -631,6 +637,7 @@ begin
             Add('ICON',ftInteger,0,False);
             Add('NOTICE',ftMemo,0,False);
             Add('TREEENTRY',ftLargeint,0,False);
+            Add('CHANGEDBY',ftString,4,False);
           end;
     end;
 end;
@@ -638,15 +645,24 @@ end;
 procedure TObjects.FillDefaults(aDataSet: TDataSet);
 begin
   inherited FillDefaults(aDataSet);
-  FieldByName('ICON').AsInteger:=Data.GetLinkIcon('ALLOBJECTS@');
+  FieldByName('ICON').AsInteger:=Data.GetLinkIcon('ALLOBJECTS@',True);
 end;
 
 function TObjects.SelectByLink(aLink: string): Boolean;
+var
+  tmp: String;
 begin
   with BaseApplication as IBaseDBInterface do
     with DataSet as IBaseDBFilter do
       begin
-        Filter := Data.QuoteField('LINK')+'='+Data.QuoteValue(aLink);
+        if copy(aLink,0,11)='ALLOBJECTS@' then
+          begin
+            tmp := copy(aLink,12,length(aLink));
+            if pos('{',aLink)>0 then tmp := copy(tmp,0,pos('{',tmp)-1);
+            Filter := TBaseDBModule(DataModule).QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(tmp);
+          end
+        else
+          Filter := Data.QuoteField('LINK')+'='+Data.QuoteValue(aLink);
       end;
 end;
 
@@ -657,9 +673,9 @@ begin
       with Self.DataSet as IBaseDBFilter do
         begin
           if aId <> Null then
-            Filter := Data.QuoteField('SQL_ID')+'='+TBaseDBModule(DataModule).QuoteValue(Format('%d',[Int64(aID)]))
+            Filter := TBaseDBModule(DataModule).QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+TBaseDBModule(DataModule).QuoteValue(Format('%d',[Int64(aID)]))
           else
-            Filter := Data.QuoteField('SQL_ID')+'='+Data.QuoteValue('0');
+            Filter := TBaseDBModule(DataModule).QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue('0');
           Limit := 0;
         end;
     end;
@@ -909,13 +925,16 @@ begin
     end;
 end;
 
-procedure TLinks.Add(aLink: string);
+function TLinks.Add(aLink: string): Boolean;
 var
   aLinkDesc: String;
   aIcon: Integer;
 begin
+  Result := False;
   aLinkDesc := Data.GetLinkDesc(aLink);
   aIcon := Data.GetLinkIcon(aLink);
+  if not Active then  Open;
+  if Locate('LINK',aLink,[]) then exit;
   Append;
   with DataSet do
     begin
@@ -924,6 +943,7 @@ begin
       FieldByName('ICON').AsInteger := aIcon;
       FieldByName('CHANGEDBY').AsString := Data.Users.Idcode.AsString;
       Post;
+      Result := True;
     end;
 end;
 
@@ -1095,21 +1115,24 @@ procedure TBaseDbList.Delete;
 var
   aObj: TObjects;
 begin
+  try
+    aObj := TObjects.Create(nil);
+    if not Data.TableExists(aObj.TableName) then
+      begin
+        aObj.CreateTable;
+        aObj.Free;
+        aObj := TObjects.CreateEx(nil,Data,nil,DataSet);
+      end;
+    aObj.SelectByRefId(Id.AsVariant);
+    aObj.Open;
+    while aObj.Count>0 do
+      begin
+        aObj.DataSet.Delete;
+      end;
+    aObj.Free;
+  except
+  end;
   inherited Delete;
-  aObj := TObjects.Create(nil);
-  if not Data.TableExists(aObj.TableName) then
-    begin
-      aObj.CreateTable;
-      aObj.Free;
-      aObj := TObjects.CreateEx(nil,Data,nil,DataSet);
-    end;
-  aObj.SelectByRefId(Id.AsVariant);
-  aObj.Open;
-  while aObj.Count>0 do
-    begin
-      aObj.DataSet.Delete;
-    end;
-  aObj.Free;
 end;
 
 procedure TBaseDBDataset.Select(aID: Variant);
@@ -1203,15 +1226,20 @@ var
                   and (tmp <> 'REF_ID')
                   then
                     begin
-                      tmp1 := aDataSet.Fields[i].AsString;
+                      tmp1 :=  aDataSet.Fields[i].AsString;
                       if (not aDataSet.Fields[i].IsNull) then
-                        Row.SetAttribute(tmp,tmp1);
+                        begin
+                          if aDataSet.Fields[i].IsBlob then
+                            Row.SetAttribute(tmp,EncodeStringBase64(aDataSet.Fields[i].AsString))
+                          else
+                            Row.SetAttribute(tmp,tmp1);
+                        end;
                     end;
                 end;
               with aDataSet as IBaseSubDataSets do
                 begin
                   for i := 0 to GetCount-1 do
-                    RecourseTables(Row,SubDataSet[i].DataSet);
+                    RecourseTables(Row,TBaseDBDataset(SubDataSet[i]).DataSet);
                 end;
               aDataSet.Next;
             end;
@@ -1284,7 +1312,10 @@ var
                           aNewValue := bNode.Attributes.Item[d].NodeValue;
                           if Assigned(ReplaceFieldFunc) then
                             ReplaceFieldFunc(ThisDataSet.FieldByName(bNode.Attributes.Item[d].NodeName),bNode.Attributes.Item[d].NodeValue,aNewValue);
-                          ThisDataSet.FieldByName(bNode.Attributes.Item[d].NodeName).AsString := aNewValue;
+                          if ThisDataSet.FieldByName(bNode.Attributes.Item[d].NodeName).IsBlob then
+                            ThisDataSet.FieldByName(bNode.Attributes.Item[d].NodeName).AsString := DecodeStringBase64(aNewValue)
+                          else
+                            ThisDataSet.FieldByName(bNode.Attributes.Item[d].NodeName).AsString := aNewValue;
                         end;
                   ThisDataSet.Post;
                   for b := 0 to bNode.ChildNodes.Count-1 do
@@ -1309,7 +1340,7 @@ var
                 begin
                   for a := 0 to GetCount-1 do
                     begin
-                      if ProcessDataSet(SubDataSet[a].DataSet) then break;
+                      if ProcessDataSet(TBaseDbDataSet(SubDataSet[a]).DataSet) then break;
                     end;
                 end;
           end;
@@ -1339,7 +1370,7 @@ var
   aHistory: TAccessHistory;
   aObj: TObjects;
 begin
-  if Self.Count=0 then exit;
+  if ((Self.Count=0) and (State<>dsInsert)) or (not Assigned(Id)) then exit;
   try
     try
       aHistory := TAccessHistory.Create(nil);
@@ -1357,49 +1388,51 @@ begin
         end;
       if DataSet.State<>dsInsert then
         begin
-          if not Data.TableExists(aObj.TableName) then
-            begin
-              aObj.CreateTable;
-              aObj.Free;
-              aObj := TObjects.CreateEx(nil,Data,nil,DataSet);
-            end;
-          aObj.SelectByRefId(Id.AsVariant);
-          aObj.Open;
-          if aObj.Count=0 then
-            begin
-              aObj.Insert;
-              aObj.Text.AsString := Self.Text.AsString;
-              aObj.FieldByName('SQL_ID').AsVariant:=Self.Id.AsVariant;
-              if Assigned(Self.Matchcode) then
-                aObj.Matchcode.AsString := Self.Matchcode.AsString;
-              if Assigned(Self.Status) then
+        if not Data.TableExists(aObj.TableName) then
+          begin
+            aObj.CreateTable;
+            aObj.Free;
+            aObj := TObjects.CreateEx(nil,Data,nil,DataSet);
+          end;
+        aObj.SelectByRefId(Id.AsVariant);
+        aObj.Open;
+        if aObj.Count=0 then
+          begin
+            aObj.Insert;
+            aObj.Text.AsString := Self.Text.AsString;
+            aObj.FieldByName('SQL_ID').AsVariant:=Self.Id.AsVariant;
+            if Assigned(Self.Matchcode) then
+              aObj.Matchcode.AsString := Self.Matchcode.AsString;
+            if Assigned(Self.Status) then
+              aObj.Status.AsString := Self.Status.AsString;
+            aObj.Number.AsVariant:=Self.Number.AsVariant;
+            aObj.FieldByName('LINK').AsString:=Data.BuildLink(Self.DataSet);
+            aObj.FieldByName('ICON').AsInteger:=Data.GetLinkIcon(Data.BuildLink(Self.DataSet),True);
+            aObj.Post;
+            Self.GenerateThumbnail;
+          end
+        else //Modify existing
+          begin
+            if aObj.Text.AsString<>Self.Text.AsString then
+              begin
+                aObj.Edit;
+                aObj.Text.AsString := Self.Text.AsString;
+                aObj.FieldByName('LINK').AsString:=Data.BuildLink(Self.DataSet);
+              end;
+            if aObj.Number.AsString<>Self.Number.AsString then
+              begin
+                aObj.Edit;
+                aObj.Number.AsString := Self.Number.AsString;
+                aObj.FieldByName('LINK').AsString:=Data.BuildLink(Self.DataSet);
+              end;
+            if Assigned(Self.Status) and (aObj.Status.AsString<>Self.Status.AsString) then
+              begin
+                aObj.Edit;
                 aObj.Status.AsString := Self.Status.AsString;
-              aObj.Number.AsVariant:=Self.Number.AsVariant;
-              aObj.FieldByName('LINK').AsString:=Data.BuildLink(Self.DataSet);
-              aObj.FieldByName('ICON').AsInteger:=Data.GetLinkIcon(Data.BuildLink(Self.DataSet));
+              end;
+            if aObj.CanEdit then
               aObj.Post;
-              Self.GenerateThumbnail;
-            end
-          else //Modify existing
-            begin
-              if aObj.Text.AsString<>Self.Text.AsString then
-                begin
-                  aObj.Edit;
-                  aObj.Text.AsString := Self.Text.AsString;
-                end;
-              if aObj.Number.AsString<>Self.Number.AsString then
-                begin
-                  aObj.Edit;
-                  aObj.Number.AsString := Self.Number.AsString;
-                end;
-              if Assigned(Self.Status) and (aObj.Status.AsString<>Self.Status.AsString) then
-                begin
-                  aObj.Edit;
-                  aObj.Status.AsString := Self.Status.AsString;
-                end;
-              if aObj.CanEdit then
-                aObj.Post;
-            end;
+          end;
         end;
     finally
       aObj.Free;
@@ -1409,10 +1442,15 @@ begin
   end;
 end;
 
+procedure TBaseDbList.BuildSearchIndexes;
+begin
+
+end;
+
 procedure TBaseDbList.CascadicPost;
 begin
-  OpenItem(False);//modify object properties
   inherited CascadicPost;
+  OpenItem(False);//modify object properties
 end;
 
 procedure TBaseDbList.GenerateThumbnail;
@@ -1586,7 +1624,8 @@ end;
 
 procedure TBaseDBDataset.Filter(aFilter: string; aLimit: Integer);
 begin
-  FilterEx(aFilter,aLimit);
+  if (not ((ActualFilter=aFilter) and (aLimit=ActualLimit))) then
+    FilterEx(aFilter,aLimit);
 end;
 
 procedure TBaseHistory.OpenItem(AccHistory: Boolean);
@@ -1600,6 +1639,11 @@ begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
   FHChanged := False;
   FShouldChange:=False;
+  with BaseApplication as IBaseDbInterface do
+    begin
+      with FDataSet as IBaseDBFilter do
+        Limit := 50;
+    end;
 end;
 procedure TBaseHistory.SetDisplayLabels(aDataSet: TDataSet);
 begin
@@ -1682,6 +1726,7 @@ begin
       FShouldCHange := False;
     end;
 end;
+
 function TBaseHistory.AddItem(aObject: TDataSet; aAction: string;
   aLink: string; aReference: string; aRefObject: TDataSet; aIcon: Integer;
   aComission: string; CheckDouble: Boolean; DoPost: Boolean; DoChange: Boolean) : Boolean;
@@ -1723,6 +1768,7 @@ begin
       and (trunc(FieldByName('TIMESTAMPD').AsDatetime) = trunc(Now()))
       and (FieldByName('CHANGEDBY').AsString = Data.Users.Idcode.AsString)
       and ((FieldByName('REFERENCE').AsString = aReference) or (FieldByName('REFERENCE').AsString=Data.Users.IDCode.Asstring))
+      and ((aIcon=11{Termin}))
       and (CheckDouble)
       then
         Delete;
@@ -2006,6 +2052,7 @@ begin
       with DataSet as IBaseDBFilter do
         begin
           UsePermissions:=True;
+          Distinct:=True;
           BaseSortFields := 'SQL_ID';
           SortFields := 'SQL_ID';
           SortDirection := sdAscending;
@@ -2015,13 +2062,6 @@ begin
 end;
 procedure TTree.Open;
 begin
-  with BaseApplication as IBaseDbInterface do
-    begin
-      with DataSet as IBaseDBFilter do
-        begin
-          Limit := 0;
-        end;
-    end;
   inherited Open;
 end;
 procedure TTree.ImportStandartEntrys;
@@ -2141,6 +2181,9 @@ begin
             Add('PARENT',ftLargeint,0,False);
             Add('TYPE',ftString,1,True);
             Add('NAME',ftString,60,True);
+            Add('LINK',ftString,400,False);
+            Add('ICON',ftInteger,0,False);
+            Add('DESC',ftString,200,False);
           end;
     end;
 end;
@@ -2178,10 +2221,6 @@ begin
       with DataSet as IBaseDBFilter do
         begin
           SetFilter('');
-          if not DataSet.Locate('OPTION',aIdent,[]) then
-            SetFilter(Data.QuoteField('OPTION')+'='+Data.QuoteValue(aIdent));
-          if not DataSet.Locate('OPTION',aIdent,[]) then
-            SetFilter('');
         end;
     end;
   if Locate('OPTION',aIdent,[]) then
@@ -2260,7 +2299,7 @@ end;
 
 function TRights.Right(Element: string; Recursive: Boolean; UseCache: Boolean): Integer;
 var
-  aUser : LongInt;
+  aUser : Int64;
 
   procedure RecursiveGetRight(aRec : Integer = 0);
   begin
@@ -2339,6 +2378,7 @@ begin
             Add('ADDITION6',ftString,200,False);
             Add('ADDITION7',ftString,200,False);
             Add('ADDITION8',ftString,200,False);
+            Add('DBVERSION',ftInteger,0,False);
             Add('STAMP',ftLargeInt,0,False);
             Add('IMAGE',ftBlob,0,False);
           end;
@@ -2869,8 +2909,23 @@ begin
       exit;
     end;
   with FDataSet as IBaseManageDB do
-    if (Assigned(Data)) and (Data.ShouldCheckTable(TableName,False)) then
-      Self.CreateTable;
+    if (Assigned(Data)) and (Data.ShouldCheckTable(TableName,True)) then
+      begin
+        if not Self.CreateTable then
+          begin
+            with BaseApplication as IBaseApplication do
+              Info('Table "'+TableName+'" will be altered');
+            with DataSet as IBaseManageDB do
+              FDataSet.Open;
+            if AlterTable then
+              FDataSet.Close
+            else
+              begin
+                with BaseApplication as IBaseApplication do
+                  Info('Table "'+TableName+'" altering failed');
+              end;
+          end;
+      end;
   with DataSet as IBaseManageDB do
     FDataSet.Open;
   if DataSet.Active and FDisplayLabelsWasSet then
@@ -2896,7 +2951,7 @@ begin
       if not Result then
         begin
           aTableName:=TableName;
-          if (not Assigned(Data)) or (Data.ShouldCheckTable(aTableName,False)) then
+          if (not Assigned(Data)) or (Data.ShouldCheckTable(aTableName,True)) then
             begin
               with DataSet as IBaseDbFilter do
                 begin
@@ -2910,10 +2965,6 @@ begin
                   Limit := 1;
                 end;
               FDataSet.Open;
-              if CheckTable then
-                if not AlterTable then
-                  //debugln('Altering Table "'+TableName+'" failed !')
-                  ;
               with DataSet as IBaseDbFilter do
                 begin
                   Limit := aOldLimit;
@@ -2960,11 +3011,20 @@ begin
                 if Assigned(ManagedFieldDefs) then
                   with ManagedFieldDefs do
                     begin
-                      if UserFields.FieldByName('TYPE').AsString = 'STRING' then
-                        Add('U'+UserFields.FieldByName('TFIELD').AsString,ftString,UserFields.FieldByName('SIZE').AsInteger)
-                      else if UserFields.FieldByName('TYPE').AsString = 'DATETIME' then
-                        Add('U'+UserFields.FieldByName('TFIELD').AsString,ftDateTime,0)
-                      ;
+                      if ManagedFieldDefs.IndexOf('U'+UserFields.FieldByName('TFIELD').AsString)=-1 then
+                        begin
+                          if UserFields.FieldByName('TYPE').AsString = 'STRING' then
+                            Add('U'+UserFields.FieldByName('TFIELD').AsString,ftString,UserFields.FieldByName('SIZE').AsInteger)
+                          else if UserFields.FieldByName('TYPE').AsString = 'DATETIME' then
+                            Add('U'+UserFields.FieldByName('TFIELD').AsString,ftDateTime,0)
+                          else if UserFields.FieldByName('TYPE').AsString = 'FLOAT' then
+                            Add('U'+UserFields.FieldByName('TFIELD').AsString,ftFloat,0)
+                          else if UserFields.FieldByName('TYPE').AsString = 'TEXT' then
+                            Add('U'+UserFields.FieldByName('TFIELD').AsString,ftMemo,0)
+                          else if UserFields.FieldByName('TYPE').AsString = 'INTEGER' then
+                            Add('U'+UserFields.FieldByName('TFIELD').AsString,ftInteger,0)
+                          ;
+                        end;
                     end;
               UserFields.DataSet.Next;
             end;
@@ -3177,6 +3237,7 @@ end;
 procedure TBaseDBDataset.Change;
 begin
   if FDoChange > 0 then exit;
+  if fChanged then exit;
   FChanged := True;
   if Owner is TBaseDBDataSet then TBaseDBDataSet(Owner).Change;
   if Assigned(FOnChanged) then

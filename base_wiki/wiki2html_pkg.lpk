@@ -20,13 +20,8 @@
         <Optimizations>
           <OptimizationLevel Value="3"/>
         </Optimizations>
+        <SmallerCode Value="True"/>
       </CodeGeneration>
-      <Other>
-        <CompilerMessages>
-          <UseMsgFile Value="True"/>
-        </CompilerMessages>
-        <CompilerPath Value="$(CompPath)"/>
-      </Other>
     </CompilerOptions>
     <Files Count="2">
       <Item1>
@@ -38,7 +33,6 @@
         <UnitName Value="htmltowiki"/>
       </Item2>
     </Files>
-    <Type Value="RunAndDesignTime"/>
     <RequiredPkgs Count="1">
       <Item1>
         <PackageName Value="general_nogui"/>

@@ -28,7 +28,7 @@ uses
   {uAppconsts, }uBaseDBInterface, PropertyStorage, ClipBrd, LCLType,
   uBaseVisualControls, uData, UTF8Process, Controls, Process, ProcessUtils,
   uSystemMessage, uProcessManager, uExtControls, db, typinfo, eventlog,menus,
-  Dialogs,uIntfStrConsts,DBZVDateTimePicker,ubaseconfig
+  Dialogs,uIntfStrConsts,DBZVDateTimePicker,ubaseconfig,ActnList,ComCtrls,contnrs
   {$IFDEF LCLCARBON}
   ,MacOSAll,CarbonProc
   {$ENDIF}
@@ -44,6 +44,9 @@ type
     procedure DataDataConnect(Sender: TObject);
     procedure DataDataConnectionLost(Sender: TObject);
     procedure DataDataDisconnectKeepAlive(Sender: TObject);
+
+      procedure IBaseApplicationIBaseConfigIBaseApplicationIBaseDBInterfaceDataUsersDataSetBeforeScroll
+      (DataSet: TDataSet);
     procedure LanguageItemClick(Sender: TObject);
     procedure MessageHandlerExit(Sender: TObject);
     procedure ReaderReferenceName(Reader: TReader; var aName: string);
@@ -81,6 +84,9 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+
+    function RegisterForm(aForm : TFrameClass) : Boolean;
+
     procedure ShowException(E: Exception);override;
     procedure HandleException(Sender: TObject); override;
     procedure Initialize; override;
@@ -127,11 +133,28 @@ type
     property MessageHandler : TMessageHandler read FMessageHandler;
     property OnUserTabAdded : TNotifyEvent read FOnUserTabAdded write FOnUserTabAdded;
   end;
+  TTreeAddCallback = procedure(NewNode : TTreeNode) of object;
+
+  { TVisualApplicationObjectType }
+
+  TVisualApplicationObjectType = class
+  private
+    FAddToTree: TTreeAddCallback;
+    FNewAction: TAction;
+    FListAction: TAction;
+  public
+    constructor Create(aNewAction,aListAction : TAction);
+    property OnAddToTree : TTreeAddCallback read FAddToTree write FAddToTree;
+  end;
+
 var
+  ObjectTypes : TList;
+  MainFrames : TClassList;
   PrometheusClipboardFormat : TClipboardFormat;
   LinkClipboardFormat : TClipboardFormat;
+
 implementation
-uses uPassword,uMashineID,uError,ComCtrls,StdCtrls,ExtCtrls,
+uses uPassword,uMashineID,uError,StdCtrls,ExtCtrls,
   DBCtrls, LMessages, LCLIntf,LazLogger,Buttons,uLanguageUtils,dbugintf;
 resourcestring
   strWrongPasswort            = 'Falsches Passwort !';
@@ -140,6 +163,18 @@ resourcestring
   strGiveOldPasswort          = 'Geben Sie ihr aktuelles Passwort ein';
   strDisconnected             = 'Die Verbindung zur Datenbank ist nicht mehr verfügbar. Bitte stellen Sie die Verbindung wieder her. Das Programm wird automatisch erkennen das die Verbindung wieder verfügbar ist.';
   strNewTab                   = 'Neues Tab';
+
+{ TVisualApplicationObjectType }
+
+constructor TVisualApplicationObjectType.Create(aNewAction, aListAction: TAction
+  );
+begin
+  FNewAction := aNewAction;
+  FListAction := aListAction;
+  if not Assigned(ObjectTypes) then
+    ObjectTypes := TList.Create;
+  ObjectTypes.Add(Self);
+end;
 
 function TBaseVisualApplication.HandleSystemCommand(Sender: TObject;
   aCommand: string): Boolean;
@@ -202,6 +237,7 @@ var
   err: String;
 begin
   if e.Message='Invalid variant type cast' then exit;
+  Error(e.Message);
   fError := TfError.Create(Self);
   fError.SetLanguage;
 //  if E is EDatabaseError then
@@ -253,6 +289,11 @@ begin
   Application.ProcessMessages;
 end;
 
+procedure TBaseVisualApplication.IBaseApplicationIBaseConfigIBaseApplicationIBaseDBInterfaceDataUsersDataSetBeforeScroll
+  (DataSet: TDataSet);
+begin
+end;
+
 procedure TBaseVisualApplication.LanguageItemClick(Sender: TObject);
 var
   i: Integer;
@@ -279,7 +320,7 @@ var
   currentLocale: CFLocaleRef;
   dateFormatter: CFDateFormatterRef;
   formattedString: CFStringRef;
-begin exit;
+begin
   currentLocale := CFLocaleCopyCurrent();
 
   dateFormatter := CFDateFormatterCreate(nil, currentLocale, kCFDateFormatterLongStyle, kCFDateFormatterNoStyle);
@@ -287,28 +328,24 @@ begin exit;
   LongDateFormat := CFStringToStr(formattedString);
   if Assigned(dateFormatter) then
     CFRelease(Pointer(dateFormatter));
-  FreeCFString(formattedString);
 
   dateFormatter := CFDateFormatterCreate(nil, currentLocale, kCFDateFormatterShortStyle, kCFDateFormatterNoStyle);
   formattedString := CFDateFormatterGetFormat(dateFormatter);
   ShortDateFormat := CFStringToStr(formattedString);
   if Assigned(dateFormatter) then
     CFRelease(Pointer(dateFormatter));
-  FreeCFString(formattedString);
 
   dateFormatter := CFDateFormatterCreate(nil, currentLocale,kCFDateFormatterNoStyle, kCFDateFormatterShortStyle);
   formattedString := CFDateFormatterGetFormat(dateFormatter);
   ShortTimeFormat := CFStringToStr(formattedString);
   if Assigned(dateFormatter) then
     CFRelease(Pointer(dateFormatter));
-  FreeCFString(formattedString);
 
   dateFormatter := CFDateFormatterCreate(nil, currentLocale,kCFDateFormatterNoStyle, kCFDateFormatterShortStyle);
   formattedString := CFDateFormatterGetFormat(dateFormatter);
   LongTimeFormat := CFStringToStr(formattedString);
   if Assigned(dateFormatter) then
     CFRelease(Pointer(dateFormatter));
-  FreeCFString(formattedString);
 
   CFRelease(Pointer(currentLocale));
 end;
@@ -326,13 +363,15 @@ begin
   if HasOption('l','logfile') then
     begin
       FLogger.FileName := GetOptionValue('l','logfile');
+      FLogger.Active:=True;
     end
   else
     begin
       FLogger.LogType:=ltSystem;
     end;
+  if HasOption('system-log') then
+    FLogger.Active:=True;
   LazLogger.GetDebugLogger.OnDebugLn:=@BaseVisualApplicationDebugLn;
-  FLogger.Active:=True;
   {.$Warnings Off}
   FDBInterface := TBaseDBInterface.Create;
   FDBInterface.SetOwner(Self);
@@ -358,6 +397,12 @@ begin
   Properties.Free;
   inherited Destroy;
 end;
+
+function TBaseVisualApplication.RegisterForm(aForm: TFrameClass): Boolean;
+begin
+  MainFrames.Add(aForm);
+end;
+
 procedure TBaseVisualApplication.ShowException(E: Exception);
 begin
 end;
@@ -632,9 +677,8 @@ begin
 end;
 procedure TBaseVisualApplication.Log(aType: string; aMsg: string);
 begin
-  //debugln(aType+':'+aMsg);
   try
-  if Assigned(FLogger) then
+  if Assigned(FLogger) and FLogger.Active then
     begin
       if aType = 'INFO' then
         FLogger.Info(aMsg)
@@ -664,6 +708,8 @@ end;
 procedure TBaseVisualApplication.Warning(aMsg: string);
 begin
   try
+    if HasOption('debug') then
+      debugln('DEBUG:'+aMsg);
     Log('WARNING',aMsg);
     SendDebugEx(aMsg,dlWarning);
   except
@@ -672,6 +718,8 @@ end;
 procedure TBaseVisualApplication.Error(aMsg: string);
 begin
   try
+    if HasOption('debug') then
+      debugln('DEBUG:'+aMsg);
     Log('ERROR',aMsg);
     SendDebugEx(aMsg,dlError);
   except
@@ -682,6 +730,8 @@ begin
   if HasOption('debug') then
     debugln('DEBUG:'+aMsg);
   SendDebug('DEBUG:'+aMsg);
+  if GetDebuggingEnabled then
+    sleep(10);
 end;
 function TBaseVisualApplication.GetLog: TEventLog;
 begin
@@ -847,6 +897,7 @@ begin
               aParent := TWinControl(Sender);
               FProps := TStringList.Create;
               FFields := TStringList.Create;
+              TFrame(Sender).Visible:=False;
               while (not (aParent is TExtControlFrame)) and Assigned(aParent) do
                 aParent := aParent.Parent;
               try
@@ -857,7 +908,7 @@ begin
                       begin
                         Randomize;
                         aComponent := Reader.Root.Components[i];
-                        aComponent.Name:=aComponent.Name+IntToStr(random(5000));
+                        aComponent.Name:=aComponent.Name+IntToStr(System.Random(5000));
                         if (aComponent is TDBEdit) and (FProps.Count > 0) and (FFields.Count > 0) then
                           begin
                             aDST := FProps[0];
@@ -915,6 +966,11 @@ begin
                             FProps.Delete(0);
                             FFields.Delete(0);
                           end
+                        else if (aComponent is TLabel) then
+                          begin
+                            //TWinControl(aComponent).Parent := tFrame(Sender);
+                            //TLabel(aComponent).BringToFront;
+                          end
                         ;
                       end;
                   end;
@@ -938,6 +994,8 @@ var
   rMandant: String;
   rUser: String;
   rAutoLogin: String;
+  aRec: LargeInt;
+  i: Integer;
   function IsAutoLogin : Boolean;
   begin
     result := (rMandant='Standard') and (rUser='Administrator') and ((rAutoLogin='0') or (rAutoLogin=''));
@@ -1019,6 +1077,8 @@ begin
                     Result := False;
                     exit;
                   end;
+                Debug('User: '+Data.Users.Id.AsString);
+                aRec := Data.Users.GetBookmark;
                 with Self as IBaseDBInterface do
                   if not DBLogin(Config.ReadString('LOGINMANDANT',''),Config.ReadString('LOGINUSER',''),True,True) then
                     begin
@@ -1027,6 +1087,9 @@ begin
                       Result := False;
                       exit;
                     end;
+                Data.Users.GotoBookmark(arec);
+                data.Users.DataSet.BeforeScroll:=@IBaseApplicationIBaseConfigIBaseApplicationIBaseDBInterfaceDataUsersDataSetBeforeScroll;
+                Debug('Logged in with User '+Data.Users.Id.AsString);
                 Data.DeleteExpiredSessions;
                 uData.Data := Data;
                 StartProcessManager;
@@ -1058,6 +1121,9 @@ begin
       udata.Data.OnConnectionLost:=@DataDataConnectionLost;
       udata.Data.OnDisconnectKeepAlive:=@DataDataDisconnectKeepAlive;
       udata.Data.OnConnect:=@DataDataConnect;
+      for i := 0 to MainFrames.Count-1 do
+        begin
+        end;
     end;
   if not Result then uData.Data := nil;
 end;
@@ -1114,11 +1180,15 @@ end;
 initialization
   PrometheusClipboardFormat := RegisterClipboardFormat('PrometERP XML');
   LinkClipboardFormat := RegisterClipboardFormat('PrometERP Link');
+  MainFrames := TClassList.Create;
+  ObjectTypes := nil;
   RegisterClass(TSpeedButton);
   RegisterClass(TLabel);
   RegisterClass(TDBEdit);
   RegisterClass(TDBMemo);
   RegisterClass(TDBComboBox);
   RegisterClass(TPanel);
+finalization
+  MainFrames.Free;
 end.
 

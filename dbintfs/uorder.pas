@@ -22,7 +22,8 @@ unit uOrder;
 interface
 uses
   Classes, SysUtils, uBaseDbClasses, db, uBaseApplication,
-  uBaseERPDBClasses, uMasterdata, uPerson, Variants, uAccounting;
+  uBaseERPDBClasses, uMasterdata, uPerson, Variants, uAccounting
+  ,uBaseDatasetInterfaces;
 type
   TOrderTyp = class(TBaseDBDataSet)
   public
@@ -82,9 +83,6 @@ type
   public
     procedure FillDefaults(aDataSet : TDataSet);override;
   end;
-
-  { TOrderRepairImages }
-
   TOrderRepairImages = class(TBaseDbDataSet)
     procedure DefineFields(aDataSet : TDataSet);override;
     procedure FDSDataChange(Sender: TObject; Field: TField);
@@ -129,11 +127,12 @@ type
     function Round(aValue: Extended): Extended; override;
     function RoundPos(aValue : Extended) : Extended;override;
     function GetCurrency : string;override;
-    function GetOrderTyp : Integer;
+    function GetOrderTyp : Integer;override;
   public
     constructor CreateEx(aOwner : TComponent;DM : TComponent=nil;aConnection : TComponent = nil;aMasterdata : TDataSet = nil);override;
     destructor Destroy;override;
     function CreateTable : Boolean;override;
+    procedure Open; override;
     procedure Assign(aSource : TPersistent);override;
     procedure DefineFields(aDataSet : TDataSet);override;
     procedure FillDefaults(aDataSet : TDataSet);override;
@@ -323,12 +322,14 @@ begin
       if Assigned(ManagedFieldDefs) then
         with ManagedFieldDefs do
           begin
+            Add('ID',ftInteger,0,False);
             Add('OPERATION',ftString,20,False);
             Add('ERRDESC',ftMemo,0,False);
             Add('NOTES',ftMemo,0,False);
             Add('INTNOTES',ftMemo,0,False);
             Add('WARRENTY',ftString,1,True);
             Add('ERRIMAGE',ftLargeint,0,False);
+            Add('IMAGENAME',ftString,100,False);
           end;
     end;
 end;
@@ -337,6 +338,7 @@ begin
   with aDataSet,BaseApplication as IBaseDbInterface do
     begin
       FieldByName('WARRENTY').AsString := 'U';
+      FieldByName('ID').AsInteger:=Self.Count+1;
     end;
   inherited FillDefaults(aDataSet);
 end;
@@ -778,7 +780,9 @@ var
   aGrossPos: Double = 0;
   aVatH : Double = 0;
   aVatV : Double = 0;
+  Vat: TVat;
 begin
+  Vat := TVat.Create(nil);
   Positions.Open;
   Positions.First;
   while not Positions.EOF do
@@ -794,10 +798,10 @@ begin
           aGrossPos += Positions.FieldByName('GROSSPRICE').AsFloat;
           with BaseApplication as IBaseDbInterface do
             begin
-              if not Data.Vat.DataSet.Active then
-                Data.Vat.Open;
-              Data.Vat.DataSet.Locate('ID',VarArrayof([Positions.FieldByName('VAT').AsString]),[]);
-              if Data.Vat.FieldByName('ID').AsInteger=1 then
+              if not Vat.DataSet.Active then
+                Vat.Open;
+              Vat.DataSet.Locate('ID',VarArrayof([Positions.FieldByName('VAT').AsString]),[]);
+              if Vat.FieldByName('ID').AsInteger=1 then
                 aVatV += Positions.FieldByName('GROSSPRICE').AsFloat-Positions.FieldByName('POSPRICE').AsFloat
               else
                 aVatH += Positions.FieldByName('GROSSPRICE').AsFloat-Positions.FieldByName('POSPRICE').AsFloat;
@@ -818,6 +822,7 @@ begin
   FieldByName('NETPRICE').AsFloat:=Round(aPos);
   FieldByName('GROSSPRICE').AsFloat:=Round(aGrossPos);
   if CanEdit then DataSet.Post;
+  Vat.Free;
 end;
 
 function TOrder.DoPost: TPostResult;
@@ -906,7 +911,6 @@ begin
         aNumbers := TNumberSets.CreateEx(Owner,Data,Connection);
         with aNumbers.DataSet as IBaseDBFilter do
           Filter := Data.QuoteField('TABLENAME')+'='+Data.QuoteValue(OrderType.FieldByName('NUMBERSET').AsString);
-        OpenItem(False);
         aNumbers.Open;
         if Result <> pralreadyPosted then
           begin
@@ -916,6 +920,7 @@ begin
         if DataSet.FieldByName('ODATE').IsNull then
           DataSet.FieldByName('ODATE').AsDateTime := Now();
         DataSet.Post;
+        OpenItem(False);
         //Alle Positionen durchgehen
         Positions.DataSet.First;
         while not Positions.DataSet.EOF do
@@ -1207,7 +1212,9 @@ var
   aProcess: TProcess;
   CommaCount: Integer;
   tmp: String;
+  Dispatchtypes: TDispatchTypes;
 begin
+  Dispatchtypes := TDispatchTypes.Create(nil);
   if not OrderType.DataSet.Locate('STATUS', DataSet.FieldByName('STATUS').AsString, [loCaseInsensitive]) then
     raise Exception.Create(strStatusnotfound);
   OrderTyp := StrToIntDef(trim(copy(OrderType.FieldByName('TYPE').AsString, 0, 2)), 0);
@@ -1216,8 +1223,8 @@ begin
   or  (OrderTyp = 3)) //Rechnung
   then
     begin
-      Data.SetFilter(Data.Dispatchtypes,Data.QuoteField('ID')+'='+Data.QuoteValue(trim(copy(DataSet.FieldByName('SHIPPING').AsString,0,3))));
-      if not Data.Locate(Data.Dispatchtypes,'ID',copy(DataSet.FieldByName('SHIPPING').AsString,0,3),[loPartialKey]) then
+      Data.SetFilter(Dispatchtypes,Data.QuoteField('ID')+'='+Data.QuoteValue(trim(copy(DataSet.FieldByName('SHIPPING').AsString,0,3))));
+      if not Data.Locate(Dispatchtypes,'ID',copy(DataSet.FieldByName('SHIPPING').AsString,0,3),[loPartialKey]) then
         begin
           raise Exception.Create(strDispatchTypenotfound);
           exit;
@@ -1232,12 +1239,12 @@ begin
       aProcess.ShowWindow := swoHide;
       aProcess.Options:= [poNoConsole,poWaitOnExit];
       aProcess.CommandLine := '"'+ExtractFileDir(ParamStr(0))+DirectorySeparator+'plugins'+DirectorySeparator;
-      if pos(' ',Data.Dispatchtypes.FieldByName('OUTPUTDRV').AsString) > 0 then
+      if pos(' ',Dispatchtypes.FieldByName('OUTPUTDRV').AsString) > 0 then
         begin
-          aProcess.CommandLine := aProcess.Commandline+copy(Data.Dispatchtypes.FieldByName('OUTPUTDRV').AsString,0,pos(' ',Data.Dispatchtypes.FieldByName('OUTPUTDRV').AsString)-1)+ExtractFileExt(Paramstr(0))+'"';
-          aProcess.Commandline := aProcess.Commandline+copy(Data.Dispatchtypes.FieldByName('OUTPUTDRV').AsString,pos(' ',Data.Dispatchtypes.FieldByName('OUTPUTDRV').AsString)+1,length(Data.Dispatchtypes.FieldByName('OUTPUTDRV').AsString));
+          aProcess.CommandLine := aProcess.Commandline+copy(Dispatchtypes.FieldByName('OUTPUTDRV').AsString,0,pos(' ',Dispatchtypes.FieldByName('OUTPUTDRV').AsString)-1)+ExtractFileExt(Paramstr(0))+'"';
+          aProcess.Commandline := aProcess.Commandline+copy(Dispatchtypes.FieldByName('OUTPUTDRV').AsString,pos(' ',Dispatchtypes.FieldByName('OUTPUTDRV').AsString)+1,length(Dispatchtypes.FieldByName('OUTPUTDRV').AsString));
         end
-      else aProcess.CommandLine := aProcess.Commandline+Data.Dispatchtypes.FieldByName('OUTPUTDRV').AsString+ExtractFileExt(Paramstr(0))+'"';
+      else aProcess.CommandLine := aProcess.Commandline+Dispatchtypes.FieldByName('OUTPUTDRV').AsString+ExtractFileExt(Paramstr(0))+'"';
       CommaCount := 0;
       Address.Open;
       with Address.DataSet do
@@ -1255,6 +1262,7 @@ begin
       aProcess.Execute;
       aProcess.Free;
     end;
+  Dispatchtypes.Free;
 end;
 function TOrder.PostArticle(aTyp, aID, aVersion, aLanguage: variant;
   Quantity: real; QuantityUnit, PosNo: string; var aStorage: string;
@@ -1552,6 +1560,12 @@ begin
   FOrderRepair.CreateTable;
   FQMTest.CreateTable;
 end;
+
+procedure TOrderPos.Open;
+begin
+  inherited Open;
+end;
+
 procedure TOrderPos.Assign(aSource: TPersistent);
 var
   aMasterdata: TMasterdata;
@@ -1594,7 +1608,8 @@ begin
   with aDataSet as IBaseManageDB do
     begin
       TableName := 'ORDERPOS';
-      DefineUserFields(aDataSet);
+      if Data.ShouldCheckTable(TableName) then
+        DefineUserFields(aDataSet);
     end;
 end;
 procedure TOrderPos.FillDefaults(aDataSet: TDataSet);
@@ -1744,7 +1759,7 @@ begin
                 aObj.Status.AsString := Self.Status.AsString;
               aObj.Number.AsVariant:=Self.Number.AsVariant;
               aObj.FieldByName('LINK').AsString:=Data.BuildLink(Self.DataSet);
-              aObj.FieldByName('ICON').AsInteger:=Data.GetLinkIcon(Data.BuildLink(Self.DataSet));
+              aObj.FieldByName('ICON').AsInteger:=Data.GetLinkIcon(Data.BuildLink(Self.DataSet),True);
               aObj.Post;
               Self.GenerateThumbnail;
             end
@@ -1841,7 +1856,8 @@ begin
             Add('CUSTNO','CUSTNO',[]);
             Add('CUSTNAME','CUSTNAME',[]);
           end;
-      DefineUserFields(aDataSet);
+      if Data.ShouldCheckTable(TableName) then
+        DefineUserFields(aDataSet);
     end;
 end;
 

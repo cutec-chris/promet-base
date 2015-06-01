@@ -8,14 +8,9 @@ interface
 
 uses
   uHistoryFrame, uFilterFrame, uhistoryadditem, uListFrame, uclipp, 
-  uLinkFrame, uImageFrame, uMainTreeFrame, uPrometFrames, LazarusPackageIntf;
+  uLinkFrame, uImageFrame, uMainTreeFrame, uPrometFrames, umeasurements, 
+  uMeasurementOptions;
 
 implementation
 
-procedure Register;
-begin
-end;
-
-initialization
-  RegisterPackage('pvisualframes', @Register);
 end.

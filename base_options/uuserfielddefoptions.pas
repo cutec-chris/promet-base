@@ -32,6 +32,8 @@ type
     gUserfields: TDBGrid;
     lOnlyOnNextStart: TLabel;
     UserfielddefsDS: TDatasource;
+    procedure UserfielddefsDSDataChange(Sender: TObject; Field: TField);
+    procedure UserfielddefsDSUpdateData(Sender: TObject);
   private
     { private declarations }
     aConnection: TComponent;
@@ -49,6 +51,26 @@ implementation
 
 {$R *.lfm}
 uses uData;
+
+procedure TfUserFieldOptions.UserfielddefsDSDataChange(Sender: TObject;
+  Field: TField);
+begin
+end;
+
+procedure TfUserFieldOptions.UserfielddefsDSUpdateData(Sender: TObject);
+var
+  aTable: String;
+begin
+  aTable := UserfielddefsDS.DataSet.FieldByName('TTABLE').AsString;
+  Data.TableVersions.DataSet.Filter:=Data.QuoteField('NAME')+'='+Data.QuoteValue(aTable);
+  Data.TableVersions.DataSet.Filtered:=True;
+  while not Data.TableVersions.EOF do
+    Data.TableVersions.DataSet.Delete;
+  Data.TableVersions.DataSet.Filtered:=false;
+  while Data.CheckedTables.IndexOf(aTable)>-1 do
+    Data.CheckedTables.Delete(Data.CheckedTables.IndexOf(aTable));
+end;
+
 constructor TfUserFieldOptions.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);

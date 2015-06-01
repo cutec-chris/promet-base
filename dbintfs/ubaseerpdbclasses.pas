@@ -21,7 +21,7 @@ unit uBaseERPDBClasses;
 {$mode objfpc}{$H+}
 interface
 uses
-  Classes, SysUtils, uBaseDbClasses, db, ContNrs, uIntfStrConsts;
+  Classes, SysUtils, uBaseDbClasses, db, ContNrs, uIntfStrConsts,uBaseDatasetInterfaces;
 type
   TPostResult = (prSuccess,prAlreadyPosted,prFailed);
   IPostableDataSet = interface['{26EC4496-0D5A-4BFC-A712-C9001F5A0599}']
@@ -65,6 +65,9 @@ type
     procedure DefineFields(aDataSet : TDataSet);override;
     function Get(aSymbol : string) : Integer;
   end;
+  TVat = class(TBaseDBDataSet)
+    procedure DefineFields(aDataSet : TDataSet);override;
+  end;
   TBaseDBPosition = class;
   TPositionCalc = class(TbaseDBDataSet)
   private
@@ -92,10 +95,11 @@ type
     OldGrossPrice : real;
     OldPosWeight : real;
     FOldPosNo: Integer;
+    FVat: TVat;
+    PriceTypes : TPriceTypes;
     function GetIdent: TField;
     function GetPosNo: TField;
     function GetPosTyp: TPositionTyp;
-    function GetOrderTyp : Integer;virtual;
     procedure DoCalcPosPrice(Setprice : Boolean = False);
     procedure DoCalcGrossPosPrice;
     function GetShorttext: TField;
@@ -110,6 +114,7 @@ type
     function IsProductionOrder : Boolean;virtual;
     function GetCurrency : string;virtual;abstract;
     function GetPosTypDec : Integer;
+    function GetOrderTyp : Integer;virtual;
     procedure DoModifyPosPrice;virtual;
     procedure DoDataChange(Sender: TObject; Field: TField);virtual;
     procedure DoBeforeDelete;virtual;
@@ -128,6 +133,7 @@ type
     property PosTyp : TPositionTyp read GetPosTyp;
     property PosTypDec : Integer read GetPosTypDec;
     property PosCalc : TPositionCalc read FPosCalc;
+    property Vat : TVat read FVat;
     property Ident : TField read GetIdent;
     property PosFormat : string read FPosFormat write FPosFormat;
     property CanHandleRTF : Boolean read FUseRTF write FUseRTF;
@@ -153,14 +159,13 @@ type
   TLanguages = class(TBaseDbDataSet)
     procedure DefineFields(aDataSet : TDataSet);override;
   end;
-  TVat = class(TBaseDBDataSet)
-    procedure DefineFields(aDataSet : TDataSet);override;
-  end;
   TStates = class(TBaseDBDataSet)
     procedure DefineFields(aDataSet : TDataSet);override;
   end;
   TCategory = class(TBaseDBDataSet)
     procedure DefineFields(aDataSet : TDataSet);override;
+    constructor CreateEx(aOwner: TComponent; DM: TComponent; aConnection: TComponent
+  =nil; aMasterdata: TDataSet=nil); override;
   end;
   TFinancialAccounts = class(TBaseDBDataSet)
     procedure DefineFields(aDataSet : TDataSet);override;
@@ -195,6 +200,14 @@ type
     property Positions : TInventoryPos read FPos;
   end;
   function InternalRound(Value: Extended;nk : Integer = 4): Extended;
+//Often used and not often changed global Tables
+var
+  TextTyp : TTextTypes;
+  Vat : TVat;
+  Units : TUnits;
+  DispatchTypes : TDispatchTypes;
+  PriceTypes : TPriceTypes;
+  RepairProblems : TRepairProblems;
 implementation
 uses uBaseDBInterface,uMasterdata, uBaseApplication,Math,Variants,uRTFtoTXT,
   uDocuments,usync;
@@ -242,6 +255,19 @@ begin
             Add('COLOR',ftString,30,False);
             Add('ACTIVE',ftString,1,false);
           end;
+    end;
+end;
+
+constructor TCategory.CreateEx(aOwner: TComponent; DM: TComponent;
+  aConnection: TComponent; aMasterdata: TDataSet);
+begin
+  inherited;
+  with BaseApplication as IBaseDbInterface do
+    begin
+      with DataSet as IBaseDBFilter do
+        begin
+          Limit := 0;
+        end;
     end;
 end;
 
@@ -317,6 +343,7 @@ procedure TBaseERPList.CascadicPost;
 var
   Hist : IBaseHistory;
   sType: String;
+  i: Integer;
 begin
   if CanEdit and UpdateHistory and Supports(Self, IBaseHistory, Hist) then
     begin
@@ -334,6 +361,12 @@ begin
         sType := strEdited;
       if not Hist.History.ChangedDuringSession then
         begin
+          sType:=sType+' (';
+          for i := 0 to DataSet.Fields.Count-1 do
+            if DataSet.Fields[i].OldValue<>DataSet.Fields[i].NewValue then
+              sType := sType+','+DataSet.Fields[i].FieldName;
+          sType:=Stringreplace(sType,'(,','(',[rfReplaceAll])+')';
+          sType:=Stringreplace(sType,'()','',[rfReplaceAll]);
           Hist.History.AddItem(Self.DataSet,sType);
         end;
       Hist.History.ChangedDuringSession := False;
@@ -398,7 +431,7 @@ begin
           aSync:= TSyncItems.CreateEx(nil,DataModule);
           aSync.SelectByReference(aObject.Id.AsVariant);
           aSync.Open;
-          while not aDoc.EOF do
+          while not aSync.EOF do
             begin
               aSync.Edit;
               aSync.FieldByName('LOCAL_ID').AsVariant:=Self.Id.AsVariant;
@@ -804,10 +837,10 @@ begin
       begin
         with BaseApplication as IBaseDbInterface do
           begin
-            if not Data.Vat.DataSet.Active then
-              Data.Vat.Open;
-            Data.Vat.DataSet.Locate('ID',VarArrayof([DataSet.FieldByName('VAT').AsString]),[]);
-            DataSet.FieldByName('GROSSPRICE').AsFloat := RoundPos(DataSet.FieldByName('POSPRICE').AsFloat*(1+(Data.Vat.FieldByName('VALUE').AsFloat/100)));
+            if not Vat.DataSet.Active then
+              Vat.Open;
+            Vat.DataSet.Locate('ID',VarArrayof([DataSet.FieldByName('VAT').AsString]),[]);
+            DataSet.FieldByName('GROSSPRICE').AsFloat := RoundPos(DataSet.FieldByName('POSPRICE').AsFloat*(1+(Vat.FieldByName('VALUE').AsFloat/100)));
           end;
       end;
   finally
@@ -863,22 +896,22 @@ begin
     PosCalc.Open;
     with BaseApplication as IBaseDbInterface do
       begin
-        Data.PriceTypes.Open;
+        PriceTypes.Open;
         if Assigned(PosCalc) then
           begin
             PosCalc.DataSet.First;
             while not PosCalc.DataSet.EOF do
               begin
                 //Allgemeinpreis mengenunabhängig
-                if Data.PriceTypes.Get(PosCalc.FieldByName('TYPE').AsString) = 6 then
+                if PriceTypes.Get(PosCalc.FieldByName('TYPE').AsString) = 6 then
                   APrice := APrice+PosCalc.FieldByName('PRICE').AsFloat
                 //Allgemeinpreis mengenabhängig
-                else if  (Data.PriceTypes.Get(PosCalc.FieldByName('TYPE').AsString) = 5)
+                else if  (PriceTypes.Get(PosCalc.FieldByName('TYPE').AsString) = 5)
                      and (DataSet.FieldByName('QUANTITY').AsFloat >= PosCalc.FieldByName('MINCOUNT').AsFloat)
                      and (DataSet.FieldByName('QUANTITY').AsFloat <= PosCalc.FieldByName('MAXCOUNT').AsFloat) then
                   AMPrice := AMPrice+PosCalc.FieldByName('PRICE').AsFloat
                 //Verkaufspreis
-                else if (Data.PriceTypes.Get(PosCalc.FieldByName('TYPE').AsString) = 4) then
+                else if (PriceTypes.Get(PosCalc.FieldByName('TYPE').AsString) = 4) then
                   begin
                     if  (PosCalc.FieldByName('CUSTOMER').AsString = GetAccountNo)
                     and (not PosCalc.FieldByName('MINCOUNT').IsNULL)
@@ -962,8 +995,8 @@ begin
                   PosCalc.DataSet.Append
                 else if not PosCalc.CanEdit then
                   PosCalc.DataSet.Edit;
-                Data.PriceTypes.DataSet.Locate('TYPE',4,[]);
-                PosCalc.FieldByName('TYPE').AsString := Data.Pricetypes.FieldByName('SYMBOL').AsString;
+                PriceTypes.DataSet.Locate('TYPE',4,[]);
+                PosCalc.FieldByName('TYPE').AsString := Pricetypes.FieldByName('SYMBOL').AsString;
                 PosCalc.FieldByName('PRICE').AsFloat := DataSet.FieldByName('SELLPRICE').AsFloat;
               end;
           end;
@@ -992,10 +1025,10 @@ begin
       begin
         with BaseApplication as IBaseDbInterface do
           begin
-            if not Data.Vat.DataSet.Active then
-              Data.Vat.Open;
-            Data.Vat.DataSet.Locate('ID',VarArrayof([DataSet.FieldByName('VAT').AsString]),[]);
-            tmp := DataSet.FieldByName('GROSSPRICE').AsFloat/(1+(Data.Vat.FieldByName('VALUE').AsFloat/100));
+            if not Vat.DataSet.Active then
+              Vat.Open;
+            Vat.DataSet.Locate('ID',VarArrayof([DataSet.FieldByName('VAT').AsString]),[]);
+            tmp := DataSet.FieldByName('GROSSPRICE').AsFloat/(1+(Vat.FieldByName('VALUE').AsFloat/100));
           end;
       end;
     if (GetPosTypDec = 1)
@@ -1087,9 +1120,13 @@ begin
   DataSet.AfterDelete:=@DataSetAfterDelete;
   DataSet.AfterCancel:=@DataSetAfterCancel;
   DataSet.BeforeCancel:=@DataSetBeforeCancel;
+  FVat := TVat.CreateEx(Self,DataModule,Connection);
+  PriceTypes := TPriceTypes.CreateEx(Self,DataModule,Connection);
 end;
 destructor TBaseDBPosition.Destroy;
 begin
+  PriceTypes.Destroy;
+  Vat.Destroy;
   FPosCalc.Destroy;
   FPosTyp.Destroy;
   FIntDataSource.Destroy;
@@ -1188,8 +1225,9 @@ var
   aMasterdata : TMasterdata;
   aQuantity: Double;
   bMasterdata: TMasterdata;
+  tParent : Variant;
 
-  procedure InsertData(Masterdata : TMasterdata;Quantity : float;Active : string = 'Y');
+  procedure InsertData(Masterdata : TMasterdata;Quantity : float;aParent : Variant;Active : string = 'Y');
   begin
     DisableCalculation;
     if (DataSet.State <> dsInsert) and (DataSet.State <> dsEdit) then
@@ -1200,6 +1238,7 @@ var
     DataSet.FieldByName('LANGUAGE').AsVariant := MasterData.FieldByName('LANGUAGE').AsVariant;
     DataSet.FieldByName('SHORTTEXT').AsString := MasterData.FieldByName('SHORTTEXT').AsString;
     DataSet.FieldByName('MANUFACNR').AsString := MasterData.FieldByName('MANUFACNR').AsString;
+    DataSet.FieldByName('PARENT').AsVariant := aParent;
     DataSet.FieldByName('QUANTITY').AsFloat := Quantity;
     DataSet.FieldByName('WEIGHT').AsFloat := MasterData.FieldByName('WEIGHT').AsFloat;
     DataSet.FieldByName('QUANTITYU').AsString := MasterData.FieldByName('QUANTITYU').AsString;
@@ -1260,9 +1299,10 @@ begin
       except
         aQuantity := 1;
       end;
-      InsertData(aMasterdata,aQuantity);
-      if (((aMasterdata.FieldByName('TYPE').AsString = 'P') and (aMasterdata.FieldByName('PTYPE').AsString = 'P') and (GetOrderTyp = 7))
-      or  ((aMasterdata.FieldByName('TYPE').AsString = 'P') and (aMasterdata.FieldByName('PTYPE').AsString = 'O'))) then
+      InsertData(aMasterdata,aQuantity,Null);
+      tParent := FieldByName('SQL_ID').AsVariant;
+      if (((aMasterdata.FieldByName('PTYPE').AsString = 'P') and (GetOrderTyp = 7))
+      or  ((aMasterdata.FieldByName('PTYPE').AsString = 'O'))) then
         begin
           aMasterdata.Positions.Open;
           with aMasterdata.Positions.DataSet do
@@ -1282,15 +1322,16 @@ begin
                   if bMasterdata.Count > 0 then
                     begin
                       DataSet.Append;
-                      if GetOrderTyp = 7 then
-                        InsertData(bMasterdata,(-FieldByName('QUANTITY').AsFloat)*aQuantity,FieldByName('ACTIVE').AsString)
+                      if Self.GetOrderTyp = 7 then
+                        InsertData(bMasterdata,(-FieldByName('QUANTITY').AsFloat)*aQuantity,tParent,FieldByName('ACTIVE').AsString)
                       else
-                        InsertData(bMasterdata,  FieldByName('QUANTITY').AsFloat *aQuantity,FieldByName('ACTIVE').AsString);
+                        InsertData(bMasterdata,  FieldByName('QUANTITY').AsFloat *aQuantity,tParent,FieldByName('ACTIVE').AsString);
                     end;
                   bMasterdata.Destroy;
                   Next;
                 end;
             end;
+          aQuantity:=-aQuantity;
         end;
     end
   else
@@ -1405,5 +1446,11 @@ begin
     end;
 end;
 initialization
+  TextTyp:=nil;
+  Vat := nil;
+  Units := nil;
+  DispatchTypes := nil;
+  PriceTypes := nil;
+  RepairProblems := nil;
 end.
 

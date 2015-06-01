@@ -21,7 +21,7 @@ unit uMainTreeFrame;
 interface
 uses
   Classes, SysUtils, FileUtil,  Forms, Controls, ComCtrls, ActnList,
-  Menus, ExtCtrls, uBaseDBInterface, uBaseDbClasses,uExtControls, db;
+  Menus, ExtCtrls, uBaseDBInterface, uBaseDbClasses,uExtControls, db,uBaseDatasetInterfaces;
 type
   TEntryTyp = (etNone,etAction,etDir,
                etFavourites,etLink,
@@ -188,7 +188,7 @@ implementation
 uses uData,uPrometFrames,LCLType,Dialogs,uIntfStrConsts, FPCanvas,
   uBaseVisualControls, Graphics, Utils,UtilsVis, LCLProc, uPerson,uMasterdata,uProjects,
   uWiki,uSearch,Themes,uFilterFrame,uNRights,uStatistic,uClipp,Clipbrd,
-  uBaseVisualApplication,uError,uBaseApplication;
+  uBaseVisualApplication,uError,uBaseApplication,StdCtrls;
 resourcestring
   strRestartNessesary                         = 'Starten Sie die Anwendung neu !';
   strRealMove                                 = 'Verzeichnis wirklich nach "%s" verschieben ?';
@@ -362,6 +362,10 @@ begin
   inherited Create(AOwner);
   FSearchOptions:='MAIN';
   StartupTypes := TStringList.Create;
+  {$IFDEF LCLCARBON}
+  tvMain.BackgroundColor:=$00EDEDED;
+  tvMain.ScrollBars:=ssBoth;
+  {$ENDIF}
 end;
 
 destructor TfMainTree.Destroy;
@@ -451,7 +455,7 @@ begin
               aLink := copy(aLinks,0,pos(';',aLinks)-1);
               aLinks := copy(aLinks,pos(';',aLinks)+1,length(aLinks));
               aLinkDesc := aLink;
-              aIcon := Data.GetLinkIcon(aLink);
+              aIcon := Data.GetLinkIcon(aLink,True);
               with aDS do
                 begin
                   Insert;
@@ -478,7 +482,7 @@ begin
           aLink := copy(aLinks,0,pos(';',aLinks)-1);
           aLinks := copy(aLinks,pos(';',aLinks)+1,length(aLinks));
           aLinkDesc := Data.GetLinkDesc(aLink);
-          aIcon := Data.GetLinkIcon(aLink);
+          aIcon := Data.GetLinkIcon(aLink,True);
           with aDS do
             begin
               Insert;
@@ -1242,7 +1246,7 @@ begin
                                 aLink := Data.BuildLink(aDataSet.DataSet);
                                 aLinks.FieldByName('NAME').AsString := Data.GetLinkDesc(aLink);
                                 aLinks.FieldByName('LINK').AsString := aLink;
-                                aLinks.FieldByName('ICON').AsInteger := Data.GetLinkIcon(aLink);
+                                aLinks.FieldByName('ICON').AsInteger := Data.GetLinkIcon(aLink,True);
                                 aLinks.FieldByName('CHANGEDBY').AsString := Data.Users.IDCode.AsString;
                                 aLinks.DataSet.Post;
                                 aLinks.Free;
@@ -1322,7 +1326,7 @@ begin
                     if Data.Tree.FieldByName('TYPE').AsString <> 'F' then
                       begin
                         aNewParent := Data.Tree.id.AsVariant;
-                        Data.SetFilter(Data.Tree,'',0,'','ASC');
+                        Data.SetFilter(Data.Tree,'',0,'','ASC',False,True,True);
                         Data.Tree.GotoBookmark(DataT.Rec);
                         with Data.Tree.DataSet do
                           begin
@@ -1358,6 +1362,7 @@ begin
                 if (TPrometMainFrame(pcPages.ActivePage.Controls[0]).DataSet is TPerson)
                 or (TPrometMainFrame(pcPages.ActivePage.Controls[0]).DataSet is TMasterdata)
                 or (TPrometMainFrame(pcPages.ActivePage.Controls[0]).DataSet is TProject)
+                or (TPrometMainFrame(pcPages.ActivePage.Controls[0]).DataSet is TObjects)
                 then
                   begin
                     DataT2 := TTreeEntry(tvMain.GetNodeAt(X,Y).Data);
@@ -1394,7 +1399,7 @@ begin
                         aLink := Data.BuildLink(TPrometMainFrame(pcPages.ActivePage.Controls[0]).DataSet.DataSet);
                         aLinks.FieldByName('NAME').AsString := Data.GetLinkDesc(aLink);
                         aLinks.FieldByName('LINK').AsString := aLink;
-                        aLinks.FieldByName('ICON').AsInteger := Data.GetLinkIcon(aLink);
+                        aLinks.FieldByName('ICON').AsInteger := Data.GetLinkIcon(aLink,True);
                         aLinks.FieldByName('CHANGEDBY').AsString := Data.Users.IDCode.AsString;
                         aLinks.DataSet.Post;
                         aLinks.Free;
@@ -1408,11 +1413,11 @@ begin
     end
   else if (Source is TExtDBGrid) and (TExtDBGrid(Source).Owner is TfFilter) then
     begin
-      DataT := TTreeEntry(tvMain.Selected.Data);
       if (TTreeEntry(tvMain.GetNodeAt(X,Y).Data).Typ = etDir) then
         begin
           if (TfFilter(TExtDBGrid(Source).Owner).DataSet is TPersonList)
           or (TfFilter(TExtDBGrid(Source).Owner).DataSet is TMasterdataList)
+          or (TfFilter(TExtDBGrid(Source).Owner).DataSet is TObjects)
           or (TfFilter(TExtDBGrid(Source).Owner).DataSet is TProjectList) then
             begin
               DataT2 := TTreeEntry(tvMain.GetNodeAt(X,Y).Data);
@@ -1450,7 +1455,7 @@ begin
                   aLink := Data.BuildLink(TfFilter(TExtDBGrid(Source).Owner).DataSet.DataSet);
                   aLinks.FieldByName('NAME').AsString := Data.GetLinkDesc(aLink);
                   aLinks.FieldByName('LINK').AsString := aLink;
-                  aLinks.FieldByName('ICON').AsInteger := Data.GetLinkIcon(aLink);
+                  aLinks.FieldByName('ICON').AsInteger := Data.GetLinkIcon(aLink,True);
                   aLinks.FieldByName('CHANGEDBY').AsString := Data.Users.IDCode.AsString;
                   aLinks.DataSet.Post;
                   aLinks.Free;
@@ -1521,7 +1526,7 @@ begin
                   aLink := fSearch.GetLink;
                   aLinks.FieldByName('NAME').AsString := Data.GetLinkDesc(aLink);
                   aLinks.FieldByName('LINK').AsString := aLink;
-                  aLinks.FieldByName('ICON').AsInteger := Data.GetLinkIcon(aLink);
+                  aLinks.FieldByName('ICON').AsInteger := Data.GetLinkIcon(aLink,True);
                   aLinks.FieldByName('CHANGEDBY').AsString := Data.Users.IDCode.AsString;
                   aLinks.DataSet.Post;
                   aLinks.Free;
@@ -1604,10 +1609,10 @@ begin
     end
   else if (Source is TExtDBGrid) and (TExtDBGrid(Source).Owner is TfFilter) then
     begin
-      DataT := TTreeEntry(tvMain.Selected.Data);
       if (TTreeEntry(tvMain.GetNodeAt(X,Y).Data).Typ = etDir) then
         if (TfFilter(TExtDBGrid(Source).Owner).DataSet is TPersonList)
         or (TfFilter(TExtDBGrid(Source).Owner).DataSet is TMasterdataList)
+        or (TfFilter(TExtDBGrid(Source).Owner).DataSet is TObjects)
         or (TfFilter(TExtDBGrid(Source).Owner).DataSet is TProjectList) then
           Accept := True;
       if (TTreeEntry(tvMain.GetNodeAt(X,Y).Data).Typ = etProject) then
@@ -1766,7 +1771,8 @@ begin
       Data.Tree.GotoBookmark(DataT.Rec);
       ID := IntToStr(Int64(Data.Tree.Id.AsVariant));
       Typ := Data.Tree.FieldByName('TYPE').AsString;
-      Data.SetFilter(Data.Tree,Data.QuoteField('PARENT')+'='+ID,0,'','ASC',False,True,True);
+      Data.Tree.DataSet.Filter:=Data.QuoteField('PARENT')+'='+Data.QuoteValue(ID);
+      Data.Tree.DataSet.Filtered:=True;
       Node.DeleteChildren;
       try
       //Add directories
@@ -1813,6 +1819,7 @@ begin
           Data.Tree.DataSet.Next;
         end;
       bTree.Free;
+      Data.Tree.DataSet.Filtered:=False;
       //Add Entrys
       if (Typ = 'C') and (Data.Users.Rights.Right('CUSTOMERS') > RIGHT_NONE) then //Contacts
         begin
@@ -1934,7 +1941,7 @@ begin
               TTreeEntry(Node1.Data).Text[0] := aListL.FieldByName('NAME').AsString;
               TTreeEntry(Node1.Data).Link:=aListL.FieldByName('LINK').AsString;
               TTreeEntry(Node1.Data).Typ := etLink;
-              TTreeEntry(Node1.Data).LinkIcon:=Data.GetLinkIcon(aListL.FieldByName('LINK').AsString);
+              TTreeEntry(Node1.Data).LinkIcon:=Data.GetLinkIcon(aListL.FieldByName('LINK').AsString,True);
               aListL.DataSet.Next;
             end;
           aListL.Free;

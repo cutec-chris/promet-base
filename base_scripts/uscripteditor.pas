@@ -49,21 +49,20 @@ type
     acRunRemote: TAction;
     ActionList1: TActionList;
     cbSyntax: TDBComboBox;
+    cbClient: TComboBox;
     DataSource: TDataSource;
-    cbClient: TDBComboBox;
-    lName1: TLabel;
+    GutterImages: TImageList;
+    Label2: TLabel;
     MenuItem6: TMenuItem;
     PopupMenu2: TPopupMenu;
     SelectData: TDatasource;
     gResults: TDBGrid;
-    eName: TDBEdit;
     DBGrid1: TDBGrid;
     Debugger: TPSScriptDebugger;
     FindDialog: TFindDialog;
     IFPS3DllPlugin1: TPSDllPlugin;
     ilImageList: TImageList;
     Label1: TLabel;
-    lName: TLabel;
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
@@ -75,7 +74,6 @@ type
     Panel2: TPanel;
     Panel3: TPanel;
     pDetail: TPanel;
-    HigPascal: TSynPasSyn;
     PopupMenu1: TPopupMenu;
     BreakPointMenu: TMenuItem;
     MainMenu1: TMainMenu;
@@ -105,10 +103,11 @@ type
     N6: TMenuItem;
     Gotolinenumber1: TMenuItem;
     HigSQL: TSynSQLSyn;
+    HigPascal: TSynPasSyn;
     Syntaxcheck1: TMenuItem;
     tmDebug: TTimer;
     ToolBar1: TToolBar;
-    ToolButton10: TToolButton;
+    tbTools: TToolBar;
     ToolButton2: TToolButton;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
@@ -117,6 +116,7 @@ type
     ToolButton7: TToolButton;
     ToolButton8: TToolButton;
     ToolButton9: TToolButton;
+    procedure aButtonClick(Sender: TObject);
     procedure acDecompileExecute(Sender: TObject);
     procedure acLogoutExecute(Sender: TObject);
     procedure acNewExecute(Sender: TObject);
@@ -146,6 +146,7 @@ type
     procedure FDataSetDataSetAfterScroll(DataSet: TDataSet);
     procedure FDataSetDataSetBeforeScroll(DataSet: TDataSet);
     procedure FDataSetWriteln(const s: string);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure edStatusChange(Sender: TObject; Changes: TSynStatusChanges);
     function DebuggerNeedFile(Sender: TObject; const OrginFileName: String; var FileName, Output: String): Boolean;
@@ -164,6 +165,7 @@ type
     procedure edDropFiles(Sender: TObject; X, Y: Integer;
       AFiles: TStrings);
     procedure tmDebugTimer(Sender: TObject);
+    procedure TPascalScriptToolRegistering(const s: string);
   private
     FSearchFromCaret: boolean;
     FOldStatus : string;
@@ -175,6 +177,8 @@ type
     Fuses : TBaseScript;
     FOldUses : TPSOnUses;
     FWasRunning: Boolean;
+    Linemark : TSynEditMark;
+    LastStepTime : Int64;
     ClassImporter: uPSRuntime.TPSRuntimeClassImporter;
     function Compile: Boolean;
     function Execute: Boolean;
@@ -208,7 +212,7 @@ implementation
 
 uses
   uFrmGotoLine,uData,uBaseApplication,genpascalscript,Utils,uSystemMessage,uStatistic,
-  Clipbrd;
+  Clipbrd,uprometpascalscript;
 
 {$R *.lfm}
 
@@ -232,7 +236,6 @@ var
 resourcestring
   STR_TEXT_NOTFOUND = 'Text not found';
   STR_UNNAMED = 'Unnamed';
-  STR_SUCCESSFULLY_COMPILED = 'Erfolgreich kompiliert';
   STR_COMPILE_ERROR = 'Fehler beim kompilieren !';
   STR_SUCCESSFULLY_EXECUTED = 'Erfolgreich ausgeführt';
   STR_RUNTIME_ERROR='[Laufzeitfehler] %s(%d:%d), bytecode(%d:%d): %s'; //Birb
@@ -243,10 +246,19 @@ resourcestring
   strScriptRunning       = 'Das Script wurde gestartet';
 function OnUses(Sender: TPSPascalCompiler; const Name: tbtString): Boolean;
 begin
-  if Assigned(fScriptEditor) then
-    TPascalScript(fScriptEditor.FDataSet.Script).InternalUses(Sender,Name)
-  else if Assigned(flastScriptEditor) then
-    TPascalScript(fLastScriptEditor.FDataSet.Script).InternalUses(Sender,Name)
+  if Assigned(fScriptEditor) and Assigned(Data) then
+    TPascalScript(TPrometPascalScript(fScriptEditor.FDataSet).Script).InternalUses(Sender,Name)
+  else if Assigned(flastScriptEditor) and Assigned(Data) then
+    TPascalScript(TPrometPascalScript(fLastScriptEditor.FDataSet).Script).InternalUses(Sender,Name)
+end;
+
+procedure DoSleep(aTime: LongInt); StdCall;
+var
+  bTime: QWord;
+begin
+ bTime := GetTickCount64;
+ while GetTickCount64-bTime < aTime do
+   Application.ProcessMessages;
 end;
 
 procedure TfScriptEditor.DoSearchReplaceText(AReplace: boolean; ABackwards: boolean);
@@ -301,6 +313,7 @@ begin
   FSynCompletion.OnExecute:=@FSynCompletionExecute;
   FSynCompletion.OnUTF8KeyPress:=@FSynCompletionUTF8KeyPress;
   FSynCompletion.OnSearchPosition:=@FSynCompletionSearchPosition;
+  genpascalscript.DoSleep:=@DoSleep;
 end;
 
 procedure TfScriptEditor.edSpecialLineColors(Sender: TObject; Line: Integer;
@@ -329,18 +342,33 @@ end;
 
 procedure TfScriptEditor.edGutterClick(Sender: TObject; X, Y, Line: integer;
   mark: TSynEditMark);
+var
+  i: Integer;
+  m: TSynEditMark;
 begin
-  if (lowercase(FDataSet.FieldByName('SYNTAX').AsString)='pascal') and (cbClient.Text='') then
+  if ed.Highlighter=HigPascal then
     begin
       if Debugger.HasBreakPoint(Debugger.MainFileName, Line) then
-        Debugger.ClearBreakPoint(Debugger.MainFileName, Line)
+        begin
+          Debugger.ClearBreakPoint(Debugger.MainFileName, Line);
+          i := 0;
+          while i<ed.Marks.Count do
+            begin
+              if ed.Marks[i].Line=Line then
+                ed.Marks[i].Free
+              else inc(i);
+            end;
+        end
       else
-        Debugger.SetBreakPoint(Debugger.MainFileName, Line);
-    end
-  else
-    begin
-      if Debugger.HasBreakPoint(Debugger.MainFileName, Line) then
-        Debugger.ClearBreakPoint(Debugger.MainFileName, Line);
+        begin
+          Debugger.SetBreakPoint(Debugger.MainFileName, Line);
+          m := TSynEditMark.Create(ed);
+          m.Line := Line;
+          m.ImageList := GutterImages;
+          m.ImageIndex := 1;
+          m.Visible := true;
+          ed.Marks.Add(m);
+        end;
     end;
   ed.Refresh;
 end;
@@ -384,28 +412,32 @@ end;
 procedure TfScriptEditor.cbSyntaxSelect(Sender: TObject);
 begin
   ed.Highlighter := TSynCustomHighlighter(FindComponent('Hig'+cbSyntax.Text));
-  acStepinto.Enabled:=(lowercase(FDataSet.FieldByName('SYNTAX').AsString)='pascal') and (cbClient.Text='');
-  acStepover.Enabled:=(lowercase(FDataSet.FieldByName('SYNTAX').AsString)='pascal') and (cbClient.Text='');
+  acStepinto.Enabled:=(ed.Highlighter=HigPascal) and (cbClient.Text='');
+  acStepover.Enabled:=(ed.Highlighter=HigPascal) and (cbClient.Text='');
 end;
 
 procedure TfScriptEditor.DebuggerExecImport(Sender: TObject; se: TPSExec;
   x: TPSRuntimeClassImporter);
 begin
-  TPascalScript(FDataSet.Script).ClassImporter:=x;
+  if Assigned(Data) then
+    TPascalScript(TPrometPascalScript(FDataSet).Script).ClassImporter:=x;
 end;
 
 procedure TfScriptEditor.edChange(Sender: TObject);
 begin
- FDataSet.Edit;
- FDataSet.FieldByName('SCRIPT').AsString:=ed.Lines.Text;
- FDataSet.FieldByName('FOLDSTATE').AsString:=ed.FoldState;
+ if Assigned(Data) then
+   begin
+     FDataSet.Edit;
+     FDataSet.FieldByName('SCRIPT').AsString:=ed.Lines.Text;
+     FDataSet.FieldByName('FOLDSTATE').AsString:=ed.FoldState;
+   end;
 end;
 
 procedure TfScriptEditor.acDecompileExecute(Sender: TObject);
 var
   s: tbtstring;
 begin
- if lowercase(FDataSet.FieldByName('SYNTAX').AsString)='pascal' then
+ if ed.Highlighter=HigPascal then
    begin
       if Compile then
         begin
@@ -414,10 +446,15 @@ begin
           messages.AddItem(s,nil);
         end;
    end
- else if (lowercase(FDataSet.FieldByName('SYNTAX').AsString)='sql') then
+ else if ed.Highlighter=HigSQL then
    begin
      messages.AddItem(ReplaceSQLFunctions(ed.Lines.Text),nil);
    end;
+end;
+
+procedure TfScriptEditor.aButtonClick(Sender: TObject);
+begin
+  TPascalScript(TPrometPascalScript(FDataSet).Script).OpenTool(TToolButton(Sender).Caption);
 end;
 
 procedure TfScriptEditor.acLogoutExecute(Sender: TObject);
@@ -476,11 +513,12 @@ var
   sl: TStringList;
   i: Integer;
 begin
+  LastStepTime := GetTickCount;
   gResults.Visible := False;
   messages.Visible := True;
   fLastScriptEditor := Self;
   sl := TStringList.Create;
-  sl.Text:=FDataSet.FieldByName('SCRIPT').AsString;
+  sl.Text:=ed.Text;
   i := 0;
   while i<sl.Count do
     begin
@@ -493,32 +531,40 @@ begin
       SelectData.DataSet.Free;
       SelectData.DataSet := nil;
     end;
-  if lowercase(FDataSet.FieldByName('SYNTAX').AsString)='pascal' then
+  if ed.Highlighter=HigPascal then
     begin
       if Debugger.Running then
       begin
         FResume := True
       end else
       begin
-        if Compile then
-          begin
-            SetCurrentDir(GetHomeDir);
-            TPascalScript(FDataSet.Script).Runtime := Debugger.Exec;
-            TPascalScript(FDataSet.Script).Compiler := Debugger.Comp;
-            Debugger.Execute;
-          end;
-          acStepinto.Enabled:=acPause.Enabled or acRun.Enabled;
-          acStepover.Enabled:=acPause.Enabled or acRun.Enabled;
+        try
+          TPascalScript(TPrometPascalScript(FDataSet).Script).OnToolRegistering:=@TPascalScriptToolRegistering;
+          if Compile then
+            begin
+              SetCurrentDir(GetHomeDir);
+              if Assigned(Data) then
+                begin
+                  TPascalScript(TPrometPascalScript(FDataSet).Script).Runtime := Debugger.Exec;
+                  TPascalScript(TPrometPascalScript(FDataSet).Script).Compiler := Debugger.Comp;
+                end;
+              Debugger.Execute;
+            end;
+            acStepinto.Enabled:=acPause.Enabled or acRun.Enabled;
+            acStepover.Enabled:=acPause.Enabled or acRun.Enabled;
+        except
+          Showmessage('Error compiling');
         end;
+      end;
     end
-  else if (lowercase(FDataSet.FieldByName('SYNTAX').AsString)='sql') and (copy(lowercase(sl.Text),0,7)='select ') then
+  else if (ed.Highlighter=HigSQL) and (copy(lowercase(sl.Text),0,7)='select ') then
     begin
       gResults.Visible := True;
       messages.Visible := False;
       SelectData.DataSet := Data.GetNewDataSet(FDataSet.FieldByName('SCRIPT').AsString);
       SelectData.DataSet.Open;
     end
-  else if lowercase(FDataSet.FieldByName('SYNTAX').AsString)='sql' then
+  else if (ed.Highlighter=HigSQL) then
     begin
       messages.Clear;
       FDataSet.writeln := @FDataSetWriteln;
@@ -537,6 +583,7 @@ end;
 procedure TfScriptEditor.acRunRemoteExecute(Sender: TObject);
 begin
   acSave.Execute;
+  {
   with BaseApplication as IBaseApplication do
     TMessageHandler(GetMessageManager).SendCommand(cbClient.Text,'ExecuteScript('+eName.Text+')');
   acRunRemote.Enabled:=false;
@@ -544,11 +591,19 @@ begin
   FOldStatus := FDataSet.FieldByName('STATUS').AsString;
   FWasRunning:=False;
   tmDebug.Enabled:=True;
+  }
 end;
 
 procedure TfScriptEditor.acSaveExecute(Sender: TObject);
 begin
-  FDataSet.Post;
+  if Assigned(Data) then
+    begin
+      FDataSet.Post;
+    end
+  else
+    begin
+
+    end;
   ed.Modified := False;
   ed.MarkTextAsSaved;
 end;
@@ -596,12 +651,31 @@ end;
 procedure TfScriptEditor.BreakPointMenuClick(Sender: TObject);
 var
   Line: Longint;
+  m: TSynEditMark;
+  i: Integer;
 begin
   Line := Ed.CaretY;
   if Debugger.HasBreakPoint(Debugger.MainFileName, Line) then
-    Debugger.ClearBreakPoint(Debugger.MainFileName, Line)
+    begin
+      Debugger.ClearBreakPoint(Debugger.MainFileName, Line);
+      i := 0;
+      while i<ed.Marks.Count-1 do
+        begin
+          if ed.Marks[i].Line=Line then
+            ed.Marks.Delete(i)
+          else inc(i);
+        end;
+    end
   else
-    Debugger.SetBreakPoint(Debugger.MainFileName, Line);
+    begin
+      Debugger.SetBreakPoint(Debugger.MainFileName, Line);
+      m := TSynEditMark.Create(ed);
+      m.Line := Line;
+      m.ImageList := GutterImages;
+      m.ImageIndex := 1;
+      m.Visible := true;
+      ed.Marks.Add(m);
+    end;
   ed.Refresh;
 end;
 
@@ -609,28 +683,47 @@ procedure TfScriptEditor.DebuggerLineInfo(Sender: TObject; const FileName: Strin
   Col: Cardinal);
 begin
   try
-  if not FDataSet.Active then exit;
-  if lowercase(FDataSet.FieldByName('SYNTAX').AsString)='pascal' then
-    begin
-      if Debugger.Exec.DebugMode <> dmRun then
+    if Assigned(Data) and (not FDataSet.Active) then exit;
+    if ed.Highlighter=HigPascal then
       begin
-        FActiveLine := Row;
-        if (FActiveLine < ed.TopLine +2) or (FActiveLine > Ed.TopLine + Ed.LinesInWindow -2) then
-        begin
-          Ed.TopLine := FActiveLine - (Ed.LinesInWindow div 2);
-        end;
-        ed.CaretY := FActiveLine;
-        ed.CaretX := 1;
-        ed.Refresh;
+        if (Debugger.Exec.DebugMode <> dmRun) and (FileName = Debugger.MainFileName) then
+          begin
+            //Set mark
+            if not Assigned(LineMark) then
+              begin
+                Linemark := TSynEditMark.Create(ed);
+                Linemark.ImageList:=GutterImages;
+                Linemark.ImageIndex:=8;
+                ed.Marks.Add(Linemark);
+                Linemark.Visible:=True;
+              end;
+            Linemark.Line:=Row;
+            if Debugger.HasBreakPoint(FileName, Row) then
+              Linemark.ImageIndex:=9
+            else Linemark.ImageIndex:=8;
+            with BaseApplication as IBaseApplication do Debug('Script:'+FileName+':'+IntToStr(Row));
+            //Mark active Line
+            FActiveLine := Row;
+            if (FActiveLine < ed.TopLine +2) or (FActiveLine > Ed.TopLine + Ed.LinesInWindow -2) then
+            begin
+              Ed.TopLine := FActiveLine - (Ed.LinesInWindow div 2);
+            end;
+            ed.CaretY := FActiveLine;
+            ed.CaretX := 1;
+            ed.Refresh;
+          end
+        else
+          begin
+            if GetTickCount-LastStepTime > 10 then
+              Application.ProcessMessages;
+            LastStepTime:=GetTickCount;
+          end;
       end
-      else
-        Application.ProcessMessages;
-    end
-  else
-    begin
-      acStepinto.Enabled:=False;
-      acStepover.Enabled:=False;
-    end;
+    else
+      begin
+        acStepinto.Enabled:=False;
+        acStepover.Enabled:=False;
+      end;
   except
   end;
 end;
@@ -647,28 +740,30 @@ var
   i: Longint;
   mo: TMessageObject;
 begin
-  TPascalScript(FDataSet.Script).Compiler:=Debugger.Comp;
-  TPascalScript(FDataSet.Script).Runtime:=Debugger.Exec;
+  if Assigned(Data) then
+    begin
+      TPascalScript(TPrometPascalScript(FDataSet).Script).Compiler:=Debugger.Comp;
+      TPascalScript(TPrometPascalScript(FDataSet).Script).Runtime:=Debugger.Exec;
+    end;
   Debugger.OnExecImport:=@DebuggerExecImport;
   Debugger.Script.Assign(ed.Lines);
+  Result := False;
   try
-    Result := Debugger.Compile;
+    Result := Result or Debugger.Compile;
   except
     on e : Exception do
       Messages.Items.Add(e.Message);
   end;
   messages.Clear;
-  for i := 0 to Debugger.CompilerMessageCount -1 do
+  if not Result then
     begin
-      mo := TMessageObject.Create;
-      mo.X:=Debugger.CompilerMessages[i].Col;
-      mo.Y:=Debugger.CompilerMessages[i].Row;
-      Messages.Items.AddObject(Debugger.CompilerMessages[i].MessageToString,mo);
-    end;
-  if Result then
-    Messages.Items.Add(STR_SUCCESSFULLY_COMPILED)
-  else
-    begin
+      for i := 0 to Debugger.CompilerMessageCount -1 do
+        begin
+          mo := TMessageObject.Create;
+          mo.X:=Debugger.CompilerMessages[i].Col;
+          mo.Y:=Debugger.CompilerMessages[i].Row;
+          Messages.Items.AddObject(Debugger.CompilerMessages[i].MessageToString,mo);
+        end;
       if Debugger.CompilerMessageCount=0 then
         messages.Items.Add(Debugger.ExecErrorToString);
       Messages.Items.Add(STR_COMPILE_ERROR);
@@ -700,6 +795,8 @@ end;
 
 procedure TfScriptEditor.DebuggerAfterExecute(Sender: TPSScript);
 begin
+  if Assigned(Data) then
+    TPascalScript(TPrometPascalScript(FDataSet).Script).DoCleanUp;
   acRun.Enabled:=True;
   acReset.Enabled:=False;
   acPause.Enabled:=false;
@@ -708,6 +805,7 @@ begin
   ed.Refresh;
   ClassImporter.Free;
   Debugger.Comp.OnUses:=FOldUses;
+  FreeAndNil(Linemark);
 end;
 
 function TfScriptEditor.Execute: Boolean;
@@ -726,7 +824,8 @@ end;
 procedure TfScriptEditor.DebuggerCompile(Sender: TPSScript);
 begin
   FOldUses:=Sender.Comp.OnUses;
-  FDataSet.Writeln:=@FDataSetWriteln;
+  if Assigned(Data) then
+    FDataSet.Writeln:=@FDataSetWriteln;
   Sender.Comp.OnUses:=@OnUses;
   OnUses(Sender.Comp,'SYSTEM');
 end;
@@ -752,6 +851,12 @@ begin
  messages.MakeCurrentVisible;
 end;
 
+procedure TfScriptEditor.FormClose(Sender: TObject;
+  var CloseAction: TCloseAction);
+begin
+  acReset.Execute;
+end;
+
 procedure TfScriptEditor.FormCreate(Sender: TObject);
 begin
   FDataSet:=nil;
@@ -769,12 +874,8 @@ begin
 end;
 
 procedure TfScriptEditor.InternalSleep(MiliSecValue: LongInt);
-var
-  aTime: QWord;
 begin
-  aTime := GetTickCount64;
-  while GetTickCount64-aTime < MiliSecValue do
-    Application.ProcessMessages;
+  genpascalscript.DoSleep(MiliSecValue);
 end;
 
 //check if script changed and not yet saved//
@@ -803,29 +904,40 @@ begin
       Application.CreateForm(TfScriptEditor,fScriptEditor);
       Self := fScriptEditor;
     end;
-  if not Assigned(FDataSet) then
+  if Assigned(Data) then  //Database Handling
     begin
-      FDataSet := TBaseScript.CreateEx(nil,Data,aConnection);
-      FDataSet.CreateTable;
-    end;
-  FDataSet.Open;
-  DataSource.DataSet := FDataSet.DataSet;
-  FDataSet.DataSet.BeforeScroll:=@FDataSetDataSetBeforeScroll;
-  FDataSet.DataSet.AfterScroll:=@FDataSetDataSetAfterScroll;
-  FDataSet.DataSet.AfterCancel:=@FDataSetDataSetAfterScroll;
-  if (not FDataSet.Locate('NAME',aScript,[loCaseInsensitive])) or (aScript='') then
-    begin
-      FDataSet.Insert;
-      FDataSet.FieldByName('NAME').AsString:=aScript;
-      if DefScript<>'' then
-        FDataSet.FieldByName('SCRIPT').AsString:=DefScript;
+      if not Assigned(FDataSet) then
+        begin
+          FDataSet := TPrometPascalScript.CreateEx(nil,Data,aConnection);
+          FDataSet.CreateTable;
+        end;
+      FDataSet.Open;
+      DataSource.DataSet := FDataSet.DataSet;
+      FDataSet.DataSet.BeforeScroll:=@FDataSetDataSetBeforeScroll;
+      FDataSet.DataSet.AfterScroll:=@FDataSetDataSetAfterScroll;
+      FDataSet.DataSet.AfterCancel:=@FDataSetDataSetAfterScroll;
+      if (not FDataSet.Locate('NAME',aScript,[loCaseInsensitive])) or (aScript='') then
+        begin
+          FDataSet.Insert;
+          FDataSet.FieldByName('NAME').AsString:=aScript;
+          if DefScript<>'' then
+            FDataSet.FieldByName('SCRIPT').AsString:=DefScript;
+        end
+      else
+        FDataSetDataSetAfterScroll(FDataSet.DataSet);
     end
-  else
-    FDataSetDataSetAfterScroll(FDataSet.DataSet);
+  else //File Handling
+    begin
+      cbSyntax.Enabled:=False;
+      ed.Highlighter:=HigPascal;
+    end;
   Result := Showmodal = mrOK;
-  if Result then
-    FDataSet.Post;
-  FDataSet.Close;
+  if Assigned(Data) then
+    begin
+      if Result then
+        FDataSet.Post;
+      FDataSet.Close;
+    end;
 end;
 
 procedure TfScriptEditor.edStatusChange(Sender: TObject;
@@ -840,15 +952,22 @@ function TfScriptEditor.DebuggerNeedFile(Sender: TObject; const OrginFileName: S
 var
   path: string;
 begin
-  if not Assigned(Fuses) then
+  if Assigned(Data) then
     begin
-      Fuses := TBaseScript.Create(nil);
-      Fuses.Open;
+      if not Assigned(Fuses) then
+        begin
+          Fuses := TBaseScript.Create(nil);
+          Fuses.Open;
+        end
+      else Fuses.DataSet.Refresh;
+      Result := Fuses.Locate('NAME',FileName,[loCaseInsensitive]);
+      if Result then
+        Output:=Fuses.FieldByName('SCRIPT').AsString;
     end
-  else Fuses.DataSet.Refresh;
-  Result := Fuses.Locate('NAME',FileName,[loCaseInsensitive]);
-  if Result then
-    Output:=Fuses.FieldByName('SCRIPT').AsString;
+  else
+    begin
+      //TODO:File Handling
+    end;
 end;
 
 procedure TfScriptEditor.DebuggerBreakpoint(Sender: TObject; const FileName: String; bPosition, Row,
@@ -1030,7 +1149,10 @@ begin
       ed.CaretXY := CaretXY;
   finally
     Free;
-    ed.SetFocus;
+    try
+      ed.SetFocus;
+    except
+    end;
   end;
 end;
 
@@ -1084,6 +1206,22 @@ begin
        messages.AddItem(sl[i],nil);
      sl.Free;
    end;
+end;
+
+procedure TfScriptEditor.TPascalScriptToolRegistering(const s: string);
+var
+  i: Integer;
+  aButton: TToolButton;
+begin
+  for i := 0 to tbTools.ButtonList.Count-1 do
+    if tbTools.Buttons[i].Caption=s then
+      exit;
+  aButton := TToolButton.Create(tbTools);
+  aButton.Parent:=tbTools;
+  aButton.Caption:=s;
+  aButton.ShowCaption:=True;
+  aButton.Hint:=s;
+  aButton.OnClick:=@aButtonClick;
 end;
 
 end.

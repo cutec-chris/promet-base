@@ -21,7 +21,7 @@ unit uMasterdata;
 {$mode objfpc}{$H+}
 interface
 uses
-  Classes, SysUtils, db, uBaseDbClasses, uBaseERPDBClasses, uIntfStrConsts;
+  Classes, SysUtils, db, uBaseDbClasses, uBaseERPDBClasses, uIntfStrConsts,uBaseDatasetInterfaces;
 type
 
   { TMasterdataList }
@@ -167,6 +167,10 @@ type
     property Assembly : TRepairAssembly read FAssembly;
     property Serials : TSerials read FSerials;
     function Copy(aNewVersion : Variant;aNewLanguage : Variant;cPrices : Boolean = True;
+                                                               cProperties : Boolean = True;
+                                                               cTexts : Boolean = True;
+                                                               cSupplier : Boolean = True) : Boolean;
+    function Versionate(aNewversion : Variant;aMakeActive : Boolean = True;cPrices : Boolean = True;
                                                                cProperties : Boolean = True;
                                                                cTexts : Boolean = True;
                                                                cSupplier : Boolean = True) : Boolean;
@@ -333,11 +337,18 @@ begin
 end;
 
 function TMasterdataPrices.GetPriceType: Integer;
+var
+  PriceType: TPriceTypes;
 begin
   Result := 0;
-  Data.PriceTypes.Open;
-  if Data.PriceTypes.DataSet.Locate('SYMBOL', trim(DataSet.FieldByName('PTYPE').AsString), []) then
-    Result := StrToIntDef(copy(Data.Pricetypes.FieldByName('TYPE').AsString, 0, 2), 0);
+  try
+    PriceType := TPriceTypes.CreateEx(Self,DataModule,Connection);
+    PriceType.Open;
+    if PriceType.DataSet.Locate('SYMBOL', trim(DataSet.FieldByName('PTYPE').AsString), []) then
+      Result := StrToIntDef(copy(Pricetype.FieldByName('TYPE').AsString, 0, 2), 0);
+  finally
+    PriceType.Free;
+  end;
 end;
 function TMasterdataPrices.FormatCurrency(Value: real): string;
 begin
@@ -632,6 +643,7 @@ begin
   if DataSet.ControlsDisabled then exit;
   if Field.FieldName = 'STATUS' then
     begin
+      if FStatus=Field.AsString then exit;
       History.Open;
       History.AddItem(Self.DataSet,Format(strStatusChanged,[FStatus,Field.AsString]),'','',nil,ACICON_STATUSCH);
       FStatus := Field.AsString;
@@ -728,7 +740,11 @@ begin
     BaseFilter := '';
 end;
 procedure TMasterdata.FillDefaults(aDataSet: TDataSet);
+var
+  Vat: TVat;
 begin
+  Vat := TVat.CreateEx(Self,DataModule,Connection);
+  Vat.Open;
   with aDataSet,BaseApplication as IBaseDBInterface do
     begin
       aDataSet.DisableControls;
@@ -742,13 +758,12 @@ begin
       FieldByName('LANGUAGE').AsString := 'de'; //TODO:find default language
       FieldByName('CRDATE').AsDateTime := Date;
       FieldByName('ACTIVE').AsString  := 'Y';
-      if not Data.Vat.DataSet.Active then
-        Data.Vat.Open;
-      FieldByName('VAT').AsString     := Data.Vat.FieldByName('ID').AsString;
+      FieldByName('VAT').AsString     := Vat.FieldByName('ID').AsString;
       FieldByName('CREATEDBY').AsString := Data.Users.IDCode.AsString;
       FieldByName('CHANGEDBY').AsString := Data.Users.IDCode.AsString;
       aDataSet.EnableControls;
     end;
+  Vat.Free;
 end;
 procedure TMasterdata.CascadicPost;
 begin
@@ -807,6 +822,46 @@ begin
   DataSet.Edit;
   Change;
 end;
+
+function TMasterdata.Versionate(aNewversion: Variant; aMakeActive: Boolean;
+  cPrices: Boolean; cProperties: Boolean; cTexts: Boolean; cSupplier: Boolean
+  ): Boolean;
+var
+  bMasterdata: TMasterdata;
+begin
+  Result := Copy(aNewversion,FieldByName('LANGUAGE').AsVariant,cPrices,cProperties,cTexts,cSupplier);
+  if aMakeActive then
+    begin
+      bMasterdata := TMasterdata.CreateEx(Self,DataModule,Self.Connection);
+      try
+        try
+          bMasterdata.Select(Number.AsString);
+          bMasterdata.Open;
+          while not bMasterdata.EOF do
+            begin
+              bMasterdata.Edit;
+              if bMasterdata.Id.AsVariant<>Self.Id.AsVariant then
+                bMasterdata.FieldByName('ACTIVE').AsString:='N'
+              else
+                bMasterdata.FieldByName('ACTIVE').AsString:='Y';
+              bMasterdata.Post;
+              bMasterdata.Next;
+            end;
+        except
+          Result := False;
+        end;
+      finally
+        bMasterdata.Free;
+      end;
+    end
+  else
+    begin
+      Edit;
+      FieldByName('ACTIVE').AsString:='N';
+      Post;
+    end;
+end;
+
 function TMasterdata.Find(aIdent: string;Unsharp : Boolean = False): Boolean;
 begin
   with DataSet as IBaseDbFilter,BaseApplication as IBaseDbInterface do
@@ -935,6 +990,7 @@ begin
             Add('ACCOUNT',ftString,10,False); //Fibu Konto
             Add('ACCOUNTINGINFO',ftMemo,0,False); //Fibu Info
             Add('CATEGORY',ftString,60,False);
+            Add('ISTEMPLATE',ftString,1,False);
             Add('CURRENCY',ftString,5,False);
             Add('CRDATE',ftDate,0,False);
             Add('CHDATE',ftDate,0,False);
@@ -949,7 +1005,8 @@ begin
             Add('BARCODE','BARCODE',[]);
             Add('SHORTTEXT','SHORTTEXT',[]);
           end;
-      DefineUserFields(aDataSet);
+      if Data.ShouldCheckTable(TableName) then
+        DefineUserFields(aDataSet);
     end;
   with aDataSet as IBaseDbFilter, BaseApplication as IBaseDbInterface do
     BaseFilter := Data.QuoteField('ACTIVE')+'='+Data.QuoteValue('Y');
@@ -1005,7 +1062,7 @@ begin
                 aObj.Status.AsString := Self.Status.AsString;
               aObj.Number.AsVariant:=Self.Number.AsVariant;
               aObj.FieldByName('LINK').AsString:=Data.BuildLink(Self.DataSet);
-              aObj.FieldByName('ICON').AsInteger:=Data.GetLinkIcon(Data.BuildLink(Self.DataSet));
+              aObj.FieldByName('ICON').AsInteger:=Data.GetLinkIcon(Data.BuildLink(Self.DataSet),True);
               aObj.FieldByName('VERSION').AsString:=Self.FieldByName('VERSION').AsString;
               aObj.Post;
               Self.GenerateThumbnail;

@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ButtonPanel, ExtCtrls, Buttons, EditBtn, ActnList, db,uprometscripts;
+  ButtonPanel, ExtCtrls, Buttons, EditBtn, ActnList, db,uprometpascalscript;
 
 type
   TImporterCapability = (icImport,icExport);
@@ -42,15 +42,17 @@ type
     Label1: TLabel;
     Label2: TLabel;
     lInfo: TLabel;
+    OpenDialog: TOpenDialog;
     Panel1: TPanel;
-    SelectDirectoryDialog1: TSelectDirectoryDialog;
     SpeedButton1: TSpeedButton;
     procedure acConfigExecute(Sender: TObject);
     procedure cbFormatSelect(Sender: TObject);
+    procedure eDataSourceButtonClick(Sender: TObject);
+    procedure lInfoResize(Sender: TObject);
   private
     FTyp : TImporterCapability;
     FFormat : string;
-    aScripts: TBaseScript;
+    aScripts: TPrometPascalScript;
     procedure CheckAll;
     { private declarations }
   public
@@ -77,7 +79,7 @@ resourcestring
 
 implementation
 
-uses uScriptEditor,uData,genpascalscript,variants;
+uses uScriptEditor,uData,genpascalscript,variants,uError;
 
 {$R *.lfm}
 
@@ -109,8 +111,8 @@ begin
   if aRes then
     begin
       lInfo.Caption:=strConfigureDataSource;
-      if (aScripts.Script is  TPascalScript) then
-        with aScripts.Script as TPascalScript do
+      if (TPrometPascalScript(aScripts).Script is  TPascalScript) then
+        with TPrometPascalScript(aScripts).Script as TPascalScript do
           begin
             if not TPascalScript(aScripts.Script).Compile then
               begin
@@ -125,9 +127,26 @@ begin
               lInfo.Caption:=Runtime.RunProcPN([],'SOURCEDESCRIPTION');
             except
             end;
+            OpenDialog.Filter:='';
+            try
+              OpenDialog.Filter:=Runtime.RunProcPN([],'FILEEXTENSION');
+            except
+            end;
           end;
     end
   else lInfo.Caption:=strSelectAnFormat;
+end;
+
+procedure TfScriptImport.eDataSourceButtonClick(Sender: TObject);
+begin
+  if OpenDialog.Filter<>'' then
+    if OpenDialog.Execute then
+      eDataSource.Text:=OpenDialog.FileName;
+end;
+
+procedure TfScriptImport.lInfoResize(Sender: TObject);
+begin
+  Height := eDataSource.Top+eDataSource.Height+bpButtons.Height+30;
 end;
 
 procedure TfScriptImport.CheckAll;
@@ -147,7 +166,7 @@ begin
     end;
   Ftyp := Typ;
   fFormat := DefaultFormat;
-  aScripts := TBaseScript.Create(nil);
+  aScripts := TPrometPascalScript.Create(nil);
   if FTyp=icImport then
     aScripts.Filter(Data.ProcessTerm(Data.QuoteField('NAME')+'='+Data.QuoteValue('Import.'+FFormat+'.*')))
   else
@@ -172,7 +191,12 @@ begin
         Result := aScripts.Locate('NAME','Export.'+FFormat+'.'+cbFormat.Text,[loCaseInsensitive]);
       if Result then
         begin
-          aScripts.Execute(VarArrayOf([eDataSource.Text]));
+          with TPrometPascalScript(aScripts).Script as TPascalScript do
+            begin
+              Result := Runtime.RunProcPN([eDataSource.Text],'IMPORT');
+              if not Result then
+                fError.ShowError(Runtime.RunProcPN([eDataSource.Text],'LASTERROR'));
+            end;
         end
     end;
   aScripts.Free;

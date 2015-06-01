@@ -22,7 +22,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, DbCtrls, ExtCtrls,
   uPrometFramesInplaceDB, uExtControls, db, uBaseDbClasses, uFilterFrame, Grids,
-  DBGrids, Buttons, ActnList, ugridview, Clipbrd, Graphics;
+  DBGrids, Buttons, ActnList, ugridview, Clipbrd, Graphics,uBaseDatasetInterfaces;
 type
 
   { TfHistoryFrame }
@@ -33,11 +33,13 @@ type
     acAddLinked: TAction;
     acIgnore: TAction;
     acRefresh: TAction;
+    acShowAll: TAction;
     ActionList1: TActionList;
     Bevel1: TBevel;
     Bevel2: TBevel;
     Bevel3: TBevel;
     bRefresh1: TSpeedButton;
+    bRefresh2: TSpeedButton;
     ExtRotatedLabel1: TExtRotatedLabel;
     ExtRotatedLabel2: TExtRotatedLabel;
     ExtRotatedLabel3: TExtRotatedLabel;
@@ -57,6 +59,7 @@ type
     procedure acDeleteExecute(Sender: TObject);
     procedure acIgnoreExecute(Sender: TObject);
     procedure acRefreshExecute(Sender: TObject);
+    procedure acShowAllExecute(Sender: TObject);
     function FContListDrawColumnCell(Sender: TObject; const aRect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState) : Boolean;
     procedure FContListViewDetails(Sender: TObject);
@@ -401,6 +404,11 @@ begin
   FTimeLine.Refresh(True);
 end;
 
+procedure TfHistoryFrame.acShowAllExecute(Sender: TObject);
+begin
+  FDataSet.ActualLimit:=0;
+end;
+
 procedure TfHistoryFrame.FContListViewDetails(Sender: TObject);
 begin
   if FTimeLine.GotoActiveRow then
@@ -596,7 +604,10 @@ procedure TfHistoryFrame.SetDataSet(const AValue: TBaseDBDataSet);
 begin
   inherited SetDataSet(AValue);
   if not Assigned(FTimeLine) then exit;
+  FTimeLine.BaseFilter:='';
+  FTimeLine.AutoFilter:='';
   FTimeLine.DataSet := AValue;
+  AValue.ActualFilter:='';
   aButtonClick(nil);
 end;
 procedure TfHistoryFrame.SetRights(Editable : Boolean);

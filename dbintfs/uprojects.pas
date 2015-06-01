@@ -21,7 +21,7 @@ unit uProjects;
 interface
 uses
   Classes, SysUtils, uBaseDBClasses, db, uBaseDbInterface, uIntfStrConsts,
-  uBaseERPDbClasses,uTask,Variants;
+  uBaseERPDbClasses,uTask,Variants,uBaseDatasetInterfaces;
 type
   { TProjectList }
   TProjectList = class(TBaseERPList)
@@ -104,6 +104,7 @@ type
     destructor Destroy;override;
     procedure Open; override;
     procedure Recalculate;
+    procedure Reorganize;
     function CreateTable : Boolean;override;
     procedure CascadicPost;override;
     procedure CascadicCancel;override;
@@ -230,7 +231,8 @@ begin
             Add('WORKSTATUS',ftString,4,False);
             Add('ORIGDATE',ftDateTime,0,False);
           end;
-      DefineUserFields(aDataSet);
+      if Data.ShouldCheckTable(TableName) then
+        DefineUserFields(aDataSet);
     end;
 end;
 procedure TProjectPositions.SetDisplayLabels(aDataSet: TDataSet);
@@ -255,7 +257,7 @@ begin
   inherited FillDefaults(aDataSet);
   aID := (Parent as TProject).Id.AsVariant;
   aDataSet.FieldByName('PROJECTID').AsVariant:=aID;
-  aDataSet.FieldByName('PROJECT').AsVariant:=(Parent as TProject).Text.AsVariant;
+  aDataSet.FieldByName('PROJECT').AsVariant:=TBaseDBModule(DataModule).GetLinkDesc(TBaseDBModule(DataModule).BuildLink((Parent as TProject).DataSet));
 end;
 procedure TProjectTasks.Open;
 begin
@@ -309,6 +311,7 @@ begin
         History.Open;
       if (Field.FieldName = 'STATUS') then
         begin
+          if FStatus=Field.AsString then exit;
           History.AddItem(Self.DataSet,Format(strStatusChanged,[FStatus,Field.AsString]),'','',DataSet,ACICON_STATUSCH);
           FStatus := Field.AsString;
           if Assigned(FStateChange) then
@@ -424,6 +427,18 @@ begin
   FieldByName('COSTS').AsFloat:=aReal;
   FieldByName('TARGETCOSTS').AsFloat:=aPos;
   if CanEdit then DataSet.Post;
+end;
+
+procedure TProject.Reorganize;
+begin
+  Recalculate;
+  Tasks.Open;
+  while not Tasks.EOF do
+    begin
+      Tasks.CheckChilds;
+      Tasks.CheckDependTasks;
+      Tasks.Next;
+    end;
 end;
 
 function TProject.CreateTable : Boolean;
@@ -701,6 +716,7 @@ begin
             Add('INFORMLEADER',ftString,1,False);
             Add('INFORMPMANAGER',ftString,1,False);
             Add('GROSSPLANNING',ftString,1,False);
+            Add('ISTEMPLATE',ftString,1,False);
             Add('COSTCENTRE',ftString,10,False);//Kostenstelle
             Add('ACCOUNT',ftString,10,False); //Fibu Konto
             Add('ACCOUNTINGINFO',ftMemo,0,False); //Fibu Info
@@ -717,6 +733,8 @@ begin
             Add('NAME','NAME',[]);
             Add('TREEENTRY','TREEENTRY',[]);
           end;
+      if Data.ShouldCheckTable(TableName) then
+        DefineUserFields(aDataSet);
     end;
 end;
 

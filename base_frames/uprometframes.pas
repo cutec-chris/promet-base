@@ -22,7 +22,7 @@ unit uPrometFrames;
 interface
 uses
   Classes, SysUtils, Forms, uBaseDbInterface, uBaseDbClasses, uExtControls,
-  Dialogs, Controls, ExtCtrls,uQuickHelpFrame,LCLProc, ActnList,db;
+  Dialogs, Controls, ExtCtrls,uQuickHelpFrame,LCLProc, ActnList,db,contnrs;
 type
 
   { TPrometMainFrame }
@@ -31,6 +31,8 @@ type
     procedure FwindowClose(Sender: TObject; var CloseAction: TCloseAction);
   private
     FLink: string;
+    FListAction: TAction;
+    FNewAction: TAction;
     FUseTransactions: Boolean;
   protected
     FDataSet: TBaseDBDataSet;
@@ -50,9 +52,15 @@ type
     property Connection : TComponent read FConnection write SetConnection;
     property DataSet : TBaseDBDataSet read FDataSet write SetDataSet;
     procedure CloseConnection(Ask : Boolean = True);virtual;
+
+    function CanHandleLink(aLink : string) : Boolean;virtual;abstract;
     function OpenFromLink(aLink : string) : Boolean;virtual;
-    property Link : string read FLink;
     procedure New;virtual;
+    procedure ListFrameAdded(aFrame : TObject);virtual;abstract;//Configure your List/Filter Frame
+    function HasListFrame : Boolean;virtual;
+    procedure DoSetup;virtual;abstract;
+
+    property Link : string read FLink;
     procedure SetLanguage;virtual;abstract;
     procedure CloseFrame;
     procedure Windowize;
@@ -62,9 +70,72 @@ type
     procedure AddHelp(aWindow : TWinControl);
     property HelpView : TfQuickHelpFrame read FQuickHelpFrame write FQuickHelpFrame;
     property UseTransactions : Boolean read FUseTransactions write FUseTransactions;
+
+    property NewAction : TAction read FNewAction write FNewAction;
+    property ListAction : TAction read FListAction write FListAction;
   end;
+  TPrometMainFrameClass = class of TPrometMainFrame;
+
+  { TPrometMenuEntry }
+
+  TPrometMenuEntry = class
+  private
+    FClick: TNotifyEvent;
+    FDClick: TNotifyEvent;
+    FItems: TList;
+    FLink: string;
+    FPath: string;
+    FCaption : string;
+    FType: string;
+  protected
+  public
+    constructor Create(aCaption, aPath, aLink: string; aIcon: Integer;aType : char = ' ');
+    function GetIconIndex : Integer;virtual;
+    property Caption : string read FCaption;
+    property DefaultPath : string read FPath;
+    property Link : string read FLink;
+    property Typ : string read FType;
+    procedure FillItems;virtual;abstract;
+    property Items : TList read FItems;
+    procedure RemoveItems;virtual;abstract;
+    property OnClick : TNotifyEvent read FClick write FClick;
+    property OnDblClick : TNotifyEvent read FDClick write FDClick;
+  end;
+
+  TPrometRootEntry = class(TPrometMenuEntry)
+  end;
+
+  procedure AddMenuEntry(aEntry : TPrometMenuEntry);
+
+var
+  PrometMenuEntrys : TList;
+
 implementation
 uses ComCtrls, uIntfStrConsts,LCLType,LCLIntf,uWiki,uData,uBaseApplication;
+
+procedure AddMenuEntry(aEntry: TPrometMenuEntry);
+begin
+  if not Assigned(PrometMenuEntrys) then
+    PrometMenuEntrys := TList.Create;
+  PrometMenuEntrys.Add(aEntry);
+end;
+
+constructor TPrometMenuEntry.Create(aCaption, aPath, aLink: string;
+  aIcon: Integer; aType: char);
+begin
+  inherited Create;
+  FLink:=aLink;
+  FCaption := aCaption;
+  FPath:=aPath;
+  FType := aType;
+  FType:=trim(FType);
+end;
+
+function TPrometMenuEntry.GetIconIndex: Integer;
+begin
+  Result := -1;
+end;
+
 procedure TPrometMainFrame.FwindowClose(Sender: TObject;
   var CloseAction: TCloseAction);
 begin
@@ -122,8 +193,6 @@ var
   aHistory: TAccessHistory;
 begin
   if HasHelp then AddHelp(Self);
-  if Assigned(DataSet) and (DataSet is TBaseDbList) then
-    TBaseDbList(DataSet).OpenItem;
 end;
 
 constructor TPrometMainFrame.Create(AOwner: TComponent);
@@ -157,10 +226,17 @@ begin
   with Application as IBaseDbInterface do
     FConnection := Data.GetNewConnection;
 end;
+
+function TPrometMainFrame.HasListFrame: Boolean;
+begin
+  Result := False;
+end;
+
 procedure TPrometMainFrame.CloseConnection(Ask : Boolean = True);
 begin
+  try
   if not Assigned(FConnection) then exit;
-  if Assigned(DataSet) and DataSet.Changed then
+  if Assigned(DataSet) and DataSet.Changed and DataSet.Active then
     begin
       if Ask and (MessageDlg(strItem+' '+TBaseDBList(DataSet).Text.AsString+' ('+TBaseDbList(DataSet).Number.AsString+')',strItemnotSaved,mtInformation,[mbYes,mbNo],0) = mrYes) then
         begin
@@ -190,6 +266,8 @@ begin
   with Application as IBaseDbInterface do
     Data.Disconnect(FConnection);
 //  FreeAndNil(FConnection);
+  except
+  end;
 end;
 function TPrometMainFrame.OpenFromLink(aLink: string): Boolean;
 begin

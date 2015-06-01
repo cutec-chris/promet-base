@@ -25,7 +25,7 @@ uses
    Forms, StdCtrls, ExtCtrls, Buttons, ComCtrls, DBGrids, Grids,
   Controls, EditBtn, Spin, Menus, ActnList, md5, db, Variants, uIntfStrConsts,
   Dialogs, uExtControls, Graphics, LCLType, uTimeLine, ClipBrd, DbCtrls, math,
-  uBaseDbClasses, uBaseDBInterface, uPrometFrames, uBaseApplication,ugridview;
+  uBaseDbClasses, uBaseDBInterface, uPrometFrames, uBaseApplication,ugridview,uBaseDatasetInterfaces;
 type
   TOnGetCellTextEvent = procedure(Sender: TObject; DataCol: Integer;
               Column: TColumn;var aText : string) of object;
@@ -48,6 +48,8 @@ type
     acInformwithexternMail: TAction;
     acInformwithinternMail: TAction;
     acDelete: TAction;
+    acChangeRows: TAction;
+    acResetFilter: TAction;
     ActionList: TActionList;
     bEditFilter: TSpeedButton;
     bEditFilter1: TSpeedButton;
@@ -63,6 +65,8 @@ type
     cbMaxResults: TCheckBox;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
+    MenuItem4: TMenuItem;
+    MenuItem6: TMenuItem;
     miAdmin: TMenuItem;
     MenuItem5: TMenuItem;
     pBottom: TPanel;
@@ -71,6 +75,7 @@ type
     List: TDatasource;
     eFilterEdit: TSynMemo;
     LinkSaveDialog: TSaveDialog;
+    pmHeader: TPopupMenu;
     sbSave1: TSpeedButton;
     sbSave2: TSpeedButton;
     SynSQLSyn1: TSynSQLSyn;
@@ -116,6 +121,7 @@ type
     tbMenue1: TToolButton;
     tbToolBar: TToolBar;
     ToolBar: TToolBar;
+    procedure acChangeRowsExecute(Sender: TObject);
     procedure acCopyFilterLinkExecute(Sender: TObject);
     procedure acCopyLinkExecute(Sender: TObject);
     procedure acDefaultFilterExecute(Sender: TObject);
@@ -127,6 +133,7 @@ type
     procedure acInformwithexternMailExecute(Sender: TObject);
     procedure acOpenExecute(Sender: TObject);
     procedure acPrintExecute(Sender: TObject);
+    procedure acResetFilterExecute(Sender: TObject);
     procedure acSaveFilterExecute(Sender: TObject);
     procedure acFilterRightsExecute(Sender: TObject);
     procedure acSaveLinkExecute(Sender: TObject);
@@ -166,8 +173,6 @@ type
       );
     procedure gListMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure gListSelectEditor(Sender: TObject; Column: TColumn;
-      var Editor: TWinControl);
     procedure gListTitleClick(Column: TColumn);
     procedure ListStateChange(Sender: TObject);
     procedure RefreshTimerTimer(Sender: TObject);
@@ -195,6 +200,7 @@ type
     FOnGetCellText: TOnGetCellTextEvent;
     FOnScrolled: TNotifyEvent;
     FOnViewDetails: TNotifyEvent;
+    FSortable: Boolean;
     FSortDirection: TSortDirection;
     FSortField: string;
     FTimelineField: string;
@@ -227,7 +233,6 @@ type
   public
     { public declarations }
     FAutoFilter : string;
-    FExtPickListEditor: TExtCombobox;
     TimeLine : TTimeLine;
     ColumnWidthHelper : TColumnWidthHelper;
     constructor Create(AOwner: TComponent); override;
@@ -237,6 +242,7 @@ type
     property FilterIn : string read GetFilterIn write SetFilterIn;
     property DefaultFilter : string read FStdFilter write SetStdFilter;
     property FilterType : string read FFilterType write SetFilterType;
+    procedure ClearFilter;
     property DefaultRows : string read fDefaultRows write SetDefaultRows;
     property SortDirection : TSortDirection read FSortDirection write SetSortDirecion;
     property SortField : string read FSortField write SetSortField;
@@ -249,6 +255,7 @@ type
     procedure DoBeforeClose;
     function ShowHint(var HintStr: string;var CanShow: Boolean; var HintInfo: THintInfo) : Boolean;override;
     property Editable : Boolean read FEditable write SetEditable;
+    property Sortable : Boolean read FSortable write FSortable;
     property DestroyDataSet : Boolean read FDestroyDataSet write FDestroyDataSet;
     property OnGetCellText : TOnGetCellTextEvent read FOnGetCellText write FOnGetCellText;
     property OnDrawColumnCell : TDrawColumnCellEvent read FOnDrawColumnCell write FOnDrawColumnCell;
@@ -271,7 +278,7 @@ implementation
 uses uRowEditor,uSearch, uBaseVisualApplicationTools, uBaseVisualApplication ,
   uFilterTabs,uFormAnimate,uData, uBaseVisualControls,uscriptimport,
   uSelectReport,uOrder,uBaseERPDBClasses,uNRights,LCLProc,
-  uPerson,uSendMail,Utils;
+  uPerson,uSendMail,Utils,LCLIntf;
 resourcestring
   strRecordCount                            = '%d Einträge';
   strFullRecordCount                        = 'von %d werden %d Einträge angezeigt';
@@ -420,26 +427,10 @@ begin
   aSelectedIndex:=gList.MouseCoord(0,Y+1).Y;
 end;
 
-procedure TfFilter.gListSelectEditor(Sender: TObject; Column: TColumn;
-  var Editor: TWinControl);
-begin
-  if Editor is TCustomComboBox then
-    begin
-      if Assigned(Editor) and (Editor is TPickListCellEditor) then
-        Editor := FExtPickListEditor;
-      if Assigned(FExtPickListEditor) and (Editor = FExtPickListEditor) then
-        begin
-          FExtPickListEditor.Items.Assign(Column.PickList);
-          //Editor.BoundsRect := gList.CellRect(gList.Col,gList.Row);
-          //FExtPickListEditor.Text := gList.Cells[gList.Col,gList.Row];
-        end;
-      TCustomComboBox(Editor).OnEnter:=@TCustomComboBoxEnter;
-    end;
-end;
-
 procedure TfFilter.gListTitleClick(Column: TColumn);
 begin
   if not Assigned(Column.Field) then exit;
+  if not Sortable then exit;
   if (Column.Field.DataType = ftMemo)
   or (Column.Field.DataType = ftWideMemo)
   or (Column.Field.DataType = ftBlob)
@@ -696,14 +687,6 @@ procedure TfFilter.gHeaderSetEditText(Sender: TObject; ACol, ARow: Integer;
 begin
   FAutoFilter := BuildAutoFilter(gList,gHeader);
 end;
-procedure TfFilter.bEditRowsClick(Sender: TObject);
-begin
-  fRowEditor.Execute     ('FILTER'+FFilterType,List,gList,cbFilter.Text);
-  fRowEditor.GetGridSizes('FILTER'+FFilterType,List,gList,FDefaultRows,not FEditable,cbFilter.Text);
-  SetupHeader;
-  UpdateTitle;
-end;
-
 procedure TfFilter.bFilterKeyPress(Sender: TObject; var Key: char);
 begin
   if Key=#13 then
@@ -728,7 +711,7 @@ begin
   with Application as IBaseDbInterface do
     begin
       with Data.Filters.DataSet as IBaseDBFilter,Data.Filters.DataSet as IbaseManageDB do
-        Data.SetFilter(Data.Filters,Data.ProcessTerm(Data.QuoteField('TYPE')+'='+Data.QuoteValue(FFilterType)),0,'','ASC',False,True,True);
+        Data.SetFilter(Data.Filters,'',0,'','ASC',False,True,True);
       if Data.Filters.DataSet.Locate('TYPE;NAME',VarArrayOf([FFilterType,cbFilter.Text]),[loCaseInsensitive,loPartialKey]) then
         Data.Filters.DataSet.Edit
       else
@@ -785,12 +768,17 @@ begin
     end;
 end;
 
+procedure TfFilter.bEditRowsClick(Sender: TObject);
+begin
+
+end;
+
 procedure TfFilter.acDeleteFilterExecute(Sender: TObject);
 begin
   with Application as IBaseDbInterface do
     begin
       with Data.Filters.DataSet as IBaseDBFilter,Data.Filters.DataSet as IbaseManageDB do
-        Data.SetFilter(Data.Filters,Data.ProcessTerm(Data.QuoteField('TYPE')+'='+Data.QuoteValue(FFilterType)),0,'','ASC',False,True,True);
+        Data.SetFilter(Data.Filters,'',0,'','ASC',False,True,True);
       if Data.Filters.DataSet.Locate('TYPE;NAME',VarArrayOf([FFilterType,cbFilter.Text]),[loCaseInsensitive,loPartialKey]) then
         if MessageDlg(strRealdelete,mtInformation,[mbYes,mbNo],0) = mrYes then
           begin
@@ -839,6 +827,14 @@ begin
       Clipboard.AddFormat(LinkClipboardFormat,Stream);
       Stream.Free;
     end;
+end;
+
+procedure TfFilter.acChangeRowsExecute(Sender: TObject);
+begin
+  fRowEditor.Execute     ('FILTER'+FFilterType,List,gList,cbFilter.Text);
+  fRowEditor.GetGridSizes('FILTER'+FFilterType,List,gList,FDefaultRows,not FEditable,cbFilter.Text);
+  SetupHeader;
+  UpdateTitle;
 end;
 
 procedure TfFilter.acDefaultFilterExecute(Sender: TObject);
@@ -1046,6 +1042,8 @@ begin
 end;
 
 procedure TfFilter.acOpenExecute(Sender: TObject);
+var
+  aLink: String;
 begin
   if Assigned(FOnViewDetails) then
     FOnViewDetails(Self)
@@ -1074,6 +1072,12 @@ begin
   fSelectReport.Execute;
   List.DataSet.EnableControls;
 end;
+
+procedure TfFilter.acResetFilterExecute(Sender: TObject);
+begin
+  ClearFilters;
+end;
+
 procedure TfFilter.cbFilterSelect(Sender: TObject);
 var
   aControl: TControl;
@@ -1181,11 +1185,12 @@ begin
       with Data.Filters.DataSet do
         begin
           with Data.Filters.DataSet as IBaseDBFilter,Data.Filters.DataSet as IbaseManageDB do
-            Data.SetFilter(Data.Filters,Data.ProcessTerm(Data.QuoteField('TYPE')+'='+Data.QuoteValue(FFilterType)),0,'','ASC',False,True,True);
+            Data.SetFilter(Data.Filters,'',0,'','ASC',False,True,True);
           First;
           while not EOF do
             begin
-              cbFilter.Items.Add(FieldbyName('NAME').AsString);
+              if Data.Filters.DataSet.FieldByName('TYPE').AsString=AValue then
+                cbFilter.Items.Add(FieldbyName('NAME').AsString);
               Next;
             end;
         end;
@@ -1378,11 +1383,9 @@ begin
   FEditable := False;
   gList.ScrollSyncControl := gHeader;
   tbToolbar.Images := fVisualControls.Images;
-  gList.UseExtPicklist:=False;
+  gList.UseExtPicklist:=true;
   gHeader.CachedEditing:=False;
-  FExtPickListEditor := TExtComboBox.Create(Self);
-  FExtPickListEditor.Visible:=False;
-  FExtPickListEditor.Sorted:=False;
+  FSortable:=True;
   SetRights;
 end;
 destructor TfFilter.Destroy;
@@ -1683,6 +1686,16 @@ begin
       bFilter.Visible:=True;
     end;
 end;
+
+procedure TfFilter.ClearFilter;
+begin
+  if cbFilter.Text<>strNoSelectFilter then
+    begin
+      cbFilter.Text:=strNoSelectFilter;
+      cbFilterSelect(nil);
+    end;
+end;
+
 procedure TfFilter.SetActive;
 var
   aFilter: TStringList;

@@ -24,7 +24,7 @@ interface
 
 uses
   Classes,SysUtils,uDocuments,uBaseDbClasses,uBaseDBInterface,db,uIntfStrConsts,
-  Utils,usimpleprocess;
+  Utils,usimpleprocess,uBaseDatasetInterfaces;
 type
 
   { TDocPages }
@@ -36,7 +36,7 @@ type
     procedure SetParamsFromExif(extn : string;aFullStream : TStream);
     procedure SetType(AValue: string);
   public
-    function GetUsedFields : string;
+    function GetUsedFields : string;virtual;
     procedure PrepareDataSet;
     procedure Open; override;
     procedure Select(aID: Variant); override;
@@ -46,9 +46,21 @@ type
     property Typ : string read FTyp write SetType;
   end;
 
+  TDocPagesList = class(TDocPages)
+  public
+    function GetUsedFields : string;override;
+  end;
+
 implementation
 uses uData,uBaseApplication,dEXIF,Process,
   uthumbnails;
+
+function TDocPagesList.GetUsedFields: string;
+begin
+  Result:=inherited GetUsedFields;
+  Result := StringReplace(Result,Data.QuoteField(TableName)+'.'+Data.QuoteField('FULLTEXT'),'',[rfReplaceAll]);
+  Result := StringReplace(Result,',,',',',[rfReplaceAll]);
+end;
 
 procedure TDocPages.SetParamsFromExif(extn: string; aFullStream: TStream);
 var
@@ -161,6 +173,7 @@ begin
       if Assigned(ManagedFieldDefs) then
         with ManagedFieldDefs do
           begin
+            Add('DOCID',ftLargeint,0,False); //für zusammengeheftetet Dokumente auf SQL_ID des Dokumentes
             Add('PAGE',ftInteger,0,False);
             Add('TYPE',ftString,1,False);
             Add('TAGS',ftString,500,False);
@@ -235,7 +248,7 @@ var
   aText: string;
   ss: TStringStream;
 begin
-  if FileExists(aFile) then
+  if FileExists(UniToSys(aFile)) then
     begin
       Insert;
       FieldByName('NAME').AsString:=ExtractFileName(aFile);
@@ -282,16 +295,16 @@ begin
       or (extn = '.arw')
       then
         begin
-          if FileExists(copy(aFile,0,rpos('.',aFile)-1)+'.jpg') then
+          if FileExists(UniToSys(copy(aFile,0,rpos('.',aFile)-1)+'.jpg')) then
             aSecFile := copy(aFile,0,rpos('.',aFile)-1)+'.jpg'
-          else if FileExists(copy(aFile,0,rpos('.',aFile)-1)+'.JPG') then
+          else if FileExists(UniToSys(copy(aFile,0,rpos('.',aFile)-1)+'.JPG')) then
             aSecFile := copy(aFile,0,rpos('.',aFile)-1)+'.JPG'
-          else if FileExists(copy(aFile,0,rpos('.',aFile)-1)+'.Jpg') then
+          else if FileExists(UniToSys(copy(aFile,0,rpos('.',aFile)-1)+'.Jpg')) then
             aSecFile := copy(aFile,0,rpos('.',aFile)-1)+'.Jpg';
           if aSecFile = '' then
             begin
-              ExecProcessEx('ufraw-batch --silent --create-id=also --out-type=jpg --exif "--output='+copy(aFile,0,rpos('.',aFile)-1)+'.jpg"'+' "'+aFile+'"');
-              if FileExists(copy(aFile,0,rpos('.',aFile)-1)+'.jpg') then
+              ExecProcessEx('ufraw-batch --silent --create-id=also --out-type=jpg --exif "--output='+UniToSys(copy(aFile,0,rpos('.',aFile)-1))+'.jpg"'+' "'+aFile+'"');
+              if FileExists(UniToSys(copy(aFile,0,rpos('.',aFile)-1)+'.jpg')) then
                 aSecFile := copy(aFile,0,rpos('.',aFile)-1)+'.jpg'
             end;
           if aSecFile <> '' then
@@ -309,18 +322,30 @@ begin
         aDocument.CheckoutToStream(aFullStream);
       aFullStream.Position:=0;
       SetParamsFromExif(extn,aFullStream);
+      aFullStream.Position:=0;
       if FieldByName('ORIGDATE').IsNull then
         FieldByName('ORIGDATE').AsDateTime:=aDocument.FieldByName('DATE').AsDateTime;
       if FieldByName('ORIGDATE').IsNull then
         FieldByName('ORIGDATE').AsDateTime:=Now();
       aDocument.GetText(aFullStream,extn,aText);
+      aFullStream.Position:=0;
       GenerateThumbNail(ExtractFileExt(aDocument.FileName),aFullStream,aStream,aText);
       Self.Post;
       if aText<>'' then
         begin
-          ss := TStringStream.Create(aText);
-          Data.StreamToBlobField(ss,Self.DataSet,'FULLTEXT');
-          ss.Free;
+          if DataSet.FieldDefs.IndexOf('FULLTEXT')>0 then
+            begin
+              Edit;
+              FieldByName('FULLTEXT').AsString:=aText;
+              Post;
+            end
+          else
+            begin
+              ss := TStringStream.Create(aText);
+              ss.Position:=0;
+              Data.StreamToBlobField(ss,Self.DataSet,'FULLTEXT');
+              ss.Free;
+            end;
         end;
       if aStream.Size>0 then
         Data.StreamToBlobField(aStream,Self.DataSet,'THUMBNAIL');

@@ -54,7 +54,6 @@ type
     FAppName : string;
     FAppRevsion : Integer;
     FAppVersion : Real;
-//    Properties : TXMLPropStorage;
     function HandleSystemCommand(Sender : TObject;aCommand : string) : Boolean;
   public
     constructor Create(AOwner: TComponent); override;
@@ -98,7 +97,7 @@ type
   end;
 
 implementation
-uses uprometscripts,variants;
+uses variants;
 procedure TBaseCustomApplication.BaseCustomApplicationException(
   Sender: TObject; E: Exception);
 var
@@ -128,7 +127,6 @@ function TBaseCustomApplication.HandleSystemCommand(Sender: TObject;
 var
   bCommand: String;
   cCommand: String;
-  aScript: TBaseScript;
 begin
   Result := False;
   bCommand := copy(aCommand,0,pos('(',aCommand)-1);
@@ -146,14 +144,8 @@ begin
     end
   else if bCommand = 'ExecuteScript' then
     begin
-      aScript := TBaseScript.Create(nil);
-      aScript.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(cCommand));
-      if aScript.Count>0 then
-        begin
-          aScript.Execute(VarArrayOf([]));
-        end;
-      aScript.Free;
-      Result := True;
+      //TODO:execute script with pscripts
+      Result := False;
     end
   ;
 end;
@@ -216,10 +208,6 @@ begin
 end;
 procedure TBaseCustomApplication.SaveConfig;
 begin
-  with Self as IBaseApplication do
-    begin
-//      Properties.Save;
-    end;
 end;
 function TBaseCustomApplication.GetLanguage: string;
 begin
@@ -291,19 +279,21 @@ end;
 
 procedure TBaseCustomApplication.Log(aType: string; aMsg: string);
 begin
-  writeln(aType+':'+aMsg);
-  if Assigned(FLogger) then
-    begin
-      if aType = 'INFO' then
-        begin
-          if FLogger.LogType<>ltSystem then
-            FLogger.Info(aMsg);
-        end
-      else if aType = 'WARNING' then
-        FLogger.Warning(aMsg)
-      else if aType = 'ERROR' then
-        FLogger.Error(aMsg);
-    end;
+  try
+    if Assigned(FLogger) then
+      begin
+        if aType = 'INFO' then
+          begin
+            if FLogger.LogType<>ltSystem then
+              FLogger.Info(aMsg);
+          end
+        else if aType = 'WARNING' then
+          FLogger.Warning(aMsg)
+        else if aType = 'ERROR' then
+          FLogger.Error(aMsg);
+      end;
+  except
+  end;
 end;
 procedure TBaseCustomApplication.Log(aMsg: string);
 begin

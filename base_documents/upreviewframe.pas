@@ -81,6 +81,7 @@ type
       procedure ScrollBar2Change(Sender: TObject);
       procedure tsImageShow(Sender: TObject);
     private
+      FAfterGetText: TNotifyEvent;
       FResetZoom: Boolean;
       FZoomW: Boolean;
       { private declarations }
@@ -110,6 +111,7 @@ type
       procedure AddToolbarAction(aAction : TAction);
       property ResetZoom : Boolean read FResetZoom write FResetZoom;
       property ZoomWidth : Boolean read FZoomW write FZoomW;
+      property AfterGetText : TNotifyEvent read FAfterGetText write fAfterGetText;
     end;
 
   { TLoadThread }
@@ -131,6 +133,7 @@ type
     procedure FillRevision;
     procedure EndLoading;
     procedure getConnection;
+    procedure CheckOutToStream;
   public
     procedure Execute;override;
     constructor Create(aFrame: TfPreview; aID: Int64;aRevision : Integer = -1);
@@ -216,6 +219,11 @@ begin
   aTransaction := Data.GetNewConnection;
 end;
 
+procedure TLoadThread.CheckOutToStream;
+begin
+  aDocument.CheckoutToStream(aStream,FRev);
+end;
+
 procedure TLoadThread.Execute;
 var
   aNumber: Integer;
@@ -237,7 +245,7 @@ begin
       if DoAbort then goto aExit;
       if aDocument.Size>(15*1024*1024) then goto aExit; //to big for preview
       aStream := TMemoryStream.Create;
-      aDocument.CheckoutToStream(aStream,FRev);
+      Synchronize(@CheckoutToStream);
       if not DoAbort then
         begin
           Synchronize(@LoadFromStream);
@@ -314,6 +322,8 @@ begin
       for i := 0 to Texts.Count-1 do
         TStringList(Texts[i]).Free;
       Texts.Free;
+      if Assigned(FAfterGetText) then
+        FAfterGetText(Self);
     end;
   aDoc.Free;
 end;

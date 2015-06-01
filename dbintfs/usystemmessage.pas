@@ -21,7 +21,7 @@ unit uSystemMessage;
 interface
 uses
   Classes, SysUtils, uBaseDbInterface, uBaseDbClasses, db, uBaseApplication,
-  Variants;
+  Variants,uBaseDatasetInterfaces;
 type
   TSystemCommands = class(TBaseDBDataSet)
   public
@@ -130,8 +130,6 @@ begin
   Data.SetFilter(SysMessages,Data.QuoteField('PROCESS_ID')+'='+Data.QuoteValue(IntToStr(Data.SessionID)),5);
   if not BaseApplication.HasOption('disablethreads') then
     inherited Create(False)
-  else
-    Execute;
 end;
 
 procedure TMessageHandler.Execute;

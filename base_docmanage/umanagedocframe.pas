@@ -27,8 +27,9 @@ uses
   Classes, SysUtils, db, FileUtil, Forms, Controls, ExtCtrls, StdCtrls, DbCtrls,
   Buttons, ComCtrls, ActnList, thumbcontrol, uPrometFrames, uBaseDocPages,
   uBaseDBInterface, threadedimageLoader, uDocumentFrame, DBZVDateTimePicker,
-  PReport, Dialogs, PairSplitter, Menus, ExtDlgs, uIntfStrConsts,uGeneralStrConsts,
-  uBaseDbClasses, variants, types, uTimeLine, uPreviewFrame, uOCR, uExtControls;
+  PReport, Dialogs, PairSplitter, Menus, ExtDlgs, LCLType, uIntfStrConsts,
+  uGeneralStrConsts, uBaseDbClasses, variants, types, uTimeLine, uPreviewFrame,
+  uOCR, uExtControls,syncobjs,uBaseDatasetInterfaces;
 
 type
   TImageItem = class(TObject)
@@ -59,6 +60,8 @@ type
     acShowDetails: TAction;
     acFileImport: TAction;
     acOptimizeDocument: TAction;
+    acSetDate: TAction;
+    acAquire: TAction;
     ActionList1: TActionList;
     bEditFilter: TSpeedButton;
     Bevel1: TBevel;
@@ -71,6 +74,7 @@ type
     Bevel9: TBevel;
     bImport1: TSpeedButton;
     bImport2: TSpeedButton;
+    bImport3: TSpeedButton;
     bShowDetail: TSpeedButton;
     bRefresh2: TSpeedButton;
     bRefresh3: TSpeedButton;
@@ -79,10 +83,11 @@ type
     bTag1: TSpeedButton;
     bZoomIn: TSpeedButton;
     bZoomOut: TSpeedButton;
-    bImport: TSpeedButton;
     cbFilter: TComboBox;
     Datasource1: TDatasource;
     DBEdit1: TDBEdit;
+    IdleTimer1: TTimer;
+    MenuItem11: TMenuItem;
     mFulltext: TMemo;
     MenuItem10: TMenuItem;
     MenuItem4: TMenuItem;
@@ -101,7 +106,6 @@ type
     ExtRotatedLabel6: TLabel;
     ExtRotatedLabel7: TLabel;
     ExtRotatedLabel8: TExtRotatedLabel;
-    IdleTimer1: TIdleTimer;
     iNoThumbnail: TImage;
     Label1: TLabel;
     Label2: TLabel;
@@ -141,6 +145,7 @@ type
     ThumbControl1: TThumbControl;
     tsDocument: TTabSheet;
     tsFiles: TTabSheet;
+    procedure acAquireExecute(Sender: TObject);
     procedure acDeleteExecute(Sender: TObject);
     procedure acEditExecute(Sender: TObject);
     procedure acFileImportExecute(Sender: TObject);
@@ -159,11 +164,11 @@ type
     procedure acSaveAllExecute(Sender: TObject);
     procedure acSaveasPDFExecute(Sender: TObject);
     procedure acSaveExecute(Sender: TObject);
+    procedure acSetDateExecute(Sender: TObject);
     procedure acSetLinkExecute(Sender: TObject);
     procedure acSetTagExecute(Sender: TObject);
     procedure acShowDetailsExecute(Sender: TObject);
     procedure bShowDetailClick(Sender: TObject);
-    procedure bTag1Click(Sender: TObject);
     procedure bZoomInClick(Sender: TObject);
     procedure bZoomOutClick(Sender: TObject);
     procedure DoAOpen(Data: PtrInt);
@@ -174,18 +179,20 @@ type
     procedure FrameExit(Sender: TObject);
     procedure FTimeLineSetMarker(Sender: TObject);
     procedure IdleTimer1Timer(Sender: TObject);
-    procedure pmPopupPopup(Sender: TObject);
+    procedure PreviewFrameAfterGetText(Sender: TObject);
     function SetLinkfromSearch(aLink: string): Boolean;
     procedure tbMenue1Click(Sender: TObject);
     procedure ThumbControl1AfterDraw(Sender: TObject; Item: TThreadedImage;
       aRect: Trect);
     procedure ThumbControl1DblClick(Sender: TObject);
+    procedure ThumbControl1DrawCaption(Sender: TObject; Item: TThreadedImage;
+      aRect: TRect);
     procedure ThumbControl1ImageLoaderManagerBeforeStartQueue(Sender: TObject);
-    procedure ThumbControl1ImageLoaderManagerSetItemIndex(Sender: TObject);
+    procedure ThumbControl1ItemIndexChanged(Sender: TObject;
+      Item: TThreadedImage);
     procedure ThumbControl1LoadFile(Sender: TObject; URL: string; out
       Stream: TStream);
     procedure ThumbControl1Scrolled(Sender: TObject);
-    procedure ThumbControl1SelectItem(Sender: TObject; Item: TThreadedImage);
     procedure tstextShow(Sender: TObject);
   private
     { private declarations }
@@ -203,6 +210,7 @@ type
     PreviewFrame: TfPreview;
     SelectedItem: TThreadedImage;
     FFilter: String;
+    CSLoad: TCriticalSection;
     loadedDocument: UTF8String;
     procedure FetchNext;
     function GetTyp: string;
@@ -220,6 +228,7 @@ type
     procedure OpenDir(aDir : Variant);
     property Typ : string read GetTyp write SetTyp;
     procedure ShowFrame; override;
+    property FullDataSet : TDocPages read FFullDataSet;
   end;
 
   { TImportCheckTherad }
@@ -241,10 +250,11 @@ implementation
 uses uData,udocuments,uWait,LCLIntf,Utils,uFormAnimate,uImportImages,
   ProcessUtils,uMainTreeFrame,ucameraimport,FPimage,FPReadJPEG,FPCanvas,
   FPWriteJPEG,LCLProc,uthumbnails,uBaseVisualControls,updfexport,uSearch,
-  usimpleprocess,uImaging,uBaseApplication;
+  usimpleprocess,uImaging,uBaseApplication,uDocumentAcquire,Graphics,PdfDoc,
+  PdfImages,uBaseVisualApplication;
 resourcestring
   strTag                   = 'Tag';
-  strSetTag                = 'durch Klick setzen';
+  strSetTag                = 'alle markierten setzen';
   strSetDate               = 'Soll das Datum %s als Belegdatum gesetzt werden ?';
   strMakeLinkToDocuments   = 'Soll ein Verweis in dne Dateien des Eintrags angelegt werden ?'+LineEnding+'So können Sie auch vom Eintrag aus das Dokument schnell finden';
   strNoText                = 'kein Text gefunden, oder keine OCR Anwendung installiert !';
@@ -254,7 +264,8 @@ var
   Node1: TTreeNode;
 begin
   TTreeEntry(Node.Data).Typ := etDocuments;
-  Data.SetFilter(Data.Tree,'(('+Data.QuoteField('PARENT')+'=0) and ('+Data.QuoteField('TYPE')+'='+Data.QuoteValue(aType)+'))',0,'','ASC',False,True,True);
+  Data.Tree.DataSet.Filter:='(('+Data.QuoteField('PARENT')+'=0) and ('+Data.QuoteField('TYPE')+'='+Data.QuoteValue(aType)+'))';
+  Data.Tree.DataSet.Filtered:=True;
   Data.Tree.DataSet.First;
   while not Data.Tree.dataSet.EOF do
     begin
@@ -266,6 +277,7 @@ begin
       fMainTreeFrame.tvMain.Items.AddChildObject(Node1,'',TTreeEntry.Create);
       Data.Tree.DataSet.Next;
     end;
+  Data.Tree.DataSet.Filtered:=False;
 end;
 
 { TImportCheckTherad }
@@ -293,6 +305,8 @@ end;
 procedure TfManageDocFrame.ThumbControl1LoadFile(Sender: TObject; URL: string;
   out Stream: TStream);
 begin
+  CSLoad.Enter;
+  try
   FUrl := URL;
   if FLast=URL then
     begin
@@ -304,6 +318,9 @@ begin
     TThread(TThreadedImage(Sender).Thread).Synchronize(TThreadedImage(Sender).Thread,@WaitForImage)
   else WaitForImage;
   Stream := TfileStream.Create(FtempPath+URL,fmOpenRead);
+  finally
+    CSLoad.Leave;
+  end;
 end;
 
 procedure TfManageDocFrame.ThumbControl1Scrolled(Sender: TObject);
@@ -328,58 +345,17 @@ begin
     end;
 end;
 
-procedure TfManageDocFrame.ThumbControl1SelectItem(Sender: TObject;
-  Item: TThreadedImage);
-var
-  i: Integer;
-  tmp: String;
-  ItemPos: Integer;
-  DayHeight: Extended;
-  aItem: TThreadedImage;
-begin
-  SelectedItem := Item;
-  FDocFrame.Refresh(copy(Item.URL,0,pos('.',Item.URL)-1),'S');
-  aItem := ThumbControl1.ItemFromPoint(point(ThumbControl1.Left+(ThumbControl1.ThumbWidth div 2),ThumbControl1.Top+(ThumbControl1.ThumbHeight div 2)));
-  if Assigned(aItem) then
-    begin
-      if DataSet.DataSet.Locate('SQL_ID',copy(aItem.URL,0,pos('.',aItem.URL)-1),[]) then
-        begin
-          ItemPos := aItem.Area.Top+((aItem.Area.Bottom-aItem.Area.Top) div 2);
-          DayHeight := (FTimeLine.Height/FTimeLine.DateRange);
-          FTimeLine.StartDate:=DataSet.FieldByName('ORIGDATE').AsDateTime+round((ItemPos/DayHeight))+30;
-          FTimeLine.PointerDate:=DataSet.FieldByName('ORIGDATE').AsDateTime+round((ItemPos/DayHeight));
-        end;
-    end;
-  DataSet.DataSet.Locate('SQL_ID',copy(Item.URL,0,pos('.',Item.URL)-1),[]);
-  FTimeLine.MarkerDate:=DataSet.FieldByName('ORIGDATE').AsDateTime;
-  if (aTag <> '') and bTag.Down and (pos(aTag,DataSet.FieldByName('TAGS').AsString)=0) then
-    begin
-      if not DataSet.CanEdit then
-        DataSet.DataSet.Edit;
-      tmp := DataSet.FieldByName('TAGS').AsString;
-      if (copy(tmp,length(tmp)-1,1) <> ',') and (trim(tmp) <> '') then
-        tmp := tmp+',';
-      tmp := tmp+aTag;
-      DataSet.FieldByName('TAGS').AsString := tmp;
-    end;
-  if (aDate <> '') and bTag1.Down then
-    begin
-      if not DataSet.CanEdit then
-        DataSet.DataSet.Edit;
-      DataSet.FieldByName('ORIGDATE').AsString := aDate;
-    end;
-  if bShowDetail.Down then
-    ShowDocument;
-end;
-
 procedure TfManageDocFrame.tstextShow(Sender: TObject);
 var
   ss: TStringStream;
 begin
-  ss := TStringStream.Create('');
-  Data.BlobFieldToStream(DataSet.DataSet,'FULLTEXT',ss);
-  mFulltext.Text:=ss.DataString;
-  ss.Free;
+  if GotoCurrentItem then
+    begin
+      ss := TStringStream.Create('');
+      Data.BlobFieldToStream(DataSet.DataSet,'FULLTEXT',ss);
+      mFulltext.Text:=ss.DataString;
+      ss.Free;
+    end;
 end;
 
 procedure TfManageDocFrame.ThumbControl1ImageLoaderManagerBeforeStartQueue(
@@ -418,12 +394,34 @@ begin
       FreeAndNil(FFetchDS);
     end;
 end;
-procedure TfManageDocFrame.ThumbControl1ImageLoaderManagerSetItemIndex(
-  Sender: TObject);
+procedure TfManageDocFrame.ThumbControl1ItemIndexChanged(Sender: TObject;
+  Item: TThreadedImage);
+var
+  i: Integer;
+  tmp: String;
+  ItemPos: Integer;
+  DayHeight: Extended;
+  aItem: TThreadedImage;
 begin
-  FTimeLine.StartDate:=DataSet.FieldByName('ORIGDATE').AsDateTime+60;
+  SelectedItem := Item;
+  FDocFrame.Refresh(copy(Item.URL,0,pos('.',Item.URL)-1),'S');
+  aItem := ThumbControl1.ItemFromPoint(point(ThumbControl1.Left+(ThumbControl1.ThumbWidth div 2),ThumbControl1.Top+(ThumbControl1.ThumbHeight div 2)));
+  if Assigned(aItem) then
+    begin
+      if DataSet.DataSet.Locate('SQL_ID',copy(aItem.URL,0,pos('.',aItem.URL)-1),[]) then
+        begin
+          ItemPos := aItem.Area.Top+((aItem.Area.Bottom-aItem.Area.Top) div 2);
+          DayHeight := (FTimeLine.Height/FTimeLine.DateRange);
+          FTimeLine.StartDate:=DataSet.FieldByName('ORIGDATE').AsDateTime+round((ItemPos/DayHeight))+30;
+          FTimeLine.PointerDate:=DataSet.FieldByName('ORIGDATE').AsDateTime+round((ItemPos/DayHeight));
+        end;
+    end;
+  DataSet.DataSet.Locate('SQL_ID',copy(Item.URL,0,pos('.',Item.URL)-1),[]);
   FTimeLine.MarkerDate:=DataSet.FieldByName('ORIGDATE').AsDateTime;
+  if bShowDetail.Down then
+    ShowDocument;
 end;
+
 procedure TfManageDocFrame.FrameEnter(Sender: TObject);
 var
   aSheet: TTabSheet;
@@ -491,9 +489,7 @@ begin
       FDataSet.GotoBookmark(arec);
       FDataSet.Next;
     end;
-  ThumbControl1.ImageLoaderManager.OnSetItemIndex:=nil;
   ThumbControl1.ImageLoaderManager.ActiveIndex:=i;
-  ThumbControl1.ImageLoaderManager.OnSetItemIndex:=@ThumbControl1ImageLoaderManagerSetItemIndex;
   ThumbControl1.ScrollIntoView;
 end;
 procedure TfManageDocFrame.IdleTimer1Timer(Sender: TObject);
@@ -542,9 +538,9 @@ begin
     begin
       SortFields := 'ORIGDATE';
       SortDirection:=sdDescending;
-      Limit := 0;
       if trim(eSearch.Text)<>'' then
         begin
+          Limit := 1000;
           if Uppercase(eSearch.Text)='NULL' then
             begin
               aFilter := '('+Data.ProcessTerm(Data.QuoteField('TAGS')+'='+Data.QuoteValue(''))+') AND ('+Data.QuoteField('TYPE')+'='+Data.QuoteValue(TDocPages(DataSet).Typ)+')';
@@ -561,11 +557,13 @@ begin
               AddFilter(tmp);
               aFilter := '('+aFilter+') AND ('+Data.QuoteField('TYPE')+'='+Data.QuoteValue(TDocPages(DataSet).Typ)+')';
             end;
-
           Filter :=  aFilter;
         end
       else
-        Filter := Data.QuoteField('TYPE')+'='+Data.QuoteValue(TDocPages(DataSet).Typ);
+        begin
+          Filter := Data.QuoteField('TYPE')+'='+Data.QuoteValue(TDocPages(DataSet).Typ);
+          Limit := 0;
+        end;
     end;
   DataSet.Open;
   FLast:='';
@@ -577,66 +575,100 @@ begin
   //Application.ProcessMessages;
   IdleTimer1.Tag:=0;
 end;
-procedure TfManageDocFrame.pmPopupPopup(Sender: TObject);
+
+procedure TfManageDocFrame.PreviewFrameAfterGetText(Sender: TObject);
+var
+  aDocument: TDocument;
 begin
-  ThumbControl1.Click;
+  TDocPages(FFullDataSet).Select(DataSet.Id.AsVariant);
+  TDocPages(FFullDataSet).Open;
+  if TDocPages(FFullDataSet).Count>0 then
+    begin
+      aDocument := TDocument.Create(nil);
+      aDocument.SelectByID(FDocFrame.DataSet.Id.AsVariant);
+      aDocument.Open;
+      TDocPages(FFullDataSet).Edit;
+      TDocPages(FFullDataSet).FieldByName('FULLTEXT').AsString:=aDocument.FieldByName('FULLTEXT').AsString;
+      TDocPages(FFullDataSet).Post;
+      aDocument.Free;
+    end;
 end;
 
 function TfManageDocFrame.SetLinkfromSearch(aLink: string): Boolean;
 var
-  aEntryClass: TBaseDBDatasetClass;
-  aEntry: TBaseDBDataset;
-  aDocument: TDocument;
-  aDocLink: String;
+  Item: TThreadedImage;
   i: Integer;
-  aName: String;
+  procedure SetLink;
+  var
+    aEntryClass: TBaseDBDatasetClass;
+    aEntry: TBaseDBDataset;
+    aDocument: TDocument;
+    aDocLink: String;
+    i: Integer;
+    aName: String;
+    DoLinkDocuments: Boolean;
+  begin
+    DataSet.DataSet.Locate('SQL_ID',copy(Item.URL,0,pos('.',Item.URL)-1),[]);
+    DoLinkDocuments := MessageDlg(strMakeLinkToDocuments,mtInformation,[mbYes,mbNo],0) = mrYes;
+    TDocPages(DataSet).Edit;
+    TDocPages(DataSet).FieldByName('LINK').AsString:=aLink;
+    TDocPages(DataSet).Post;
+    SelectedItem.Name:=TDocPages(DataSet).FieldByName('NAME').AsString+LineEnding+Data.GetLinkDesc(TDocPages(DataSet).FieldByName('LINK').AsString);
+    if Data.DataSetFromLink(aLink,aEntryClass) then
+      begin
+        if DoLinkDocuments then
+          begin
+            aEntry := aEntryClass.Create(nil);
+            if aEntry is TBaseDbList then
+              begin
+                TBaseDbList(aEntry).SelectFromLink(aLink);
+                TBaseDbList(aEntry).Open;
+                if TBaseDbList(aEntry).Count>0 then
+                  begin
+                    aDocument := TDocument.CreateEx(Self,Data);
+                    aDocument.Select(0);
+                    aDocument.Open;
+                    aDocument.Ref_ID:=aEntry.Id.AsVariant;
+                    aDocument.BaseID:=aEntry.Id.AsVariant;
+                    aDocument.BaseTyp:=TBaseDbList(aEntry).GetTyp;
+                    if Assigned(TBaseDbList(aEntry).FieldByName('LANGUAGE')) then
+                      aDocument.BaseLanguage:=TBaseDbList(aEntry).FieldByName('LANGUAGE').AsString;
+                    if Assigned(TBaseDbList(aEntry).FieldByName('VERSION')) then
+                      aDocument.BaseLanguage:=TBaseDbList(aEntry).FieldByName('VERSION').AsString;
+                    for i := 0 to FDocFrame.lvDocuments.Items.Count-1 do
+                      begin
+                        if FDocFrame.GotoEntry(FDocFrame.lvDocuments.Items[i]) then
+                          begin
+                            aDocLink := Data.BuildLink(FDocFrame.DataSet.DataSet);
+                            break;
+                          end;
+                      end;
+                    aDocument.AddFromLink(aDocLink);
+                    aDocument.Edit;
+                    aName := TDocPages(DataSet).FieldByName('NAME').AsString;
+                    if rpos('.',aName)>0 then
+                      aName := copy(aName,0,rpos('.',aName)-1);
+                    aDocument.FieldByName('NAME').AsString:=aName;
+                    aDocument.FieldByName('DATE').AsVariant:=TDocPages(DataSet).FieldByName('ORIGDATE').AsVariant;
+                    aDocument.Post;
+                    aDocument.Free;
+                  end;
+              end;
+            aEntry.Free;
+          end;
+      end;
+  end;
+
 begin
-  TDocPages(DataSet).Edit;
-  TDocPages(DataSet).FieldByName('LINK').AsString:=aLink;
-  TDocPages(DataSet).Post;
-  SelectedItem.Name:=TDocPages(DataSet).FieldByName('NAME').AsString+LineEnding+Data.GetLinkDesc(TDocPages(DataSet).FieldByName('LINK').AsString);
-  if Data.DataSetFromLink(aLink,aEntryClass) then
+  if ThumbControl1.SelectedList.Count=0 then
     begin
-      if MessageDlg(strMakeLinkToDocuments,mtInformation,[mbYes,mbNo],0) = mrYes then
-        begin
-          aEntry := aEntryClass.Create(nil);
-          if aEntry is TBaseDbList then
-            begin
-              TBaseDbList(aEntry).SelectFromLink(aLink);
-              TBaseDbList(aEntry).Open;
-              if TBaseDbList(aEntry).Count>0 then
-                begin
-                  aDocument := TDocument.CreateEx(Self,Data);
-                  aDocument.Select(0);
-                  aDocument.Open;
-                  aDocument.Ref_ID:=aEntry.Id.AsVariant;
-                  aDocument.BaseID:=aEntry.Id.AsVariant;
-                  aDocument.BaseTyp:=TBaseDbList(aEntry).GetTyp;
-                  if Assigned(TBaseDbList(aEntry).FieldByName('LANGUAGE')) then
-                    aDocument.BaseLanguage:=TBaseDbList(aEntry).FieldByName('LANGUAGE').AsString;
-                  if Assigned(TBaseDbList(aEntry).FieldByName('VERSION')) then
-                    aDocument.BaseLanguage:=TBaseDbList(aEntry).FieldByName('VERSION').AsString;
-                  for i := 0 to FDocFrame.lvDocuments.Items.Count-1 do
-                    begin
-                      if FDocFrame.GotoEntry(FDocFrame.lvDocuments.Items[i]) then
-                        begin
-                          aDocLink := Data.BuildLink(FDocFrame.DataSet.DataSet);
-                          break;
-                        end;
-                    end;
-                  aDocument.AddFromLink(aDocLink);
-                  aDocument.Edit;
-                  aName := TDocPages(DataSet).FieldByName('NAME').AsString;
-                  if rpos('.',aName)>0 then
-                    aName := copy(aName,0,rpos('.',aName)-1);
-                  aDocument.FieldByName('NAME').AsString:=aName;
-                  aDocument.FieldByName('DATE').AsVariant:=TDocPages(DataSet).FieldByName('ORIGDATE').AsVariant;
-                  aDocument.Post;
-                  aDocument.Free;
-                end;
-            end;
-          aEntry.Free;
-        end;
+      Item := SelectedItem;
+      SetLink;
+    end
+  else for i := 0 to ThumbControl1.SelectedList.Count-1 do
+    begin
+      Item := TThreadedImage(ThumbControl1.SelectedList[i]);
+      SetLink;
     end;
 end;
 
@@ -671,6 +703,20 @@ procedure TfManageDocFrame.ThumbControl1DblClick(Sender: TObject);
 begin
   acEdit.Execute;
 end;
+
+procedure TfManageDocFrame.ThumbControl1DrawCaption(Sender: TObject;
+  Item: TThreadedImage; aRect: TRect);
+begin
+  ThumbControl1.Canvas.Font.Color:=ThumbControl1.Font.Color;
+  if pos(#10,Item.Name)>0 then
+    begin
+      ThumbControl1.Canvas.TextRect(aRect,aRect.Left,aRect.Top,copy(Item.Name,0,pos(#10,Item.Name)-1));
+      ThumbControl1.Canvas.TextRect(aRect,aRect.Left,aRect.Top+ThumbControl1.Canvas.GetTextHeight(Item.Name),copy(Item.Name,pos(#10,Item.Name)+1,length(Item.Name)));
+    end
+  else
+    ThumbControl1.Canvas.TextRect(aRect,aRect.Left,aRect.Top,Item.Name);
+end;
+
 procedure TfManageDocFrame.DoOnDropFiles(Sender: TObject;
   const FileNames: array of String);
 var
@@ -679,6 +725,7 @@ var
   aFile: String;
   extn: String;
   aSecFile: String;
+  iFile: String;
 begin
   Screen.Cursor:=crHourGlass;
   Application.ProcessMessages;
@@ -695,21 +742,22 @@ begin
       Application.ProcessMessages;
       for i := 0 to length(FileNames)-1 do
         begin
-          if not FileExists(Filenames[i]) then
+          iFile := UniToSys(FileNames[i]);
+          if not FileExists(iFile) then
             begin
-              NewFileName := AppendPathDelim(GetTempPath)+ExtractFileName(Filenames[i]);
+              NewFileName := AppendPathDelim(GetTempPath)+ExtractFileName(iFile);
               {$ifdef linux}
-              ExecProcess('gvfs-copy "'+Filenames[i]+'" "'+NewFileName+'"');
+              ExecProcess('gvfs-copy "'+iFile+'" "'+NewFileName+'"');
               {$endif}
               if not FileExists(NewFileName) then
-                Showmessage(Format(strCantAccessFile,[Filenames[i]]));
+                Showmessage(Format(strCantAccessFile,[iFile]));
             end
-          else NewFileName:=Filenames[i];
+          else NewFileName:=iFile;
           if FileExists(NewFileName) then
             begin
               if Assigned(fWaitform) then
                 fWaitForm.ShowInfo(ExtractFileName(NewFileName));
-              TDocPages(FFullDataSet).AddFromFile(NewFileName);
+              TDocPages(FFullDataSet).AddFromFile(SysToUni(NewFileName));
               TDocPages(FFullDataSet).Edit;
               TDocPages(FFullDataSet).FieldByName('TAGS').AsString:=fPicImport.eTags.Text;
               TDocPages(FFullDataSet).FieldByName('TYPE').AsString:=FTyp;
@@ -773,10 +821,10 @@ begin
                   if FileExistsUTF8(copy(NewFileName,0,length(NewFileName)-length(extn))+'.ufraw') then
                     DeleteFileUTF8(copy(NewFileName,0,length(NewFileName)-length(extn))+'.ufraw');
                   DeleteFileUTF8(NewFileName);
-                  if NewFileName<>Filenames[i] then
+                  if NewFileName<>iFile then
                     begin
                       {$ifdef linux}
-                      ExecProcess('gvfs-rm "'+Filenames[i]+'"');
+                      ExecProcess('gvfs-rm "'+iFile+'"');
                       {$endif}
                     end;
                 end;
@@ -818,6 +866,113 @@ begin
       if DataSet.Count=0 then acRefresh.Execute;
     end;
 end;
+
+procedure TfManageDocFrame.acAquireExecute(Sender: TObject);
+var
+  NewImage : TJpegImage;
+  i: Integer;
+  aTop: Integer;
+  Stream: TMemoryStream;
+  Extension: String;
+  Report: TPdfDoc;
+  Page: Integer;
+  aTitle : string;
+  aText : string;
+  aDocument: TDocument;
+begin
+  Application.Processmessages;
+  if fAcquire.Execute then
+    begin
+      if fAcquire.cbType.Text = 'JPEG' then
+        begin
+          //Draw all images (Pages) to one big image
+          NewImage := TJpegImage.Create;
+          NewImage.Width := 0;
+          NewImage.Height := 0;
+          NewImage.CompressionQuality:=65;
+          for i := 0 to length(fAcquire.Images)-1 do
+            begin
+              if fAcquire.Images[i].Width > NewImage.Width then
+                NewImage.Width := fAcquire.Images[i].Width;
+              NewImage.Height := NewImage.Height+fAcquire.Images[i].Height;
+            end;
+          NewImage.Canvas.Brush.Color := clWhite;
+          NewImage.Canvas.Pen.Color := clWhite;
+          NewImage.Canvas.Rectangle(0,0,NewImage.Width,NewImage.Height);
+          aTop := 0;
+          for i := 0 to length(fAcquire.Images)-1 do
+            begin
+              NewImage.Canvas.Draw(0,aTop,fAcquire.Images[i].Bitmap);
+              inc(aTop,fAcquire.Images[i].Height);
+            end;
+          //Save it to Doc
+          Stream := TMemoryStream.Create;
+          NewImage.SaveToStream(Stream);
+          Stream.Position := 0;
+          NewImage.Free;
+          Extension := 'jpeg';
+        end
+      else if fAcquire.cbType.Text = 'PDF' then
+        begin
+          Report := TPdfDoc.Create;
+          Report.NewDoc;
+          NewImage := TJpegImage.Create;
+          NewImage.CompressionQuality:=65;
+          for i := 0 to length(fAcquire.Images)-1 do
+            begin
+              Report.AddPage;
+              Report.Canvas.PageWidth:=fAcquire.Images[i].Width+1;
+              Report.Canvas.PageHeight:=fAcquire.Images[i].Height+1;
+  //              Report.Canvas.PageHeight := trunc(Report.Canvas.PageHeight*0.8);
+              NewImage.Width := fAcquire.Images[i].Width;
+              NewImage.Height := fAcquire.Images[i].Height;
+              NewImage.Canvas.Brush.Color := clWhite;
+              NewImage.Canvas.Pen.Color := clWhite;
+              NewImage.Canvas.Rectangle(0,0,NewImage.Width,NewImage.Height);
+              NewImage.Canvas.Draw(0,0,fAcquire.Images[i].Bitmap);
+              Report.AddXObject('Image'+IntToStr(i), CreatePdfImage(NewImage, 'Pdf-Jpeg'));
+              Report.Canvas.DrawXObject(0, -1, fAcquire.Images[i].Width, fAcquire.Images[i].Height+1, 'Image'+IntToStr(i));
+            end;
+          NewImage.Free;
+          Stream := TMemoryStream.Create;
+          Report.SaveToStream(Stream);
+          Stream.Position := 0;
+          Report.Free;
+          Extension := 'pdf';
+        end;
+      aText := '';
+      aTitle := '';
+      for Page := 0 to fAcquire.Texts.Count-1 do
+        begin
+          uOCR.FixText(TStringList(fAcquire.Texts[Page]));
+          if aTitle = '' then
+            aTitle := uOCR.GetTitle(TStringList(fAcquire.Texts[Page]));
+          aText := aText+TStringList(fAcquire.Texts[Page]).Text;
+        end;
+      TDocPages(FFullDataSet).Insert;
+      TDocPages(FFullDataSet).Post;
+      aDocument := TDocument.CreateEx(Self,Data);
+      aDocument.Select(0);
+      aDocument.Open;
+      aDocument.Ref_ID:=TDocPages(FFullDataSet).Id.AsLargeInt;
+      aDocument.BaseID:=TDocPages(FFullDataSet).Id.AsString;
+      aDocument.BaseTyp:='S';
+      aDocument.BaseLanguage:=Null;
+      aDocument.BaseLanguage:=Null;
+      aDocument.ParentID:=0;
+      aDocument.AddFromStream('scan',
+                              Extension,
+                              Stream,
+                              aText,
+                              Now());
+      Stream.Free;
+      for i := 0 to fAcquire.Texts.Count-1 do
+        TStringList(fAcquire.Texts[i]).Free;
+      fAcquire.Texts.Clear;
+      aDocument.Free;
+    end;
+end;
+
 procedure TfManageDocFrame.acEditExecute(Sender: TObject);
 var
   i: Integer;
@@ -846,7 +1001,7 @@ begin
       end;
   if not Found then
     begin
-      FDocFrame.lvDocuments.ItemIndex:=0;
+      if FDocFrame.lvDocuments.Items.Count=0 then exit;
       FDocFrame.acViewFile.Execute;
     end;
 end;
@@ -929,26 +1084,41 @@ begin
 end;
 
 procedure TfManageDocFrame.acMarkAsDoneExecute(Sender: TObject);
+var
+  Item : TThreadedImage;
+  i: Integer;
+  procedure ToggleDone;
+  begin
+    DataSet.DataSet.Locate('SQL_ID',copy(Item.URL,0,pos('.',Item.URL)-1),[]);
+    TDocPages(FFullDataSet).Select(DataSet.Id.AsVariant);
+    TDocPages(FFullDataSet).Open;
+    if TDocPages(FFullDataSet).Count>0 then
+      begin
+        TDocPages(FFullDataSet).Edit;
+        if TDocPages(FFullDataSet).FieldByName('DONE').AsString='Y' then
+          TDocPages(FFullDataSet).FieldByName('DONE').Clear
+        else
+          TDocPages(FFullDataSet).FieldByName('DONE').AsString:='Y';
+        TDocPages(FFullDataSet).Post;
+      end;
+    if Assigned(Item.Pointer) then
+      begin
+        TImageItem(Item.Pointer).Free;
+        Item.Pointer := nil;
+        ThumbControl1.Invalidate;
+      end;
+  end;
+
 begin
-  if GotoCurrentItem then
+  if ThumbControl1.SelectedList.Count=0 then
     begin
-      TDocPages(FFullDataSet).Select(DataSet.Id.AsVariant);
-      TDocPages(FFullDataSet).Open;
-      if TDocPages(FFullDataSet).Count>0 then
-        begin
-          TDocPages(FFullDataSet).Edit;
-          if TDocPages(FFullDataSet).FieldByName('DONE').AsString='Y' then
-            TDocPages(FFullDataSet).FieldByName('DONE').Clear
-          else
-            TDocPages(FFullDataSet).FieldByName('DONE').AsString:='Y';
-          TDocPages(FFullDataSet).Post;
-        end;
-      if Assigned(ThumbControl1.ImageLoaderManager.ActiveItem.Pointer) then
-        begin
-          TImageItem(ThumbControl1.ImageLoaderManager.ActiveItem.Pointer).Free;
-          ThumbControl1.ImageLoaderManager.ActiveItem.Pointer := nil;
-          ThumbControl1.Invalidate;
-        end;
+      Item := SelectedItem;
+      ToggleDone;
+    end
+  else for i := 0 to ThumbControl1.SelectedList.Count-1 do
+    begin
+      Item := TThreadedImage(ThumbControl1.SelectedList[i]);
+      ToggleDone;
     end;
 end;
 
@@ -1068,8 +1238,20 @@ begin
 end;
 
 procedure TfManageDocFrame.acRebuildThumbExecute(Sender: TObject);
+var
+  i: Integer;
+  Item: TThreadedImage;
 begin
-  RebuidThumb;
+  if ThumbControl1.SelectedList.Count=0 then
+    RebuidThumb
+  else for i := 0 to ThumbControl1.SelectedList.Count-1 do
+    begin
+      Item := TThreadedImage(ThumbControl1.SelectedList[i]);
+      DataSet.DataSet.Locate('SQL_ID',copy(Item.URL,0,pos('.',Item.URL)-1),[]);
+      FDocFrame.Refresh(copy(Item.URL,0,pos('.',Item.URL)-1),'S');
+      RebuidThumb;
+    end;
+  acRefresh.Execute;
 end;
 procedure TfManageDocFrame.acRefreshExecute(Sender: TObject);
 var
@@ -1203,7 +1385,7 @@ begin
     if IntersectRect(Dum, ARect, TThreadedImage(ThumbControl1.ImageLoaderManager.List[i]).Rect) then
       begin
         ThumbControl1.ImageLoaderManager.ActiveIndex:=i;
-        ThumbControl1SelectItem(ThumbControl1,TThreadedImage(ThumbControl1.ImageLoaderManager.List[i]));
+        ThumbControl1ItemIndexChanged(ThumbControl1,TThreadedImage(ThumbControl1.ImageLoaderManager.List[i]));
         for a := 0 to FDocFrame.lvDocuments.Items.Count-1 do
           if (lowercase(copy(FDocFrame.lvDocuments.Items[a].SubItems[0],0,4)) = 'jpg ')
           or (lowercase(copy(FDocFrame.lvDocuments.Items[a].SubItems[0],0,5)) = 'jpeg ')
@@ -1260,7 +1442,7 @@ procedure TfManageDocFrame.acSaveExecute(Sender: TObject);
 var
   a: Integer;
 begin
-  ThumbControl1SelectItem(ThumbControl1,TThreadedImage(ThumbControl1.ImageLoaderManager.List[ThumbControl1.ImageLoaderManager.ActiveIndex]));
+  ThumbControl1ItemIndexChanged(ThumbControl1,TThreadedImage(ThumbControl1.ImageLoaderManager.List[ThumbControl1.ImageLoaderManager.ActiveIndex]));
   for a := 0 to FDocFrame.lvDocuments.Items.Count-1 do
     if (lowercase(copy(FDocFrame.lvDocuments.Items[a].SubItems[0],0,4)) = 'jpg ')
     or (lowercase(copy(FDocFrame.lvDocuments.Items[a].SubItems[0],0,5)) = 'jpeg ')
@@ -1269,6 +1451,39 @@ begin
         FDocFrame.lvDocuments.ItemIndex:=a;
         FDocFrame.acSaveToFile.Execute;
       end;
+end;
+
+procedure TfManageDocFrame.acSetDateExecute(Sender: TObject);
+var
+  Item : TThreadedImage;
+  i: Integer;
+  procedure ToggleDone;
+  var
+    tmp: String;
+  begin
+    DataSet.DataSet.Locate('SQL_ID',copy(Item.URL,0,pos('.',Item.URL)-1),[]);
+    if (aDate <> '') then
+      begin
+        if not DataSet.CanEdit then
+          DataSet.DataSet.Edit;
+        DataSet.FieldByName('ORIGDATE').AsString := aDate;
+      end;
+  end;
+
+begin
+  if InputQuery(strDate,strSetTag,aDate) then
+    begin
+      if ThumbControl1.SelectedList.Count=0 then
+        begin
+          Item := SelectedItem;
+          ToggleDone;
+        end
+      else for i := 0 to ThumbControl1.SelectedList.Count-1 do
+        begin
+          Item := TThreadedImage(ThumbControl1.SelectedList[i]);
+          ToggleDone;
+        end;
+    end;
 end;
 
 procedure TfManageDocFrame.acSetLinkExecute(Sender: TObject);
@@ -1282,11 +1497,39 @@ begin
 end;
 
 procedure TfManageDocFrame.acSetTagExecute(Sender: TObject);
+var
+  Item : TThreadedImage;
+  i: Integer;
+  procedure ToggleDone;
+  var
+    tmp: String;
+  begin
+    DataSet.DataSet.Locate('SQL_ID',copy(Item.URL,0,pos('.',Item.URL)-1),[]);
+    if (aTag <> '') and (pos(aTag,DataSet.FieldByName('TAGS').AsString)=0) then
+      begin
+        if not DataSet.CanEdit then
+          DataSet.DataSet.Edit;
+        tmp := DataSet.FieldByName('TAGS').AsString;
+        if (copy(tmp,length(tmp)-1,1) <> ',') and (trim(tmp) <> '') then
+          tmp := tmp+',';
+        tmp := tmp+aTag;
+        DataSet.FieldByName('TAGS').AsString := tmp;
+      end;
+  end;
+
 begin
-  if bTag.Down then
+  if InputQuery(strTag,strSetTag,aTag) then
     begin
-      if not InputQuery(strTag,strSetTag,aTag) then
-        aTag := ''
+      if ThumbControl1.SelectedList.Count=0 then
+        begin
+          Item := SelectedItem;
+          ToggleDone;
+        end
+      else for i := 0 to ThumbControl1.SelectedList.Count-1 do
+        begin
+          Item := TThreadedImage(ThumbControl1.SelectedList[i]);
+          ToggleDone;
+        end;
     end;
 end;
 procedure TfManageDocFrame.acShowDetailsExecute(Sender: TObject);
@@ -1317,14 +1560,6 @@ begin
   ThumbControl1.Invalidate;
   ShowDocument;
 end;
-procedure TfManageDocFrame.bTag1Click(Sender: TObject);
-begin
-  if bTag1.Down then
-    begin
-      if not InputQuery(strDate,strSetTag,aDate) then
-        aDate := ''
-    end;
-end;
 procedure TfManageDocFrame.bZoomInClick(Sender: TObject);
 begin
   ThumbControl1.ThumbHeight:=ThumbControl1.ThumbHeight+20;
@@ -1342,7 +1577,6 @@ procedure TfManageDocFrame.DoAOpen(Data: PtrInt);
 var
   aRefThread: TImportCheckThread;
 begin
-  FetchNext;
   aRefThread := TImportCheckThread.Create(Self);
 end;
 
@@ -1377,6 +1611,9 @@ end;
 procedure TfManageDocFrame.SetTyp(AValue: string);
 begin
   FTyp := AValue;
+  if AValue='D' then
+    bImport3.Action:=acAquire
+  else bImport3.Action:=acImport;
 end;
 
 procedure TfManageDocFrame.WaitForImage;
@@ -1385,7 +1622,6 @@ var
   aTime: DWORD;
 begin
   URL := FURL;
-  try
   with BaseApplication as IBaseApplication do
     Debug('WaitForImage   :'+URL);
   aTime := GetTickCount;
@@ -1394,8 +1630,6 @@ begin
       if GetTickCount-aTime>1000 then break;
       Application.ProcessMessages;
     end;
-  except
-  end;
   with BaseApplication as IBaseApplication do
     Debug('WaitForImageEnd:'+URL);
 end;
@@ -1407,6 +1641,7 @@ var
   aStream: TMemoryStream;
   aNumber: String;
   aSStream: TStringStream;
+  aFS: TFileStream;
 begin
   Screen.Cursor:=crHourGlass;
   Application.ProcessMessages;
@@ -1429,16 +1664,20 @@ begin
           if GenerateThumbNail(ExtractFileExt(aDocument.FileName),aFullStream,aStream,aSStream.DataString) then
             begin
               if aStream.Size>0 then
-                Data.StreamToBlobField(aStream,DataSet.DataSet,'THUMBNAIL');
+                begin
+                  Data.StreamToBlobField(aStream,DataSet.DataSet,'THUMBNAIL');
+                  aStream.Position:=0;
+                  aFS := TFileStream.Create(FtempPath+DataSet.FieldByName('SQL_ID').AsString+'.jpg',fmCreate);
+                  aFS.CopyFrom(aStream,0);
+                  aFS.Free;
+                end;
             end;
           aSStream.Free;
           aDocument.Free;
-          DeleteFileUTF8(FtempPath+DataSet.FieldByName('SQL_ID').AsString+'.jpg');
           aFullStream.Free;
           aStream.Free;
         end;
     end;
-  acRefresh.Execute;
   Screen.Cursor:=crDefault;
 end;
 
@@ -1449,14 +1688,21 @@ var
 begin
   if Assigned(ThumbControl1.ImageLoaderManager.ActiveItem) then
     begin
-      if loadedDocument=ThumbControl1.ImageLoaderManager.ActiveItem.URL then exit;
-      try
-        aStream := TFileStream.Create(FtempPath+ThumbControl1.ImageLoaderManager.ActiveItem.URL,fmOpenRead);
-        PreviewFrame.LoadFromStream(aStream,'JPG');
-        loadedDocument:=ThumbControl1.ImageLoaderManager.ActiveItem.URL;
-        aStream.Free;
-      except
-      end;
+      if loadedDocument<>ThumbControl1.ImageLoaderManager.ActiveItem.URL then
+        begin
+          try
+            aStream := TFileStream.Create(FtempPath+ThumbControl1.ImageLoaderManager.ActiveItem.URL,fmOpenRead);
+            PreviewFrame.LoadFromStream(aStream,'JPG');
+            loadedDocument:=ThumbControl1.ImageLoaderManager.ActiveItem.URL;
+            aStream.Free;
+          except
+          end;
+        end;
+    end
+  else
+    begin
+      if ThumbControl1.ImageLoaderManager.CountItems>0 then
+        ThumbControl1.ImageLoaderManager.ActiveIndex:=0;
     end;
   Application.ProcessMessages;
   for i := 0 to FDocFrame.lvDocuments.Items.Count-1 do
@@ -1477,17 +1723,22 @@ begin
       begin
         acRotate.Enabled:=True;
       end;
-  if tstext.Visible then tstext.OnShow(tsText);
+  if tstext.Visible then
+    tstext.OnShow(tsText);
 end;
 
 constructor TfManageDocFrame.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  ThumbControl1.ClearImageList;
+  CSLoad := TCriticalSection.Create;
   FFilter := '';
   SelectedItem:=nil;
   if BaseApplication.HasOption('disablethreads') then
     ThumbControl1.MultiThreaded:=False;
-  DataSet := TDocPages.Create(nil);
+  ThumbControl1.OnLoadFile:=@ThumbControl1LoadFile;
+  ThumbControl1.BorderStyle:=bsNone;
+  DataSet := TDocPagesList.Create(nil);
   FTempPath := uthumbnails.GetThumbTempDir;
   ForceDirectoriesUTF8(FtempPath);
   FtempPath := AppendPathDelim(FtempPath);
@@ -1501,9 +1752,8 @@ begin
   fTimeLine.Parent:=pRight;
   fTimeLine.Align:=alClient;
   fTimeLine.OnSetMarker:=@FTimeLineSetMarker;
-  FTimeLine.Increment:=-16;
+  FTimeLine.Increment:=-8;
   FTimeLine.UseLongMonth:=False;
-  ThumbControl1.ImageLoaderManager.OnSetItemIndex:=@ThumbControl1ImageLoaderManagerSetItemIndex;
   PreviewFrame := TfPreview.Create(Self);
   PreviewFrame.Parent := tsDocument;
   PreviewFrame.Align := alClient;
@@ -1511,9 +1761,11 @@ begin
   PreviewFrame.AddToolbarAction(acEdit);
   PreviewFrame.AddToolbarAction(acRotate);
   PreviewFrame.AddToolbarAction(acOptimizeDocument);
+  PreviewFrame.AfterGetText:=@PreviewFrameAfterGetText;
 end;
 destructor TfManageDocFrame.Destroy;
 begin
+  CSLoad.Free;
   FFullDataSet.Free;
   FDoc.Free;
   FTimeLine.Free;
@@ -1564,6 +1816,8 @@ end;
 
 procedure TfManageDocFrame.OpenDir(aDir: Variant);
 begin
+  with BaseApplication as IBaseApplication do
+    Debug('TfManageDocFrame:OpenDir enter');
   if aDir = Null then
     FFilter := Data.QuoteField('TYPE')+'='+Data.QuoteValue(FTyp)
   else
@@ -1600,14 +1854,23 @@ begin
   ThumbControl1.Invalidate;
   bShowDetail.Enabled:=DataSet.Count>0;
   pSave.Enabled:=DataSet.Count>0;
+  with BaseApplication as IBaseApplication do
+    Debug('TfManageDocFrame:OpenDir leave');
 end;
 
 procedure TfManageDocFrame.ShowFrame;
 begin
   inherited ShowFrame;
-  Application.ProcessMessages;
-  ThumbControl1.Visible:=True;
+  if not Assigned(Self) then exit;
 end;
 
+var
+  aEntry : TPrometMenuEntry;
+initialization
+  TBaseVisualApplication(Application).RegisterForm(TfManageDocFrame);
+  aEntry := TPrometMenuEntry.Create(strDocumentsOnly,strDocumentsOnly,'DOCUMENTS@DOCMANAGE',IMAGE_FOLDER,'D');
+  AddMenuEntry(aEntry);
+  aEntry := TPrometMenuEntry.Create(strImages,strImages,'IMAGES@DOCMANAGE',IMAGE_FOLDER,'I');
+  AddMenuEntry(aEntry);
 end.
 

@@ -43,6 +43,7 @@ function TDocExecuteThread.DoExecuteDocumentCommands(bCmd : string;UseStarter : 
 var
   Proc: TProcess;
   ACmd: String;
+  tmp: String;
 begin
   while bCmd <> '' do
     begin
@@ -66,7 +67,8 @@ begin
             Proc.CommandLine := AppendPathDelim(ExtractFilePath(BaseApplication.Exename))+'pstarter'+ExtractFileExt(BaseApplication.Exename)+' '+Language+' '+ACmd
             {$ELSE}
             //TODO:add Language
-            Proc.CommandLine := FileUtil.CleanAndExpandDirectory(BaseApplication.Location+'..'+DirectorySeparator+'..'+DirectorySeparator+'..'+DirectorySeparator)+'pstarter.app/Contents/MacOS/pstarter '+'de'+' '+ACmd
+            tmp := BaseApplication.Location
+            //Proc.CommandLine := FileUtil.CleanAndExpandDirectory(BaseApplication.Location+'..'+DirectorySeparator+'..'+DirectorySeparator+'..'+DirectorySeparator)+'pstarter.app/Contents/MacOS/pstarter '+'de'+' '+ACmd
             {$ENDIF}
           else
             Proc.CommandLine := ACmd;
@@ -119,9 +121,9 @@ begin
     begin
       if DirectoryExists(UniToSys(filename)) then
         begin
-        DelRetry:
-          DelOK := RemoveDir(filename);
-        end;
+          DelRetry:
+            DelOK := DeleteDirectorySecure(filename,false);
+          end;
     end
   else if aDoDelete then
     raise Exception.Create(strCheckinFailed)
@@ -183,4 +185,4 @@ initialization
 finalization
   ProcessList.Destroy;
 end.
-
+

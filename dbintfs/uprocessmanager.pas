@@ -106,24 +106,31 @@ begin
   cmdln := ' "--mandant='+Mandant+'"';
   if User <> '' then
     cmdln := cmdln+' "--user='+User+'"';
+  if BaseApplication.HasOption('debug') then
+  cmdln := cmdln+' --debug';
   if BaseApplication.HasOption('debug-log') then
     cmdln := cmdln+' "--debug-log=msg.'+BaseApplication.GetOptionValue('debug-log')+'"';
   if BaseApplication.HasOption('config-path') then
     cmdln := cmdln+' "--config-path='+BaseApplication.GetOptionValue('config-path')+'"';
   if ProcessExists(aProcess+ExtractFileExt(BaseApplication.ExeName),cmdln) then exit;
-  aDir := BaseApplication.Location+'tools'+DirectorySeparator;
+  aDir := StringReplace(BaseApplication.Location,'\tools','',[rfIgnoreCase])+'tools'+DirectorySeparator;
   if (not FileExists(UniToSys(aProcess+ExtractFileExt(BaseApplication.ExeName)))) and (not FileExists(UniToSys(aDir+aProcess+ExtractFileExt(BaseApplication.ExeName)))) then
     begin
       aDir := GetCurrentDir+'tools'+DirectorySeparator;
       if not FileExists(UniToSys(aDir+aProcess+ExtractFileExt(BaseApplication.ExeName))) then exit;
     end;
   Result := TProcess.Create(nil);
-  Result.Options:=[poUsePipes,poStderrToOutPut,poNoConsole];
+  Result.Options:=[poNoConsole];
   Result.CommandLine:=aDir+aProcess+ExtractFileExt(BaseApplication.ExeName)+' '+cmdln;
+  with BaseApplication as IBaseApplication do
+    Debug('Processmanager started with Command:'+Result.CommandLine);
   try
     Result.Execute;
   except
+    on e : Exception do
     begin
+      with BaseApplication as IBaseApplication do
+        Error('Processmanager Error:'+e.Message);
       Result.Free;
       Result := nil;
     end;
@@ -131,4 +138,4 @@ begin
 end;
 
 end.
-
+

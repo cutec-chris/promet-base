@@ -23,8 +23,12 @@ unit usync;
 interface
 uses
   Classes, SysUtils, uBaseDbClasses, db, uBaseDbInterface,uBaseApplication,
-  fpjson,fpsqltree,synautil,Utils;
+  fpjson,fpsqltree,synautil,Utils,uBaseDatasetInterfaces;
 type
+  TTableVersions = class(TBaseDBDataSet)
+  public
+    procedure DefineFields(aDataSet : TDataSet);override;
+  end;
   TSyncTable = class(TBaseDBDataSet)
   public
     constructor CreateEx(aOwner : TComponent;DM : TComponent=nil;aConnection : TComponent = nil;aMasterdata : TDataSet = nil);override;
@@ -247,6 +251,25 @@ begin
           end;
       end;
   end;
+end;
+
+procedure TTableVersions.DefineFields(aDataSet: TDataSet);
+begin
+  with aDataSet as IBaseManageDB do
+    begin
+      TableName := 'TABLEVERSIONS';
+      if Assigned(ManagedFieldDefs) then
+        with ManagedFieldDefs do
+          begin
+            Add('NAME',ftString,30,True);
+            Add('DBVERSION',ftInteger,0,True);
+          end;
+      if Assigned(ManagedIndexdefs) then
+        with ManagedIndexDefs do
+          begin
+            Add('NAME','NAME',[ixUnique]);
+          end;
+    end;
 end;
 
 { TSyncStamps }
@@ -703,6 +726,7 @@ begin
             Add('ACTIVE',ftString,1,False);
             Add('ACTIVEOUT',ftString,1,False);
             Add('NAME',ftString,30,True);
+            Add('DBVERSION',ftInteger,0,False);
             Add('LTIMESTAMP',ftDateTime,0,False);
             Add('FILTERIN',ftMemo,0,False);
             Add('FILTEROUT',ftMemo,0,False);
@@ -752,4 +776,4 @@ begin
 end;
 
 end.
-
+

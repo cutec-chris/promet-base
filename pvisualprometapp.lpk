@@ -10,6 +10,10 @@
       <SearchPaths>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
+      <CodeGeneration>
+        <SmartLinkUnit Value="True"/>
+        <SmallerCode Value="True"/>
+      </CodeGeneration>
     </CompilerOptions>
     <Files Count="11">
       <Item1>
@@ -57,10 +61,10 @@
         <Type Value="Text"/>
       </Item11>
     </Files>
-    <Type Value="RunAndDesignTime"/>
     <RequiredPkgs Count="9">
       <Item1>
         <PackageName Value="pscripts"/>
+        <DefaultFilename Value="base_scripts\pscripts.lpk"/>
       </Item1>
       <Item2>
         <PackageName Value="v103_lazarus"/>

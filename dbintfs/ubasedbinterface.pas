@@ -24,10 +24,7 @@ uses
   Classes, SysUtils, DB, Typinfo, CustApp, Utils , memds,
   uBaseDbClasses, uIntfStrConsts,
   uBaseSearch,uBaseERPDbClasses,uDocuments,uOrder,Variants,uProcessManagement,
-  rttiutils
-  {$IFDEF LCL}
-  ,LCLIntf
-  {$ENDIF}
+  rttiutils,uBaseDatasetInterfaces
   ;
 const
   MandantExtension = '.perml';
@@ -73,6 +70,7 @@ type
     FConnectionLost: TNotifyEvent;
     FKeepAlive: TNotifyEvent;
     FLastStmt: string;
+    FLastTime: Int64;
     FSessionID: LargeInt;
     FTables: TStrings;
     FTriggers: TStrings;
@@ -103,19 +101,13 @@ type
     StorageJournal : TStorageJournal;
     Countries : TCountries;
     Languages : TLanguages;
-    Vat : TVat;
     Userfielddefs : TUserFielddefs;
-    Units : TUnits;
     States : TStates;
     Categories : TCategory;
-    OrderPosTyp : TOrderPosTyp;
-    TextTyp : TTextTypes;
     DeletedItems : TDeletedItems;
-    DispatchTypes : TDispatchTypes;
-    PriceTypes : TPriceTypes;
-    _DocumentActions : TInternalDBDataSet;
-    _MimeTypes : TInternalDBDataSet;
-    RepairProblems : TRepairProblems;
+    TableVersions : TBaseDBDataset;
+    //_DocumentActions : TInternalDBDataSet;
+    //_MimeTypes : TInternalDBDataSet;
     ProcessClient : TProcessClient;
     constructor Create(AOwner : TComponent);virtual;
     destructor Destroy;override;
@@ -133,6 +125,7 @@ type
     function SetProperties(aProp : string;Connection : TComponent = nil) : Boolean;virtual;
     function CreateDBFromProperties(aProp : string) : Boolean;virtual;
     property LastStatement : string read FLastStmt write FLastStmt;
+    property LastTime : Int64 read FLastTime write FLastTime;
     function IsSQLDB : Boolean;virtual;abstract;
     function ProcessTerm(aTerm : string) : string;virtual;
     function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';AutoInc : Boolean = True) : Variant;virtual;abstract;
@@ -152,7 +145,8 @@ type
     function DateTimeToFilter(aValue : TDateTime) : string;virtual;
     function GetLinkDesc(aLink : string) : string;virtual;
     function GetLinkLongDesc(aLink : string) : string;virtual;
-    function GetLinkIcon(aLink : string) : Integer;virtual;
+    function GetLinkIcon(aLink: string; GetRealIcon: Boolean=False): Integer;
+      virtual;
     function BuildLink(aDataSet : TDataSet) : string;virtual;
     function GotoLink(const aLink : string) : Boolean;virtual;
     function DataSetFromLink(aLink: string;var aClass : TBaseDBDatasetClass): Boolean;
@@ -165,6 +159,7 @@ type
     function RecordCount(aDataSet : TBaseDbDataSet) : Integer;
     function DeleteItem(aDataSet : TBaseDBDataSet) : Boolean;
     function ShouldCheckTable(aTableName : string;SetChecked : Boolean = True) : Boolean;
+    procedure UpdateTableVersion(aTableName: string);
     function RemoveCheckTable(aTableName : string) : Boolean;
     function TableExists(aTableName : string;aConnection : TComponent = nil;AllowLowercase: Boolean = False) : Boolean;virtual;abstract;
     function TriggerExists(aTriggerName : string;aConnection : TComponent = nil;AllowLowercase: Boolean = False) : Boolean;virtual;
@@ -180,6 +175,7 @@ type
     procedure RegisterLinkHandlers;
     property IgnoreOpenRequests : Boolean read FIgnoreOpenrequests write FIgnoreOpenrequests;
     property Tables : TStrings read FTables;
+    property CheckedTables : TStringList read FCheckedTables;
     property Triggers : TStrings read FTriggers;
     property LimitAfterSelect : Boolean read GetLimitAfterSelect;
     property LimitSTMT : string read GetLimitSTMT;
@@ -246,100 +242,6 @@ type
     function QuoteValue(aValue : string) : string;
   end;
 
-  { IBaseDbFilter }
-
-  IBaseDbFilter = interface['{7EBB7ABE-1171-4333-A609-C0F59B1E2C5F}']
-    function GetBaseSortDirection: TSortDirection;
-    function GetfetchRows: Integer;
-    function GetUseBaseSorting: Boolean;
-    procedure SetBaseSortDirection(AValue: TSortDirection);
-    function GetBaseSorting: string;
-    procedure SetBaseSorting(AValue: string);
-    procedure SetBaseSortFields(const AValue: string);
-    function GetBaseSortFields: string;
-    function GetFields: string;
-    procedure SetfetchRows(AValue: Integer);
-    procedure SetFields(const AValue: string);
-    function GetSQL: string;
-    procedure SetSQL(const AValue: string);
-    function GetFilter: string;
-    procedure SetFilter(const AValue: string);
-    function GetBaseFilter: string;
-    procedure SetBaseFilter(const AValue: string);
-    function GetFilterTables: string;
-    function GetLimit: Integer;
-    function GetSortDirection: TSortDirection;
-    function GetSortFields: string;
-    function GetLocalSortFields: string;
-    function GetSortLocal: Boolean;
-    procedure SetSortLocal(const AValue: Boolean);
-    procedure SetFilterTables(const AValue: string);
-    procedure Setlimit(const AValue: Integer);
-    procedure SetSortDirection(const AValue: TSortDirection);
-    procedure SetSortFields(const AValue: string);
-    procedure SetLocalSortFields(const AValue: string);
-    function GetUsePermissions: Boolean;
-    procedure SetUseBaseSorting(AValue: Boolean);
-    procedure SetUsePermisions(const AValue: Boolean);
-    function GetDistinct: Boolean;
-    procedure SetDistinct(const AValue: Boolean);
-    procedure DoExecSQL;
-    function NumRowsAffected : Integer;
-
-    property FullSQL : string read GetSQL write SetSQL;
-    property Filter : string read GetFilter write SetFilter;
-    property FetchRows : Integer read GetfetchRows write SetfetchRows;
-    property BaseFilter : string read GetBaseFilter write SetBaseFilter;
-    property Limit : Integer read GetLimit write Setlimit;
-    property Fields : string read GetFields write SetFields;
-    property SortFields : string read GetSortFields write SetSortFields;
-    property LocalSortFields : string read GetLocalSortFields write SetLocalSortFields;
-    property BaseSortFields : string read GetBaseSortFields write SetBaseSortFields;
-    property BaseSorting : string read GetBaseSorting write SetBaseSorting;
-    property UseBaseSorting : Boolean read GetUseBaseSorting write SetUseBaseSorting;
-    property BaseSortDirection : TSortDirection read GetBaseSortDirection write SetBaseSortDirection;
-    property SortDirection : TSortDirection read GetSortDirection write SetSortDirection;
-    property Distinct : Boolean read GetDistinct write SetDistinct;
-    property SortLocal : Boolean read GetSortLocal write SetSortLocal;
-    property FilterTables : string read GetFilterTables write SetFilterTables;
-    property UsePermissions : Boolean read GetUsePermissions write SetUsePermisions;
-  end;
-  IBaseManageDB = interface['{271BD4A2-2720-49DA-90A6-AA64FB2B9862}']
-    function GetConnection: TComponent;
-    function GetManagedFieldDefs: TFieldDefs;
-    function GetManagedIndexDefs: TIndexDefs;
-    function GetTableCaption: string;
-    function GetTableName: string;
-    function GetUpChangedBy: Boolean;
-    function GetUpStdFields: Boolean;
-    function GetUseIntegrity: Boolean;
-    procedure SetUpChangedBy(AValue: Boolean);
-    procedure SetUpStdFields(AValue: Boolean);
-    procedure SetTableCaption(const AValue: string);
-    function CreateTable : Boolean;
-    function CheckTable : Boolean;
-    function AlterTable : Boolean;
-    procedure SetTableName(const AValue: string);
-    procedure SetUseIntegrity(AValue: Boolean);
-    property ManagedFieldDefs : TFieldDefs read GetManagedFieldDefs;
-    property ManagedIndexDefs : TIndexDefs read GetManagedIndexDefs;
-    property TableName : string read GetTableName write SetTableName;
-    property TableCaption : string read GetTableCaption write SetTableCaption;
-    property UseIntegrity : Boolean read GetUseIntegrity write SetUseIntegrity;
-    property UpdateStdFields : Boolean read GetUpStdFields write SetUpStdFields;
-    property UpdateChangedBy : Boolean read GetUpChangedBy write SetUpChangedBy;
-    property DBConnection : TComponent read GetConnection;
-  end;
-
-  { IBaseSubDataSets }
-
-  IBaseSubDataSets = interface['{CB011ABE-E465-4BD4-AA49-D3A8852AA012}']
-    function GetSubDataSet(aName : string): TBaseDBDataSet;
-    function GetCount : Integer;
-    function GetSubDataSetIdx(aIdx : Integer): TBaseDBDataSet;
-    procedure RegisterSubDataSet(aDataSet : TBaseDBDataSet);
-    property SubDataSet[aIdx : Integer] : TBaseDBDataSet read GetSubDataSetIdx;
-  end;
 const
   RIGHT_NONE  = 0;
   RIGHT_READ  = 1;
@@ -419,7 +321,7 @@ resourcestring
   strFor                         = 'für';
 implementation
 uses uZeosDBDM, uBaseApplication, uWiki, uMessages, uprocessmanager,uRTFtoTXT,
-  utask,uPerson,uMasterdata,uProjects,umeeting,uStatistic;
+  utask,uPerson,uMasterdata,uProjects,umeeting,uStatistic,usync;
 
 { TDBConfig }
 
@@ -557,27 +459,18 @@ begin
   StorageJournal := TStorageJournal.CreateEx(nil,Self);
   Countries := TCountries.CreateEx(nil,Self);
   Languages := TLanguages.CreateEx(nil,Self);
-  Vat := TVat.CreateEx(nil,Self);
-  Units := TUnits.CreateEx(nil,Self);
   States := TStates.CreateEx(nil,Self);
   Categories := TCategory.CreateEx(nil,Self);
-  PriceTypes := TPriceTypes.CreateEx(nil,Self);
-  OrderPosTyp := TOrderPosTyp.CreateEx(nil,Self);
-  TextTyp := TTextTypes.CreateEx(nil,Self);
   DeletedItems := TDeletedItems.CreateEx(nil,Self);
-  DispatchTypes := TDispatchTypes.CreateEx(nil,Self);
-  RepairProblems := TRepairProblems.CreateEx(nil,Self);
   ProcessClient := TProcessClient.CreateEx(nil,Self);
-  _DocumentActions := TInternalDBDataSet.Create;
-  _MimeTypes := TInternalDBDataSet.Create;
+  TableVersions := TTableVersions.CreateEx(nil,Self);
 end;
 destructor TBaseDBModule.Destroy;
 begin
+  TableVersions.Destroy;
   FCheckedTables.Destroy;
   FTables.Free;
   FTriggers.Free;
-  _DocumentActions.Destroy;
-  _MimeTypes.Destroy;
   Users.Destroy;
   Numbers.Destroy;
   MandantDetails.Destroy;
@@ -591,18 +484,11 @@ begin
   Currency.Destroy;
   StorageType.Destroy;
   StorageJournal.Destroy;
-  Vat.Destroy;
   States.Destroy;
   Categories.Destroy;
   DeletedItems.Destroy;
-  Dispatchtypes.Destroy;
-  RepairProblems.Destroy;
-  Units.Destroy;
   Languages.Destroy;
-  PriceTypes.Destroy;
   Countries.Destroy;
-  OrderPosTyp.Destroy;
-  TextTyp.Destroy;
   PaymentTargets.Destroy;
   ProcessClient.Destroy;
   ActiveUsers.Destroy;
@@ -953,16 +839,16 @@ begin
       else if copy(aLink, 0, pos('@', aLink) - 1) = 'ACCOUNTEXCHANGE' then
       else if copy(aLink, 0, pos('@', aLink) - 1) = 'PROJECTS' then
         begin
-          aTable := Data.GetNewDataSet('select "DESCRIPTION" from "'+copy(aLink, 0, pos('@', aLink) - 1)+'" where "SQL_ID"='+Data.QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
+          aTable := Data.GetNewDataSet('select "NAME","DESCRIPTION" from "'+copy(aLink, 0, pos('@', aLink) - 1)+'" where "SQL_ID"='+Data.QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
           aTable.Open;
-          Result := aTable.FieldByName('DESCRIPTION').AsString;
+          Result := aTable.FieldByName('NAME').AsString+LineEnding+LineEnding+aTable.FieldByName('DESCRIPTION').AsString;
           FreeAndNil(aTable);
         end
       else if copy(aLink, 0, pos('@', aLink) - 1) = 'PROJECTS.ID' then
         begin
-          aTable := Data.GetNewDataSet('select "DESCRIPTION" from "PROJECTS" where "ID"='+Data.QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
+          aTable := Data.GetNewDataSet('select "NAME","DESCRIPTION" from "PROJECTS" where "ID"='+Data.QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
           aTable.Open;
-          Result := aTable.FieldByName('DESCRIPTION').AsString;
+          Result := aTable.FieldByName('NAME').AsString+LineEnding+LineEnding+aTable.FieldByName('DESCRIPTION').AsString;
           FreeAndNil(aTable);
         end
       else if copy(aLink, 0, pos('@', aLink) - 1) = 'TASKS' then
@@ -1002,7 +888,9 @@ begin
         result := copy(Result,0,300)+lineending+' ...';
     end;
 end;
-function TBaseDBModule.GetLinkIcon(aLink: string): Integer;
+function TBaseDBModule.GetLinkIcon(aLink: string;GetRealIcon : Boolean = False): Integer;
+var
+  aObjs: TObjects;
 begin
   Result := -1;
   if pos('://',aLink) > 0 then
@@ -1010,7 +898,18 @@ begin
   else if copy(aLink, 0, pos('@', aLink) - 1) = 'MASTERDATA' then
     Result := IMAGE_MASTERDATA
   else if copy(aLink, 0, pos('@', aLink) - 1) = 'ALLOBJECTS' then
-    Result := 121
+    begin
+      Result := 121;
+      if GetRealIcon then
+        begin
+          aObjs := TObjects.Create(nil);
+          aObjs.SelectByLink(aLink);
+          aObjs.Open;
+          if aObjs.Count>0 then
+            Result := aObjs.FieldByName('ICON').AsInteger;
+          aObjs.Free;
+        end;
+    end
   else if (copy(aLink, 0, pos('@', aLink) - 1) = 'CUSTOMERS')
        or (copy(aLink, 0, pos('@', aLink) - 1) = 'CUSTOMERS.ID') then
     Result := IMAGE_PERSON
@@ -1215,21 +1114,6 @@ begin
           Result := FLinkHandlers[i].aEvent(aLink,Self);
         break;
       end;
-  if not Result then
-    begin
-      if Uppercase(copy(aLink,0,pos('://',aLink)-1)) = 'HTTP' then
-        begin
-          {$IFDEF LCL}
-          Result := OpenURL(aLink);
-          {$ENDIF}
-        end
-      else if pos('://',aLink) > 0 then
-        begin
-          {$IFDEF LCL}
-          Result := OpenDocument(aLink);
-          {$ENDIF}
-        end;
-    end;
 end;
 function TBaseDBModule.DataSetFromLink(aLink: string;
   var aClass: TBaseDBDatasetClass): Boolean;
@@ -1338,9 +1222,54 @@ end;
 function TBaseDBModule.ShouldCheckTable(aTableName : string;SetChecked : Boolean = True): Boolean;
 begin
   Result := FCheckedTables.IndexOf(aTableName) = -1;
-  if Result and SetChecked then
+  try
+  if Result then
+    begin
+      TableVersions.Filter('');
+      with BaseApplication as IBaseApplication do
+        begin
+          if TableVersions.Locate('NAME',aTableName,[]) then
+            if (TableVersions.FieldByName('DBVERSION').AsInteger>=round((AppVersion*10000)+AppRevision)) and (not BaseApplication.HasOption('debug')) and (TableExists(aTableName)) then
+              begin
+                Result := False;
+              end
+            else if (not BaseApplication.HasOption('debug')) then
+              begin
+                with BaseApplication as IBaseApplication do
+                  Debug('Table "'+aTableName+'" DBVersion '+TableVersions.FieldByName('DBVERSION').AsString+'<'+IntToStr(round((AppVersion*10000)+AppRevision)));
+              end;
+        end;
+    end;
+  except
+  end;
+  if (not Result) and SetChecked and TableExists(aTableName) then
     FCheckedTables.Add(aTableName);
 end;
+
+procedure TBaseDBModule.UpdateTableVersion(aTableName: string);
+var
+  i: Integer;
+begin
+  try
+    TableVersions.Filter('');
+    with BaseApplication as IBaseApplication do
+      begin
+        if not TableVersions.Locate('NAME',aTableName,[]) then
+          begin
+            TableVersions.Insert;
+            TableVersions.FieldByName('NAME').AsString:=aTableName;
+          end;
+        with BaseApplication as IBaseApplication do
+          begin
+            TableVersions.Edit;
+            TableVersions.FieldByName('DBVERSION').AsInteger:=round(AppVersion*10000+AppRevision);
+            TableVersions.Post;
+          end;
+      end;
+  except
+  end;
+end;
+
 function TBaseDBModule.RemoveCheckTable(aTableName: string): Boolean;
 begin
   if FCheckedTables.IndexOf(aTableName) > -1 then
@@ -1695,6 +1624,9 @@ begin
       exit;
     end;
   mSettings.Free;
+  FDB.TableVersions.CreateTable;
+  FDB.MandantDetails.CreateTable;
+  FDB.MandantDetails.Open;
   FDB.Users.CreateTable;
   FDB.Numbers.CreateTable;
   FDB.ActiveUsers.CreateTable;
@@ -1760,13 +1692,12 @@ begin
   FArchiveStore.Free;
   FDB.Permissions.CreateTable;
   FDB.DeletedItems.CreateTable;
-  FDB.Languages.CreateTable;
   FDB.Forms.CreateTable;
-  FDB.Tree.CreateTable;
   FDB.StorageType.CreateTable;
   FDB.Users.Options.Open;
   if AppendToActiveList then
     FDB.AppendUserToActiveList;
+  FDB.Tree.CreateTable;
   FDB.Users.LoginWasOK;
   Result := True;
 end;
@@ -1791,15 +1722,14 @@ begin
           end
         else FilePath := GetConfigDir(StringReplace(lowercase('prometerp'),'-','',[rfReplaceAll]));
       end;
-    //TODO:fix this ?!
-    //FilePath := CleanAndExpandDirectory(FilePath);
     if not DirectoryExists(FilePath) then ForceDirectories(FilePath);
     FConfigPath:=FilePath;
     Result := True;
   except
     on e : Exception do
       begin
-        //debugln(e.Message);
+        with BaseApplication as IBaseApplication do
+          Warning('LoadMandants:'+e.Message);
         Result := False;
       end;
   end;

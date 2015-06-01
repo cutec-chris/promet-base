@@ -23,7 +23,8 @@ unit utask;
 {$mode objfpc}{$H+}
 interface
 uses
-  Classes, SysUtils, uBaseDbClasses, uBaseDbInterface, db, uBaseERPDBClasses,Math;
+  Classes, SysUtils, uBaseDbClasses, uBaseDbInterface, db, uBaseERPDBClasses,Math,
+  uBaseDatasetInterfaces;
 type
   TDependencies = class;
   TTaskSnapshots = class(TBaseDbDataSet)
@@ -33,12 +34,14 @@ type
   TTaskInterval = class
   private
     FDueDate: TDateTime;
+    FName: string;
     FPlan: Double;
     FStartDate: TDateTime;
   public
     property StartDate : TDateTime read FStartDate write FStartDate;
     property DueDate : TDateTime read FDueDate write FDueDate;
     property PlanTime : Double read FPlan write FPlan;
+    property Name : string read FName write FName;
   end;
   TTaskList = class(TBaseERPList,IBaseHistory)
     procedure DataSetAfterCancel(aDataSet: TDataSet);
@@ -73,7 +76,7 @@ type
     procedure SelectActive;
     procedure SelectActivewithoutDeps;
     procedure SelectByUser(AccountNo : string);
-    procedure SelectUncompletedByUser(AccountNo : string);
+    procedure SelectUncompletedByUser(AccountNo : string;IgnoreDepend : Boolean = False);
     procedure SelectActiveByUserChangedSince(AccountNo: string; aDate: TdateTime);
     procedure SelectByDept(aDept : Variant);
     procedure SelectByParent(aParent : Variant);
@@ -93,11 +96,13 @@ type
     function CalcDates(var aStart, aDue: TDateTime): Boolean;
     function GetUnterminatedDependencies: TStrings;
     //This function calculates the earliest possible Start and Enddate for the Task
-    function Terminate(aEarliest : TDateTime;var aStart,aEnd,aDuration : TDateTime) : Boolean;
+    function Terminate(aEarliest : TDateTime;var aStart,aEnd,aDuration : TDateTime;IgnoreDepend : Boolean = False) : Boolean;
     //This function retuirns True if one of the Dependencies of aTask or its Dependencies (recoursive) points to This Task
     function DependsOnMe(aTask: TTaskList; aDeep: Integer=30): Boolean;
     //This function calculates the earliest possible Start and Enddate for the Task and sets it as Start and Enddate
     function Terminate(aEarliest : TDateTime) : Boolean;
+    //Collect Times from Timeregistering
+    function GetTimesForTask(WorkTime: real=8): float;
     function WaitTimeDone : TDateTime;
     function GetInterval : TTaskInterval;
     procedure MakeSnapshot(aName : string);
@@ -172,7 +177,7 @@ resourcestring
   strWorkstatus             = 'Bearbeitungsstatus';
   strRenamed                = 'umbenannt in "%s"';
 implementation
-uses uBaseApplication,uIntfStrConsts,uProjects,uData,uCalendar;
+uses uBaseApplication,uIntfStrConsts,uProjects,uData,uCalendar,uTimes;
 
 function CompareStarts(Item1, Item2: Pointer): Integer;
 begin
@@ -275,7 +280,7 @@ begin
           FieldByName('REF_ID_ID').AsString := tmp;
           FieldByName('NAME').AsString:=Data.GetLinkDesc(aLink);
           FieldByName('LINK').AsString:=aLink;
-          FieldByName('ICON').AsInteger:=Data.GetLinkIcon(aLink);
+          FieldByName('ICON').AsInteger:=Data.GetLinkIcon(aLink,True);
         end;
       Post;
     end;
@@ -314,10 +319,11 @@ var
   tmp : string = '';
   i: Integer;
 begin
-  if aLevel>10 then exit;//recoursion check we may have an circulating dependency
+  if aLevel>3 then exit;//recoursion check we may have an circulating dependency
   for i := 0 to aLevel-1 do
   tmp := tmp+' ';
-  //debugln(tmp+'CheckDependencies:'+DataSet.FieldByName('SUMMARY').AsString);
+  with BaseApplication as IBaseApplication do
+    debug(tmp+'CheckDependencies:'+DataSet.FieldByName('SUMMARY').AsString);
   if not Dependencies.DataSet.Active then
     Dependencies.Open;
   Dependencies.DataSet.First;
@@ -553,7 +559,7 @@ begin
 end;
 
 function TTaskList.Terminate(aEarliest: TDateTime; var aStart, aEnd,
-  aDuration: TDateTime): Boolean;
+  aDuration: TDateTime; IgnoreDepend: Boolean): Boolean;
 var
   aStartDate : TDateTime;
   aTask: TTask;
@@ -582,12 +588,14 @@ var
   TimeNeeded: Double;
   aDayUseTime: Extended;
   aActEndDate: Extended;
+  aInt: TTaskInterval;
+  aUsedTime: float;
 begin
   Result := False;
   //Get Latest Dependency
   Dependencies.Open;
   aTask := TTask.CreateEx(nil,DataModule,Connection);
-  aStartDate:=Now();
+  aStartDate:=trunc(Now());
   while not Dependencies.EOF do
     begin
       aTask.SelectFromLink(Dependencies.FieldByName('LINK').AsString);
@@ -619,7 +627,9 @@ begin
       ResourceTimePerDay:=Usage;
     end
   else
-    ResourceTimePerDay := 1;
+    begin //fail without User
+      exit;
+    end;
   if not FieldByName('PLANTIME').IsNull then
     aNetTime := FieldByName('PLANTIME').AsFloat
   else aNetTime := 1;
@@ -628,14 +638,15 @@ begin
   //Collect Tasks
   aIntervals := TList.Create;
   //Find first free Slot
+  with BaseApplication as IBaseApplication do
+    debug('Collect Tasks start');
   bTasks := TTaskList.CreateEx(nil,DataModule,Connection);
   if aUser.FieldByName('TYPE').AsString<>'G' then
     begin
-      bTasks.SelectUncompletedByUser(FieldByName('USER').AsString);
+      bTasks.SelectUncompletedByUser(FieldByName('USER').AsString,IgnoreDepend);
       bTasks.SortFields:='STARTDATE';
       bTasks.SortDirection:=sdAscending;
       bTasks.Open;
-
       aIntervals.Add(TTaskInterval.Create);
       TTaskInterval(aIntervals[0]).DueDate:=aStartDate;
       with bTasks.DataSet do
@@ -644,11 +655,36 @@ begin
             begin
               if  (not bTasks.FieldByName('STARTDATE').IsNull)
               and (not bTasks.FieldByName('DUEDATE').IsNull)
-              //and (not (bTasks.FieldByName('PLANTASK').AsString='N'))
               and (not (bTasks.Id.AsVariant=Self.Id.AsVariant))
               then
                 if not DependsOnMe(bTasks,2) then
-                  aIntervals.Add(bTasks.GetInterval);
+                  begin
+                    aInt := bTasks.GetInterval;
+                    with BaseApplication as IBaseApplication do
+                      debug('  Task: '+aInt.Name+' ('+DateToStr(aInt.StartDate)+'-'+DateToStr(aInt.DueDate)+')');
+
+                    if aInt.StartDate<Now() then
+                      begin
+                        aUsedTime := bTasks.GetTimesForTask();
+                        aInt.PlanTime:=aInt.PlanTime-aUsedTime;
+                        if aInt.PlanTime<1 then
+                          begin
+                            aInt.PlanTime:=1;
+                            aInt.StartDate:=now();
+                          end
+                        else
+                          aInt.StartDate:=Now()-(aUsedTime*(1/ResourceTimePerDay));
+                        with BaseApplication as IBaseApplication do
+                          debug('    changed:  ('+DateToStr(aInt.StartDate)+'-'+DateToStr(aInt.DueDate)+')');
+                      end;
+                    if (aInt.DueDate<Now()) and (aInt.StartDate+(aInt.PlanTime*(1/ResourceTimePerDay))>Now()) then
+                      begin
+                        aInt.DueDate:=aInt.StartDate+(aInt.PlanTime*(1/ResourceTimePerDay));
+                        with BaseApplication as IBaseApplication do
+                          debug('    changed:  ('+DateToStr(aInt.StartDate)+'-'+DateToStr(aInt.DueDate)+')');
+                      end;
+                    aIntervals.Add(aInt);
+                  end;
               Next;
             end;
           if bTasks.EOF then
@@ -667,6 +703,7 @@ begin
               aInterval.StartDate:=aCalendar.FieldByName('STARTDATE').AsDateTime;
               aInterval.DueDate:=aCalendar.FieldByName('ENDDATE').AsDateTime;
               aInterval.PlanTime:=-1;
+              aInterval.Name := aCalendar.Text.AsString;
               if aCalendar.FieldByName('ALLDAY').AsString = 'Y' then
                 begin
                   aInterval.StartDate := trunc(aInterval.StartDate);
@@ -684,25 +721,36 @@ begin
   aIntervals.Sort(@CompareStarts);
   //Find Slot
   aFound := False;
-  aNow := round(aStartDate);
+  aNow := trunc(aStartDate);
   TimeNeeded := Duration;
+  //Remove used Time from Duration
+  //TimeNeeded:=TimeNeeded-GetTimesForTask(WorkTime);
+  if TimeNeeded<=0 then TimeNeeded:=(1/MinsPerDay)*30; //half hour for reterminating the task or finishing
   while (not ((aFound) and (TimeNeeded<=0))) do
     begin
       if (not ((DayOfWeek(aNow)=1) or (DayOfWeek(aNow)=7))) then
         begin
+          with BaseApplication as IBaseApplication do
+            debug('Day: '+DateToStr(aNow));
           aPercent := 0;
           for i := 1 to aIntervals.Count-1 do
             begin
               Int2 := TTaskInterval(aIntervals[i]);
               if ((trunc(Int2.StartDate)<=aNow)
-              and (trunc(Int2.DueDate)>=aNow)) then
-                aPercent := aPercent+((Int2.PlanTime/(Int2.DueDate-Int2.StartDate))*(1/ResourceTimePerDay));
+              and (trunc(Int2.DueDate)>aNow)) then
+                begin
+                  aPercent := aPercent+((Int2.PlanTime/(Int2.DueDate-Int2.StartDate))*(1/ResourceTimePerDay));
+                  with BaseApplication as IBaseApplication do
+                    debug('  Task: '+Int2.Name+' ActPercent:'+FloatToStr(aPercent));
+                end;
             end;
           if not aFound then
             if aPercent<0.7 then
               begin
                 aFound := True;
                 aActStartDate:=aNow;
+                with BaseApplication as IBaseApplication do
+                  debug('  New Task starts here !');
               end;
           if aFound then
             begin
@@ -712,6 +760,8 @@ begin
               if TimeNeeded<=0 then
                 begin
                   aActEndDate := aNow+0.99999;
+                  with BaseApplication as IBaseApplication do
+                    debug('  New Task ends here !');
                   break;
                 end;
               if aDayUseTime<0 then
@@ -784,6 +834,46 @@ begin
     end;
 end;
 
+function TTaskList.GetTimesForTask(WorkTime : real = 8): float;
+var
+  aTimes: TTimes;
+  aColTime: Extended;
+  aUser: TUser;
+  Usage: Extended;
+  ResourceTimePerDay: Extended;
+begin
+  if WorkTime=8 then
+    begin
+      aUser := TUser.CreateEx(Self,DataModule,Connection);
+      aUser.SelectByAccountno(FieldByName('USER').AsString);
+      aUser.Open;
+      if aUser.Count>0 then
+        begin
+          Usage := aUser.FieldByName('USEWORKTIME').AsInteger/100;
+          if Usage = 0 then Usage := 1;
+          WorkTime:=aUser.WorkTime*Usage;
+          Usage := WorkTime/8;
+          ResourceTimePerDay:=Usage;
+        end
+      else
+        ResourceTimePerDay := 1;
+      aUser.Free;
+    end;
+  aTimes := TTimes.CreateEx(Self,DataModule,Connection);
+  aTimes.Filter(Data.QuoteField('TASKID')+'='+Data.QuoteValue(Id.AsString)+' AND '+Data.QuoteField('ISPAUSE')+'='+Data.QuoteValue('N'));
+  aColTime := 0.0;
+  while not aTimes.EOF do
+    begin
+      if (aTimes.FieldByName('END').IsNull) and  (Now()-aTimes.FieldByName('START').AsDateTime<1) then
+        aColTime:=aColTime+((Now()-aTimes.FieldByName('START').AsDateTime)*WorkTime)
+      else if (aTimes.FieldByName('END').AsDateTime-aTimes.FieldByName('START').AsDateTime<1) then
+        aColTime:=aColTime+((aTimes.FieldByName('END').AsDateTime-aTimes.FieldByName('START').AsDateTime)*WorkTime);
+      aTimes.Next;
+    end;
+  aTimes.Free;
+  Result := aColTime;
+end;
+
 function TTaskList.WaitTimeDone: TDateTime;
 begin
   Result := Now();
@@ -798,6 +888,7 @@ begin
   Result.StartDate:=FieldByName('STARTDATE').AsDateTime;
   Result.DueDate:=FieldByName('DUEDATE').AsDateTime;
   Result.PlanTime := FieldByName('PLANTIME').AsFloat;
+  Result.Name := Text.AsString+' - '+FieldByName('PROJECT').AsString;
 end;
 procedure TTaskList.DisableDS;
 begin
@@ -945,29 +1036,32 @@ begin
   if aParent.Count > 0 then
     begin
       aTasks := TTaskList.CreateEx(Self,DataModule,Connection);
-      aTasks.SelectByParent(aParent.Id.AsVariant);
-      aTasks.Open;
-      if (aTasks.Count = 1)
-      and (aTasks.Id.AsVariant = Self.Id.AsVariant) then
-        begin
-          aParent.DataSet.Edit;
-          aParent.FieldByName('HASCHILDS').AsString:='N';
-          aParent.DataSet.Post;
-        end;
-      Clean := True;
-      for i := 0 to aTasks.Count-1 do
-        begin
-          if (aTasks.FieldByName('CHECKED').AsString = 'N') and (aTasks.Id.AsVariant <> Self.Id.AsVariant) then
-            Clean := False;
-          aTasks.Next;
-        end;
-      if Clean then
-        begin
-          aParent.DataSet.Edit;
-          aParent.FieldByName('CHECKED').AsString:='Y';
-          aParent.DataSet.Post;
-        end;
-      aTasks.Free;
+      try
+        aTasks.SelectByParent(aParent.Id.AsVariant);
+        aTasks.Open;
+        if (aTasks.Count = 1)
+        and (aTasks.Id.AsVariant = Self.Id.AsVariant) then
+          begin
+            aParent.DataSet.Edit;
+            aParent.FieldByName('HASCHILDS').AsString:='N';
+            aParent.DataSet.Post;
+          end;
+        Clean := True;
+        for i := 0 to aTasks.Count-1 do
+          begin
+            if (aTasks.FieldByName('CHECKED').AsString = 'N') and (aTasks.Id.AsVariant <> Self.Id.AsVariant) then
+              Clean := False;
+            aTasks.Next;
+          end;
+        if Clean then
+          begin
+            aParent.DataSet.Edit;
+            aParent.FieldByName('CHECKED').AsString:='Y';
+            aParent.DataSet.Post;
+          end;
+      finally
+        aTasks.Free;
+      end;
     end;
   aParent.Free;
   //Delete dependencies that points on me
@@ -1004,6 +1098,8 @@ var
   aUser: TUser;
   Informed2: String;
   aDeps: TDependencies;
+  aTimes: TTimes;
+  aColTime: Extended;
 begin
   if FCompletedChanged then
     begin
@@ -1068,6 +1164,10 @@ begin
                 end;
             end;
           aProject.Free;
+          //Collect Times and set Time Field
+          aColTime := GetTimesForTask;
+          if aColTime>0 then
+            FieldByName('TIME').AsFloat:=aColTime;
         end
       else if (FieldByName('COMPLETED').AsString='N') and (DataSet.State <> dsInsert) then
         begin
@@ -1199,7 +1299,7 @@ begin
           aProject.History.Open;
           if (FDS.DataSet.FieldByName('SUMMARY').AsString<>'') and (DataSet.Tag<>111) then
             aProject.History.AddItem(aProject.DataSet,Format(strTaskAdded,[FDS.DataSet.FieldByName('SUMMARY').AsString]),Data.BuildLink(FDS.DataSet),'',aProject.DataSet,ACICON_TASKADDED);
-          History.AddItem(Self.DataSet,strProjectChanged,Data.BuildLink(aProject.DataSet),Field.AsString,aProject.DataSet,ACICON_EDITED);
+          History.AddItem(Self.DataSet,strProjectChanged,Data.BuildLink(aProject.DataSet),Data.GetLinkDesc(Data.BuildLink(aProject.DataSet)),aProject.DataSet,ACICON_EDITED);
         end;
       aProject.Free;
       DataSet.FieldByName('SEEN').AsString:='N';
@@ -1347,6 +1447,7 @@ begin
             Add('DUEDATE','DUEDATE',[]);
           end;
       UpdateChangedBy:=False;
+      UpdateFloatFields:=True;
     end;
 end;
 procedure TTaskList.FillDefaults(aDataSet: TDataSet);
@@ -1413,11 +1514,16 @@ begin
     end;
 end;
 
-procedure TTaskList.SelectUncompletedByUser(AccountNo: string);
+procedure TTaskList.SelectUncompletedByUser(AccountNo: string;
+  IgnoreDepend: Boolean);
+var
+  aFilter: String;
 begin
   with  DataSet as IBaseDBFilter, BaseApplication as IBaseDBInterface, DataSet as IBaseManageDB do
     begin
-      Filter := '('+QuoteField('USER')+'='+QuoteValue(AccountNo)+') and ('+QuoteField('COMPLETED')+'='+QuoteValue('N')+') and ('+QuoteField('ACTIVE')+'='+QuoteValue('Y')+')';
+      aFilter :='('+QuoteField('USER')+'='+QuoteValue(AccountNo)+') and ('+QuoteField('COMPLETED')+'='+QuoteValue('N')+') and ('+QuoteField('ACTIVE')+'='+QuoteValue('Y')+')';
+      if IgnoreDepend then aFilter := aFilter+' AND ('+QuoteField('DEPDONE')+'='+QuoteValue('Y')+')';
+      Filter := aFilter;
     end;
 end;
 

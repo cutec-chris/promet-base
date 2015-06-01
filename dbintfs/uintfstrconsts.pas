@@ -21,12 +21,15 @@ unit uIntfStrConsts;
 {$mode objfpc}{$H+}
 interface
 resourcestring
+  strChangeNumer                             = 'Nummer ändern';
+  strFailed                     = 'fehlgeschlagen !';
+  strRunsOnEveryMashine         = 'läuft auf allen Maschienen';
   strItemOpened                 = 'Eintrag "%s" geöffnet';
   strMeetingUsers               = 'Teilnehmer';
   strAllElements                = 'Elemente';
   strMeasurement                = 'Messungen';
   strStructure                  = 'Struktur';
-  strSearchFromProjects         = 'Mit Öffnen wird das gewählte Projekt als Vohrfahr übernommen';
+  strSearchFromProjects         = 'Mit Öffnen wird das gewählte Projekt als Vorfahr übernommen';
   strCommandline                = 'Komandozeile';
   strRepaired                   = 'repariert';
   strDiscarded                  = 'entsorgt';
@@ -166,6 +169,7 @@ resourcestring
   strNoDataFound                = 'kein Eintrag gefunden !';
   strArticleList                = 'Artikelliste';
   strSearch                     = 'Suche';
+  strContinueSearch             = 'weitersuchen';
   strSerial                     = 'Serienummer';
   strBarcode                    = 'Barcode';
   strCommission                 = 'Komission';

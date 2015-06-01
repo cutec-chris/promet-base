@@ -21,7 +21,7 @@ unit uMessages;
 interface
 uses
   Classes, SysUtils, uBaseDbClasses, db, uBaseDBInterface, uDocuments,
-  uBaseApplication, uBaseSearch, uIntfStrConsts;
+  uBaseApplication, uBaseSearch, uIntfStrConsts,uBaseDatasetInterfaces;
 type
 
   { TMessageList }
@@ -35,6 +35,7 @@ type
     procedure SelectByID(aID : string);overload; //Select by ID
     procedure SelectByDir(aDir : Variant);
     procedure SelectByMsgID(aID : Int64);
+    procedure SelectByGrpID(aID : Int64;aTreeentry : Variant);
     procedure SelectByParent(aParent : Variant);
     function GetTextFieldName: string;override;
     function GetNumberFieldName : string;override;
@@ -340,10 +341,10 @@ begin
         with ManagedFieldDefs do
           begin
             Add('USER',ftString,20,True);
-            Add('ID',ftString,120,True);
+            Add('ID',ftString,220,True);
             Add('TREEENTRY',ftLargeint,0,True);
             Add('MSG_ID',ftLargeint,0,True);
-            Add('GRP_ID',ftLargeint,0,False);
+            Add('GRP_ID',ftLargeint,0,False); //ID Per Group must be changed on Move (NNTP,IMAP needs an LongInt id out SQL_ID is too Big)
             Add('TYPE',ftString,5,True);
             Add('READ',ftString,1,True);
             Add('DRAFT',ftString,1,False);
@@ -356,6 +357,7 @@ begin
             Add('SUBJECT',ftString,220,false);
             Add('PARENT',ftLargeint,0,False);
             Add('LINES',ftInteger,0,False);
+            Add('GRP_FLAGS',ftInteger,0,False); //Compiled Flags for faster access
             Add('SIZE',ftLargeInt,0,False);
           end;
       if Assigned(ManagedIndexdefs) then
@@ -385,6 +387,7 @@ begin
         Filter := Data.QuoteField('TREEENTRY')+'='+Data.QuoteValue(VarToStr(aDir))+' AND '+Data.ProcessTerm(Data.QuoteField('PARENT')+'='+Data.QuoteValue(''));
       end;
 end;
+
 procedure TMessageList.SelectByMsgID(aID: Int64);
 begin
   with BaseApplication as IBaseDBInterface do
@@ -393,6 +396,16 @@ begin
         Filter := Data.QuoteField('MSG_ID')+'='+Data.QuoteValue(IntToStr(aID));
       end;
 end;
+
+procedure TMessageList.SelectByGrpID(aID: Int64; aTreeentry: Variant);
+begin
+  with BaseApplication as IBaseDBInterface do
+    with DataSet as IBaseDBFilter do
+      begin
+        Filter := Data.QuoteField('GRP_ID')+'='+Data.QuoteValue(IntToStr(aID))+' AND '+Data.QuoteField('TREEENTRY')+'='+Data.QuoteValue(aTreeentry);
+      end;
+end;
+
 procedure TMessageList.SelectByParent(aParent: Variant);
 begin
   with BaseApplication as IBaseDBInterface do
@@ -420,6 +433,7 @@ begin
   if Count = 0 then exit;
   DataSet.Edit;
   DataSet.FieldByName('TREEENTRY').AsVariant := TREE_ID_DELETED_MESSAGES;
+  DataSet.FieldByName('GRP_ID').Clear;
   DataSet.FieldByName('READ').AsString := 'Y';
   DataSet.Post;
 end;
@@ -428,6 +442,7 @@ begin
   if Count = 0 then exit;
   DataSet.Edit;
   DataSet.FieldByName('TREEENTRY').AsVariant := TREE_ID_ARCHIVE_MESSAGES;
+  DataSet.FieldByName('GRP_ID').Clear;
   DataSet.FieldByName('READ').AsString := 'Y';
   DataSet.Post;
 end;
