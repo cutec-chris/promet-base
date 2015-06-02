@@ -1228,16 +1228,19 @@ begin
       TableVersions.Filter('');
       with BaseApplication as IBaseApplication do
         begin
-          if TableVersions.Locate('NAME',aTableName,[]) then
-            if (TableVersions.FieldByName('DBVERSION').AsInteger>=round((AppVersion*10000)+AppRevision)) and (not BaseApplication.HasOption('debug')) and (TableExists(aTableName)) then
-              begin
-                Result := False;
-              end
-            else if (not BaseApplication.HasOption('debug')) then
-              begin
-                with BaseApplication as IBaseApplication do
-                  Debug('Table "'+aTableName+'" DBVersion '+TableVersions.FieldByName('DBVERSION').AsString+'<'+IntToStr(round((AppVersion*10000)+AppRevision)));
-              end;
+          if TableVersions.DataSet.State=dsInsert then TableVersions.DataSet.Cancel;
+          if TableVersions.Locate('NAME',aTableName,[loCaseInsensitive]) then
+            begin
+              if (TableVersions.FieldByName('DBVERSION').AsInteger>=round((AppVersion*10000)+AppRevision)) and (not BaseApplication.HasOption('debug')) and (TableExists(aTableName)) then
+                begin
+                  Result := False;
+                end
+              else if (not BaseApplication.HasOption('debug')) then
+                begin
+                  with BaseApplication as IBaseApplication do
+                    Debug('Table "'+aTableName+'" DBVersion '+TableVersions.FieldByName('DBVERSION').AsString+'<'+IntToStr(round((AppVersion*10000)+AppRevision)));
+                end;
+            end;
         end;
     end;
   except
@@ -1251,6 +1254,7 @@ var
   i: Integer;
 begin
   try
+    if TableVersions.DataSet.State=dsInsert then TableVersions.DataSet.Cancel;
     TableVersions.Filter('');
     with BaseApplication as IBaseApplication do
       begin
@@ -1267,6 +1271,7 @@ begin
           end;
       end;
   except
+    if TableVersions.DataSet.State=dsInsert then TableVersions.DataSet.Cancel;
   end;
 end;
 
