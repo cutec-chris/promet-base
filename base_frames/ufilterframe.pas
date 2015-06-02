@@ -1014,14 +1014,7 @@ var
 begin
   fSearch.SetLanguage;
   i := 0;
-  while i < fSearch.cbSearchType.Count do
-    begin
-      if  (fSearch.cbSearchType.Items[i] <> strUsers)
-      and (fSearch.cbSearchType.Items[i] <> strCustomers) then
-        fSearch.cbSearchType.Items.Delete(i)
-      else
-        inc(i);
-    end;
+  fSearch.AllowSearchTypes(strUsers+','+strCustomers);
   fSearch.eContains.Clear;
   fSearch.sgResults.RowCount:=1;
   fSearch.OnOpenItem:=@fSearchOpenUserItem;
@@ -1089,6 +1082,8 @@ begin
         eFilterIn.Text:='';
         if cbFilter.ItemIndex=0 then
           begin
+            with BaseApplication as IBaseApplication do
+              Debug('no Filter:'+DefaultFilter);
             Filter := DefaultFilter;
             SortDirection := FDefaultSortDirection;
             SortField := FDefaultSorting;
@@ -1108,6 +1103,8 @@ begin
                 end;
             FilterIn := Data.Filters.FieldByName('FILTERIN').AsString;
             eFilterIn.Text:=FilterIn;
+            with BaseApplication as IBaseApplication do
+              Debug('New Filter:'+Data.Filters.FieldByName('FILTER').AsString);
             Filter := Data.Filters.FieldByName('FILTER').AsString;
             SortField := Data.Filters.FieldByName('SORTFIELD').AsString;
             if Data.Filters.FieldByName('SORTDIR').AsString = 'DESC' then

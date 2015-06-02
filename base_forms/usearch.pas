@@ -43,10 +43,10 @@ type
     bOpen: TBitBtn;
     bSearchFurther: TButton;
     cbMaxResults: TCheckBox;
+    cbSearchType: TRadioGroup;
     IdleTimer: TTimer;
     lHint: TLabel;
     cbSearchIn: TCheckListBox;
-    cbSearchType: TCheckListBox;
     cbAutomaticsearch: TCheckBox;
     eContains: TEdit;
     Image2: TImage;
@@ -135,6 +135,7 @@ type
     function GetLink(Multi : Boolean = False) : string;
     property OnOpenItem : TOpenItemEvent read FOpenItem write FOpenItem;
     property OnValidateItem : TOpenItemEvent read FValidItem write FValidItem;
+    procedure AllowSearchTypes(aTypes : string);
   end;
 
   { TSearchHintWindow }
@@ -194,6 +195,7 @@ end;
 procedure TfSearch.cbSearchTypeClickCheck(Sender: TObject);
 begin
   FreeAndNil(ActiveSearch);
+  sgResults.RowCount:=sgResults.FixedRows;
   DoSearch(nil);
 end;
 
@@ -315,7 +317,7 @@ var
 begin
   fSearch.SetLanguage;
   i := 0;
-  while i < fSearch.cbSearchType.Count do
+  while i < fSearch.cbSearchType.Items.Count do
     begin
       if  (fSearch.cbSearchType.Items[i] <> strUsers)
       and (fSearch.cbSearchType.Items[i] <> strCustomers) then
@@ -372,8 +374,8 @@ begin
     if cbSearchIn.Items.IndexOf(uBaseSearch.SearchLocations[i]) >= 0 then
       if cbSearchIn.Checked[cbSearchIn.Items.IndexOf(uBaseSearch.SearchLocations[i])] then
         SearchTypes := SearchTypes+[TFullTextSearchType(i)];
-  for i := 0 to cbSearchtype.Count-1 do
-    if cbSearchtype.Checked[i] then
+  for i := 0 to cbSearchtype.Items.Count-1 do
+    if cbSearchtype.ItemIndex=i then
       begin
         SetLength(SearchLocations,length(SearchLocations)+1);
         SearchLocations[length(SearchLocations)-1] := cbSearchType.Items[i];
@@ -521,7 +523,7 @@ begin
   Options := '';
   for i := 0 to cbSearchType.Items.Count-1 do
     begin
-      if cbSearchType.Checked[i] then
+      if cbSearchType.ItemIndex=i then
         Options := Options+cbSearchType.Items[i]+';';
     end;
   with Application as IBaseDbInterface do
@@ -781,10 +783,6 @@ begin
   for i := 0 to length(aLocations)-1 do
     begin
       cbSearchType.Items.Add(aLocations[i]);
-      if (cbSearchType.Items[cbSearchType.Items.Count-1]<>strHistory)
-      and (cbSearchType.Items[cbSearchType.Items.Count-1]<>strUsers)
-      then
-        cbSearchType.Checked[cbSearchType.Items.Count-1] := True;
     end;
   OnValidateItem:=nil;
 end;
@@ -794,18 +792,15 @@ var
   i: Integer;
 begin
   Options := '';
-  for i := 0 to cbSearchType.Items.Count-1 do
-    begin
-      Options := Options+cbSearchType.Items[i]+';';
-      cbSearchType.Checked[i] := False;
-    end;
   with Application as IBaseDbInterface do
     Options := DBConfig.ReadString('SEARCHTP:'+OptionSet,Options);
+  i := 0;
   while pos(';',Options) > 0 do
     begin
       if cbSearchType.Items.IndexOf(copy(Options,0,pos(';',Options)-1)) <> -1 then
-        cbSearchType.Checked[cbSearchType.Items.IndexOf(copy(Options,0,pos(';',Options)-1))] := True;
+        cbSearchType.ItemIndex := cbSearchType.Items.IndexOf(copy(Options,0,pos(';',Options)-1));
       Options := copy(Options,pos(';',Options)+1,length(Options));
+      inc(i);
     end;
   Options := '';
   for i := 0 to cbSearchIn.Items.Count-1 do
@@ -837,6 +832,22 @@ begin
   else if (sgResults.RowCount > 0) and (sgResults.Row > -1) then
     Result := sgResults.Cells[4,sgResults.Row];
 end;
+
+procedure TfSearch.AllowSearchTypes(aTypes: string);
+var
+  i: Integer;
+begin
+  SetLanguage;
+  i := 0;
+  while i < fSearch.cbSearchType.Items.Count do
+    begin
+      if pos(fSearch.cbSearchType.Items[i],aTypes)=0 then
+        fSearch.cbSearchType.Items.Delete(i)
+      else
+        inc(i);
+    end;
+end;
+
 function TSearchHintWindow.GetDrawTextFlags: Cardinal;
 var
   EffectiveAlignment: TAlignment;
