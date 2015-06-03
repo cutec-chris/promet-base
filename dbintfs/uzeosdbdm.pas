@@ -897,7 +897,11 @@ begin
 end;
 procedure TZeosDBDataSet.SetFilter(const AValue: string);
 begin
-  if (FFilter=AValue) and (SQL.text<>'') then exit;
+  if (FFilter=AValue) and (SQL.text<>'') then
+    begin
+      if (AValue<>'') or (pos('where',SQL.Text)=0) then
+        exit;
+    end;
   if TZeosDBDM(Owner).CheckForInjection(AValue) then exit;
   FFilter := AValue;
   FSQL := '';
@@ -929,6 +933,7 @@ begin
 end;
 procedure TZeosDBDataSet.SetSortDirection(const AValue: TSortDirection);
 begin
+  if FSortDirection=AValue then exit;
   FSortDirection := AValue;
   if not GetSortLocal then
     begin

@@ -1,5 +1,5 @@
 ﻿Build 398
-      -
+      - Suche:nur ein Suchtyp zur Zeit selekierbar (schnellere Suche)
 Build 397
       - Projekte:Projektnummer nicht direkt editierbar (wie bei Artikeln)
       - Nachrichtenzentrale:processmanager wird nun ohne pipes gestartet

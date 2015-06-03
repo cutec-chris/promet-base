@@ -1691,8 +1691,8 @@ inherited fFilter: TfFilter
     Enabled = False
     Interval = 100
     OnTimer = DblClickTimerTimer
-    left = 48
-    top = 216
+    left = 32
+    top = 192
   end
   object pmAction: TPopupMenu[9]
     left = 32

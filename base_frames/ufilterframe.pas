@@ -210,6 +210,7 @@ type
     FFirstMove : Boolean;
     HintY: LongInt;
     aSelectedIndex : LongInt;
+    aFullCount: Integer;
     function GetAutoFiltered: Boolean;
     function GetFilterIn: string;
     procedure SetBaseFilter(const AValue: string);
@@ -264,7 +265,7 @@ type
     procedure AddToolbarToggle(aAction : TAction);
     procedure AddContextAction(aAction : TAction);
     function AddFilter(FieldName,Value : string) : Boolean;
-    procedure ClearFilters;
+    procedure ClearFilters(DoFilter : Boolean = True);
     procedure DoRefresh;override;
     procedure SetRights;
     function GetLink(onlyOne: Boolean=True): string;
@@ -883,7 +884,6 @@ var
   tmp,adata,aname: String;
   aControl: TControl;
   Rec: LongInt = 0;
-  aFullCount: Integer;
 begin
   if (not Assigned(DataSet)) or (not Assigned(DataSet.DataSet)) then exit;
   if DataSet.DataSet.Active then
@@ -1113,7 +1113,6 @@ begin
               SortDirection := sdAscending
             else
               SortDirection := sdIgnored;
-            FDataSet.Open;
           end;
         if Parent is TTabSheet then
           begin
@@ -1347,8 +1346,6 @@ begin
   DoUpdateDSCount;
 end;
 procedure TfFilter.DoUpdateDSCount;
-var
-  aFullCount: Integer;
 begin
   aFullCount := DataSet.FullCount;
   if aFullCount > DataSet.Count then
@@ -1426,7 +1423,7 @@ begin
     end
   else
     begin
-      Self.ClearFilters;
+      Self.ClearFilters(False);
       FAutoFilter := '';
     end;
   aFilter.Free;
@@ -1823,7 +1820,7 @@ begin
   FAutoFilter := BuildAutofilter(gList,gHeader);
   acFilter.Execute;
 end;
-procedure TfFilter.ClearFilters;
+procedure TfFilter.ClearFilters(DoFilter: Boolean);
 var
   a: Integer;
 begin
@@ -1835,7 +1832,8 @@ begin
       gHeader.Cells[a+1,1] := '';
     end;
   FAutoFilter := BuildAutofilter(gList,gHeader);
-  acFilter.Execute;
+  if DoFilter then
+    acFilter.Execute;
 end;
 procedure TfFilter.DoRefresh;
 var
@@ -1843,16 +1841,19 @@ var
   aPrevRec : LargeInt;
 begin
   if not DataSet.Active then exit;
-  aRec := DataSet.GetBookmark;
-  DataSet.DataSet.Prior;
-  aPrevrec := DataSet.GetBookmark;
-  DataSet.DataSet.next;
-  if DataSet.DataSet.Active and (not DataSet.CanEdit) then
-    DataSet.DataSet.Refresh;
-  if DataSet.GetBookmark = aRec then exit;
-  if not aRec = Null and DataSet.GotoBookmark(aRec) then
-    DataSet.GotoBookmark(aPrevrec);
-  DoUpdateDSCount;
+  if aFullCount<>DataSet.FullCount then
+    begin
+      aRec := DataSet.GetBookmark;
+      DataSet.DataSet.Prior;
+      aPrevrec := DataSet.GetBookmark;
+      DataSet.DataSet.next;
+      if DataSet.DataSet.Active and (not DataSet.CanEdit) then
+        DataSet.DataSet.Refresh;
+      if DataSet.GetBookmark = aRec then exit;
+      if not aRec = Null and DataSet.GotoBookmark(aRec) then
+        DataSet.GotoBookmark(aPrevrec);
+      DoUpdateDSCount;
+    end;
 end;
 procedure TfFilter.SetRights;
 begin

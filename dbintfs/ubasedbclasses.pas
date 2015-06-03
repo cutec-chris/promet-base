@@ -2791,11 +2791,7 @@ begin
     begin
       with FDataSet as IBaseManageDB,FDataSet as IBaseDbFilter do
         begin
-          aFilter := Filter;
-          if aFilter <> '' then
-            aDS := TBaseDBModule(DataModule).GetNewDataSet('select count(*) from '+TBaseDBModule(DataModule).QuoteField(GetTableName)+' where '+Filter,Connection)
-          else
-            aDS := TBaseDBModule(DataModule).GetNewDataSet('select count(*) from '+TBaseDBModule(DataModule).QuoteField(GetTableName),Connection);
+          aDS := TBaseDBModule(DataModule).GetNewDataSet('select count(*) from '+TBaseDBModule(DataModule).QuoteField(GetTableName),Connection);
         end;
       aDS.Open;
       if aDS.RecordCount>0 then
