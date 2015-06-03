@@ -1421,6 +1421,7 @@ begin
             Add('STARTDATE',ftDateTime,0,False);
             Add('DUEDATE',ftDateTime,0,False);
             Add('EARLIEST',ftDateTime,0,False);
+            Add('LATEST',ftDateTime,0,False);
             Add('PLANED',ftDateTime,0,False);
             Add('UNPLANNED',ftString,1,False);
             Add('WORKSTATUS',ftString,4,False);
