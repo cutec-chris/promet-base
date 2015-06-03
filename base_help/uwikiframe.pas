@@ -139,6 +139,7 @@ type
   private
     { private declarations }
     FHistory : THistory;
+    lastRefresh: TDateTime;
     FCache: TFileCache;
     FActNode: TIpHtmlNode;
     FEditable: Boolean;
@@ -380,6 +381,7 @@ procedure TfWikiFrame.RefreshTimerTimer(Sender: TObject);
 begin
   RefreshTimer.Enabled:=False;
   Refresh;
+  lastRefresh := Now();
 end;
 
 procedure TfWikiFrame.SpeedButton2Click(Sender: TObject);
@@ -1442,8 +1444,9 @@ end;
 procedure TfWikiFrame.DoRefresh;
 begin
   inherited DoRefresh;
-  if TWikiList(DataSet).isDynamic then
-    RefreshTimer.Enabled:=True;
+  if Now()-LastRefresh>60*1000 then
+    if TWikiList(DataSet).isDynamic then
+      RefreshTimer.Enabled:=True;
 end;
 
 var
