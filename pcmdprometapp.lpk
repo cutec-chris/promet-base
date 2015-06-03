@@ -10,10 +10,6 @@
         <UnitOutputDirectory Value="lib/cmd/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
       <CodeGeneration>
-        <SmartLinkUnit Value="True"/>
-        <Optimizations>
-          <OptimizationLevel Value="3"/>
-        </Optimizations>
         <SmallerCode Value="True"/>
       </CodeGeneration>
     </CompilerOptions>
