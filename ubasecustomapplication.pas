@@ -286,11 +286,18 @@ begin
           begin
             if FLogger.LogType<>ltSystem then
               FLogger.Info(aMsg);
+            writeln('Info:'+aMsg);
           end
         else if aType = 'WARNING' then
-          FLogger.Warning(aMsg)
+          begin
+            FLogger.Warning(aMsg);
+            writeln('Warning:'+aMsg);
+          end
         else if aType = 'ERROR' then
-          FLogger.Error(aMsg);
+          begin
+            FLogger.Error(aMsg);
+            writeln('Error:'+aMsg);
+          end;
       end;
   except
   end;
