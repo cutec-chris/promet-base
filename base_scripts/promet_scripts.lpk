@@ -10,9 +10,6 @@
       <SearchPaths>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
-      <CodeGeneration>
-        <SmallerCode Value="True"/>
-      </CodeGeneration>
     </CompilerOptions>
     <Files Count="2">
       <Item1>
