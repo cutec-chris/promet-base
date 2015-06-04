@@ -1738,7 +1738,7 @@ begin
         Result := False;
       end;
   end;
-  if not FindFirst(AppendPathDelim(FilePath)+'*'+MandantExtension,faAnyFile and faDirectory,aInfo)=0 then
+  if FindFirst(AppendPathDelim(FilePath)+'*'+MandantExtension,faAnyFile and faDirectory,aInfo)<>0 then
     begin
       if FindFirst(UniToSys(AppendPathDelim(SysToUni(BaseApplication.Location))+'*'+MandantExtension),faAnyFile and faDirectory,bInfo)=0 then
         begin
@@ -1746,10 +1746,10 @@ begin
           sl.LoadFromFile(AppendPathDelim(SysToUni(BaseApplication.Location))+bInfo.Name);
           sl.SaveToFile(AppendPathDelim(FilePath)+bInfo.Name);
           sl.Free;
-          FindClose(bInfo);
         end;
-    end
-  else FindClose(aInfo);
+      FindClose(bInfo);
+    end;
+  FindClose(aInfo);
 end;
 function TBaseDBInterface.OpenMandant(aDBTyp : string;aDBProp : string): Boolean;
 begin
