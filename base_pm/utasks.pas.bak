@@ -66,7 +66,7 @@ type
     ActionList1: TActionList;
     bAddPos: TSpeedButton;
     bAddPos1: TSpeedButton;
-    bDelegated2: TSpeedButton;
+    bGotoProject: TSpeedButton;
     bDeletePos10: TSpeedButton;
     bDeletePos11: TSpeedButton;
     bDeletePos12: TSpeedButton;
@@ -133,6 +133,7 @@ type
     pBottom: TPanel;
     pmGrid: TPopupMenu;
     PUsers: TfrDBDataSet;
+    sbMenue: TSpeedButton;
     ToolButton1: TSpeedButton;
     ToolButton2: TSpeedButton;
     Users: TDatasource;
@@ -188,8 +189,10 @@ type
     procedure acDefaultFilterExecute(Sender: TObject);
     procedure acDeleteFilterExecute(Sender: TObject);
     procedure acDelPosExecute(Sender: TObject);
+    procedure acExportExecute(Sender: TObject);
     procedure acFilterExecute(Sender: TObject);
     procedure acGotoProjectExecute(Sender: TObject);
+    procedure acImportExecute(Sender: TObject);
     procedure acInformwithexternMailExecute(Sender: TObject);
     procedure acLinkExecute(Sender: TObject);
     procedure acMAkeSubTaskExecute(Sender: TObject);
@@ -317,7 +320,8 @@ implementation
 uses uRowEditor,uTask,ubasevisualapplicationtools,uData,uMainTreeFrame,
   uSearch,uProjects,uTaskEdit,uBaseApplication,LCLType,uBaseERPDBClasses,
   uSelectReport,uFormAnimate,md5,uNRights,uBaseVisualControls,
-  uBaseVisualApplication,uError,uSendMail,uPerson,Utils,uprometipc;
+  uBaseVisualApplication,uError,uSendMail,uPerson,Utils,uprometipc,
+  uscriptimport;
 procedure TfTaskFrame.SetDataSet(const AValue: TBaseDBDataSet);
 var
   aFilter: String = '';
@@ -743,6 +747,12 @@ begin
       acDelPos.Enabled := acAddPos.Enabled and ((FGridView.Count > 0) and (DataSet.State <> dsInsert));
     end;
 end;
+
+procedure TfTaskFrame.acExportExecute(Sender: TObject);
+begin
+  fScriptImport.Execute(icExport,FilterType);
+end;
+
 procedure TfTaskFrame.acFilterExecute(Sender: TObject);
 var
   aFilter: String;
@@ -891,6 +901,12 @@ begin
   if aProject.Count > 0 then
     Data.GotoLink(Data.BuildLink(aProject.DataSet));
   aProject.Free;
+end;
+
+procedure TfTaskFrame.acImportExecute(Sender: TObject);
+begin
+  fScriptImport.Execute(icImport,FilterType);
+  DataSet.DataSet.Refresh;
 end;
 
 procedure TfTaskFrame.acInformwithexternMailExecute(Sender: TObject);
@@ -1937,7 +1953,8 @@ end;
 procedure TfTaskFrame.ShowFrame;
 begin
   FGridView.Refresh;
-  FGridView.SetFocus;
+  if FGridView.CanFocus and Visible then
+    FGridView.SetFocus;
 end;
 
 procedure TfTaskFrame.DoRefresh;

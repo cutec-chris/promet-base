@@ -870,7 +870,7 @@ inherited fTaskFrame: TfTaskFrame
       end
       object ExtRotatedLabel4: TLabel
         Left = 6
-        Height = 13
+        Height = 14
         Top = 0
         Width = 27
         Caption = 'Filter'
@@ -883,7 +883,7 @@ inherited fTaskFrame: TfTaskFrame
       object cbFilter: TComboBox
         AnchorSideLeft.Side = asrBottom
         Left = 6
-        Height = 21
+        Height = 27
         Hint = 'hier können Sie einen Filter wählen um die Liste einzuschränken'
         Top = 12
         Width = 50
@@ -977,7 +977,7 @@ inherited fTaskFrame: TfTaskFrame
         BorderSpacing.Bottom = 4
         Shape = bsLeftLine
       end
-      object bDelegated2: TSpeedButton
+      object bGotoProject: TSpeedButton
         Left = 4
         Height = 24
         Top = 14
@@ -987,6 +987,92 @@ inherited fTaskFrame: TfTaskFrame
         Flat = True
         Layout = blGlyphTop
         ShowCaption = False
+      end
+      object sbMenue: TSpeedButton
+        Left = 33
+        Height = 24
+        Hint = 'zusätzliche Optionen'#10'(Menü)'
+        Top = 14
+        Width = 24
+        Flat = True
+        Glyph.Data = {
+          36090000424D3609000000000000360000002800000018000000180000000100
+          2000000000000009000064000000640000000000000000000000FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF000001
+          01FF000202FFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00030809FFFFFF
+          FFFFFFFFFFFF010304FFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF000E0508FFFFFFFF00FFFFFF00FFFFFF00000001FFFFFF
+          FFFFFFFFFFFF030002FFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00090000FF050000FFFFFFFF000A0808FFFFFFFFFFFFFF
+          FFFF060404FFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00BBB9B9FFBBB9B9FFBBB9B9FFBBB9B9FFBBB9
+          B9FFBBB9B9FFBBB9B9FF0E0607FFFFFFFFFF040000FF020000FFFFFFFFFFFFFF
+          FFFF040000FFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00927777FF927777FF927777FF927777FF927777FF9277
+          77FF927777FF927777FF0E0607FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0200
+          00FFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00927777FFCDC9D1FFD2D0D8FFE4E3EEFFE9E9F4FFF7F7FBFFFFFF
+          FFFFFFFFFFFFFFFFFFFF040000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0B0B
+          0BFF020000FF040000FF080203FFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00927777FFCDC9D1FF4B494BFF333131FF333131FF333131FF3331
+          31FF919090FFFFFFFFFF020000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFF020000FFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00927777FFCDC9D1FFD2D0D8FFE4E3EEFFE9E9F4FFF7F7FBFFFFFF
+          FFFFFFFFFFFFFFFFFFFF000100FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFF000100FFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00927777FF927777FF927777FF927777FF927777FF927777FF9277
+          77FF927777FF927777FF080907FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0002
+          00FFFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00927777FFCDC9D1FFD2D0D8FFE4E3EEFFE9E9F4FFF7F7FBFFFFFF
+          FFFFFFFFFFFFFFFFFFFF0A0502FFFFFFFFFFFFFFFFFFFFFFFFFF000200FFFFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00927777FFCDC9D1FF4B494BFF333131FF333131FF333131FF3331
+          31FF919090FFFFFFFFFF100000FFFFFFFFFFFFFFFFFF090000FFFFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00927777FFBBB9B9FFBBB9B9FFBBB9B9FFBBB9B9FFBBB9B9FFBBB9
+          B9FFBBB9B9FFBBB9B9FF2F0C0CFFFFFFFFFF1E0000FFC0BEBEFFFFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00927777FFBBB9B9FF4B494BFF333131FF333131FFBBB9B9FFBBB9
+          B9FFBBB9B9FFBBB9B9FF2D0000FF310000FF988181FFC0BEBEFFFFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00927777FFBBB9B9FFBBB9B9FFBBB9B9FFBBB9B9FFBBB9B9FFBBB9
+          B9FFBBB9B9FFBBB9B9FFBBB9B9FFBBB9B9FF988181FFC0BEBEFFFFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00927777FFCDC9D1FF4B494BFF333131FF333131FF333131FF3331
+          31FF919090FFFFFFFFFFFFFFFFFFE6E0E0FF988181FFC0BEBEFFFFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00927777FFCDC9D1FFD2D0D8FFE4E3EEFFE9E9F4FFF7F7FBFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFE6E0E0FF988181FFC0BEBEFFFFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00927777FFCDC9D1FF4B494BFF333131FF333131FF333131FFA1A0
+          A0FFFFFFFFFFFFFFFFFFFFFFFFFFE6E0E0FF988181FFC0BEBEFFFFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00927777FFCDC9D1FFD2D0D8FFE4E3EEFFE9E9F4FFF7F7FBFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFE6E0E0FF988181FFFFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00927777FF927777FF927777FF927777FF927777FF927777FF9277
+          77FF927777FF927777FF927777FF927777FF927777FFFFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FEFEFE00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
+        }
+        OnClick = sbMenueClick
+        PopupMenu = pmAction
       end
     end
     object Panel10: TPanel
@@ -1054,8 +1140,10 @@ inherited fTaskFrame: TfTaskFrame
       Align = alClient
       ItemHeight = 0
       OnDblClick = lbResultsDblClick
+      ScrollWidth = 450
       TabOrder = 0
       TabStop = False
+      TopIndex = -1
     end
   end
   object pFilterOptions: TPanel[4]
@@ -1082,9 +1170,9 @@ inherited fTaskFrame: TfTaskFrame
       TabOrder = 0
       object cbMaxResults: TCheckBox
         Left = 9
-        Height = 18
+        Height = 22
         Top = 5
-        Width = 224
+        Width = 217
         Caption = 'Filterergebnisse begrenzen auf  '
         Checked = True
         OnChange = seMaxresultsChange
@@ -1204,9 +1292,9 @@ inherited fTaskFrame: TfTaskFrame
       end
       object lFilterEdit: TLabel
         Left = 9
-        Height = 16
+        Height = 15
         Top = 33
-        Width = 100
+        Width = 95
         Caption = 'Filterbedingung'
         ParentColor = False
       end
@@ -1222,7 +1310,7 @@ inherited fTaskFrame: TfTaskFrame
       end
       object eFilterIn: TEdit
         Left = 417
-        Height = 22
+        Height = 25
         Hint = 'Wenn Sie über mehrere Tabellen Filtern '#13#10'möchten füllen Sie dieses Feld'#13#10'z.b.'#13#10'Orders,OrderPos'
         Top = 80
         Width = 152
@@ -1240,8 +1328,8 @@ inherited fTaskFrame: TfTaskFrame
       object seMaxresults: TSpinEdit
         AnchorSideLeft.Control = cbMaxResults
         AnchorSideLeft.Side = asrBottom
-        Left = 233
-        Height = 16
+        Left = 226
+        Height = 25
         Hint = 'hier können Sie die Zahl der maximalen Filterergebnisse angeben'
         Top = 5
         Width = 52
@@ -1692,8 +1780,9 @@ inherited fTaskFrame: TfTaskFrame
             ShortCut = 57379
           end>
         MouseActions = <>
+        MouseTextActions = <>
         MouseSelActions = <>
-        SelectedColor.FrameEdges = sfeAround
+        VisibleSpecialChars = [vscSpace, vscTabAtLast]
         SelectedColor.BackPriority = 50
         SelectedColor.ForePriority = 50
         SelectedColor.FramePriority = 50
@@ -1820,9 +1909,11 @@ inherited fTaskFrame: TfTaskFrame
     top = 112
     object acImport: TAction
       Caption = 'Importieren'
+      OnExecute = acImportExecute
     end
     object acExport: TAction
       Caption = 'Exportieren'
+      OnExecute = acExportExecute
     end
     object acDelPos: TAction
       Caption = 'löschen'
@@ -1980,7 +2071,7 @@ inherited fTaskFrame: TfTaskFrame
       OnExecute = acAddTasksfromProjectExecute
     end
   end
-  object Datasource: TDataSource[7]
+  object Datasource: TDatasource[7]
     OnStateChange = DatasourceStateChange
     OnDataChange = DatasourceDataChange
     left = 208
@@ -1991,7 +2082,7 @@ inherited fTaskFrame: TfTaskFrame
     left = 156
     top = 180
   end
-  object History: TDataSource[9]
+  object History: TDatasource[9]
     left = 212
     top = 180
   end
@@ -2011,33 +2102,18 @@ inherited fTaskFrame: TfTaskFrame
     left = 156
     top = 136
   end
-  object MandantDetails: TDataSource[12]
+  object MandantDetails: TDatasource[12]
     AutoEdit = False
     left = 12344
   end
   object SynSQLSyn2: TSynSQLSyn[13]
     DefaultFilter = 'SQL-Dateien (*.sql)|*.sql'
     Enabled = False
-    CommentAttri.FrameEdges = sfeAround
-    DataTypeAttri.FrameEdges = sfeAround
-    DefaultPackageAttri.FrameEdges = sfeAround
-    ExceptionAttri.FrameEdges = sfeAround
-    FunctionAttri.FrameEdges = sfeAround
-    IdentifierAttri.FrameEdges = sfeAround
-    KeyAttri.FrameEdges = sfeAround
-    NumberAttri.FrameEdges = sfeAround
-    PLSQLAttri.FrameEdges = sfeAround
-    SpaceAttri.FrameEdges = sfeAround
-    SQLPlusAttri.FrameEdges = sfeAround
-    StringAttri.FrameEdges = sfeAround
-    SymbolAttri.FrameEdges = sfeAround
-    TableNameAttri.FrameEdges = sfeAround
-    VariableAttri.FrameEdges = sfeAround
     SQLDialect = sqlSybase
     left = 368
     top = 128
   end
-  object Users: TDataSource[14]
+  object Users: TDatasource[14]
     left = 212
     top = 216
   end
@@ -2578,5 +2654,15 @@ inherited fTaskFrame: TfTaskFrame
     CancelCaption = 'Abbrechen'
     left = 280
     top = 184
+  end
+  object pmAction: TPopupMenu[18]
+    left = 276
+    top = 100
+    object MenuItem20: TMenuItem
+      Action = acImport
+    end
+    object MenuItem21: TMenuItem
+      Action = acExport
+    end
   end
 end

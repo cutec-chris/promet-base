@@ -1002,7 +1002,7 @@ end;
 procedure TfFilter.acImportExecute(Sender: TObject);
 begin
   fScriptImport.Execute(icImport,FilterType);
-  List.DataSet.Refresh;
+  DataSet.DataSet.Refresh;
 end;
 
 procedure TfFilter.acInformwithexternMailExecute(Sender: TObject);

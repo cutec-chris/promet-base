@@ -66,7 +66,7 @@ type
     ActionList1: TActionList;
     bAddPos: TSpeedButton;
     bAddPos1: TSpeedButton;
-    bDelegated2: TSpeedButton;
+    bGotoProject: TSpeedButton;
     bDeletePos10: TSpeedButton;
     bDeletePos11: TSpeedButton;
     bDeletePos12: TSpeedButton;
@@ -120,6 +120,8 @@ type
     MenuItem15: TMenuItem;
     MenuItem16: TMenuItem;
     MenuItem2: TMenuItem;
+    MenuItem20: TMenuItem;
+    MenuItem21: TMenuItem;
     MenuItem3: TMenuItem;
     MenuItem7: TMenuItem;
     MenuItem8: TMenuItem;
@@ -131,8 +133,10 @@ type
     Panel10: TPanel;
     Panel9: TPanel;
     pBottom: TPanel;
+    pmAction: TPopupMenu;
     pmGrid: TPopupMenu;
     PUsers: TfrDBDataSet;
+    sbMenue: TSpeedButton;
     ToolButton1: TSpeedButton;
     ToolButton2: TSpeedButton;
     Users: TDatasource;
@@ -188,8 +192,10 @@ type
     procedure acDefaultFilterExecute(Sender: TObject);
     procedure acDeleteFilterExecute(Sender: TObject);
     procedure acDelPosExecute(Sender: TObject);
+    procedure acExportExecute(Sender: TObject);
     procedure acFilterExecute(Sender: TObject);
     procedure acGotoProjectExecute(Sender: TObject);
+    procedure acImportExecute(Sender: TObject);
     procedure acInformwithexternMailExecute(Sender: TObject);
     procedure acLinkExecute(Sender: TObject);
     procedure acMAkeSubTaskExecute(Sender: TObject);
@@ -248,6 +254,7 @@ type
     procedure DoInsertInplaceSearch(Data : PtrInt);
     procedure pmGridPopup(Sender: TObject);
     procedure ReportGetValue(const ParName: String; var ParValue: Variant);
+    procedure sbMenueClick(Sender: TObject);
     procedure seMaxresultsChange(Sender: TObject);
   private
     FSearcheMail : string;
@@ -317,7 +324,8 @@ implementation
 uses uRowEditor,uTask,ubasevisualapplicationtools,uData,uMainTreeFrame,
   uSearch,uProjects,uTaskEdit,uBaseApplication,LCLType,uBaseERPDBClasses,
   uSelectReport,uFormAnimate,md5,uNRights,uBaseVisualControls,
-  uBaseVisualApplication,uError,uSendMail,uPerson,Utils,uprometipc;
+  uBaseVisualApplication,uError,uSendMail,uPerson,Utils,uprometipc,
+  uscriptimport;
 procedure TfTaskFrame.SetDataSet(const AValue: TBaseDBDataSet);
 var
   aFilter: String = '';
@@ -709,6 +717,12 @@ begin
       ParValue := FOwners.Values[DataSet.FieldByName('OWNER').AsString]
     end;
 end;
+
+procedure TfTaskFrame.sbMenueClick(Sender: TObject);
+begin
+  TSpeedButton(Sender).PopupMenu.PopUp(TSpeedButton(Sender).ClientOrigin.x,TSpeedButton(Sender).ClientOrigin.y+TSpeedButton(Sender).Height);
+end;
+
 procedure TfTaskFrame.seMaxresultsChange(Sender: TObject);
 begin
   if not cbMaxResults.Enabled then exit;
@@ -743,6 +757,12 @@ begin
       acDelPos.Enabled := acAddPos.Enabled and ((FGridView.Count > 0) and (DataSet.State <> dsInsert));
     end;
 end;
+
+procedure TfTaskFrame.acExportExecute(Sender: TObject);
+begin
+  fScriptImport.Execute(icExport,FilterType);
+end;
+
 procedure TfTaskFrame.acFilterExecute(Sender: TObject);
 var
   aFilter: String;
@@ -891,6 +911,12 @@ begin
   if aProject.Count > 0 then
     Data.GotoLink(Data.BuildLink(aProject.DataSet));
   aProject.Free;
+end;
+
+procedure TfTaskFrame.acImportExecute(Sender: TObject);
+begin
+  fScriptImport.Execute(icImport,FilterType);
+  DataSet.DataSet.Refresh;
 end;
 
 procedure TfTaskFrame.acInformwithexternMailExecute(Sender: TObject);
