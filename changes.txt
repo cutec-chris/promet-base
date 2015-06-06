@@ -1,6 +1,7 @@
 ﻿Build 398
       - Suche:nur ein Suchtyp zur Zeit selekierbar (schnellere Suche)
       - Administration:wenn im ausführungspfad ein .perml File (Mandanteneinstellungen) liegt und kein Mandant angelegt ist, wird er automatisch angelegt
+      - Aufgaben:import/export
 Build 397
       - Projekte:Projektnummer nicht direkt editierbar (wie bei Artikeln)
       - Nachrichtenzentrale:processmanager wird nun ohne pipes gestartet
