@@ -104,6 +104,8 @@ begin
         Sender.AddMethod(Self,@TPrometPascalScript.InternalWrite,'procedure Write(P1: string);');
         Sender.AddMethod(Self, @TPrometPascalScript.InternalParamStr,'function ParamStr(Param : Integer) : String;');
         Sender.AddMethod(Self, @TPrometPascalScript.InternalParamCount,'function ParamCount : Integer;');
+        Sender.AddFunction(@UniToSys,'function UniToSys(const s: string): string;');
+        Sender.AddFunction(@SysToUni,'function SysToUni(const s: string): string;');
       except
         Result := False; // will halt compilation
       end;

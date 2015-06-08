@@ -7,7 +7,7 @@ unit pscripts;
 interface
 
 uses
-  uScriptEditor, uFrmGotoLine, uscriptimport;
+  uScriptEditor, uFrmGotoLine, uscriptimport, uprometpascalscript;
 
 implementation
 
