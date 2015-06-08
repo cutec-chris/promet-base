@@ -9,10 +9,8 @@
       <SearchPaths>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
-      <CodeGeneration>
-      </CodeGeneration>
     </CompilerOptions>
-    <Files Count="6">
+    <Files Count="7">
       <Item1>
         <Filename Value="uscripteditor.lfm"/>
         <Type Value="LFM"/>
@@ -37,6 +35,10 @@
         <Filename Value="uscriptimport.pas"/>
         <UnitName Value="uscriptimport"/>
       </Item6>
+      <Item7>
+        <Filename Value="uprometpascalscript.pas"/>
+        <UnitName Value="uprometpascalscript"/>
+      </Item7>
     </Files>
     <RequiredPkgs Count="7">
       <Item1>

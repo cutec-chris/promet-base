@@ -104,6 +104,8 @@ begin
         Sender.AddMethod(Self,@TPrometPascalScript.InternalWrite,'procedure Write(P1: string);');
         Sender.AddMethod(Self, @TPrometPascalScript.InternalParamStr,'function ParamStr(Param : Integer) : String;');
         Sender.AddMethod(Self, @TPrometPascalScript.InternalParamCount,'function ParamCount : Integer;');
+        Sender.AddFunction(@UniToSys,'function UniToSys(const s: string): string;');
+        Sender.AddFunction(@SysToUni,'function SysToUni(const s: string): string;');
       except
         Result := False; // will halt compilation
       end;
@@ -195,6 +197,13 @@ begin
             RegisterVirtualMethod(@TBaseDbList.ImportFromXML,'IMPORTFROMXML');
             RegisterVirtualMethod(@TBaseDbList.ExportToXML,'EXPORTTOXML');
           end;
+        //TBaseHistory
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBList'),TBaseHistory) do
+          begin
+          end;
+        with Sender.ClassImporter.Add(TBaseHistory) do
+          begin
+          end;
         //Object (Element)
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBList'),TObjects) do
           begin
@@ -260,6 +269,12 @@ begin
           begin
             RegisterVirtualMethod(@TBaseDbAddress.ToString,'TOSTRING');
             RegisterVirtualMethod(@TBaseDbAddress.FromString,'FROMSTRING');
+          end;
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbAddress'),TPersonAddress) do
+          begin
+          end;
+        with Sender.ClassImporter.Add(TPersonAddress) do
+          begin
           end;
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbList'),TPersonContactData) do
           begin

@@ -196,7 +196,7 @@ begin
             begin
               Result := Runtime.RunProcPN([eDataSource.Text],'IMPORT');
               if not Result then
-                fError.ShowError(Runtime.RunProcPN([eDataSource.Text],'LASTERROR'));
+                fError.ShowError(Runtime.RunProcPN([],'LASTERROR'));
             end;
         end
     end;

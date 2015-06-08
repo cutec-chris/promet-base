@@ -116,14 +116,12 @@ begin
   aDir := StringReplace(BaseApplication.Location,'\tools','',[rfIgnoreCase])+'tools'+DirectorySeparator;
   if (not FileExists(UniToSys(aProcess+ExtractFileExt(BaseApplication.ExeName)))) and (not FileExists(UniToSys(aDir+aProcess+ExtractFileExt(BaseApplication.ExeName)))) then
     begin
-      aDir := GetCurrentDir+'tools'+DirectorySeparator;
+      aDir := GetCurrentDir+DirectorySeparator+'tools'+DirectorySeparator;
       if not FileExists(UniToSys(aDir+aProcess+ExtractFileExt(BaseApplication.ExeName))) then exit;
     end;
   Result := TProcess.Create(nil);
   Result.Options:=[poNoConsole];
   Result.CommandLine:=aDir+aProcess+ExtractFileExt(BaseApplication.ExeName)+' '+cmdln;
-  with BaseApplication as IBaseApplication do
-    Debug('Processmanager started with Command:'+Result.CommandLine);
   try
     Result.Execute;
   except
