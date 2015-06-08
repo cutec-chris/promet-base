@@ -25,7 +25,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ButtonPanel, ExtCtrls, Buttons, EditBtn, ActnList, db,uprometpascalscript;
+  ButtonPanel, ExtCtrls, Buttons, EditBtn, ActnList, db,uprometpascalscript,
+  DBGrids;
 
 type
   TImporterCapability = (icImport,icExport);
@@ -57,7 +58,7 @@ type
     { private declarations }
   public
     { public declarations }
-    function Execute(Typ : TImporterCapability;DefaultFormat : string = '') : Boolean;
+    function Execute(Typ : TImporterCapability;DefaultFormat : string = '';BookMarks : TBookmarkList = nil) : Boolean;
   end;
 
 var
@@ -154,8 +155,8 @@ begin
 
 end;
 
-function TfScriptImport.Execute(Typ: TImporterCapability; DefaultFormat: string
-  ): Boolean;
+function TfScriptImport.Execute(Typ: TImporterCapability;
+  DefaultFormat: string; BookMarks: TBookmarkList): Boolean;
 var
   tmp: String;
 begin

@@ -790,7 +790,7 @@ begin
 end;
 procedure TfFilter.acExportExecute(Sender: TObject);
 begin
-  fScriptImport.Execute(icExport,FilterType);
+  fScriptImport.Execute(icExport,FilterType,gList.SelectedRows);
 end;
 procedure TfFilter.acCopyLinkExecute(Sender: TObject);
 var

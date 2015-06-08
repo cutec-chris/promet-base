@@ -120,6 +120,8 @@ type
     MenuItem15: TMenuItem;
     MenuItem16: TMenuItem;
     MenuItem2: TMenuItem;
+    MenuItem20: TMenuItem;
+    MenuItem21: TMenuItem;
     MenuItem3: TMenuItem;
     MenuItem7: TMenuItem;
     MenuItem8: TMenuItem;
@@ -131,6 +133,7 @@ type
     Panel10: TPanel;
     Panel9: TPanel;
     pBottom: TPanel;
+    pmAction: TPopupMenu;
     pmGrid: TPopupMenu;
     PUsers: TfrDBDataSet;
     sbMenue: TSpeedButton;
@@ -251,6 +254,7 @@ type
     procedure DoInsertInplaceSearch(Data : PtrInt);
     procedure pmGridPopup(Sender: TObject);
     procedure ReportGetValue(const ParName: String; var ParValue: Variant);
+    procedure sbMenueClick(Sender: TObject);
     procedure seMaxresultsChange(Sender: TObject);
   private
     FSearcheMail : string;
@@ -713,6 +717,12 @@ begin
       ParValue := FOwners.Values[DataSet.FieldByName('OWNER').AsString]
     end;
 end;
+
+procedure TfTaskFrame.sbMenueClick(Sender: TObject);
+begin
+  TSpeedButton(Sender).PopupMenu.PopUp(TSpeedButton(Sender).ClientOrigin.x,TSpeedButton(Sender).ClientOrigin.y+TSpeedButton(Sender).Height);
+end;
+
 procedure TfTaskFrame.seMaxresultsChange(Sender: TObject);
 begin
   if not cbMaxResults.Enabled then exit;
@@ -905,7 +915,7 @@ end;
 
 procedure TfTaskFrame.acImportExecute(Sender: TObject);
 begin
-  fScriptImport.Execute(icImport,FilterType);
+  fScriptImport.Execute(icImport,FilterType,FGridView.gList.SelectedRows);
   DataSet.DataSet.Refresh;
 end;
 
