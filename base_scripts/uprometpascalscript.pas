@@ -120,9 +120,9 @@ begin
   else if aName = 'SCRIPT' then
     begin
       Result := True;
-      Sender.AddMethod(Self,@TPrometPascalScript.InternalExecuteScriptFuncionPS,'procedure ExecuteScriptFuncionPS(aScript, aFunc, aParam: string);');
-      Sender.AddMethod(Self,@TPrometPascalScript.InternalExecuteScriptFuncionPSRS,'function ExecuteScriptFuncionPSRS(aScript, aFunc, aParam: string) : string;');
-      Sender.AddMethod(Self,@TPrometPascalScript.InternalExecuteScriptFuncionRS,'function ExecuteScriptFuncionRS(aScript, aFunc : string) : string;');
+      Sender.AddMethod(Self,@TPrometPascalScript.InternalExecuteScriptFuncionPS,'procedure ExecuteScriptFunctionPS(aScript, aFunc, aParam: string);');
+      Sender.AddMethod(Self,@TPrometPascalScript.InternalExecuteScriptFuncionPSRS,'function ExecuteScriptFunctionPSRS(aScript, aFunc, aParam: string) : string;');
+      Sender.AddMethod(Self,@TPrometPascalScript.InternalExecuteScriptFuncionRS,'function ExecuteScriptFunctionRS(aScript, aFunc : string) : string;');
     end
   else if aName = 'PROMET' then
     begin
