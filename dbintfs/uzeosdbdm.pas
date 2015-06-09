@@ -933,7 +933,7 @@ begin
 end;
 procedure TZeosDBDataSet.SetSortDirection(const AValue: TSortDirection);
 begin
-  if FSortDirection=AValue then exit;
+  if (FSortDirection=AValue) and Active then exit;
   FSortDirection := AValue;
   if not GetSortLocal then
     begin

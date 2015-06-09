@@ -603,8 +603,11 @@ begin
   bScript.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(aScript));
   if bScript.Count>0 then
     begin
-      if TPascalScript(bScript.Script).Compile then
-        TPascalScript(bScript.Script).Runtime.RunProcPN([aParam],aFunc);
+      try
+        if TPascalScript(bScript.Script).Compile then
+          TPascalScript(bScript.Script).Runtime.RunProcPN([aParam],aFunc);
+      except
+      end;
     end;
   bScript.Free;
 end;
@@ -618,8 +621,12 @@ begin
   bScript.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(aScript));
   if bScript.Count>0 then
     begin
-      if TPascalScript(bScript.Script).Compile then
-        Result := TPascalScript(bScript.Script).Runtime.RunProcPN([aParam],aFunc);
+      try
+        if TPascalScript(bScript.Script).Compile then
+          Result := TPascalScript(bScript.Script).Runtime.RunProcPN([aParam],aFunc);
+      except
+        Result := '';
+      end;
     end;
   bScript.Free;
 end;
@@ -633,8 +640,12 @@ begin
   bScript.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(aScript));
   if bScript.Count>0 then
     begin
-      if TPascalScript(bScript.Script).Compile then
-        Result := TPascalScript(bScript.Script).Runtime.RunProcPN([],aFunc);
+      try
+        if TPascalScript(bScript.Script).Compile then
+          Result := TPascalScript(bScript.Script).Runtime.RunProcPN([],aFunc);
+      except
+        Result := '';
+      end;
     end;
   bScript.Free;
 end;
