@@ -717,6 +717,7 @@ begin
     end;
   FContList.DataSet := AValue;
   DataSource.DataSet := AValue.DataSet;
+  AValue.Open;
 end;
 procedure TfLinkFrame.SetRights(Editable: Boolean);
 begin
