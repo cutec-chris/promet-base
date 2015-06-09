@@ -713,6 +713,7 @@ begin
             Add('DESCRIPTION',ftMemo,0,false);
             Add('PARENT',ftLargeint,0,False);
             Add('PMANAGER',ftString,20,False);
+            Add('PINITED',ftString,20,False);
             Add('INFORMLEADER',ftString,1,False);
             Add('INFORMPMANAGER',ftString,1,False);
             Add('GROSSPLANNING',ftString,1,False);
