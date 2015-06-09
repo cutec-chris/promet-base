@@ -28,6 +28,9 @@ uses
   Utils,db,uBaseDBInterface;
 
 type
+
+  { TPrometPascalScript }
+
   TPrometPascalScript = class(TBaseScript)
     function TPascalScriptUses(Sender: TPascalScript; const aName: tbtString
       ): Boolean;
@@ -52,6 +55,10 @@ type
   Source: string; Date: TDateTime): Boolean;
     procedure InternalStorValue(aName,aId : string;aValue : Double);
     procedure InternalExecuteScript(aCommand, aClient: string);
+
+    procedure InternalExecuteScriptFuncionPS(aScript, aFunc, aParam: string);
+    function InternalExecuteScriptFuncionPSRS(aScript, aFunc, aParam: string) : string;
+    function InternalExecuteScriptFuncionRS(aScript, aFunc : string) : string;
   public
     constructor CreateEx(aOwner: TComponent; DM: TComponent; aConnection: TComponent
   =nil; aMasterdata: TDataSet=nil); override;
@@ -109,6 +116,13 @@ begin
       except
         Result := False; // will halt compilation
       end;
+    end
+  else if aName = 'SCRIPT' then
+    begin
+      Result := True;
+      Sender.AddMethod(Self,@TPrometPascalScript.InternalExecuteScriptFuncionPS,'procedure ExecuteScriptFuncionPS(aScript, aFunc, aParam: string);');
+      Sender.AddMethod(Self,@TPrometPascalScript.InternalExecuteScriptFuncionPSRS,'function ExecuteScriptFuncionPSRS(aScript, aFunc, aParam: string) : string;');
+      Sender.AddMethod(Self,@TPrometPascalScript.InternalExecuteScriptFuncionRS,'function ExecuteScriptFuncionRS(aScript, aFunc : string) : string;');
     end
   else if aName = 'PROMET' then
     begin
@@ -578,6 +592,51 @@ begin
     with BaseApplication as IBaseApplication do
       TMessageHandler(GetMessageManager).SendCommand(aClient,aCommand);
   }
+end;
+
+procedure TPrometPascalScript.InternalExecuteScriptFuncionPS(aScript,aFunc,
+  aParam: string);
+var
+  bScript: TPrometPascalScript;
+begin
+  bScript := TPrometPascalScript.Create(nil);
+  bScript.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(aScript));
+  if bScript.Count>0 then
+    begin
+      if TPascalScript(bScript.Script).Compile then
+        TPascalScript(bScript.Script).Runtime.RunProcPN([aParam],aFunc);
+    end;
+  bScript.Free;
+end;
+
+function TPrometPascalScript.InternalExecuteScriptFuncionPSRS(aScript, aFunc,
+  aParam: string): string;
+var
+  bScript: TPrometPascalScript;
+begin
+  bScript := TPrometPascalScript.Create(nil);
+  bScript.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(aScript));
+  if bScript.Count>0 then
+    begin
+      if TPascalScript(bScript.Script).Compile then
+        Result := TPascalScript(bScript.Script).Runtime.RunProcPN([aParam],aFunc);
+    end;
+  bScript.Free;
+end;
+
+function TPrometPascalScript.InternalExecuteScriptFuncionRS(aScript,
+  aFunc: string): string;
+var
+  bScript: TPrometPascalScript;
+begin
+  bScript := TPrometPascalScript.Create(nil);
+  bScript.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(aScript));
+  if bScript.Count>0 then
+    begin
+      if TPascalScript(bScript.Script).Compile then
+        Result := TPascalScript(bScript.Script).Runtime.RunProcPN([],aFunc);
+    end;
+  bScript.Free;
 end;
 
 constructor TPrometPascalScript.CreateEx(aOwner: TComponent; DM: TComponent;
