@@ -3,13 +3,14 @@
       - Administration:wenn im ausführungspfad ein .perml File (Mandanteneinstellungen) liegt und kein Mandant angelegt ist, wird er automatisch angelegt
       - Aufgaben:import/export
       - Scripte:Möglichkeit einzelne Funktionen aus Scripten aus anderen Scripten aufzurufen
+      - Verweise:Verweis auf Ordner (Dateisystem) nun einfacher mit separatem Button erstellbar
 Build 397
       - Projekte:Projektnummer nicht direkt editierbar (wie bei Artikeln)
       - Nachrichtenzentrale:processmanager wird nun ohne pipes gestartet
       - Nachichteneditor:Unicode Anzeige hat bei einigen Nachrichten Encoding falsch benutzt
       - Benutzerdefinierte Felder:Integerfelder wurden nicht hinzugefügt
       - Reports:Reports wurden immer gespeichert auch wenn Benutzerabfrage negativ war
-      - Scripte:Unicodewandlungen bei Daeihandling Routinen korrigiert
+      - Scripte:Unicodewandlungen bei Dateihandling Routinen korrigiert
       - Scripte:Dateisuchroutinen FindFirst/Findnext hinzugefügt
       - Meetings:Benutzer und Verantwortlicher werden auf das jewails andere gesetzt wenn ein Feld leer ist
       - Inplace Suchen:reaktiviert/Fehler beim aufrufen beseitigt
