@@ -1839,6 +1839,8 @@ begin
             Add('PAYEDON',ftDate,0,False);
             Add('DELIVEREDON',ftDate,0,False);
             Add('COMMISSION',ftString,30,False);
+            Add('PROJECTID',ftLargeInt,0,False);
+            Add('PROJECT',ftString,260,False);
             Add('NOTE',ftMemo,0,False);
             Add('HEADERTEXT',ftMemo,0,False);
             Add('FOOTERTEXT',ftMemo,0,False);
