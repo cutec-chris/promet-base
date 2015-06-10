@@ -48,6 +48,7 @@ type
 
     function InternalDataSet(SQL : string) : TDataSet;
     function InternalData : TBaseDBModule;
+    function ContextDataSet : TDataSet;
     function InternalHistory(Action: string; ParentLink: string; Icon: Integer=0;
       ObjectLink: string=''; Reference: string='';aCommission: string='';Source : string='';Date:TDateTime = 0) : Boolean;
     function InternalUserHistory(Action: string; UserName: string; Icon: Integer;
@@ -67,6 +68,9 @@ type
     function Execute(Parameters: Variant): Boolean; override;
     destructor Destroy;override;
   end;
+
+var
+  FContextDataSet : TDataSet;
 
 implementation
 
@@ -130,6 +134,7 @@ begin
       try
         Sender.InternalUses(Sender.Compiler,'DB');
         Sender.InternalUses(Sender.Compiler,'DATEUTILS');
+        Sender.AddMethod(Self,@TPrometPascalScript.ContextDataSet,'function ContextDataSet : TDataSet;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalDataSet,'function DataSet(SQL : string) : TDataSet;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalHistory,'function History(Action : string;ParentLink : string;Icon : Integer;ObjectLink : string;Reference : string;Commission: string;Source : string;Date:TDateTime) : Boolean;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalUserHistory,'function UserHistory(Action : string;User   : string;Icon : Integer;ObjectLink : string;Reference : string;Commission: string;Source : string;Date:TDateTime) : Boolean;');
@@ -528,6 +533,11 @@ end;
 function TPrometPascalScript.InternalData: TBaseDBModule;
 begin
   Result := uData.Data;
+end;
+
+function TPrometPascalScript.ContextDataSet: TDataSet;
+begin
+  Result := FContextDataSet;
 end;
 
 function TPrometPascalScript.InternalHistory(Action: string; ParentLink: string;

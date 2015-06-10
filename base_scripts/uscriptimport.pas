@@ -58,7 +58,7 @@ type
     { private declarations }
   public
     { public declarations }
-    function Execute(Typ : TImporterCapability;DefaultFormat : string = '';BookMarks : TBookmarkList = nil) : Boolean;
+    function Execute(Typ : TImporterCapability;DefaultFormat : string = '';DataSet : TDataSet=nil;BookMarks : TBookmarkList = nil) : Boolean;
   end;
 
 var
@@ -156,9 +156,10 @@ begin
 end;
 
 function TfScriptImport.Execute(Typ: TImporterCapability;
-  DefaultFormat: string; BookMarks: TBookmarkList): Boolean;
+  DefaultFormat: string; DataSet: TDataSet = nil; BookMarks: TBookmarkList=nil): Boolean;
 var
   tmp: String;
+  Records: String;
 begin
   if not Assigned(Self) then
     begin
@@ -192,12 +193,30 @@ begin
         Result := aScripts.Locate('NAME','Export.'+FFormat+'.'+cbFormat.Text,[loCaseInsensitive]);
       if Result then
         begin
+          uprometpascalscript.FContextDataSet := DataSet;
+          Records := '';
+          if Assigned(Bookmarks) then
+            begin
+
+            end;
           with TPrometPascalScript(aScripts).Script as TPascalScript do
             begin
-              Result := Runtime.RunProcPN([eDataSource.Text],'IMPORT');
+              if FTyp = icImport then
+                Result := Runtime.RunProcPN([eDataSource.Text],'DOIMPORT')
+              else
+                Result := Runtime.RunProcPN([eDataSource.Text,Records],'DOEXPORT');
+              try
+                if not Result then
+                  begin
+                    tmp := Runtime.RunProcPN([],'LASTERROR');
+                  end;
+              except
+                tmp := 'unknown error';
+              end;
               if not Result then
-                fError.ShowError(Runtime.RunProcPN([],'LASTERROR'));
+                fError.ShowError(tmp);
             end;
+          uprometpascalscript.FContextDataSet := nil;
         end
     end;
   aScripts.Free;

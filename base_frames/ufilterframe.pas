@@ -790,7 +790,7 @@ begin
 end;
 procedure TfFilter.acExportExecute(Sender: TObject);
 begin
-  fScriptImport.Execute(icExport,FilterType,gList.SelectedRows);
+  fScriptImport.Execute(icExport,FilterType,glist.DataSource.DataSet,gList.SelectedRows);
 end;
 procedure TfFilter.acCopyLinkExecute(Sender: TObject);
 var
@@ -1001,8 +1001,8 @@ begin
 end;
 procedure TfFilter.acImportExecute(Sender: TObject);
 begin
-  fScriptImport.Execute(icImport,FilterType);
-  DataSet.DataSet.Refresh;
+  if fScriptImport.Execute(icImport,FilterType) then
+    DataSet.DataSet.Refresh;
 end;
 
 procedure TfFilter.acInformwithexternMailExecute(Sender: TObject);

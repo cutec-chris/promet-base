@@ -84,7 +84,8 @@ inherited fTaskFrame: TfTaskFrame
         Caption = 'Aufgabe'
         Font.Color = clMedGray
         Font.Height = 11
-        Font.Orientation = -900
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
@@ -179,7 +180,8 @@ inherited fTaskFrame: TfTaskFrame
         Caption = 'Zeit'
         Font.Color = clMedGray
         Font.Height = 11
-        Font.Orientation = -900
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
@@ -214,7 +216,8 @@ inherited fTaskFrame: TfTaskFrame
         Caption = 'Ansicht'
         Font.Color = clMedGray
         Font.Height = 11
-        Font.Orientation = -900
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
@@ -437,7 +440,8 @@ inherited fTaskFrame: TfTaskFrame
         Caption = 'zusätzlich'
         Font.Color = clMedGray
         Font.Height = 11
-        Font.Orientation = -900
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
@@ -870,9 +874,9 @@ inherited fTaskFrame: TfTaskFrame
       end
       object ExtRotatedLabel4: TLabel
         Left = 6
-        Height = 14
+        Height = 11
         Top = 0
-        Width = 27
+        Width = 21
         Caption = 'Filter'
         Font.Color = clMedGray
         Font.Height = 11
@@ -883,13 +887,13 @@ inherited fTaskFrame: TfTaskFrame
       object cbFilter: TComboBox
         AnchorSideLeft.Side = asrBottom
         Left = 6
-        Height = 27
+        Height = 21
         Hint = 'hier können Sie einen Filter wählen um die Liste einzuschränken'
         Top = 12
         Width = 50
         Anchors = [akTop, akLeft, akRight]
         BorderSpacing.Left = 8
-        ItemHeight = 0
+        ItemHeight = 13
         OnSelect = cbFilterSelect
         TabOrder = 0
       end
@@ -1143,7 +1147,6 @@ inherited fTaskFrame: TfTaskFrame
       ScrollWidth = 450
       TabOrder = 0
       TabStop = False
-      TopIndex = -1
     end
   end
   object pFilterOptions: TPanel[4]
@@ -1170,9 +1173,9 @@ inherited fTaskFrame: TfTaskFrame
       TabOrder = 0
       object cbMaxResults: TCheckBox
         Left = 9
-        Height = 22
+        Height = 17
         Top = 5
-        Width = 217
+        Width = 173
         Caption = 'Filterergebnisse begrenzen auf  '
         Checked = True
         OnChange = seMaxresultsChange
@@ -1292,9 +1295,9 @@ inherited fTaskFrame: TfTaskFrame
       end
       object lFilterEdit: TLabel
         Left = 9
-        Height = 15
+        Height = 13
         Top = 33
-        Width = 95
+        Width = 74
         Caption = 'Filterbedingung'
         ParentColor = False
       end
@@ -1310,7 +1313,7 @@ inherited fTaskFrame: TfTaskFrame
       end
       object eFilterIn: TEdit
         Left = 417
-        Height = 25
+        Height = 21
         Hint = 'Wenn Sie über mehrere Tabellen Filtern '#13#10'möchten füllen Sie dieses Feld'#13#10'z.b.'#13#10'Orders,OrderPos'
         Top = 80
         Width = 152
@@ -1328,8 +1331,8 @@ inherited fTaskFrame: TfTaskFrame
       object seMaxresults: TSpinEdit
         AnchorSideLeft.Control = cbMaxResults
         AnchorSideLeft.Side = asrBottom
-        Left = 226
-        Height = 25
+        Left = 182
+        Height = 21
         Hint = 'hier können Sie die Zahl der maximalen Filterergebnisse angeben'
         Top = 5
         Width = 52
@@ -1783,6 +1786,7 @@ inherited fTaskFrame: TfTaskFrame
         MouseTextActions = <>
         MouseSelActions = <>
         VisibleSpecialChars = [vscSpace, vscTabAtLast]
+        SelectedColor.FrameEdges = sfeAround
         SelectedColor.BackPriority = 50
         SelectedColor.ForePriority = 50
         SelectedColor.FramePriority = 50
@@ -2071,7 +2075,7 @@ inherited fTaskFrame: TfTaskFrame
       OnExecute = acAddTasksfromProjectExecute
     end
   end
-  object Datasource: TDatasource[7]
+  object Datasource: TDataSource[7]
     OnStateChange = DatasourceStateChange
     OnDataChange = DatasourceDataChange
     left = 208
@@ -2082,7 +2086,7 @@ inherited fTaskFrame: TfTaskFrame
     left = 156
     top = 180
   end
-  object History: TDatasource[9]
+  object History: TDataSource[9]
     left = 212
     top = 180
   end
@@ -2102,18 +2106,33 @@ inherited fTaskFrame: TfTaskFrame
     left = 156
     top = 136
   end
-  object MandantDetails: TDatasource[12]
+  object MandantDetails: TDataSource[12]
     AutoEdit = False
     left = 12344
   end
   object SynSQLSyn2: TSynSQLSyn[13]
     DefaultFilter = 'SQL-Dateien (*.sql)|*.sql'
     Enabled = False
+    CommentAttri.FrameEdges = sfeAround
+    DataTypeAttri.FrameEdges = sfeAround
+    DefaultPackageAttri.FrameEdges = sfeAround
+    ExceptionAttri.FrameEdges = sfeAround
+    FunctionAttri.FrameEdges = sfeAround
+    IdentifierAttri.FrameEdges = sfeAround
+    KeyAttri.FrameEdges = sfeAround
+    NumberAttri.FrameEdges = sfeAround
+    PLSQLAttri.FrameEdges = sfeAround
+    SpaceAttri.FrameEdges = sfeAround
+    SQLPlusAttri.FrameEdges = sfeAround
+    StringAttri.FrameEdges = sfeAround
+    SymbolAttri.FrameEdges = sfeAround
+    TableNameAttri.FrameEdges = sfeAround
+    VariableAttri.FrameEdges = sfeAround
     SQLDialect = sqlSybase
     left = 368
     top = 128
   end
-  object Users: TDatasource[14]
+  object Users: TDataSource[14]
     left = 212
     top = 216
   end
