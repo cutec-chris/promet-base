@@ -99,6 +99,10 @@ procedure TMasterdataPropertyStorageR(Self: TMasterdata; var T: TStorage); begin
 procedure TProjectsTasksR(Self: TProject; var T: TProjectTasks); begin T := Self.Tasks; end;
 procedure TMessagePropertyContentR(Self : TMessage;var T : TMessageContent);begin T := Self.Content; end;
 procedure TMessagePropertyDocumentsR(Self : TMessage;var T : TDocuments);begin T := Self.Documents; end;
+procedure TOrderPropertyPositionsR(Self : TOrder;var T : TOrderPos);begin T := Self.Positions; end;
+procedure TOrderPropertyAddressR(Self : TOrder;var T : TOrderAddress);begin T := Self.Address; end;
+procedure TMasterdataPropertyPositionsR(Self : TMasterdata;var T : TMDPos);begin T := Self.Positions; end;
+procedure TProjectPropertyPositionsR(Self : TProject;var T : TProjectPositions);begin T := Self.Positions; end;
 
 
 function TPrometPascalScript.TPascalScriptUses(Sender: TPascalScript;
@@ -321,7 +325,20 @@ begin
             RegisterPropertyHelper(@TPersonPropertyContR,nil,'CONTACTDATA');
             RegisterPropertyHelper(@TBaseDbListPropertyHistoryR,nil,'HISTORY');
           end;
+        //Positions
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbDataSet'),TBaseDBPosition) do
+          begin
+          end;
+        with Sender.ClassImporter.Add(TBaseDBPosition) do
+          begin
+          end;
         //Masterdata
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbPosition'),TMDPos) do
+          begin
+          end;
+        with Sender.ClassImporter.Add(TMDPos) do
+          begin
+          end;
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBDataSet'),TStorageJournal) do
           begin
           end;
@@ -349,13 +366,21 @@ begin
           begin
             RegisterProperty('History','TBaseHistory',iptR);
             RegisterProperty('Storage','TStorage',iptR);
+            RegisterProperty('Positions','TMDPos',iptR);
           end;
         with Sender.ClassImporter.Add(TMasterdata) do
           begin
             RegisterPropertyHelper(@TBaseDbListPropertyHistoryR,nil,'HISTORY');
             RegisterPropertyHelper(@TMasterdataPropertyStorageR,nil,'STORAGE');
+            RegisterPropertyHelper(@TMasterdataPropertyPositionsR,nil,'POSITIONS');
           end;
         //Projects
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbPosition'),TProjectPositions) do
+          begin
+          end;
+        with Sender.ClassImporter.Add(TProjectPositions) do
+          begin
+          end;
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBList'),TTaskList) do
           begin
             RegisterMethod('constructor Create(aOwner : TComponent);');
@@ -393,13 +418,27 @@ begin
             RegisterMethod('constructor Create(aOwner : TComponent);');
             RegisterProperty('History','TBaseHistory',iptR);
             RegisterProperty('Tasks','TProjectTasks',iptR);
+            RegisterProperty('Positions','TProjectPositions',iptR);
           end;
         with Sender.ClassImporter.Add(TProject) do
           begin
             RegisterPropertyHelper(@TBaseDbListPropertyHistoryR,nil,'HISTORY');
             RegisterPropertyHelper(@TProjectsTasksR,nil,'TASKS');
+            RegisterPropertyHelper(@TProjectPropertyPositionsR,nil,'POSITIONS');
           end;
         //Orders
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbPosition'),TOrderPos) do
+          begin
+          end;
+        with Sender.ClassImporter.Add(TOrderPos) do
+          begin
+          end;
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbAddress'),TOrderAddress) do
+          begin
+          end;
+        with Sender.ClassImporter.Add(TOrderAddress) do
+          begin
+          end;
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBList'),TOrderList) do
           begin
             RegisterMethod('constructor Create(aOwner : TComponent);');
@@ -411,10 +450,14 @@ begin
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TOrderList'),TOrder) do
           begin
             RegisterProperty('History','TBaseHistory',iptR);
+            RegisterProperty('Address','TOrderAddress',iptR);
+            RegisterProperty('Positions','TOrderPos',iptR);
           end;
         with Sender.ClassImporter.Add(TOrder) do
           begin
             RegisterPropertyHelper(@TBaseDbListPropertyHistoryR,nil,'HISTORY');
+            RegisterPropertyHelper(@TOrderPropertyAddressR,nil,'ADDRESS');
+            RegisterPropertyHelper(@TOrderPropertyPositionsR,nil,'POSITIONS');
           end;
         //Small Gneral Datasets
         Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBDataSet'),TFollowers);
