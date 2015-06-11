@@ -1508,11 +1508,14 @@ begin
       if CalendarDialog1.Execute then
         begin
           FGridView.BeginUpdate;
-          if not DataSet.CanEdit then
-            DataSet.DataSet.Edit;
-          DataSet.FieldByName('DUEDATE').AsDateTime := CalendarDialog1.Date;
-          FGridView.SyncActiveRow(DataSet.GetBookmark,False,True,True);
-          FGridView.gList.EditorMode:=False;
+          if FGridView.GotoActiveRow then
+            begin
+              if not DataSet.CanEdit then
+                DataSet.DataSet.Edit;
+              DataSet.FieldByName('DUEDATE').AsDateTime := CalendarDialog1.Date;
+              FGridView.SyncActiveRow(DataSet.GetBookmark,False,True,True);
+              FGridView.gList.EditorMode:=False;
+            end;
           FGridView.EndUpdate;
           FGridView.SetEdited;
         end;
@@ -1524,11 +1527,14 @@ begin
       if CalendarDialog1.Execute then
         begin
           FGridView.BeginUpdate;
-          if not DataSet.CanEdit then
-            DataSet.DataSet.Edit;
-          DataSet.FieldByName('STARTDATE').AsDateTime := CalendarDialog1.Date;
-          FGridView.SyncActiveRow(DataSet.GetBookmark,False,True,True);
-          FGridView.gList.EditorMode:=False;
+          if FGridView.GotoActiveRow then
+            begin
+              if not DataSet.CanEdit then
+                DataSet.DataSet.Edit;
+              DataSet.FieldByName('STARTDATE').AsDateTime := CalendarDialog1.Date;
+              FGridView.SyncActiveRow(DataSet.GetBookmark,False,True,True);
+              FGridView.gList.EditorMode:=False;
+            end;
           FGridView.EndUpdate;
           FGridView.SetEdited;
         end;
