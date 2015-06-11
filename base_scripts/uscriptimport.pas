@@ -201,6 +201,7 @@ begin
             end;
           with TPrometPascalScript(aScripts).Script as TPascalScript do
             begin
+              Screen.Cursor:=crHourGlass;
               if FTyp = icImport then
                 Result := Runtime.RunProcPN([eDataSource.Text],'DOIMPORT')
               else
@@ -213,6 +214,7 @@ begin
               except
                 tmp := 'unknown error';
               end;
+              Screen.Cursor:=crDefault;
               if not Result then
                 fError.ShowError(tmp);
             end;
