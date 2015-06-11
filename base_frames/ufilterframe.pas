@@ -1840,7 +1840,11 @@ var
   aRec : LargeInt;
   aPrevRec : LargeInt;
 begin
-  if not DataSet.Active then exit;
+  if not DataSet.Active then
+    begin
+      acFilter.Execute;
+      exit;
+    end;
   if aFullCount<>DataSet.FullCount then
     begin
       aRec := DataSet.GetBookmark;
