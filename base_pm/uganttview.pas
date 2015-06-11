@@ -51,10 +51,8 @@ type
     acCalculateBackwards: TAction;
     acRefreshWizard: TAction;
     ActionList1: TActionList;
-    bCalculatePlan1: TSpeedButton;
     bCalculatePlanWithUsage: TSpeedButton;
     Bevel11: TBevel;
-    Bevel12: TBevel;
     bCalculate2: TSpeedButton;
     Bevel10: TBevel;
     bDayView: TSpeedButton;
@@ -63,7 +61,6 @@ type
     Bevel7: TBevel;
     Bevel8: TBevel;
     bMonthView: TSpeedButton;
-    bMoveTogether: TSpeedButton;
     bSave1: TSpeedButton;
     bShowTasks: TSpeedButton;
     bShowTasks1: TSpeedButton;
@@ -73,7 +70,6 @@ type
     cbSnapshot: TComboBox;
     iHourglass: TImage;
     Label10: TLabel;
-    Label11: TLabel;
     Label4: TLabel;
     Label8: TLabel;
     lDate: TLabel;
@@ -96,13 +92,11 @@ type
     Panel5: TPanel;
     pCalc: TPanel;
     Panel9: TPanel;
-    pCalc2: TPanel;
     pgantt: TPanel;
     Panel7: TPanel;
     PopupMenu1: TPopupMenu;
     PopupMenu2: TPopupMenu;
     SavePictureDialog1: TSavePictureDialog;
-    seBuffer: TSpinEdit;
     tbTop: TPanel;
     RecalcTimer: TTimer;
     bSave: TSpeedButton;
@@ -164,8 +158,6 @@ type
     FSelectedRow: Int64;
     FResourcesRead : Boolean;
     FGantt: TgsGantt;
-    Fproject : TProject;
-    FTasks : TTaskList;
     FThreads : TList;
     FRessources : TList;
     FHintRect : TRect;
@@ -181,7 +173,11 @@ type
     FReasonText : string;
     function FindInterval(aParent: TInterval; aId: Variant): TInterval;
     function IntervalById(Id: Variant; Root: TInterval=nil): TInterval;
+    procedure SetFProject(AValue: TProject);
     procedure UpdateDependencies(aInt : TInterval);
+  protected
+    Fproject : TProject;
+    FTasks : TTaskList;
   public
     { public declarations }
     constructor Create(TheOwner: TComponent); override;
@@ -199,6 +195,7 @@ type
     function MoveFwd(aProject : TProject;DoClean: Boolean=True;AddInactive : Boolean = False) : Boolean;
     function MoveAndCalculate(aProject : TProject;DoClean: Boolean=True;AddInactive : Boolean = False) : Boolean;
     procedure SetRights;
+    property Project : TProject read Fproject write SetFProject;
   end;
 
 var
@@ -219,6 +216,7 @@ resourcestring
   strCollectingresourceTimes              = '... Urlaubszeiten ermitteln';
   strChangeMilestones                     = 'Meilensteine ändern';
   strNewTask                              = 'neue Aufgabe';
+  strFindCriticalPath                     = 'kritischen Pfad finden';
 procedure TfGanttView.AddHelp;
 var
   aWiki: TWikiList;
@@ -371,6 +369,13 @@ begin
       if aRes<>Root then
         Result := nil;
     end;
+end;
+
+procedure TfGanttView.SetFProject(AValue: TProject);
+begin
+  if Fproject=AValue then Exit;
+  Fproject:=AValue;
+  FTasks := Fproject.Tasks;
 end;
 
 procedure TfGanttView.UpdateDependencies(aInt: TInterval);
@@ -676,8 +681,8 @@ procedure TfGanttView.bCalculatePlanClick(Sender: TObject);
         FinishDate := (StartDate+aDur);
         //Buffer
         aBuffer := WaitTime;
-        if aBuffer < (aDur*(fGanttView.seBuffer.Value/100)) then
-          aBuffer := (aDur*(fGanttView.seBuffer.Value/100));
+        //if aBuffer < (aDur*(fGanttView.seBuffer.Value/100)) then
+        //  aBuffer := (aDur*(fGanttView.seBuffer.Value/100));
         //Add Weekends to Buffer
         i := trunc(FinishDate);
         while i < FinishDate+aBuffer do
@@ -879,8 +884,8 @@ procedure TfGanttView.bMoveBackClick(Sender: TObject);
         //TODO: Urlaub
         StartDate := (FinishDate-aDur);
         aBuffer := WaitTime;
-        if aBuffer < (aDur*(seBuffer.Value/100)) then
-          aBuffer := (aDur*(seBuffer.Value/100));
+        //if aBuffer < (aDur*(seBuffer.Value/100)) then
+        //  aBuffer := (aDur*(seBuffer.Value/100));
         EndUpdate;
         Result := StartDate;
       end;
@@ -1520,6 +1525,7 @@ var
   aRoot: TInterval;
   deps : array of LargeInt;
   Snapshotsfound: Integer;
+  IsError: Boolean;
   function AddTask(AddParents : Boolean = True;Root : TInterval = nil) : TInterval;
   var
     aInterval: TInterval;
@@ -1665,6 +1671,7 @@ begin
   end;
   FGantt.Tree.TopRow:=1;
   FGantt.StartDate:=Now();
+  fLogWaitForm.ShowInfo(strFindCriticalPath);
   FindCriticalPath;
 end;
 procedure TfGanttView.DoSave(aChangeMilestones: Boolean; aSetTermins: Boolean);

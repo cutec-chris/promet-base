@@ -253,6 +253,7 @@ begin
             Add('LINK',ftString,200,False); //Link
             Add('ICON',ftInteger,0,False); //LinkIcon
             Add('NAME',ftString,100,True);
+            Add('ACTIVE',ftString,1,False);
           end;
       if Assigned(ManagedIndexdefs) then
         with ManagedIndexDefs do
@@ -272,17 +273,20 @@ begin
   Task.DataSet.Post;
   with DataSet do
     begin
-      Append;
       with BaseApplication as IBaseDbInterface do
         begin
           tmp := copy(aLink,7,length(aLink));
           if pos('{',tmp)>0 then tmp := copy(tmp,0,pos('{',tmp)-1);
-          FieldByName('REF_ID_ID').AsString := tmp;
-          FieldByName('NAME').AsString:=Data.GetLinkDesc(aLink);
-          FieldByName('LINK').AsString:=aLink;
-          FieldByName('ICON').AsInteger:=Data.GetLinkIcon(aLink,True);
+          if Task.Id.AsString<>tmp then
+            begin
+              Append;
+              FieldByName('REF_ID_ID').AsString := tmp;
+              FieldByName('NAME').AsString:=Data.GetLinkDesc(aLink);
+              FieldByName('LINK').AsString:=aLink;
+              FieldByName('ICON').AsInteger:=Data.GetLinkIcon(aLink,True);
+              Post;
+            end;
         end;
-      Post;
     end;
 end;
 
@@ -405,7 +409,10 @@ begin
                   Chngd:=True;
                 end;
               if Chngd then
-                DataSet.Post
+                begin
+                  if CanEdit then
+                    DataSet.Post;
+                end
               else DataSet.Cancel;
             end;
         end;
@@ -419,8 +426,10 @@ var
   AllCompleted: Char = 'Y';
   HasTrigger: Boolean;
   aTime: TDateTime;
+  lastDeps : string = '';
 begin
-  //debugln('CheckDependtasks:'+DataSet.FieldByName('SUMMARY').AsString);
+  with BaseApplication as IBaseApplication do
+    debug('CheckDependtasks:'+DataSet.FieldByName('SUMMARY').AsString);
   HasTrigger := Data.TriggerExists('TASKS_INS_DEPEND');
   aDeps := TDependencies.CreateEx(Self,DataModule,Connection);
   aDeps.SelectByLink(Data.BuildLink(DataSet));
@@ -428,26 +437,37 @@ begin
   aDeps.DataSet.First;
   while not aDeps.DataSet.EOF do
     begin
-      aTask := TTask.CreateEx(Self,DataModule,Connection);
-      aTask.Select(aDeps.FieldByName('REF_ID').AsVariant);
-      aTask.Open;
-      if (FieldByName('COMPLETED').AsString='Y') and (FieldByName('BUFFERTIME').AsFloat>0) then
-        begin  //set Earlyes begin when Buffertime was > 0
-          if FieldByName('COMPLETEDAT').IsNull then
-            aTime := Now()
-          else
-            aTime := FieldByName('COMPLETEDAT').AsDateTime;
-          if not aTask.CanEdit then aTask.DataSet.Edit;
-          aTask.FieldByName('EARLIEST').AsDateTime := aTime+FieldByName('BUFFERTIME').AsFloat;
-          aTask.Post;
-        end;
-      if (not HasTrigger) then
+      if (pos(aDeps.FieldByName('LINK').AsString+',',lastDeps)>0) or (aDeps.FieldByName('REF_ID').AsVariant=Id.AsVariant) then
         begin
-          aTask.CheckDependencies;
-          if aTask.FieldByName('DEPDONE').AsString <> 'Y' then AllCompleted:='N';
+          with BaseApplication as IBaseApplication do
+            Warning('  Would delete task:'+aDeps.DataSet.FieldByName('NAME').AsString);
+        //aDeps.Delete
+          aDeps.Next;
+        end
+      else
+        begin
+          aTask := TTask.CreateEx(Self,DataModule,Connection);
+          aTask.Select(aDeps.FieldByName('REF_ID').AsVariant);
+          aTask.Open;
+          if (FieldByName('COMPLETED').AsString='Y') and (FieldByName('BUFFERTIME').AsFloat>0) then
+            begin  //set Earlyes begin when Buffertime was > 0
+              if FieldByName('COMPLETEDAT').IsNull then
+                aTime := Now()
+              else
+                aTime := FieldByName('COMPLETEDAT').AsDateTime;
+              if not aTask.CanEdit then aTask.DataSet.Edit;
+              aTask.FieldByName('EARLIEST').AsDateTime := aTime+FieldByName('BUFFERTIME').AsFloat;
+              aTask.Post;
+            end;
+          if (not HasTrigger) then
+            begin
+              aTask.CheckDependencies;
+              if aTask.FieldByName('DEPDONE').AsString <> 'Y' then AllCompleted:='N';
+            end;
+          aTask.Free;
+          lastDeps := lastDeps+aDeps.FieldByName('LINK').AsString+',';
+          aDeps.DataSet.Next;
         end;
-      aTask.Free;
-      aDeps.DataSet.Next;
     end;
   aDeps.Free;
 end;

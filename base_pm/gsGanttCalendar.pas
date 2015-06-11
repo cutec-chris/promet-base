@@ -204,7 +204,7 @@ type
     procedure MakeIntervalList(AList: TList);
 
     function ConnectionExists(AConnection: TInterval): Boolean;
-    function IntervalExists(AnInterval: TInterval): Boolean;
+    function IntervalExists(AnInterval: TInterval;aLevel : Integer = 0): Boolean;
 
     procedure UpdateIntervalStart(Delta: TDateTime);
     procedure PrepareToUpdate;
@@ -1405,18 +1405,18 @@ begin
       end;
 end;
 
-function TInterval.IntervalExists(AnInterval: TInterval): Boolean;
+function TInterval.IntervalExists(AnInterval: TInterval; aLevel: Integer
+  ): Boolean;
 var
   I: Integer;
 begin
   Result := False;
-
   for I := 0 to IntervalCount - 1 do
     if AnInterval = Interval[I] then
     begin
       Result := True;
       Exit;
-    end else if Interval[I].IntervalExists(AnInterval) then
+    end else if Interval[I].IntervalExists(AnInterval,aLevel+1) then
     begin
       Result := True;
       Exit;
