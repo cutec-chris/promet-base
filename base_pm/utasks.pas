@@ -1293,7 +1293,7 @@ begin
     end;
   aDeps.Free;
   Screen.Cursor:=crDefault;
-  Refresh;
+  acRefresh.Execute;
 end;
 
 procedure TfTaskFrame.ActiveSearchEndSearch(Sender: TObject);
