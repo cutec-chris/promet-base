@@ -202,6 +202,7 @@ type
   public
     X : Integer;
     Y : Integer;
+    ErrorType : string;
   end;
 
 var
@@ -739,6 +740,7 @@ function TfScriptEditor.Compile: Boolean;
 var
   i: Longint;
   mo: TMessageObject;
+  aMsg: TPSPascalCompilerMessage;
 begin
   if Assigned(Data) then
     begin
@@ -759,10 +761,12 @@ begin
     begin
       for i := 0 to Debugger.CompilerMessageCount -1 do
         begin
+          aMsg := Debugger.CompilerMessages[i];
           mo := TMessageObject.Create;
-          mo.X:=Debugger.CompilerMessages[i].Col;
-          mo.Y:=Debugger.CompilerMessages[i].Row;
-          Messages.Items.AddObject(Debugger.CompilerMessages[i].MessageToString,mo);
+          mo.X:=aMsg.Col;
+          mo.Y:=aMsg.Row;
+          mo.ErrorType := aMsg.ErrorType;
+          Messages.Items.AddObject(aMsg.MessageToString,mo);
         end;
       if Debugger.CompilerMessageCount=0 then
         messages.Items.Add(Debugger.ExecErrorToString);
