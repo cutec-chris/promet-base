@@ -5,6 +5,7 @@
       - Scripte:Möglichkeit einzelne Funktionen aus Scripten aus anderen Scripten aufzurufen
       - Verweise:Verweis auf Ordner (Dateisystem) nun einfacher mit separatem Button erstellbar
       - Projekte:vereinfachte Berechnungsoberfläche für alles eingesetzt
+      - Aufgaben:Ansicht nach Terminierung einer Aufgabe aktualisieren
 Build 397
       - Projekte:Projektnummer nicht direkt editierbar (wie bei Artikeln)
       - Nachrichtenzentrale:processmanager wird nun ohne pipes gestartet
