@@ -21,7 +21,7 @@ unit uBaseDbClasses;
 {$mode objfpc}{$H+}
 interface
 uses
-  Classes, SysUtils, db, uBaseDbDataSet, Variants, uIntfStrConsts, DOM,
+  Classes, SysUtils, db, Variants, uIntfStrConsts, DOM,
   Contnrs,uBaseDatasetInterfaces
   {$IFDEF LCL}
   ,Graphics
@@ -30,7 +30,7 @@ uses
 type
   { TBaseDBDataset }
 
-  TBaseDBDataset = class(TComponent)
+  TBaseDBDataset = class(TAbstractDBDataset)
   private
     fChanged: Boolean;
     FDataSet: TDataSet;
@@ -74,9 +74,8 @@ type
     procedure Open;virtual;
     procedure Close;virtual;
     function CreateTable : Boolean;virtual;
-    procedure DefineFields(aDataSet : TDataSet);virtual;abstract;
-    procedure DefineDefaultFields(aDataSet : TDataSet;HasMasterSource : Boolean);
-    procedure DefineUserFields(aDataSet: TDataSet);
+    procedure DefineDefaultFields(aDataSet : TDataSet;HasMasterSource : Boolean);override;
+    procedure DefineUserFields(aDataSet: TDataSet);override;
     procedure FillDefaults(aDataSet : TDataSet);virtual;
     procedure Select(aID : Variant);virtual;
     procedure SelectChangedSince(aDate : TDateTime);virtual;

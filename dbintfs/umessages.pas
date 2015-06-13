@@ -121,6 +121,7 @@ var
   sl: TStringList;
   ss: TStringStream;
   tmp: String;
+  i: Integer;
 begin
   sl := TStringList.Create;
   if UpperCase(FieldByName('DATATYP').AsString) = 'PLAIN' then
@@ -142,6 +143,13 @@ begin
       tmp := HTMLDecode(tmp);
       sl.Text:=tmp;
       ss.Free;
+    end;
+  i := 0;
+  while i<sl.Count do
+    begin
+      if trim(sl[i])='' then
+        sl.Delete(i)
+      else inc(i);
     end;
   Result := sl.Text;
   sl.Free;
