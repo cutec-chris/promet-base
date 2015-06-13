@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, uBaseDbClasses, db, uBaseDbInterface,uIntfStrConsts,
-  sqlparser,sqlscanner,sqltree,httpsend,Utils,jsonparser,fpjson,
+  sqlparser,sqlscanner,sqltree,Utils,jsonparser,fpjson,
   memds,uprometscripts,uBaseDatasetInterfaces;
 
 type
@@ -371,7 +371,7 @@ end;
 function TSQLStatemnt.GetDataSet(var aSQL : string): TDataSet;
 var
   eMsg: String = 'not enougth rights to access these tables';
-  http: THTTPSend;
+  //http: THTTPSend;
   yqlQ: Boolean = false;
   aParser: TJSONParser;
   aData: TJSONData;
@@ -385,11 +385,13 @@ var
 begin
   Result := nil;
   aSQL := FSQL;
+  {
   if copy(lowercase(trim(aSQL)),0,4)='yql ' then
     begin
       yqlQ := True;
       aSQL:=copy(trim(aSQL),5,length(aSQL));
     end;
+  }
   if Parse and (not TBaseDBModule(Data).CheckForInjection(SQL)) then
     begin
       Result := TBaseDBModule(Data).GetNewDataSet(FormatedSQL);
@@ -421,7 +423,7 @@ begin
         begin //local file
           eMsg:='not implemented';
         end
-      else if ((FTables.Count<2) and yqlQ) then//yql??
+      {else if ((FTables.Count<2) and yqlQ) then//yql??
         begin
           //http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%27http%3A%2F%2Fmashable.com%27
           http := THTTPSend.Create;
@@ -489,7 +491,7 @@ begin
             end
           else eMsg:=strYQLFail+http.ResultString;
           http.Free;
-        end;
+        end};
     end;
   if not Assigned(Result) then
     raise Exception.Create(eMsg);

@@ -24,7 +24,7 @@ unit uclipp;
 interface
 
 uses
-  Classes, SysUtils, uBaseDbDataSet,uBaseDbClasses,uIntfStrConsts,uBaseDBInterface,
+  Classes, SysUtils,uBaseDbClasses,uIntfStrConsts,uBaseDBInterface,
   db,Clipbrd, ComCtrls,uDocuments,uBaseApplication,uBaseDatasetInterfaces;
 type
   TRestoreResult = (rrPartially,rrFully,rrNone);

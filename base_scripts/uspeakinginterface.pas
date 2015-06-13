@@ -24,7 +24,7 @@ unit uspeakinginterface;
 interface
 
 uses
-  Classes, SysUtils,uprometpascalscript,uBaseDbDataSet,variants,uBaseDbClasses;
+  Classes, SysUtils,uprometpascalscript,variants,uBaseDbClasses;
 
 type
 
