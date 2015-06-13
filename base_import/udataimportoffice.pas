@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, EditBtn,
   StdCtrls, ButtonPanel, ExtCtrls, ComCtrls, uDataImport, memds, db,
-  fpspreadsheet, fpsallformats,Utils;
+  fpspreadsheet, fpsallformats,Utils,fpsTypes;
 
 type
 
@@ -204,4 +204,4 @@ initialization
   RegisterImportSource(TOfficeImport,strOfficeName);
 
 end.
-
+

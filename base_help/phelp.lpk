@@ -7,8 +7,6 @@
       <SearchPaths>
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
-      <CodeGeneration>
-      </CodeGeneration>
     </CompilerOptions>
     <Files Count="8">
       <Item1>

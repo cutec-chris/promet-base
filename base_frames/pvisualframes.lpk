@@ -9,8 +9,6 @@
       <SearchPaths>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
-      <CodeGeneration>
-      </CodeGeneration>
     </CompilerOptions>
     <Files Count="22">
       <Item1>
