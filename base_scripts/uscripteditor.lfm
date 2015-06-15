@@ -477,7 +477,12 @@ object fScriptEditor: TfScriptEditor
         end>
       MouseActions = <>
       MouseTextActions = <>
-      MouseSelActions = <>
+      MouseSelActions = <      
+        item
+          Button = mbMiddle
+          Command = emcNone
+          IgnoreUpClick = True
+        end>
       Lines.Strings = (
         'begin'
         '  '
