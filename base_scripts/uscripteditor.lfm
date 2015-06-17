@@ -787,6 +787,7 @@ object fScriptEditor: TfScriptEditor
     MainFileName = 'Unnamed'
     UsePreProcessor = False
     OnNeedFile = DebuggerNeedFile
+    OnGetNotificationVariant = DebuggerGetNotificationVariant
     OnIdle = DebuggerIdle
     OnLineInfo = DebuggerLineInfo
     OnBreakpoint = DebuggerBreakpoint

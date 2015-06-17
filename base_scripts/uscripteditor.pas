@@ -131,6 +131,8 @@ type
     procedure cbSyntaxSelect(Sender: TObject);
     procedure DebuggerExecImport(Sender: TObject; se: TPSExec;
       x: TPSRuntimeClassImporter);
+    function DebuggerGetNotificationVariant(Sender: TPSScript;
+      const aName: tbtstring): Variant;
     procedure edChange(Sender: TObject);
     procedure edGutterClick(Sender: TObject; X, Y, Line: integer;
       mark: TSynEditMark);
@@ -385,6 +387,7 @@ var
 begin
  ASynEdit:=ed;
  EditPos:=HintInfo^.CursorPos;
+ HintInfo^.HideTimeout:=30000;
  if not PtInRect(ASynEdit.ClientRect,EditPos) then exit;
  EditCaret:=ASynEdit.PhysicalToLogicalPos(ASynEdit.PixelsToRowColumn(EditPos));
  if (EditCaret.Y<1) then exit;
@@ -393,7 +396,6 @@ begin
    if lowercase(TLoadedLib(LoadedLibs[i]).Name)=lowercase(aWord) then
      begin
        HintInfo^.HintStr:=TLoadedLib(LoadedLibs[i]).Code;
-       HintInfo^.HideTimeout:=30000;
      end;
  if Debugger.Running then
    begin
@@ -422,6 +424,12 @@ procedure TfScriptEditor.DebuggerExecImport(Sender: TObject; se: TPSExec;
 begin
   if Assigned(Data) then
     TPascalScript(TPrometPascalScript(FDataSet).Script).ClassImporter:=x;
+end;
+
+function TfScriptEditor.DebuggerGetNotificationVariant(Sender: TPSScript;
+  const aName: tbtstring): Variant;
+begin
+  Showmessage(aName);
 end;
 
 procedure TfScriptEditor.edChange(Sender: TObject);
@@ -539,23 +547,25 @@ begin
         FResume := True
       end else
       begin
-        try
-          TPascalScript(TPrometPascalScript(FDataSet).Script).OnToolRegistering:=@TPascalScriptToolRegistering;
-          if Compile then
+        TPascalScript(TPrometPascalScript(FDataSet).Script).OnToolRegistering:=@TPascalScriptToolRegistering;
+        if Compile then
+          begin
+            SetCurrentDir(GetHomeDir);
+            if Assigned(Data) then
+              begin
+                TPascalScript(TPrometPascalScript(FDataSet).Script).Runtime := Debugger.Exec;
+                TPascalScript(TPrometPascalScript(FDataSet).Script).Compiler := Debugger.Comp;
+              end;
+            if Debugger.Execute then
             begin
-              SetCurrentDir(GetHomeDir);
-              if Assigned(Data) then
-                begin
-                  TPascalScript(TPrometPascalScript(FDataSet).Script).Runtime := Debugger.Exec;
-                  TPascalScript(TPrometPascalScript(FDataSet).Script).Compiler := Debugger.Comp;
-                end;
-              Debugger.Execute;
+              Messages.Items.Add(STR_SUCCESSFULLY_EXECUTED);
+            end else
+            begin
+              messages.Items.Add(Format(STR_RUNTIME_ERROR, [extractFileName(aFile), Debugger.ExecErrorRow,Debugger.ExecErrorCol,Debugger.ExecErrorProcNo,Debugger.ExecErrorByteCodePosition,Debugger.ExecErrorToString])); //Birb
             end;
-            acStepinto.Enabled:=acPause.Enabled or acRun.Enabled;
-            acStepover.Enabled:=acPause.Enabled or acRun.Enabled;
-        except
-          Showmessage('Error compiling');
-        end;
+          end;
+          acStepinto.Enabled:=acPause.Enabled or acRun.Enabled;
+          acStepover.Enabled:=acPause.Enabled or acRun.Enabled;
       end;
     end
   else if (ed.Highlighter=HigSQL) and (copy(lowercase(sl.Text),0,7)='select ') then
@@ -702,7 +712,10 @@ begin
             if Debugger.HasBreakPoint(FileName, Row) then
               Linemark.ImageIndex:=9
             else Linemark.ImageIndex:=8;
-            with BaseApplication as IBaseApplication do Debug('Script:'+FileName+':'+IntToStr(Row));
+            with BaseApplication as IBaseApplication do
+              begin
+                Debug('Script:'+FileName+':'+IntToStr(Row));
+              end;
             //Mark active Line
             FActiveLine := Row;
             if (FActiveLine < ed.TopLine +2) or (FActiveLine > Ed.TopLine + Ed.LinesInWindow -2) then
@@ -715,6 +728,15 @@ begin
           end
         else
           begin
+            if (Debugger.Exec.DebugMode <> dmRun) then
+              begin
+                with BaseApplication as IBaseApplication do Debug('Script:'+FileName+':'+IntToStr(Row));
+                {
+                Messages.AddItem('Debug Zeile:'+FileName+':'+IntToStr(Row),nil);
+                messages.ItemIndex:=messages.Items.Count-1;
+                messages.MakeCurrentVisible;
+                }
+              end;
             if GetTickCount-LastStepTime > 10 then
               Application.ProcessMessages;
             LastStepTime:=GetTickCount;
