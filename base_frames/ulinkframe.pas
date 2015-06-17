@@ -413,6 +413,7 @@ var
                   end;
                 aLinks.Free;
               end;
+            aDS.Free;
           end;
         //Verweis auf neuen Artikel erstellen / Artikelversion anlegen
         cLink := aLink;

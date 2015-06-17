@@ -1,4 +1,6 @@
-﻿Build 398
+﻿Build 399
+      -
+Build 398
       - Suche:nur ein Suchtyp zur Zeit selekierbar (schnellere Suche)
       - Administration:wenn im ausführungspfad ein .perml File (Mandanteneinstellungen) liegt und kein Mandant angelegt ist, wird er automatisch angelegt
       - Aufgaben:import/export
