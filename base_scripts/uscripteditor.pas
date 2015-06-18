@@ -32,6 +32,7 @@ uses
   SynEditMarkupSpecialLine, SynHighlighterSQL,uPSCompiler, uprometscripts,LCLIntf;
 
 type
+  TOpenUnitEvent = procedure(UnitName : string;X,Y : Integer) of object;
 
   { TfScriptEditor }
 
@@ -169,6 +170,7 @@ type
     procedure tmDebugTimer(Sender: TObject);
     procedure TPascalScriptToolRegistering(const s: string);
   private
+    FOpenUnit: TOpenUnitEvent;
     FSearchFromCaret: boolean;
     FOldStatus : string;
     FActiveLine: Longint;
@@ -199,12 +201,14 @@ type
     property DataSet : TBaseScript read FDataSet write SetDataSet;
     function SaveCheck: Boolean;
     function Execute(aScript: string; aConnection: TComponent = nil;DefScript : string=''): Boolean;
+    property OnOpenUnit : TOpenUnitEvent read FOpenUnit write FOpenUnit;
   end;
   TMessageObject = class
   public
     X : Integer;
     Y : Integer;
     ErrorType : string;
+    ModuleName : string;
   end;
 
 var
@@ -787,6 +791,7 @@ begin
           mo := TMessageObject.Create;
           mo.X:=aMsg.Col;
           mo.Y:=aMsg.Row;
+          mo.ModuleName:=aMsg.ModuleName;
           mo.ErrorType := aMsg.ErrorType;
           Messages.Items.AddObject(aMsg.MessageToString,mo);
         end;
@@ -1159,9 +1164,18 @@ begin
 end;
 
 procedure TfScriptEditor.messagesDblClick(Sender: TObject);
+var
+  mo: TObject;
 begin
-  ed.CaretXY := GetErrorRowCol(messages.Items[messages.ItemIndex]);
-  ActiveControl:=ed;
+ mo := messages.Items.Objects[messages.ItemIndex];
+ if Assigned(mo) then
+   begin
+     ed.CaretY:=TMessageObject(mo).Y;
+     ed.CaretX:=TMessageObject(mo).X;
+     if TMessageObject(mo).ModuleName<>Debugger.MainFileName then
+       if Assigned(OnOpenUnit) then
+         OnOpenUnit(TMessageObject(mo).ModuleName,TMessageObject(mo).X,TMessageObject(mo).Y);
+   end;
 end;
 
 procedure TfScriptEditor.Gotolinenumber1Click(Sender: TObject);
