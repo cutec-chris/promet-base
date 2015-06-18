@@ -24,7 +24,7 @@ unit uspeakinginterface;
 interface
 
 uses
-  Classes, SysUtils,uprometscripts,uBaseDbDataSet,variants,uBaseDbClasses;
+  Classes, SysUtils,uprometscripts,variants,uBaseDbClasses;
 
 type
 
