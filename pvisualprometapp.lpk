@@ -10,8 +10,6 @@
       <SearchPaths>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
-      <CodeGeneration>
-      </CodeGeneration>
     </CompilerOptions>
     <Files Count="11">
       <Item1>
@@ -70,7 +68,7 @@
       </Item2>
       <Item3>
         <PackageName Value="ZVDateTimeCtrls"/>
-        <DefaultFilename Value="..\components\ZVDateTimeCtrls\zvdatetimectrls.lpk"/>
+        <DefaultFilename Value="..\components\zvdatetimectrls\zvdatetimectrls.lpk"/>
       </Item3>
       <Item4>
         <PackageName Value="laz_twain"/>
