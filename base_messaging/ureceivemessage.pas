@@ -100,7 +100,7 @@ begin
   SpamPoints := 0;
   if msg.Header.ToList.Count > 0 then
     begin
-      if getemailaddr(trim(msg.Header.ToList[0])) = getemailaddr(trim(msg.Header.From)) then
+      if (getemailaddr(trim(msg.Header.ToList[0])) = getemailaddr(trim(msg.Header.From))) and (aTreeEntry<>TREE_ID_MESSAGES) then
         aTreeEntry := TREE_ID_SPAM_MESSAGES;
       for i := 0 to msg.Header.ToList.Count-1 do
         if getemailaddr(trim(msg.Header.ToList[i])) = getemailaddr(trim(aUser)) then
@@ -108,10 +108,10 @@ begin
     end;
   if not aUserThere then
     Spampoints:=Spampoints+5;
-  if Spampoints>0 then
-    aTreeEntry:=TREE_ID_UNKNOWN_MESSAGES;
   if aTreeEntry <> TREE_ID_MESSAGES then
     begin
+      if (Spampoints>0) then
+        aTreeEntry:=TREE_ID_UNKNOWN_MESSAGES;
       aUserThere := True;
       if pos('@',aUser)>0 then
         aUserThere := False;
