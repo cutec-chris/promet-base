@@ -268,9 +268,9 @@ var
 begin
   Open;
   if not Task.CanEdit then
-    Task.DataSet.Edit;
+    Task.Edit;
   Task.FieldByName('DEPDONE').AsString:='N';
-  Task.DataSet.Post;
+  Task.Post;
   with DataSet do
     begin
       with BaseApplication as IBaseDbInterface do
