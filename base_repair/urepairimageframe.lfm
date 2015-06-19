@@ -40,13 +40,13 @@ inherited fRepairImageFrame: TfRepairImageFrame
     object lErrordescription: TLabel
       Left = 105
       Height = 13
-      Top = 115
+      Top = 134
       Width = 94
       Caption = 'Fehlerbeschreibung'
       ParentColor = False
     end
     object lNotesforCustomer: TLabel
-      Left = 240
+      Left = 304
       Height = 13
       Top = 136
       Width = 86
@@ -54,7 +54,7 @@ inherited fRepairImageFrame: TfRepairImageFrame
       ParentColor = False
     end
     object lInternalNotes: TLabel
-      Left = 559
+      Left = 568
       Height = 15
       Top = 134
       Width = 292
@@ -110,19 +110,19 @@ inherited fRepairImageFrame: TfRepairImageFrame
     end
     object mErrordesc: TDBMemo
       Left = 104
-      Height = 88
-      Top = 134
-      Width = 118
+      Height = 70
+      Top = 152
+      Width = 192
       Anchors = [akTop, akLeft, akBottom]
       DataField = 'ERRDESC'
       DataSource = Repair
       TabOrder = 3
     end
     object mNotes: TDBMemo
-      Left = 240
+      Left = 304
       Height = 70
       Top = 152
-      Width = 312
+      Width = 256
       Anchors = [akTop, akLeft, akBottom]
       DataField = 'NOTES'
       DataSource = Repair
@@ -130,10 +130,10 @@ inherited fRepairImageFrame: TfRepairImageFrame
       Tabstop = False
     end
     object mInternalNotes: TDBMemo
-      Left = 559
+      Left = 568
       Height = 70
       Top = 152
-      Width = 295
+      Width = 286
       Anchors = [akTop, akLeft, akRight, akBottom]
       DataField = 'INTNOTES'
       DataSource = Repair
