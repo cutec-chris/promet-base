@@ -21,7 +21,8 @@ unit uIntfStrConsts;
 {$mode objfpc}{$H+}
 interface
 resourcestring
-  strChangeNumer                             = 'Nummer ändern';
+  strSentenceNotValid           = 'Das wurde leider nicht verstanden !';
+  strChangeNumer                = 'Nummer ändern';
   strFailed                     = 'fehlgeschlagen !';
   strRunsOnEveryMashine         = 'läuft auf allen Maschienen';
   strItemOpened                 = 'Eintrag "%s" geöffnet';

@@ -223,9 +223,11 @@ begin
         //TBaseHistory
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBList'),TBaseHistory) do
           begin
+            RegisterMethod('function AddItem(aObject: TDataSet; aAction: string; aLink: string=''; aReference: string=''; aRefObject: TDataSet=nil; aIcon: Integer=0;aComission: string=''; CheckDouble: Boolean=True; DoPost: Boolean=True; DoChange: Boolean=False) : Boolean;');
           end;
         with Sender.ClassImporter.Add(TBaseHistory) do
           begin
+            RegisterVirtualMethod(@TBaseHistory.AddItem,'ADDITEM');
           end;
         //Object (Element)
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBList'),TObjects) do
@@ -535,12 +537,19 @@ begin
     end
   else
     begin
-      aScript := TPrometPascalScript.CreateEx(nil,DataModule);
-      aScript.Filter(Data.ProcessTerm('UPPER('+Data.QuoteField('NAME')+')=UPPER('+Data.QuoteValue(aName)+')'));
-      if aScript.Count>0 then
-        if aScript.Locate('NAME',aName,[loCaseInsensitive]) then
-          Result := Sender.Compiler.Compile(aScript.FieldByName('SCRIPT').AsString);
-      aScript.Free;
+      try
+        try
+          aScript := TPrometPascalScript.CreateEx(nil,DataModule);
+          aScript.Filter(Data.ProcessTerm('UPPER('+Data.QuoteField('NAME')+')=UPPER('+Data.QuoteValue(aName)+')'));
+          if aScript.Count>0 then
+            if aScript.Locate('NAME',aName,[loCaseInsensitive]) then
+              Result := Sender.Compiler.Compile(aScript.FieldByName('SCRIPT').AsString);
+        except
+          Result := False;
+        end;
+      finally
+        aScript.Free;
+      end;
     end;
 end;
 
