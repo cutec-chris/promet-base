@@ -223,11 +223,13 @@ begin
         //TBaseHistory
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBList'),TBaseHistory) do
           begin
-            RegisterMethod('function AddItem(aObject: TDataSet; aAction: string; aLink: string=''; aReference: string=''; aRefObject: TDataSet=nil; aIcon: Integer=0;aComission: string=''; CheckDouble: Boolean=True; DoPost: Boolean=True; DoChange: Boolean=False) : Boolean;');
+            RegisterMethod('function AddItem(aObject: TDataSet; aAction: string; aLink: string; aReference: string; aRefObject: TDataSet; aIcon: Integer;aComission: string) : Boolean;');
+            RegisterMethod('function AddParentedItem(aObject: TDataSet; aAction: string;aParent : Variant; aLink: string; aReference: string; aRefObject: TDataSet; aIcon: Integer; aComission: string):Boolean;');
           end;
         with Sender.ClassImporter.Add(TBaseHistory) do
           begin
             RegisterVirtualMethod(@TBaseHistory.AddItem,'ADDITEM');
+            RegisterVirtualMethod(@TBaseHistory.AddParentedItem,'ADDPARENTEDITEM');
           end;
         //Object (Element)
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBList'),TObjects) do
