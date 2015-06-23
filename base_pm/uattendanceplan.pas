@@ -65,6 +65,8 @@ type
     procedure bTodayClick(Sender: TObject);
     procedure bWeekViewClick(Sender: TObject);
     procedure FGanttCalendarDblClick(Sender: TObject);
+    procedure FGanttCalendarMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure FGanttCalendarMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure FGanttCalendarMouseUp(Sender: TObject; Button: TMouseButton;
@@ -357,10 +359,22 @@ begin
   FGantt.Calendar.StartDate:=FGantt.Calendar.StartDate;
 end;
 
+function IsInRect(X, Y: Integer; R: TRect): Boolean;
+begin
+  Result := (X >= R.Left) and (X <= R.Right); //and (Y >= R.Top) and (Y <= R.Bottom);
+end;
+function IsInRow(X, Y: Integer; R: TRect): Boolean;
+begin
+  Result := (Y >= R.Top) and (Y <= R.Bottom);
+end;
+
 procedure TfAttPlan.FGanttCalendarDblClick(Sender: TObject);
 var
   aCalFrame: TfCalendarFrame;
   aEventEdit: TfEventEdit;
+  List: TList;
+  ay: Integer;
+  i: Integer;
 begin
   if Assigned(FSelectedInterval) then
     begin
@@ -374,6 +388,36 @@ begin
       aEventEdit.Free;
       aCalFrame.Free;
     end;
+end;
+
+procedure TfAttPlan.FGanttCalendarMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  List: TList;
+  ay: Integer;
+  i: Integer;
+begin
+  FSelectedInterval:=nil;
+  List := TList.Create;
+  FGantt.MakeIntervalList(List);
+  ay := y -FGantt.Calendar.StartDrawIntervals;
+  ay := ay div max(FGantt.Calendar.PixelsPerLine,1);
+  ay := ay+(FGantt.Tree.TopRow-1);
+  if (ay<List.Count) and (ay>-1) then
+    if Assigned(TInterval(List[ay]).Pointer) then
+      begin
+        for i := 0 to TRessource(TInterval(List[ay]).Pointer).IntervalCount-1 do
+          if not TRessource(TInterval(List[ay]).Pointer).Interval[i].IsDrawRectClear then
+            if IsInRect(X,y,TRessource(TInterval(List[ay]).Pointer).Interval[i].DrawRect) then
+              if TRessource(TInterval(List[ay]).Pointer).Interval[i].Color<>clBlue then
+                begin
+                  if (TRessource(TInterval(List[ay]).Pointer).Interval[i] is TBackInterval) then
+                    begin
+                      FSelectedInterval:=TRessource(TInterval(List[ay]).Pointer).Interval[i];
+                    end;
+                end;
+      end;
+  List.Free;
 end;
 
 procedure TfAttPlan.FGanttCalendarMouseMove(Sender: TObject;
@@ -401,9 +445,9 @@ end;
 procedure TfAttPlan.FGanttCalendarMoveOverInterval(Sender: TObject;
   aInterval: TInterval; X, Y: Integer);
 begin
-  FSelectedInterval := aInterval;
   if (not Assigned(aInterval)) then
     begin
+      FSelectedInterval := nil;
       FGantt.Calendar.Hint:='';
       exit;
     end;
@@ -415,15 +459,6 @@ end;
 
 procedure TfAttPlan.FGanttCalendarShowHint(Sender: TObject;
   HintInfo: PHintInfo);
-  function IsInRect(X, Y: Integer; R: TRect): Boolean;
-  begin
-    Result := (X >= R.Left) and (X <= R.Right); //and (Y >= R.Top) and (Y <= R.Bottom);
-    FHintRect := R;
-  end;
-  function IsInRow(X, Y: Integer; R: TRect): Boolean;
-  begin
-    Result := (Y >= R.Top) and (Y <= R.Bottom);
-  end;
 var
   ay: Integer;
   i: Integer;
@@ -453,6 +488,7 @@ begin
                         begin
                           if HintInfo^.HintStr <> '' then HintInfo^.HintStr := HintInfo^.HintStr+lineending;
                           HintInfo^.HintStr := HintInfo^.HintStr+TRessource(TInterval(List[ay]).Pointer).Interval[i].Task;
+                          FSelectedInterval:=TRessource(TInterval(List[ay]).Pointer).Interval[i];
                         end;
                     end;
           end;
@@ -520,6 +556,7 @@ begin
   FGantt.Calendar.OnMouseMove:=@FGanttCalendarMouseMove;
   FGantt.Calendar.OnStartDateChanged:=@FGanttCalendarStartDateChanged;
   FGantt.Calendar.OnMouseUp:=@FGanttCalendarMouseUp;
+  FGantt.Calendar.OnMouseDown:=@FGanttCalendarMouseDown;
   FGantt.Calendar.OnDblClick:=@FGanttCalendarDblClick;
   FGantt.Tree.PopupMenu := pmAction;
   bDayViewClick(nil);
@@ -713,6 +750,7 @@ begin
             end;
           bInterval.Task:=aCalendar.FieldByName('SUMMARY').AsString;
           bInterval.Project:=aCalendar.FieldByName('CATEGORY').AsString;
+          bInterval.Id:=aCalendar.Id.AsVariant;
           aResource.AddInterval(bInterval);
           bInterval.Changed:=False;
           Next;
