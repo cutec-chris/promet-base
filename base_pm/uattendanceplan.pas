@@ -64,8 +64,11 @@ type
     procedure bShowTasksClick(Sender: TObject);
     procedure bTodayClick(Sender: TObject);
     procedure bWeekViewClick(Sender: TObject);
+    procedure FGanttCalendarDblClick(Sender: TObject);
     procedure FGanttCalendarMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
+    procedure FGanttCalendarMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure FGanttCalendarMoveOverInterval(Sender: TObject;
       aInterval: TInterval; X, Y: Integer);
     procedure FGanttCalendarShowHint(Sender: TObject; HintInfo: PHintInfo);
@@ -78,6 +81,7 @@ type
   private
     { private declarations }
     FSelectedCol: TDateTime;
+    FSelectedInterval : TInterval;
     FSelectedRow: Int64;
     FGantt: TgsGantt;
     FThreads : TList;
@@ -90,6 +94,8 @@ type
     FOwners : TStringList;
     aClickPoint: types.TPoint;
     FSelectedUser : TInterval;
+    procedure QueThread(aPlan : TWinControl;aFrom,aTo : TDateTime;aResource : TRessource;asUser : string;AttatchTo : TInterval = nil;Colorized : Boolean = False);
+    procedure CheckThreads;
   public
     { public declarations }
     constructor Create(TheOwner: TComponent); override;
@@ -116,11 +122,12 @@ type
   public
     procedure Execute; override;
     constructor Create(aPlan : TfAttPlan;aFrom,aTo : TDateTime;aResource : TRessource;asUser : string;AttatchTo : TInterval = nil;Colorized : Boolean = False);
+    property User : string read FUser;
   end;
 
 implementation
 uses uData,LCLIntf,uBaseDbClasses,uProjects,uTaskEdit,LCLProc,uGanttView,uColors,
-  uCalendar,uTaskPlanOptions,uBaseERPDBClasses,uAttStatistic;
+  uCalendar,uTaskPlanOptions,uBaseERPDBClasses,uAttStatistic,uEventEdit,uCalendarFrame;
 {$R *.lfm}
 
 { TCollectThread }
@@ -209,12 +216,54 @@ begin
     FThreads.Remove(Sender);
   FGantt.Invalidate;
   iHourglass.Visible:=FThreads.Count>0;
+  if not iHourglass.Visible then
+    FGantt.Calendar.Cursor:=crDefault
+  else
+    FGantt.Calendar.Cursor:=crHourGlass;
+  Application.ProcessMessages;
 end;
 
 procedure TfAttPlan.TIntervalChanged(Sender: TObject);
 begin
   TInterval(TInterval(Sender).Pointer2).StartDate:=TInterval(Sender).StartDate;
   TInterval(TInterval(Sender).Pointer2).FinishDate:=TInterval(Sender).FinishDate;
+end;
+
+procedure TfAttPlan.QueThread(aPlan: TWinControl; aFrom, aTo: TDateTime;
+  aResource: TRessource; asUser: string; AttatchTo: TInterval;
+  Colorized: Boolean);
+var
+  Found: Boolean;
+  i: Integer;
+begin
+  Found := False;
+  for i := 0 to FThreads.Count-1 do
+    begin
+      if TCollectThread(FThreads[i]).User=asUser then
+        begin
+          aResource.Abort:=True;
+          Found := True;
+          break;
+        end;
+    end;
+  FThreads.Add(TCollectThread.Create(Self,aFrom,aTo,aResource,asUser,AttatchTo,Colorized));
+  TCollectThread(FThreads[FThreads.Count-1]).OnTerminate:=@TCollectThreadTerminate;
+end;
+
+procedure TfAttPlan.CheckThreads;
+var
+  i: Integer;
+begin
+  for i := 0 to FThreads.Count-1 do
+    TCollectThread(FThreads[i]).Resume;
+  iHourglass.Visible:=FThreads.Count>0;
+  if not iHourglass.Visible then
+    FGantt.Calendar.Cursor:=crDefault
+  else
+    begin
+      FGantt.Calendar.Cursor:=crHourGlass;
+      Application.ProcessMessages;
+    end;
 end;
 
 procedure TfAttPlan.bDayViewClick(Sender: TObject);
@@ -244,11 +293,10 @@ begin
       begin
         tmpRes := TRessource.Create(nil);
         tmpRes.User:=TPInterval(TInterval(Sender).Interval[i]);
-        FThreads.Add(TCollectThread.Create(Self,FCollectedFrom,FCollectedTo,tmpRes,TPInterval(TInterval(Sender).Interval[i]).User,TInterval(Sender).Interval[i],(TInterval(Sender).Interval[i].Color=clRed) or (TInterval(Sender).Color=clred)));
-        TCollectThread(FThreads[FThreads.Count-1]).OnTerminate:=@TCollectThreadTerminate;
-        TCollectThread(FThreads[FThreads.Count-1]).Resume;
+        QueThread(Self,FCollectedFrom,FCollectedTo,tmpRes,TPInterval(TInterval(Sender).Interval[i]).User,TInterval(Sender).Interval[i],(TInterval(Sender).Interval[i].Color=clRed) or (TInterval(Sender).Color=clred));
       end;
   FGanttCalendarStartDateChanged(FGantt.Calendar);
+  CheckThreads;
 end;
 
 procedure TfAttPlan.acCancelExecute(Sender: TObject);
@@ -280,9 +328,7 @@ procedure TfAttPlan.bRefreshClick(Sender: TObject);
         aInt.Pointer := nil;
         tmpRes := TRessource.Create(nil);
         tmpRes.User:=TPInterval(aInt);
-        FThreads.Add(TCollectThread.Create(Self,FCollectedFrom,FCollectedTo,tmpRes,TPInterval(TInterval(Sender).Interval[i]).User,TInterval(Sender).Interval[i],(TInterval(Sender).Interval[i].Color=clRed) or (TInterval(Sender).Color=clred)));
-        TCollectThread(FThreads[FThreads.Count-1]).OnTerminate:=@TCollectThreadTerminate;
-        TCollectThread(FThreads[FThreads.Count-1]).Resume;
+        QueThread(Self,FCollectedFrom,FCollectedTo,tmpRes,TPInterval(TInterval(Sender).Interval[i]).User,TInterval(Sender).Interval[i],(TInterval(Sender).Interval[i].Color=clRed) or (TInterval(Sender).Color=clred));
       end;
   end;
 var
@@ -290,6 +336,7 @@ var
 begin
   for i := 0 to FGantt.IntervalCount-1 do
     RefreshRes(FGantt.Interval[i]);
+  CheckThreads;
 end;
 
 procedure TfAttPlan.bShowTasksClick(Sender: TObject);
@@ -310,24 +357,28 @@ begin
   FGantt.Calendar.StartDate:=FGantt.Calendar.StartDate;
 end;
 
+procedure TfAttPlan.FGanttCalendarDblClick(Sender: TObject);
+var
+  aCalFrame: TfCalendarFrame;
+  aEventEdit: TfEventEdit;
+begin
+  if Assigned(FSelectedInterval) then
+    begin
+      aCalFrame := TfCalendarFrame.Create(nil);
+      TCalendar(aCalFrame.DataSet).Select(FSelectedInterval.Id);
+      aCalFrame.DataSet.Open;
+      aCalFrame.DataStore.LoadEvents;
+      aEventEdit := TfEventEdit.Create(Self);
+      if aCalFrame.DataStore.Resource.Schedule.EventCount>0 then
+        aEventEdit.Execute(aCalFrame.DataStore.Resource.Schedule.GetEvent(0),aCalFrame.DataStore.Resource,aCalFrame.DataStore.Directory,aCalFrame.DataStore);
+      aEventEdit.Free;
+      aCalFrame.Free;
+    end;
+end;
+
 procedure TfAttPlan.FGanttCalendarMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
-var
-  ay: Integer;
-  FtSelectedRow: Int64;
-  FtSelectedCol: TDateTime;
 begin
-  lDate.Caption := DateToStr(FGantt.Calendar.VisibleStart+trunc((X/FGantt.Calendar.GetIntervalWidth)));
-  FtSelectedRow := trunc((Y/FGantt.Calendar.GetIntervalHeight));
-  FtSelectedCol := FGantt.Calendar.VisibleStart+trunc((X/FGantt.Calendar.GetIntervalWidth));
-  if (FtSelectedCol<>FSelectedCol)
-  or (FtSelectedRow<>FSelectedRow) then
-    begin
-      FSelectedCol := FtSelectedCol;
-      FSelectedRow := FtSelectedRow;
-      FGantt.Calendar.Invalidate;
-    end;
-
   if fHintRect.Left>-1 then
     begin
       if (X<FHintRect.Left)
@@ -340,9 +391,17 @@ begin
     end;
 end;
 
+procedure TfAttPlan.FGanttCalendarMouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  CheckThreads;
+  Application.ProcessMessages;
+end;
+
 procedure TfAttPlan.FGanttCalendarMoveOverInterval(Sender: TObject;
   aInterval: TInterval; X, Y: Integer);
 begin
+  FSelectedInterval := aInterval;
   if (not Assigned(aInterval)) then
     begin
       FGantt.Calendar.Hint:='';
@@ -416,12 +475,9 @@ var
       begin
         aUser := TPInterval(aInt).User;
         if aDiff>0 then
-          FThreads.Add(TCollectThread.Create(Self,FCollectedFrom,FCollectedTo,TRessource(aInt.Pointer),aUser,aInt,(aInt.Color=clRed) or (aInt.Color=clred)))
+          QueThread(Self,FCollectedFrom,FCollectedTo,TRessource(aInt.Pointer),aUser,aInt,(aInt.Color=clRed) or (aInt.Color=clred))
         else
-          FThreads.Add(TCollectThread.Create(Self,FCollectedFrom,FCollectedTo,TRessource(aInt.Pointer),aUser,aInt,(aInt.Color=clRed) or (aInt.Color=clred)));
-        iHourglass.Visible:=True;
-        TCollectThread(FThreads[FThreads.Count-1]).OnTerminate:=@TCollectThreadTerminate;
-        TCollectThread(FThreads[FThreads.Count-1]).Resume;
+          QueThread(Self,FCollectedFrom,FCollectedTo,TRessource(aInt.Pointer),aUser,aInt,(aInt.Color=clRed) or (aInt.Color=clred));
       end;
   end;
 var
@@ -463,6 +519,8 @@ begin
   FGantt.Calendar.OnShowHint:=@FGanttCalendarShowHint;
   FGantt.Calendar.OnMouseMove:=@FGanttCalendarMouseMove;
   FGantt.Calendar.OnStartDateChanged:=@FGanttCalendarStartDateChanged;
+  FGantt.Calendar.OnMouseUp:=@FGanttCalendarMouseUp;
+  FGantt.Calendar.OnDblClick:=@FGanttCalendarDblClick;
   FGantt.Tree.PopupMenu := pmAction;
   bDayViewClick(nil);
   FGantt.Calendar.ShowHint:=True;
@@ -542,7 +600,6 @@ var
               begin
                 aINew.Color:=clred;
                 CollectUsers(aINew,aUsers.Id.AsVariant,(aUsers.Id.AsVariant=ColorUser) or Colorized);
-                //aINew.Opened:=True;
                 HighestInterval := aINew;
               end
             else

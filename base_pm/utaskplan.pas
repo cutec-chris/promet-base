@@ -630,6 +630,11 @@ begin
     FThreads.Remove(Sender);
   FGantt.Invalidate;
   iHourglass.Visible:=FThreads.Count>0;
+  if not iHourglass.Visible then
+    FGantt.Calendar.Cursor:=crDefault
+  else
+    FGantt.Calendar.Cursor:=crHourGlass;
+  Application.ProcessMessages;
 end;
 
 procedure TfTaskPlan.TIntervalChanged(Sender: TObject);
@@ -645,7 +650,15 @@ var
   i: Integer;
 begin
   for i := 0 to FThreads.Count-1 do
-    TCollectThread(FThreads[i]).Resume
+    TCollectThread(FThreads[i]).Resume;
+  iHourglass.Visible:=FThreads.Count>0;
+  if not iHourglass.Visible then
+    FGantt.Calendar.Cursor:=crDefault
+  else
+    begin
+      FGantt.Calendar.Cursor:=crHourGlass;
+      Application.ProcessMessages;
+    end;
 end;
 procedure TfTaskPlan.QueThread(aPlan: TWinControl; aFrom, aTo: TDateTime;
   aResource: TRessource; asUser: string; aTasks, aCalendar,
@@ -664,8 +677,8 @@ begin
           break;
         end;
     end;
-  //FThreads.Add(TCollectThread.Create(Self,aFrom,aTo,aResource,asUser,aTasks,aCalendar,aProcessmessages,AttatchTo));
-  //TCollectThread(FThreads[FThreads.Count-1]).OnTerminate:=@TCollectThreadTerminate;
+  FThreads.Add(TCollectThread.Create(Self,aFrom,aTo,aResource,asUser,aTasks,aCalendar,aProcessmessages,AttatchTo));
+  TCollectThread(FThreads[FThreads.Count-1]).OnTerminate:=@TCollectThreadTerminate;
 end;
 function TfTaskPlan.GetTaskFromCoordinates(Gantt: TgsGantt; X, Y,Index: Integer
   ): string;
@@ -956,7 +969,6 @@ begin
       tmpRes := TRessource.Create(nil);
       tmpRes.User:=TPInterval(TPInterval(Sender).Interval[i]);
       QueThread(Self,Now(),Fgantt.Calendar.VisibleFinish,tmpRes,TPInterval(TPInterval(Sender).Interval[i]).User,True,True,False,TPInterval(TPInterval(Sender).Interval[i]));
-      iHourglass.Visible:=True;
       FCollectedTo:=Fgantt.Calendar.VisibleFinish;
       FCollectedFrom:=Now();
     end;
@@ -1212,7 +1224,6 @@ begin
   FCollectedTo:=FGantt.Calendar.VisibleFinish;
   for i := 0 to FGantt.IntervalCount-1 do
     RefreshRes(FGantt.Interval[i]);
-  iHourglass.Visible:=True;
   CheckThreads;
 end;
 
@@ -1477,7 +1488,6 @@ var
           QueThread(Self,FCollectedTo,FCollectedTo+aDiff,TRessource(aInt.Pointer),aUser,True,True,True,aInt)
         else
           QueThread(Self,FCollectedFrom+aDiff,FCollectedFrom,TRessource(aInt.Pointer),aUser,True,True,True,aInt);
-        iHourglass.Visible:=True;
       end;
   end;
 var
@@ -1623,7 +1633,6 @@ var
                 tmpRes := TRessource.Create(nil);
                 tmpRes.User:=aINew;
                 QueThread(Self,Now(),Fgantt.Calendar.VisibleFinish,tmpRes,aUsers.FieldByName('ACCOUNTNO').AsString,True,True,False,aINew);
-                iHourglass.Visible:=True;
                 FCollectedTo:=Fgantt.Calendar.VisibleFinish;
                 FCollectedFrom:=Now();
               end
