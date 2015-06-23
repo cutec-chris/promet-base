@@ -174,6 +174,7 @@ type
     FSelectedUser : TInterval;
     FTaskView: TfTaskFrame;
     FSelectedInt : TInterval;
+    procedure CheckThreads;
   public
     { public declarations }
     constructor Create(TheOwner: TComponent); override;
@@ -207,6 +208,7 @@ type
   public
     procedure Execute; override;
     constructor Create(aPlan : TWinControl;aFrom,aTo : TDateTime;aResource : TRessource;asUser : string;aTasks,aCalendar,aProcessmessages : Boolean;AttatchTo : TInterval = nil);
+    property User : string read FUser;
   end;
 function ChangeTask(aTasks: TTaskList;aTask : TInterval;DoChangeMilestones : Boolean = False;aReason : string = '';DoSetTermins : Boolean = True) : Boolean;
 resourcestring
@@ -601,6 +603,14 @@ begin
   TInterval(TInterval(Sender).Pointer2).FinishDate:=TInterval(Sender).FinishDate;
   acUse.Enabled:=True;
   acCancel.Enabled:=True;
+end;
+
+procedure TfTaskPlan.CheckThreads;
+var
+  i: Integer;
+begin
+  for i := 0 to FThreads.Count-1 do
+    TCollectThread(FThreads[i]).Resume
 end;
 
 function TfTaskPlan.GetTaskFromCoordinates(Gantt: TgsGantt; X, Y,Index: Integer
@@ -1117,7 +1127,6 @@ procedure TfTaskPlan.bRefreshClick(Sender: TObject);
         tmpRes.User:=TPInterval(aInt);
         FThreads.Add(TCollectThread.Create(Self,FGantt.Calendar.VisibleStart,FGantt.Calendar.VisibleFinish,tmpRes,aUser,True,True,True,aInt));
         TCollectThread(FThreads[FThreads.Count-1]).OnTerminate:=@TCollectThreadTerminate;
-        TCollectThread(FThreads[FThreads.Count-1]).Resume;
         aInt.Opened:=False;
         while aInt.IntervalCount>0 do
           aInt.Interval[0].Free;
@@ -1136,6 +1145,7 @@ begin
   for i := 0 to FGantt.IntervalCount-1 do
     RefreshRes(FGantt.Interval[i]);
   iHourglass.Visible:=True;
+  CheckThreads;
 end;
 
 procedure TfTaskPlan.bShowTasksClick(Sender: TObject);
@@ -1401,7 +1411,6 @@ var
           FThreads.Add(TCollectThread.Create(Self,FCollectedFrom+aDiff,FCollectedFrom,TRessource(aInt.Pointer),aUser,True,True,True,aInt));
         iHourglass.Visible:=True;
         TCollectThread(FThreads[FThreads.Count-1]).OnTerminate:=@TCollectThreadTerminate;
-        TCollectThread(FThreads[FThreads.Count-1]).Resume;
       end;
   end;
 var
@@ -1423,6 +1432,7 @@ begin
         RefreshRes(FGantt.Interval[i]);
       FCollectedFrom:=FCollectedFrom+aDiff;
     end;
+  CheckThreads;
 end;
 
 constructor TfTaskPlan.Create(TheOwner: TComponent);
@@ -1525,6 +1535,8 @@ var
             aIParent.AddInterval(aINew);
             CollectUsers(aINew,aUsers.id.AsVariant);
             aINew.OnDrawBackground:=@aIGroupDrawBackground;
+            if aIRoot<>aIParent then
+              aINew.Visible:=False;
           end
         else if not ((aUsers.FieldByName('LEAVED').AsString<>'') and (aUsers.FieldByName('LEAVED').AsDateTime<Now())) and ((aUser = Null) or (aUser = aUsers.id.AsVariant)) then
           begin
@@ -1535,14 +1547,18 @@ var
             aINew.SetUser(aUsers.FieldByName('ACCOUNTNO').AsString,nil);
             aINew.Visible:=True;
             aINew.Style:=isNone;
+            aINew.Visible:=False;
             aIParent.AddInterval(aINew);
             tmpRes := TRessource.Create(nil);
             tmpRes.User:=aINew;
-            FThreads.Add(TCollectThread.Create(Self,Now(),Fgantt.Calendar.VisibleFinish,tmpRes,aUsers.FieldByName('ACCOUNTNO').AsString,True,True,False,aINew));
-            iHourglass.Visible:=True;
-            FCollectedTo:=Fgantt.Calendar.VisibleFinish;
-            FCollectedFrom:=Now();
-            TCollectThread(FThreads[FThreads.Count-1]).OnTerminate:=@TCollectThreadTerminate;
+            if aIRoot=aIParent then
+              begin
+                FThreads.Add(TCollectThread.Create(Self,Now(),Fgantt.Calendar.VisibleFinish,tmpRes,aUsers.FieldByName('ACCOUNTNO').AsString,True,True,False,aINew));
+                iHourglass.Visible:=True;
+                FCollectedTo:=Fgantt.Calendar.VisibleFinish;
+                FCollectedFrom:=Now();
+                TCollectThread(FThreads[FThreads.Count-1]).OnTerminate:=@TCollectThreadTerminate;
+              end;
             aINew.OnDrawBackground:=@aINewDrawBackground;
             aINew.OnExpand:=@AddUserIntervals;
             aIsub := TInterval.Create(FGantt);
@@ -1600,8 +1616,7 @@ begin
   acUse.Enabled:=False;
   acCancel.Enabled:=False;
   Application.ProcessMessages;
-  for i := 0 to FThreads.Count-1 do
-    TCollectThread(FThreads[i]).Resume
+  CheckThreads;
 end;
 
 procedure TfTaskPlan.CollectResources(aResource: TRessource; aFrom,
@@ -1615,6 +1630,20 @@ var
   aStart: System.TDateTime;
   aCalendar: TCalendar;
   gView : TfGanttView;
+
+  function FindInterval(aID : Variant) : Boolean;
+  var
+    i: Integer;
+  begin
+    Result := False;
+    for i := 0 to aResource.IntervalCount-1 do
+      if TPInterval(aResource.Interval[i]).Id=aId then
+        begin
+          Result := True;
+          break;
+        end;
+  end;
+
 begin
   aUser := TUser.CreateEx(nil,Data,aConnection);
   aUser.SelectByAccountno(asUser);
@@ -1638,6 +1667,7 @@ begin
                   if  (not bTasks.FieldByName('DUEDATE').IsNull)
                   //and (not (bTasks.FieldByName('PLANTIME').IsNull) or (bTasks.FieldByName('STARTDATE').IsNull))
                   and (not (bTasks.FieldByName('PLANTASK').AsString='N'))
+                  and (not FindInterval(bTasks.Id.AsVariant))
                   then
                     begin
                       bInterval := TPInterval.Create(nil);
