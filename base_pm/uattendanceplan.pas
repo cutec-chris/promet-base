@@ -36,12 +36,16 @@ type
   TfAttPlan = class(TPrometMainFrame)
     ActionList1: TActionList;
     bDayView: TSpeedButton;
+    Bevel3: TBevel;
     Bevel5: TBevel;
     Bevel7: TBevel;
     bMonthView: TSpeedButton;
     bRefresh: TSpeedButton;
     bToday: TSpeedButton;
     bWeekView: TSpeedButton;
+    eSearch: TEdit;
+    ExtRotatedLabel1: TLabel;
+    IdleTimer1: TTimer;
     iHourglass: TImage;
     Label5: TLabel;
     Label7: TLabel;
@@ -53,6 +57,7 @@ type
     pgantt: TPanel;
     Panel7: TPanel;
     pmAction: TPopupMenu;
+    pNav: TPanel;
     tbTop: TPanel;
     procedure acCancelExecute(Sender: TObject);
     procedure aINewDrawBackground(Sender: TObject; aCanvas: TCanvas;
@@ -64,6 +69,7 @@ type
     procedure bShowTasksClick(Sender: TObject);
     procedure bTodayClick(Sender: TObject);
     procedure bWeekViewClick(Sender: TObject);
+    procedure eSearchChange(Sender: TObject);
     procedure FGanttCalendarDblClick(Sender: TObject);
     procedure FGanttCalendarMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -77,6 +83,7 @@ type
     procedure FGanttCalendarStartDateChanged(Sender: TObject);
     procedure FGanttTreeAfterUpdateCommonSettings(Sender: TObject);
     procedure FGanttTreeResize(Sender: TObject);
+    procedure IdleTimer1Timer(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure TCollectThreadTerminate(Sender: TObject);
     procedure TIntervalChanged(Sender: TObject);
@@ -200,6 +207,52 @@ begin
   fgantt.Tree.ColWidths[2]:=FGantt.Tree.Width-FGantt.Tree.ColWidths[3]-FGantt.Tree.ColWidths[4]-FGantt.Tree.ColWidths[5];
   fgantt.Tree.ColWidths[6]:=0;
   fgantt.Tree.ColWidths[7]:=0;
+end;
+
+procedure TfAttPlan.IdleTimer1Timer(Sender: TObject);
+var
+  i: Integer;
+  FoundInterval : TInterval = nil;
+  function SearchInterval(aInterval : TInterval) : Boolean;
+  var
+    a: Integer;
+  begin
+    Result := pos(lowercase(eSearch.Text),lowercase(aInterval.Task))>0;
+    if not Result then
+      begin
+        for a := 0 to aInterval.IntervalCount-1 do
+          begin
+            Result := SearchInterval(aInterval.Interval[a]);
+            if Result then
+              break;
+          end;
+      end
+    else
+      FoundInterval := aInterval;
+  end;
+
+begin
+  if IdleTimer1.Tag=1 then exit;
+  IdleTimer1.Tag:=1;
+  IdleTimer1.Enabled:=false;
+  if length(eSearch.Text)<3 then
+    begin
+      IdleTimer1.Tag:=0;
+      exit;
+    end;
+  for i := 0 to FGantt.IntervalCount-1 do
+    begin
+      if SearchInterval(FGantt.Interval[i]) then break;
+    end;
+  FGantt.BeginUpdate;
+  FGantt.Tree.Row:=FoundInterval.Index;
+  while Assigned(FoundInterval) and Assigned(FoundInterval.Parent) do
+    begin
+      FoundInterval.Parent.Opened:=True;
+      FoundInterval := FoundInterval.Parent;
+    end;
+  FGantt.EndUpdate;
+  IdleTimer1.Tag:=0;
 end;
 
 procedure TfAttPlan.MenuItem1Click(Sender: TObject);
@@ -357,6 +410,11 @@ begin
   FGantt.MajorScale:=tsMonth;
   FGantt.MinorScale:=tsWeekNumPlain;
   FGantt.Calendar.StartDate:=FGantt.Calendar.StartDate;
+end;
+
+procedure TfAttPlan.eSearchChange(Sender: TObject);
+begin
+  IdleTimer1.Enabled:=True;
 end;
 
 function IsInRect(X, Y: Integer; R: TRect): Boolean;

@@ -383,6 +383,46 @@ inherited fAttPlan: TfAttPlan
       }
       Visible = False
     end
+    object pNav: TPanel
+      Left = 168
+      Height = 42
+      Top = 0
+      Width = 160
+      Align = alLeft
+      BevelOuter = bvNone
+      ClientHeight = 42
+      ClientWidth = 160
+      TabOrder = 2
+      object ExtRotatedLabel1: TLabel
+        Left = 6
+        Height = 11
+        Top = 0
+        Width = 25
+        Caption = 'Suche'
+        Font.Color = clMedGray
+        Font.Height = 11
+        Layout = tlBottom
+        ParentColor = False
+        ParentFont = False
+      end
+      object Bevel3: TBevel
+        Left = 0
+        Height = 34
+        Top = 4
+        Width = 16
+        BorderSpacing.Top = 4
+        BorderSpacing.Bottom = 4
+        Shape = bsLeftLine
+      end
+      object eSearch: TEdit
+        Left = 6
+        Height = 21
+        Top = 12
+        Width = 146
+        OnChange = eSearchChange
+        TabOrder = 0
+      end
+    end
   end
   object pgantt: TPanel[1]
     Left = 0
@@ -404,5 +444,12 @@ inherited fAttPlan: TfAttPlan
   object ActionList1: TActionList[3]
     left = 48
     top = 56
+  end
+  object IdleTimer1: TTimer[4]
+    Enabled = False
+    Interval = 600
+    OnTimer = IdleTimer1Timer
+    left = 248
+    top = 8
   end
 end
