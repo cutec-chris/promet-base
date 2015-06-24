@@ -1911,18 +1911,22 @@ procedure TBaseHistory.AddMessageItem(aObject: TDataSet; aMessage, aSubject,
   aSource, aLink: string; aParent: LargeInt);
 begin
   if aParent=0 then
-    AddItem(aObject,aSubject+LineEnding+aMessage,aLink,'',nil,ACICON_MAILNEW)
+    AddItem(aObject,aSubject+LineEnding+aMessage,aLink,'',nil,ACICON_MAILNEW,'',True,False)
   else
-    AddParentedItem(aObject,aMessage,aParent,aLink,'',nil,ACICON_MAILNEW);
+    AddParentedItem(aObject,aMessage,aParent,aLink,'',nil,ACICON_MAILNEW,'',True,False);
+  FieldByName('CHANGEDBY').Clear;
+  Post;
 end;
 
 procedure TBaseHistory.AddAnsweredMessageItem(aObject: TDataSet; aMessage,
   aSubject, aSource, aLink: string; aParent: LargeInt);
 begin
   if aParent=0 then
-    AddItem(aObject,aSubject+LineEnding+aMessage,aLink,'',nil,ACICON_MAILANSWERED)
+    AddItem(aObject,aSubject+LineEnding+aMessage,aLink,'',nil,ACICON_MAILANSWERED,'',True,False)
   else
-    AddParentedItem(aObject,aMessage,aParent,aLink,'',nil,ACICON_MAILANSWERED);
+    AddParentedItem(aObject,aMessage,aParent,aLink,'',nil,ACICON_MAILANSWERED,'',True,False);
+  FieldByName('CHANGEDBY').Clear;
+  Post;
 end;
 
 function TBaseHistory.GetTextFieldName: string;
