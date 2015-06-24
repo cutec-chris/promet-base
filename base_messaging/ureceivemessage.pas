@@ -260,7 +260,9 @@ begin
                 end;
             end
           else
-            Data.Users.History.AddMessageItem(Customers.DataSet,aMessage.ToString,aSubject,'e-Mail','MESSAGEIDX@'+aMID+'{'+aSubject+'}');
+            begin
+              Data.Users.History.AddMessageItem(Customers.DataSet,aMessage.ToString,aSubject,'e-Mail','MESSAGEIDX@'+aMID+'{'+aSubject+'}');
+            end;
         end;
       if aTreeEntry = TREE_ID_SPAM_MESSAGES then
         FieldByName('READ').AsString := 'Y';
