@@ -346,11 +346,13 @@ inherited fAttPlan: TfAttPlan
     end
     object iHourglass: TImage
       Left = 978
-      Height = 42
-      Top = 0
+      Height = 22
+      Hint = 'Anwesenheit wird berechnet...'
+      Top = 20
       Width = 16
       Align = alRight
       AutoSize = True
+      BorderSpacing.Top = 20
       Center = True
       Picture.Data = {
         1754506F727461626C654E6574776F726B47726170686963E802000089504E47
