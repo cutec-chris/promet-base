@@ -47,12 +47,14 @@ type
     CurrentChanged : Boolean;
     FMesdata: TMeasurementData;
     FDS: TDataSource;
+    function GetCurrent: TField;
   public
     constructor CreateEx(aOwner: TComponent; DM: TComponent; aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
     destructor Destroy; override;
     procedure DefineFields(aDataSet: TDataSet); override;
     function CreateTable: Boolean; override;
     property Data : TMeasurementData read FMesdata;
+    property Current : TField read GetCurrent;
   end;
 
 implementation
@@ -82,6 +84,11 @@ begin
           CurrentChanged := TRue;
         end;
     end;
+end;
+
+function TMeasurement.GetCurrent: TField;
+begin
+  Result := FieldByName('CURRENT');
 end;
 
 constructor TMeasurement.CreateEx(aOwner: TComponent; DM: TComponent;
