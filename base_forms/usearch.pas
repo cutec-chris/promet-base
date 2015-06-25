@@ -196,7 +196,8 @@ procedure TfSearch.cbSearchTypeClickCheck(Sender: TObject);
 begin
   FreeAndNil(ActiveSearch);
   sgResults.RowCount:=sgResults.FixedRows;
-  DoSearch(nil);
+  if eContains.Text<>'' then
+    DoSearch(nil);
 end;
 
 procedure TfSearch.acOpenExecute(Sender: TObject);
@@ -721,12 +722,9 @@ begin
   if not Modal then
     begin
       Show;
-      if sgResults.RowCount = 1 then
-        DoSearch(nil);
     end
   else
     begin
-      DoSearch(nil);
       Result := Showmodal = mrOK;
     end;
 end;
