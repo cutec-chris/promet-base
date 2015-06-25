@@ -1467,9 +1467,6 @@ inherited FCalendarFrame: TFCalendarFrame
             ShortCut = 57379
           end>
         MouseActions = <>
-        MouseTextActions = <>
-        MouseSelActions = <>
-        VisibleSpecialChars = [vscSpace, vscTabAtLast]
         SelectedColor.FrameEdges = sfeAround
         SelectedColor.BackPriority = 50
         SelectedColor.ForePriority = 50

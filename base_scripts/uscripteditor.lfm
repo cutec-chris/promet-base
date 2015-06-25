@@ -476,19 +476,11 @@ object fScriptEditor: TfScriptEditor
           ShortCut = 57379
         end>
       MouseActions = <>
-      MouseTextActions = <>
-      MouseSelActions = <      
-        item
-          Button = mbMiddle
-          Command = emcNone
-          IgnoreUpClick = True
-        end>
       Lines.Strings = (
         'begin'
         '  '
         'end.'
       )
-      VisibleSpecialChars = [vscSpace, vscTabAtLast]
       SelectedColor.FrameEdges = sfeAround
       SelectedColor.BackPriority = 50
       SelectedColor.ForePriority = 50
