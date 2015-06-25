@@ -100,6 +100,11 @@ object fMainTree: TfMainTree
       ImageIndex = 111
       OnExecute = acPasteLinkExecute
     end
+    object acSecondarySearch: TAction
+      Caption = 'acSecondarySearch'
+      OnExecute = acSearchExecute
+      ShortCut = 16454
+    end
   end
   object DblClickTimer: TIdleTimer
     Enabled = False

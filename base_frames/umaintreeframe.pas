@@ -109,6 +109,7 @@ type
     acRestoreStandard: TAction;
     acCopyAsLink: TAction;
     acPasteLink: TAction;
+    acSecondarySearch: TAction;
     ActionList1: TActionList;
     DblClickTimer: TIdleTimer;
     MenuItem1: TMenuItem;

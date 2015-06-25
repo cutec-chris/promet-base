@@ -1,5 +1,8 @@
 ﻿Build 399
-      -
+      - Suche:suche wird nicht mehr automatisch ausgeführt beim öffnen (war so um gleich evntl passende Elemente anzuzeigen macht aber keinen Sinn sobald die Datenbank länger als 3 Tage läuft)
+      - Suche:globale Suche mit Strg+F doppelt belegt
+      - XMPP messenger: erste Version (Verlauf und Kommandozeile können über einen Jabber/XMPP Account angesprochen werden)
+      - MQTT Import: erste Version MQTT Daten können in Messungen importiert werden
 Build 398
       - Suche:nur ein Suchtyp zur Zeit selekierbar (schnellere Suche)
       - Administration:wenn im ausführungspfad ein .perml File (Mandanteneinstellungen) liegt und kein Mandant angelegt ist, wird er automatisch angelegt
