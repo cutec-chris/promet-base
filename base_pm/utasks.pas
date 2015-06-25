@@ -314,6 +314,7 @@ function StrToDayTime(aStr : string) : Real;
 resourcestring
   strRecordCount                           = 'Anzahl: %d';
   strSearchFromTasks                       = 'Mit Öffnen wird das gewählte Projekt in die Aufgabe übernommen';
+  strSearchBFromTasks                      = 'Mit Öffnen wird der gewählte Benutzer in die Aufgabe übernommen';
   strAssignedTasks                         = 'Aufgaben: %s';
   strMyTasks                               = 'von mir erstellte Aufgaben: %s';
   strUnterminatedDependencies              = 'Es gibt unterminierte Abhängigkeiten für diese Aufgabe:'+lineending+'%s';
@@ -1214,7 +1215,7 @@ begin
   fSearch.eContains.Clear;
   fSearch.sgResults.RowCount:=1;
   fSearch.OnOpenItem:=@fSearchOpenOwnerItem;
-  fSearch.Execute(True,'TASKSU',strSearchFromTasks);
+  fSearch.Execute(True,'TASKSU',strSearchBFromTasks);
   fSearch.SetLanguage;
 end;
 
@@ -1226,7 +1227,7 @@ begin
   fSearch.eContains.Clear;
   fSearch.sgResults.RowCount:=1;
   fSearch.OnOpenItem:=@fSearchOpenUserItem;
-  fSearch.Execute(True,'TASKSU',strSearchFromTasks);
+  fSearch.Execute(True,'TASKSU',strSearchBFromTasks);
   fSearch.SetLanguage;
 end;
 
