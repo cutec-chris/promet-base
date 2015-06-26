@@ -94,6 +94,7 @@ procedure TUserPropertyOptionsR(Self: TUser; var T: TOptions); begin T := Self.O
 procedure TBaseDBDatasetPropertyDataSetR(Self: TBaseDBDataset; var T: TDataSet); begin T := Self.DataSet; end;
 procedure TBaseDBModulePropertyUsersR(Self: TBaseDBModule; var T: TUser); begin T := Self.Users; end;
 procedure TBaseDBDatasetPropertyCountR(Self: TBaseDBDataSet; var T: Integer); begin T := Self.Count; end;
+procedure TBaseDBDatasetPropertyCanEditR(Self: TBaseDBDataSet; var T: Boolean); begin T := Self.CanEdit; end;
 procedure TStoragePropertyJournalR(Self: TStorage; var T: TStorageJournal); begin T := Self.Journal; end;
 procedure TMasterdataPropertyStorageR(Self: TMasterdata; var T: TStorage); begin T := Self.Storage; end;
 procedure TProjectsTasksR(Self: TProject; var T: TProjectTasks); begin T := Self.Tasks; end;
@@ -166,6 +167,7 @@ begin
             RegisterProperty('ActualLimit','Integer',iptRW);
             RegisterProperty('DataSet','TDataSet',iptRW);
             RegisterProperty('Count','Integer',iptRW);
+            RegisterProperty('CanEdit','Boolean',iptRW);
           end;
         with Sender.ClassImporter.Add(TBaseDBDataset) do
           begin
@@ -187,6 +189,7 @@ begin
             RegisterVirtualMethod(@TBaseDBDataset.Filter, 'FILTER');
             RegisterPropertyHelper(@TBaseDBDatasetPropertyDataSetR,nil,'DATASET');
             RegisterPropertyHelper(@TBaseDBDatasetPropertyCountR,nil,'COUNT');
+            RegisterPropertyHelper(@TBaseDBDatasetPropertyCanEditR,nil,'CANEDIT');
           end;
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBDataSet'),TBaseDbList) do
           begin
