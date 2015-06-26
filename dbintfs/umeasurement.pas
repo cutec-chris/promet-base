@@ -42,9 +42,11 @@ type
 
   TMeasurement = class(TBaseDBDataset)
     procedure DataSetAfterPost(aDataSet: TDataSet);
+    procedure DataSetBeforeEdit(aDataSet: TDataSet);
     procedure FDSDataChange(Sender: TObject; Field: TField);
   private
     CurrentChanged : Boolean;
+    CurrentValue : real;
     FMesdata: TMeasurementData;
     FDS: TDataSource;
     function GetCurrent: TField;
@@ -64,17 +66,20 @@ implementation
 procedure TMeasurement.DataSetAfterPost(aDataSet: TDataSet);
 var
   aDiff: ValReal;
+  aOld,aNew : real;
 begin
   if CurrentChanged then
     begin
       CurrentChanged:=False;
       if DataSet.ControlsDisabled then exit;
-      aDiff := Abs(Abs(FieldByName('CURRENT').AsFloat)-Abs(FieldByName('CURRENT').OldValue));
+      aOld := CurrentValue;
+      aNew := FieldByName('CURRENT').AsFloat;
+      aDiff := Abs(Abs(aNew)-Abs(aOld));
       if (FieldByName('TOLLERANCE').AsFloat >0) and (aDiff < FieldByName('TOLLERANCE').AsFloat) then
         begin
           DataSet.DisableControls;
           Edit;
-          FieldByName('CURRENT').AsFloat:=FieldByName('CURRENT').OldValue;
+          FieldByName('CURRENT').AsFloat:=aOld;
           Post;
           DataSet.EnableControls;
           exit;
@@ -83,6 +88,11 @@ begin
       Data.FieldByName('DATA').AsFloat:=FieldByName('CURRENT').AsFloat;
       Data.Post;
     end;
+end;
+
+procedure TMeasurement.DataSetBeforeEdit(aDataSet: TDataSet);
+begin
+  CurrentValue:=FieldByName('CURRENT').AsFloat;
 end;
 
 procedure TMeasurement.FDSDataChange(Sender: TObject; Field: TField);
@@ -114,6 +124,7 @@ begin
   FDS.OnDataChange:=@FDSDataChange;
   CurrentChanged:=False;
   DataSet.AfterPost:=@DataSetAfterPost;
+  DataSet.BeforeEdit:=@DataSetBeforeEdit;
 end;
 
 destructor TMeasurement.Destroy;
