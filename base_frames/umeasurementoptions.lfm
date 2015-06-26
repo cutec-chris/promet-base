@@ -1,11 +1,11 @@
 object fMeasurementOptions: TfMeasurementOptions
   Left = 451
-  Height = 264
+  Height = 305
   Top = 226
-  Width = 329
+  Width = 379
   Caption = 'Messungsoptionen'
-  ClientHeight = 264
-  ClientWidth = 329
+  ClientHeight = 305
+  ClientWidth = 379
   LCLVersion = '1.5'
   object DBCheckBox1: TDBCheckBox
     Left = 24
@@ -89,8 +89,43 @@ object fMeasurementOptions: TfMeasurementOptions
     ValueChecked = 'True'
     ValueUnchecked = 'False'
   end
+  object FloatSpinEdit1: TFloatSpinEdit
+    Left = 248
+    Height = 25
+    Top = 128
+    Width = 75
+    Increment = 1
+    MaxValue = 100
+    MinValue = 0
+    TabOrder = 4
+    Value = 0
+  end
+  object Label4: TLabel
+    Left = 248
+    Height = 15
+    Top = 112
+    Width = 75
+    Caption = 'Abweichung'
+    ParentColor = False
+  end
+  object ButtonPanel1: TButtonPanel
+    Left = 6
+    Height = 42
+    Top = 257
+    Width = 367
+    OKButton.Name = 'OKButton'
+    OKButton.DefaultCaption = True
+    HelpButton.Name = 'HelpButton'
+    HelpButton.DefaultCaption = True
+    CloseButton.Name = 'CloseButton'
+    CloseButton.DefaultCaption = True
+    CancelButton.Name = 'CancelButton'
+    CancelButton.DefaultCaption = True
+    TabOrder = 5
+    ShowButtons = [pbOK, pbCancel]
+  end
   object Measurement: TDatasource
-    left = 240
-    top = 56
+    left = 136
+    top = 64
   end
 end

@@ -24,13 +24,14 @@ uses
   TANavigation, TAIntervalSources, TASeries, TADbSource, Forms, Controls,
   ExtCtrls, DbCtrls, DBGrids, Buttons, StdCtrls, db, uPrometFramesInplaceDB,
   uExtControls, uBaseDbClasses, Clipbrd, ActnList, StdActns, ComCtrls, DBActns,
-  uMeasurement, types, uBaseVisualControls,TACustomSeries, TAChartUtils;
+  Menus, uMeasurement, types, uBaseVisualControls, TACustomSeries, TAChartUtils;
 type
 
   { TfMeasurementFrame }
 
   TfMeasurementFrame = class(TPrometInplaceDBFrame)
     acRefresh: TAction;
+    acOptions: TAction;
     acZoomIn: TAction;
     acZoomOut: TAction;
     ActionList1: TActionList;
@@ -46,8 +47,10 @@ type
     EditCopy1: TEditCopy;
     EditPaste1: TEditPaste;
     gData: TDBGrid;
+    MenuItem1: TMenuItem;
     PageControl1: TPageControl;
     Panel1: TPanel;
+    pmAction: TPopupMenu;
     Splitter1: TSplitter;
     tsChart: TTabSheet;
     ToolBar1: TToolBar;
@@ -58,6 +61,7 @@ type
     ToolButton5: TToolButton;
     ToolButton6: TToolButton;
     tsData: TTabSheet;
+    procedure acOptionsExecute(Sender: TObject);
     procedure acRefreshExecute(Sender: TObject);
     procedure DataSetNext1Execute(Sender: TObject);
     procedure DataSetPrior1Execute(Sender: TObject);
@@ -78,7 +82,7 @@ type
 
 implementation
 {$R *.lfm}
-uses uData,Utils,Graphics;
+uses uData,Utils,Graphics,uMeasurementOptions;
 
 procedure TfMeasurementFrame.acRefreshExecute(Sender: TObject);
 var
@@ -118,6 +122,13 @@ begin
     end;
   if Found then
     PageControl1.ActivePage:=tsChart;
+end;
+
+procedure TfMeasurementFrame.acOptionsExecute(Sender: TObject);
+begin
+  fMeasurementOptions.SetLanguage;
+  fMeasurementOptions.Measurement.DataSet := DataSet.DataSet;
+  fMeasurementOptions.Execute;
 end;
 
 procedure TfMeasurementFrame.DataSetNext1Execute(Sender: TObject);

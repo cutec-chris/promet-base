@@ -56,6 +56,7 @@ inherited fMeasurementFrame: TfMeasurementFrame
           end>
         DataSource = Measurements
         DefaultRowHeight = 22
+        PopupMenu = pmAction
         Scrollbars = ssAutoBoth
         TabOrder = 0
         TabStop = False
@@ -241,6 +242,10 @@ inherited fMeasurementFrame: TfMeasurementFrame
       Caption = 'Aktualisieren'
       OnExecute = acRefreshExecute
     end
+    object acOptions: TAction
+      Caption = 'Optionen'
+      OnExecute = acOptionsExecute
+    end
   end
   object DateTimeIntervalChartSource2: TDateTimeIntervalChartSource[4]
     Params.MaxLength = 150
@@ -248,5 +253,12 @@ inherited fMeasurementFrame: TfMeasurementFrame
     Params.Options = [aipUseCount, aipUseMaxLength, aipUseMinLength, aipUseNiceSteps]
     left = 72
     top = 176
+  end
+  object pmAction: TPopupMenu[5]
+    left = 144
+    top = 120
+    object MenuItem1: TMenuItem
+      Action = acOptions
+    end
   end
 end

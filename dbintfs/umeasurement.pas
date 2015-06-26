@@ -62,13 +62,26 @@ implementation
 { TMeasurement }
 
 procedure TMeasurement.DataSetAfterPost(aDataSet: TDataSet);
+var
+  aDiff: ValReal;
 begin
   if CurrentChanged then
     begin
+      CurrentChanged:=False;
+      if DataSet.ControlsDisabled then exit;
+      aDiff := Abs(Abs(FieldByName('CURRENT').AsFloat)-Abs(FieldByName('CURRENT').OldValue));
+      if (FieldByName('TOLLERANCE').AsFloat >0) and (aDiff < FieldByName('TOLLERANCE').AsFloat) then
+        begin
+          DataSet.DisableControls;
+          Edit;
+          FieldByName('CURRENT').AsFloat:=FieldByName('CURRENT').OldValue;
+          Post;
+          DataSet.EnableControls;
+          exit;
+        end;
       Data.Append;
       Data.FieldByName('DATA').AsFloat:=FieldByName('CURRENT').AsFloat;
       Data.Post;
-      CurrentChanged:=False;
     end;
 end;
 
@@ -128,6 +141,7 @@ begin
             Add('RANGE',ftString,20,False);
             Add('POSITION',ftString,1,False);
             Add('INTERPOLATE',ftString,1,False);
+            Add('TOLLERANCE',ftFloat,0,False);
           end;
       if Assigned(ManagedIndexdefs) then
         with ManagedIndexDefs do
@@ -159,7 +173,7 @@ begin
       if Assigned(ManagedIndexdefs) then
         with ManagedIndexDefs do
           begin
-            Add('DATE','DATE',[ixUnique]);
+            Add('DATE','DATE',[]);
           end;
     end;
 end;
