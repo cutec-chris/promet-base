@@ -73,9 +73,9 @@ type
     FAppRevision : Integer;
     aParent: TWinControl;
     FQuickHelp : Boolean;
-    procedure StartProcessManager(DoCloseIt : Boolean = False);
     procedure UserTabAdded(Sender : TObject);
     function HandleSystemCommand(Sender : TObject;aCommand : string) : Boolean;
+    procedure StartProcessManager(DoCloseIt : Boolean = False);
     {$IFDEF LCLCARBON}
     procedure GetOSXDateStyles;
     {$ENDIF}
@@ -129,6 +129,7 @@ type
     function ChangePasswort: Boolean;
     procedure Logout;
     procedure DoExit;
+    procedure LoginDone;
     property Data : IBaseDbInterface read FDBInterface implements IBaseDBInterface;
     property MessageHandler : TMessageHandler read FMessageHandler;
     property OnUserTabAdded : TNotifyEvent read FOnUserTabAdded write FOnUserTabAdded;
@@ -1027,7 +1028,6 @@ begin
                     begin
                       Data.DeleteExpiredSessions;
                       uData.Data := Data;
-                      StartProcessManager(True);
                       udata.Data.OnConnectionLost:=@DataDataConnectionLost;
                       udata.Data.OnDisconnectKeepAlive:=@DataDataDisconnectKeepAlive;
                       udata.Data.OnConnect:=@DataDataConnect;
@@ -1177,6 +1177,12 @@ begin
   with Self as IBaseDbInterface do
     DBLogout;
 end;
+
+procedure TBaseVisualApplication.LoginDone;
+begin
+  StartProcessManager(True);
+end;
+
 initialization
   PrometheusClipboardFormat := RegisterClipboardFormat('PrometERP XML');
   LinkClipboardFormat := RegisterClipboardFormat('PrometERP Link');
