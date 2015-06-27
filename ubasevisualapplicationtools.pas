@@ -45,32 +45,32 @@ function BuildAutofilter(List : TDBGrid;Header : TStringGrid;aEvent : TFilterCel
             aValue := trim(copy(Filter,2,length(Filter)));
             if aValue = '' then exit;
             if TryStrToDate(aValue,aDate) then
-              Result := Data.QuoteField(Field.FieldName)+copy(trim(Filter),0,1)+Data.DateToFilter(aDate)
+              Result := Data.QuoteField((Field.DataSet as IBaseManageDB).TableName)+'.'+Data.QuoteField(Field.FieldName)+copy(trim(Filter),0,1)+Data.DateToFilter(aDate)
             else
-              Result := Data.QuoteField(Field.FieldName)+copy(trim(Filter),0,1)+Data.QuoteValue(aValue);
+              Result := Data.QuoteField((Field.DataSet as IBaseManageDB).TableName)+'.'+Data.QuoteField(Field.FieldName)+copy(trim(Filter),0,1)+Data.QuoteValue(aValue);
           end;
       end
     else if copy(trim(Filter),0,1) = '!' then
       begin
         aValue := trim(copy(Filter,2,length(Filter)));
         if TryStrToDate(aValue,aDate) then
-          Result := Data.QuoteField(Field.FieldName)+'<>'+Data.DateToFilter(trunc(aDate))
+          Result := Data.QuoteField((Field.DataSet as IBaseManageDB).TableName)+'.'+Data.QuoteField(Field.FieldName)+'<>'+Data.DateToFilter(trunc(aDate))
         else if TryStrToFloat(aValue,aFloat) then
-          Result := Data.QuoteField(Field.FieldName)+'<>'+Data.QuoteValue(StringReplace(aValue,',','.',[]))
+          Result := Data.QuoteField((Field.DataSet as IBaseManageDB).TableName)+'.'+Data.QuoteField(Field.FieldName)+'<>'+Data.QuoteValue(StringReplace(aValue,',','.',[]))
         else
           begin
             with Field.DataSet as IBaseDbFilter do
               begin
                 if (Field.DataType = ftMemo) or (Field.DataType = ftWideMemo) then
-                  Result := Data.ProcessTerm('UPPER(cast('+Data.QuoteField(Field.FieldName)+' as varchar(100)))<>UPPER('+Data.QuoteValue(aValue)+')')
+                  Result := Data.ProcessTerm('UPPER(cast('+Data.QuoteField((Field.DataSet as IBaseManageDB).TableName)+'.'+Data.QuoteField(Field.FieldName)+' as varchar(100)))<>UPPER('+Data.QuoteValue(aValue)+')')
                 else
-                  Result := Data.ProcessTerm('UPPER('+Data.QuoteField(Field.FieldName)+')<>UPPER('+Data.QuoteValue(aValue)+')');
+                  Result := Data.ProcessTerm('UPPER('+Data.QuoteField((Field.DataSet as IBaseManageDB).TableName)+'.'+Data.QuoteField(Field.FieldName)+')<>UPPER('+Data.QuoteValue(aValue)+')');
               end;
           end;
       end
     else if trim(Filter) = 'NULL' then
       begin
-        Result := Data.QuoteField(Field.FieldName)+' is NULL';
+        Result := Data.QuoteField((Field.DataSet as IBaseManageDB).TableName)+'.'+Data.QuoteField(Field.FieldName)+' is NULL';
       end
     else
       begin
@@ -80,9 +80,9 @@ function BuildAutofilter(List : TDBGrid;Header : TStringGrid;aEvent : TFilterCel
             if copy(aValue,0,1) = '=' then aValue := copy(aValue,2,length(aValue));
             if aValue = '' then exit;
             if TryStrToDate(aValue,aDate) and ((Field.DataType=ftDateTime) or (Field.DataType=ftDate)) then
-              Result := Data.QuoteField(Field.FieldName)+'>='+Data.DateToFilter(trunc(aDate))+' AND '+Data.QuoteField(Field.FieldName)+'<'+Data.DateToFilter(trunc(aDate)+1)
+              Result := Data.QuoteField((Field.DataSet as IBaseManageDB).TableName)+'.'+Data.QuoteField(Field.FieldName)+'>='+Data.DateToFilter(trunc(aDate))+' AND '+Data.QuoteField(Field.FieldName)+'<'+Data.DateToFilter(trunc(aDate)+1)
             else if TryStrToFloat(aValue,aFloat) then
-              Result := Data.QuoteField(Field.FieldName)+'='+Data.QuoteValue(StringReplace(aValue,',','.',[]))
+              Result := Data.QuoteField((Field.DataSet as IBaseManageDB).TableName)+'.'+Data.QuoteField(Field.FieldName)+'='+Data.QuoteValue(StringReplace(aValue,',','.',[]))
             else
               begin
                 if copy(aValue,0,1)='"' then
@@ -98,9 +98,9 @@ function BuildAutofilter(List : TDBGrid;Header : TStringGrid;aEvent : TFilterCel
                 with Field.DataSet as IBaseDbFilter do
                   begin
                     if (Field.DataType = ftMemo) or (Field.DataType = ftWideMemo) then
-                      Result := Data.ProcessTerm('UPPER(cast('+Data.QuoteField(Field.FieldName)+' as varchar(100)))=UPPER('+Data.QuoteValue(aValue)+')')
+                      Result := Data.ProcessTerm('UPPER(cast('+Data.QuoteField((Field.DataSet as IBaseManageDB).TableName)+'.'+Data.QuoteField(Field.FieldName)+' as varchar(100)))=UPPER('+Data.QuoteValue(aValue)+')')
                     else
-                      Result := Data.ProcessTerm('UPPER('+Data.QuoteField(Field.FieldName)+')=UPPER('+Data.QuoteValue(aValue)+')');
+                      Result := Data.ProcessTerm('UPPER('+Data.QuoteField((Field.DataSet as IBaseManageDB).TableName)+'.'+Data.QuoteField(Field.FieldName)+')=UPPER('+Data.QuoteValue(aValue)+')');
                   end;
               end;
           end;
