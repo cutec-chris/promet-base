@@ -1752,7 +1752,7 @@ begin
   fTimeLine.Parent:=pRight;
   fTimeLine.Align:=alClient;
   fTimeLine.OnSetMarker:=@FTimeLineSetMarker;
-  FTimeLine.Increment:=-8;
+  FTimeLine.Increment:=-16;
   FTimeLine.UseLongMonth:=False;
   PreviewFrame := TfPreview.Create(Self);
   PreviewFrame.Parent := tsDocument;
@@ -1765,7 +1765,10 @@ begin
 end;
 destructor TfManageDocFrame.Destroy;
 begin
-  CSLoad.Free;
+  try
+    CSLoad.Free;
+  except
+  end;
   FFullDataSet.Free;
   FDoc.Free;
   FTimeLine.Free;

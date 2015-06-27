@@ -176,8 +176,7 @@ begin
           if aDay <> Day then
             begin
               if (aDay = 1)
-              or (aDay = 10)
-              or (aDay = 20)
+              or (aDay = 15)
               or (aDay = 30)
               then
                 begin
@@ -256,7 +255,7 @@ end;
 constructor TTimeLine.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FInc := -4;
+  FInc := -16;
   Bitmap := TBitmap.Create;
 end;
 
@@ -309,14 +308,15 @@ begin
         FTmpDate := FDate+(round((FDownPos-X)/FDayWidth)*FInc);
       DoRefreshImage;
       Invalidate;
-    end;
+    end
+  else FTmpDate := FDate;
   inherited MouseMove(Shift, X, Y);
 end;
 
 procedure TTimeLine.MouseUp(Button: TMouseButton; Shift: TShiftState; X,
   Y: Integer);
 begin
-  if (ssRight in Shift) and (FDownPos > 0) then
+  if (FDownPos > 0) then
     begin
       FDownPos := 0;
       FDate := FTmpDate;
@@ -335,4 +335,4 @@ begin
 end;
 
 end.
-
+

@@ -23,7 +23,7 @@ interface
 uses
   Classes, SysUtils, db, uBaseDBInterface,ZConnection, ZSqlMetadata,
   ZAbstractRODataset, ZDataset, uBaseDbClasses, ZSequence,ZAbstractConnection,
-  uModifiedDS,ZSqlMonitor,Utils,uBaseDatasetInterfaces;
+  uModifiedDS,ZSqlMonitor,Utils,uBaseDatasetInterfaces,syncobjs;
 type
   TUnprotectedDataSet = class(TDataSet);
 
@@ -611,75 +611,85 @@ begin
   if Assigned(FOrigTable) then
     TBaseDBModule(ForigTable.DataModule).LastTime := GetTicks;
   if TZeosDBDM(Owner).IgnoreOpenRequests then exit;
+  if Assigned(FOrigTable) then TBaseDBModule(ForigTable.DataModule).CriticalSection.Enter;
   try
-    inherited InternalOpen;
-  except
-    InternalClose;
-    if TZeosDBDM(Owner).Ping(Connection) then
-      inherited InternalOpen
-    else
-      begin
-        WaitForLostConnection;
+      try
         inherited InternalOpen;
+      except
+        InternalClose;
+        if TZeosDBDM(Owner).Ping(Connection) then
+          inherited InternalOpen
+        else
+          begin
+            WaitForLostConnection;
+            inherited InternalOpen;
+          end;
       end;
-  end;
-  try
-  if Assigned(FOrigTable) then
-    begin
-      FOrigTable.SetDisplayLabels(Self);
-      if FOrigTable.UpdateFloatFields then
+      try
+      if Assigned(FOrigTable) then
         begin
-          DisableControls;
-          for a := 0 to Fields.Count -1 do
+          FOrigTable.SetDisplayLabels(Self);
+          if FOrigTable.UpdateFloatFields then
             begin
-              if Fields[a] is TFloatField then
+              DisableControls;
+              for a := 0 to Fields.Count -1 do
                 begin
-                  if Fields[a].Name = 'WEIGHT' then
+                  if Fields[a] is TFloatField then
                     begin
-                      TFloatField(Fields[a]).DisplayFormat := '#,##0.000##';
-                      TFloatField(Fields[a]).EditFormat := '0.000##';
-                      TFloatField(Fields[a]).Precision:=5;
-                    end
-                  else
-                    begin
-                      TFloatField(Fields[a]).DisplayFormat := '#,##0.00##';
-                      TFloatField(Fields[a]).EditFormat := '0.00##';
-                      TFloatField(Fields[a]).Precision:=5;
+                      if Fields[a].Name = 'WEIGHT' then
+                        begin
+                          TFloatField(Fields[a]).DisplayFormat := '#,##0.000##';
+                          TFloatField(Fields[a]).EditFormat := '0.000##';
+                          TFloatField(Fields[a]).Precision:=5;
+                        end
+                      else
+                        begin
+                          TFloatField(Fields[a]).DisplayFormat := '#,##0.00##';
+                          TFloatField(Fields[a]).EditFormat := '0.00##';
+                          TFloatField(Fields[a]).Precision:=5;
+                        end;
                     end;
+                  if (Fields[a] is TDateTimeField)
+                  or (Fields[a] is TDateField)
+                  then
+                    TDateTimeField(Fields[a]).DisplayFormat := ShortDateFormat+' '+ShortTimeFormat;
                 end;
-              if (Fields[a] is TDateTimeField)
-              or (Fields[a] is TDateField)
-              then
-                TDateTimeField(Fields[a]).DisplayFormat := ShortDateFormat+' '+ShortTimeFormat;
+              EnableControls;
             end;
-          EnableControls;
         end;
-    end;
-  except
-    begin
-      FOrigTable:=nil;
-      raise;
-    end;
+      except
+        begin
+          FOrigTable:=nil;
+          raise;
+        end;
+      end;
+  finally
+    if Assigned(FOrigTable) then TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
   end;
 end;
 
 procedure TZeosDBDataSet.InternalRefresh;
 begin
   if TZeosDBDM(Owner).IgnoreOpenRequests then exit;
+  if Assigned(FOrigTable) then TBaseDBModule(ForigTable.DataModule).CriticalSection.Enter;
   try
-    inherited InternalRefresh;
-  except
-    InternalClose;
-    if not Active then
-      begin
-        if TZeosDBDM(Owner).Ping(Connection) then
-          InternalOpen
-        else
-          begin
-            WaitForLostConnection;
-            InternalOpen;
-          end;
-      end;
+    try
+      inherited InternalRefresh;
+    except
+      InternalClose;
+      if not Active then
+        begin
+          if TZeosDBDM(Owner).Ping(Connection) then
+            InternalOpen
+          else
+            begin
+              WaitForLostConnection;
+              InternalOpen;
+            end;
+        end;
+    end;
+  finally
+    if Assigned(FOrigTable) then TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
   end;
 end;
 
@@ -718,33 +728,38 @@ var
   end;
 
 begin
-  while not ok do
-    begin
-      ok := True;
-      try
-        inherited InternalPost;
-      except
-        begin
-          inc(rc);
-          ok := false;
-          if (FHasNewID and (rc<3)) then
-            begin
-              CleanID;
-              SetNewIDIfNull;
-              while CheckID do
-                begin
-                  CleanID;
-                  SetNewIDIfNull;
-                end;
-            end
-          else
-            begin
-              raise;
-              exit;
-            end;
+  if Assigned(FOrigTable) then TBaseDBModule(ForigTable.DataModule).CriticalSection.Enter;
+  try
+    while not ok do
+      begin
+        ok := True;
+        try
+          inherited InternalPost;
+        except
+          begin
+            inc(rc);
+            ok := false;
+            if (FHasNewID and (rc<3)) then
+              begin
+                CleanID;
+                SetNewIDIfNull;
+                while CheckID do
+                  begin
+                    CleanID;
+                    SetNewIDIfNull;
+                  end;
+              end
+            else
+              begin
+                raise;
+                exit;
+              end;
+          end;
         end;
       end;
-    end;
+  finally
+    if Assigned(FOrigTable) then TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
+  end;
 end;
 
 procedure TZeosDBDataSet.DoAfterInsert;

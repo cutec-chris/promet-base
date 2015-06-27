@@ -22,7 +22,7 @@ unit uBaseDBInterface;
 interface
 uses
   Classes, SysUtils, DB, Typinfo, CustApp, Utils , memds,
-  uBaseDbClasses, uIntfStrConsts,
+  uBaseDbClasses, uIntfStrConsts,syncobjs,
   uBaseSearch,uBaseERPDbClasses,uDocuments,uOrder,Variants,uProcessManagement,
   rttiutils,uBaseDatasetInterfaces
   ;
@@ -78,6 +78,7 @@ type
     FCheckedTables : TStringList;
     FLinkHandlers : array of LinkHandler;
     FIgnoreOpenRequests : Boolean;
+    FCS : TCriticalSection;
   protected
     FDataSetClass : TDataSetClass;
     function GetSyncOffset: Integer;virtual;abstract;
@@ -183,6 +184,7 @@ type
     property OnConnectionLost : TNotifyEvent read FConnectionLost write FConnectionLost;
     property OnConnect : TNotifyEvent read FConnect write FConnect;
     property OnDisconnectKeepAlive : TNotifyEvent read FKeepAlive write FKeepAlive;
+    property CriticalSection : TCriticalSection read FCS;
   end;
   IBaseDBInterface = interface['{A2AB4BAB-38DF-4D4E-BCE5-B7D57E115ED5}']
     function GetConfig: TDBConfig;
@@ -438,6 +440,7 @@ end;
 
 constructor TBaseDBModule.Create(AOwner: TComponent);
 begin
+  FCS := TCriticalSection.Create;
   FIgnoreOpenrequests := False;
   FCheckedTables := TStringList.Create;
   FTables := TStringList.Create;
@@ -492,6 +495,7 @@ begin
   PaymentTargets.Destroy;
   ProcessClient.Destroy;
   ActiveUsers.Destroy;
+  FCS.Free;
   inherited Destroy;
 end;
 function TBaseDBModule.GetNewDataSet(aSQL: string; aConnection: TComponent;
