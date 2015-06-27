@@ -127,9 +127,9 @@ begin
               if tmp <> '' then
                 begin
                   try
-                    if (FileExists(UniToSys(ExtractFileDir(Filename)+tmp))) then
+                    if (FileExists(UniToSys(ExtractFileDir(Filename)+DirectorySeparator+tmp))) then
                       begin
-                        Data.FileToBlobField(ExtractFileDir(Filename)+tmp,DataSet,header[idx]);
+                        Data.FileToBlobField(ExtractFileDir(Filename)+DirectorySeparator+tmp,DataSet,header[idx]);
                       end
                     else
                       DataSet.FieldByName(header[idx]).AsString := tmp;//SysToUni(ConvertEncoding(tmp,GuessEncoding(tmp),EncodingUTF8));
