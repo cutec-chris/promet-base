@@ -1259,7 +1259,8 @@ var
 begin
   try
     if TableVersions.DataSet.State=dsInsert then TableVersions.DataSet.Cancel;
-    TableVersions.Filter('');
+    TableVersions.Filter('',0);
+    TableVersions.Open;
     with BaseApplication as IBaseApplication do
       begin
         if not TableVersions.Locate('NAME',aTableName,[]) then
