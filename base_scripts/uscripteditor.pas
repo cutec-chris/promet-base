@@ -507,7 +507,10 @@ begin
   if lowercase(FDataSet.FieldByName('SYNTAX').AsString)='pascal' then
     begin
       if Debugger.Exec.Status in isRunningOrPaused then
-        Debugger.Stop;
+        begin
+          DoCleanUp;
+          Debugger.Stop;
+        end;
       acRun.Enabled:=True;
       acPause.Enabled:=false;
       acReset.Enabled:=false;
@@ -826,8 +829,7 @@ end;
 
 procedure TfScriptEditor.DebuggerAfterExecute(Sender: TPSScript);
 begin
-  if Assigned(Data) then
-    TPascalScript(TPrometPascalScript(FDataSet).Script).DoCleanUp;
+  DoCleanUp;
   acRun.Enabled:=True;
   acReset.Enabled:=False;
   acPause.Enabled:=false;
