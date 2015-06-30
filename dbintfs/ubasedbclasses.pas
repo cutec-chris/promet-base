@@ -35,11 +35,9 @@ type
     fChanged: Boolean;
     FDataSet: TDataSet;
     FDisplayLabelsWasSet : Boolean;
-    FDataModule : TComponent;
     FOnChanged: TNotifyEvent;
     FOnRemoved: TNotifyEvent;
     FParent: TBaseDBDataset;
-    FUpdateFloatFields: Boolean;
     FSecModified: Boolean;
     FDoChange:Integer;
     FUseIntegrity : Boolean;
@@ -70,17 +68,16 @@ type
     constructor Create(aOwner : TComponent);override;
     destructor Destroy;override;
     property DataSet : TDataSet read FDataSet write FDataSet;
-    property DataModule : TComponent read FDataModule;
     procedure Open;virtual;
     procedure Close;virtual;
     function CreateTable : Boolean;virtual;
     procedure DefineDefaultFields(aDataSet : TDataSet;HasMasterSource : Boolean);override;
     procedure DefineUserFields(aDataSet: TDataSet);override;
-    procedure FillDefaults(aDataSet : TDataSet);virtual;
+    procedure FillDefaults(aDataSet : TDataSet);override;
     procedure Select(aID : Variant);virtual;
     procedure SelectChangedSince(aDate : TDateTime);virtual;
     procedure SetDisplayLabelName(aDataSet: TDataSet;aField, aName: string);
-    procedure SetDisplayLabels(aDataSet : TDataSet);virtual;
+    procedure SetDisplayLabels(aDataSet : TDataSet);override;
     property Id : TField read GetID;
     property TimeStamp : TField read GetTimestamp;
     property Count : Integer read GetCount;
@@ -95,10 +92,10 @@ type
     property Caption : string read GetCaption;
     property TableName : string read GetTableName;
     property Changed : Boolean read FChanged;
-    procedure DisableChanges;
-    procedure EnableChanges;
-    procedure Change;virtual;
-    procedure UnChange;virtual;
+    procedure DisableChanges;override;
+    procedure EnableChanges;override;
+    procedure Change;override;
+    procedure UnChange;override;
     procedure CascadicPost;virtual;
     procedure CascadicCancel;virtual;
     procedure Delete;virtual;
@@ -124,11 +121,8 @@ type
     property SortDirection : TSortDirection read GetSortDirection write SetSortDirection;
     property FetchRows : Integer read GetFRows write SetFRows;
     property Parent : TBaseDBDataSet read FParent;
-    property UpdateFloatFields : Boolean read FUpdateFloatFields write FUpdateFloatFields;
     property CanEdit : Boolean read GetCanEdit;
     property Active : Boolean read GetActive write SetActive;
-    property OnChange : TNotifyEvent read FOnChanged write FOnChanged;
-    property OnRemove : TNotifyEvent read FOnRemoved write FOnRemoved;
   end;
 
   TReplaceFieldFunc = procedure(aField : TField;aOldValue : string;var aNewValue : string);
@@ -2850,11 +2844,10 @@ constructor TBaseDBDataset.CreateExIntegrity(aOwner: TComponent; DM: TComponent;
   aUseIntegrity: Boolean; aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited Create(aOwner);
-  FUpdateFloatFields := false;
   Fparent := nil;
-  FDataModule := DM;
-  if FDataModule=nil then
-    FDataModule:=Data;
+  DataModule := DM;
+  if DataModule=nil then
+    DataModule:=Data;
   FSecModified := True;
   FDisplayLabelsWasSet:=False;
   FUseIntegrity:=aUseIntegrity;
@@ -2863,7 +2856,7 @@ begin
     FParent := TBaseDBDataSet(aOwner);
   with BaseApplication as IBaseDbInterface do
     begin
-      with FDataModule as TBaseDbModule do
+      with DataModule as TBaseDbModule do
         FDataSet := GetNewDataSet(Self,aConnection,aMasterdata);
       with FDataSet as IBaseManageDB do
         UseIntegrity := FUseIntegrity;
@@ -2946,7 +2939,13 @@ var
 begin
   with FDataSet as IBaseManageDB do
     begin
-      Result := CreateTable;
+      Result := False;
+      if TBaseDBModule(DataModule).ShouldCheckTable(TableName) then
+        if not TBaseDBModule(DataModule).TableExists(TableName,Connection) then
+          begin
+            Result := CreateTable;
+            TBaseDBModule(DataModule).Tables.Clear;
+          end;
       if not Result then
         begin
           aTableName:=TableName;
