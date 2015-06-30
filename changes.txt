@@ -1,5 +1,5 @@
 ﻿Build 401
-      -
+      - Scripts: TBaseDBDataSet.Select,TBaseDbDataSet.CanEdit eingefügt
 Build 400 (27.06.2015)
       - Wizardmandant:Fehler beim import von Blob Feldern behoben
 Build 399 (25.06.2015)

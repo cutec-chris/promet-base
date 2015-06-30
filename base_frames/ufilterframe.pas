@@ -279,7 +279,7 @@ implementation
 uses uRowEditor,uSearch, uBaseVisualApplicationTools, uBaseVisualApplication ,
   uFilterTabs,uFormAnimate,uData, uBaseVisualControls,uscriptimport,
   uSelectReport,uOrder,uBaseERPDBClasses,uNRights,LCLProc,
-  uPerson,uSendMail,Utils,LCLIntf;
+  uPerson,uSendMail,Utils,LCLIntf,uprometpascalscript;
 resourcestring
   strRecordCount                            = '%d Einträge';
   strFullRecordCount                        = 'von %d werden %d Einträge angezeigt';
@@ -790,6 +790,7 @@ begin
 end;
 procedure TfFilter.acExportExecute(Sender: TObject);
 begin
+  uprometpascalscript.FContextDataSet:=DataSet.DataSet;
   fScriptImport.Execute(icExport,FilterType,glist.DataSource.DataSet,gList.SelectedRows);
 end;
 procedure TfFilter.acCopyLinkExecute(Sender: TObject);
@@ -1001,6 +1002,7 @@ begin
 end;
 procedure TfFilter.acImportExecute(Sender: TObject);
 begin
+  uprometpascalscript.FContextDataSet:=DataSet.DataSet;
   if fScriptImport.Execute(icImport,FilterType) then
     DataSet.DataSet.Refresh;
 end;

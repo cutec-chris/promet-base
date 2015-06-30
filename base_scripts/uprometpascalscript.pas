@@ -163,6 +163,7 @@ begin
             RegisterMethod('function EOF : Boolean;');
             RegisterMethod('function FieldByName(const aFieldName : string) : TField;');
             RegisterMethod('procedure Filter(aFilter : string;aLimit : Integer);');
+            RegisterMethod('procedure Select(aID : Variant);');
             RegisterProperty('ActualFilter','String',iptRW);
             RegisterProperty('ActualLimit','Integer',iptRW);
             RegisterProperty('DataSet','TDataSet',iptRW);
@@ -187,6 +188,7 @@ begin
             RegisterVirtualMethod(@TBaseDBDataset.EOF, 'EOF');
             RegisterVirtualMethod(@TBaseDBDataset.FieldByName, 'FIELDBYNAME');
             RegisterVirtualMethod(@TBaseDBDataset.Filter, 'FILTER');
+            RegisterVirtualMethod(@TBaseDBDataset.Select, 'SELECT');
             RegisterPropertyHelper(@TBaseDBDatasetPropertyDataSetR,nil,'DATASET');
             RegisterPropertyHelper(@TBaseDBDatasetPropertyCountR,nil,'COUNT');
             RegisterPropertyHelper(@TBaseDBDatasetPropertyCanEditR,nil,'CANEDIT');
