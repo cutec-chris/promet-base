@@ -1566,8 +1566,7 @@ procedure TBaseDBInterface.SetDBTyp(const AValue: string);
 begin
   if (FDbTyp = AValue) and Assigned(FDB) then exit;
   FreeAndNil(FDB);
-  if Uppercase(trim(AValue)) = 'SQL' then
-    FDB := TZeosDBDM.Create(BaseApplication);
+  FDB := TZeosDBDM.Create(BaseApplication{,trim(AValue)});
   FDbTyp := AValue;
 end;
 function TBaseDBInterface.GetDB: TBaseDBModule;

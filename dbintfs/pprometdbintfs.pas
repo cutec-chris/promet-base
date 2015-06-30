@@ -7,7 +7,7 @@ unit pPrometDBIntfs;
 interface
 
 uses
-  uBaseDBInterface, uBaseDbClasses, uZeosDBDM, uOrder, uOrderQM, uTimes, 
+  uBaseDBInterface, uBaseDbClasses, udlldbdm, uOrder, uOrderQM, uTimes, 
   uStatistic, uIntfStrConsts, uData, uBaseERPDBClasses, uBaseSearch, 
   uProjects, uDocuments, uImpCSV, uImpVCard, uMasterdata, uPerson, 
   uAccounting, uMessages, uBaseApplication, uCalendar, uSystemMessage, 

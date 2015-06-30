@@ -32,14 +32,12 @@ type
 
   TBaseDBDataset = class(TAbstractDBDataset)
   private
-    fChanged: Boolean;
     FDataSet: TDataSet;
     FDisplayLabelsWasSet : Boolean;
     FOnChanged: TNotifyEvent;
     FOnRemoved: TNotifyEvent;
     FParent: TBaseDBDataset;
     FSecModified: Boolean;
-    FDoChange:Integer;
     FUseIntegrity : Boolean;
     function GetActive: Boolean;
     function GetCanEdit: Boolean;
@@ -91,11 +89,6 @@ type
     property State : TDataSetState read GetState;
     property Caption : string read GetCaption;
     property TableName : string read GetTableName;
-    property Changed : Boolean read FChanged;
-    procedure DisableChanges;override;
-    procedure EnableChanges;override;
-    procedure Change;override;
-    procedure UnChange;override;
     procedure CascadicPost;virtual;
     procedure CascadicCancel;virtual;
     procedure Delete;virtual;
@@ -3223,33 +3216,11 @@ begin
   if DoPost then
     DataSet.Post;
 end;
-procedure TBaseDBDataset.DisableChanges;
-begin
-  inc(FDoChange);
-end;
-procedure TBaseDBDataset.EnableChanges;
-begin
-  if FDoChange > 0 then
-    dec(FDoChange);
-end;
-procedure TBaseDBDataset.Change;
-begin
-  if FDoChange > 0 then exit;
-  if fChanged then exit;
-  FChanged := True;
-  if Owner is TBaseDBDataSet then TBaseDBDataSet(Owner).Change;
-  if Assigned(FOnChanged) then
-    FOnChanged(Self);
-end;
-procedure TBaseDBDataset.UnChange;
-begin
-  fChanged:=False;
-end;
 procedure TBaseDBDataset.CascadicPost;
 begin
   if CanEdit then
     Post;
-  FChanged := False;
+  UnChange;
   if Assigned(FOnChanged) then
     FOnChanged(Self);
 end;
@@ -3257,7 +3228,7 @@ procedure TBaseDBDataset.CascadicCancel;
 begin
   if (FDataSet.State = dsEdit) or (FDataSet.State = dsInsert) then
     FDataSet.Cancel;
-  FChanged := False;
+  UnChange;
   if Assigned(FOnChanged) then
     FOnChanged(Self);
 end;
