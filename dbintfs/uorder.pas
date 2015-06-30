@@ -522,6 +522,7 @@ begin
             Add('NUMBERSET',ftString,30,false);
             Add('DEFPOSTYP',ftString,3,False); //welcher positionstyp wird nach insert gesetzt?
             Add('TEXTTYP',ftInteger,0,False);  //welcher text ist standardtext
+            Add('CHANGEABLE',ftString,1,false);//nach Buchen änderbar
 
             Add('ROUNDPOS',ftString,1,False);  //Positionen werden gerundet
 

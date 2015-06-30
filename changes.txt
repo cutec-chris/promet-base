@@ -1,5 +1,6 @@
 ﻿Build 401
       - Scripts: TBaseDBDataSet.Select,TBaseDbDataSet.CanEdit eingefügt
+      - Aufträge: Neue Eigenschaft "änderbar" mit der z.b. Reparaturaufträge auch nach dem Buchen noch bearbeitet werden können
 Build 400 (27.06.2015)
       - Wizardmandant:Fehler beim import von Blob Feldern behoben
 Build 399 (25.06.2015)
