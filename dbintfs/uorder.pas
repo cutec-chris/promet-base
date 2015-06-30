@@ -892,16 +892,16 @@ begin
         raise Exception.Create(strNumbersetnotfound);
       Accountingjournal := TAccountingjournal.CreateEx(Owner,DataModule,Connection);
       Accountingjournal.CreateTable;
+      with Accountingjournal.DataSet as IBaseDBFilter do
+        begin
+          Data.SetFilter(Accountingjournal,
+          Data.ProcessTerm(Data.QuoteField('ORDERNO')+'='+Data.QuoteValue(DataSet.FieldByName('ORDERNO').AsString))
+          );
+        end;
       Data.StartTransaction(Connection,True);
       try
         OrderDone      := True;
         OrderDelivered := True;
-        with Accountingjournal.DataSet as IBaseDBFilter do
-          begin
-            Data.SetFilter(Accountingjournal,
-            Data.ProcessTerm(Data.QuoteField('ORDERNO')+'='+Data.QuoteValue(DataSet.FieldByName('ORDERNO').AsString))
-            );
-          end;
         while Accountingjournal.Count > 1 do
           begin
             Accountingjournal.DataSet.Last;

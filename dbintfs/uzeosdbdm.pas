@@ -603,7 +603,6 @@ begin
   if Assigned(FOrigTable) then
     TBaseDBModule(ForigTable.DataModule).LastTime := GetTicks;
   if TZeosDBDM(Owner).IgnoreOpenRequests then exit;
-  if Assigned(FOrigTable) then TBaseDBModule(ForigTable.DataModule).CriticalSection.Enter;
   try
       try
         inherited InternalOpen;
@@ -656,32 +655,26 @@ begin
         end;
       end;
   finally
-    if Assigned(FOrigTable) then TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
   end;
 end;
 
 procedure TZeosDBDataSet.InternalRefresh;
 begin
   if TZeosDBDM(Owner).IgnoreOpenRequests then exit;
-  if Assigned(FOrigTable) then TBaseDBModule(ForigTable.DataModule).CriticalSection.Enter;
   try
-    try
-      inherited InternalRefresh;
-    except
-      InternalClose;
-      if not Active then
-        begin
-          if TZeosDBDM(Owner).Ping(Connection) then
-            InternalOpen
-          else
-            begin
-              WaitForLostConnection;
-              InternalOpen;
-            end;
-        end;
-    end;
-  finally
-    if Assigned(FOrigTable) then TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
+    inherited InternalRefresh;
+  except
+    InternalClose;
+    if not Active then
+      begin
+        if TZeosDBDM(Owner).Ping(Connection) then
+          InternalOpen
+        else
+          begin
+            WaitForLostConnection;
+            InternalOpen;
+          end;
+      end;
   end;
 end;
 
@@ -720,7 +713,6 @@ var
   end;
 
 begin
-  if Assigned(FOrigTable) then TBaseDBModule(ForigTable.DataModule).CriticalSection.Enter;
   try
     while not ok do
       begin
@@ -750,7 +742,6 @@ begin
         end;
       end;
   finally
-    if Assigned(FOrigTable) then TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
   end;
 end;
 
