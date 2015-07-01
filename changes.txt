@@ -1,4 +1,6 @@
-﻿Build 401
+﻿Build 402
+      - Tabs werden meim neuladen eines Artikels/Projekts/Kontaktes nicht mehr entfernt und neu geladen
+Build 401 (01.07.2015)
       - Scripts: TBaseDBDataSet.Select,TBaseDbDataSet.CanEdit eingefügt
       - Aufträge: Neue Eigenschaft "änderbar" mit der z.b. Reparaturaufträge auch nach dem Buchen noch bearbeitet werden können
 Build 400 (27.06.2015)
