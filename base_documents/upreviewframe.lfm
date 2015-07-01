@@ -369,8 +369,9 @@ inherited fPreview: TfPreview
   end
   object frReport: TfrReport[2]
     DefaultCopies = 0
-    InitialZoom = pzDefault
+    InitialZoom = pzOnePage
     Options = []
+    Preview = frPreview
     PreviewButtons = [pbZoom, pbLoad, pbSave, pbPrint, pbFind, pbHelp, pbExit]
     ShowProgress = False
     DataType = dtDataSource

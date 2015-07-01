@@ -615,6 +615,7 @@ begin
       try
         aStream.Position:=0;
         frReport.EMFPages.LoadFromStream(aStream);
+        frReport.Preview:=frPreview;
         frReport.ShowPreparedReport;
         pImageControls.Visible:=False;
         sbImage.Visible:=false;
