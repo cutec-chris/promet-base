@@ -131,6 +131,7 @@ type
     FHistory: TMasterdataHistory;
     FImages: TImages;
     FLinks: TMasterdataLinks;
+    FMeasurement: TMeasurement;
     FPosition: TMDPos;
     FPrices: TMasterdataPrices;
     FProperties: TMdProperties;
@@ -166,6 +167,7 @@ type
     property Properties : TMdProperties read FProperties;
     property Assembly : TRepairAssembly read FAssembly;
     property Serials : TSerials read FSerials;
+    property Measurements : TMeasurement read FMeasurement;
     function Copy(aNewVersion : Variant;aNewLanguage : Variant;cPrices : Boolean = True;
                                                                cProperties : Boolean = True;
                                                                cTexts : Boolean = True;
@@ -687,6 +689,7 @@ begin
   FAssembly := TRepairAssembly.CreateEx(Self,DM,aConnection,DataSet);
   FSupplier := TSupplier.CreateEx(Self,DM,aConnection,DataSet);
   FSerials := TSerials.CreateEx(Self,DM,aConnection,DataSet);
+  FMeasurement := TMeasurement.CreateEx(Self,DM,aConnection,DataSet);
   FDS := TDataSource.Create(Self);
   FDS.DataSet := DataSet;
   FDS.OnDataChange:=@FDSDataChange;
@@ -694,7 +697,8 @@ end;
 destructor TMasterdata.Destroy;
 begin
   FDS.Free;
-  FSerials.Free;
+  FMeasurement.Destroy;
+  FSerials.Destroy;
   FPosition.Destroy;
   FStorage.Destroy;
   FHistory.Destroy;

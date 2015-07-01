@@ -90,6 +90,7 @@ type
     FHistory: TProjectHistory;
     FImages: TImages;
     FLinks: TProjectLinks;
+    FMeasurement: TMeasurement;
     FPositions: TProjectPositions;
     FStateChange: TNotifyEvent;
     FTasks: TProjectTasks;
@@ -114,6 +115,7 @@ type
     property Links : TProjectLinks read FLinks;
     property Tasks : TProjectTasks read FTasks;
     property Positions : TProjectPositions read FPositions;
+    property Measurements : TMeasurement read FMeasurement;
     property OnStateChange : TNotifyEvent read FStateChange write FStateChange;
     procedure Makesnapshot(aName : string);
     procedure Delete; override;
@@ -387,6 +389,7 @@ begin
   with Self.DataSet as IBaseSubDataSets do
     RegisterSubDataSet(FTasks);
   FTasks.FProject := Self;
+  FMeasurement := TMeasurement.CreateEx(Self,DM,aConnection,DataSet);
   FDS := TDataSource.Create(Self);
   FDS.DataSet := DataSet;
   FDS.OnDataChange:=@FDSDataChange;
@@ -394,6 +397,7 @@ end;
 destructor TProject.Destroy;
 begin
   FDS.Free;
+  FMeasurement.Destroy;
   FLinks.Destroy;
   FPositions.Destroy;
   FImages.Destroy;

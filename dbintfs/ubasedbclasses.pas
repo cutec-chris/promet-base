@@ -215,6 +215,7 @@ type
   end;
   TImages = class;
   TLinks = class;
+  TMeasurement = class;
 
   { TObjects }
 
@@ -223,6 +224,7 @@ type
     FHistory: TBaseHistory;
     FImages: TImages;
     FLinks: TLinks;
+    FMeasurement: TMeasurement;
   protected
     function GetNumberFieldName: string; override;
     function GetMatchcodeFieldName: string; override;
@@ -240,6 +242,7 @@ type
     property History : TBaseHistory read FHistory;
     property Images : TImages read FImages;
     property Links : TLinks read FLinks;
+    property Measurements : TMeasurement read FMeasurement;
   end;
 
   { TVariables }
@@ -422,10 +425,35 @@ type
   public
     procedure DefineFields(aDataSet : TDataSet);override;
   end;
+  TMeasurementData = class(TBaseDBDataset)
+  public
+    procedure DefineFields(aDataSet: TDataSet); override;
+    constructor CreateEx(aOwner: TComponent; DM: TComponent;
+      aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
+    procedure FillDefaults(aDataSet: TDataSet); override;
+  end;
+  TMeasurement = class(TBaseDBDataset)
+    procedure DataSetAfterPost(aDataSet: TDataSet);
+    procedure DataSetBeforeEdit(aDataSet: TDataSet);
+    procedure FDSDataChange(Sender: TObject; Field: TField);
+  private
+    CurrentChanged : Boolean;
+    CurrentValue : real;
+    FMesdata: TMeasurementData;
+    FDS: TDataSource;
+    function GetCurrent: TField;
+  public
+    constructor CreateEx(aOwner: TComponent; DM: TComponent; aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
+    destructor Destroy; override;
+    procedure DefineFields(aDataSet: TDataSet); override;
+    function CreateTable: Boolean; override;
+    property Data : TMeasurementData read FMesdata;
+    property Current : TField read GetCurrent;
+  end;
 var ImportAble : TClassList;
 implementation
 uses uBaseDBInterface, uBaseApplication, uBaseSearch,XMLRead,XMLWrite,Utils,
-  md5,sha1,uData,uthumbnails,base64;
+  md5,sha1,uData,uthumbnails,base64,uMeasurement;
 resourcestring
   strNumbersetDontExists        = 'Nummernkreis "%s" existiert nicht !';
   strDeletedmessages            = 'gelöschte Narichten';
@@ -583,6 +611,7 @@ begin
   FHistory := TBaseHistory.CreateEx(Self,DM,aConnection,DataSet);
   FImages := TImages.CreateEx(Self,DM,aConnection,DataSet);
   FLinks := TLinks.CreateEx(Self,DM,aConnection);
+  FMeasurement := TMeasurement.CreateEx(Self,DM,aConnection,DataSet);
   with BaseApplication as IBaseDbInterface do
     begin
       with DataSet as IBaseDBFilter do
@@ -594,6 +623,7 @@ end;
 
 destructor TObjects.Destroy;
 begin
+  FMeasurement.Destroy;
   FImages.Destroy;
   FLinks.Destroy;
   FHistory.Destroy;
@@ -3231,6 +3261,138 @@ begin
   UnChange;
   if Assigned(FOnChanged) then
     FOnChanged(Self);
+end;
+procedure TMeasurement.DataSetAfterPost(aDataSet: TDataSet);
+var
+  aDiff: ValReal;
+  aOld,aNew : real;
+begin
+  if CurrentChanged then
+    begin
+      CurrentChanged:=False;
+      if DataSet.ControlsDisabled then exit;
+      aOld := CurrentValue;
+      aNew := FieldByName('CURRENT').AsFloat;
+      aDiff := Abs(Abs(aNew)-Abs(aOld));
+      if (FieldByName('TOLLERANCE').AsFloat >0) and (aDiff < FieldByName('TOLLERANCE').AsFloat) then
+        begin
+          DataSet.DisableControls;
+          Edit;
+          FieldByName('CURRENT').AsFloat:=aOld;
+          Post;
+          DataSet.EnableControls;
+          exit;
+        end;
+      Data.Append;
+      Data.FieldByName('DATA').AsFloat:=FieldByName('CURRENT').AsFloat;
+      Data.Post;
+    end;
+end;
+procedure TMeasurement.DataSetBeforeEdit(aDataSet: TDataSet);
+begin
+  CurrentValue:=FieldByName('CURRENT').AsFloat;
+end;
+procedure TMeasurement.FDSDataChange(Sender: TObject; Field: TField);
+begin
+  if not Assigned(Field) then exit;
+  if DataSet.ControlsDisabled then exit;
+  if (Dataset.State <> dsInsert)
+  then
+    begin
+      if (Field.FieldName = 'CURRENT') then
+        begin
+          CurrentChanged := TRue;
+        end;
+    end;
+end;
+function TMeasurement.GetCurrent: TField;
+begin
+  Result := FieldByName('CURRENT');
+end;
+constructor TMeasurement.CreateEx(aOwner: TComponent; DM: TComponent;
+  aConnection: TComponent; aMasterdata: TDataSet);
+begin
+  inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
+  FMesdata := TMeasurementData.CreateEx(Self,DM,aConnection,DataSet);
+  FDS := TDataSource.Create(Self);
+  FDS.DataSet := DataSet;
+  FDS.OnDataChange:=@FDSDataChange;
+  CurrentChanged:=False;
+  DataSet.AfterPost:=@DataSetAfterPost;
+  DataSet.BeforeEdit:=@DataSetBeforeEdit;
+end;
+destructor TMeasurement.Destroy;
+begin
+  FMesdata.Free;
+  FDS.Free;
+  inherited Destroy;
+end;
+procedure TMeasurement.DefineFields(aDataSet: TDataSet);
+begin
+  with aDataSet as IBaseManageDB do
+    begin
+      TableName := 'MEASUREMENTS';
+      if Assigned(ManagedFieldDefs) then
+        with ManagedFieldDefs do
+          begin
+            Add('NAME',ftString,100,True);
+            Add('ID',ftString,100,False);
+            Add('TYPE',ftString,100,False);
+            Add('CURRENT',ftFloat,0,False);
+            Add('UNIT',ftString,15,False);
+            Add('CHART',ftString,1,False);
+            Add('COLOR',ftString,30,False);
+            Add('RANGE',ftString,20,False);
+            Add('POSITION',ftString,1,False);
+            Add('INTERPOLATE',ftString,1,False);
+            Add('TOLLERANCE',ftFloat,0,False);
+          end;
+      if Assigned(ManagedIndexdefs) then
+        with ManagedIndexDefs do
+          begin
+            Add('ID','ID',[]);
+          end;
+    end;
+end;
+function TMeasurement.CreateTable: Boolean;
+begin
+  Result:=inherited CreateTable;
+  FMesdata.CreateTable;
+end;
+procedure TMeasurementData.DefineFields(aDataSet: TDataSet);
+begin
+  with aDataSet as IBaseManageDB do
+    begin
+      TableName := 'MEASDATA';
+      if Assigned(ManagedFieldDefs) then
+        with ManagedFieldDefs do
+          begin
+            Add('DATA',ftFloat,0,True);
+            Add('DATE',ftDate,0,True);
+          end;
+      if Assigned(ManagedIndexdefs) then
+        with ManagedIndexDefs do
+          begin
+            Add('DATE','DATE',[]);
+          end;
+    end;
+end;
+constructor TMeasurementData.CreateEx(aOwner: TComponent; DM: TComponent;
+  aConnection: TComponent; aMasterdata: TDataSet);
+begin
+  inherited;
+  with DataSet as IBaseDBFilter do
+    begin
+      SortFields := 'DATE';
+      SortDirection := sdDescending;
+      UpdateFloatFields:=True;
+      Limit:=100;
+    end;
+end;
+procedure TMeasurementData.FillDefaults(aDataSet: TDataSet);
+begin
+  inherited FillDefaults(aDataSet);
+  FieldByName('DATE').AsDateTime:=Now();
 end;
 
 initialization

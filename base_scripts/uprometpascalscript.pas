@@ -104,6 +104,9 @@ procedure TOrderPropertyPositionsR(Self : TOrder;var T : TOrderPos);begin T := S
 procedure TOrderPropertyAddressR(Self : TOrder;var T : TOrderAddress);begin T := Self.Address; end;
 procedure TMasterdataPropertyPositionsR(Self : TMasterdata;var T : TMDPos);begin T := Self.Positions; end;
 procedure TProjectPropertyPositionsR(Self : TProject;var T : TProjectPositions);begin T := Self.Positions; end;
+procedure TObjectPropertyMeasurementsR(Self : TObjects;var T : TMeasurement);begin T := Self.Measurements; end;
+procedure TMasterdataPropertyMeasurementsR(Self : TMasterdata;var T : TMeasurement);begin T := Self.Measurements; end;
+procedure TProjectPropertyMeasurementsR(Self : TProject;var T : TMeasurement);begin T := Self.Measurements; end;
 
 
 function TPrometPascalScript.TPascalScriptUses(Sender: TPascalScript;
@@ -237,6 +240,18 @@ begin
             RegisterVirtualMethod(@TBaseHistory.AddParentedItem,'ADDPARENTEDITEM');
           end;
         //Object (Element)
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBDataSet'),TMeasurement) do
+          begin
+            RegisterMethod('constructor Create(aOwner : TComponent);');
+            RegisterProperty('Measurements','TMeasurement',iptR);
+            RegisterProperty('History','TBaseHistory',iptR);
+          end;
+        with Sender.ClassImporter.Add(TMeasurement) do
+          begin
+            RegisterConstructor(@TMeasurement.Create,'CREATE');
+            RegisterPropertyHelper(@TObjectPropertyMeasurementsR,nil,'MEASUREMENTS');
+            RegisterPropertyHelper(@TBaseDbListPropertyHistoryR,nil,'HISTORY');
+          end;
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBList'),TObjects) do
           begin
             RegisterMethod('constructor Create(aOwner : TComponent);');
@@ -376,12 +391,14 @@ begin
             RegisterProperty('History','TBaseHistory',iptR);
             RegisterProperty('Storage','TStorage',iptR);
             RegisterProperty('Positions','TMDPos',iptR);
+            RegisterProperty('Measurements','TMeasurement',iptR);
           end;
         with Sender.ClassImporter.Add(TMasterdata) do
           begin
             RegisterPropertyHelper(@TBaseDbListPropertyHistoryR,nil,'HISTORY');
             RegisterPropertyHelper(@TMasterdataPropertyStorageR,nil,'STORAGE');
             RegisterPropertyHelper(@TMasterdataPropertyPositionsR,nil,'POSITIONS');
+            RegisterPropertyHelper(@TMasterdataPropertyMeasurementsR,nil,'MEASUREMENTS');
           end;
         //Projects
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbPosition'),TProjectPositions) do
@@ -428,12 +445,14 @@ begin
             RegisterProperty('History','TBaseHistory',iptR);
             RegisterProperty('Tasks','TProjectTasks',iptR);
             RegisterProperty('Positions','TProjectPositions',iptR);
+            RegisterProperty('Measurements','TMeasurement',iptR);
           end;
         with Sender.ClassImporter.Add(TProject) do
           begin
             RegisterPropertyHelper(@TBaseDbListPropertyHistoryR,nil,'HISTORY');
             RegisterPropertyHelper(@TProjectsTasksR,nil,'TASKS');
             RegisterPropertyHelper(@TProjectPropertyPositionsR,nil,'POSITIONS');
+            RegisterPropertyHelper(@TProjectPropertyMeasurementsR,nil,'MEASUREMENTS');
           end;
         //Orders
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbPosition'),TOrderPos) do
