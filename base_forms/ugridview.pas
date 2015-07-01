@@ -488,8 +488,7 @@ end;
 
 procedure TfGridView.acCopyToClipboardExecute(Sender: TObject);
 begin
-  if (gList.Col>0)
-  and (gList.Row>0) then
+  if (gList.Col>0) then
     Clipboard.AsText := gList.Cells[gList.Col,gList.Row];
 end;
 
