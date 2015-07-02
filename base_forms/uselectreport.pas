@@ -390,7 +390,7 @@ begin
         Config.WriteRect('ReportEditor',TfrDesignerForm(LR_Class.frDesigner).BoundsRect);
       Data.Reports.DataSet.Edit;
       with BaseApplication as IBaseApplication do
-        Data.FileToBlobField(GetInternalTempDir+'preport.lrf',Data.Reports.DataSet,'REPORT');
+        Data.FileToBlobField(TfrDesignerForm(LR_Class.frDesigner).CurDocName,Data.Reports.DataSet,'REPORT');
       if Data.Reports.DataSet.FieldByName('NAME').IsNull then
         begin
           Data.Reports.DataSet.FieldByName('NAME').AsString:=strStandard;
