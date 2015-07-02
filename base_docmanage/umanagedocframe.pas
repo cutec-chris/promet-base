@@ -1661,17 +1661,20 @@ var
   URL: String;
   aTime: DWORD;
 begin
-  URL := FURL;
-  with BaseApplication as IBaseApplication do
-    Debug('WaitForImage   :'+URL);
-  aTime := GetTickCount;
-  while (not FileExists(FtempPath+URL)) do
-    begin
-      if GetTickCount-aTime>1000 then break;
-      Application.ProcessMessages;
-    end;
-  with BaseApplication as IBaseApplication do
-    Debug('WaitForImageEnd:'+URL);
+  try
+    URL := FURL;
+    with BaseApplication as IBaseApplication do
+      Debug('WaitForImage   :'+URL);
+    aTime := GetTickCount;
+    while (not FileExists(FtempPath+URL)) do
+      begin
+        if GetTickCount-aTime>1000 then break;
+        Application.ProcessMessages;
+      end;
+    with BaseApplication as IBaseApplication do
+      Debug('WaitForImageEnd:'+URL);
+  except
+  end;
 end;
 procedure TfManageDocFrame.RebuidThumb;
 var
