@@ -255,7 +255,7 @@ uses uData,udocuments,uWait,LCLIntf,Utils,uFormAnimate,uImportImages,
   ProcessUtils,uMainTreeFrame,ucameraimport,FPimage,FPReadJPEG,FPCanvas,
   FPWriteJPEG,LCLProc,uthumbnails,uBaseVisualControls,updfexport,uSearch,
   usimpleprocess,uImaging,uBaseApplication,uDocumentAcquire,Graphics,PdfDoc,
-  PdfImages,uBaseVisualApplication;
+  PdfImages,uBaseVisualApplication,uSelectTemplate;
 resourcestring
   strTag                   = 'Tag';
   strSetTag                = 'alle markierten setzen';
@@ -984,6 +984,7 @@ var
   a: Integer;
   tmp: string;
   aDocument: TDocument;
+  aFiles : array of string;
 begin
   FSelectTemplate.DataSet := TDocumentTemplates.Create(nil);
   FSelectTemplate.DataSet.CreateTable;
@@ -992,27 +993,11 @@ begin
   if fSelectTemplate.Execute(FTyp,aDocument) then
     begin
       Stream := TMemoryStream.Create;
-      Data.BlobFieldToStream(FSelectTemplate.DataSet.DataSet,'DOCUMENT',Stream);
-      Stream.Position := 0;
-      aDocument := TDocument.CreateEx(Self,Data);
-      aDocument.Select(0);
-      aDocument.Open;
-      aDocument.Ref_ID:=FRefID;
-      aDocument.BaseID:=FID;
-      aDocument.BaseTyp:=FTyp;
-      aDocument.BaseLanguage:=FLanguage;
-      aDocument.BaseVersion:=FVersion;
-      aDocument.ParentID:=aDirectoryID;
-      aDocument.AddFromStream(FSelectTemplate.DataSet.FieldByName('NAME').AsString,
-                            FSelectTemplate.DataSet.FieldByName('EXTENSION').AsString,
-                            Stream,
-                            '',
-                            Now());
-      Stream.Free;
-      DataSet.DataSet.Refresh;
-      DataSet.GotoBookmark(aDocument.GetBookmark);
-      AddActualItem(True);
-      DoEditDocument;
+      Data.BlobFieldToFile(FSelectTemplate.DataSet.DataSet,'DOCUMENT',GetTempDir+'ptemplate'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString);
+      Setlength(aFiles,1);
+      aFiles[length(aFiles)-1] := GetTempDir+'ptemplate'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString;
+      DoOnDropFiles(nil,aFiles);
+      DeleteFileUtf8(GetTempDir+'ptemplate'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString);
     end;
   aDocument.Free;
   FSelectTemplate.DataSet.Free;
