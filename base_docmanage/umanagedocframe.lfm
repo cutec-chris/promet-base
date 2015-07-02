@@ -18,7 +18,7 @@ inherited fManageDocFrame: TfManageDocFrame
     ClientWidth = 874
     TabOrder = 0
     object pNav: TPanel
-      Left = 368
+      Left = 360
       Height = 42
       Top = 0
       Width = 160
@@ -58,14 +58,14 @@ inherited fManageDocFrame: TfManageDocFrame
       end
     end
     object Panel5: TPanel
-      Left = 600
+      Left = 592
       Height = 42
       Top = 0
-      Width = 274
+      Width = 282
       Align = alClient
       BevelOuter = bvNone
       ClientHeight = 42
-      ClientWidth = 274
+      ClientWidth = 282
       Constraints.MaxWidth = 700
       TabOrder = 1
       Visible = False
@@ -96,7 +96,7 @@ inherited fManageDocFrame: TfManageDocFrame
         Height = 21
         Hint = 'hier können Sie eine vordefinierte Ansicht wählen'#10'Wenn Sie eine spezielle Ansicht/Sortierung benötigen wenden Sie sich an Ihren Administrator'
         Top = 12
-        Width = 222
+        Width = 230
         Anchors = [akTop, akLeft, akRight]
         BorderSpacing.Left = 8
         ItemHeight = 13
@@ -104,7 +104,7 @@ inherited fManageDocFrame: TfManageDocFrame
         TabOrder = 0
       end
       object bEditFilter: TSpeedButton
-        Left = 232
+        Left = 240
         Height = 21
         Hint = 'zeigt/verbirgt weitere Einstellungen'#10'zu den Ansichten'
         Top = 12
@@ -152,7 +152,7 @@ inherited fManageDocFrame: TfManageDocFrame
       end
     end
     object pNav1: TPanel
-      Left = 180
+      Left = 172
       Height = 42
       Top = 0
       Width = 84
@@ -335,7 +335,7 @@ inherited fManageDocFrame: TfManageDocFrame
       ShowCaption = False
     end
     object pNav2: TPanel
-      Left = 268
+      Left = 260
       Height = 42
       Top = 0
       Width = 100
@@ -521,7 +521,7 @@ inherited fManageDocFrame: TfManageDocFrame
       end
     end
     object pSave: TPanel
-      Left = 532
+      Left = 524
       Height = 42
       Top = 0
       Width = 68
@@ -651,15 +651,15 @@ inherited fManageDocFrame: TfManageDocFrame
       Left = 44
       Height = 42
       Top = 0
-      Width = 132
+      Width = 124
       Align = alLeft
       BorderSpacing.Left = 4
       BevelOuter = bvNone
       ClientHeight = 42
-      ClientWidth = 132
+      ClientWidth = 124
       TabOrder = 5
       object ExtRotatedLabel7: TLabel
-        Left = 48
+        Left = 44
         Height = 11
         Top = 4
         Width = 28
@@ -680,7 +680,7 @@ inherited fManageDocFrame: TfManageDocFrame
         Shape = bsLeftLine
       end
       object bImport1: TSpeedButton
-        Left = 98
+        Left = 94
         Height = 24
         Top = 14
         Width = 24
@@ -690,7 +690,7 @@ inherited fManageDocFrame: TfManageDocFrame
         ShowCaption = False
       end
       object bImport2: TSpeedButton
-        Left = 74
+        Left = 70
         Height = 24
         Top = 14
         Width = 24
@@ -700,8 +700,9 @@ inherited fManageDocFrame: TfManageDocFrame
         ShowCaption = False
       end
       object bImport3: TSpeedButton
-        Left = 48
+        Left = 44
         Height = 24
+        Hint = 'Von Scanner oder Kamera holen'
         Top = 14
         Width = 24
         Caption = 'acAquire'
@@ -725,12 +726,11 @@ inherited fManageDocFrame: TfManageDocFrame
         EdgeOuter = esNone
         Images = fVisualControls.Images
         TabOrder = 0
+        Transparent = True
         object tbMenue2: TToolButton
           Left = 1
           Top = 0
           Action = acCreateFromTemplate
-          OnClick = tbMenue1Click
-          PopupMenu = pmPopup
         end
       end
     end
@@ -1191,6 +1191,7 @@ inherited fManageDocFrame: TfManageDocFrame
     object acImport: TAction
       Caption = 'acImport'
       Enabled = False
+      Hint = 'Von Scanner oder Kamera holen'
       ImageIndex = 108
       OnExecute = acImportExecute
     end
@@ -1265,6 +1266,7 @@ inherited fManageDocFrame: TfManageDocFrame
     end
     object acAquire: TAction
       Caption = 'acAquire'
+      Hint = 'Von Scanner oder Kamera holen'
       ImageIndex = 122
       OnExecute = acAquireExecute
     end

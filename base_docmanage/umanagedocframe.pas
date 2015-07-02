@@ -1642,8 +1642,18 @@ procedure TfManageDocFrame.SetTyp(AValue: string);
 begin
   FTyp := AValue;
   if AValue='D' then
-    bImport3.Action:=acAquire
-  else bImport3.Action:=acImport;
+    begin
+      bImport3.Action:=acAquire;
+      tbMenue2.Action:=acCreateFromTemplate;
+      bImport3.Visible:=True;
+    end
+  else
+    begin
+      bImport3.Action:=acImport;
+      tbMenue2.Action:=acImport;
+      bImport3.Visible:=False;
+    end;
+
 end;
 
 procedure TfManageDocFrame.WaitForImage;
