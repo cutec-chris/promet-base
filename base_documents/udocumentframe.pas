@@ -70,6 +70,7 @@ TfDocumentFrame = class(TPrometInplaceDBFrame{$IFDEF WINDOWS},IDropSource{$ENDIF
     bDocuAdd1: TSpeedButton;
     bDocuAdd2: TSpeedButton;
     bDocuAdd3: TSpeedButton;
+    bDocuAdd4: TSpeedButton;
     bDocuremove: TSpeedButton;
     bDocuremove1: TSpeedButton;
     Bevel1: TBevel;

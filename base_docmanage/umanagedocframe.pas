@@ -62,6 +62,7 @@ type
     acOptimizeDocument: TAction;
     acSetDate: TAction;
     acAquire: TAction;
+    acCreateFromTemplate: TAction;
     ActionList1: TActionList;
     bEditFilter: TSpeedButton;
     Bevel1: TBevel;
@@ -139,6 +140,8 @@ type
     SpeedButton2: TSpeedButton;
     SpeedButton3: TSpeedButton;
     spPages: TSplitter;
+    tbMenue2: TToolButton;
+    tbToolBar1: TToolBar;
     tstext: TTabSheet;
     tbMenue1: TToolButton;
     tbToolBar: TToolBar;
@@ -146,6 +149,7 @@ type
     tsDocument: TTabSheet;
     tsFiles: TTabSheet;
     procedure acAquireExecute(Sender: TObject);
+    procedure acCreateFromTemplateExecute(Sender: TObject);
     procedure acDeleteExecute(Sender: TObject);
     procedure acEditExecute(Sender: TObject);
     procedure acFileImportExecute(Sender: TObject);
@@ -971,6 +975,47 @@ begin
       fAcquire.Texts.Clear;
       aDocument.Free;
     end;
+end;
+
+procedure TfManageDocFrame.acCreateFromTemplateExecute(Sender: TObject);
+var
+  Stream: TMemoryStream;
+  i: Integer;
+  a: Integer;
+  tmp: string;
+  aDocument: TDocument;
+begin
+  FSelectTemplate.DataSet := TDocumentTemplates.Create(nil);
+  FSelectTemplate.DataSet.CreateTable;
+  aDocument := TDocument.CreateEx(Self,Data);
+  aDocument.Select(0);
+  if fSelectTemplate.Execute(FTyp,aDocument) then
+    begin
+      Stream := TMemoryStream.Create;
+      Data.BlobFieldToStream(FSelectTemplate.DataSet.DataSet,'DOCUMENT',Stream);
+      Stream.Position := 0;
+      aDocument := TDocument.CreateEx(Self,Data);
+      aDocument.Select(0);
+      aDocument.Open;
+      aDocument.Ref_ID:=FRefID;
+      aDocument.BaseID:=FID;
+      aDocument.BaseTyp:=FTyp;
+      aDocument.BaseLanguage:=FLanguage;
+      aDocument.BaseVersion:=FVersion;
+      aDocument.ParentID:=aDirectoryID;
+      aDocument.AddFromStream(FSelectTemplate.DataSet.FieldByName('NAME').AsString,
+                            FSelectTemplate.DataSet.FieldByName('EXTENSION').AsString,
+                            Stream,
+                            '',
+                            Now());
+      Stream.Free;
+      DataSet.DataSet.Refresh;
+      DataSet.GotoBookmark(aDocument.GetBookmark);
+      AddActualItem(True);
+      DoEditDocument;
+    end;
+  aDocument.Free;
+  FSelectTemplate.DataSet.Free;
 end;
 
 procedure TfManageDocFrame.acEditExecute(Sender: TObject);

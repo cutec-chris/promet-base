@@ -18,7 +18,7 @@ inherited fManageDocFrame: TfManageDocFrame
     ClientWidth = 874
     TabOrder = 0
     object pNav: TPanel
-      Left = 320
+      Left = 368
       Height = 42
       Top = 0
       Width = 160
@@ -58,14 +58,14 @@ inherited fManageDocFrame: TfManageDocFrame
       end
     end
     object Panel5: TPanel
-      Left = 552
+      Left = 600
       Height = 42
       Top = 0
-      Width = 322
+      Width = 274
       Align = alClient
       BevelOuter = bvNone
       ClientHeight = 42
-      ClientWidth = 322
+      ClientWidth = 274
       Constraints.MaxWidth = 700
       TabOrder = 1
       Visible = False
@@ -96,7 +96,7 @@ inherited fManageDocFrame: TfManageDocFrame
         Height = 29
         Hint = 'hier können Sie eine vordefinierte Ansicht wählen'#10'Wenn Sie eine spezielle Ansicht/Sortierung benötigen wenden Sie sich an Ihren Administrator'
         Top = 12
-        Width = 270
+        Width = 222
         Anchors = [akTop, akLeft, akRight]
         BorderSpacing.Left = 8
         ItemHeight = 0
@@ -104,7 +104,7 @@ inherited fManageDocFrame: TfManageDocFrame
         TabOrder = 0
       end
       object bEditFilter: TSpeedButton
-        Left = 280
+        Left = 232
         Height = 21
         Hint = 'zeigt/verbirgt weitere Einstellungen'#10'zu den Ansichten'
         Top = 12
@@ -152,7 +152,7 @@ inherited fManageDocFrame: TfManageDocFrame
       end
     end
     object pNav1: TPanel
-      Left = 132
+      Left = 180
       Height = 42
       Top = 0
       Width = 84
@@ -335,7 +335,7 @@ inherited fManageDocFrame: TfManageDocFrame
       ShowCaption = False
     end
     object pNav2: TPanel
-      Left = 220
+      Left = 268
       Height = 42
       Top = 0
       Width = 100
@@ -502,6 +502,7 @@ inherited fManageDocFrame: TfManageDocFrame
           BorderSpacing.Left = 3
           BorderSpacing.Top = 15
           Caption = 'tbToolBar'
+          EdgeBorders = []
           EdgeInner = esNone
           EdgeOuter = esNone
           Flat = False
@@ -520,7 +521,7 @@ inherited fManageDocFrame: TfManageDocFrame
       end
     end
     object pSave: TPanel
-      Left = 484
+      Left = 532
       Height = 42
       Top = 0
       Width = 68
@@ -650,17 +651,17 @@ inherited fManageDocFrame: TfManageDocFrame
       Left = 44
       Height = 42
       Top = 0
-      Width = 84
+      Width = 132
       Align = alLeft
       BorderSpacing.Left = 4
       BevelOuter = bvNone
       ClientHeight = 42
-      ClientWidth = 84
+      ClientWidth = 132
       TabOrder = 5
       object ExtRotatedLabel7: TLabel
-        Left = 6
+        Left = 48
         Height = 14
-        Top = 0
+        Top = 4
         Width = 37
         Caption = 'Import'
         Font.Color = clMedGray
@@ -679,9 +680,9 @@ inherited fManageDocFrame: TfManageDocFrame
         Shape = bsLeftLine
       end
       object bImport1: TSpeedButton
-        Left = 56
+        Left = 98
         Height = 24
-        Top = 16
+        Top = 14
         Width = 24
         Action = acImageImport
         Flat = True
@@ -689,9 +690,9 @@ inherited fManageDocFrame: TfManageDocFrame
         ShowCaption = False
       end
       object bImport2: TSpeedButton
-        Left = 32
+        Left = 74
         Height = 24
-        Top = 16
+        Top = 14
         Width = 24
         Action = acFileImport
         Flat = True
@@ -699,14 +700,39 @@ inherited fManageDocFrame: TfManageDocFrame
         ShowCaption = False
       end
       object bImport3: TSpeedButton
-        Left = 6
+        Left = 48
         Height = 24
-        Top = 16
+        Top = 14
         Width = 24
         Caption = 'acAquire'
         Flat = True
         OnClick = bZoomOutClick
         ShowCaption = False
+      end
+      object tbToolBar1: TToolBar
+        Left = 1
+        Height = 38
+        Top = 4
+        Width = 39
+        Align = alLeft
+        BorderSpacing.Left = 1
+        BorderSpacing.Top = 4
+        ButtonHeight = 36
+        ButtonWidth = 36
+        Caption = 'tbToolBar1'
+        EdgeBorders = []
+        EdgeInner = esNone
+        EdgeOuter = esNone
+        Flat = False
+        Images = fVisualControls.Images
+        TabOrder = 0
+        object tbMenue2: TToolButton
+          Left = 1
+          Top = 0
+          Action = acCreateFromTemplate
+          OnClick = tbMenue1Click
+          PopupMenu = pmPopup
+        end
       end
     end
   end
@@ -1239,6 +1265,12 @@ inherited fManageDocFrame: TfManageDocFrame
       Caption = 'acAquire'
       ImageIndex = 122
       OnExecute = acAquireExecute
+    end
+    object acCreateFromTemplate: TAction
+      Caption = 'aus Vorlage erstellen'
+      Hint = 'Aus Vorlage erstellen'
+      ImageIndex = 35
+      OnExecute = acCreateFromTemplateExecute
     end
   end
   object pmPopup: TPopupMenu[6]

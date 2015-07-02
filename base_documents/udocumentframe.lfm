@@ -65,13 +65,13 @@ inherited fDocumentFrame: TfDocumentFrame
     end
     object Panel2: TPanel
       Left = 0
-      Height = 54
+      Height = 78
       Top = 42
       Width = 44
       Align = alTop
       BorderSpacing.Top = 42
       BevelOuter = bvNone
-      ClientHeight = 54
+      ClientHeight = 78
       ClientWidth = 44
       TabOrder = 0
       object Bevel1: TBevel
@@ -88,7 +88,7 @@ inherited fDocumentFrame: TfDocumentFrame
         Left = 16
         Height = 24
         Hint = 'Dateien hinzufügen'
-        Top = 4
+        Top = 32
         Width = 24
         Flat = True
         Glyph.Data = {
@@ -134,7 +134,7 @@ inherited fDocumentFrame: TfDocumentFrame
       object bDocuAdd1: TSpeedButton
         Left = 16
         Height = 24
-        Top = 27
+        Top = 54
         Width = 24
         Action = acAcquire
         Flat = True
@@ -142,7 +142,7 @@ inherited fDocumentFrame: TfDocumentFrame
       end
       object ExtRotatedLabel1: TExtRotatedLabel
         Left = 0
-        Height = 50
+        Height = 74
         Top = 4
         Width = 14
         Align = alLeft
@@ -154,11 +154,22 @@ inherited fDocumentFrame: TfDocumentFrame
         ParentColor = False
         ParentFont = False
       end
+      object bDocuAdd4: TSpeedButton
+        Left = 16
+        Height = 24
+        Top = 4
+        Width = 24
+        Action = acCreateFromTemplate
+        Flat = True
+        OnClick = bMenue1Click
+        ShowCaption = False
+        PopupMenu = pmAddDocuments
+      end
     end
     object Panel3: TPanel
       Left = 0
       Height = 56
-      Top = 96
+      Top = 120
       Width = 44
       Align = alTop
       BevelOuter = bvNone
@@ -283,7 +294,7 @@ inherited fDocumentFrame: TfDocumentFrame
     object Panel4: TPanel
       Left = 0
       Height = 52
-      Top = 152
+      Top = 176
       Width = 44
       Align = alTop
       BevelOuter = bvNone
@@ -413,7 +424,7 @@ inherited fDocumentFrame: TfDocumentFrame
     object Panel5: TPanel
       Left = 0
       Height = 56
-      Top = 204
+      Top = 228
       Width = 44
       Align = alTop
       BevelOuter = bvNone
@@ -1200,6 +1211,7 @@ inherited fDocumentFrame: TfDocumentFrame
     object acCreateFromTemplate: TAction
       Category = 'Documents'
       Caption = 'aus vorlage erstellen'
+      ImageIndex = 35
       OnExecute = acCreateFromTemplateExecute
     end
     object acCopyAsLink: TAction
