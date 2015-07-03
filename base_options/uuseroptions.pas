@@ -1,9 +1,27 @@
+{*******************************************************************************
+  Copyright (C) Christian Ulrich info@cu-tec.de
+
+  This source is free software; you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free
+  Software Foundation; either version 2 of the License, or commercial alternative
+  contact us for more information
+
+  This code is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+  details.
+
+  A copy of the GNU General Public License is available on the World Wide Web
+  at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by writing
+  to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+  MA 02111-1307, USA.
+*******************************************************************************}
 unit uuseroptions;
 {$mode objfpc}{$H+}
 interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Buttons, DbCtrls, StdCtrls,
-  ComCtrls, ExtCtrls, Menus, uOptionsFrame, db, uBaseDbClasses,
+  ComCtrls, ExtCtrls, Menus, ActnList, uOptionsFrame, db, uBaseDbClasses,
   uBaseVisualControls, DBZVDateTimePicker;
 type
   TUserTreeEntry = class
@@ -14,10 +32,17 @@ type
   { TfUserOptions }
 
   TfUserOptions = class(TOptionsFrame)
+    acAddGroup: TAction;
+    acAddUser: TAction;
+    acPost: TAction;
+    acUnlock: TAction;
+    acDelete: TAction;
+    ActionList1: TActionList;
     bNewGroup: TSpeedButton;
     bNewUser: TSpeedButton;
-    bResetPassword: TBitBtn;
+    bResetPassword: TSpeedButton;
     bSaveUser: TSpeedButton;
+    bSaveUser1: TSpeedButton;
     cbPosition: TDBComboBox;
     DBCheckBox1: TDBCheckBox;
     DBCheckBox2: TDBCheckBox;
@@ -31,6 +56,7 @@ type
     Label2: TLabel;
     lCustomerNumber3: TLabel;
     lCustomerNumber4: TLabel;
+    MenuItem4: TMenuItem;
     Paygroups: TDatasource;
     DBLookupComboBox1: TDBLookupComboBox;
     eCustomerNumber: TDBEdit;
@@ -61,6 +87,7 @@ type
     tvRights: TTreeView;
     tvUsers: TTreeView;
     UsersDS: TDatasource;
+    procedure acDeleteExecute(Sender: TObject);
     procedure bNewGroupClick(Sender: TObject);
     procedure bNewUserClick(Sender: TObject);
     procedure bResetPasswordClick(Sender: TObject);
@@ -90,9 +117,10 @@ type
   end;
 implementation
 {$R *.lfm}
-uses uData,Variants,upaygroups;
+uses uData,Variants,upaygroups,Dialogs;
 resourcestring
   strNewUser                         = 'Neuer Benutzer';
+  strRealDeleteUser                  = 'Soll der Nutzer wirklich gelöscht werden ?'+LineEnding+'eventuell sind Daten dann nicht mehr zu ihm zuordnbar !'+LineEnding+'Im Normalfall sollten Sie nur das Entlassungsdatum setzen !';
 procedure TfUserOptions.tvUsersSelectionChanged(Sender: TObject);
 begin
   if not Assigned(tvUsers.Selected) then exit;
@@ -130,6 +158,16 @@ begin
   Node1.HasChildren:=True;
   UpdateRights;
 end;
+
+procedure TfUserOptions.acDeleteExecute(Sender: TObject);
+begin
+  if MessageDlg(strRealDeleteUser,mtInformation,[mbYes,mbNo],0) = mrYes then
+    begin
+      aUsers.Delete;
+      tvUsers.Selected.Free;
+    end;
+end;
+
 procedure TfUserOptions.bNewUserClick(Sender: TObject);
 var
   Node1: TTreeNode;
@@ -297,7 +335,7 @@ var
   Node1: TTreeNode;
 begin
   inherited;
-  Data.StartTransaction(aConnection);
+  //Data.StartTransaction(aConnection);
   aUsers.Open;
   aPaygroups.Open;
   with aUsers.DataSet do
@@ -328,12 +366,12 @@ begin
 end;
 procedure TfUserOptions.CommitTransaction;
 begin
-  Data.CommitTransaction(aConnection);
+  //Data.CommitTransaction(aConnection);
   inherited;
 end;
 procedure TfUserOptions.RollbackTransaction;
 begin
-  Data.RollbackTransaction(aConnection);
+  //Data.RollbackTransaction(aConnection);
   inherited;
 end;
 end.
