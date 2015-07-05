@@ -17,8 +17,8 @@ object fMeasurementOptions: TfMeasurementOptions
     DataField = 'CHART'
     DataSource = Measurement
     TabOrder = 0
-    ValueChecked = 'True'
-    ValueUnchecked = 'False'
+    ValueChecked = 'Y'
+    ValueUnchecked = 'N'
   end
   object Label1: TLabel
     Left = 24
@@ -65,6 +65,10 @@ object fMeasurementOptions: TfMeasurementOptions
     DataField = 'INTERPOLATE'
     DataSource = Measurement
     ItemHeight = 0
+    Items.Strings = (
+      'L Links'
+      'R Rechts'
+    )
     MaxLength = 0
     TabOrder = 2
   end

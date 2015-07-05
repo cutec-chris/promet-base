@@ -57,6 +57,7 @@ var
 
 implementation
 
+uses uBaseDbClasses;
 {$R *.lfm}
 
 { TfMeasurementOptions }
@@ -76,6 +77,7 @@ begin
       Self := fMeasurementOptions;
     end;
   FloatSpinEdit1.Value:=Measurement.DataSet.FieldByName('TOLLERANCE').AsFloat;
+  ColorButton1.Color:=StringToColorDef(Measurement.DataSet.FieldByName('COLOR').AsString,clBlue);
   Result := Showmodal=mrOK;
   if Result then
     begin
@@ -83,6 +85,7 @@ begin
       or (Measurement.DataSet.State=dsInsert) then else
         Measurement.DataSet.Edit;
       Measurement.DataSet.FieldByName('TOLLERANCE').AsFloat:=FloatSpinEdit1.Value;
+      Measurement.DataSet.FieldByName('COLOR').AsString:=ColorToString(ColorButton1.Color);
     end;
 end;
 
