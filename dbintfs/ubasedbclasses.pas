@@ -2916,6 +2916,7 @@ var
   aOldFilter: String = '';
   aOldLimit: Integer;
   aErr: String;
+  OldLimit: Integer;
 begin
   if not Assigned(FDataSet) then exit;
   if FDataSet.Active then
@@ -2928,12 +2929,18 @@ begin
       begin
         if not Self.CreateTable then
           begin
-            with BaseApplication as IBaseApplication do
-              Info('Table "'+TableName+'" will be altered');
+            with FDataSet as IBaseDbFilter do
+              begin
+                OldLimit := Limit;
+                Limit := 1;
+              end;
             with DataSet as IBaseManageDB do
               FDataSet.Open;
             if AlterTable then
-              FDataSet.Close
+              begin
+                with FDataSet as IBaseDbFilter do
+                  Limit := OldLimit;
+              end
             else
               begin
                 with BaseApplication as IBaseApplication do

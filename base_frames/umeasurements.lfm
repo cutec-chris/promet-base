@@ -19,10 +19,10 @@ inherited fMeasurementFrame: TfMeasurementFrame
       ClientHeight = 352
       ClientWidth = 958
       object gData: TDBGrid
-        Left = 4
+        Left = 48
         Height = 344
         Top = 4
-        Width = 635
+        Width = 591
         Align = alClient
         AutoFillColumns = True
         BorderSpacing.Around = 4
@@ -31,27 +31,27 @@ inherited fMeasurementFrame: TfMeasurementFrame
         Columns = <        
           item
             Title.Caption = 'Name'
-            Width = 124
+            Width = 115
             FieldName = 'NAME'
           end        
           item
             Title.Caption = 'aktuell'
-            Width = 124
+            Width = 115
             FieldName = 'CURRENT'
           end        
           item
             Title.Caption = 'Einheit'
-            Width = 124
+            Width = 115
             FieldName = 'UNIT'
           end        
           item
             Title.Caption = 'Typ'
-            Width = 124
+            Width = 115
             FieldName = 'TYPE'
           end        
           item
             Title.Caption = 'ID'
-            Width = 127
+            Width = 119
             FieldName = 'ID'
           end>
         DataSource = Measurements
@@ -108,6 +108,120 @@ inherited fMeasurementFrame: TfMeasurementFrame
         Width = 5
         Align = alRight
         ResizeAnchor = akRight
+      end
+      object pToolbar: TPanel
+        Left = 0
+        Height = 352
+        Top = 0
+        Width = 44
+        Align = alLeft
+        BevelOuter = bvNone
+        ClientHeight = 352
+        ClientWidth = 44
+        TabOrder = 3
+        object Panel2: TPanel
+          Left = 0
+          Height = 56
+          Top = 208
+          Width = 44
+          Align = alTop
+          BevelOuter = bvNone
+          ClientHeight = 56
+          ClientWidth = 44
+          TabOrder = 0
+          object Bevel1: TBevel
+            Left = 4
+            Height = 4
+            Top = 0
+            Width = 36
+            Align = alTop
+            BorderSpacing.Left = 4
+            BorderSpacing.Right = 4
+            Shape = bsTopLine
+          end
+          object ExtRotatedLabel1: TExtRotatedLabel
+            Left = 0
+            Height = 52
+            Top = 4
+            Width = 14
+            Align = alLeft
+            AutoSize = False
+            Caption = 'Optionen'
+            Font.Color = clMedGray
+            Font.Height = 11
+            Font.Orientation = -900
+            ParentColor = False
+            ParentFont = False
+          end
+          object sbAddImage: TSpeedButton
+            Left = 15
+            Height = 24
+            Top = 4
+            Width = 25
+            Action = acOptions
+            Flat = True
+            ShowCaption = False
+            ShowHint = True
+            ParentShowHint = False
+          end
+        end
+        object Panel3: TPanel
+          Left = 0
+          Height = 188
+          Top = 20
+          Width = 44
+          Align = alTop
+          BorderSpacing.Top = 20
+          BevelOuter = bvNone
+          ClientHeight = 188
+          ClientWidth = 44
+          TabOrder = 1
+          object Bevel2: TBevel
+            Left = 4
+            Height = 4
+            Top = 0
+            Width = 36
+            Align = alTop
+            BorderSpacing.Left = 4
+            BorderSpacing.Right = 4
+            Shape = bsTopLine
+          end
+          object ExtRotatedLabel2: TExtRotatedLabel
+            Left = 0
+            Height = 184
+            Top = 4
+            Width = 14
+            Align = alLeft
+            AutoSize = False
+            Caption = 'Navigation'
+            Font.Color = clMedGray
+            Font.Height = 11
+            Font.Orientation = -900
+            ParentColor = False
+            ParentFont = False
+          end
+          object dnNavigator: TDBNavigator
+            Left = 15
+            Height = 176
+            Top = 4
+            Width = 25
+            BevelOuter = bvNone
+            ChildSizing.EnlargeHorizontal = crsScaleChilds
+            ChildSizing.EnlargeVertical = crsScaleChilds
+            ChildSizing.ShrinkHorizontal = crsScaleChilds
+            ChildSizing.ShrinkVertical = crsScaleChilds
+            ChildSizing.Layout = cclTopToBottomThenLeftToRight
+            ChildSizing.ControlsPerLine = 100
+            ClientHeight = 176
+            ClientWidth = 25
+            DataSource = Measurements
+            Direction = nbdVertical
+            Flat = True
+            Options = []
+            TabOrder = 0
+            VisibleButtons = [nbPrior, nbNext, nbInsert, nbDelete, nbEdit, nbPost, nbCancel, nbRefresh]
+          end
+        end
       end
     end
     object tsChart: TTabSheet
@@ -209,17 +323,18 @@ inherited fMeasurementFrame: TfMeasurementFrame
     end
   end
   object Measurements: TDatasource[1]
-    left = 16
-    top = 120
+    left = 112
+    top = 136
   end
   object MeasurementData: TDatasource[2]
     Enabled = False
-    left = 16
-    top = 176
+    left = 112
+    top = 192
   end
   object ActionList1: TActionList[3]
-    left = 72
-    top = 120
+    Images = fVisualControls.Images
+    left = 168
+    top = 136
     object DataSetPrior1: TAction
       Category = 'Database'
       Caption = '&Zurück'
@@ -244,6 +359,7 @@ inherited fMeasurementFrame: TfMeasurementFrame
     end
     object acOptions: TAction
       Caption = 'Optionen'
+      ImageIndex = 56
       OnExecute = acOptionsExecute
     end
   end
@@ -251,12 +367,12 @@ inherited fMeasurementFrame: TfMeasurementFrame
     Params.MaxLength = 150
     Params.MinLength = 20
     Params.Options = [aipUseCount, aipUseMaxLength, aipUseMinLength, aipUseNiceSteps]
-    left = 72
-    top = 176
+    left = 168
+    top = 192
   end
   object pmAction: TPopupMenu[5]
-    left = 144
-    top = 120
+    left = 240
+    top = 136
     object MenuItem1: TMenuItem
       Action = acOptions
     end

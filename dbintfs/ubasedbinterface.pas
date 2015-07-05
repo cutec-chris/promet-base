@@ -624,6 +624,8 @@ begin
 end;
 function TBaseDBModule.DateTimeToFilter(aValue: TDateTime): string;
 begin
+  if aValue>MaxDateTime then
+    aValue:=MaxDateTime;
   Result := QuoteValue(FormatDateTime('YYYY-MM-DD HH:MM:SS',aValue));
 end;
 function TBaseDBModule.GetLinkDesc(aLink: string): string;
@@ -1257,6 +1259,7 @@ procedure TBaseDBModule.UpdateTableVersion(aTableName: string);
 var
   i: Integer;
 begin
+  if aTableName='TABLEVERSIONS' then exit;
   try
     if TableVersions.DataSet.State=dsInsert then TableVersions.DataSet.Cancel;
     TableVersions.Filter('',0);
