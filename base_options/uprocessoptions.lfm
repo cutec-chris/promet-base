@@ -276,6 +276,7 @@ inherited fProcessOptions: TfProcessOptions
     ShowCaption = False
   end
   object Processes: TDataSource[11]
+    OnStateChange = ProcessesStateChange
     left = 32
     top = 232
   end

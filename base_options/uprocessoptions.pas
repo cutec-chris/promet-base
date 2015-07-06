@@ -57,6 +57,7 @@ type
     procedure acStartProcessExecute(Sender: TObject);
     procedure acStopProcessExecute(Sender: TObject);
     procedure Panel1Click(Sender: TObject);
+    procedure ProcessesStateChange(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
   private
     { private declarations }
@@ -91,6 +92,12 @@ begin
 
 end;
 
+procedure TfProcessOptions.ProcessesStateChange(Sender: TObject);
+begin
+  acStartProcess.Enabled:=Processes.DataSet.RecordCount>0;
+  acStopProcess.Enabled:=Processes.DataSet.RecordCount>0;
+end;
+
 procedure TfProcessOptions.acStopProcessExecute(Sender: TObject);
 begin
   if not ((Processes.State = dsEdit) or (Processes.State = dsInsert)) then
@@ -101,7 +108,7 @@ end;
 
 procedure TfProcessOptions.acStartProcessExecute(Sender: TObject);
 begin
-  Data.ProcessClient.Process(True);
+  Data.ProcessClient.Process(True,True);
 end;
 
 procedure TfProcessOptions.StartTransaction;

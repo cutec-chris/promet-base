@@ -73,7 +73,7 @@ type
     property Processes : TProcesses read FProcesses;
     property LastRefresh : TDateTime read FLastRefresh;
     procedure RefreshList;
-    function Process(OnlyActiveRow : Boolean = False) : Boolean;
+    function Process(OnlyActiveRow : Boolean = False;DoAlwasyRun : Boolean = False) : Boolean;
   end;
 
 implementation
@@ -238,7 +238,8 @@ begin
   Result := aDir;
 end;
 
-function TProcessClient.Process(OnlyActiveRow: Boolean): Boolean;
+function TProcessClient.Process(OnlyActiveRow: Boolean; DoAlwasyRun: Boolean
+  ): Boolean;
 var
   aLog: TStringList;
   aProcess: String;
@@ -321,13 +322,23 @@ var
                   bProcess.DoExit;
                   bProcess.Informed := True;
                 end;
-              if (aNow > bProcess.Timeout) {and (bProcess.Timeout > 0)} then
+              if (aNow > bProcess.Timeout) or DoAlwasyRun then
                 begin
                   aLog.Clear;
                   DoLog(aprocess+':'+strStartingProcessTimeout+' '+DateTimeToStr(bProcess.Timeout)+'>'+DateTimeToStr(aNow),aLog,BaseApplication.HasOption('debug'));
                   bProcess.Timeout := aNow+(max(Processes.FieldByName('INTERVAL').AsInteger,2)/MinsPerDay);
                   DoLog(aProcess+':'+strStartingProcess+' ('+bProcess.CommandLine+')',aLog,True);
-                  bProcess.Execute;
+                  try
+                    bProcess.Execute;
+                  except
+                    on e : Exception do
+                      begin
+                        DoLog(aprocess+':'+strError+' '+e.Message,alog,True);
+                        Processes.Edit;
+                        Processes.FieldByName('STATUS').AsString:='E';
+                        Processes.Post;
+                      end;
+                  end;
                   bProcess.Informed := False;
                   DoLog(aprocess+':'+strStartingNextTimeout+' '+DateTimeToStr(bProcess.Timeout),aLog,BaseApplication.HasOption('debug'));
                 end;
@@ -374,6 +385,8 @@ var
     else if Processes.Scripts.Locate('NAME',aProcess,[loCaseInsensitive]) then
       begin
         cmd := AppendPathDelim(BaseApplication.Location)+'pscript'+ExtractFileExt(BaseApplication.ExeName);
+        if not FileExists(UniToSys(cmd)) then
+          cmd := AppendPathDelim(BaseApplication.Location)+'tools'+DirectorySeparator+'pscript'+ExtractFileExt(BaseApplication.ExeName);
         cmd := cmd+BuildCmdLine;
         cmd := cmd+' '+aProcess;
         ExecCommand;
