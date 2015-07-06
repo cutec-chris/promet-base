@@ -10,7 +10,7 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="7">
+    <Files Count="6">
       <Item1>
         <Filename Value="uscripteditor.lfm"/>
         <Type Value="LFM"/>
@@ -35,36 +35,36 @@
         <Filename Value="uscriptimport.pas"/>
         <UnitName Value="uscriptimport"/>
       </Item6>
-      <Item7>
-        <Filename Value="uprometpascalscript.pas"/>
-        <UnitName Value="uprometpascalscript"/>
-      </Item7>
     </Files>
-    <RequiredPkgs Count="7">
+    <RequiredPkgs Count="8">
       <Item1>
-        <PackageName Value="general"/>
+        <PackageName Value="promet_scripts"/>
+        <DefaultFilename Value="promet_scripts.lpk"/>
       </Item1>
       <Item2>
-        <PackageName Value="general_pascal_script"/>
-        <DefaultFilename Value="..\..\..\..\general\general_pascal_script.lpk"/>
+        <PackageName Value="general"/>
       </Item2>
       <Item3>
-        <PackageName Value="ppascalscriptlcl"/>
-        <DefaultFilename Value="..\..\components\pascalscript\ppascalscriptlcl.lpk"/>
+        <PackageName Value="general_pascal_script"/>
+        <DefaultFilename Value="..\..\..\..\general\general_pascal_script.lpk"/>
       </Item3>
       <Item4>
-        <PackageName Value="pPrometDBIntfs"/>
-        <DefaultFilename Value="..\dbintfs\pprometdbintfs.lpk"/>
+        <PackageName Value="ppascalscriptlcl"/>
+        <DefaultFilename Value="..\..\components\pascalscript\ppascalscriptlcl.lpk"/>
       </Item4>
       <Item5>
-        <PackageName Value="SynEdit"/>
+        <PackageName Value="pPrometDBIntfs"/>
+        <DefaultFilename Value="..\dbintfs\pprometdbintfs.lpk"/>
       </Item5>
       <Item6>
-        <PackageName Value="LCL"/>
+        <PackageName Value="SynEdit"/>
       </Item6>
       <Item7>
-        <PackageName Value="FCL"/>
+        <PackageName Value="LCL"/>
       </Item7>
+      <Item8>
+        <PackageName Value="FCL"/>
+      </Item8>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>
