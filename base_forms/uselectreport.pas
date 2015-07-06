@@ -340,7 +340,6 @@ procedure TfSelectReport.bDesignClick(Sender: TObject);
 var
   BaseApplication : IBaseApplication;
   NewRect: TRect;
-  aResult: Integer;
 begin
   if not Supports(Application, IBaseApplication, BaseApplication) then exit;
   with Application as IBaseDbInterface do
@@ -385,7 +384,7 @@ begin
           with BaseApplication as IBaseApplication do
             TfrDesignerForm(LR_Class.frDesigner).CurDocName:=GetInternalTempDir+'preport.lrf';
         end;
-      aResult := Report.DesignReport;
+      Report.DesignReport;
       with Application as IBaseConfig do
         Config.WriteRect('ReportEditor',TfrDesignerForm(LR_Class.frDesigner).BoundsRect);
       Data.Reports.DataSet.Edit;

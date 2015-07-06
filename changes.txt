@@ -1,4 +1,6 @@
-﻿Build 402
+﻿Build 403
+      - pScript:kann nun auch Promet Pascal Files ausführen
+Build 402
       - Tabs werden meim neuladen eines Artikels/Projekts/Kontaktes/Auftrages nicht mehr entfernt und neu geladen
       - Vorschau:auf Reports korrigiert
       - Messungen:Navigatorleiste und Optionen erweitert
