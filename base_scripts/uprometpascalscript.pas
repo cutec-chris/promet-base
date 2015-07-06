@@ -243,22 +243,22 @@ begin
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBDataSet'),TMeasurement) do
           begin
             RegisterMethod('constructor Create(aOwner : TComponent);');
-            RegisterProperty('Measurements','TMeasurement',iptR);
-            RegisterProperty('History','TBaseHistory',iptR);
           end;
         with Sender.ClassImporter.Add(TMeasurement) do
           begin
             RegisterConstructor(@TMeasurement.Create,'CREATE');
-            RegisterPropertyHelper(@TObjectPropertyMeasurementsR,nil,'MEASUREMENTS');
-            RegisterPropertyHelper(@TBaseDbListPropertyHistoryR,nil,'HISTORY');
           end;
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBList'),TObjects) do
           begin
             RegisterMethod('constructor Create(aOwner : TComponent);');
+            RegisterProperty('Measurements','TMeasurement',iptR);
+            RegisterProperty('History','TBaseHistory',iptR);
           end;
         with Sender.ClassImporter.Add(TObjects) do
           begin
             RegisterConstructor(@TObjects.Create,'CREATE');
+            RegisterPropertyHelper(@TObjectPropertyMeasurementsR,nil,'MEASUREMENTS');
+            RegisterPropertyHelper(@TBaseDbListPropertyHistoryR,nil,'HISTORY');
           end;
         //Document
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBList'),TDocuments) do
