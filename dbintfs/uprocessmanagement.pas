@@ -73,7 +73,7 @@ type
     property Processes : TProcesses read FProcesses;
     property LastRefresh : TDateTime read FLastRefresh;
     procedure RefreshList;
-    function Process : Boolean;
+    function Process(OnlyActiveRow : Boolean = False) : Boolean;
   end;
 
 implementation
@@ -238,7 +238,7 @@ begin
   Result := aDir;
 end;
 
-function TProcessClient.Process: Boolean;
+function TProcessClient.Process(OnlyActiveRow: Boolean): Boolean;
 var
   aLog: TStringList;
   aProcess: String;
@@ -360,43 +360,53 @@ var
       end;
   end;
 
+  procedure ProcessRow;
+  begin
+    aLog.Text := Processes.DataSet.FieldByName('LOG').AsString;
+    aProcess := Processes.FieldByName('NAME').AsString;
+    if FileExists(ExpandFileName(AppendPathDelim(BaseApplication.Location)+aProcess+ExtractFileExt(BaseApplication.ExeName))) then
+      begin
+        Found := False;
+        cmd := AppendPathDelim(BaseApplication.Location)+aProcess+ExtractFileExt(BaseApplication.ExeName);
+        cmd := cmd+BuildCmdLine;
+        ExecCommand;
+      end
+    else if Processes.Scripts.Locate('NAME',aProcess,[loCaseInsensitive]) then
+      begin
+        cmd := AppendPathDelim(BaseApplication.Location)+'pscript'+ExtractFileExt(BaseApplication.ExeName);
+        cmd := cmd+BuildCmdLine;
+        cmd := cmd+' '+aProcess;
+        ExecCommand;
+      end
+    else
+      begin
+        aLog.Clear;
+        DoLog(ExpandFileName(aProcess+ExtractFileExt(BaseApplication.ExeName))+':'+'File dosend exists',aLog,True);
+      end;
+    if Processes.DataSet.FieldByName('LOG').AsString<>aLog.Text then
+      begin
+        Processes.Edit;
+        Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
+        Processes.Post;
+      end;
+  end;
+
 begin
   aNow := Now();
   if aNow>0 then
     begin
       aLog := TStringList.Create;
       //Check processes
-      Processes.DataSet.First;
-      while not Processes.DataSet.EOF do
+      if OnlyActiveRow then
+        ProcessRow
+      else
         begin
-          aLog.Text := Processes.DataSet.FieldByName('LOG').AsString;
-          aProcess := Processes.FieldByName('NAME').AsString;
-          if FileExists(ExpandFileName(AppendPathDelim(BaseApplication.Location)+aProcess+ExtractFileExt(BaseApplication.ExeName))) then
+          Processes.DataSet.First;
+          while not Processes.DataSet.EOF do
             begin
-              Found := False;
-              cmd := AppendPathDelim(BaseApplication.Location)+aProcess+ExtractFileExt(BaseApplication.ExeName);
-              cmd := cmd+BuildCmdLine;
-              ExecCommand;
-            end
-          else if Processes.Scripts.Locate('NAME',aProcess,[loCaseInsensitive]) then
-            begin
-              cmd := AppendPathDelim(BaseApplication.Location)+'pscript'+ExtractFileExt(BaseApplication.ExeName);
-              cmd := cmd+BuildCmdLine;
-              cmd := cmd+' '+aProcess;
-              ExecCommand;
-            end
-          else
-            begin
-              aLog.Clear;
-              DoLog(ExpandFileName(aProcess+ExtractFileExt(BaseApplication.ExeName))+':'+'File dosend exists',aLog,True);
+              ProcessRow;
+              Processes.DataSet.Next;
             end;
-          if Processes.DataSet.FieldByName('LOG').AsString<>aLog.Text then
-            begin
-              Processes.Edit;
-              Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
-              Processes.Post;
-            end;
-          Processes.DataSet.Next;
         end;
       aLog.Free;
     end;

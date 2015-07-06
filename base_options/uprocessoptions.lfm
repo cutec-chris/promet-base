@@ -1,33 +1,38 @@
 inherited fProcessOptions: TfProcessOptions
-  Height = 443
-  Width = 547
-  ClientHeight = 443
-  ClientWidth = 547
+  Height = 464
+  Width = 452
+  ClientHeight = 464
+  ClientWidth = 452
+  ParentShowHint = False
+  ShowHint = True
   TabOrder = 0
   DesignLeft = 442
-  DesignTop = 327
+  DesignTop = 306
   object gProcesses: TDBGrid[0]
     Left = 8
-    Height = 126
+    Height = 87
     Top = 25
-    Width = 531
+    Width = 436
     Align = alTop
     Anchors = [akTop, akLeft, akRight, akBottom]
+    AutoFillColumns = True
     BorderSpacing.Around = 8
     Color = clWindow
     Columns = <    
       item
         Title.Caption = 'Client'
-        Width = 200
+        Width = 171
         FieldName = 'NAME'
       end    
       item
+        SizePriority = 0
         Title.Caption = 'Status'
+        Width = 60
         FieldName = 'STATUS'
       end    
       item
         Title.Caption = 'Notizen'
-        Width = 200
+        Width = 172
         FieldName = 'NOTES'
       end>
     DataSource = Clients
@@ -38,8 +43,8 @@ inherited fProcessOptions: TfProcessOptions
     Cursor = crVSplit
     Left = 0
     Height = 5
-    Top = 308
-    Width = 547
+    Top = 329
+    Width = 452
     Align = alTop
     ResizeAnchor = akTop
   end
@@ -47,7 +52,7 @@ inherited fProcessOptions: TfProcessOptions
     Left = 4
     Height = 13
     Top = 4
-    Width = 539
+    Width = 444
     Align = alTop
     BorderSpacing.Around = 4
     Caption = 'Clients'
@@ -55,23 +60,11 @@ inherited fProcessOptions: TfProcessOptions
     ParentColor = False
     ParentFont = False
   end
-  object Label1: TLabel[3]
+  object lProcesses1: TLabel[3]
     Left = 4
     Height = 13
-    Top = 317
-    Width = 539
-    Align = alTop
-    BorderSpacing.Around = 4
-    Caption = 'Parameter'
-    Font.Style = [fsBold]
-    ParentColor = False
-    ParentFont = False
-  end
-  object lProcesses1: TLabel[4]
-    Left = 4
-    Height = 13
-    Top = 168
-    Width = 539
+    Top = 129
+    Width = 444
     Align = alTop
     BorderSpacing.Around = 4
     Caption = 'Prozesse'
@@ -79,13 +72,14 @@ inherited fProcessOptions: TfProcessOptions
     ParentColor = False
     ParentFont = False
   end
-  object gProcesses1: TDBGrid[5]
+  object gProcesses1: TDBGrid[4]
     Left = 8
-    Height = 111
-    Top = 189
-    Width = 531
+    Height = 171
+    Top = 150
+    Width = 436
     Align = alTop
     Anchors = [akTop, akLeft, akRight, akBottom]
+    AutoFillColumns = True
     BorderSpacing.Around = 8
     Color = clWindow
     Columns = <    
@@ -107,38 +101,42 @@ inherited fProcessOptions: TfProcessOptions
           'nntpserver'
           'imapserver'
         )
+        SizePriority = 2
         Title.Caption = 'Prozess'
-        Width = 180
+        Width = 101
         FieldName = 'NAME'
       end    
       item
+        SizePriority = 0
         Title.Caption = 'Interval'
+        Width = 50
         FieldName = 'INTERVAL'
       end    
       item
+        SizePriority = 0
         Title.Caption = 'Status'
-        Width = 40
+        Width = 50
         FieldName = 'STATUS'
       end    
       item
         Title.Caption = 'gestartet'
-        Width = 100
+        Width = 101
         FieldName = 'STARTED'
       end    
       item
         Title.Caption = 'beended'
-        Width = 100
+        Width = 101
         FieldName = 'STOPPED'
       end>
     DataSource = Processes
     TabOrder = 2
     TitleStyle = tsNative
   end
-  object DBNavigator1: TDBNavigator[6]
+  object DBNavigator1: TDBNavigator[5]
     AnchorSideTop.Control = lProcesses1
-    Left = 412
+    Left = 317
     Height = 21
-    Top = 168
+    Top = 129
     Width = 127
     Anchors = [akTop, akRight]
     BevelOuter = bvNone
@@ -151,13 +149,14 @@ inherited fProcessOptions: TfProcessOptions
     ClientHeight = 21
     ClientWidth = 127
     DataSource = Processes
+    Flat = True
     Options = []
     TabOrder = 3
     VisibleButtons = [nbInsert, nbDelete, nbEdit, nbPost, nbCancel, nbRefresh]
   end
-  object DBNavigator2: TDBNavigator[7]
+  object DBNavigator2: TDBNavigator[6]
     AnchorSideTop.Control = lProcesses
-    Left = 412
+    Left = 317
     Height = 21
     Top = 4
     Width = 127
@@ -172,36 +171,39 @@ inherited fProcessOptions: TfProcessOptions
     ClientHeight = 21
     ClientWidth = 127
     DataSource = Clients
+    Flat = True
     Options = []
     TabOrder = 4
     VisibleButtons = [nbInsert, nbDelete, nbEdit, nbPost, nbCancel, nbRefresh]
   end
-  object Panel1: TPanel[8]
+  object Panel1: TPanel[7]
     Left = 0
-    Height = 109
+    Height = 130
     Top = 334
-    Width = 547
+    Width = 452
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 109
-    ClientWidth = 547
+    ClientHeight = 130
+    ClientWidth = 452
     TabOrder = 5
+    OnClick = Panel1Click
     object DBGrid1: TDBGrid
       Left = 0
       Height = 109
-      Top = 0
+      Top = 21
       Width = 224
       Align = alLeft
+      AutoFillColumns = True
       Color = clWindow
       Columns = <      
         item
           Title.Caption = 'Parameter'
-          Width = 80
+          Width = 95
           FieldName = 'NAME'
         end      
         item
           Title.Caption = 'Value'
-          Width = 100
+          Width = 96
           FieldName = 'VALUE'
         end>
       DataSource = ProcessParameters
@@ -211,8 +213,8 @@ inherited fProcessOptions: TfProcessOptions
     object DBMemo1: TDBMemo
       Left = 224
       Height = 109
-      Top = 0
-      Width = 323
+      Top = 21
+      Width = 228
       Align = alClient
       DataField = 'LOG'
       DataSource = Processes
@@ -220,26 +222,92 @@ inherited fProcessOptions: TfProcessOptions
       TabOrder = 1
       WordWrap = False
     end
+    object Label1: TLabel
+      Left = 4
+      Height = 13
+      Top = 4
+      Width = 444
+      Align = alTop
+      BorderSpacing.Around = 4
+      Caption = 'Parameter'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label2: TLabel
+      AnchorSideLeft.Control = DBMemo1
+      Left = 224
+      Height = 13
+      Top = 4
+      Width = 80
+      Caption = '(letzte) Ausgabe'
+      ParentColor = False
+    end
   end
-  object Splitter2: TSplitter[9]
+  object Splitter2: TSplitter[8]
     Cursor = crVSplit
     Left = 0
     Height = 5
-    Top = 159
-    Width = 547
+    Top = 120
+    Width = 452
     Align = alTop
     ResizeAnchor = akTop
   end
-  object Processes: TDatasource[10]
+  object SpeedButton1: TSpeedButton[9]
+    AnchorSideTop.Control = DBNavigator1
+    Left = 269
+    Height = 20
+    Top = 129
+    Width = 23
+    Action = acStartProcess
+    Anchors = [akTop, akRight]
+    Flat = True
+    ShowCaption = False
+  end
+  object SpeedButton2: TSpeedButton[10]
+    AnchorSideTop.Control = DBNavigator1
+    Left = 294
+    Height = 20
+    Top = 129
+    Width = 23
+    Action = acStopProcess
+    Anchors = [akTop, akRight]
+    Flat = True
+    ShowCaption = False
+  end
+  object Processes: TDataSource[11]
     left = 32
     top = 232
   end
-  object ProcessParameters: TDatasource[11]
+  object ProcessParameters: TDataSource[12]
     left = 24
     top = 328
   end
-  object Clients: TDatasource[12]
+  object Clients: TDataSource[13]
     left = 32
     top = 48
   end
-end
+  object ActionList1: TActionList[14]
+    Images = fVisualControls.Images
+    left = 32
+    top = 184
+    object acStartProcess: TAction
+      Caption = 'acStartProcess'
+      Hint = 'Prozess auf dieser Maschiene zum testen starten'
+      ImageIndex = 64
+      OnExecute = acStartProcessExecute
+    end
+    object acStopProcess: TAction
+      Caption = 'acStopProcess'
+      Hint = 'Prozess stoppen'
+      ImageIndex = 66
+      OnExecute = acStopProcessExecute
+    end
+  end
+  object Timer1: TTimer[15]
+    Enabled = False
+    OnTimer = Timer1Timer
+    left = 88
+    top = 184
+  end
+end

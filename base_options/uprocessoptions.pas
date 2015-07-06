@@ -25,28 +25,39 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, DBGrids, ExtCtrls, StdCtrls,
-  DbCtrls, uOptionsFrame, db;
+  DbCtrls, ComCtrls, Buttons, ActnList, uOptionsFrame, db;
 
 type
 
   { TfProcessOptions }
 
   TfProcessOptions = class(TOptionsFrame)
+    acStartProcess: TAction;
+    acStopProcess: TAction;
+    ActionList1: TActionList;
     Clients: TDatasource;
     DBGrid1: TDBGrid;
     DBMemo1: TDBMemo;
     DBNavigator1: TDBNavigator;
     DBNavigator2: TDBNavigator;
     gProcesses1: TDBGrid;
+    Label1: TLabel;
+    Label2: TLabel;
     lProcesses1: TLabel;
     Panel1: TPanel;
     ProcessParameters: TDatasource;
-    Label1: TLabel;
     lProcesses: TLabel;
     Processes: TDatasource;
     gProcesses: TDBGrid;
+    SpeedButton1: TSpeedButton;
+    SpeedButton2: TSpeedButton;
     Splitter1: TSplitter;
     Splitter2: TSplitter;
+    Timer1: TTimer;
+    procedure acStartProcessExecute(Sender: TObject);
+    procedure acStopProcessExecute(Sender: TObject);
+    procedure Panel1Click(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
   private
     { private declarations }
   public
@@ -58,8 +69,41 @@ type
 
 implementation
 
-uses uData, uBaseDbInterface;
+uses uData, uBaseDbInterface,uProcessManagement,uBaseDatasetInterfaces;
 {$R *.lfm}
+
+procedure TfProcessOptions.Timer1Timer(Sender: TObject);
+var
+  rec: TBookmark;
+begin
+  Processes.DataSet.DisableControls;
+  if Processes.DataSet.Active then
+    begin
+      rec := Processes.DataSet.GetBookmark;
+      Processes.DataSet.Refresh;
+      Processes.DataSet.GotoBookmark(rec);
+    end;
+  Processes.DataSet.EnableControls;
+end;
+
+procedure TfProcessOptions.Panel1Click(Sender: TObject);
+begin
+
+end;
+
+procedure TfProcessOptions.acStopProcessExecute(Sender: TObject);
+begin
+  if not ((Processes.State = dsEdit) or (Processes.State = dsInsert)) then
+    Processes.DataSet.Edit;
+  Processes.DataSet.FieldByName('STATUS').AsString:='N';
+  Processes.DataSet.Post;
+end;
+
+procedure TfProcessOptions.acStartProcessExecute(Sender: TObject);
+begin
+  Data.ProcessClient.Process(True);
+end;
+
 procedure TfProcessOptions.StartTransaction;
 begin
   inherited StartTransaction;
@@ -69,19 +113,23 @@ begin
   Data.ProcessClient.Processes.Open;
   ProcessParameters.DataSet := Data.ProcessClient.Processes.Parameters.DataSet;
   Data.ProcessClient.Processes.Parameters.DataSet.Open;
+  Timer1.Enabled:=True;
+  Clients.DataSet.Locate('NAME','*',[]);
 end;
 procedure TfProcessOptions.CommitTransaction;
 begin
+  Timer1.Enabled:=False;
   if (Processes.State = dsEdit) or (Processes.State = dsInsert) then
     Processes.DataSet.Post;
   inherited CommitTransaction;
 end;
 procedure TfProcessOptions.RollbackTransaction;
 begin
+  Timer1.Enabled:=False;
   if (Processes.State = dsEdit) or (Processes.State = dsInsert) then
     Processes.DataSet.Cancel;
   inherited RollbackTransaction;
 end;
 
 end.
-
+
