@@ -87,28 +87,21 @@ begin
   Processes.DataSet.EnableControls;
 end;
 
-procedure TfProcessOptions.Panel1Click(Sender: TObject);
-begin
-
-end;
-
-procedure TfProcessOptions.ProcessesStateChange(Sender: TObject);
-begin
-  acStartProcess.Enabled:=Processes.DataSet.RecordCount>0;
-  acStopProcess.Enabled:=Processes.DataSet.RecordCount>0;
-end;
-
 procedure TfProcessOptions.acStopProcessExecute(Sender: TObject);
 begin
-  if not ((Processes.State = dsEdit) or (Processes.State = dsInsert)) then
-    Processes.DataSet.Edit;
-  Processes.DataSet.FieldByName('STATUS').AsString:='N';
-  Processes.DataSet.Post;
+  if Processes.DataSet.Active and (Processes.DataSet.RecordCount>0) then
+    begin
+      if not ((Processes.State = dsEdit) or (Processes.State = dsInsert)) then
+        Processes.DataSet.Edit;
+      Processes.DataSet.FieldByName('STATUS').AsString:='N';
+      Processes.DataSet.Post;
+    end;
 end;
 
 procedure TfProcessOptions.acStartProcessExecute(Sender: TObject);
 begin
-  Data.ProcessClient.Process(True,True);
+  if Processes.DataSet.Active and (Processes.DataSet.RecordCount>0) then
+    Data.ProcessClient.Process(True,True);
 end;
 
 procedure TfProcessOptions.StartTransaction;
