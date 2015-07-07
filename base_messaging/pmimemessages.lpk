@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
     </CompilerOptions>
     <Files Count="3">
@@ -29,11 +29,11 @@
     <RequiredPkgs Count="3">
       <Item1>
         <PackageName Value="general_nogui"/>
-        <DefaultFilename Value="..\..\..\general\general_nogui.lpk"/>
+        <DefaultFilename Value="..\..\..\..\general\general_nogui.lpk"/>
       </Item1>
       <Item2>
         <PackageName Value="pPrometDBIntfs"/>
-        <DefaultFilename Value="..\base\dbintfs\pprometdbintfs.lpk"/>
+        <DefaultFilename Value="..\dbintfs\pprometdbintfs.lpk"/>
       </Item2>
       <Item3>
         <PackageName Value="FCL"/>
