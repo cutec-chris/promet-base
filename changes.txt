@@ -1,4 +1,5 @@
 ﻿Build 403
+      - Processoptionen:Ansicht verbessert, selbst aktualisiereend
       - pScript:kann nun auch Promet Pascal Files ausführen
 Build 402
       - Tabs werden meim neuladen eines Artikels/Projekts/Kontaktes/Auftrages nicht mehr entfernt und neu geladen

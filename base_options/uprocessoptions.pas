@@ -56,8 +56,6 @@ type
     Timer1: TTimer;
     procedure acStartProcessExecute(Sender: TObject);
     procedure acStopProcessExecute(Sender: TObject);
-    procedure Panel1Click(Sender: TObject);
-    procedure ProcessesStateChange(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
   private
     { private declarations }
@@ -83,6 +81,10 @@ begin
       rec := Processes.DataSet.GetBookmark;
       Processes.DataSet.Refresh;
       Processes.DataSet.GotoBookmark(rec);
+      DBMemo1.SelStart := DBMemo1.GetTextLen;
+      DBMemo1.SelLength := 0;
+      DBMemo1.ScrollBy(0, DBMemo1.Lines.Count);
+      DBMemo1.Refresh;
     end;
   Processes.DataSet.EnableControls;
 end;

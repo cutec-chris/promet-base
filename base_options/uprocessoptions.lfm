@@ -186,7 +186,6 @@ inherited fProcessOptions: TfProcessOptions
     ClientHeight = 130
     ClientWidth = 452
     TabOrder = 5
-    OnClick = Panel1Click
     object DBGrid1: TDBGrid
       Left = 0
       Height = 109
@@ -276,7 +275,6 @@ inherited fProcessOptions: TfProcessOptions
     ShowCaption = False
   end
   object Processes: TDataSource[11]
-    OnStateChange = ProcessesStateChange
     left = 32
     top = 232
   end
