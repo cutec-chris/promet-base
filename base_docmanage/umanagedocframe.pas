@@ -1661,20 +1661,17 @@ var
   URL: String;
   aTime: DWORD;
 begin
-  try
-    URL := FURL;
-    with BaseApplication as IBaseApplication do
-      Debug('WaitForImage   :'+URL);
-    aTime := GetTickCount;
-    while (not FileExists(FtempPath+URL)) do
-      begin
-        if GetTickCount-aTime>1000 then break;
-        Application.ProcessMessages;
-      end;
-    with BaseApplication as IBaseApplication do
-      Debug('WaitForImageEnd:'+URL);
-  except
-  end;
+  URL := FURL;
+  with BaseApplication as IBaseApplication do
+    Debug('WaitForImage   :'+URL);
+  aTime := GetTickCount;
+  while (not FileExists(FtempPath+URL)) do
+    begin
+      if GetTickCount-aTime>1000 then break;
+      Application.ProcessMessages;
+    end;
+  with BaseApplication as IBaseApplication do
+    Debug('WaitForImageEnd:'+URL);
 end;
 procedure TfManageDocFrame.RebuidThumb;
 var
@@ -1779,7 +1776,6 @@ begin
   SelectedItem:=nil;
   if BaseApplication.HasOption('disablethreads') then
     ThumbControl1.MultiThreaded:=False;
-  ThumbControl1.OnLoadFile:=@ThumbControl1LoadFile;
   ThumbControl1.BorderStyle:=bsNone;
   DataSet := TDocPagesList.Create(nil);
   FTempPath := uthumbnails.GetThumbTempDir;
@@ -1826,6 +1822,7 @@ var
   aRefThread: TImportCheckThread;
 begin
   FTyp := aType;
+  ThumbControl1.OnLoadFile:=@ThumbControl1LoadFile;
   ThumbControl1.ImageLoaderManager.BeforeStartQueue:=@ThumbControl1ImageLoaderManagerBeforeStartQueue;
   PreviewFrame.ZoomWidth:=aType='D';
   TDocPages(DataSet).Typ:=aType;

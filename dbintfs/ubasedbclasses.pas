@@ -2884,7 +2884,10 @@ begin
       with FDataSet as IBaseManageDB do
         UseIntegrity := FUseIntegrity;
       with FDataSet as IBaseDBFilter do
-        Limit := 100;
+        begin
+          Limit := 100;
+          FetchRows:=20;
+        end;
     end;
 end;
 constructor TBaseDBDataset.CreateEx(aOwner: TComponent; DM: TComponent;
