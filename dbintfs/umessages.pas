@@ -358,11 +358,15 @@ begin
             Add('DRAFT',ftString,1,False);
             Add('FLAGGED',ftString,1,False);
             Add('SENDER',ftString,100,True);
-            Add('RECEIVERS',ftMemo,0,False);
             Add('REPLYTO',ftMemo,0,False);
             Add('SENDDATE',ftDateTime,0,True);
             Add('ANSWERED',ftDateTime,0,False);
             Add('SUBJECT',ftString,220,false);
+            Add('RECEIVERS',ftString,440,False);
+            Add('CC',ftString,440,False);
+            Add('BCC',ftString,440,False);
+            Add('CONTENTTYP',ftString,50,False);
+            Add('PRIORITY',ftInteger,0,False);
             Add('PARENT',ftLargeint,0,False);
             Add('LINES',ftInteger,0,False);
             Add('GRP_FLAGS',ftInteger,0,False); //Compiled Flags for faster access
@@ -373,6 +377,7 @@ begin
           begin
             Add('ID','ID',[]);
             Add('MSG_ID','MSG_ID',[]);
+            Add('GRP_ID','GRP_ID',[]);
             Add('USER','USER',[]);
             Add('PARENT','PARENT',[]);
             Add('TREEENTRY','TREEENTRY',[]);
