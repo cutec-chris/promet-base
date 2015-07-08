@@ -1064,6 +1064,7 @@ begin
           BaseSortFields := 'TIMESTAMPD';
           SortFields := 'TIMESTAMPD';
           SortDirection := sdDescending;
+          Limit:=500;
         end;
     end;
   FStatusCache := TStringList.Create;

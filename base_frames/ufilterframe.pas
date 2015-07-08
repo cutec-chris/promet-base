@@ -174,7 +174,6 @@ type
     procedure gListMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure gListTitleClick(Column: TColumn);
-    procedure ListStateChange(Sender: TObject);
     procedure RefreshTimerTimer(Sender: TObject);
     procedure ReportGetValue(const ParName: String; var ParValue: Variant);
     procedure sbGridsResize(Sender: TObject);
@@ -456,10 +455,6 @@ begin
   UpdateTitle;
   acFilter.Execute;
   DoUpdateTimeLine;
-end;
-
-procedure TfFilter.ListStateChange(Sender: TObject);
-begin
 end;
 
 procedure TfFilter.RefreshTimerTimer(Sender: TObject);
@@ -1136,6 +1131,10 @@ begin
 end;
 procedure TfFilter.DatasetAfterScroll(aDataSet: TDataSet);
 begin
+  if aFullCount > DataSet.Count then
+    pBottom.Caption:=Format(strFullRecordCount,[aFullCount,List.DataSet.RecordCount])
+  else
+    pBottom.Caption:=Format(strRecordCount,[List.DataSet.RecordCount]);
   if Assigned(FOnScrolled) then
     begin
       try

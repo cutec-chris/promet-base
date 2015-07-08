@@ -290,9 +290,7 @@ inherited fFilter: TfFilter
         Top = 5
         Width = 149
         Caption = 'Ergebnisse begrenzen auf  '
-        Checked = True
         OnChange = seMaxresultsChange
-        State = cbChecked
         TabOrder = 0
         TabStop = False
       end
@@ -898,6 +896,10 @@ inherited fFilter: TfFilter
             Command = ecColSelEditorBottom
             ShortCut = 57379
           end>
+        MouseActions = <>
+        MouseTextActions = <>
+        MouseSelActions = <>
+        VisibleSpecialChars = [vscSpace, vscTabAtLast]
         SelectedColor.FrameEdges = sfeAround
         SelectedColor.BackPriority = 50
         SelectedColor.ForePriority = 50
@@ -1309,7 +1311,6 @@ inherited fFilter: TfFilter
     end
   end
   object List: TDataSource[4]
-    OnStateChange = ListStateChange
     left = 32
     top = 96
   end
