@@ -25,7 +25,8 @@ uses
    Forms, StdCtrls, ExtCtrls, Buttons, ComCtrls, DBGrids, Grids,
   Controls, EditBtn, Spin, Menus, ActnList, md5, db, Variants, uIntfStrConsts,
   Dialogs, uExtControls, Graphics, LCLType, uTimeLine, ClipBrd, DbCtrls, math,
-  uBaseDbClasses, uBaseDBInterface, uPrometFrames, uBaseApplication,ugridview,uBaseDatasetInterfaces;
+  uBaseDbClasses, uBaseDBInterface, uPrometFrames, uBaseApplication,ugridview,
+  uBaseDatasetInterfaces,LResources;
 type
   TOnGetCellTextEvent = procedure(Sender: TObject; DataCol: Integer;
               Column: TColumn;var aText : string) of object;
@@ -1908,6 +1909,8 @@ begin
 end;
 
 initialization
+  RegisterPropertyToSkip(TSynMemo, 'MouseTextActions', 'Not available in Laz 1.0', '');
+  RegisterPropertyToSkip(TSynMemo, 'VisibleSpecialChars', 'Not available in Laz 1.0', '');
 
 end.
 
