@@ -205,13 +205,13 @@ begin
   Result := nil;
   aMessage := TMimeMess.Create;
   sl := TStringList.Create;
-  if (not HeaderOnly) or (FieldByName('RECEIVERS').IsNull) then
+  if (not HeaderOnly) or (FieldByName('RECEIVERS').IsNull and FieldByName('PRIORITY').IsNull) then
     begin
       Content.Open;
       if Content.Count=0 then exit;
       sl.Text := Content.DataSet.FieldByName('HEADER').AsString;
       aMessage.Header.DecodeHeaders(sl);
-      if FieldByName('RECEIVERS').IsNull then
+      if (FieldByName('RECEIVERS').IsNull and FieldByName('PRIORITY').IsNull) then
         begin
           Edit;
           FillHeaderFields(aMessage);
