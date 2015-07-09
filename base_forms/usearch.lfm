@@ -260,7 +260,7 @@ object fSearch: TfSearch
       OnChange = seMaxresultsChange
       TabStop = False
       TabOrder = 5
-      Value = 10
+      Value = 50
     end
     object cbMaxResults: TCheckBox
       Left = 358
@@ -269,9 +269,7 @@ object fSearch: TfSearch
       Width = 166
       Anchors = [akTop, akRight]
       Caption = 'Anzahl Ergebnisse pro Suchtyp'
-      Checked = True
       OnChange = seMaxresultsChange
-      State = cbChecked
       TabOrder = 2
       TabStop = False
     end

@@ -162,6 +162,8 @@ uses uBaseDBInterface,uBaseApplication,uBaseVisualControls,uFormAnimate,
 resourcestring
   strSearchfromOrderMode        = 'Diese Suche wurde aus der Vorgangsverwaltung gestartet, wenn Sie einen Eintrag öffnen wird dieser automatisch in den aktuellen Vorgang übernommen.';
   strDoSearch                   = 'suchen';
+  strPersonSearch               = 'Kontakte,Kontaktdaten,Adressen';
+  strArticleSearch              = 'Artikel,Projekte';
 procedure TfSearch.bCloseClick(Sender: TObject);
 begin
   Close;
@@ -317,15 +319,7 @@ var
   sl: TStringList;
 begin
   fSearch.SetLanguage;
-  i := 0;
-  while i < fSearch.cbSearchType.Items.Count do
-    begin
-      if  (fSearch.cbSearchType.Items[i] <> strUsers)
-      and (fSearch.cbSearchType.Items[i] <> strCustomers) then
-        fSearch.cbSearchType.Items.Delete(i)
-      else
-        inc(i);
-    end;
+  AllowSearchTypes(strUsers+','+strCustomers);
   fSearch.eContains.Clear;
   fSearch.sgResults.RowCount:=1;
   fSearch.OnOpenItem:=@fSearchOpenUserItem;
@@ -350,6 +344,7 @@ var
   SearchTypes : TFullTextSearchTypes = [];
   SearchLocations : TSearchLocations;
   i: Integer;
+  aItems: TSearchLocations;
 begin
   if (bSearch.Caption = strAbort) then
     begin
@@ -375,12 +370,16 @@ begin
     if cbSearchIn.Items.IndexOf(uBaseSearch.SearchLocations[i]) >= 0 then
       if cbSearchIn.Checked[cbSearchIn.Items.IndexOf(uBaseSearch.SearchLocations[i])] then
         SearchTypes := SearchTypes+[TFullTextSearchType(i)];
-  for i := 0 to cbSearchtype.Items.Count-1 do
-    if cbSearchtype.ItemIndex=i then
-      begin
-        SetLength(SearchLocations,length(SearchLocations)+1);
-        SearchLocations[length(SearchLocations)-1] := cbSearchType.Items[i];
-      end;
+  aItems := GetSearchAbleItems;
+  if cbSearchType.ItemIndex>-1 then
+    begin
+      for i := 0 to length(aItems)-1 do
+        if pos(aItems[i],cbSearchtype.Items[cbSearchType.ItemIndex])>0 then
+          begin
+            SetLength(SearchLocations,length(SearchLocations)+1);
+            SearchLocations[length(SearchLocations)-1] := aItems[i];
+          end;
+    end;
   if SearchLevel=0 then
     sgResults.RowCount := sgResults.FixedRows;
   ActCount := sgResults.RowCount;
@@ -565,7 +564,9 @@ begin
       else
         begin
           cbMaxresults.Checked := true;
-          seMaxResults.Value:=DBConfig.ReadInteger('SEARCHMAXRESULTS',10);
+          seMaxresults.Tag:=1;
+          seMaxResults.Value:=DBConfig.ReadInteger('SEARCHMAXRESULTS',50);
+          seMaxresults.Tag:=0;
         end;
       cbWildgards.Checked:=DBConfig.ReadString('WILDGARDSEARCH','NO') = 'YES';
       eContains.SetFocus;
@@ -633,9 +634,10 @@ begin
       if cbMaxresults.Checked then
         DBConfig.WriteInteger('SEARCHMAXRESULTS',seMaxResults.Value)
       else
-        DBConfig.WriteString('SEARCHMAXRESULTS','10');
+        DBConfig.WriteString('SEARCHMAXRESULTS','50');
     end;
-  DoSearch(nil);
+  if seMaxresults.Tag=0 then
+    DoSearch(nil);
 end;
 procedure TfSearch.sgResultsDblClick(Sender: TObject);
 begin
@@ -759,6 +761,8 @@ procedure TfSearch.SetLanguage;
 var
   aLocations: TSearchLocations;
   i: Integer;
+  found: Boolean;
+  a: Integer;
 begin
   if not Assigned(fSearch) then
     begin
@@ -778,9 +782,16 @@ begin
     end;
   aLocations := GetSearchAbleItems;
   cbSearchtype.Items.Clear;
+  cbSearchType.Items.Add(strPersonSearch);
+  cbSearchType.Items.Add(strArticleSearch);
   for i := 0 to length(aLocations)-1 do
     begin
-      cbSearchType.Items.Add(aLocations[i]);
+      found := false;
+      for a := 0 to cbSearchType.Items.Count-1 do
+        if pos(aLocations[i],cbSearchType.items[a])>0 then
+          found := True;
+      if not Found then
+        cbSearchType.Items.Add(aLocations[i]);
     end;
   OnValidateItem:=nil;
 end;
