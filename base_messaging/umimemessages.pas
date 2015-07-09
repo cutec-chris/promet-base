@@ -27,6 +27,9 @@ uses
   uDocuments, uBaseDbClasses, Variants, db, synacode, synachar,
   zipper,uminiconvencoding;
 type
+
+  { TMimeMessage }
+
   TMimeMessage = class(TMessage)
     procedure DataSetContentDataSetDataSetmsgMessagePartWalkPart(
       const Sender: TMimePart);
@@ -35,8 +38,9 @@ type
     HtmlThere : Boolean;
     procedure MailAddressesFromString(aSource: string; aTarget: TStrings);
   public
-    function EncodeMessage : TMimeMess;
+    function EncodeMessage(HeaderOnly : Boolean = False) : TMimeMess;
     procedure DecodeMessage(msg : TMimeMess);
+    procedure FillHeaderFields(msg : TMimeMess);
   end;
   function GetmailAddr(aIn : string) : string;
 implementation
@@ -185,7 +189,7 @@ begin
   if pos('@',tmp) > 0 then
     aTarget.Add(tmp);
 end;
-function TMimeMessage.EncodeMessage: TMimeMess;
+function TMimeMessage.EncodeMessage(HeaderOnly: Boolean): TMimeMess;
 var
   aMessage: TMimeMess;
   sl: TStringList;
@@ -201,13 +205,34 @@ begin
   Result := nil;
   aMessage := TMimeMess.Create;
   sl := TStringList.Create;
-  Content.Open;
-  if Content.Count=0 then exit;
-  sl.Text := Content.DataSet.FieldByName('HEADER').AsString;
-  aMessage.Header.DecodeHeaders(sl);
+  if (not HeaderOnly) or (FieldByName('RECEIVERS').IsNull and FieldByName('PRIORITY').IsNull) then
+    begin
+      Content.Open;
+      if Content.Count=0 then exit;
+      sl.Text := Content.DataSet.FieldByName('HEADER').AsString;
+      aMessage.Header.DecodeHeaders(sl);
+      if (FieldByName('RECEIVERS').IsNull and FieldByName('PRIORITY').IsNull) then
+        begin
+          Edit;
+          FillHeaderFields(aMessage);
+          Post;
+        end;
+    end
+  else
+    begin
+      aMessage.Header.Date:=FieldByName('SENDDATE').AsDateTime;
+      aMessage.Header.CCList.Text:=FieldByName('CC').AsString;
+      aMessage.Header.MessageID:=FieldByName('ID').AsString;
+      case FieldByName('PRIORITY').AsInteger of
+      1..2:aMessage.Header.Priority:=MP_high;
+      3..5:aMessage.Header.Priority:=MP_low;
+      else
+        aMessage.Header.Priority:=MP_unknown;
+      end;
+      with BaseApplication as IBaseApplication do
+        aMessage.Header.XMailer := Appname+' '+StringReplace(Format('Version %f Build %d',[AppVersion,AppRevision]),',','.',[rfReplaceAll]);
+    end;
   aMessage.Header.CharsetCode:=UTF_8;
-  with BaseApplication as IBaseApplication do
-    aMessage.Header.XMailer := Appname+' '+StringReplace(Format('Version %f Build %d',[AppVersion,AppRevision]),',','.',[rfReplaceAll]);
   aMessage.Header.From := DataSet.FieldByName('SENDER').AsString;
   aMessage.Header.Date := DataSet.FieldByName('SENDDATE').AsDateTime;
   if not DataSet.FieldByName('REPLYTO').IsNull then
@@ -225,84 +250,88 @@ begin
     end;
   aMessage.Header.Subject := CharsetConversion(DataSet.FieldByName('SUBJECT').AsString,UTF_8,amessage.Header.CharsetCode);
   aMessage.Header.MessageID := DataSet.FieldByName('ID').AsString;
-  MailAddressesFromString(Content.DataSet.FieldByName('RECEIVERS').AsString,aMessage.Header.ToList);
-  if Content.Count > 0 then
+  MailAddressesFromString(DataSet.FieldByName('RECEIVERS').AsString,aMessage.Header.ToList);
+  if (not HeaderOnly) then
     begin
-      if not Documents.DataSet.Active then
-        Documents.CreateTable;
-      if not Content.Id.IsNull then
-        Documents.Select(Content.Id.AsVariant,'N',DataSet.FieldByName('ID').AsString,Null,Null)
-      else
-        Documents.Select(0);
-      Documents.Open;
-      if (Content.DataSet.FieldByName('DATATYP').AsString = 'PLAIN') and (Documents.Count = 0) then
+      Content.Open;
+      if (Content.Count > 0) then
         begin
-          ss := TStringStream.Create('');
-          Data.BlobFieldToStream(Content.DataSet,'DATA',ss);
-          ss.Position := 0;
-          tmp := ss.DataString;
-          sl.Text:=tmp;
-          aMessage.AddPartTextEx(sl,nil,UTF_8,True,ME_QUOTED_PRINTABLE);
-//          aMessage.AddPartText(sl,nil);
-          ss.Free;
-        end
-      else
-        begin
-          ss := TStringStream.Create('');
-          Data.BlobFieldToStream(Content.DataSet,'DATA',ss);
-          ss.Position := 0;
-          tmp := ss.DataString;
-          sl.Text:=tmp;
-          MP := aMessage.AddPartMultipart('mixed', nil);
-          if Content.DataSet.FieldByName('DATATYP').AsString = 'PLAIN' then
-            aMessage.AddPartTextEx(sl,MP,UTF_8,True,ME_QUOTED_PRINTABLE)
-          else if Content.DataSet.FieldByName('DATATYP').AsString = 'HTML' then
+          if not Documents.DataSet.Active then
+            Documents.CreateTable;
+          if not Content.Id.IsNull then
+            Documents.Select(Content.Id.AsVariant,'N',DataSet.FieldByName('ID').AsString,Null,Null)
+          else
+            Documents.Select(0);
+          Documents.Open;
+          if (Content.DataSet.FieldByName('DATATYP').AsString = 'PLAIN') and (Documents.Count = 0) then
             begin
+              ss := TStringStream.Create('');
+              Data.BlobFieldToStream(Content.DataSet,'DATA',ss);
+              ss.Position := 0;
               tmp := ss.DataString;
-              aEncoding := GuessEncoding(tmp);
-              if pos('ENCODING',Uppercase(tmp)) = 0 then
-                tmp := ConvertEncoding(tmp,aEncoding,EncodingAnsi);
-              sl.Text:= tmp;
-              aPart := aMessage.AddPartHTML(sl,MP);
-            end;
-          while not Documents.DataSet.EOF do
+              sl.Text:=tmp;
+              aMessage.AddPartTextEx(sl,nil,UTF_8,True,ME_QUOTED_PRINTABLE);
+    //          aMessage.AddPartText(sl,nil);
+              ss.Free;
+            end
+          else
             begin
-              if Documents.DataSet.FieldByName('ISDIR').AsString <> 'Y' then
+              ss := TStringStream.Create('');
+              Data.BlobFieldToStream(Content.DataSet,'DATA',ss);
+              ss.Position := 0;
+              tmp := ss.DataString;
+              sl.Text:=tmp;
+              MP := aMessage.AddPartMultipart('mixed', nil);
+              if Content.DataSet.FieldByName('DATATYP').AsString = 'PLAIN' then
+                aMessage.AddPartTextEx(sl,MP,UTF_8,True,ME_QUOTED_PRINTABLE)
+              else if Content.DataSet.FieldByName('DATATYP').AsString = 'HTML' then
                 begin
-                  aDocument := TDocument.CreateEx(Self,Data);
-                  aDocument.SelectByNumber(Documents.DataSet.FieldByName('NUMBER').AsInteger);
-                  aDocument.Open;
-                  if aDocument.Count>0 then
-                    begin
-                      aDocument.DataSet.Last;
-                      aMimePart := aMessage.AddPart(MP);
-                      with aMimePart do
-                        begin
-                          //-TODO: goto last revision
-                          aDocument.CheckoutToStream(DecodedLines);
-                          DecodedLines.Position:=0;
-                          FileName := aDocument.DataSet.FieldByName('NAME').AsString+'.'+aDocument.DataSet.FieldByName('EXTENSION').AsString;
-                          MimeTypeFromExt(FileName);
-                          Description := 'Attached file: ' + FileName;
-                          ss := TStringStream.Create('');
-                          Data.BlobFieldToStream(aDocument.DataSet,'FULLTEXT',ss);
-                          if length(ss.DataString)<20 then
-                            ContentID := ss.DataString;
-                          ss.Destroy;
-                          if ContentId='' then
-                            Disposition := 'attachment'
-                          else
-                            Disposition := 'inline';
-                          FileName := FileName;
-                          EncodingCode := ME_BASE64;
-                          EncodePart;
-                          EncodePartHeader;
-                        end;
-                    end;
-                  aDocument.Destroy;
-                  Documents.DataSet.Next;
+                  tmp := ss.DataString;
+                  aEncoding := GuessEncoding(tmp);
+                  if pos('ENCODING',Uppercase(tmp)) = 0 then
+                    tmp := ConvertEncoding(tmp,aEncoding,EncodingAnsi);
+                  sl.Text:= tmp;
+                  aPart := aMessage.AddPartHTML(sl,MP);
                 end;
-           end;
+              while not Documents.DataSet.EOF do
+                begin
+                  if Documents.DataSet.FieldByName('ISDIR').AsString <> 'Y' then
+                    begin
+                      aDocument := TDocument.CreateEx(Self,Data);
+                      aDocument.SelectByNumber(Documents.DataSet.FieldByName('NUMBER').AsInteger);
+                      aDocument.Open;
+                      if aDocument.Count>0 then
+                        begin
+                          aDocument.DataSet.Last;
+                          aMimePart := aMessage.AddPart(MP);
+                          with aMimePart do
+                            begin
+                              //-TODO: goto last revision
+                              aDocument.CheckoutToStream(DecodedLines);
+                              DecodedLines.Position:=0;
+                              FileName := aDocument.DataSet.FieldByName('NAME').AsString+'.'+aDocument.DataSet.FieldByName('EXTENSION').AsString;
+                              MimeTypeFromExt(FileName);
+                              Description := 'Attached file: ' + FileName;
+                              ss := TStringStream.Create('');
+                              Data.BlobFieldToStream(aDocument.DataSet,'FULLTEXT',ss);
+                              if length(ss.DataString)<20 then
+                                ContentID := ss.DataString;
+                              ss.Destroy;
+                              if ContentId='' then
+                                Disposition := 'attachment'
+                              else
+                                Disposition := 'inline';
+                              FileName := FileName;
+                              EncodingCode := ME_BASE64;
+                              EncodePart;
+                              EncodePartHeader;
+                            end;
+                        end;
+                      aDocument.Destroy;
+                      Documents.DataSet.Next;
+                    end;
+               end;
+            end;
         end;
     end;
   sl.Free;
@@ -310,17 +339,20 @@ begin
   if Assigned(result) then
     begin
       aMessage.Encodemessage;
-      try
-        if (Self.DataSet.FieldByName('LINES').IsNull) and (not Self.DataSet.FieldByName('USER').IsNull) then
-          begin
-            if not Self.CanEdit then
-              Self.DataSet.Edit;
-            Self.DataSet.FieldbyName('LINES').AsInteger := aMessage.Lines.Count;
-            Self.DataSet.FieldbyName('SIZE').AsInteger := length(aMessage.Lines.text);
-            Self.DataSet.Post;
+      if not HeaderOnly then
+        begin
+          try
+            if (Self.DataSet.FieldByName('LINES').IsNull) and (not Self.DataSet.FieldByName('USER').IsNull) then
+              begin
+                if not Self.CanEdit then
+                  Self.DataSet.Edit;
+                Self.DataSet.FieldbyName('LINES').AsInteger := aMessage.Lines.Count;
+                Self.DataSet.FieldbyName('SIZE').AsInteger := length(aMessage.Lines.text);
+                Self.DataSet.Post;
+              end;
+          except
           end;
-      except
-      end;
+        end;
     end;
 end;
 procedure TMimeMessage.DecodeMessage(msg: TMimeMess);
@@ -381,6 +413,7 @@ begin
             end;
           aMsgList.Destroy;
         end;
+      FillHeaderFields(msg);
       Post;
       Edit;
       Content.Open;
@@ -411,6 +444,17 @@ begin
             Content.DataSet.Post;
         end;
     end;
+end;
+
+procedure TMimeMessage.FillHeaderFields(msg: TMimeMess);
+begin
+  FieldbyName('RECEIVERS').AsString := msg.Header.ToList.text;
+  FieldbyName('CC').AsString := msg.Header.CcList.text;
+  case msg.Header.Priority of
+  MP_unknown:FieldByName('PRIORITY').AsInteger:=0;
+  MP_low:FieldByName('PRIORITY').AsInteger:=5;
+  MP_high:FieldByName('PRIORITY').AsInteger:=1;
+  end;
 end;
 
 end.
