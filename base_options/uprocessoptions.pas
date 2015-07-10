@@ -75,6 +75,8 @@ procedure TfProcessOptions.Timer1Timer(Sender: TObject);
 var
   rec: TBookmark;
 begin
+  if Data.ProcessClient.Processes.CanEdit then exit;
+  if Data.ProcessClient.Processes.Parameters.CanEdit then exit;
   Processes.DataSet.DisableControls;
   if Processes.DataSet.Active then
     begin

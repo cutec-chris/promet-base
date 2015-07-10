@@ -305,6 +305,7 @@ inherited fProcessOptions: TfProcessOptions
   end
   object Timer1: TTimer[15]
     Enabled = False
+    Interval = 3000
     OnTimer = Timer1Timer
     left = 88
     top = 184
