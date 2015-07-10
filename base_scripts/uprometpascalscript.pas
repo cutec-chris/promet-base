@@ -421,12 +421,14 @@ begin
             RegisterMethod('constructor Create(aOwner : TComponent);');
             RegisterProperty('History','TBaseHistory',iptR);
             RegisterProperty('Dependencies','TDependencies',iptR);
+            RegisterMethod('function Terminate(aEarliest : TDateTime;var aStart,aEnd,aDuration : TDateTime;IgnoreDepend : Boolean) : Boolean;');
           end;
         with Sender.ClassImporter.Add(TTaskList) do
           begin
             RegisterConstructor(@TTaskList.Create,'CREATE');
             RegisterPropertyHelper(@TBaseDbListPropertyHistoryR,nil,'HISTORY');
             RegisterPropertyHelper(@TBaseDbListPropertyDependenciesR,nil,'DEPENDENCIES');
+            RegisterMethod(@TTaskList.Terminate,'TERMINATE');
           end;
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TTaskList'),TTask) do
           begin
