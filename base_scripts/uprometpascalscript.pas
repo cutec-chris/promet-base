@@ -107,6 +107,7 @@ procedure TProjectPropertyPositionsR(Self : TProject;var T : TProjectPositions);
 procedure TObjectPropertyMeasurementsR(Self : TObjects;var T : TMeasurement);begin T := Self.Measurements; end;
 procedure TMasterdataPropertyMeasurementsR(Self : TMasterdata;var T : TMeasurement);begin T := Self.Measurements; end;
 procedure TProjectPropertyMeasurementsR(Self : TProject;var T : TMeasurement);begin T := Self.Measurements; end;
+procedure TBaseDbListPropertyDependenciesR(Self : TTaskList;var T : TDependencies);begin T := Self.Dependencies; end;
 
 
 function TPrometPascalScript.TPascalScriptUses(Sender: TPascalScript;
@@ -407,15 +408,25 @@ begin
         with Sender.ClassImporter.Add(TProjectPositions) do
           begin
           end;
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbDataSet'),TDependencies) do
+          begin
+            RegisterMethod('procedure Add(aLink : string);');
+          end;
+        with Sender.ClassImporter.Add(TDependencies) do
+          begin
+            RegisterMethod(@TDependencies.Add,'ADD');
+          end;
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBList'),TTaskList) do
           begin
             RegisterMethod('constructor Create(aOwner : TComponent);');
             RegisterProperty('History','TBaseHistory',iptR);
+            RegisterProperty('Dependencies','TDependencies',iptR);
           end;
         with Sender.ClassImporter.Add(TTaskList) do
           begin
             RegisterConstructor(@TTaskList.Create,'CREATE');
             RegisterPropertyHelper(@TBaseDbListPropertyHistoryR,nil,'HISTORY');
+            RegisterPropertyHelper(@TBaseDbListPropertyDependenciesR,nil,'DEPENDENCIES');
           end;
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TTaskList'),TTask) do
           begin
