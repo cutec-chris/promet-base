@@ -449,6 +449,7 @@ begin
           end;
         with Sender.ClassImporter.Add(TProject) do
           begin
+            RegisterConstructor(@TProject.Create,'CREATE');
             RegisterPropertyHelper(@TBaseDbListPropertyHistoryR,nil,'HISTORY');
             RegisterPropertyHelper(@TProjectsTasksR,nil,'TASKS');
             RegisterPropertyHelper(@TProjectPropertyPositionsR,nil,'POSITIONS');
