@@ -1,6 +1,8 @@
 ﻿Build 403
       - Processoptionen:Ansicht verbessert, selbst aktualisiereend
       - pScript:kann nun auch Promet Pascal Files ausführen
+      - IMAP Server:mehrere Geschwindigkeits Verbesserungen
+      - Layoutanpassung (höhere Tabs)
 Build 402
       - Tabs werden meim neuladen eines Artikels/Projekts/Kontaktes/Auftrages nicht mehr entfernt und neu geladen
       - Vorschau:auf Reports korrigiert
