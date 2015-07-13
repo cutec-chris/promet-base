@@ -133,10 +133,10 @@ end;
 
 procedure TfRichFrame.AcFontBoldExecute(Sender: TObject);
 begin
-  if AcFontBold.Checked then Include(actAttributes.Style, fsBold);
-  if AcFontItalic.Checked then Include(actAttributes.Style, fsItalic);
-  if AcFontStrikeout.Checked then Include(actAttributes.Style, fsStrikeout);
-  if AcFontUnderline.Checked then Include(actAttributes.Style, fsUnderline);
+  if AcFontBold.Checked then Include(actAttributes.Style, fsBold) else Exclude(actAttributes.Style, fsBold);
+  if AcFontItalic.Checked then Include(actAttributes.Style, fsItalic) else Exclude(actAttributes.Style, fsItalic);
+  if AcFontStrikeout.Checked then Include(actAttributes.Style, fsStrikeout) else Exclude(actAttributes.Style, fsStrikeOut);
+  if AcFontUnderline.Checked then Include(actAttributes.Style, fsUnderline) else Exclude(actAttributes.Style, fsUnderline);
   if AcLeftAlign.Checked then actAlignment := paLeft;
   if AcRightAlign.Checked then actAlignment := paRight;
   if AcHorCenterAlign.Checked then actAlignment := paCenter;
