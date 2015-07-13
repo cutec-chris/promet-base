@@ -22,40 +22,75 @@ unit urichframe;
 interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Dialogs, Buttons, Spin,
-  ActnList, RichMemo,FontComboBox,Graphics;
+  ActnList, RichMemo,FontComboBox,Graphics, ComCtrls, StdCtrls, ColorBox;
 
 type
+
+  { TfRichFrame }
+
   TfRichFrame = class(TFrame)
     acBold: TAction;
+    AcBorderHCenter: TAction;
+    AcBorderLeft: TAction;
+    AcBorderNone: TAction;
+    AcBorderRight: TAction;
+    AcBorderTop: TAction;
+    AcFont: TAction;
+    AcFontBold: TAction;
+    AcFontItalic: TAction;
+    AcFontStrikeout: TAction;
+    AcFontUnderline: TAction;
+    AcHorCenterAlign: TAction;
+    AcHorDefaultAlign: TAction;
     acItalic: TAction;
+    AcLeftAlign: TAction;
+    AcNew: TAction;
+    AcOpen: TAction;
+    AcQuit: TAction;
+    AcRightAlign: TAction;
+    AcSaveAs: TAction;
     acStrikeOut: TAction;
     ActionList: TActionList;
+    ActionList1: TActionList;
     acUnderline: TAction;
-    bBold: TSpeedButton;
-    bItalic: TSpeedButton;
-    bStrikeout: TSpeedButton;
-    bUnderline: TSpeedButton;
-    cbFontColor: TColorButton;
+    AcVAlignBottom: TAction;
+    AcVAlignCenter: TAction;
+    AcVAlignDefault: TAction;
+    AcVAlignTop: TAction;
+    FontComboBox: TComboBox;
+    FontDialog: TFontDialog;
+    FontSizeComboBox: TComboBox;
+    FormatToolBar: TToolBar;
+    ImageList: TImageList;
     rmText: TRichMemo;
-    seFontSize: TSpinEdit;
+    ToolButton10: TToolButton;
+    ToolButton11: TToolButton;
+    ToolButton12: TToolButton;
+    ToolButton13: TToolButton;
+    ToolButton14: TToolButton;
+    ToolButton15: TToolButton;
+    ToolButton19: TToolButton;
+    ToolButton21: TToolButton;
+    ToolButton26: TToolButton;
+    ToolButton7: TToolButton;
+    ToolButton8: TToolButton;
+    ToolButton9: TToolButton;
+    procedure AcFontBoldExecute(Sender: TObject);
+    procedure AcFontExecute(Sender: TObject);
+    procedure FontComboBoxSelect(Sender: TObject);
+    procedure FontSizeComboBoxSelect(Sender: TObject);
     procedure rmTextExit(Sender: TObject);
-    procedure acBoldExecute(Sender: TObject);
-    procedure acItalicExecute(Sender: TObject);
-    procedure acStrikeOutExecute(Sender: TObject);
-    procedure acUnderlineExecute(Sender: TObject);
     procedure cbFontChange(Sender: TObject);
-    procedure cbFontColorColorChanged(Sender: TObject);
     function GetPlainText: string;
     function GetReadOnly: Boolean;
     function GetRichText: string;
     procedure PositionChanged;
     procedure rmTextClick(Sender: TObject);
     procedure rmTextKeyPress(Sender: TObject; var Key: char);
-    procedure seFontSizeChange(Sender: TObject);
   private
     actAttributes: TFontParams;
+    actAlignment: TParaAlignment;
     OldSelStart : Integer;
-    cbFont : TFontComboBox;
     FRichText : string;
     procedure SetPlainText(const AValue: string);
     procedure SetReadOnly(const AValue: Boolean);
@@ -96,57 +131,62 @@ begin
   {$ENDIF}
 end;
 
-procedure TfRichFrame.acBoldExecute(Sender: TObject);
+procedure TfRichFrame.AcFontBoldExecute(Sender: TObject);
 begin
-  acBold.Checked:=not acBold.Checked;
-  if acBold.Checked then
-    actAttributes.Style:=actAttributes.Style+[fsBold]
-  else
-    actAttributes.Style:=actAttributes.Style-[fsBold];
+  if AcFontBold.Checked then Include(actAttributes.Style, fsBold);
+  if AcFontItalic.Checked then Include(actAttributes.Style, fsItalic);
+  if AcFontStrikeout.Checked then Include(actAttributes.Style, fsStrikeout);
+  if AcFontUnderline.Checked then Include(actAttributes.Style, fsUnderline);
+  if AcLeftAlign.Checked then actAlignment := paLeft;
+  if AcRightAlign.Checked then actAlignment := paRight;
+  if AcHorCenterAlign.Checked then actAlignment := paCenter;
+  rmText.SetParaAlignment(rmText.SelStart,rmText.SelLength,actAlignment);
   rmText.SetTextAttributes(rmText.SelStart,rmText.SelLength,actAttributes);
 end;
 
-procedure TfRichFrame.acItalicExecute(Sender: TObject);
+procedure TfRichFrame.AcFontExecute(Sender: TObject);
 begin
-  acItalic.Checked:=not acItalic.Checked;
-  if acItalic.Checked then
-    actAttributes.Style:=actAttributes.Style+[fsItalic]
-  else
-    actAttributes.Style:=actAttributes.Style-[fsItalic];
-  rmText.SetTextAttributes(rmText.SelStart,rmText.SelLength,actAttributes);
+  FontDialog.Font.Name:=actAttributes.Name;
+  FontDialog.Font.Style:=actAttributes.Style;
+  FontDialog.Font.Size:=actAttributes.Size;
+  if FontDialog.Execute then
+    begin
+      actAttributes.Name:=FontDialog.Font.Name;
+      actAttributes.Size:=FontDialog.Font.Size;
+      actAttributes.Style:=FontDialog.Font.Style;
+      rmText.SetTextAttributes(rmText.SelStart,rmText.SelLength,actAttributes);
+    end;
 end;
 
-procedure TfRichFrame.acStrikeOutExecute(Sender: TObject);
+procedure TfRichFrame.FontComboBoxSelect(Sender: TObject);
+var
+  aname: String;
 begin
-  acStrikeout.Checked:=not acStrikeout.Checked;
-  if acStrikeout.Checked then
-    actAttributes.Style:=actAttributes.Style+[fsStrikeout]
-  else
-    actAttributes.Style:=actAttributes.Style-[fsStrikeout];
-  rmText.SetTextAttributes(rmText.SelStart,rmText.SelLength,actAttributes);
+  aname := FontCombobox.Items[FontCombobox.ItemIndex];
+  if aname <> '' then
+    begin
+      actAttributes.Name:=aname;
+      rmText.SetTextAttributes(rmText.SelStart,rmText.SelLength,actAttributes);
+    end;
 end;
 
-procedure TfRichFrame.acUnderlineExecute(Sender: TObject);
+procedure TfRichFrame.FontSizeComboBoxSelect(Sender: TObject);
+var
+  aname: String;
 begin
-  acUnderline.Checked:=not acUnderline.Checked;
-  if acUnderline.Checked then
-    actAttributes.Style:=actAttributes.Style+[fsUnderline]
-  else
-    actAttributes.Style:=actAttributes.Style-[fsUnderline];
-  rmText.SetTextAttributes(rmText.SelStart,rmText.SelLength,actAttributes);
+  aname := FontSizeComboBox.Items[FontSizeComboBox.ItemIndex];
+  if aname <> '' then
+    begin
+      actAttributes.Size:=StrToInt(aname);
+      rmText.SetTextAttributes(rmText.SelStart,rmText.SelLength,actAttributes);
+    end;
 end;
 
 procedure TfRichFrame.cbFontChange(Sender: TObject);
 begin
-  actAttributes.Name := cbFont.Text;
+  actAttributes.Name := FontComboBox.Text;
   rmText.SetTextAttributes(rmText.SelStart,rmText.SelLength,actAttributes);
   rmText.SetFocus;
-end;
-
-procedure TfRichFrame.cbFontColorColorChanged(Sender: TObject);
-begin
-  actAttributes.Color := cbFontColor.ButtonColor;
-  rmText.SetTextAttributes(rmText.SelStart,rmText.SelLength,actAttributes);
 end;
 
 procedure TfRichFrame.rmTextKeyPress(Sender: TObject; var Key: char);
@@ -154,13 +194,6 @@ begin
   if rmText.SelStart <> OldSelStart then
     PositionChanged;
   rmText.Invalidate;
-end;
-
-procedure TfRichFrame.seFontSizeChange(Sender: TObject);
-begin
-  actAttributes.Size := seFontSize.Value;
-  rmText.SetTextAttributes(rmText.SelStart,rmText.SelLength,actAttributes);
-  rmText.SetFocus;
 end;
 
 function TfRichFrame.GetPlainText: string;
@@ -174,15 +207,17 @@ end;
 procedure TfRichFrame.PositionChanged;
 begin
   rmText.GetTextAttributes(rmText.SelStart, actAttributes);
-  if actAttributes.Color <> cbFontColor.ButtonColor then
-    cbFontColor.ButtonColor := actAttributes.Color;
-  acBold.Checked := fsBold in actAttributes.Style;
-  bItalic.Down := fsItalic in actAttributes.Style;
-  bUnderline.Down := fsUnderline in actAttributes.Style;
-  bStrikeout.Down := fsStrikeOut in actAttributes.Style;
+  actAlignment := rmText.GetParaAlignment(rmText.SelStart);
+  acFontBold.Checked := fsBold in actAttributes.Style;
+  AcFontItalic.Checked := fsItalic in actAttributes.Style;
+  AcFontUnderline.Checked := fsUnderline in actAttributes.Style;
+  AcFontStrikeout.Checked := fsStrikeOut in actAttributes.Style;
+  AcLeftAlign.Checked:=actAlignment=paLeft;
+  AcRightAlign.Checked:=actAlignment=paRight;
+  AcHorCenterAlign.Checked:=actAlignment=paCenter;
   OldSelStart := rmText.SelStart;
-  seFontSize.Value := actAttributes.Size;
-  cbFont.Text:=ActAttributes.Name;
+  FontSizeComboBox.Text := IntToStr(actAttributes.Size);
+  FontComboBox.Text:=ActAttributes.Name;
 end;
 
 procedure TfRichFrame.SetReadOnly(const AValue: Boolean);
@@ -228,13 +263,7 @@ constructor TfRichFrame.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FRichText := '';
-  cbFont := TFontComboBox.Create(Self);
-  cbFont.Parent := Self;
-  cbFont.Left := 168;
-  cbFont.Width := 160;
-  cbFont.Top := 5;
-  cbFont.UseItemFont:=True;
-  cbFont.OnChange:=@cbFontChange;
+  FontCombobox.Items.Assign(Screen.Fonts);
 end;
 
 procedure TfRichFrame.LoadFromStream(Stream: TStream);

@@ -1,4 +1,6 @@
-﻿Build 403
+﻿Build 404
+      -
+Build 403
       - Processoptionen:Ansicht verbessert, selbst aktualisiereend
       - pScript:kann nun auch Promet Pascal Files ausführen
       - IMAP Server:mehrere Geschwindigkeits Verbesserungen
