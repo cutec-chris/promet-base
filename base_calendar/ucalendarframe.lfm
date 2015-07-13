@@ -751,14 +751,14 @@ inherited FCalendarFrame: TFCalendarFrame
         Height = 21
         Hint = 'hier können Sie einen Filter wählen um die Liste einzuschränken'
         Top = 12
-        Width = 357
+        Width = 316
         Anchors = [akTop, akLeft, akRight]
         BorderSpacing.Left = 8
         ItemHeight = 13
         TabOrder = 0
       end
       object bEditFilter: TSpeedButton
-        Left = 366
+        Left = 328
         Height = 21
         Hint = 'zeigt/verbirgt den Filtereditor'
         Top = 12
@@ -1467,6 +1467,9 @@ inherited FCalendarFrame: TFCalendarFrame
             ShortCut = 57379
           end>
         MouseActions = <>
+        MouseTextActions = <>
+        MouseSelActions = <>
+        VisibleSpecialChars = [vscSpace, vscTabAtLast]
         SelectedColor.FrameEdges = sfeAround
         SelectedColor.BackPriority = 50
         SelectedColor.ForePriority = 50

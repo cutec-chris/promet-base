@@ -1,5 +1,6 @@
 ﻿Build 404
-      -
+      - Passwortmanager:Passwort generator hinzugefügt
+      - Frames:von Überlagerungen zwischen Tab Knöpfen und Controls verschoben
 Build 403
       - Processoptionen:Ansicht verbessert, selbst aktualisiereend
       - pScript:kann nun auch Promet Pascal Files ausführen
