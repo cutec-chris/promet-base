@@ -1914,6 +1914,7 @@ var
   aItem: TMenuItem;
 begin
   inherited Create(AOwner);
+  FUseTransactions:=False;
   FGridView := TfGridView.Create(Self);
   FGridView.Parent := Self;
   FIgnoreUser:=False;
