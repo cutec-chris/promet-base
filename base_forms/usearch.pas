@@ -565,7 +565,7 @@ begin
         begin
           cbMaxresults.Checked := true;
           seMaxresults.Tag:=1;
-          seMaxResults.Value:=DBConfig.ReadInteger('SEARCHMAXRESULTS',50);
+          seMaxResults.Value:=DBConfig.ReadInteger('SEARCHMAXRESULTS',10);
           seMaxresults.Tag:=0;
         end;
       cbWildgards.Checked:=DBConfig.ReadString('WILDGARDSEARCH','NO') = 'YES';
@@ -634,7 +634,7 @@ begin
       if cbMaxresults.Checked then
         DBConfig.WriteInteger('SEARCHMAXRESULTS',seMaxResults.Value)
       else
-        DBConfig.WriteString('SEARCHMAXRESULTS','50');
+        DBConfig.WriteString('SEARCHMAXRESULTS','10');
     end;
   if seMaxresults.Tag=0 then
     DoSearch(nil);
