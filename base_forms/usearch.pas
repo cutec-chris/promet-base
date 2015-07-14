@@ -865,6 +865,8 @@ begin
       else
         inc(i);
     end;
+  if cbSearchType.Items.Count=1 then
+    cbSearchType.ItemIndex:=1;
 end;
 
 function TSearchHintWindow.GetDrawTextFlags: Cardinal;
