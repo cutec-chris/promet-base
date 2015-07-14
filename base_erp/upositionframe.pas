@@ -284,7 +284,6 @@ begin
           ActiveSearch.OnEndSearch:=@ActiveSearchEndItemSearch;
           ActiveSearch.Start(SearchString);
           Application.ProcessMessages;
-    //      while ActiveSearch.Active do Application.ProcessMessages;
         end;
     end
   else
