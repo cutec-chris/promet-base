@@ -1106,7 +1106,7 @@ begin
   if FTaskEdit.Execute(Data.BuildLink(FGridView.DataSet.DataSet)) then
     begin
       DataSet.Change;
-      FGridView.Refresh;
+      FGridView.Refresh(True);
     end
   else if acMarkSeen.Visible then
     acMarkSeen.Execute;
