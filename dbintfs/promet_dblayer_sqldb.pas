@@ -2,7 +2,7 @@
   This source is only used to compile and install the package.
  }
 
-unit promet_dblayer_zeos;
+unit promet_dblayer_sqldb;
 
 interface
 
@@ -16,5 +16,5 @@ begin
 end;
 
 initialization
-  RegisterPackage('promet_dblayer_zeos', @Register);
+  RegisterPackage('promet_dblayer_sqldb', @Register);
 end.
