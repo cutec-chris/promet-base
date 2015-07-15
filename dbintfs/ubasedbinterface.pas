@@ -321,9 +321,12 @@ resourcestring
   strEnterAnName                 = 'enter an Name';
   strProjectProcess              = 'Projekt/Prozess';
   strFor                         = 'für';
+var
+  DatabaseLayers : TClassList;
+
 implementation
-uses uZeosDBDM, uBaseApplication, uWiki, uMessages, uprocessmanager,uRTFtoTXT,
-  utask,uPerson,uMasterdata,uProjects,umeeting,uStatistic,usync;
+uses uBaseApplication, uWiki, uMessages, uprocessmanager,uRTFtoTXT,
+  utask,uPerson,uMasterdata,uProjects,umeeting,uStatistic,usync,contnrs;
 
 { TDBConfig }
 
@@ -1797,5 +1800,10 @@ procedure TBaseDBInterface.SetOwner(aOwner: TObject);
 begin
   FOwner := aOwner;
 end;
+
+initialization
+  DataBaseLayers := TClassList.Create;
+finalization
+  DatabaseLayers.Free;
 end.
 
