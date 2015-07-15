@@ -969,6 +969,7 @@ begin
             Add('ID',ftString,40,True);
             Add('VERSION',ftString,20,False);
             Add('LANGUAGE',ftString,3,False);
+            Add('ACTIVE',ftString,1,True);
             Add('STATUS',ftString,4,false);
             Add('BARCODE',ftString,20,False);
             Add('MATCHCODE',ftString,20,False);
@@ -1000,7 +1001,6 @@ begin
             Add('CHDATE',ftDate,0,False);
             Add('CHANGEDBY',ftString,4,False);
             Add('CREATEDBY',ftString,4,true);
-            Add('ACTIVE',ftString,1,True);
           end;
       if Assigned(ManagedIndexdefs) then
         with ManagedIndexDefs do
