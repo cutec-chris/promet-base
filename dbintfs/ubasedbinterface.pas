@@ -24,7 +24,7 @@ uses
   Classes, SysUtils, DB, Typinfo, CustApp, Utils , memds,
   uBaseDbClasses, uIntfStrConsts,syncobjs,
   uBaseSearch,uBaseERPDbClasses,uDocuments,uOrder,Variants,uProcessManagement,
-  rttiutils,uBaseDatasetInterfaces
+  rttiutils,uBaseDatasetInterfaces,contnrs
   ;
 const
   MandantExtension = '.perml';
@@ -190,6 +190,7 @@ type
     function GetConfig: TDBConfig;
     function GetDB: TBaseDBModule;
     function GetLastError: string;
+    function GetTypeName: string;
     function GetMandantName: string;
     function GetMandantPath: string;
     function LoadMandants(aConfigPath : string = '') : Boolean;
@@ -234,6 +235,7 @@ type
     procedure SetOwner(aOwner : TObject);
     function GetDB: TBaseDBModule;
     procedure SetDB(const AValue: TBaseDBModule);
+    function GetTypeName: string;
     destructor Destroy;override;
     procedure DBLogout;
     function GetMandantName: string;
@@ -326,7 +328,7 @@ var
 
 implementation
 uses uBaseApplication, uWiki, uMessages, uprocessmanager,uRTFtoTXT,
-  utask,uPerson,uMasterdata,uProjects,umeeting,uStatistic,usync,contnrs;
+  utask,uPerson,uMasterdata,uProjects,umeeting,uStatistic,usync;
 
 { TDBConfig }
 
@@ -1569,10 +1571,19 @@ procedure TBaseDBInterface.SetMandantPath(AValue: string);
 begin
 end;
 procedure TBaseDBInterface.SetDBTyp(const AValue: string);
+var
+  i: Integer;
 begin
   if (FDbTyp = AValue) and Assigned(FDB) then exit;
   FreeAndNil(FDB);
-  FDB := TZeosDBDM.Create(BaseApplication{,trim(AValue)});
+  for i := 0 to DatabaseLayers.Count-1 do
+    begin
+      FDB := TBaseDBModule(DatabaseLayers).Create(BaseApplication{,trim(AValue)});
+      if copy(AValue,0,length(FDB.GetDBType))<>fDB.GetDBType then
+        FreeAndNil(FDB)
+      else break;
+    end;
+  if not Assigned(FDB) then Exception.Create('Database Layer not supported !');
   FDbTyp := AValue;
 end;
 function TBaseDBInterface.GetDB: TBaseDBModule;
@@ -1583,6 +1594,12 @@ procedure TBaseDBInterface.SetDB(const AValue: TBaseDBModule);
 begin
   FDB := AValue;
 end;
+
+function TBaseDBInterface.GetTypeName: string;
+begin
+  Result := '';
+end;
+
 function TBaseDBInterface.GetConfig: TDBConfig;
 begin
   Result := FConfig;

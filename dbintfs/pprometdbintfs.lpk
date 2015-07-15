@@ -181,34 +181,31 @@
         <UnitName Value="uMeasurement"/>
       </Item42>
     </Files>
-    <RequiredPkgs Count="7">
+    <RequiredPkgs Count="6">
       <Item1>
-        <PackageName Value="zcomponent_nogui"/>
-      </Item1>
-      <Item2>
         <PackageName Value="pthumbnails"/>
         <DefaultFilename Value="..\pthumbnails.lpk"/>
-      </Item2>
-      <Item3>
+      </Item1>
+      <Item2>
         <PackageName Value="wiki2html_pkg"/>
         <DefaultFilename Value="..\base_wiki\wiki2html_pkg.lpk"/>
-      </Item3>
-      <Item4>
+      </Item2>
+      <Item3>
         <PackageName Value="general_nogui"/>
         <DefaultFilename Value="..\..\..\..\general\general_nogui.lpk"/>
-      </Item4>
-      <Item5>
+      </Item3>
+      <Item4>
         <PackageName Value="sql_parser"/>
         <DefaultFilename Value="..\..\components\sqlparser\sql_parser.lpk"/>
-      </Item5>
-      <Item6>
+      </Item4>
+      <Item5>
         <PackageName Value="dexif_package"/>
         <DefaultFilename Value="..\..\components\dexif\dexif_package.lpk"/>
-      </Item6>
-      <Item7>
+      </Item5>
+      <Item6>
         <PackageName Value="laz_synapse"/>
         <DefaultFilename Value="..\..\components\synapse\laz_synapse.lpk"/>
-      </Item7>
+      </Item6>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>
