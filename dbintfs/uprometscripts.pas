@@ -39,6 +39,7 @@ type
     FRlFunc: TStrInFunc;
     FWrFunc: TStrOutFunc;
     FWriFunc: TStrOutFunc;
+    function GetVersion: TField;
     procedure SQLConn;
   protected
     procedure DoSetResults(aRes : string);
@@ -61,6 +62,9 @@ type
     property Readln : TStrInFunc read FRlFunc write FRlFunc;
     property History : TBaseHistory read FHistory;
     property Links : TLinks read FLinks;
+    property Version : TField read GetVersion;
+    function Copy(aNewVersion : Variant) : Boolean;
+    function Versionate(aNewversion : Variant;aMakeActive : Boolean = True) : Boolean;
     destructor Destroy;override;
   end;
 
@@ -140,6 +144,11 @@ begin
   aDS := TBaseDBModule(DataModule).GetNewDataSet(aSQL,Connection);
 end;
 
+function TBaseScript.GetVersion: TField;
+begin
+  Result := FieldByName('VERSION');
+end;
+
 destructor TBaseScript.Destroy;
 begin
   FLinks.Free;
@@ -169,7 +178,7 @@ end;
 
 function TBaseScript.GetNumberFieldName: string;
 begin
-  Result := 'SQL_ID';
+  Result := 'NAME';
 end;
 
 procedure TBaseScript.InternalWrite(const s: string);
@@ -213,7 +222,9 @@ begin
             Add('TYPE',ftString,1,False);
             Add('PARENT',ftLargeint,0,False);
             Add('NAME',ftString,60,True);
-            Add('STATUS',ftString,3,false);
+            Add('STATUS',ftString,4,false);
+            Add('VERSION',ftString,8,False);
+            Add('ACTIVE',ftString,1,True);
             Add('SYNTAX',ftString,15,True);
             Add('RUNEVERY',ftInteger,0,False);
             Add('RUNMASHINE',ftString,150,False);
@@ -226,14 +237,15 @@ begin
           end;
       if Assigned(ManagedIndexdefs) then
         with ManagedIndexDefs do
-          Add('NAME','NAME',[ixUnique]);
+          Add('NAME','NAME;VERSION',[ixUnique]);
     end;
 end;
 procedure TBaseScript.FillDefaults(aDataSet: TDataSet);
 begin
+  inherited FillDefaults(aDataSet);
   FieldByName('SYNTAX').AsString:='Pascal';
   FieldByName('SCRIPT').AsString:='begin'+LineEnding+'  '+LineEnding+'end.';
-  inherited FillDefaults(aDataSet);
+  FieldByName('ACTIVE').AsString  := 'Y';
 end;
 
 function TBaseScript.SelectByName(aName: string): Boolean;
@@ -301,6 +313,70 @@ begin
           sleep(500);
           DataSet.Refresh;
         end;
+    end;
+end;
+
+function TBaseScript.Copy(aNewVersion: Variant): Boolean;
+var
+  bScript: TBaseScript;
+begin
+  Result := True;
+  bScript := TBaseScript.CreateEx(Self,DataModule,Self.Connection);
+  try
+    try
+      bScript.Select(Id.AsVariant);
+      bScript.Append;
+      bScript.DirectAssign(Self);
+      if aNewVersion <> bScript.Version.AsVariant then
+        bScript.Version.AsVariant:=aNewVersion;
+      bScript.CascadicPost;
+      Self.Select(bScript.Id.AsVariant);
+      Self.Open;
+    except
+      Result := False;
+    end;
+  finally
+    bScript.Free;
+  end;
+  DataSet.Edit;
+  Change;
+end;
+
+function TBaseScript.Versionate(aNewversion: Variant; aMakeActive: Boolean
+  ): Boolean;
+var
+  bScript: TBaseScript;
+begin
+  Result := Copy(aNewversion);
+  if aMakeActive then
+    begin
+      bScript := TBaseScript.CreateEx(Self,DataModule,Self.Connection);
+      try
+        try
+          bScript.Select(Number.AsString);
+          bScript.Open;
+          while not bScript.EOF do
+            begin
+              bScript.Edit;
+              if bScript.Id.AsVariant<>Self.Id.AsVariant then
+                bScript.FieldByName('ACTIVE').AsString:='N'
+              else
+                bScript.FieldByName('ACTIVE').AsString:='Y';
+              bScript.Post;
+              bScript.Next;
+            end;
+        except
+          Result := False;
+        end;
+      finally
+        bScript.Free;
+      end;
+    end
+  else
+    begin
+      Edit;
+      FieldByName('ACTIVE').AsString:='N';
+      Post;
     end;
 end;
 
