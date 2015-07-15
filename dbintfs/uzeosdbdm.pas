@@ -21,9 +21,10 @@ unit uZeosDBDM;
 {$mode objfpc}{$H+}
 interface
 uses
-  Classes, SysUtils, db, uBaseDBInterface,ZConnection, ZSqlMetadata,
-  ZAbstractRODataset, ZDataset, uBaseDbClasses, ZSequence,ZAbstractConnection,
-  uModifiedDS,ZSqlMonitor,Utils,uBaseDatasetInterfaces,syncobjs;
+  Classes, SysUtils, db, ZConnection, ZSqlMetadata,
+  ZAbstractRODataset, ZDataset, ZSequence,ZAbstractConnection,
+  uModifiedDS,ZSqlMonitor,Utils,uBaseDatasetInterfaces,syncobjs,
+  uBaseDBInterface,uBaseDbClasses;
 type
   TUnprotectedDataSet = class(TDataSet);
 
