@@ -865,11 +865,13 @@ end;
 
 procedure TfScriptEditor.FDataSetDataSetAfterScroll(DataSet: TDataSet);
 begin
- ed.Lines.Text:=FDataSet.FieldByName('SCRIPT').AsString;
- aFile := FDataSet.FieldByName('NAME').AsString;
- ed.FoldState := FDataSet.FieldByName('FOLDSTATE').AsString;
-
- cbSyntaxSelect(cbSyntax);
+ try
+   ed.Lines.Text:=FDataSet.FieldByName('SCRIPT').AsString;
+   aFile := FDataSet.FieldByName('NAME').AsString;
+   ed.FoldState := FDataSet.FieldByName('FOLDSTATE').AsString;
+   cbSyntaxSelect(cbSyntax);
+ except
+ end;
 end;
 
 procedure TfScriptEditor.FDataSetDataSetBeforeScroll(DataSet: TDataSet);
