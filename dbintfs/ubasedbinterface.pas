@@ -169,6 +169,7 @@ type
     function GetColumns(TableName : string) : TStrings;virtual;abstract;
     function CheckForInjection(aFilter : string) : Boolean;
     function GetDBType : string;virtual;
+    function GetDBLayerType : string;virtual;abstract;
     procedure SetFilter(DataSet : TbaseDBDataSet;aFilter : string;aLimit : Integer = 0;aOrderBy : string = '';aSortDirection : string = 'ASC';aLocalSorting : Boolean = False;aGlobalFilter : Boolean = True;aUsePermissions : Boolean = False;aFilterIn : string = '');
     procedure AppendUserToActiveList;
     procedure RefreshUsersFilter;
@@ -186,6 +187,7 @@ type
     property OnDisconnectKeepAlive : TNotifyEvent read FKeepAlive write FKeepAlive;
     property CriticalSection : TCriticalSection read FCS;
   end;
+  TBaseDBModuleClass = class of TBaseDBModule;
   IBaseDBInterface = interface['{A2AB4BAB-38DF-4D4E-BCE5-B7D57E115ED5}']
     function GetConfig: TDBConfig;
     function GetDB: TBaseDBModule;
@@ -1573,13 +1575,15 @@ end;
 procedure TBaseDBInterface.SetDBTyp(const AValue: string);
 var
   i: Integer;
+  tmp: String;
 begin
   if (FDbTyp = AValue) and Assigned(FDB) then exit;
   FreeAndNil(FDB);
   for i := 0 to DatabaseLayers.Count-1 do
     begin
-      FDB := TBaseDBModule(DatabaseLayers).Create(BaseApplication{,trim(AValue)});
-      if copy(AValue,0,length(FDB.GetDBType))<>fDB.GetDBType then
+      FDB := TBaseDBModuleClass(DatabaseLayers[i]).Create(BaseApplication{,trim(AValue)});
+      tmp := FDB.GetDBLayerType;
+      if copy(AValue,0,length(tmp))<>tmp then
         FreeAndNil(FDB)
       else break;
     end;

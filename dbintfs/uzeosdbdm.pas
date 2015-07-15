@@ -76,6 +76,7 @@ type
     function TriggerExists(aTriggerName: string; aConnection: TComponent=nil;
        AllowLowercase: Boolean=False): Boolean; override;
     function GetDBType: string; override;
+    function GetDBLayerType : string;override;
     function CreateTrigger(aTriggerName: string; aTableName: string;
       aUpdateOn: string; aSQL: string;aField : string = ''; aConnection: TComponent=nil): Boolean;
       override;
@@ -1942,6 +1943,11 @@ begin
   if Result='sqlite-3' then Result := 'sqlite';
 end;
 
+function TZeosDBDM.GetDBLayerType: string;
+begin
+  Result := 'SQL';
+end;
+
 function TZeosDBDM.CreateTrigger(aTriggerName: string; aTableName: string;
   aUpdateOn: string; aSQL: string;aField : string = ''; aConnection: TComponent = nil): Boolean;
 var
@@ -2113,6 +2119,8 @@ begin
    end;
 end;
 
+initialization
+  uBaseDBInterface.DatabaseLayers.Add(TZeosDBDM);
 end.
 
 
