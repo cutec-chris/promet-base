@@ -1685,31 +1685,6 @@ begin
   FHistory.CreateTable;
   FSnapshots.CreateTable;
   FDependencies.CreateTable;
-  try
-    if Data.ShouldCheckTable('TASKS',False) then
-      begin
-        Data.CreateTrigger('DEL_CHILD','TASKS','DELETE',
-         'UPDATE '+Data.QuoteField('TASKS')
-        +' SET '+Data.QuoteField('HASCHILDS')+'=(CASE WHEN EXISTS(SELECT * FROM '+Data.QuoteField('TASKS')+' AS '+Data.QuoteField('PAR')+' WHERE '+Data.QuoteField('TASKS')+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteField('PAR')+'.'+Data.QuoteField('PARENT')+') THEN '+Data.QuoteValue('Y')+' ELSE '+Data.QuoteValue('N')+' END)'
-        +' WHERE $OLD$.'+Data.QuoteField('PARENT')+'='+Data.QuoteField('SQL_ID')+';');
-
-        Data.CreateTrigger('INS_CHILD','TASKS','UPDATE',
-        'UPDATE '+Data.QuoteField('TASKS')
-       +' SET '+Data.QuoteField('HASCHILDS')+'=(CASE WHEN EXISTS(SELECT * FROM '+Data.QuoteField('TASKS')+' AS '+Data.QuoteField('PAR')+' WHERE '+Data.QuoteField('TASKS')+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteField('PAR')+'.'+Data.QuoteField('PARENT')+') THEN '+Data.QuoteValue('Y')+' ELSE '+Data.QuoteValue('N')+' END)'
-       +' WHERE $NEW$.'+Data.QuoteField('PARENT')+'='+Data.QuoteField('SQL_ID')+';');
-
-        Data.CreateTrigger('INS_COMPL','TASKS','UPDATE',
-        'UPDATE '+Data.QuoteField('TASKS')
-       +' SET '+Data.QuoteField('COMPLETED')+'=(CASE WHEN EXISTS(SELECT * FROM '+Data.QuoteField('TASKS')+' AS '+Data.QuoteField('PAR')+' WHERE '+Data.QuoteField('TASKS')+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteField('PAR')+'.'+Data.QuoteField('PARENT')+' AND '+Data.QuoteField('COMPLETED')+'='+Data.QuoteValue('N')+') THEN '+Data.QuoteValue('N')+' ELSE '+Data.QuoteValue('Y')+' END)'
-       +' WHERE $NEW$.'+Data.QuoteField('PARENT')+'='+Data.QuoteField('SQL_ID')+';');
-
-        Data.CreateTrigger('INS_DEPEND','TASKS','UPDATE',
-        ' UPDATE '+Data.QuoteField('TASKS')
-       +' SET '+Data.QuoteField('DEPDONE')+'=(CASE WHEN EXISTS(SELECT * FROM '+Data.QuoteField('DEPENDENCIES')+' inner join '+Data.QuoteField('TASKS')+' as '+Data.QuoteField('TP')+' on '+Data.QuoteField('DEPENDENCIES')+'.'+Data.QuoteField('REF_ID_ID')+'='+Data.QuoteField('TP')+'.'+Data.QuoteField('SQL_ID')+' and '+Data.QuoteField('COMPLETED')+'='+Data.QuoteValue('N')+' WHERE '+Data.QuoteField('TASKS')+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteField('DEPENDENCIES')+'.'+Data.QuoteField('REF_ID')+') THEN '+Data.QuoteValue('N')+' ELSE '+Data.QuoteValue('Y')+' END)'
-       +' WHERE '+Data.QuoteField('COMPLETED')+'='+Data.QuoteValue('N')+' AND '+Data.QuoteField('ACTIVE')+'='+Data.QuoteValue('Y')+';'+LineEnding,'COMPLETED');
-      end;
-  except
-  end;
 end;
 procedure TTaskList.CascadicPost;
 begin
