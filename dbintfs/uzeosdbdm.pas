@@ -737,6 +737,7 @@ begin
               end
             else
               begin
+                ok := true;
                 raise;
                 exit;
               end;

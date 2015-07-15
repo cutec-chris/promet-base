@@ -22,7 +22,7 @@ unit uBaseCustomApplication;
 interface
 uses
   {$ifdef UNIX}cwstring,{$endif}Classes, SysUtils, CustApp, uBaseApplication, uBaseDBInterface,
-  uData, uSystemMessage, eventlog,Utils;
+  uData, uSystemMessage, eventlog,Utils, uZeosDBDM;
 resourcestring
   strFailedtoLoadMandants    = 'Mandanten konnten nicht gelanden werden !';
   strMandantnotSelected      = 'kein Mandant gewählt (--mandant) !';

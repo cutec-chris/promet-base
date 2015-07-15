@@ -57,42 +57,46 @@
         <Type Value="Text"/>
       </Item11>
     </Files>
-    <RequiredPkgs Count="9">
+    <RequiredPkgs Count="10">
       <Item1>
-        <PackageName Value="pscripts"/>
-        <DefaultFilename Value="base_scripts\pscripts.lpk"/>
+        <PackageName Value="promet_dblayer_zeos"/>
+        <DefaultFilename Value="dbintfs\promet_dblayer_zeos.lpk"/>
       </Item1>
       <Item2>
-        <PackageName Value="v103_lazarus"/>
-        <DefaultFilename Value="..\components\tvplanit\packages\v103_lazarus.lpk"/>
+        <PackageName Value="pscripts"/>
+        <DefaultFilename Value="base_scripts\pscripts.lpk"/>
       </Item2>
       <Item3>
-        <PackageName Value="ZVDateTimeCtrls"/>
-        <DefaultFilename Value="..\components\zvdatetimectrls\zvdatetimectrls.lpk"/>
+        <PackageName Value="v103_lazarus"/>
+        <DefaultFilename Value="..\components\tvplanit\packages\v103_lazarus.lpk"/>
       </Item3>
       <Item4>
-        <PackageName Value="laz_twain"/>
-        <DefaultFilename Value="..\components\scanning\laz_twain.lpk"/>
+        <PackageName Value="ZVDateTimeCtrls"/>
+        <DefaultFilename Value="..\components\zvdatetimectrls\zvdatetimectrls.lpk"/>
       </Item4>
       <Item5>
-        <PackageName Value="pack_powerpdf"/>
-        <DefaultFilename Value="..\components\powerpdf\pack_powerpdf.lpk"/>
+        <PackageName Value="laz_twain"/>
+        <DefaultFilename Value="..\components\scanning\laz_twain.lpk"/>
       </Item5>
       <Item6>
-        <PackageName Value="sanetools"/>
-        <DefaultFilename Value="..\components\scanning\sanetools.lpk"/>
+        <PackageName Value="pack_powerpdf"/>
+        <DefaultFilename Value="..\components\powerpdf\pack_powerpdf.lpk"/>
       </Item6>
       <Item7>
-        <PackageName Value="lazreport"/>
+        <PackageName Value="sanetools"/>
+        <DefaultFilename Value="..\components\scanning\sanetools.lpk"/>
       </Item7>
       <Item8>
-        <PackageName Value="pPrometDBIntfs"/>
-        <DefaultFilename Value="dbintfs\pprometdbintfs.lpk"/>
+        <PackageName Value="lazreport"/>
       </Item8>
       <Item9>
+        <PackageName Value="pPrometDBIntfs"/>
+        <DefaultFilename Value="dbintfs\pprometdbintfs.lpk"/>
+      </Item9>
+      <Item10>
         <PackageName Value="general"/>
         <DefaultFilename Value="..\..\..\general\general.lpk"/>
-      </Item9>
+      </Item10>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

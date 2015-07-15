@@ -32,6 +32,7 @@ uses
   {$IFDEF LCLCARBON}
   ,MacOSAll,CarbonProc
   {$ENDIF}
+  ,uZeosDBDM
   ;
 type
   { TBaseVisualApplication }

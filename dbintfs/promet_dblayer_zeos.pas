@@ -7,7 +7,7 @@ unit promet_dblayer_zeos;
 interface
 
 uses
-  usqldbdm, LazarusPackageIntf;
+  uZeosDBDM, LazarusPackageIntf;
 
 implementation
 

@@ -13,8 +13,8 @@
     </CompilerOptions>
     <Files Count="1">
       <Item1>
-        <Filename Value="usqldbdm.pas"/>
-        <UnitName Value="usqldbdm"/>
+        <Filename Value="uzeosdbdm.pas"/>
+        <UnitName Value="uZeosDBDM"/>
       </Item1>
     </Files>
     <RequiredPkgs Count="4">
