@@ -653,6 +653,7 @@ end;
 
 procedure TfPosition.DoAsyncInit(Data: PtrInt);
 begin
+  Application.ProcessMessages;
   FGridView.fGridViewEnter(FGridView);
   acPermanentEditorModeExecute(acPermanentEditorMode);
 end;

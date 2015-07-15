@@ -502,6 +502,7 @@ end;
 procedure TfGridView.fGridViewEnter(Sender: TObject);
 begin
   if FEntered then exit;
+  if not IsVisible then exit;
   try
     FEntered := True;
     SyncDataSource;
