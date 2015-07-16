@@ -1845,61 +1845,6 @@ begin
     end;
   aText := SysToUni(aText);//ConvertEncoding(aText,GuessEncoding(aText),EncodingUTF8);
 end;
-{
-function TDocument.GetWordText(aStream: TStream; aExt: string; var aText: string
-  ): Boolean;
-var
-  MemStream: TMemoryStream;
-  OLEStorage: TOLEStorage;
-  OLEDocument : TOLEDocument;
-  aStringStream: TStringStream;
-  aContent : string;
-  aContent2: String;
-  aFile: TFileStream;
-  aFileName: String;
-  function StripUnwantedChar(Text: string):string;
-  var
-    Allowed: Set of Char;
-    i, LeftOvers: Integer;
-  begin
-    Allowed := [' ', '0'..'9', 'a'..'z', 'A'..'Z', '~'..')', '-', '.', '\', ':', '`', '/', '<', ',', '>', ';', '{', '}',#13,#9];
-
-    SetLength(Result, Length(Text));
-    LeftOvers := 1;
-    for i := 1 to Length(Text) do begin
-      if Text[i] in Allowed then begin
-        Result[LeftOvers]:= Text[i];
-        Inc(LeftOvers);
-      end
-    end;
-    SetLength(Result, LeftOvers-1);
-  end;
-begin
-  MemStream := TMemoryStream.Create;
-  OLEStorage := TOLEStorage.Create;
-  try
-    // Only one stream is necessary for any number of worksheets
-    OLEDocument.Stream := MemStream;
-    with BaseApplication as IBaseDbInterface,BaseApplication as IBaseApplication do
-      aFileName := GetInternalTempDir+'wf.tmp';
-    aFile := TFileStream.Create(aFileName,fmCreate);
-    aFile.CopyFrom(aStream,aStream.Size);
-    aStream.Position:=0;
-    aFile.Free;
-    OLEStorage.ReadOLEFile(aFileName, OLEDocument,'WordDocument');
-    if MemStream.Seek($800,soFromBeginning) = $800 then
-      begin
-        Setlength(aContent,MemStream.Size-$800);
-        MemStream.Read(aContent[1],MemStream.Size-$800);
-        aContent2 := ConvertEncoding(aContent,EncodingUCS2LE,EncodingUTF8);
-        aText:=StripUnwantedChar(aContent2);
-      end;
-    DeleteFileUTF8(aFileName);
-  finally
-    OLEStorage.Free;
-  end;
-end;
-}
 procedure TDocument.Delete;
 var
   aDocuments: TDocuments;

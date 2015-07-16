@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Utils, zipper,
-  XMLRead, DOM, Dialogs, XMLWrite, FileUtil;
+  XMLRead, DOM, Dialogs, XMLWrite;
 
 type
 
@@ -20,6 +20,7 @@ type
     procedure SetValues(idx : Integer; const AValue: string);
   public
     constructor Create(Filename : string);
+    function AsString : string;
     procedure Save;
     destructor Destroy;override;
     property Values[idx : Integer] : string read GetValues write SetValues;
@@ -56,6 +57,7 @@ var
   iNode: TDOMNode;
   a: Integer;
   i: Integer;
+  aStream: TStream;
 
   procedure ScanChilds(iNode : TDOMNode);
   var
@@ -77,16 +79,24 @@ begin
   inherited Create;
   UnZip := TUnZipper.Create;
   Unzip.FileName := Filename;
+  Unzip.Examine;
   for i := 0 to Unzip.Entries.Count-1 do
-    if Unzip.Entries.Entries[i].DisplayName = 'content.xml' then
+    if Unzip.Entries.Entries[i].ArchiveFileName = 'content.xml' then
       begin
-        ReadXMLFile(Content,Unzip.Entries.Entries[i].Stream);
+        aStream := Unzip.Entries.Entries[i].Stream;
+        ReadXMLFile(Content,aStream);
         break;
       end;
   UnZip.Free;
+  if not Assigned(Content) then exit;
   iNode := Content.FirstChild.FindNode('office:body');
   iNode := iNode.FirstChild;
   ScanChilds(iNode);
+end;
+
+function TODFDocument.AsString: string;
+begin
+
 end;
 
 procedure TODFDocument.Save;
