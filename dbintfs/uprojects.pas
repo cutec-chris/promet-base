@@ -617,6 +617,7 @@ begin
         end;
       Tasks.DataSet.Next;
     end;
+  Reorganize;
   cProject.Free;
 end;
 
