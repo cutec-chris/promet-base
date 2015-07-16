@@ -176,6 +176,7 @@ resourcestring
   strPercentDone            = '% erledigt';
   strWorkstatus             = 'Bearbeitungsstatus';
   strRenamed                = 'umbenannt in "%s"';
+  strNeedsAction            = 'Aufgabe benötigt Hilfe';
 implementation
 uses uBaseApplication,uIntfStrConsts,uProjects,uData,uCalendar,uTimes;
 
@@ -1365,6 +1366,10 @@ begin
   else if (Field.FieldName='STARTDATE') then
     begin
       FStartDateChanged := True;
+    end
+  else if (Field.FieldName='NEEDSACTION') and (Field.AsString='Y') then
+    begin
+      History.AddItem(Self.DataSet,strNeedsAction,'','',nil,ACICON_STATUSCH,'',False);
     end
   else if (Field.FieldName <> 'SEEN') and (Field.FieldName <> 'TIMESTAMPD') and (Field.FieldName <> 'CHANGEDBY') then
     begin
