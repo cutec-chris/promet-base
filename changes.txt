@@ -1,5 +1,8 @@
 ﻿Build 405
       - Version,Aktiv,Status für Scripte
+      - Projekte,Aufgaben:diverse aktualisierungsfehler behoben
+      - Aufgaben:Verlaufseintrag für "benötigt Hilfe"
+      - Sync_db:erstellt wichtige Tabellen automatisch
 Build 404
       - Passwortmanager:Passwort generator hinzugefügt
       - Frames:von Überlagerungen zwischen Tab Knöpfen und Controls verschoben
