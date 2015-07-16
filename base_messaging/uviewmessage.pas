@@ -67,7 +67,8 @@ type
   end;
 implementation
 {$R *.lfm}
-uses uDocuments,LCLProc,wikitohtml,uBaseDbClasses,uBaseApplication,synautil;
+uses uDocuments,LCLProc,wikitohtml,uBaseDbClasses,uBaseApplication,synautil,
+  base64;
 resourcestring
   strMessagenotDownloaded       = 'Die Naricht wurde aus Sicherheitsgründen nicht heruntergeladen !';
   strOpenToViewItem             = 'Bitte klicken Sie doppelt auf diesen Eintrag um ihn anzuzeigen';
@@ -121,6 +122,12 @@ begin
       finally
         aDocument.Free;
       end;
+    end
+  else if Uppercase(copy(url,0,5)) = 'DATA:' then
+    begin
+      ss := TStringStream.Create(base64.DecodeStringBase64(copy(url,6,length(url))));
+      Picture.LoadFromStream(ss);
+      ss.Free;
     end
   else
     begin
