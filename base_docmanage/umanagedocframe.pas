@@ -262,6 +262,7 @@ resourcestring
   strSetDate               = 'Soll das Datum %s als Belegdatum gesetzt werden ?';
   strMakeLinkToDocuments   = 'Soll ein Verweis in dne Dateien des Eintrags angelegt werden ?'+LineEnding+'So können Sie auch vom Eintrag aus das Dokument schnell finden';
   strNoText                = 'kein Text gefunden, oder keine OCR Anwendung installiert !';
+  strNewDoc                = 'Neues Dokument';
 
 procedure AddToMainTree(Node: TTReeNode;aType : string = 'D');
 var
@@ -733,7 +734,7 @@ var
 begin
   Screen.Cursor:=crHourGlass;
   Application.ProcessMessages;
-  if fPicImport.Execute then
+  if (not Assigned(Sender)) or fPicImport.Execute then
     begin
       if Assigned(fWaitform) then
         begin
@@ -763,10 +764,11 @@ begin
                 fWaitForm.ShowInfo(ExtractFileName(NewFileName));
               TDocPages(FFullDataSet).AddFromFile(SysToUni(NewFileName));
               TDocPages(FFullDataSet).Edit;
-              TDocPages(FFullDataSet).FieldByName('TAGS').AsString:=fPicImport.eTags.Text;
+              if Assigned(Sender) then
+                TDocPages(FFullDataSet).FieldByName('TAGS').AsString:=fPicImport.eTags.Text;
               TDocPages(FFullDataSet).FieldByName('TYPE').AsString:=FTyp;
               TDocPages(FFullDataSet).Post;
-              if fPicImport.cbDelete.Checked then
+              if Assigned(Sender) and (fPicImport.cbDelete.Checked) then
                 begin
                   aFile := NewFileName;
                   extn :=  AnsiString(AnsiLowerCase(ExtractFileExt(aFile)));
@@ -993,11 +995,12 @@ begin
   if fSelectTemplate.Execute(FTyp,aDocument) then
     begin
       Stream := TMemoryStream.Create;
-      Data.BlobFieldToFile(FSelectTemplate.DataSet.DataSet,'DOCUMENT',GetTempDir+'ptemplate'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString);
+      Data.BlobFieldToFile(FSelectTemplate.DataSet.DataSet,'DOCUMENT',GetTempDir+FSelectTemplate.DataSet.DataSet.FieldByName('NAME').AsString+'.'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString);
       Setlength(aFiles,1);
-      aFiles[length(aFiles)-1] := GetTempDir+'ptemplate'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString;
+      aFiles[length(aFiles)-1] := GetTempDir+FSelectTemplate.DataSet.DataSet.FieldByName('NAME').AsString+'.'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString;
       DoOnDropFiles(nil,aFiles);
-      DeleteFileUtf8(GetTempDir+'ptemplate'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString);
+      DeleteFileUtf8(GetTempDir+FSelectTemplate.DataSet.DataSet.FieldByName('NAME').AsString+'.'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString);
+      acEdit.Execute;
     end;
   aDocument.Free;
   FSelectTemplate.DataSet.Free;
@@ -1048,7 +1051,7 @@ begin
           Setlength(aFiles,length(aFiles)+1);
           aFiles[length(aFiles)-1] := OpenDialog1.Files[i];
         end;
-      DoOnDropFiles(nil,aFiles);
+      DoOnDropFiles(Self,aFiles);
     end;
 end;
 
@@ -1064,7 +1067,7 @@ begin
           Setlength(aFiles,length(aFiles)+1);
           aFiles[length(aFiles)-1] := OpenPictureDialog1.Files[i];
         end;
-      DoOnDropFiles(nil,aFiles);
+      DoOnDropFiles(Self,aFiles);
     end;
 end;
 
