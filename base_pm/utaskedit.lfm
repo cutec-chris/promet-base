@@ -443,10 +443,10 @@ object fTaskEdit: TfTaskEdit
     Height = 357
     Top = 73
     Width = 681
-    ActivePage = tsNotes
+    ActivePage = tsAdditional
     Align = alClient
     Images = fVisualControls.Images
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 1
     NewTabImageIndex = 0
     object tsNotes: TTabSheet
@@ -588,7 +588,7 @@ object fTaskEdit: TfTaskEdit
           Height = 21
           Hint = 'Der Termin, an dem die Aufgabe frühestens bearbeitet werden darf.'#13#10'z.b. durch Lieferanten oder Fertigung bedingt'
           Top = 72
-          Width = 137
+          Width = 121
           DataField = 'EARLIEST'
           DataSource = Task
           ReadOnly = False
@@ -604,6 +604,8 @@ object fTaskEdit: TfTaskEdit
           TimeDisplay = tdHMS
           DateMode = dmComboBox
           UseDefaultSeparators = True
+          HideDateTimeParts = [dtpSecond, dtpMiliSec]
+          MonthNames = 'Long'
         end
         object StartTimeLbl: TLabel
           Left = 8
@@ -644,7 +646,7 @@ object fTaskEdit: TfTaskEdit
           Height = 21
           Hint = 'Der Termin, an dem die Aufgabe erledigt sein soll'#13#10'(nicht der spätest mögliche !)'
           Top = 24
-          Width = 137
+          Width = 121
           DataField = 'DUEDATE'
           DataSource = Task
           ReadOnly = False
@@ -660,13 +662,15 @@ object fTaskEdit: TfTaskEdit
           TimeDisplay = tdHMS
           DateMode = dmComboBox
           UseDefaultSeparators = True
+          HideDateTimeParts = [dtpSecond, dtpMiliSec]
+          MonthNames = 'Long'
         end
         object StartDate: TDBZVDateTimePicker
           Left = 8
           Height = 21
           Hint = 'Der Termin, an dem die Aufgabe laut Zeitplan starten kann.'
           Top = 24
-          Width = 137
+          Width = 121
           DataField = 'STARTDATE'
           DataSource = Task
           ReadOnly = False
@@ -683,6 +687,8 @@ object fTaskEdit: TfTaskEdit
           TimeDisplay = tdHMS
           DateMode = dmComboBox
           UseDefaultSeparators = True
+          HideDateTimeParts = [dtpSecond, dtpMiliSec]
+          MonthNames = 'Long'
         end
         object EndTimeLbl1: TLabel
           Left = 152
@@ -716,6 +722,8 @@ object fTaskEdit: TfTaskEdit
           TimeDisplay = tdHMS
           DateMode = dmComboBox
           UseDefaultSeparators = True
+          HideDateTimeParts = []
+          MonthNames = 'Long'
         end
         object eTime: TEdit
           Left = 152
@@ -801,7 +809,7 @@ object fTaskEdit: TfTaskEdit
           Height = 21
           Hint = 'Der Termin, an dem die Aufgabe frühestens bearbeitet werden darf.'#13#10'z.b. durch Lieferanten oder Fertigung bedingt'
           Top = 72
-          Width = 137
+          Width = 121
           DataField = 'LATEST'
           DataSource = Task
           ReadOnly = False
@@ -817,6 +825,8 @@ object fTaskEdit: TfTaskEdit
           TimeDisplay = tdHMS
           DateMode = dmComboBox
           UseDefaultSeparators = True
+          HideDateTimeParts = [dtpSecond, dtpMiliSec]
+          MonthNames = 'Long'
         end
       end
       object GroupBox3: TGroupBox
