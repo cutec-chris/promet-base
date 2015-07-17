@@ -210,7 +210,8 @@ begin
       Content.Open;
       if Content.Count=0 then exit;
       sl.Text := Content.DataSet.FieldByName('HEADER').AsString;
-      aMessage.Header.DecodeHeaders(sl);
+      if trim(sl.Text)<>'' then
+        aMessage.Header.DecodeHeaders(sl);
       if (FieldByName('RECEIVERS').IsNull and FieldByName('PRIORITY').IsNull) then
         begin
           Edit;
@@ -263,6 +264,8 @@ begin
           else
             Documents.Select(0);
           Documents.Open;
+          if aMessage.Header.ToList.Count=0 then;
+            MailAddressesFromString(Content.FieldByName('RECEIVERS').AsString,aMessage.Header.ToList);
           if (Content.DataSet.FieldByName('DATATYP').AsString = 'PLAIN') and (Documents.Count = 0) then
             begin
               ss := TStringStream.Create('');
