@@ -1777,11 +1777,7 @@ var
   aStringStream : TStringStream;
   aLines: TStringList;
 begin
-  if Uppercase(aExt) = '.DOC' then
-    begin
-      //Result := GetWordText(aStream,aExt,aText);
-    end
-  else if Uppercase(aExt) = '.RTF' then
+  if Uppercase(aExt) = '.RTF' then
     begin
       aStringStream:=TStringStream.Create('');
       aStringStream.CopyFrom(aStream,aStream.Size);
@@ -1831,17 +1827,43 @@ begin
     end
   else
     begin
-      Result := length(aText)>0;
-      for i := 0 to 1500 do
-        if (length(copy(aText,i,1))>0) and (ord(copy(aText,i,1)[1]) > 127) then
+      try
+        with BaseApplication as IBaseDbInterface,BaseApplication as IBaseApplication do
           begin
-            Result := False;
-            break;
+            aFilename := GetInternalTempDir+'rpv'+aExt;
+            aFStream := TFileStream.Create(GetInternalTempDir+'rpv'+aExt,fmCreate);
           end;
-      if Result then
-        begin
-          aText := copy(aText,0,1500);
-        end
+        aStream.Position:=0;
+        aFStream.CopyFrom(aStream,aStream.Size);
+        aFStream.Free;
+        aProcess := TProcess.Create(Self);
+        {$IFDEF WINDOWS}
+        aProcess.Options:= [poNoConsole, poWaitonExit,poNewConsole, poStdErrToOutPut, poNewProcessGroup];
+        {$ELSE}
+        aProcess.Options:= [poWaitonExit,poStdErrToOutPut];
+        {$ENDIF}
+        aProcess.ShowWindow := swoHide;
+        aProcess.CommandLine := AppendPathDelim(AppendPathDelim(BaseApplication.Location)+'tools')+Format('pextracttext'+ExtractFileExt(BaseApplication.ExeName)+' %s %s',[aFileName,aFileName+'.txt']);
+        aProcess.CurrentDirectory := AppendPathDelim(AppendPathDelim(BaseApplication.Location)+'tools');
+        {$IFDEF WINDOWS}
+        aProcess.CommandLine := aProcess.CurrentDirectory+aProcess.CommandLine;
+        {$ENDIF}
+        aProcess.Execute;
+        aProcess.Free;
+        SysUtils.DeleteFile(aFileName);
+        if FileExists(aFileName+'.txt') then
+          begin
+            aLines := TStringList.Create;
+            aLines.LoadFromFile(aFileName+'.txt');
+            aText := aLines.Text;
+            Result := True;
+            aLines.Free;
+          end;
+        SysUtils.DeleteFile(aFileName+'.txt');
+      except
+        SysUtils.DeleteFile(aFileName);
+        SysUtils.DeleteFile(aFileName+'.txt');
+      end;
     end;
   aText := SysToUni(aText);//ConvertEncoding(aText,GuessEncoding(aText),EncodingUTF8);
 end;

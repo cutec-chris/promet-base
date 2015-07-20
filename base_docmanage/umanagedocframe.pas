@@ -1685,6 +1685,8 @@ var
   aNumber: String;
   aSStream: TStringStream;
   aFS: TFileStream;
+  extn: String;
+  aText: string;
 begin
   Screen.Cursor:=crHourGlass;
   Application.ProcessMessages;
@@ -1703,8 +1705,9 @@ begin
           aDocument.CheckoutToStream(aFullStream);
           aFullStream.Position:=0;
           aSStream := TStringStream.Create('');
-          Data.BlobFieldToStream(aDocument.DataSet,'FULLTEXT',aSStream);
-          if GenerateThumbNail(ExtractFileExt(aDocument.FileName),aFullStream,aStream,aSStream.DataString) then
+          extn :=  AnsiString(AnsiLowerCase(ExtractFileExt(aDocument.filename)));
+          aDocument.GetText(aFullStream,extn,aText);
+          if GenerateThumbNail(ExtractFileExt(aDocument.FileName),aFullStream,aStream,aText) then
             begin
               if aStream.Size>0 then
                 begin
