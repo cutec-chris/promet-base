@@ -198,7 +198,7 @@ procedure TfSearch.cbSearchTypeClickCheck(Sender: TObject);
 begin
   FreeAndNil(ActiveSearch);
   sgResults.RowCount:=sgResults.FixedRows;
-  if eContains.Text<>'' then
+  if (eContains.Text<>'') and (cbSearchType.Tag=0) then
     DoSearch(nil);
 end;
 
@@ -563,8 +563,8 @@ begin
         cbMaxresults.Checked := False
       else
         begin
-          cbMaxresults.Checked := true;
           seMaxresults.Tag:=1;
+          cbMaxresults.Checked := true;
           seMaxResults.Value:=DBConfig.ReadInteger('SEARCHMAXRESULTS',10);
           seMaxresults.Tag:=0;
         end;
@@ -806,8 +806,10 @@ begin
   i := 0;
   while pos(';',Options) > 0 do
     begin
+      cbSearchType.Tag:=1;
       if cbSearchType.Items.IndexOf(copy(Options,0,pos(';',Options)-1)) <> -1 then
         cbSearchType.ItemIndex := cbSearchType.Items.IndexOf(copy(Options,0,pos(';',Options)-1));
+      cbSearchType.Tag:=0;
       Options := copy(Options,pos(';',Options)+1,length(Options));
       inc(i);
     end;
@@ -865,8 +867,11 @@ begin
       else
         inc(i);
     end;
+  cbSearchType.Tag:=1;
   if fSearch.cbSearchType.Items.Count=1 then
     fSearch.cbSearchType.ItemIndex:=0;
+  cbSearchType.Tag:=0;
+  FreeAndNil(ActiveSearch);
 end;
 
 function TSearchHintWindow.GetDrawTextFlags: Cardinal;
