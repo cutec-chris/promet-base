@@ -1,4 +1,6 @@
-﻿Build 405
+﻿Build 406
+      - Aufgabeneditor:falsches Tab war offen
+Build 405
       - Version,Aktiv,Status für Scripte
       - Projekte,Aufgaben:diverse aktualisierungsfehler behoben
       - Aufgaben:Verlaufseintrag für "benötigt Hilfe"
