@@ -448,6 +448,7 @@ end;
 procedure TBaseVisualApplication.SetConfigName(aName: string);
 begin
   Properties.FileName := UniToSys(GetOurConfigDir+aName+'.xml');
+  RestoreConfig;
 end;
 procedure TBaseVisualApplication.RestoreConfig;
 var
