@@ -232,8 +232,8 @@ begin
         //TBaseHistory
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBList'),TBaseHistory) do
           begin
-            RegisterMethod('function AddItem(aObject: TDataSet; aAction: string; aLink: string; aReference: string; aRefObject: TDataSet; aIcon: Integer;aComission: string) : Boolean;');
-            RegisterMethod('function AddParentedItem(aObject: TDataSet; aAction: string;aParent : Variant; aLink: string; aReference: string; aRefObject: TDataSet; aIcon: Integer; aComission: string):Boolean;');
+            RegisterMethod('function         AddItem(aObject: TDataSet; aAction: string; aLink: string; aReference: string; aRefObject: TDataSet; aIcon: Integer;aComission: string;CheckDouble: Boolean;DoPost: Boolean; DoChange: Boolean) : Boolean;');
+            RegisterMethod('function AddParentedItem(aObject: TDataSet; aAction: string;aParent : Variant; aLink: string; aReference: string; aRefObject: TDataSet; aIcon: Integer; aComission: string;CheckDouble: Boolean;DoPost: Boolean; DoChange: Boolean):Boolean;');
           end;
         with Sender.ClassImporter.Add(TBaseHistory) do
           begin
