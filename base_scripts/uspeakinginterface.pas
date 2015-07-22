@@ -36,7 +36,7 @@ type
   end;
 
 implementation
-uses uData,genpascalscript;
+uses uData,genpascalscript,uBaseApplication;
 { TSpeakingInterface }
 
 function TSpeakingInterface.CheckSentence(aSentence: string): Boolean;
@@ -50,15 +50,19 @@ begin
         with Script as TPascalScript do
           begin
             try
-            if Assigned(Runtime) then
-              if Runtime.RunProcPN([aSentence],'CHECKSENTENCE') = True then
-                begin
-                  Result := True;
-                  exit;
-                end;
-
+              if Assigned(Runtime) then
+                if Runtime.RunProcPN([aSentence],'CHECKSENTENCE') = True then
+                  begin
+                    Result := True;
+                    exit;
+                  end;
             except
-              Result := false;
+              on e : Exception do
+                begin
+                  with BaseApplication as IBaseApplication do
+                    debug('Error running script:'+FieldByName('NAME').AsString+':'+e.Message);
+                  Result := false;
+                end;
             end;
           end;
       Next;
