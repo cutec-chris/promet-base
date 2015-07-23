@@ -268,7 +268,10 @@ begin
               pSearch.Top:=Y;
             end;
           if Assigned(ActiveSearch) then
-            ActiveSearch.Abort;
+            begin
+              ActiveSearch.Abort;
+              FreeAndNil(ActiveSearch);
+            end;
           SearchTypes := SearchTypes+[fsShortnames];
           SearchTypes := SearchTypes+[fsIdents];
           SearchTypes := SearchTypes+[fsMatchcode];

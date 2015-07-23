@@ -455,7 +455,7 @@ begin
                                   if aActive then
                                     aActive := aActive and (Data.States.FieldByName('ACTIVE').AsString='Y');
                                   FItemFound(aLinkDs.Number.AsString,aLinkDs.Text.AsString,aLinkDs.Status.AsString,aActive,aObjects.FieldByName('LINK').AsString,3000);
-                                  FNewFound:=True;
+                                  FNewFound:=aActive;
                                 end
                               else
                                 begin
