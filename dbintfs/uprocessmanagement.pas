@@ -31,7 +31,6 @@ type
     procedure SetTimeout(AValue: TDateTime);
   public
     aOutput,aBuffer,aLogOutput : string;
-    property Timeout : TDateTime read FTimeout write SetTimeout;
     property Informed : Boolean read FInformed write FInformed;
     property Name : string read FName write FName;
     property Id : Variant read FId write FId;
@@ -322,26 +321,25 @@ var
                   bProcess.DoExit;
                   bProcess.Informed := True;
                 end;
-              if (aNow > bProcess.Timeout) or DoAlwasyRun then
-                begin
-                  aLog.Clear;
-                  DoLog(aprocess+':'+strStartingProcessTimeout+' '+DateTimeToStr(bProcess.Timeout)+'>'+DateTimeToStr(aNow),aLog,BaseApplication.HasOption('debug'));
-                  bProcess.Timeout := aNow+(max(Processes.FieldByName('INTERVAL').AsInteger,2)/MinsPerDay);
-                  DoLog(aProcess+':'+strStartingProcess+' ('+bProcess.CommandLine+')',aLog,True);
-                  try
-                    bProcess.Execute;
-                  except
-                    on e : Exception do
-                      begin
-                        DoLog(aprocess+':'+strError+' '+e.Message,alog,True);
-                        Processes.Edit;
-                        Processes.FieldByName('STATUS').AsString:='E';
-                        Processes.Post;
-                      end;
+              if Assigned(Processes) then
+                if (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(max(Processes.FieldByName('INTERVAL').AsInteger,2)/MinsPerDay))) or DoAlwasyRun then
+                  begin
+                    aLog.Clear;
+                    DoLog(aprocess+':'+strStartingProcessTimeout+' '+DateTimeToStr((Processes.FieldByName('STOPPED').AsDateTime+(max(Processes.FieldByName('INTERVAL').AsInteger,2)/MinsPerDay)))+'>'+DateTimeToStr(aNow),aLog,BaseApplication.HasOption('debug'));
+                    DoLog(aProcess+':'+strStartingProcess+' ('+bProcess.CommandLine+')',aLog,True);
+                    try
+                      bProcess.Execute;
+                    except
+                      on e : Exception do
+                        begin
+                          DoLog(aprocess+':'+strError+' '+e.Message,alog,True);
+                          Processes.Edit;
+                          Processes.FieldByName('STATUS').AsString:='E';
+                          Processes.Post;
+                        end;
+                    end;
+                    bProcess.Informed := False;
                   end;
-                  bProcess.Informed := False;
-                  DoLog(aprocess+':'+strStartingNextTimeout+' '+DateTimeToStr(bProcess.Timeout),aLog,BaseApplication.HasOption('debug'));
-                end;
               Found := True;
             end;
         end;
@@ -361,8 +359,6 @@ var
         NewProcess.CurrentDirectory:= copy(BaseApplication.Location,0,rpos(DirectorySeparator,BaseApplication.Location)-1);
         NewProcess.Options := [poNoConsole,poUsePipes];
         NewProcess.Execute;
-        NewProcess.Timeout := aNow+(max(Processes.FieldByName('INTERVAL').AsInteger,2)/MinsPerDay);
-        DoLog(aprocess+':'+strStartingNextTimeout+' '+DateTimeToStr(ProcessData[i].Timeout),aLog,BaseApplication.HasOption('debug'));
         Processes.Edit;
         Processes.DataSet.FieldByName('STARTED').AsDateTime := Now();
         Processes.DataSet.FieldByName('STOPPED').Clear;
