@@ -85,8 +85,10 @@ type
   end;
   TProjectQuestionEvent = function(Sender : TProjectList) : Boolean;
   TProject = class(TProjectList,IBaseHistory,IBaseStructure)
+    procedure DataSetBeforePost(aDataSet: TDataSet);
     procedure FDSDataChange(Sender: TObject; Field: TField);
   private
+    PrioChanged,IDChanged : Boolean;
     FHistory: TProjectHistory;
     FImages: TImages;
     FLinks: TProjectLinks;
@@ -295,6 +297,19 @@ begin
     end;
   inherited Open;
 end;
+
+procedure TProject.DataSetBeforePost(aDataSet: TDataSet);
+begin
+  if PrioChanged then
+    begin
+      History.AddItem(Self.DataSet,Format(strPriorityChanged,[FieldByName('GPRIORITY').AsString]),'','',DataSet,ACICON_EDITED);
+    end
+  else if IDChanged then
+    begin
+      History.AddItem(Self.DataSet,Format(strNumberChanged,[FieldByName('ID').AsString]),'','',DataSet,ACICON_EDITED);
+    end;
+end;
+
 procedure TProject.FDSDataChange(Sender: TObject; Field: TField);
 var
   aMakeInactive: Boolean;
@@ -306,6 +321,8 @@ begin
   and ((Field.FieldName = 'STATUS')
    or  (Field.FieldName = 'TARGET')
    or  (Field.FieldName = 'PMANAGER')
+   or  (Field.FieldName = 'ID')
+   or  (Field.FieldName = 'GPRIORITY')
       )
   then
     begin
@@ -323,7 +340,11 @@ begin
         end;
       if (Field.FieldName = 'ID') then
         begin
-          History.AddItem(Self.DataSet,Format(strNumberChanged,[Field.AsString]),'','',DataSet,ACICON_EDITED);
+          IDChanged :=True;
+        end;
+      if (Field.FieldName = 'GPRIORITY') then
+        begin
+          PrioChanged :=True;
         end;
       if (Field.FieldName = 'TARGET') then
         begin
@@ -393,6 +414,9 @@ begin
   FDS := TDataSource.Create(Self);
   FDS.DataSet := DataSet;
   FDS.OnDataChange:=@FDSDataChange;
+  DataSet.BeforePost:=@DataSetBeforePost;
+  PrioChanged:=False;
+  IDChanged:=False;
 end;
 destructor TProject.Destroy;
 begin
@@ -700,7 +724,7 @@ begin
         with ManagedFieldDefs do
           begin
             Add('ID',ftString,20,False);
-            Add('GPRIORITY',ftLargeint,0,False);
+            Add('GPRIORITY',ftInteger,0,False);
             Add('TYPE',ftString,1,False);
             Add('NAME',ftString,250,False);
             Add('STATUS',ftString,4,True);

@@ -1,4 +1,8 @@
-﻿Build 406
+﻿Build 407
+      - Priorität,ID Änderung an projekten erzeugt Verlaufseintrag
+      - Protokolle erzeugen extra Verlaufseintrag "aus Meeting erstellt" an Aufgaben mit Link
+      - Statistiken:Variablen aus Statistiken können in reports verwendet werden mit [Variablenname]
+Build 406
       - Aufgabeneditor:falsches Tab war offen
 Build 405
       - Version,Aktiv,Status für Scripte

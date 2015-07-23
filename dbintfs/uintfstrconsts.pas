@@ -114,6 +114,7 @@ resourcestring
   strSummary                    = 'Zusammenfassung';
   strStatusChanged              = 'Status geändert von %s zu %s';
   strNumberChanged              = 'Nummer geändert zu %s';
+  strPriorityChanged            = 'Priorität geändert zu %s';
   strFiles                      = 'Dateien';
   strDocuments                  = 'Dokumente/Bilder';
   strDocumentsOnly              = 'Dokumente';
