@@ -2940,12 +2940,12 @@ begin
               end;
             with DataSet as IBaseManageDB do
               FDataSet.Open;
-            if AlterTable then
+            if (not Data.IsTransactionActive(Connection)) and AlterTable then
               begin
                 with FDataSet as IBaseDbFilter do
                   Limit := OldLimit;
               end
-            else
+            else if (not Data.IsTransactionActive(Connection)) then
               begin
                 with BaseApplication as IBaseApplication do
                   Info('Table "'+TableName+'" altering failed');

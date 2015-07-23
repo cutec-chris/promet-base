@@ -72,6 +72,7 @@ type
     function StartTransaction(aConnection : TComponent;ForceTransaction : Boolean = False): Boolean;override;
     function CommitTransaction(aConnection : TComponent): Boolean;override;
     function RollbackTransaction(aConnection : TComponent): Boolean;override;
+    function IsTransactionActive(aConnection : TComponent): Boolean;override;
     function TableExists(aTableName : string;aConnection : TComponent = nil;AllowLowercase: Boolean = False) : Boolean;override;
     function TriggerExists(aTriggerName: string; aConnection: TComponent=nil;
        AllowLowercase: Boolean=False): Boolean; override;
@@ -1839,6 +1840,12 @@ begin
   if TZTransactIsolationLevel(TZConnection(aConnection).Tag) <> TZConnection(aConnection).TransactIsolationLevel then
     TZConnection(aConnection).TransactIsolationLevel := TZTransactIsolationLevel(TZConnection(aConnection).Tag);
 end;
+
+function TZeosDBDM.IsTransactionActive(aConnection: TComponent): Boolean;
+begin
+  Result := TZConnection(aConnection).InTransaction;
+end;
+
 function TZeosDBDM.TableExists(aTableName: string;aConnection : TComponent = nil;AllowLowercase: Boolean = False): Boolean;
 var
   aIndex: longint;
