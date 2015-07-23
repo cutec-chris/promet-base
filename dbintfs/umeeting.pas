@@ -85,6 +85,8 @@ type
 
 implementation
 uses uBaseApplication,uProjects,uData,uMasterdata;
+resourcestring
+  strCreatedFrom                = 'aus "%s" erstellt';
 procedure TMeetingLinks.FillDefaults(aDataSet: TDataSet);
 begin
   inherited FillDefaults(aDataSet);
@@ -353,6 +355,7 @@ begin
                         if not FieldByName('DUEDATE').IsNull then
                           aProject.Tasks.FieldByName('DUEDATE').AsVariant:=FieldByName('DUEDATE').AsVariant;
                         aProject.Tasks.DataSet.Post;
+                        aProject.Tasks.History.AddItem(aProject.Tasks.DataSet,Format(strCreatedFrom,[FieldByName('DESC').AsString]),Data.BuildLink(Self.DataSet));
                         arec := aProject.Tasks.GetBookmark;
                         aProject.Tasks.DataSet.Refresh;
                         aProject.Tasks.GotoBookmark(arec);
@@ -397,6 +400,7 @@ begin
                 if not FieldByName('DUEDATE').IsNull then
                   aTasks.FieldByName('DUEDATE').AsVariant:=FieldByName('DUEDATE').AsVariant;
                 aTasks.DataSet.Post;
+                aTasks.History.AddItem(aTasks.DataSet,Format(strCreatedFrom,[FieldByName('DESC').AsString]),Data.BuildLink(Self.DataSet));
                 arec := aTasks.GetBookmark;
                 aTasks.DataSet.Refresh;
                 aTasks.GotoBookmark(arec);
