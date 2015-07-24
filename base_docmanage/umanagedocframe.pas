@@ -387,6 +387,8 @@ begin
         FFetchSQL:='select '+Data.QuoteField('SQL_ID')+','+Data.QuoteField('THUMBNAIL')+' from '+Data.QuoteField(TableName)+' where '+FFetchSQL;
       FFetchDS := Data.GetNewDataSet(FFetchSQL);
       FFetchDS.Open;
+      if not DirectoryExistsUTF8(FtempPath) then
+        ForceDirectoriesUTF8(FtempPath);
       while not FFetchDS.EOF do
         begin
           Data.BlobFieldToFile(FFetchDS,'THUMBNAIL',FtempPath+FFetchDS.FieldByName('SQL_ID').AsString+'.jpg');
