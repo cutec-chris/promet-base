@@ -9,7 +9,7 @@ interface
 uses
   uMandantOptions, uOptions, uOptionsFrame, uProcessOptions, uuseroptions, 
   uSyncOptions, uvisualoptions, uimportoptions, upaygroups, uScriptOptions, 
-  uUserfieldDefOptions, uWizardNewMandant, LazarusPackageIntf;
+  uUserfieldDefOptions, LazarusPackageIntf;
 
 implementation
 
