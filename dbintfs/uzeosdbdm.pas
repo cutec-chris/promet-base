@@ -1357,6 +1357,9 @@ begin
     or (copy(FConnection.Protocol,0,8) = 'postgres')
     then
       begin
+        {$IFDEF CPUARM}
+        FConnection.Properties.Add('sslmode=disable');
+        {$ENDIF}
         FConnection.TransactIsolationLevel:=tiNone;
         if (copy(FConnection.Protocol,0,6) = 'sqlite') then
           if not FileExists(FConnection.Database) then
