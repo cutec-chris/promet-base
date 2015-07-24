@@ -397,7 +397,7 @@ begin
           FieldByName('REVISION').AsString := '0';
           //TODO: Largeint ????
           FieldByName('NUMBER').AsVariant := DocID;
-          FieldByName('NAME').AsString := eName;
+          FieldByName('NAME').AsString := copy(eName,0,FieldByName('NAME').Size);
           FieldByName('EXTENSION').AsString := Extension;
           FieldByName('SIZE').AsInteger := Stream.Size;
           FieldByName('FULL').AsString:='Y';
