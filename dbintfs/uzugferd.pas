@@ -24,7 +24,7 @@ unit uzugferd;
 interface
 
 uses
-  Classes, SysUtils,uOrder,XMLRead,DOM,uBaseDbClasses,uBaseERPDBClasses,uData;
+  Classes, SysUtils,uOrder,XMLRead,DOM,uBaseDbClasses,uBaseERPDBClasses,uData,db;
 
 function ImportZugferdInvoice(aOrder : TOrder;aFile : string) : Boolean;
 
@@ -50,7 +50,10 @@ var
     aTmp := aNode.FindNode(aZField);
     if Assigned(aTmp) and Assigned(aData.FieldByName(aDBField)) then
       begin
-        aData.FieldByName(aDBField).AsString:=aTmp.FirstChild.NodeValue;
+        if aData.FieldByName(aDBField).DataType=ftFloat then
+          aData.FieldByName(aDBField).AsFloat:=StrToFloat(StringReplace(aTmp.FirstChild.NodeValue,'.',DecimalSeparator,[rfReplaceAll]))
+        else
+          aData.FieldByName(aDBField).AsString:=aTmp.FirstChild.NodeValue;
         result := True;
       end;
   end;
@@ -152,7 +155,7 @@ begin
                   begin
                     if Assigned(aTmp1.FindNode('Reason')) and (aTmp1.FindNode('Reason').FirstChild.NodeValue='Rabatt') then
                       begin
-                        aDiscount := StrToFloat(aTmp1.FindNode('ActualAmount').FirstChild.NodeValue);
+                        aDiscount := StrToFloat(StringReplace(aTmp1.FindNode('ActualAmount').FirstChild.NodeValue,'.',DecimalSeparator,[rfReplaceAll]));
                         if aOrder.Positions.FieldByName('SELLPRICE').AsFloat>0 then
                           aDiscount:=(aDiscount/aOrder.Positions.FieldByName('SELLPRICE').AsFloat)*100
                         else aDiscount:=0;
