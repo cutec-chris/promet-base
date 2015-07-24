@@ -105,7 +105,7 @@ type
   end;
 implementation
 {$R *.lfm}
-uses uData,uImpCSV,uOrder,uDocuments,uBaseERPDBClasses;
+uses uData,uOrder,uDocuments,uBaseERPDBClasses,uImpCSV;
 
 procedure TfMandantOptions.bExportConfigurationClick(Sender: TObject);
 var

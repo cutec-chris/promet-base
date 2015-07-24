@@ -22,9 +22,6 @@ unit uBaseApplication;
 interface
 uses
   Classes, SysUtils, CustApp, eventLog
-  {$IFDEF LCL}
-  ,PropertyStorage
-  {$ENDIF}
   ;
 type
   TBaseApplicationClass = class of TCustomApplication;
@@ -74,4 +71,4 @@ implementation
 initialization
   BaseApplication := nil;
 end.
-
+

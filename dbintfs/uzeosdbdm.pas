@@ -609,6 +609,7 @@ begin
   try
       try
         inherited InternalOpen;
+        if ReadOnly then raise Exception.Create('Table readonly');
       except
         InternalClose;
         if TZeosDBDM(Owner).Ping(Connection) then
@@ -1162,7 +1163,7 @@ begin
   FManagedIndexDefs := TIndexDefs.Create(Self);
   FSubDataSets := TList.Create;
   FUsePermissions := False;
-  Options:= [doCalcDefaults, doAlwaysDetailResync, doDontSortOnPost, doPreferPrepared{, doPreferPreparedResolver}];
+  //Options:= [doCalcDefaults, doAlwaysDetailResync, doDontSortOnPost, doPreferPrepared];
   FOrigTable := nil;
   SortType := stIgnored;
   FUpStdFields := True;

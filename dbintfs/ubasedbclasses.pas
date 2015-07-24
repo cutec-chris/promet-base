@@ -23,9 +23,6 @@ interface
 uses
   Classes, SysUtils, db, Variants, uIntfStrConsts, DOM,
   Contnrs,uBaseDatasetInterfaces
-  {$IFDEF LCL}
-  ,Graphics
-  {$ENDIF}
   ;
 type
   { TBaseDBDataset }
@@ -416,9 +413,6 @@ type
   TImages = class(TBaseDBDataSet)
   public
     procedure DefineFields(aDataSet : TDataSet);override;
-    {$IFDEF LCL}
-    function AddFromFile(aFile : string) : Boolean;
-    {$ENDIF}
     procedure GenerateThumbnail(aThumbnail : TBaseDbDataSet);
   end;
   TDeletedItems = class(TBaseDBDataSet)
@@ -869,33 +863,6 @@ begin
     end;
 end;
 
-{$IFDEF LCL}
-function TImages.AddFromFile(aFile: string): Boolean;
-var
-  aPicture: TPicture;
-  fe: String;
-  s: TStream;
-  i: SizeInt;
-begin
-  Insert;
-  aPicture := TPicture.Create;
-  aPicture.LoadFromFile(aFile);
-
-  fe := aPicture.Graphic.GetFileExtensions;
-  s := DataSet.CreateBlobStream(FieldByName('IMAGE'),bmwrite);
-  try
-    i := pos(';',fe);
-    if i > 0 then fe := copy(fe,1,i-1);
-      begin
-        s.WriteAnsiString(fe);  //otherwise write file extension to stream
-      end;
-    aPicture.Graphic.SaveToStream(s);
-  finally
-    s.Free;
-  end;
-  Post;
-end;
-{$endif}
 constructor TLinks.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
@@ -2683,7 +2650,7 @@ end;
 procedure TUser.LoginWasOK;
 begin
   with DataSet as IBaseManageDB do
-  if (Count>0) and (FieldByName('LASTLOGIN') <> nil) then
+  if (Count>0) and (FieldByName('LASTLOGIN') <> nil) and (FieldByName('LASTLOGIN').ReadOnly = False) then
     begin
       UpdateStdFields := False;
       DataSet.Edit;
