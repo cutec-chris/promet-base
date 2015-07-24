@@ -149,7 +149,7 @@ end;
 
 function TWikiList.FindWikiPage(PageName: string;aDocreate : Boolean = False): Boolean;
 var
-  aParent : LargeInt;
+  aParent : Variant;
   aID: Variant;
   tmp: String;
 begin
