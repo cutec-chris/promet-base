@@ -1021,6 +1021,12 @@ begin
           rMandant := Config.ReadString('LOGINMANDANT','Standard');
           rUser := Config.ReadString('LOGINUSER','Administrator');
           rAutoLogin := Config.ReadString('AUTOMATICLOGIN','');
+          if HasOption('m','mandant') then
+            begin
+              rMandant:=GetOptionValue('m','mandant');
+              if rMandant<>Config.ReadString('LOGINMANDANT','Standard') then
+                rAutoLogin:='';
+            end;
           if ((Config.ReadInteger('AUTOMATICLOGIN',0)=aID) and (aID <> 0))
           or (IsAutoLogin) then
             with Self as IBaseDBInterface do
