@@ -28,9 +28,6 @@ uses
   FPImage,fpreadgif,FPReadPSD,FPReadPCX,FPReadTGA,FPReadJPEGintfd,fpthumbresize,
   FPWriteJPEG,FPReadBMP,process,uBaseDbClasses,FPCanvas,FPImgCanv,
   uBaseDBInterface,db,uBaseDatasetInterfaces
-  {$IFDEF LCL}
-  ,Graphics
-  {$ENDIF}
   ;
 
 type

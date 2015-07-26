@@ -22,12 +22,8 @@ unit uDocuments;
 interface
 uses
   Classes, SysUtils, db, uBaseDBClasses, Utils,
-  usimpleprocess,uBaseDatasetInterfaces
-  {$IFDEF LCL}
-  ,Graphics
-  {$ENDIF};
+  usimpleprocess,uBaseDatasetInterfaces;
 type
-
   { TDocuments }
 
   TDocuments = class(TBaseDBList)
