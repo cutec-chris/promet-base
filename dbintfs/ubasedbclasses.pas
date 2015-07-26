@@ -2900,18 +2900,9 @@ begin
       begin
         if not Self.CreateTable then
           begin
-            with FDataSet as IBaseDbFilter do
-              begin
-                OldLimit := Limit;
-                Limit := 1;
-              end;
             with DataSet as IBaseManageDB do
               FDataSet.Open;
             if (not Data.IsTransactionActive(Connection)) and AlterTable then
-              begin
-                with FDataSet as IBaseDbFilter do
-                  Limit := OldLimit;
-              end
             else if (not Data.IsTransactionActive(Connection)) then
               begin
                 with BaseApplication as IBaseApplication do

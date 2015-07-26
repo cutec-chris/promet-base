@@ -1037,7 +1037,9 @@ begin
 end;
 procedure TZeosDBDataSet.SetfetchRows(AValue: Integer);
 begin
-  FetchRow:=AValue;
+  if (copy(TZConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,6) = 'sqlite') then
+  else
+    FetchRow:=AValue;
 end;
 function TZeosDBDataSet.GetManagedFieldDefs: TFieldDefs;
 begin
@@ -1322,7 +1324,7 @@ begin
       FConnection.Disconnect;
     FConnection.Port:=0;
     FConnection.Properties.Clear;
-    FConnection.Properties.Add('timeout=2');
+    //FConnection.Properties.Add('timeout=2');
     FConnection.ClientCodepage:='UTF8';
     FConnection.Protocol:='';
     FConnection.User:='';
@@ -1381,9 +1383,9 @@ begin
     if FConnection.Protocol = 'sqlite-3' then
       begin
 //        FConnection.ExecuteDirect('PRAGMA synchronous = NORMAL;');
-//        FConnection.ExecuteDirect('PRAGMA cache_size = 5120;');
+        FConnection.ExecuteDirect('PRAGMA cache_size = 5120;');
 //        FConnection.ExecuteDirect('PRAGMA auto_vacuum = FULL;');
-        FConnection.ExecuteDirect('PRAGMA journal_mode = MEMORY;');
+//        FConnection.ExecuteDirect('PRAGMA journal_mode = MEMORY;');
         FConnection.ExecuteDirect('PRAGMA recursive_triggers = ON;');
         FConnection.ExecuteDirect('PRAGMA foreign_keys = ON;');
         FConnection.ExecuteDirect('PRAGMA case_sensitive_like = ON;');
