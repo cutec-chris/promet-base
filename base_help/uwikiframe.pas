@@ -1304,6 +1304,7 @@ end;
 
 procedure TfWikiFrame.SetLeftBar(AValue: Boolean);
 begin
+  if not Assigned(pLeft) then exit;
   pLeft.Visible:=aValue;
   pTop.Visible:=not AValue;
 end;
