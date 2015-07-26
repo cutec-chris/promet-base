@@ -159,9 +159,6 @@ var
   aProcess: TProcess;
   i: Integer;
   sl: TStringList;
-  {$IFDEF LCL}
-  Printer: TBitmap;
-  {$ENDIF}
   randlinks: Int64;
   randoben: Int64;
   zeile: Integer;

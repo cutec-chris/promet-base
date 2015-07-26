@@ -1,4 +1,7 @@
-﻿Build 407
+﻿Build 408
+      - neues Datenbanklayer
+      - Bugfixes für vergangene 3 Revisionen
+Build 407
       - Priorität,ID Änderung an projekten erzeugt Verlaufseintrag
       - Protokolle erzeugen extra Verlaufseintrag "aus Meeting erstellt" an Aufgaben mit Link
       - Statistiken:Variablen aus Statistiken können in reports verwendet werden mit [Variablenname]

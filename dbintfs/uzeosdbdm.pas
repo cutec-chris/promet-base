@@ -1037,9 +1037,7 @@ begin
 end;
 procedure TZeosDBDataSet.SetfetchRows(AValue: Integer);
 begin
-  if (copy(TZConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,6) = 'sqlite') then
-  else
-    FetchRow:=AValue;
+  FetchRow:=AValue;
 end;
 function TZeosDBDataSet.GetManagedFieldDefs: TFieldDefs;
 begin
