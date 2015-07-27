@@ -513,7 +513,7 @@ end;
 
 function CastText(Val : string) : string;
 begin
-  Result := 'UPPER(CAST('+Data.QuoteField(Val)+' as VARCHAR(8000)))';
+  Result := 'UPPER(CAST('+Data.QuoteField(Val)+' as CHAR(8000)))';
 end;
 var
   aOldEntry: UTF8String;

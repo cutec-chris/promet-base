@@ -248,7 +248,7 @@ var
   function CastText(Data : TBaseDBModule;Val : string) : string;
   begin
     with Lists[i].DataSet as IBaseManageDB do
-      Result := 'UPPER(CAST('+Data.QuoteField(TableName)+'.'+Data.QuoteField(Val)+' as VARCHAR(8000)))';
+      Result := 'UPPER(CAST('+Data.QuoteField(TableName)+'.'+Data.QuoteField(Val)+' as CHAR(8000)))';
   end;
 begin
   if SearchUnsharp then
@@ -403,7 +403,7 @@ var
   function CastText(Data : TBaseDBModule;Val : string) : string;
   begin
     with aObjects.DataSet as IBaseManageDB do
-      Result := 'UPPER(CAST('+Data.QuoteField(TableName)+'.'+Data.QuoteField(Val)+' as VARCHAR(8000)))';
+      Result := 'UPPER(CAST('+Data.QuoteField(TableName)+'.'+Data.QuoteField(Val)+' as CHAR(8000)))';
   end;
 begin
   if not Assigned(FItemFound) then exit;

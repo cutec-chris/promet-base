@@ -90,6 +90,7 @@ type
 
   TZeosDBDataSet = class(TZQuery,IBaseDBFilter,IBaseManageDB,IBaseSubDatasets,IBaseModifiedDS)
   private
+    FFirstOpen : Boolean;
     FSubDataSets : Tlist;
     FFields : string;
     FFilter,FBaseFilter : string;
@@ -606,6 +607,11 @@ begin
   if Assigned(FOrigTable) then
     TBaseDBModule(ForigTable.DataModule).LastTime := GetTicks;
   if TZeosDBDM(Owner).IgnoreOpenRequests then exit;
+  if FFirstOpen then
+    begin
+      SQL.Text := BuildSQL;
+      FFirstOpen:=False;
+    end;
   try
       try
         inherited InternalOpen;
@@ -1154,6 +1160,7 @@ end;
 constructor TZeosDBDataSet.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FFirstOpen:=True;
   DoCheck := False;
   fBaseSorting := '%s';
   FChangeUni:=False;
@@ -1322,7 +1329,7 @@ begin
       FConnection.Disconnect;
     FConnection.Port:=0;
     FConnection.Properties.Clear;
-    //FConnection.Properties.Add('timeout=2');
+    FConnection.Properties.Add('timeout=2');
     FConnection.ClientCodepage:='UTF8';
     FConnection.Protocol:='';
     FConnection.User:='';
@@ -1366,7 +1373,10 @@ begin
             raise Exception.Create('Databasefile dosend exists');
       end
     else if (copy(FConnection.Protocol,0,5) = 'mssql') then
-      FConnection.TransactIsolationLevel:=tiReadUnCommitted
+      begin
+        FConnection.TransactIsolationLevel:=tiReadCommitted;
+        FConnection.Properties.Add('MYSQL_OPT_RECONNECT=TRUE');
+      end
     else if (copy(FConnection.Protocol,0,8) = 'firebird')
     or (copy(FConnection.Protocol,0,9) = 'interbase')
     or (copy(FConnection.Protocol,0,5) = 'mysql')

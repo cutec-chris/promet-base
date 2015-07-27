@@ -2874,7 +2874,8 @@ begin
   if not TBaseDBModule(DataModule).IgnoreOpenRequests then
     begin
       try
-        TBaseDBModule(DataModule).DestroyDataSet(FDataSet);
+        if Assigned(FDataSet) then
+          TBaseDBModule(DataModule).DestroyDataSet(FDataSet);
       except
       end;
       inherited Destroy;

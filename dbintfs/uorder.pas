@@ -279,11 +279,11 @@ end;
 
 destructor TOrderRepairImages.Destroy;
 begin
-  FDS.Destroy;
+  FDS.Free;
   FDetail.Free;
-  FLinks.Destroy;
-  FImages.Destroy;
-  FHistory.Destroy;
+  FLinks.Free;
+  FImages.Free;
+  FHistory.Free;
   inherited Destroy;
 end;
 
@@ -350,7 +350,7 @@ begin
 end;
 destructor TOrderRepair.Destroy;
 begin
-  FDetails.Destroy;
+  FDetails.Free;
   inherited Destroy;
 end;
 function TOrderRepair.CreateTable : Boolean;
@@ -640,8 +640,8 @@ end;
 destructor TOrder.Destroy;
 begin
   FCurrency.Free;
-  FOrderAddress.Destroy;
-  FOrderPos.Destroy;
+  FOrderAddress.Free;
+  FOrderPos.Free;
   FreeAndnil(FLinks);
   inherited Destroy;
 end;
@@ -1551,8 +1551,8 @@ begin
 end;
 destructor TOrderPos.Destroy;
 begin
-  FOrderRepair.Destroy;
-  FQMTest.Destroy;
+  FOrderRepair.Free;
+  FQMTest.Free;
   inherited Destroy;
 end;
 function TOrderPos.CreateTable : Boolean;
@@ -1673,8 +1673,8 @@ end;
 
 destructor TOrderList.Destroy;
 begin
-  FHistory.Destroy;
-  FOrderTyp.Destroy;
+  FHistory.Free;
+  FOrderTyp.Free;
   inherited Destroy;
 end;
 

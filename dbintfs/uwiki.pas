@@ -149,7 +149,7 @@ end;
 
 function TWikiList.FindWikiPage(PageName: string;aDocreate : Boolean = False): Boolean;
 var
-  aParent : Variant;
+  aParent : Int64;
   aID: Variant;
   tmp: String;
 begin
@@ -168,7 +168,9 @@ begin
         begin
           tmp := TBaseDBModule(DataModule).Tree.FieldByName('NAME').AsString;
           PageName := copy(PageName,pos('/',PageName)+1,length(PageName));
-          aParent := TBaseDBModule(DataModule).Tree.Id.AsVariant;
+          if TBaseDBModule(DataModule).Tree.Id.AsVariant<>Null then
+            aParent := TBaseDBModule(DataModule).Tree.Id.AsVariant
+          else aParent:=0;
         end
       else
         begin
@@ -178,7 +180,9 @@ begin
           or TBaseDBModule(DataModule).Tree.DataSet.Locate('NAME;PARENT;TYPE',VarArrayOf([copy(PageName,0,pos('/',PageName)-1),aParent,'W']),[loCaseInSensitive]) then
             begin
               PageName := copy(PageName,pos('/',PageName)+1,length(PageName));
-              aParent := TBaseDBModule(DataModule).Tree.Id.AsVariant;
+              if TBaseDBModule(DataModule).Tree.Id.AsVariant<>Null then
+                aParent := TBaseDBModule(DataModule).Tree.Id.AsVariant
+              else aParent:=0;
             end
           else
             begin
@@ -193,7 +197,9 @@ begin
                     FieldByName('PARENT').AsInteger := 0;
                   Post;
                   PageName := copy(PageName,pos('/',PageName)+1,length(PageName));
-                  aParent := TBaseDBModule(DataModule).Tree.Id.AsVariant;
+                  if TBaseDBModule(DataModule).Tree.Id.AsVariant<>Null then
+                    aParent := TBaseDBModule(DataModule).Tree.Id.AsVariant
+                  else aParent:=0;
                 end;
             end;
         end;

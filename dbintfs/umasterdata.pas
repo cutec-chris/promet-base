@@ -255,7 +255,7 @@ begin
 end;
 destructor TRepairAssembly.Destroy;
 begin
-  FParts.Destroy;
+  FParts.Free;
   inherited Destroy;
 end;
 procedure TRepairAssembly.DefineFields(aDataSet: TDataSet);
@@ -697,18 +697,18 @@ end;
 destructor TMasterdata.Destroy;
 begin
   FDS.Free;
-  FMeasurement.Destroy;
-  FSerials.Destroy;
-  FPosition.Destroy;
-  FStorage.Destroy;
-  FHistory.Destroy;
-  FImages.Destroy;
-  FTexts.Destroy;
-  FLinks.Destroy;
-  FPrices.Destroy;
-  FProperties.Destroy;
-  FAssembly.Destroy;
-  FSupplier.Destroy;
+  FMeasurement.Free;
+  FSerials.Free;
+  FPosition.Free;
+  FStorage.Free;
+  FHistory.Free;
+  FImages.Free;
+  FTexts.Free;
+  FLinks.Free;
+  FPrices.Free;
+  FProperties.Free;
+  FAssembly.Free;
+  FSupplier.Free;
   inherited Destroy;
 end;
 
