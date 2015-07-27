@@ -1,4 +1,6 @@
-﻿Build 408
+﻿Build 409
+      - MySQL:erste Version die MySQL unterstützt (warscheinlich noch nicht zu 100%)
+Build 408
       - neues Datenbanklayer
       - Bugfixes für vergangene 3 Revisionen
 Build 407

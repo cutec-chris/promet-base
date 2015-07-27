@@ -655,7 +655,10 @@ end;
 procedure TObjects.FillDefaults(aDataSet: TDataSet);
 begin
   inherited FillDefaults(aDataSet);
-  FieldByName('ICON').AsInteger:=Data.GetLinkIcon('ALLOBJECTS@',True);
+  try
+    FieldByName('ICON').AsInteger:=Data.GetLinkIcon('ALLOBJECTS@',True);
+  except
+  end;
 end;
 
 function TObjects.SelectByLink(aLink: string): Boolean;
@@ -1359,6 +1362,8 @@ begin
     try
       aHistory := TAccessHistory.Create(nil);
       aObj := TObjects.Create(nil);
+      with aObj.DataSet as IBaseDbFilter do
+        UsePermissions:= False;
       if AccHistory then
         begin
           if DataSet.State<>dsInsert then
