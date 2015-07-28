@@ -1601,12 +1601,14 @@ end;
 procedure TZeosDBDM.DestroyDataSet(DataSet: TDataSet);
 begin
   try
+    {
     if Assigned(DataSet) and Assigned(TZeosDBDataSet(DataSet).MasterSource) then
       begin
         TZeosDBDataSet(DataSet).MasterSource.DataSet.DataSource.Free;
         TZeosDBDataSet(DataSet).MasterSource := nil;
         TZeosDBDataSet(DataSet).DataSource := nil;
       end;
+    }
   except
     with BaseApplication as IBaseApplication do
      Debug(Self.ClassName+' has Masterdata that is destroyed before itself !!');
