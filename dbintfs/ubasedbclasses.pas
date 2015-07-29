@@ -88,7 +88,7 @@ type
     property TableName : string read GetTableName;
     procedure CascadicPost;virtual;
     procedure CascadicCancel;virtual;
-    procedure Delete;virtual;
+    function Delete : Boolean;virtual;
     procedure Insert;virtual;
     procedure Append;virtual;
     procedure First;virtual;
@@ -144,7 +144,7 @@ type
     function GetTextFieldName: string;virtual;abstract;
     function GetNumberFieldName : string;virtual;abstract;
     function GetBookNumberFieldName : string;virtual;
-    procedure Delete; override;
+    function Delete : Boolean; override;
     function Find(aIdent : string;Unsharp : Boolean = False) : Boolean;virtual;
     function  ExportToXML : string;virtual;
     procedure ImportFromXML(XML : string;OverrideFields : Boolean = False;ReplaceFieldFunc : TReplaceFieldFunc = nil);virtual;
@@ -300,10 +300,13 @@ type
     property WorkTime : Extended read GetWorktime;
     property IDCode : TField read GetIDCode;
   end;
+
+  { TActiveUsers }
+
   TActiveUsers = class(TBaseDBDataSet)
   public
     procedure DefineFields(aDataSet : TDataSet);override;
-    procedure Delete; override;
+    function Delete : Boolean; override;
   end;
   TUserfielddefs = class(TBaseDBDataSet)
   public
@@ -1098,10 +1101,11 @@ begin
   Result := '';
 end;
 
-procedure TBaseDbList.Delete;
+function TBaseDbList.Delete: Boolean;
 var
   aObj: TObjects;
 begin
+  Result:=False;
   try
     aObj := TObjects.Create(nil);
     if not Data.TableExists(aObj.TableName) then
@@ -1115,11 +1119,12 @@ begin
     while aObj.Count>0 do
       begin
         aObj.DataSet.Delete;
+        Result:=True;
       end;
     aObj.Free;
   except
   end;
-  inherited Delete;
+  Result := inherited Delete;
 end;
 
 procedure TBaseDBDataset.Select(aID: Variant);
@@ -1483,11 +1488,15 @@ begin
       end;
 end;
 
-procedure TBaseDBDataset.Delete;
+function TBaseDBDataset.Delete: Boolean;
 begin
-  Change;
+  Result := False;
   if FDataSet.Active and (Count > 0) then
-    FDataSet.Delete;
+    begin
+      Change;
+      FDataSet.Delete;
+      Result := True;
+    end;
 end;
 
 procedure TBaseDBDataset.Insert;
@@ -1948,10 +1957,11 @@ begin
     end;
 end;
 
-procedure TActiveUsers.Delete;
+function TActiveUsers.Delete: Boolean;
 begin
   with DataSet as IBaseManageDB do
     UpdateStdFields := False;
+  Result := True;
   DataSet.Delete;
   with DataSet as IBaseManageDB do
     UpdateStdFields := True;
