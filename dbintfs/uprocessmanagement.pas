@@ -378,6 +378,27 @@ var
         cmd := cmd+BuildCmdLine;
         ExecCommand;
       end
+    else if FileExists(aProcess+ExtractFileExt(BaseApplication.ExeName)) then
+      begin
+        Found := False;
+        cmd := aProcess+ExtractFileExt(BaseApplication.ExeName);
+        cmd := cmd+BuildCmdLine;
+        ExecCommand;
+      end
+    else if FileExists('/usr/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName)) then
+      begin
+        Found := False;
+        cmd := '/usr/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName);
+        cmd := cmd+BuildCmdLine;
+        ExecCommand;
+      end
+    else if FileExists('/usr/local/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName)) then
+      begin
+        Found := False;
+        cmd := '/usr/local/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName);
+        cmd := cmd+BuildCmdLine;
+        ExecCommand;
+      end
     else if Processes.Scripts.Locate('NAME',aProcess,[loCaseInsensitive]) then
       begin
         cmd := AppendPathDelim(BaseApplication.Location)+'pscript'+ExtractFileExt(BaseApplication.ExeName);
