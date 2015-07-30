@@ -120,7 +120,7 @@ type
     property Measurements : TMeasurement read FMeasurement;
     property OnStateChange : TNotifyEvent read FStateChange write FStateChange;
     procedure Makesnapshot(aName : string);
-    procedure Delete; override;
+    function Delete : Boolean; override;
     procedure GenerateThumbnail; override;
     procedure CheckNeedsAction;
     function DuplicateFromOtherProcess(bProject: TProject): Boolean;
@@ -528,8 +528,9 @@ begin
     end;
 end;
 
-procedure TProject.Delete;
+function TProject.Delete: Boolean;
 begin
+  Result := False;
   Tasks.DataSet.DisableControls;
   Tasks.Open;
   while Tasks.Count>0 do
@@ -541,7 +542,7 @@ begin
   Positions.Open;
   while Positions.Count>0 do
     Positions.Delete;
-  inherited Delete;
+  Result := inherited Delete;
 end;
 
 procedure TProject.GenerateThumbnail;
