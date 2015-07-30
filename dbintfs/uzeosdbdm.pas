@@ -1105,24 +1105,6 @@ var
   tmp: String;
 begin
   inherited;
-  {
-  try
-    if ((Field.DataType=ftString)
-    or (Field.DataType=ftWideString)
-    ) and (not FChangeUni)
-    then
-      begin
-        tmp := SysToUni(Field.AsString);
-        if tmp <> Field.AsString then
-          begin
-            FChangeUni := True;
-            Field.AsString:=tmp;
-            FChangeUni := False;
-          end;
-      end;
-  except
-  end;
-  }
   if Assigned(FOrigTable) then
     FOrigTable.Change;
 end;
@@ -1600,14 +1582,12 @@ end;
 procedure TZeosDBDM.DestroyDataSet(DataSet: TDataSet);
 begin
   try
-    {
     if Assigned(DataSet) and Assigned(TZeosDBDataSet(DataSet).MasterSource) then
       begin
         TZeosDBDataSet(DataSet).MasterSource.DataSet.DataSource.Free;
         TZeosDBDataSet(DataSet).MasterSource := nil;
         TZeosDBDataSet(DataSet).DataSource := nil;
       end;
-    }
   except
     with BaseApplication as IBaseApplication do
      Debug(Self.ClassName+' has Masterdata that is destroyed before itself !!');

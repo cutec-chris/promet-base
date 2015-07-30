@@ -65,7 +65,7 @@ type
     property IsDir : Boolean read GetIsDir;
     property IsLink : Boolean read GetIsLink;
     function SelectFile(aFilename : string) : Boolean;
-    procedure Delete;override;
+    function Delete : Boolean;override;
     property Size : Int64 read GetFileSize;
     property CreationDate : TDateTime read GetCreationDate;
     property LastModified : TDateTime read GetLastModified;
@@ -134,7 +134,7 @@ type
     property OnCheckCheckinFiles : TCheckCheckinFilesEvent read FOnCheckCheckinFiles write FOnCheckCheckinFiles;
     property AftercheckInFiles : TNotifyEvent read FAfterCheckinFiles write FAfterCheckInFiles;
     property OnCheckCheckOutFile : TCheckCheckOutFileEvent read FOnCheckCheckOutFile write FOnCheckCheckOutFile;
-    procedure Delete;override;
+    function Delete : Boolean;override;
     property MimeTypes : TMimeTypes read FMimeTypes;
     property DocumentActions : TDocumentActions read FDocumentActions;
   end;
@@ -883,16 +883,20 @@ begin
   FBaseLanguage := Null;
   ParentID := aParent;
 end;
-procedure TDocuments.Delete;
+function TDocuments.Delete: Boolean;
 var
   aDocument: TDocument;
   {%H-}tmp: String;
 begin
+  Result := False;
   aDocument := TDocument.CreateEx(Self,DataModule,Connection);
   aDocument.SelectByNumber(DataSet.FieldByName('NUMBER').AsVariant);
   aDocument.Open;
   if aDocument.Count>0 then
-    aDocument.Delete;
+    begin
+      aDocument.Delete;
+      Result := True;
+    end;
   aDocument.Free;
   DataSet.Refresh;
 end;
@@ -1864,10 +1868,11 @@ begin
     end;
   aText := SysToUni(aText);//ConvertEncoding(aText,GuessEncoding(aText),EncodingUTF8);
 end;
-procedure TDocument.Delete;
+function TDocument.Delete: Boolean;
 var
   aDocuments: TDocuments;
 begin
+  Result := False;
   if not DataSet.Active then exit;
   DataSet.Refresh;
   if IsDir then
@@ -1876,11 +1881,17 @@ begin
       aDocuments.Select(Ref_ID,BaseTyp,BaseID,BaseVersion,BaseLanguage,DataSet.FieldByName('NUMBER').AsVariant);
       aDocuments.Open;
       while aDocuments.Count > 0 do
-        aDocuments.Delete;
+        begin
+          aDocuments.Delete;
+          Result := True;
+        end;
       aDocuments.Free;
     end;
   while (Count > 0) do
-    DataSet.Delete;
+    begin
+      DataSet.Delete;
+      Result := True;
+    end;
 end;
 
 initialization
