@@ -604,7 +604,7 @@ procedure TZeosDBDataSet.InternalOpen;
 var
   a: Integer;
 begin
-  if Assigned(FOrigTable) then
+  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
     TBaseDBModule(ForigTable.DataModule).LastTime := GetTicks;
   if TZeosDBDM(Owner).IgnoreOpenRequests then exit;
   if FFirstOpen then
@@ -627,9 +627,8 @@ begin
           end;
       end;
       try
-      if Assigned(FOrigTable) then
+      if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
         begin
-          FOrigTable.SetDisplayLabels(Self);
           if FOrigTable.UpdateFloatFields then
             begin
               DisableControls;
