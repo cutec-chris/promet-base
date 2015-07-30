@@ -863,12 +863,12 @@ var
 begin
   if MessageDlg(strRealdelete,mtInformation,[mbYes,mbNo],0) = mrYes then
     begin
+      aItem := ThumbControl1.ImageLoaderManager.ActiveItem;
+
       while FDocFrame.DataSet.Count>0 do
         TDocuments(FDocFrame.DataSet).Delete;
       DataSet.Delete;
-      aItem := ThumbControl1.ImageLoaderManager.ActiveItem;
       ThumbControl1.ImageLoaderManager.List.Delete(ThumbControl1.ImageLoaderManager.ActiveIndex);
-//      aItem.Free;
       ThumbControl1.Arrange;
       ThumbControl1.Invalidate;
       if DataSet.Count=0 then acRefresh.Execute;

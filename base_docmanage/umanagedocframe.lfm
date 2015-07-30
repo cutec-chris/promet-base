@@ -1120,7 +1120,7 @@ inherited fManageDocFrame: TfManageDocFrame
       OnDrawCaption = ThumbControl1DrawCaption
       ScrollBars = ssAutoBoth
       Align = alClient
-      Color = clGray
+      Color = clWindow
       ColorActiveFrame = clHighlight
       ColorSelect = 8311274
       ColorFont = clWhite
@@ -1150,7 +1150,7 @@ inherited fManageDocFrame: TfManageDocFrame
   object ActionList1: TActionList[5]
     Images = fVisualControls.Images
     left = 16
-    top = 56
+    top = 48
     object acDelete: TAction
       Caption = 'löschen'
       Hint = 'Eintrag löschen'
