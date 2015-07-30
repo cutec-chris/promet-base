@@ -1018,8 +1018,8 @@ end;
 
 procedure TMasterdataList.OpenItem(AccHistory: Boolean);
 var
-  aHistory: TAccessHistory;
-  aObj: TObjects;
+  aHistory: TAccessHistory = nil;
+  aObj: TObjects = nil;
   aID: String;
   aFilter: String;
 begin
