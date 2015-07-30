@@ -590,7 +590,7 @@ begin
       try
         aPic := TPicture.Create;
         aPic.LoadFromStreamWithFileExt(aStream,aExtension);
-        if FResetZoom then
+        if FResetZoom and (aPic.Height>0) and (aPic.Width>0) then
           begin
             if (APic.Width > aPic.Height) or FZoomW then
               FScale := Width/aPic.Width

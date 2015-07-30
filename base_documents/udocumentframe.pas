@@ -1140,8 +1140,8 @@ begin
   if MessageDlg(strRealdelete,mtInformation,[mbYes,mbNo],0) = mrYes then
     begin
       if not GotoSelected then exit;
-      if DataSet.Count > 0 then
-        DataSet.Delete;
+      if DataSet.Count = 0 then exit;
+      DataSet.Delete;
       lvDocuments.Items.Delete(lvDocuments.Selected.Index);
     end;
 end;
