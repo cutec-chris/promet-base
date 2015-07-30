@@ -736,7 +736,7 @@ begin
           SortFields := 'TIMESTAMPD,SQL_ID';
           Fields := tmpFields;
           if aNumber <> Null then
-            Filter := Data.QuoteField('NUMBER')+'='+Data.QuoteValue(IntToStr(aNumber))
+            Filter := Data.QuoteField('NUMBER')+'='+TBaseDBModule(DataModule).QuoteValue(Format('%d',[Int64(aNumber)]))
           else
             Filter := Data.QuoteField('NUMBER')+'='+Data.QuoteValue('0');
           Limit := 0;
@@ -891,7 +891,8 @@ begin
   aDocument := TDocument.CreateEx(Self,DataModule,Connection);
   aDocument.SelectByNumber(DataSet.FieldByName('NUMBER').AsVariant);
   aDocument.Open;
-  aDocument.Delete;
+  if aDocument.Count>0 then
+    aDocument.Delete;
   aDocument.Free;
   DataSet.Refresh;
 end;
