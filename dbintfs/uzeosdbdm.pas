@@ -24,7 +24,7 @@ uses
   Classes, SysUtils, db, ZConnection, ZSqlMetadata,
   ZAbstractRODataset, ZDataset, ZSequence,ZAbstractConnection,
   uModifiedDS,ZSqlMonitor,Utils,uBaseDatasetInterfaces,syncobjs,
-  uBaseDBInterface,uBaseDbClasses;
+  uBaseDBInterface,uBaseDbClasses,ZCompatibility;
 type
   TUnprotectedDataSet = class(TDataSet);
 
@@ -1298,11 +1298,7 @@ begin
   FProperties := aProp;
   FConnection := TZConnection(Connection);
   if not Assigned(FConnection) then
-    begin
-      FConnection := FMainConnection;
-      if FConnection.Connected then
-        FConnection.Disconnect;
-    end;
+    FConnection := FMainConnection;
   Result := True;
   tmp := aProp;
   try
@@ -1353,19 +1349,24 @@ begin
           if not FileExists(FConnection.Database) then
             raise Exception.Create('Databasefile dosend exists');
       end
-    else if (copy(FConnection.Protocol,0,5) = 'mssql') then
-      begin
-        FConnection.TransactIsolationLevel:=tiReadCommitted;
-        FConnection.Properties.Add('MYSQL_OPT_RECONNECT=TRUE');
-      end
     else if (copy(FConnection.Protocol,0,8) = 'firebird')
     or (copy(FConnection.Protocol,0,9) = 'interbase')
     or (copy(FConnection.Protocol,0,5) = 'mysql')
     then
       begin
         FConnection.TransactIsolationLevel:=tiReadCommitted;
+        FConnection.Properties.Add('MYSQL_OPT_RECONNECT=TRUE');
+      end
+    else if (copy(FConnection.Protocol,0,5) = 'mssql') then
+      begin
+        FConnection.ClientCodepage:='utf8';
+        FConnection.AutoEncodeStrings:=true;
       end;
+
+    //*********Connect***********
+
     FConnection.Connected:=True;
+
     FLimitAfterSelect := False;
     FLimitSTMT := 'LIMIT %d';
     FDBTyp := FConnection.Protocol;
