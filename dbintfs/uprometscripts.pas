@@ -226,6 +226,7 @@ begin
             Add('VERSION',ftString,8,False);
             Add('ACTIVE',ftString,1,True);
             Add('SYNTAX',ftString,15,True);
+            Add('PRIORITY',ftInteger,0,False);
             Add('RUNEVERY',ftInteger,0,False);
             Add('RUNMASHINE',ftString,150,False);
             Add('RUNONHISTORY',ftString,1,False);

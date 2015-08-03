@@ -1450,12 +1450,8 @@ begin
       RefreshTimer.Enabled:=True;
 end;
 
-var
-  aEntry : TPrometMenuEntry;
 initialization
   TBaseVisualApplication(Application).RegisterForm(TfWikiFrame);
-  aEntry := TPrometMenuEntry.Create(strWiki,strWiki,'FOLDER@WIKI',IMAGE_WIKI,'W');
-  AddMenuEntry(aEntry);
 {$R *.lfm}
 end.
 
