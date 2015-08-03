@@ -93,7 +93,7 @@ type
     FFirstOpen : Boolean;
     FSubDataSets : Tlist;
     FFields : string;
-    FFilter,FBaseFilter : string;
+    FFilter,FBaseFilter,FIntFilter : string;
     FLimit : Integer;
     FMDS: TDataSource;
     FSortDirection : TSortDirection;
@@ -116,6 +116,7 @@ type
     FUseIntegrity : Boolean;
     FChangeUni : Boolean;
     FSQL : string;
+    FParams : TStringList;
     FHasNewID : Boolean;
     procedure SetNewIDIfNull;
     function BuildSQL : string;
@@ -327,7 +328,7 @@ begin
         Result += TZeosDBDM(Owner).QuoteField(FDefaultTableName)+'.'+'* '
       else
         Result += FFields+' ';
-      aFilter := FFilter;
+      aFilter := FIntFilter;
       if (FBaseFilter <> '') and (aFilter <> '') then
         aFilter := '('+fBaseFilter+') and ('+aFilter+')'
       else if (FBaseFilter <> '') then
@@ -904,17 +905,31 @@ begin
   SQL.text := BuildSQL;
 end;
 procedure TZeosDBDataSet.SetFilter(const AValue: string);
+var
+  NewSQL: string;
+  i: Integer;
+  aPar: TParam;
 begin
   if (FFilter=AValue) and (SQL.text<>'') then
     begin
       if (AValue<>'') or (pos('where',SQL.Text)=0) then
         exit;
     end;
-  if TZeosDBDM(Owner).CheckForInjection(AValue) then exit;
-  FFilter := AValue;
-  FSQL := '';
+  TZeosDBDM(Owner).DecodeFilter(AValue,FParams,NewSQL);
   Close;
-  SQL.text := BuildSQL;
+  if FIntFilter<>NewSQL then //Params and SQL has changed
+    begin
+      if TZeosDBDM(Owner).CheckForInjection(AValue) then exit;
+      FFilter := AValue;
+      FIntFilter:=NewSQL;
+      FSQL := BuildSQL;
+      SQL.text := FSQL;
+    end;
+  for i := 0 to FParams.Count-1 do
+    begin
+      aPar := ParamByName(FParams.Names[i]);
+      aPar.AsString:=FParams.ValueFromIndex[i];
+    end;
 end;
 procedure TZeosDBDataSet.SetBaseFilter(const AValue: string);
 begin
@@ -1157,10 +1172,12 @@ begin
   FUpStdFields := True;
   FUpChangedBy := True;
   FUseIntegrity:=False;//disable for sync
+  FParams := TStringList.Create;
 end;
 destructor TZeosDBDataSet.Destroy;
 begin
   //TODO: Free Subdatasets ??
+  FParams.Free;
   FManagedFieldDefs.Free;
   FManagedIndexDefs.Free;
   FSubDataSets.Free;

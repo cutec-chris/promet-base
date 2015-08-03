@@ -168,6 +168,7 @@ type
     function DropTable(aTableName : string) : Boolean;virtual;abstract;
     function GetColumns(TableName : string) : TStrings;virtual;abstract;
     function CheckForInjection(aFilter : string) : Boolean;
+    function DecodeFilter(aSQL : string;Parameters : TStringList;var NewSQL : string) : Boolean;virtual;
     function GetDBType : string;virtual;
     function GetDBLayerType : string;virtual;abstract;
     procedure SetFilter(DataSet : TbaseDBDataSet;aFilter : string;aLimit : Integer = 0;aOrderBy : string = '';aSortDirection : string = 'ASC';aLocalSorting : Boolean = False;aGlobalFilter : Boolean = True;aUsePermissions : Boolean = False;aFilterIn : string = '');
@@ -1323,6 +1324,29 @@ begin
       raise Exception.Create(strSQLInjection);
       Result := True;
     end;
+end;
+
+function TBaseDBModule.DecodeFilter(aSQL: string; Parameters: TStringList;
+  var NewSQL: string): Boolean;
+var
+  aQuotes: String;
+  i: Integer;
+begin
+  aQuotes := QuoteValue('');
+  aQuotes := copy(aQuotes,0,1);
+  i := 0;
+  NewSQL := '';
+  Parameters.Clear;
+  while pos(aQuotes,aSQL)>0 do
+    begin
+      NewSQL:=NewSQL+copy(aSQL,0,pos(aQuotes,aSQL)-1);
+      aSQL := copy(aSQL,pos(aQuotes,aSQL)+1,length(aSQL));
+      NewSQL:=NewSQL+':Param'+IntToStr(i);
+      Parameters.Values['Param'+IntToStr(i)]:=copy(aSQL,0,pos(aQuotes,aSQL));
+      NewSQL:=NewSQL;
+      aSQL := copy(aSQL,pos(aQuotes,aSQL)+1,length(aSQL));
+    end;
+  NewSQL:=NewSQL+aSQL;
 end;
 
 function TBaseDBModule.GetDBType: string;
