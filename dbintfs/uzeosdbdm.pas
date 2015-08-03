@@ -323,7 +323,7 @@ begin
       if FDistinct then
         Result := Result+'DISTINCT ';
       if TZeosDBDM(Owner).LimitAfterSelect and ((FLimit > 0)) then
-        Result += Format(TZeosDBDM(Owner).LimitSTMT,[FLimit])+' ';
+        Result += Format(TZeosDBDM(Owner).LimitSTMT,[':Limit'])+' ';
       if FFields = '' then
         Result += TZeosDBDM(Owner).QuoteField(FDefaultTableName)+'.'+'* '
       else
@@ -364,7 +364,7 @@ begin
             Result += ' ORDER BY '+sResult;
         end;
       if (FLimit > 0) and (not TZeosDBDM(Owner).LimitAfterSelect) then
-        Result += ' '+Format(TZeosDBDM(Owner).LimitSTMT,[FLimit]);
+        Result += ' '+Format(TZeosDBDM(Owner).LimitSTMT,[':Limit']);
     end
   else
     Result := SQL.text;
@@ -917,7 +917,7 @@ begin
     end;
   TZeosDBDM(Owner).DecodeFilter(AValue,FParams,NewSQL);
   Close;
-  if FIntFilter<>NewSQL then //Params and SQL has changed
+  if (FIntFilter<>NewSQL) or (SQL.Text='') then //Params and SQL has changed
     begin
       if TZeosDBDM(Owner).CheckForInjection(AValue) then exit;
       FFilter := AValue;
@@ -932,6 +932,8 @@ begin
       aPar := ParamByName(FParams.Names[i]);
       aPar.AsString:=FParams.ValueFromIndex[i];
     end;
+  if (FLimit>0) and Assigned(Params.FindParam('Limit')) then
+    ParamByName('Limit').AsInteger:=FLimit;
 end;
 procedure TZeosDBDataSet.SetBaseFilter(const AValue: string);
 begin
@@ -954,7 +956,7 @@ begin
   if FLimit = AValue then exit;
   FLimit := AValue;
   Close;
-  SQL.text := BuildSQL;
+  SetFilter(FFilter);
 end;
 procedure TZeosDBDataSet.SetSortDirection(const AValue: TSortDirection);
 begin
@@ -1387,7 +1389,7 @@ begin
     FConnection.Connected:=True;
 
     FLimitAfterSelect := False;
-    FLimitSTMT := 'LIMIT %d';
+    FLimitSTMT := 'LIMIT %s';
     FDBTyp := FConnection.Protocol;
     if FConnection.Protocol = 'sqlite-3' then
       begin
@@ -1403,7 +1405,7 @@ begin
          or (copy(FConnection.Protocol,0,9) = 'interbase') then
       begin
         FDBTyp := 'firebird';
-        FLimitSTMT := 'ROWS 1 TO %d';
+        FLimitSTMT := 'ROWS 1 TO %s';
         if not Assigned(Sequence) then
           begin
             Sequence := TZSequence.Create(Owner);
@@ -1412,7 +1414,7 @@ begin
     else if FConnection.Protocol = 'mssql' then
       begin
         FLimitAfterSelect := True;
-        FLimitSTMT := 'TOP %d';
+        FLimitSTMT := 'TOP %s';
       end;
   except on e : Exception do
     begin
@@ -1672,9 +1674,9 @@ begin
             else
               begin
                 if LimitAfterSelect then
-                  Statement.Execute('update '+QuoteField(Generator)+' set '+QuoteField('ID')+'=(select '+Format(LimitSTMT,[1])+' '+QuoteField('ID')+' from '+QuoteField(Generator)+')+1;')
+                  Statement.Execute('update '+QuoteField(Generator)+' set '+QuoteField('ID')+'=(select '+Format(LimitSTMT,['1'])+' '+QuoteField('ID')+' from '+QuoteField(Generator)+')+1;')
                 else
-                  Statement.Execute('update '+QuoteField(Generator)+' set '+QuoteField('ID')+'=(select '+QuoteField('ID')+' from '+QuoteField(Generator)+' '+Format(LimitSTMT,[1])+')+1;');
+                  Statement.Execute('update '+QuoteField(Generator)+' set '+QuoteField('ID')+'=(select '+QuoteField('ID')+' from '+QuoteField(Generator)+' '+Format(LimitSTMT,['1'])+')+1;');
               end;
           end;
         except

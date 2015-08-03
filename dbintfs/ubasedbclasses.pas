@@ -2528,11 +2528,11 @@ end;
 
 destructor TUser.Destroy;
 begin
-  FPayGroups.Destroy;
-  Options.Destroy;
-  Rights.Destroy;
-  FFollows.Destroy;
-  FHistory.Destroy;
+  FPayGroups.Free;
+  Options.Free;
+  Rights.Free;
+  FFollows.Free;
+  FHistory.Free;
   inherited Destroy;
 end;
 
