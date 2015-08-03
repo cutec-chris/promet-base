@@ -850,7 +850,7 @@ begin
     Debug('Post Events end');
 end;
 initialization
-  TBaseVisualApplication(Application).RegisterForm(TfCalendarFrame);
+//  TBaseVisualApplication(Application).RegisterForm(TfCalendarFrame);
 {$R *.lfm}
 end.
 

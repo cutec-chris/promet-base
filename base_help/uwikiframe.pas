@@ -1451,7 +1451,7 @@ begin
 end;
 
 initialization
-  TBaseVisualApplication(Application).RegisterForm(TfWikiFrame);
+//  TBaseVisualApplication(Application).RegisterForm(TfWikiFrame);
 {$R *.lfm}
 end.
 

@@ -1916,6 +1916,6 @@ begin
 end;
 
 initialization
-  TBaseVisualApplication(Application).RegisterForm(TfManageDocFrame);
+//  TBaseVisualApplication(Application).RegisterForm(TfManageDocFrame);
 end.
 

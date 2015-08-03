@@ -457,6 +457,6 @@ begin
   MsgIndex.free;
 end;
 initialization
-  TBaseVisualApplication(Application).RegisterForm(TfMessageFrame);
+//  TBaseVisualApplication(Application).RegisterForm(TfMessageFrame);
 end.
 
