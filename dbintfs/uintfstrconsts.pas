@@ -21,6 +21,7 @@ unit uIntfStrConsts;
 {$mode objfpc}{$H+}
 interface
 resourcestring
+  strSpreetsheet                = 'Tabellen';
   strSentenceNotValid           = 'Das wurde leider nicht verstanden !';
   strChangeNumer                = 'Nummer ändern';
   strFailed                     = 'fehlgeschlagen !';
