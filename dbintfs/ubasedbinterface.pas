@@ -1342,9 +1342,10 @@ begin
       NewSQL:=NewSQL+copy(aSQL,0,pos(aQuotes,aSQL)-1);
       aSQL := copy(aSQL,pos(aQuotes,aSQL)+1,length(aSQL));
       NewSQL:=NewSQL+':Param'+IntToStr(i);
-      Parameters.Values['Param'+IntToStr(i)]:=copy(aSQL,0,pos(aQuotes,aSQL));
+      Parameters.Values['Param'+IntToStr(i)]:=copy(aSQL,0,pos(aQuotes,aSQL)-1);
       NewSQL:=NewSQL;
       aSQL := copy(aSQL,pos(aQuotes,aSQL)+1,length(aSQL));
+      inc(i);
     end;
   NewSQL:=NewSQL+aSQL;
 end;

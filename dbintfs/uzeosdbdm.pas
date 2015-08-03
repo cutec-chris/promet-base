@@ -922,7 +922,9 @@ begin
       if TZeosDBDM(Owner).CheckForInjection(AValue) then exit;
       FFilter := AValue;
       FIntFilter:=NewSQL;
+      FSQL := '';
       FSQL := BuildSQL;
+      Params.Clear;
       SQL.text := FSQL;
     end;
   for i := 0 to FParams.Count-1 do
