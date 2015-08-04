@@ -122,6 +122,7 @@ type
     function BuildSQL : string;
     function IndexExists(IndexName : string) : Boolean;
     procedure WaitForLostConnection;
+    procedure DoUpdateSQL;
   protected
     //Internal DataSet Methods that needs to be changed
     procedure InternalOpen; override;
@@ -448,6 +449,13 @@ begin
       if Assigned(TZeosDBDM(Owner).OnConnect) then
         TZeosDBDM(Owner).OnConnect(TZeosDBDM(Owner));
     end;
+end;
+
+procedure TZeosDBDataSet.DoUpdateSQL;
+begin
+  Close;
+  SQL.Text:='';
+  SetFilter(FFilter);
 end;
 
 function TZeosDBDataSet.CreateTable : Boolean;
@@ -901,8 +909,7 @@ end;
 procedure TZeosDBDataSet.SetFields(const AValue: string);
 begin
   FFields := AValue;
-  Close;
-  SQL.text := BuildSQL;
+  DoUpdateSQL;
 end;
 procedure TZeosDBDataSet.SetFilter(const AValue: string);
 var
@@ -910,7 +917,7 @@ var
   i: Integer;
   aPar: TParam;
 begin
-  if (FFilter=AValue) and (SQL.text<>'') then
+  if (FFilter=AValue) and (SQL.text<>'')  then
     begin
       if (AValue<>'') or (pos('where',SQL.Text)=0) then
         exit;
@@ -938,8 +945,7 @@ end;
 procedure TZeosDBDataSet.SetBaseFilter(const AValue: string);
 begin
   FBaseFilter := AValue;
-  Close;
-  SQL.text := BuildSQL;
+  DoUpdateSQL;
 end;
 function TZeosDBDataSet.GetSQL: string;
 begin
@@ -948,15 +954,13 @@ end;
 procedure TZeosDBDataSet.SetSQL(const AValue: string);
 begin
   FSQL := AValue;
-  Close;
-  SQL.text := BuildSQL;
+  DoUpdateSQL;
 end;
 procedure TZeosDBDataSet.Setlimit(const AValue: Integer);
 begin
   if FLimit = AValue then exit;
   FLimit := AValue;
-  Close;
-  SetFilter(FFilter);
+  DoUpdateSQL;
 end;
 procedure TZeosDBDataSet.SetSortDirection(const AValue: TSortDirection);
 begin
@@ -964,8 +968,7 @@ begin
   FSortDirection := AValue;
   if not GetSortLocal then
     begin
-      Close;
-      SQL.text := BuildSQL;
+      DoUpdateSQL;
     end;
 end;
 procedure TZeosDBDataSet.SetSortFields(const AValue: string);
@@ -1004,8 +1007,7 @@ procedure TZeosDBDataSet.SetFilterTables(const AValue: string);
 begin
   if AValue = FTableNames then exit;
   FTableNames := AValue;
-  Close;
-  SQL.text := BuildSQL;
+  DoUpdateSQL;
 end;
 function TZeosDBDataSet.GetUsePermissions: Boolean;
 begin
@@ -1015,8 +1017,7 @@ procedure TZeosDBDataSet.SetUsePermisions(const AValue: Boolean);
 begin
   if AValue = FUsePermissions then exit;
   FUsePermissions := AValue;
-  Close;
-  SQL.text := BuildSQL;
+  DoUpdateSQL;
 end;
 function TZeosDBDataSet.GetDistinct: Boolean;
 begin
@@ -1026,8 +1027,7 @@ procedure TZeosDBDataSet.SetDistinct(const AValue: Boolean);
 begin
   if AValue = FDistinct then exit;
   FDistinct := AValue;
-  Close;
-  SQL.text := BuildSQL;
+  DoUpdateSQL;
 end;
 function TZeosDBDataSet.GetBaseSorting: string;
 begin
@@ -1053,7 +1053,7 @@ end;
 procedure TZeosDBDataSet.SetUseBaseSorting(AValue: Boolean);
 begin
   FUseBaseSorting := AValue;
-  SQL.text := BuildSQL;
+  DoUpdateSQL;
 end;
 function TZeosDBDataSet.GetfetchRows: Integer;
 begin
