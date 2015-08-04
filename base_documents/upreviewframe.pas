@@ -23,7 +23,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, ExtCtrls, ComCtrls, Buttons,
   ActnList, StdCtrls, LR_View, LR_Class, uPrometFrames, uDocuments, db, uEditor,
-  uExtControls, Graphics, types,uBaseDbClasses;
+  uExtControls, Graphics, types,uBaseDbClasses,uWlxModule;
 type
 
   { TfPreview }
@@ -82,6 +82,7 @@ type
       procedure tsImageShow(Sender: TObject);
     private
       FAfterGetText: TNotifyEvent;
+      FModules: TWLXModuleList;
       FResetZoom: Boolean;
       FZoomW: Boolean;
       { private declarations }
@@ -112,6 +113,7 @@ type
       property ResetZoom : Boolean read FResetZoom write FResetZoom;
       property ZoomWidth : Boolean read FZoomW write FZoomW;
       property AfterGetText : TNotifyEvent read FAfterGetText write fAfterGetText;
+      property Modules : TWLXModuleList read FModules;
     end;
 
   { TLoadThread }
@@ -501,6 +503,8 @@ begin
 end;
 
 constructor TfPreview.Create(AOwner: TComponent);
+var
+  Info: TSearchRec;
 begin
   inherited Create(AOwner);
   FEditor := TfEditor.Create(Self);
@@ -509,10 +513,23 @@ begin
   FImage := TBitmap.Create;
   FScaledImage := TBitmap.Create;
   Clear;
+  FModules := TWLXModuleList.Create;
+  If FindFirstUTF8 (Application.Location+DirectorySeparator+'plugins'+DirectorySeparator+'*',faAnyFile and faDirectory,Info)=0 then
+    begin
+      Repeat
+        With Info do
+          begin
+            if (Attr and faDirectory) <> faDirectory then
+              FModules.Add(Application.Location+DirectorySeparator+'plugins'+DirectorySeparator+Name);
+          end;
+      Until FindNextUTF8(info)<>0;
+    end;
+  FindCloseUTF8(Info);
 end;
 
 destructor TfPreview.Destroy;
 begin
+  FModules.Free;
   FScaledImage.Free;
   FImage.Free;
   FEditor.Free;
@@ -520,6 +537,9 @@ begin
 end;
 
 function TfPreview.CanHandleType(aExtension: string): Boolean;
+var
+  i: Integer;
+  aMod: TWlxModule;
 begin
   Result := False;
   if (aExtension = 'JPG')
@@ -548,6 +568,13 @@ begin
     then
       Result := True
   ;
+  if not Result then
+    for i := 0 to Modules.Count-1 do
+      begin
+        aMod := Modules.GetWlxModule(i);
+        Result := pos(aExtension,aMod.DetectStr)>0;
+        if Result then break;
+      end;
 end;
 function TfPreview.LoadFromDocuments(aID: LargeInt): Boolean;
 var

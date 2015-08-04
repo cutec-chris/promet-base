@@ -1449,7 +1449,7 @@ begin
   fWaitForm.Show;
   Application.ProcessMessages;
   aDocument := TDocument.Create(nil);
-  aDocument.SelectByNumber(DataSet.FieldByName('NUMBER').AsInteger);
+  aDocument.SelectByNumber(DataSet.FieldByName('NUMBER').AsVariant);
   aDocument.Open;
   Filename := aDocument.GetCheckoutPath('',TempID);
   aDocument.DoCheckout(copy(Filename,0,rpos(DirectorySeparator,Filename)-1));

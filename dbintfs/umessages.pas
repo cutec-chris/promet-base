@@ -256,7 +256,7 @@ begin
     while Documents.Count > 0 do
       begin
         aDocument := TDocument.CreateEx(Self,Data);
-        aDocument.SelectByNumber(Documents.FieldByName('NUMBER').AsInteger);
+        aDocument.SelectByNumber(Documents.FieldByName('NUMBER').AsVariant);
         aDocument.Open;
         Found := False;
         while aDocument.Count > 0 do

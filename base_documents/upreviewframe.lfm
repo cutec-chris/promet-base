@@ -13,12 +13,12 @@ inherited fPreview: TfPreview
     Caption = 'ToolBar2'
     TabOrder = 0
     object cbRevision: TComboBox
-      Left = 121
-      Height = 21
+      Left = 129
+      Height = 30
       Top = 2
       Width = 245
       Align = alLeft
-      ItemHeight = 13
+      ItemHeight = 0
       OnSelect = cbRevisionSelect
       TabOrder = 0
     end
@@ -26,7 +26,7 @@ inherited fPreview: TfPreview
       Left = 73
       Height = 14
       Top = 10
-      Width = 40
+      Width = 48
       Align = alLeft
       BorderSpacing.Around = 8
       Caption = 'Revision'
@@ -200,26 +200,26 @@ inherited fPreview: TfPreview
     TabOrder = 1
     object tsImage: TTabSheet
       Caption = 'Inhalt'
-      ClientHeight = 498
-      ClientWidth = 750
+      ClientHeight = 491
+      ClientWidth = 752
       OnShow = tsImageShow
       object pfrPreview: TPanel
         Left = 0
-        Height = 498
+        Height = 491
         Top = 0
-        Width = 750
+        Width = 752
         Align = alClient
         BevelOuter = bvNone
         Caption = 'pfrPreview'
-        ClientHeight = 498
-        ClientWidth = 750
+        ClientHeight = 491
+        ClientWidth = 752
         TabOrder = 0
         Visible = False
         object frPreview: TfrPreview
           Left = 0
-          Height = 498
+          Height = 491
           Top = 0
-          Width = 750
+          Width = 752
           Align = alClient
           BevelOuter = bvNone
           Caption = 'keine Vorschau'
@@ -229,19 +229,19 @@ inherited fPreview: TfPreview
       end
       object sbImage: TPanel
         Left = 0
-        Height = 498
+        Height = 491
         Top = 0
-        Width = 750
+        Width = 752
         Align = alClient
         BevelOuter = bvNone
-        ClientHeight = 498
-        ClientWidth = 750
+        ClientHeight = 491
+        ClientWidth = 752
         TabOrder = 1
         object PaintBox1: TPaintBox
           Left = 0
-          Height = 484
+          Height = 477
           Top = 0
-          Width = 736
+          Width = 738
           Align = alClient
           OnMouseDown = frPreviewMouseDown
           OnMouseMove = frPreviewMouseMove
@@ -251,8 +251,8 @@ inherited fPreview: TfPreview
           OnPaint = PaintBox1Paint
         end
         object ScrollBar2: TScrollBar
-          Left = 736
-          Height = 484
+          Left = 738
+          Height = 477
           Top = 0
           Width = 14
           Align = alRight
@@ -264,8 +264,8 @@ inherited fPreview: TfPreview
         object ScrollBar1: TScrollBar
           Left = 0
           Height = 14
-          Top = 484
-          Width = 735
+          Top = 477
+          Width = 737
           Align = alBottom
           BorderSpacing.Right = 15
           PageSize = 0
@@ -276,13 +276,13 @@ inherited fPreview: TfPreview
     end
     object tsText: TTabSheet
       Caption = 'Text'
-      ClientHeight = 498
-      ClientWidth = 750
+      ClientHeight = 491
+      ClientWidth = 752
       object mText: TMemo
         Left = 44
-        Height = 498
+        Height = 491
         Top = 0
-        Width = 706
+        Width = 708
         Align = alClient
         Font.Height = -12
         Lines.Strings = (
@@ -294,12 +294,12 @@ inherited fPreview: TfPreview
       end
       object pLeft: TPanel
         Left = 0
-        Height = 498
+        Height = 491
         Top = 0
         Width = 44
         Align = alLeft
         BevelOuter = bvNone
-        ClientHeight = 498
+        ClientHeight = 491
         ClientWidth = 44
         ParentShowHint = False
         ShowHint = True
@@ -334,8 +334,7 @@ inherited fPreview: TfPreview
             Caption = 'Text'
             Font.Color = clMedGray
             Font.Height = 11
-            Font.Orientation = 900
-            Layout = tlBottom
+            Font.Orientation = -900
             ParentColor = False
             ParentFont = False
           end
