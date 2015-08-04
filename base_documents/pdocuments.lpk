@@ -7,10 +7,8 @@
       <SearchPaths>
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
-      <CodeGeneration>
-      </CodeGeneration>
     </CompilerOptions>
-    <Files Count="29">
+    <Files Count="30">
       <Item1>
         <Filename Value="udocproperties.pas"/>
         <UnitName Value="uDocProperties"/>
@@ -127,6 +125,10 @@
         <Filename Value="usyneditfiler.pas"/>
         <UnitName Value="uSynEditFiler"/>
       </Item29>
+      <Item30>
+        <Filename Value="uwlxmodule.pas"/>
+        <UnitName Value="uWlxModule"/>
+      </Item30>
     </Files>
     <RequiredPkgs Count="5">
       <Item1>
