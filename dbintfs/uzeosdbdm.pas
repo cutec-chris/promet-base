@@ -1380,6 +1380,7 @@ begin
       end
     else if (copy(FConnection.Protocol,0,5) = 'mssql') then
       begin
+        FConnection.TransactIsolationLevel:=tiReadUnCommitted;
         FConnection.ClientCodepage:='utf8';
         FConnection.AutoEncodeStrings:=true;
       end;

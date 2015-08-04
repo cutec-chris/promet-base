@@ -585,8 +585,6 @@ var
 begin
   ActControl := Screen.ActiveControl;
   SetLanguage;
-  if not OwnConnection then
-    Data.StartTransaction(aConnection);
   FDataSet.SelectFromLink(aLink);
   FDataSet.CreateTable;
   FDataSet.Open;
@@ -615,14 +613,10 @@ begin
           if Result then
             begin
               FDataSet.CascadicPost;
-              if not OwnConnection then
-                Data.CommitTransaction(aConnection)
             end
           else
             begin
               FDataSet.CascadicCancel;
-              if not OwnConnection then
-                Data.RollbackTransaction(aConnection);
             end;
         end;
     end;

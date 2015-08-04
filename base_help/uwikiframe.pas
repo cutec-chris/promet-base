@@ -671,7 +671,6 @@ var
   aRDs: TDataSet = nil;
   tmp: String;
   IncHeader: Boolean;
-  aConn: TComponent = nil;
   aConditionOK : Boolean = True;
   aCondition: String = '';
   aTmpFloat: Extended;
@@ -1142,10 +1141,9 @@ begin
         aStatistic.Open;
         if aStatistic.Count>0 then
           begin
-            aConn := Data.GetNewConnection;
             aSQL := aStatistic.BuildQuerry(Variables);
             aSQL := ReplaceSQLFunctions(aSQL);
-            aRDs := Data.GetNewDataSet(aSQL,aConn);
+            aRDs := Data.GetNewDataSet(aSQL);
             try
               aRDS.Open;
             except
@@ -1171,7 +1169,6 @@ begin
           end;
       finally
         FreeAndNil(aRds);
-        FreeAndNil(aConn);
         FreeAndNil(aStatistic);
       end;
       FreeAndNil(bStmt);
@@ -1206,8 +1203,7 @@ begin
         aStatistic.Open;
         if aStatistic.Count>0 then
           begin
-            aConn := Data.GetNewConnection;
-            aRDs := Data.GetNewDataSet(aStatistic.BuildQuerry(Variables),aConn);
+            aRDs := Data.GetNewDataSet(aStatistic.BuildQuerry(Variables));
             try
               aRDS.Open;
             except
@@ -1229,7 +1225,6 @@ begin
           end;
       finally
         FreeAndNil(aRds);
-        FreeAndNil(aConn);
         FreeAndNil(aStatistic);
       end;
       FreeAndNil(bStmt);
