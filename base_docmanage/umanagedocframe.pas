@@ -208,6 +208,7 @@ type
     FURL : string;
     aTag: String;
     aDate: String;
+    FirstEnter : Boolean;
     FtempPath : string;
     FDocFrame: TfDocumentFrame;
     FTimeLine: TTimeLine;
@@ -227,6 +228,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure DoRefresh; override;
+
     function GotoCurrentItem: Boolean;
     procedure Open(aType : string);
     procedure OpenDir(aDir : Variant);
@@ -450,6 +452,11 @@ begin
           aForm.OnDropFiles:=@DoOnDropFiles;
           aForm.AllowDropFiles:=True;
         end;
+    end;
+  if FirstEnter then
+    begin
+      FirstEnter := False;
+      DoRefresh;
     end;
 end;
 procedure TfManageDocFrame.FrameExit(Sender: TObject);
@@ -1292,6 +1299,7 @@ procedure TfManageDocFrame.acRefreshExecute(Sender: TObject);
 var
   OldIdx: Integer;
 begin
+  if not Self.DataSet.Active then exit;
   OldIdx:=ThumbControl1.ImageLoaderManager.ActiveIndex;
   DataSet.DataSet.Refresh;
   FLast:='';
@@ -1809,6 +1817,7 @@ begin
   PreviewFrame.AddToolbarAction(acRotate);
   PreviewFrame.AddToolbarAction(acOptimizeDocument);
   PreviewFrame.AfterGetText:=@PreviewFrameAfterGetText;
+  FirstEnter:=True;
 end;
 destructor TfManageDocFrame.Destroy;
 begin
@@ -1856,6 +1865,7 @@ begin
 end;
 procedure TfManageDocFrame.DoRefresh;
 begin
+  ThumbControl1.Invalidate;
 end;
 
 function TfManageDocFrame.GotoCurrentItem : Boolean;
@@ -1913,6 +1923,8 @@ procedure TfManageDocFrame.ShowFrame;
 begin
   inherited ShowFrame;
   if not Assigned(Self) then exit;
+  if not Assigned(Self.DataSet) then exit;
+  acRefresh.Execute;
 end;
 
 initialization
