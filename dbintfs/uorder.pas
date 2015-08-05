@@ -207,10 +207,11 @@ type
     function FailMessage : string;
     function FormatCurrency(Value : real) : string;
     function CalcDispatchType : Boolean;
+    function SelectFromLink(aLink: string): Boolean; override;
   end;
 implementation
 uses uBaseDBInterface, uBaseSearch, uData, Process,uRTFtoTXT,
-  uIntfStrConsts;
+  uIntfStrConsts,Utils;
 resourcestring
   strStatusnotfound             = 'Statustyp nicht gefunden, bitte wenden Sie sich an Ihren Administrator';
   strMainOrdernotfound          = 'Hauptvorgang nicht gefunden !';
@@ -1496,6 +1497,28 @@ begin
     end;
   aPosTyp.Free;
 end;
+
+function TOrder.SelectFromLink(aLink: string): Boolean;
+begin
+  if pos('{',aLink) > 0 then
+    aLink := copy(aLink,0,pos('{',aLink)-1)
+  else if rpos('(',aLink) > 0 then
+    aLink := copy(aLink,0,rpos('(',aLink)-1);
+  with DataSet as IBaseManageDB do
+    begin
+      if copy(aLink,0,pos('@',aLink)-1) = TableName then
+        begin
+          if IsNumeric(copy(aLink,pos('@',aLink)+1,length(aLink))) then
+            begin
+              Select(copy(aLink,pos('@',aLink)+1,length(aLink)));
+              result := True;
+            end;
+        end
+      else
+        Result:=inherited SelectFromLink(aLink);
+    end;
+end;
+
 function TOrderPos.GetAccountNo: string;
 begin
   if Assigned(Order) and (Order.Address.Count>0) then

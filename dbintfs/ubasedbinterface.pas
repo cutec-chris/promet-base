@@ -907,11 +907,9 @@ var
   aObjs: TObjects;
 begin
   Result := -1;
-  if pos('://',aLink) > 0 then
-    Result := IMAGE_WEBSITE
-  else if copy(aLink, 0, pos('@', aLink) - 1) = 'MASTERDATA' then
-    Result := IMAGE_MASTERDATA
-  else if copy(aLink, 0, pos('@', aLink) - 1) = 'ALLOBJECTS' then
+  if pos('://',aLink) > 0 then Result := IMAGE_WEBSITE
+  else if copy(aLink, 0, 10) = 'MASTERDATA' then Result := IMAGE_MASTERDATA
+  else if copy(aLink, 0, 10) = 'ALLOBJECTS' then
     begin
       Result := 121;
       if GetRealIcon then
@@ -924,32 +922,18 @@ begin
           aObjs.Free;
         end;
     end
-  else if (copy(aLink, 0, pos('@', aLink) - 1) = 'CUSTOMERS')
-       or (copy(aLink, 0, pos('@', aLink) - 1) = 'CUSTOMERS.ID') then
-    Result := IMAGE_PERSON
-  else if copy(aLink, 0, pos('@', aLink) - 1) = 'DOCUMENTS' then
-    Result := IMAGE_DOCUMENTS
-  else if copy(aLink, 0, pos('@', aLink) - 1) = 'ORDERS' then
-    Result := IMAGE_ORDERS
-  else if copy(aLink, 0, pos('@', aLink) - 1) = 'CALLS' then
-    Result := IMAGE_CALLS
-  else if copy(aLink, 0, pos('@', aLink) - 1) = 'MESSAGEIDX' then
-    Result := IMAGE_MESSAGE
-  else if copy(aLink, 0, pos('@', aLink) - 1) = 'CALENDAR' then
-    Result := IMAGE_CALENDAR
-  else if copy(aLink, 0, pos('@', aLink) - 1) = 'ACCOUNTEXCHANGE' then
-    Result := IMAGE_FINANCIAL
-  else if (copy(aLink, 0, pos('@', aLink) - 1) = 'PROJECTS')
-       or (copy(aLink, 0, pos('@', aLink) - 1) = 'PROJECTS.ID') then
-    Result := IMAGE_PROJECT
-  else if (copy(aLink, 0, pos('@', aLink) - 1) = 'TASKS') then
-    Result := IMAGE_TASK
-  else if (copy(aLink, 0, pos('@', aLink) - 1) = 'WIKI') then
-    Result := IMAGE_WIKI
-  else if (copy(aLink, 0, pos('@', aLink) - 1) = 'STATISTICS') then
-    Result := IMAGE_STATISTIC
-  else if (copy(aLink, 0, pos('@', aLink) - 1) = 'SCRIPTS') then
-    Result := 62
+  else if (copy(aLink, 0, 9) = 'CUSTOMERS') then Result := IMAGE_PERSON
+  else if copy(aLink, 0, 9) = 'DOCUMENTS' then   Result := IMAGE_DOCUMENTS
+  else if copy(aLink, 0, 6) = 'ORDERS' then      Result := IMAGE_ORDERS
+  else if copy(aLink, 0, 5) = 'CALLS' then       Result := IMAGE_CALLS
+  else if copy(aLink, 0, 10) = 'MESSAGEIDX' then Result := IMAGE_MESSAGE
+  else if copy(aLink, 0, 8) = 'CALENDAR' then    Result := IMAGE_CALENDAR
+  else if copy(aLink, 0, 15) = 'ACCOUNTEXCHANGE' then Result := IMAGE_FINANCIAL
+  else if (copy(aLink, 0, 8) = 'PROJECTS') then  Result := IMAGE_PROJECT
+  else if (copy(aLink, 0, 5) = 'TASKS') then     Result := IMAGE_TASK
+  else if (copy(aLink, 0, 4) = 'WIKI') then      Result := IMAGE_WIKI
+  else if (copy(aLink, 0, 10) = 'STATISTICS') then  Result := IMAGE_STATISTIC
+  else if (copy(aLink, 0, 7) = 'SCRIPTS') then   Result := 62
   ;
 end;
 function TBaseDBModule.BuildLink(aDataSet: TDataSet): string;
@@ -1038,10 +1022,7 @@ begin
   then
     begin
       Result := Result + aDataSet.FieldByName('ORDERNO').AsString;
-//      if aDataSet is TOrder then
-//        Result := Result+'{'+TOrder(aDataSet).OrderType.FieldByName('STATUSNAME').AsString+' '+aDataSet.FieldByName('NUMBER').AsString+'}'
-//      else
-        Result := result+'{'+aDataSet.FieldByName('NUMBER').AsString+'}';
+      Result := result+'{'+aDataSet.FieldByName('NUMBER').AsString+'}';
     end
   else if (Result = 'CALLS@') then
     begin
@@ -1071,12 +1052,12 @@ begin
     begin
       if (aDataSet.FieldByName('ID').AsString <> '') and (aDataSet.FieldByName('ID').AsString <> '0') then
         begin
-          Result := 'PROJECTS.ID@';
           Result := Result + aDataSet.FieldByName('ID').AsString;
           Result := result+'{'+aDataSet.FieldByName('NAME').AsString+'}';
         end
       else
         begin
+          Result := 'PROJECTS.ID@';
           Result := Result + aDataSet.FieldByName('SQL_ID').AsString;
           Result := result+'{'+aDataSet.FieldByName('NAME').AsString+'}';
         end;

@@ -677,6 +677,12 @@ begin
             if pos('{',aLink)>0 then tmp := copy(tmp,0,pos('{',tmp)-1);
             Filter := TBaseDBModule(DataModule).QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(tmp);
           end
+        else if copy(aLink,0,14)='ALLOBJECTS.ID@' then
+          begin
+            tmp := copy(aLink,15,length(aLink));
+            if pos('{',aLink)>0 then tmp := copy(tmp,0,pos('{',tmp)-1);
+            Filter := TBaseDBModule(DataModule).QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(tmp);
+          end
         else
           Filter := Data.QuoteField('LINK')+'='+Data.QuoteValue(aLink);
       end;

@@ -228,7 +228,7 @@ end;
 function TWlxModule.LoadModule: Boolean;
 begin
   // DCDebug('WLXM LoadModule entered');
-  FModuleHandle := LoadLibrary(Self.FileName);
+  FModuleHandle := dynlibs.LoadLibrary(Self.FileName);
   Result := (FModuleHandle <> NilHandle);
   if FModuleHandle = NilHandle then Exit;
   { Mandatory }

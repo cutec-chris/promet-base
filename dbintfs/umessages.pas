@@ -300,18 +300,21 @@ begin
 end;
 function TMessage.SelectFromLink(aLink: string): Boolean;
 begin
-  Result := False;
-  Select(0);
-  if rpos('{',aLink) > 0 then
-    aLink := copy(aLink,0,rpos('{',aLink)-1)
-  else if rpos('(',aLink) > 0 then
-    aLink := copy(aLink,0,rpos('(',aLink)-1);
-  with DataSet as IBaseManageDB do
-    if copy(aLink,0,pos('@',aLink)-1) = TableName then
-      begin
-        SelectByID(copy(aLink,pos('@',aLink)+1,length(aLink)));
-        Result := True;
-      end;
+  Result := inherited SelectFromLink(aLink);
+  if not Result then
+    begin
+      Select(0);
+      if rpos('{',aLink) > 0 then
+        aLink := copy(aLink,0,rpos('{',aLink)-1)
+      else if rpos('(',aLink) > 0 then
+        aLink := copy(aLink,0,rpos('(',aLink)-1);
+      with DataSet as IBaseManageDB do
+        if copy(aLink,0,pos('@',aLink)-1) = TableName then
+          begin
+            SelectByID(copy(aLink,pos('@',aLink)+1,length(aLink)));
+            Result := True;
+          end;
+    end;
 end;
 procedure TMessage.Next;
 begin

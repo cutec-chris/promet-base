@@ -90,10 +90,14 @@ type
   procedure AddSearchAbleDataSet(aClass : TBaseDBListClass);
   function GetSearchAbleItems : TSearchLocations;
 implementation
-uses uBaseApplication, uBaseDbInterface,uOrder,uData;
+uses uBaseApplication, uBaseDbInterface,uOrder,uData,uStatistic;
 var SearchAble : array of TBaseDBListClass;
 procedure AddSearchAbleDataSet(aClass: TBaseDBListClass);
+var
+  i: Integer;
 begin
+  for i := 0 to length(SearchAble)-1 do
+    if SearchAble[i]=aClass then exit;
   Setlength(SearchAble,length(SearchAble)+1);
   SearchAble[length(SearchAble)-1] := aClass;
 end;
@@ -211,10 +215,8 @@ begin
       FCount := 0;
     end;
   case aLevel of
-  0:DoStartHistorySearch(SearchText);
-  1:DoStartAllObjectsSearch(SearchText);
-  2:DoStart(SearchText,False);
-  3:DoStart(SearchText,True);
+  0:DoStart(SearchText,False);
+  1:DoStart(SearchText,True);
   else Result := False;
   end;
 end;
@@ -223,6 +225,7 @@ procedure TSearch.DoStart(SearchText: string; SearchUnsharp: Boolean);
 var
   i: Integer;
   aFilter: String;
+  aSQL : string = '';
   tmp: String;
   aType: TFullTextSearchType;
   aActive: Boolean;
@@ -230,6 +233,8 @@ var
   aOrder: TOrder;
   aPrio: Integer;
   aLPrio: Integer;
+  aDataSet: TDataSet;
+  bFilter: String;
   function EncodeField(Data : TBaseDBModule;Val : string) : string;
   begin
     with Lists[i].DataSet as IBaseManageDB do
@@ -245,10 +250,15 @@ var
     Result := 'UPPER('+Result+')';
   end;
 
-  function CastText(Data : TBaseDBModule;Val : string) : string;
+  function CastText(Data : TBaseDBModule;Val : string;UseTableName : Boolean = True) : string;
   begin
-    with Lists[i].DataSet as IBaseManageDB do
-      Result := 'UPPER(CAST('+Data.QuoteField(TableName)+'.'+Data.QuoteField(Val)+' as CHAR(8000)))';
+    if UseTableName then
+      begin
+        with Lists[i].DataSet as IBaseManageDB do
+          Result := 'UPPER(CAST('+Data.QuoteField(TableName)+'.'+Data.QuoteField(Val)+' as CHAR(8000)))';
+      end
+    else
+      Result := 'UPPER(CAST('+Data.QuoteField(Val)+' as CHAR(8000)))';
   end;
 begin
   if SearchUnsharp then
@@ -276,37 +286,115 @@ begin
           with Lists[i].DataSet as IBaseDbFilter do
             begin
               Lists[i].DataSet.Close;
-              for aType := low(TFullTextSearchTypes) to High(TFullTextSearchTypes) do
+              aFilter := '';
+              if Data.IsSQLDB then
                 begin
-                  aFilter := '';
+                  aFilter := 'union select ';
+                  if (Lists[i].GetMatchcodeFieldName <> '') then
+                    aFilter += Data.QuoteField(Lists[i].GetMatchcodeFieldName)+' as '+Data.QuoteField('MATCHCODE')+','
+                  else
+                    aFilter += 'NULL as '+Data.QuoteField('MATCHCODE')+',';
+                  aFilter += Data.QuoteField(Lists[i].GetNumberFieldName)+' as '+Data.QuoteField('ID')+',';
+                  if Lists[i].GetBookNumberFieldName <> '' then
+                    aFilter += Lists[i].GetBookNumberFieldName+' as '+Data.QuoteField('NUMBER')+','
+                  else
+                    aFilter += 'NULL as '+Data.QuoteField('NUMBER')+',';
+                  if (Lists[i].GetBarcodeFieldName <> '') then
+                    aFilter += Data.QuoteField(Lists[i].GetBarcodeFieldName)+' as '+Data.QuoteField('BARCODE')+','
+                  else
+                    aFilter += 'NULL as '+Data.QuoteField('BARCODE')+',';
+                  if (Lists[i].GetCommissionFieldName <> '') then
+                    aFilter += Data.QuoteField(Lists[i].GetCommissionFieldName)+' as '+Data.QuoteField('COMMISSION')+','
+                  else
+                    aFilter += 'NULL as '+Data.QuoteField('COMMISSION')+',';
+                  if (Lists[i].GetTextFieldName <> '') then
+                    aFilter += Data.QuoteField(Lists[i].GetTextFieldName)+' as '+Data.QuoteField('SHORTTEXT')+','
+                  else
+                    aFilter += 'NULL as '+Data.QuoteField('SHORTTEXT')+',';
+                  if Lists[i].GetStatusFieldName<>'' then
+                    aFilter += Data.QuoteField(Lists[i].GetStatusFieldName)+' as '+Data.QuoteField('STATUS')+','
+                  else
+                    aFilter += 'NULL as '+Data.QuoteField('STATUS')+',';
+                  if SearchUnsharp then
+                    begin
+                      if (aType = fsDescription) and (fsDescription in FSearchTypes)  then
+                        aFilter += Data.QuoteField(Lists[i].GetDescriptionFieldName)+' as '+Data.QuoteField('SHORTTEXT')+','
+                      else
+                        aFilter += 'NULL as '+Data.QuoteField('DESC')+',';
+                      //if Lists[i] is TBaseHistory then
+                      //  aFilter += ' AND (('+Data.ProcessTerm(Data.QuoteField('OBJECT')+'='+Data.QuoteValue('PROJECTS@*'))+') OR ('+Data.ProcessTerm(Data.QuoteField('OBJECT')+'='+Data.QuoteValue('MASTERDATA@*'))+'))';
+                    end;
+                  aFilter += Data.QuoteField('SQL_ID')+' as '+Data.QuoteField('SQL_ID')+',';
+                  aFilter += Data.QuoteValue(Lists[i].TableName)+' as '+Data.QuoteField('TABLE')+',';
+                  aFilter += Data.QuoteField('TIMESTAMPD')+' as '+Data.QuoteField('TIMESTAMPD');
+                  aFilter += ' from '+Data.QuoteField(Lists[i].TableName);
+                  if aSQL='' then
+                    aFilter := copy(aFilter,pos(' ',aFilter)+1,length(aFilter));
+                  bFilter:='';
+                  for aType := low(TFullTextSearchTypes) to High(TFullTextSearchTypes) do
+                    begin
+                      if (aType = fsMatchcode) and (fsMatchcode in FSearchTypes) and (Lists[i].GetMatchcodeFieldName <> '') then
+                        bFilter += ' OR ('+Data.ProcessTerm('UPPER('+Data.QuoteField(Lists[i].GetMatchcodeFieldName)+') = '+EncodeValue(Data,SearchText))+')';
+                      if (aType = fsIdents) and (fsIdents in FSearchTypes) then
+                        begin
+                          bFilter += ' OR ('+Data.ProcessTerm(CastText(Data,Lists[i].GetNumberFieldName,False)+' = '+EncodeValue(Data,SearchText))+')';
+                          if (Lists[i].GetBookNumberFieldName <> '') then
+                            bFilter += ' OR ('+Data.ProcessTerm(CastText(Data,Lists[i].GetBookNumberFieldName,False)+' = '+EncodeValue(Data,SearchText))+')';
+                        end;
+                      if (aType = fsBarcode) and (fsBarcode in FSearchTypes) and (Lists[i].GetBarcodeFieldName <> '') then
+                        bFilter += ' OR ('+Data.ProcessTerm(CastText(Data,Lists[i].GetBarcodeFieldName,False)+' = '+EncodeValue(Data,SearchText))+')';
+                      if (aType = fsCommission) and (fsCommission in FSearchTypes) and (Lists[i].GetCommissionFieldName <> '') then
+                        bFilter += ' OR ('+Data.ProcessTerm('UPPER('+Data.QuoteField(Lists[i].GetCommissionFieldName)+') = '+EncodeValue(Data,SearchText))+')';
+                      if SearchUnsharp then
+                        begin
+                          if (aType = fsShortnames) and (aType = fsShortnames) and (fsShortnames in FSearchTypes) and (Lists[i].GetTextFieldName <> '') then
+                            bFilter += ' OR ('+Data.ProcessTerm(CastText(Data,Lists[i].GetTextFieldName,False)+' = '+EncodeValue(Data,SearchText))+')';
+                          if (aType = fsDescription) and (fsDescription in FSearchTypes) and (Lists[i].GetDescriptionFieldName <> '') then
+                            bFilter += ' OR ('+Data.ProcessTerm(CastText(Data,Lists[i].GetDescriptionFieldName,False)+' = '+EncodeValue(Data,SearchText))+')';
+                          //if Lists[i] is TBaseHistory then
+                          //  aFilter += ' AND (('+Data.ProcessTerm(Data.QuoteField('OBJECT')+'='+Data.QuoteValue('PROJECTS@*'))+') OR ('+Data.ProcessTerm(Data.QuoteField('OBJECT')+'='+Data.QuoteValue('MASTERDATA@*'))+'))';
+                        end;
+                    end;
+                  bFilter := copy(bFilter,pos(' ',bFilter)+1,length(bFilter));
+                  bFilter := copy(bFilter,pos(' ',bFilter)+1,length(bFilter));
+                  if bFilter <> '' then
+                    bFilter := aFilter+' where '+bFilter+LineEnding;
+                  bFilter := uStatistic.AddSQLLimit(bFilter,FMaxResults);
+                  aSQL += bFilter;
+                end
+              else
+                begin
+                  for aType := low(TFullTextSearchTypes) to High(TFullTextSearchTypes) do
+                    begin
+                      if (aType = fsMatchcode) and (fsMatchcode in FSearchTypes) and (Lists[i].GetMatchcodeFieldName <> '') then
+                        aFilter += ' OR ('+Data.ProcessTerm(EncodeField(Data,Lists[i].GetMatchcodeFieldName)+' = '+EncodeValue(Data,SearchText))+')';
+                      if (aType = fsIdents) and (fsIdents in FSearchTypes) then
+                        begin
+                          aFilter += ' OR ('+Data.ProcessTerm(CastText(Data,Lists[i].GetNumberFieldName)+' = '+EncodeValue(Data,SearchText))+')';
+                          if Lists[i].GetBookNumberFieldName <> '' then
+                            aFilter += ' OR ('+Data.ProcessTerm(CastText(Data,Lists[i].GetBookNumberFieldName)+' = '+EncodeValue(Data,SearchText))+')';
+                        end;
+                      if (aType = fsBarcode) and (fsBarcode in FSearchTypes) and (Lists[i].GetBarcodeFieldName <> '') then
+                        aFilter += ' OR ('+Data.ProcessTerm(CastText(Data,Lists[i].GetBarcodeFieldName)+' = '+EncodeValue(Data,SearchText))+')';
+                      if (aType = fsCommission) and (fsCommission in FSearchTypes) and (Lists[i].GetCommissionFieldName <> '') then
+                        aFilter += ' OR ('+Data.ProcessTerm(EncodeField(Data,Lists[i].GetCommissionFieldName)+' = '+EncodeValue(Data,SearchText))+')';
+                      if SearchUnsharp then
+                        begin
+                          if (aType = fsShortnames) and (aType = fsShortnames) and (fsShortnames in FSearchTypes) then
+                            aFilter += ' OR ('+Data.ProcessTerm(CastText(Data,Lists[i].GetTextFieldName)+' = '+EncodeValue(Data,SearchText))+')';
+                          if (aType = fsDescription) and (fsDescription in FSearchTypes) and (Lists[i].GetDescriptionFieldName <> '') then
+                            aFilter += ' OR ('+Data.ProcessTerm(CastText(Data,Lists[i].GetDescriptionFieldName)+' = '+EncodeValue(Data,SearchText))+')';
+                          if Lists[i] is TBaseHistory then
+                            aFilter += ' AND (('+Data.ProcessTerm(Data.QuoteField('OBJECT')+'='+Data.QuoteValue('PROJECTS@*'))+') OR ('+Data.ProcessTerm(Data.QuoteField('OBJECT')+'='+Data.QuoteValue('MASTERDATA@*'))+'))';
+                        end;
+                    end;
+                  aFilter := copy(aFilter,pos(' ',aFilter)+1,length(aFilter));
+                  aFilter := copy(aFilter,pos(' ',aFilter)+1,length(aFilter));
                   if not FActive then
                     begin
                       if Assigned(FEndSearch) then FEndSearch(Self);
                       break;
                     end;
-                  if (aType = fsMatchcode) and (fsMatchcode in FSearchTypes) and (Lists[i].GetMatchcodeFieldName <> '') then
-                    aFilter += ' OR ('+Data.ProcessTerm(EncodeField(Data,Lists[i].GetMatchcodeFieldName)+' = '+EncodeValue(Data,SearchText))+')';
-                  if (aType = fsIdents) and (fsIdents in FSearchTypes) then
-                    begin
-                      aFilter += ' OR ('+Data.ProcessTerm(CastText(Data,Lists[i].GetNumberFieldName)+' = '+EncodeValue(Data,SearchText))+')';
-                      if Lists[i].GetBookNumberFieldName <> '' then
-                        aFilter += ' OR ('+Data.ProcessTerm(CastText(Data,Lists[i].GetBookNumberFieldName)+' = '+EncodeValue(Data,SearchText))+')';
-                    end;
-                  if (aType = fsBarcode) and (fsBarcode in FSearchTypes) and (Lists[i].GetBarcodeFieldName <> '') then
-                    aFilter += ' OR ('+Data.ProcessTerm(CastText(Data,Lists[i].GetBarcodeFieldName)+' = '+EncodeValue(Data,SearchText))+')';
-                  if (aType = fsCommission) and (fsCommission in FSearchTypes) and (Lists[i].GetCommissionFieldName <> '') then
-                    aFilter += ' OR ('+Data.ProcessTerm(EncodeField(Data,Lists[i].GetCommissionFieldName)+' = '+EncodeValue(Data,SearchText))+')';
-                  if SearchUnsharp then
-                    begin
-                      if (aType = fsShortnames) and (aType = fsShortnames) and (fsShortnames in FSearchTypes) then
-                        aFilter += ' OR ('+Data.ProcessTerm(CastText(Data,Lists[i].GetTextFieldName)+' = '+EncodeValue(Data,SearchText))+')';
-                      if (aType = fsDescription) and (fsDescription in FSearchTypes) and (Lists[i].GetDescriptionFieldName <> '') then
-                        aFilter += ' OR ('+Data.ProcessTerm(CastText(Data,Lists[i].GetDescriptionFieldName)+' = '+EncodeValue(Data,SearchText))+')';
-                      if Lists[i] is TBaseHistory then
-                        aFilter += ' AND (('+Data.ProcessTerm(Data.QuoteField('OBJECT')+'='+Data.QuoteValue('PROJECTS@*'))+') OR ('+Data.ProcessTerm(Data.QuoteField('OBJECT')+'='+Data.QuoteValue('MASTERDATA@*'))+'))';
-                    end;
-                  aFilter := copy(aFilter,pos(' ',aFilter)+1,length(aFilter));
-                  aFilter := copy(aFilter,pos(' ',aFilter)+1,length(aFilter));
                   if aFilter <> '' then
                     begin
                       SortFields:='';
@@ -368,6 +456,23 @@ begin
           aPos.Free;
         end;
 
+    end;
+  if Data.IsSQLDB then
+    begin
+      if Assigned(FBeginSearch) then FBeginSearch(Self);
+      aSQL := aSQL+' order by '+Data.QuoteField('TIMESTAMPD')+' desc';
+      aDataSet := Data.GetNewDataSet(aSQL);
+      aDataSet.Open;
+      i := 0;
+      while not aDataSet.EOF do
+        begin
+          inc(i);
+          FItemFound(aDataSet.FieldByName('ID').AsString,aDataSet.FieldByName('SHORTTEXT').AsString,aDataSet.FieldByName('STATUS').AsString,True,aDataSet.FieldByName('TABLE').AsString+'.ID@'+aDataSet.FieldByName('SQL_ID').AsString+'{'+aDataSet.FieldByName('SHORTTEXT').AsString+'}',0,nil);
+          if i > (FMaxResults*length(Lists)) then break;
+          aDataSet.Next;
+        end;
+      aDataSet.Free;
+      if Assigned(FEndSearch) then FEndSearch(Self);
     end;
   FActive := False;
   if Assigned(FFullEndSearch) then FFullEndSearch(Self);

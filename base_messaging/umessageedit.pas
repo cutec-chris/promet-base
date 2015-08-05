@@ -982,16 +982,10 @@ procedure TfMessageEdit.OpenFromLink(aLink: string);
 var
   aID: String;
 begin
-  aID := copy(aLink,pos('@',aLink)+1,length(aLink));
-  if rpos('{',aID) > 0 then
-    aID := copy(aID,0,rpos('{',aID)-1)
-  else if rpos('(',aId) > 0 then
-    aID := copy(aID,0,rpos('(',aID)-1);
-  Data.SetFilter(DataSet,Data.QuoteField('ID')+'='+Data.QuoteValue(aID));
+  DataSet.SelectFromLink(aLink);
+  DataSet.Open;
   if DataSet.Count > 0 then
     begin
-      DataSet.Select(DataSet.Id.AsVariant);
-      DataSet.Open;
       ShowMail;
     end
   else Destroy;

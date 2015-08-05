@@ -151,6 +151,7 @@ type
     procedure AddDocuments(Sender: TObject);
     procedure DoView;
     procedure DoEdit;
+    procedure DoOpen;
   public
     { public declarations }
     constructor Create(AOwner: TComponent); override;
@@ -282,7 +283,7 @@ end;
 
 function TfWikiFrame.CanHandleLink(aLink: string): Boolean;
 begin
-  Result := (copy(aLink,0,pos('@',aLink)-1) = 'WIKI');
+  Result := (copy(aLink,0,4) = 'WIKI');
 end;
 
 function TfWikiFrame.OpenFromLink(aLink: string) : Boolean;
@@ -292,7 +293,15 @@ begin
     aLink := copy(aLink,0,rpos('{',aLink)-1)
   else if rpos('(',aLink) > 0 then
     aLink := copy(aLink,0,rpos('(',aLink)-1);
-  Result := OpenWikiPage(copy(aLink, pos('@', aLink) + 1, length(aLink)),Data.Users.Rights.Right('WIKI')>RIGHT_READ);
+  if pos('.ID',aLink)>0 then
+    begin
+      DataSet.Select(copy(aLink, pos('@', aLink) + 1, length(aLink)));
+      DataSet.Open;
+      Result := DataSet.Count>0;
+      if Result then DoOpen;
+    end
+  else
+    Result := OpenWikiPage(copy(aLink, pos('@', aLink) + 1, length(aLink)),Data.Users.Rights.Right('WIKI')>RIGHT_READ);
 end;
 procedure TfWikiFrame.TSimpleIpHtmlGetImageX(Sender: TIpHtmlNode;
   const URL: string; var Picture: TPicture);
@@ -1336,6 +1345,45 @@ begin
   acEdit.Checked:=True;
 end;
 
+procedure TfWikiFrame.DoOpen;
+var
+  aDocuments: TDocuments;
+  aDocPage: TTabSheet;
+  aDocFrame: TfDocumentFrame;
+  aPageIndex: Integer;
+begin
+  ipHTML.SetHtml(Wiki2HTML(DataSet.FieldByName('DATA').AsString));
+  while pcPages.PageCount > 3 do
+    pcPages.Pages[2].Destroy;
+  if (FDataSet.State <> dsInsert) and (fDataSet.Count > 0) then
+    begin
+      aDocuments := TDocuments.CreateEx(Self,Data);
+      aDocuments.Select(DataSet.Id.AsVariant,'W',DataSet.FieldByName('NAME').AsString,Null,Null);
+      aDocuments.Open;
+      if aDocuments.Count = 0 then
+        aDocuments.Free
+      else
+        begin
+          aDocPage := pcPages.GetTab(TfDocumentFrame);
+          if FEditAble then
+            begin
+              if Assigned(aDocPage) then
+                begin
+                  aDocFrame := TfDocumentFrame(aDocPage.Controls[0]);
+                  aDocFrame.DataSet := aDocuments;
+                end
+              else
+                begin
+                  aDocFrame := TfDocumentFrame.Create(Self);
+                  aDocFrame.DataSet := aDocuments;
+                  aPageIndex := pcPages.AddTab(aDocFrame,False);
+                  DoView
+                end;
+            end;
+        end;
+    end;
+end;
+
 procedure TfWikiFrame.New;
 begin
 end;
@@ -1351,8 +1399,6 @@ end;
 function TfWikiFrame.OpenWikiPage(PageName: string;CreateIfNotExists : Boolean = False) : Boolean;
 var
   aParent : Variant;
-  aDocuments: TDocuments;
-  aDocFrame: TfDocumentFrame;
   aPageIndex: Integer;
   aDocPage: TTabSheet;
   aWiki: TWikiList;
@@ -1372,37 +1418,7 @@ begin
         pcPages.AddTabClass(TfDocumentFrame,strFiles,@AddDocuments);
       //tsView.Show;
       Screen.Cursor := crHourglass;
-      ipHTML.SetHtml(Wiki2HTML(DataSet.FieldByName('DATA').AsString));
-      while pcPages.PageCount > 3 do
-        pcPages.Pages[2].Destroy;
-      if (FDataSet.State <> dsInsert) and (fDataSet.Count > 0) then
-        begin
-          aDocuments := TDocuments.CreateEx(Self,Data);
-//          aDocuments.CreateTable;
-          aDocuments.Select(DataSet.Id.AsVariant,'W',DataSet.FieldByName('NAME').AsString,Null,Null);
-          aDocuments.Open;
-          if aDocuments.Count = 0 then
-            aDocuments.Free
-          else
-            begin
-              aDocPage := pcPages.GetTab(TfDocumentFrame);
-              if FEditAble then
-                begin
-                  if Assigned(aDocPage) then
-                    begin
-                      aDocFrame := TfDocumentFrame(aDocPage.Controls[0]);
-                      aDocFrame.DataSet := aDocuments;
-                    end
-                  else
-                    begin
-                      aDocFrame := TfDocumentFrame.Create(Self);
-                      aDocFrame.DataSet := aDocuments;
-                      aPageIndex := pcPages.AddTab(aDocFrame,False);
-                      DoView
-                    end;
-                end;
-            end;
-        end;
+      DoOpen;
       Screen.Cursor := crDefault;
       FHistory.Add(Data.BuildLink(DataSet.DataSet));
     end

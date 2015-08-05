@@ -1065,7 +1065,8 @@ end;
 
 function TfMeetingFrame.OpenFromLink(aLink: string): Boolean;
 begin
-  if not (copy(aLink,0,pos('@',aLink)-1) = 'MEETINGS') then exit;
+  result := False;
+  if not (copy(aLink,0,8) = 'MEETINGS') then exit;
   if rpos('{',aLink) > 0 then
     aLink := copy(aLink,0,rpos('{',aLink)-1)
   else if rpos('(',aLink) > 0 then
@@ -1073,7 +1074,6 @@ begin
   CloseConnection;
   if not Assigned(FConnection) then
     FConnection := Data.GetNewConnection;
-  //Data.StartTransaction(FConnection);
   DataSet := TMeetings.CreateEx(Self,Data,FConnection);
   DataSet.OnChange:=@DataSetChange;
   Data.SetFilter(FDataSet,Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(copy(aLink,pos('@',aLink)+1,length(aLink))),1);
