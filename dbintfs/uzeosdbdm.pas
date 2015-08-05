@@ -952,9 +952,22 @@ begin
   Result := FSQL;
 end;
 procedure TZeosDBDataSet.SetSQL(const AValue: string);
+var
+  NewSQL: string;
+  i: Integer;
+  aPar: TParam;
 begin
   FSQL := AValue;
-  DoUpdateSQL;
+  TZeosDBDM(Owner).DecodeFilter(AValue,FParams,NewSQL);
+  Params.Clear;
+  SQL.text := NewSQL;
+  for i := 0 to FParams.Count-1 do
+    begin
+      aPar := ParamByName(FParams.Names[i]);
+      aPar.AsString:=FParams.ValueFromIndex[i];
+    end;
+  if (FLimit>0) and Assigned(Params.FindParam('Limit')) then
+    ParamByName('Limit').AsInteger:=FLimit;
 end;
 procedure TZeosDBDataSet.Setlimit(const AValue: Integer);
 begin
