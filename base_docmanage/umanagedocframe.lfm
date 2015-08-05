@@ -1127,7 +1127,7 @@ inherited fManageDocFrame: TfManageDocFrame
       ColorFontSelected = clWhite
       CaptionHight = 24
       DragMode = dmAutomatic
-      Font.Color = clWhite
+      Font.Color = clWindowText
       Font.Height = -9
       Font.Name = 'Default'
       ParentColor = False

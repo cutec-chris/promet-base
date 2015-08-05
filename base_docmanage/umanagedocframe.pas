@@ -711,6 +711,17 @@ begin
       if TImageItem(Item.Pointer).Done then
         fVisualControls.Images.Draw(TThumbControl(Sender).Canvas,aRect.Right-16,aRect.Bottom-16,74);
     end;
+  with TThumbControl(Sender).Canvas do
+    begin
+      Brush.Style:=bsClear;
+      aRect := Item.Area;
+      aRect.Left:=aRect.Left+Item.Left-ThumbControl1.HScrollPosition;
+      aRect.Top:=aRect.Top+Item.Top-ThumbControl1.VScrollPosition;
+      aRect.Right:=aRect.Right+Item.Left-ThumbControl1.HScrollPosition;
+      aRect.Bottom:=aRect.Bottom+Item.Top-ThumbControl1.VScrollPosition;
+      Rectangle(aRect);
+      Brush.Style:=bsSolid;
+    end;
 end;
 
 procedure TfManageDocFrame.ThumbControl1DblClick(Sender: TObject);
