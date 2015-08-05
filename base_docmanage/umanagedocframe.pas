@@ -371,7 +371,7 @@ var
   i: Integer;
   aId: String;
 begin
-  if ThumbControl1.ImageLoaderManager.Queue.Count=0 then exit;
+  //if ThumbControl1.ImageLoaderManager.Queue.Count=0 then exit;
   FFetchSQL:='';
   for i := 0 to ThumbControl1.ImageLoaderManager.Queue.Count-1 do
     begin
@@ -1920,12 +1920,11 @@ begin
   SelectedItem:=nil;
   Datasource1.DataSet := DataSet.DataSet;
   FetchNext;
-  Application.ProcessMessages;
   if Assigned(IdleTimer1) then
     IdleTimer1.Tag:=0;
-  ThumbControl1.Invalidate;
   bShowDetail.Enabled:=DataSet.Count>0;
   pSave.Enabled:=DataSet.Count>0;
+  ThumbControl1.Arrange;
   with BaseApplication as IBaseApplication do
     Debug('TfManageDocFrame:OpenDir leave');
 end;
