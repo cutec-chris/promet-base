@@ -228,31 +228,35 @@ end;
 function TWlxModule.LoadModule: Boolean;
 begin
   // DCDebug('WLXM LoadModule entered');
-  FModuleHandle := dynlibs.LoadLibrary(Self.FileName);
-  Result := (FModuleHandle <> NilHandle);
-  if FModuleHandle = NilHandle then Exit;
-  { Mandatory }
-  ListLoad := TListLoad(GetProcAddress(FModuleHandle, 'ListLoad'));
-  { Optional }
-  ListLoadNext := TListLoadNext(GetProcAddress(FModuleHandle, 'ListLoadNext'));
-  ListCloseWindow := TListCloseWindow(GetProcAddress(FModuleHandle, 'ListCloseWindow'));
-  ListGetDetectString := TListGetDetectString(GetProcAddress(FModuleHandle, 'ListGetDetectString'));
-  ListSearchText := TListSearchText(GetProcAddress(FModuleHandle, 'ListSearchText'));
-  ListSearchDialog := TListSearchDialog(GetProcAddress(FModuleHandle, 'ListSearchDialog'));
-  ListSendCommand := TListSendCommand(GetProcAddress(FModuleHandle, 'ListSendCommand'));
-  ListPrint := TListPrint(GetProcAddress(FModuleHandle, 'ListPrint'));
-  ListNotificationReceived := TListNotificationReceived(GetProcAddress(FModuleHandle, 'ListNotificationReceived'));
-  ListSetDefaultParams := TListSetDefaultParams(GetProcAddress(FModuleHandle, 'ListSetDefaultParams'));
-  ListGetPreviewBitmap := TListGetPreviewBitmap(GetProcAddress(FModuleHandle, 'ListGetPreviewBitmap'));
-  { Unicode }
-  ListLoadW := TListLoadW(GetProcAddress(FModuleHandle, 'ListLoadW'));
-  ListLoadNextW := TListLoadNextW(GetProcAddress(FModuleHandle, 'ListLoadNextW'));
-  ListSearchTextW := TListSearchTextW(GetProcAddress(FModuleHandle, 'ListSearchTextW'));
-  ListPrintW := TListPrintW(GetProcAddress(FModuleHandle, 'ListPrintW'));
-  ListGetPreviewBitmapW := TListGetPreviewBitmapW(GetProcAddress(FModuleHandle, 'ListGetPreviewBitmapW'));
-  // ListSetDefaultParams must be called immediately after loading the DLL, before ListLoad.
-  CallListSetDefaultParams;
-  // DCDebug('WLXM LoadModule Leaved');
+  try
+    FModuleHandle := dynlibs.LoadLibrary(Self.FileName);
+    Result := (FModuleHandle <> NilHandle);
+    if FModuleHandle = NilHandle then Exit;
+    { Mandatory }
+    ListLoad := TListLoad(GetProcAddress(FModuleHandle, 'ListLoad'));
+    { Optional }
+    ListLoadNext := TListLoadNext(GetProcAddress(FModuleHandle, 'ListLoadNext'));
+    ListCloseWindow := TListCloseWindow(GetProcAddress(FModuleHandle, 'ListCloseWindow'));
+    ListGetDetectString := TListGetDetectString(GetProcAddress(FModuleHandle, 'ListGetDetectString'));
+    ListSearchText := TListSearchText(GetProcAddress(FModuleHandle, 'ListSearchText'));
+    ListSearchDialog := TListSearchDialog(GetProcAddress(FModuleHandle, 'ListSearchDialog'));
+    ListSendCommand := TListSendCommand(GetProcAddress(FModuleHandle, 'ListSendCommand'));
+    ListPrint := TListPrint(GetProcAddress(FModuleHandle, 'ListPrint'));
+    ListNotificationReceived := TListNotificationReceived(GetProcAddress(FModuleHandle, 'ListNotificationReceived'));
+    ListSetDefaultParams := TListSetDefaultParams(GetProcAddress(FModuleHandle, 'ListSetDefaultParams'));
+    ListGetPreviewBitmap := TListGetPreviewBitmap(GetProcAddress(FModuleHandle, 'ListGetPreviewBitmap'));
+    { Unicode }
+    ListLoadW := TListLoadW(GetProcAddress(FModuleHandle, 'ListLoadW'));
+    ListLoadNextW := TListLoadNextW(GetProcAddress(FModuleHandle, 'ListLoadNextW'));
+    ListSearchTextW := TListSearchTextW(GetProcAddress(FModuleHandle, 'ListSearchTextW'));
+    ListPrintW := TListPrintW(GetProcAddress(FModuleHandle, 'ListPrintW'));
+    ListGetPreviewBitmapW := TListGetPreviewBitmapW(GetProcAddress(FModuleHandle, 'ListGetPreviewBitmapW'));
+    // ListSetDefaultParams must be called immediately after loading the DLL, before ListLoad.
+    CallListSetDefaultParams;
+    // DCDebug('WLXM LoadModule Leaved');
+  except
+    result := False;
+  end;
 end;
 
 procedure TWlxModule.UnloadModule;

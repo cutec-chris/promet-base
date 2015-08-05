@@ -514,7 +514,7 @@ begin
   FScaledImage := TBitmap.Create;
   Clear;
   FModules := TWLXModuleList.Create;
-  If FindFirstUTF8 (Application.Location+DirectorySeparator+'plugins'+DirectorySeparator+'*',faAnyFile and faDirectory,Info)=0 then
+  If FindFirstUTF8 (Application.Location+DirectorySeparator+'plugins'+DirectorySeparator+'*.wlx',faAnyFile and faDirectory,Info)=0 then
     begin
       Repeat
         With Info do
