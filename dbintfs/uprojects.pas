@@ -790,7 +790,7 @@ begin
         begin
           with DataSet as IBaseDBFilter do
             begin
-              Filter := Data.ProcessTerm(Data.QuoteField('ID')+'='+Data.QuoteValue(copy(aLink,pos('@',aLink)+1,length(aLink))));
+              Filter := Data.QuoteField('ID')+'='+Data.QuoteValue(copy(aLink,pos('@',aLink)+1,length(aLink)))+' OR '+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(copy(aLink,pos('@',aLink)+1,length(aLink)));
               Result := True;
             end;
         end;
