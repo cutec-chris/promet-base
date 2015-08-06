@@ -358,7 +358,9 @@ begin
                   bFilter := copy(bFilter,pos(' ',bFilter)+1,length(bFilter));
                   bFilter := copy(bFilter,pos(' ',bFilter)+1,length(bFilter));
                   if bFilter <> '' then
-                    bFilter := aFilter+' where '+bFilter;
+                    bFilter := aFilter+' where '+bFilter
+                  else
+                    bFilter := aFilter+' where NULL is not NULL';
                   bFilter:=bFilter+LineEnding;
                   aSQL += bFilter;
                 end
