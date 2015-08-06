@@ -115,7 +115,7 @@ type
     FUseBaseSorting : Boolean;
     FUseIntegrity : Boolean;
     FChangeUni : Boolean;
-    FSQL : string;
+    FSQL,FIntSQL : string;
     FParams : TStringList;
     FHasNewID : Boolean;
     procedure SetNewIDIfNull;
@@ -455,7 +455,10 @@ procedure TZeosDBDataSet.DoUpdateSQL;
 begin
   Close;
   SQL.Text:='';
-  SetFilter(FFilter);
+  if FSQL<>'' then
+    SetSQL(FSQL)
+  else
+    SetFilter(FFilter);
 end;
 
 function TZeosDBDataSet.CreateTable : Boolean;
@@ -926,13 +929,14 @@ begin
   Close;
   if (FIntFilter<>NewSQL) or (SQL.Text='') then //Params and SQL has changed
     begin
+      FSQL := '';
       if TZeosDBDM(Owner).CheckForInjection(AValue) then exit;
       FFilter := AValue;
       FIntFilter:=NewSQL;
-      FSQL := '';
-      FSQL := BuildSQL;
+      FIntSQL := '';
+      FIntSQL := BuildSQL;
       Params.Clear;
-      SQL.text := FSQL;
+      SQL.text := FIntSQL;
     end;
   for i := 0 to FParams.Count-1 do
     begin
@@ -957,10 +961,19 @@ var
   i: Integer;
   aPar: TParam;
 begin
+  if TZeosDBDM(Owner).CheckForInjection(AValue) then exit;
+  Params.Clear;
   FSQL := AValue;
+  FIntSQL := BuildSQL;
+  FFilter := '';
+  SQL.Text := FIntSQL;
+  {
   TZeosDBDM(Owner).DecodeFilter(AValue,FParams,NewSQL);
   Params.Clear;
-  SQL.text := NewSQL;
+  FSQL := NewSQL;
+  FIntSQL := BuildSQL;
+  FFilter := '';
+  SQL.Text := FIntSQL;
   for i := 0 to FParams.Count-1 do
     begin
       aPar := ParamByName(FParams.Names[i]);
@@ -968,6 +981,7 @@ begin
     end;
   if (FLimit>0) and Assigned(Params.FindParam('Limit')) then
     ParamByName('Limit').AsInteger:=FLimit;
+  }
 end;
 procedure TZeosDBDataSet.Setlimit(const AValue: Integer);
 begin
