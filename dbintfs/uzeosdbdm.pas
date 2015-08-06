@@ -455,6 +455,7 @@ procedure TZeosDBDataSet.DoUpdateSQL;
 begin
   Close;
   SQL.Text:='';
+  FIntSQL := '';
   if FSQL<>'' then
     SetSQL(FSQL)
   else
@@ -621,7 +622,10 @@ begin
   if TZeosDBDM(Owner).IgnoreOpenRequests then exit;
   if FFirstOpen then
     begin
-      SQL.Text := BuildSQL;
+      FIntSQL := BuildSQL;
+      SQL.Text := FIntSQL;
+      if (FLimit>0) and Assigned(Params.FindParam('Limit')) then
+        ParamByName('Limit').AsInteger:=FLimit;
       FFirstOpen:=False;
     end;
   try
@@ -927,7 +931,7 @@ begin
     end;
   TZeosDBDM(Owner).DecodeFilter(AValue,FParams,NewSQL);
   Close;
-  if (FIntFilter<>NewSQL) or (SQL.Text='') then //Params and SQL has changed
+  if (FIntFilter<>NewSQL) or (SQL.Text='')  then //Params and SQL has changed
     begin
       FSQL := '';
       if TZeosDBDM(Owner).CheckForInjection(AValue) then exit;
@@ -963,9 +967,11 @@ var
 begin
   if TZeosDBDM(Owner).CheckForInjection(AValue) then exit;
   Params.Clear;
+  FParams.Clear;
   FSQL := AValue;
   FIntSQL := BuildSQL;
   FFilter := '';
+  FIntFilter:='';
   SQL.Text := FIntSQL;
   {
   TZeosDBDM(Owner).DecodeFilter(AValue,FParams,NewSQL);
@@ -979,9 +985,9 @@ begin
       aPar := ParamByName(FParams.Names[i]);
       aPar.AsString:=FParams.ValueFromIndex[i];
     end;
+  }
   if (FLimit>0) and Assigned(Params.FindParam('Limit')) then
     ParamByName('Limit').AsInteger:=FLimit;
-  }
 end;
 procedure TZeosDBDataSet.Setlimit(const AValue: Integer);
 begin
@@ -1188,6 +1194,7 @@ constructor TZeosDBDataSet.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FFirstOpen:=True;
+  FSQL := '';
   DoCheck := False;
   fBaseSorting := '%s';
   FChangeUni:=False;
