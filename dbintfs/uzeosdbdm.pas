@@ -926,16 +926,16 @@ var
 begin
   if (FFilter=AValue) and (SQL.text<>'')  then
     begin
-      if (AValue<>'') or (pos('where',SQL.Text)=0) then
+      if (AValue<>'') or (pos('where',lowercase(SQL.Text))=0) then
         exit;
     end;
   TZeosDBDM(Owner).DecodeFilter(AValue,FParams,NewSQL);
   Close;
+  FFilter := AValue;
   if (FIntFilter<>NewSQL) or (SQL.Text='')  then //Params and SQL has changed
     begin
       FSQL := '';
       if TZeosDBDM(Owner).CheckForInjection(AValue) then exit;
-      FFilter := AValue;
       FIntFilter:=NewSQL;
       FIntSQL := '';
       FIntSQL := BuildSQL;
