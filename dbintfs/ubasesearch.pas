@@ -358,8 +358,8 @@ begin
                   bFilter := copy(bFilter,pos(' ',bFilter)+1,length(bFilter));
                   bFilter := copy(bFilter,pos(' ',bFilter)+1,length(bFilter));
                   if bFilter <> '' then
-                    bFilter := aFilter+' where '+bFilter+LineEnding;
-                  bFilter := uStatistic.AddSQLLimit(bFilter,FMaxResults);
+                    bFilter := aFilter+' where '+bFilter;
+                  bFilter:=bFilter+LineEnding;
                   aSQL += bFilter;
                 end
               else
@@ -461,6 +461,7 @@ begin
     begin
       if Assigned(FBeginSearch) then FBeginSearch(Self);
       aSQL := aSQL+' order by '+Data.QuoteField('TIMESTAMPD')+' desc';
+      aSQL := uStatistic.AddSQLLimit(aSQL,FMaxResults*length(Lists))+LineEnding;
       aDataSet := Data.GetNewDataSet(aSQL);
       aDataSet.Open;
       i := 0;
