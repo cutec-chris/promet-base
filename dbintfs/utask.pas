@@ -90,7 +90,11 @@ type
     function GetTextFieldName: string;override;
     function GetNumberFieldName : string;override;
     procedure CheckChilds;
+    //Check all Dependencies and fix DEPDONE
+    procedure FixDependencys;
+    //Checks Tasks who has an dependency to us
     procedure CheckDependTasks;
+    //Move Tasks who has an dependency to us
     procedure MoveDependTasks;
     procedure Open; override;
     function CalcDates(var aStart, aDue: TDateTime): Boolean;
@@ -140,6 +144,7 @@ type
     procedure DefineFields(aDataSet : TDataSet);override;
     procedure Add(aLink : string);
     procedure SelectByLink(aLink : string);
+    procedure SelectByRefIDID(aId : variant);
   end;
   TTask = class(TTaskList)
   private
@@ -298,6 +303,15 @@ begin
       Filter := '('+QuoteField('LINK')+'='+QuoteValue(aLink)+')';
     end;
 end;
+
+procedure TDependencies.SelectByRefIDID(aId: variant);
+begin
+  with  DataSet as IBaseDBFilter, BaseApplication as IBaseDBInterface, DataSet as IBaseManageDB do
+    begin
+      Filter := '('+QuoteField('REF_ID_ID')+'='+QuoteValue(aId)+')';
+    end;
+end;
+
 procedure TTaskLinks.FillDefaults(aDataSet: TDataSet);
 begin
   inherited FillDefaults(aDataSet);
@@ -420,10 +434,44 @@ begin
     end;
   aTasks.Free;
 end;
+
+procedure TTaskList.FixDependencys;
+var
+  aTask: TTask = nil;
+  DepDone : string = 'Y';
+begin
+  Dependencies.Open;
+  Dependencies.First;
+  if not Dependencies.EOF then
+    aTask := TTask.CreateEx(Self,DataModule,Connection);
+  while not Dependencies.EOF do
+    begin
+      aTask.Select(Dependencies.FieldByName('REF_ID_ID').AsVariant);
+      aTask.Open;
+      if aTask.Count>0 then
+        begin
+          if aTask.FieldByName('COMPLETED').AsString='N' then
+            begin
+              //aTask.FixDependencys;
+              DepDone:='N';
+              break;
+            end;
+        end;
+      Dependencies.Next;
+    end;
+  if FieldByName('DEPDONE').AsString<>DepDone then
+    begin
+      Edit;
+      FieldByName('DEPDONE').AsString:=DepDone;
+      Post;
+    end;
+  aTask.Free;
+end;
+
 procedure TTaskList.CheckDependTasks;
 var
   aDeps: TDependencies;
-  aTask: TTask;
+  aTask: TTask = nil;
   AllCompleted: Char = 'Y';
   HasTrigger: Boolean;
   aTime: TDateTime;
@@ -433,9 +481,11 @@ begin
     debug('CheckDependtasks:'+DataSet.FieldByName('SUMMARY').AsString);
   HasTrigger := Data.TriggerExists('TASKS_INS_DEPEND');
   aDeps := TDependencies.CreateEx(Self,DataModule,Connection);
-  aDeps.SelectByLink(Data.BuildLink(DataSet));
+  aDeps.SelectByRefIDID(Id.AsVariant);
   aDeps.Open;
   aDeps.DataSet.First;
+  if not aDeps.EOF then
+    aTask := TTask.CreateEx(Self,DataModule,Connection);
   while not aDeps.DataSet.EOF do
     begin
       if (pos(aDeps.FieldByName('LINK').AsString+',',lastDeps)>0) or (aDeps.FieldByName('REF_ID').AsVariant=Id.AsVariant) then
@@ -447,7 +497,6 @@ begin
         end
       else
         begin
-          aTask := TTask.CreateEx(Self,DataModule,Connection);
           aTask.Select(aDeps.FieldByName('REF_ID').AsVariant);
           aTask.Open;
           if (FieldByName('COMPLETED').AsString='Y') and (FieldByName('BUFFERTIME').AsFloat>0) then
@@ -465,28 +514,29 @@ begin
               aTask.CheckDependencies;
               if aTask.FieldByName('DEPDONE').AsString <> 'Y' then AllCompleted:='N';
             end;
-          aTask.Free;
           lastDeps := lastDeps+aDeps.FieldByName('LINK').AsString+',';
           aDeps.DataSet.Next;
         end;
     end;
+  aTask.Free;
   aDeps.Free;
 end;
 
 procedure TTaskList.MoveDependTasks;
 var
   aDeps: TDependencies;
-  aTask: TTask;
+  aTask: TTask = nil;
 begin
   aDeps := TDependencies.CreateEx(Self,DataModule,Connection);
-  aDeps.SelectByLink(Data.BuildLink(DataSet));
+  aDeps.SelectByRefIDID(Id.AsVariant);
   aDeps.Open;
+  if not aDeps.EOF then
+    aTask := TTask.CreateEx(Self,DataModule,Connection);
   with aDeps.DataSet do
     begin
       First;
       while not EOF do
         begin
-          aTask := TTask.CreateEx(Self,DataModule,Connection);
           aTask.Select(aDeps.FieldByName('REF_ID').AsVariant);
           aTask.Open;
           if (aTask.FieldByName('COMPLETED').AsString<>'Y') and (aTask.FieldByName('STARTDATE').AsDateTime<DataSet.FieldByName('DUEDATE').AsDateTime) then
@@ -497,10 +547,10 @@ begin
               aTask.Post;
               atask.DataSet.EnableControls;
             end;
-          aTask.Free;
           Next;
         end;
     end;
+  aTask.Free;
   aDeps.Free;
 end;
 

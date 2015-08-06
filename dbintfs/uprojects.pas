@@ -464,7 +464,7 @@ begin
   while not Tasks.EOF do
     begin
       Tasks.CheckChilds;
-      Tasks.CheckDependTasks;
+      Tasks.FixDependencys;
       Tasks.Next;
     end;
 end;
