@@ -26,7 +26,8 @@ interface
 uses
   Classes, SysUtils, db, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   StdCtrls, Buttons, Menus, ActnList, gsGanttCalendar, uTask, Math, types,
-  uPrometFrames, uIntfStrConsts, Variants,ugridview,grids,dbgrids,utasks;
+  uPrometFrames, uIntfStrConsts, Variants,ugridview,grids,dbgrids,utasks,
+  uBaseDbClasses;
 
 type
 
@@ -185,9 +186,9 @@ type
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
     procedure Populate(aParent : Variant;aUser : Variant);
-    procedure CollectResources(aResource: TRessource; aFrom, aTo: TDateTime;
-      asUser: string; aConnection: TComponent; CollectTasks,
-  CollectCalendar: Boolean;Processmessages : Boolean = True);
+    procedure CollectResources(aUser: TUser; aResource: TRessource; aFrom,
+      aTo: TDateTime; asUser: string; aConnection: TComponent; CollectTasks,
+  CollectCalendar: Boolean; Processmessages: Boolean);
     function GetIntervalFromCoordinates(Gantt: TgsGantt; X, Y, Index: Integer): TInterval;
     function GetTaskIntervalFromCoordinates(Gantt: TgsGantt; X, Y, Index: Integer;
       IgnoreX: Boolean=False): TInterval;
@@ -208,6 +209,7 @@ type
     FCalendar: Boolean;
     FTmpResource : TRessource;
     FProcessmessages: Boolean;
+    FUserDS: TUser;
     FReset : Boolean;
     procedure Attatch;
     procedure Plan;
@@ -216,6 +218,7 @@ type
   public
     procedure Execute; override;
     constructor Create(aPlan : TWinControl;aFrom,aTo : TDateTime;aResource : TRessource;asUser : string;aTasks,aCalendar,aProcessmessages : Boolean;AttatchTo : TInterval = nil);
+    destructor Destroy; override;
     property User : string read FUser;
     property CollectFrom : TDateTime read FFrom write SetFrom;
     property CollectTo : TDateTime read FTo write SetTo;
@@ -226,7 +229,7 @@ resourcestring
   strSaveTaskChanges                      = 'Um die Aufgabe zu bearbeiten müssen alle Änderungen gespeichert werden, Sollen alle Änderungen gespeichert werden ?';
   strChangeMilestones                     = 'Sollen Meilensteintermine auch geändert werden ?';
 implementation
-uses uData,LCLIntf,uBaseDbClasses,uProjects,uTaskEdit,LCLProc,uGanttView,uColors,
+uses uData,LCLIntf,uProjects,uTaskEdit,LCLProc,uGanttView,uColors,
   uCalendar,uTaskPlanOptions,uBaseDBInterface;
 {$R *.lfm}
 
@@ -265,7 +268,7 @@ var
   aConnection: Classes.TComponent;
   TaskPlan : TfTaskPlan;
 begin
-  TaskPlan.CollectResources(FTmpResource,FFrom,FTo,FUser,Data.MainConnection,FTasks,FCalendar,FProcessmessages);
+  TaskPlan.CollectResources(FUserDS,FTmpResource,FFrom,FTo,FUser,Data.MainConnection,FTasks,FCalendar,FProcessmessages);
 end;
 
 procedure TCollectThread.SetFrom(AValue: TDateTime);
@@ -307,7 +310,14 @@ begin
   if FProcessmessages then
     Priority:=tpLower;
   FreeOnTerminate:=True;
+  FUserDS := TUser.CreateEx(nil,Data);
   inherited Create(True);
+end;
+
+destructor TCollectThread.Destroy;
+begin
+  FUserDS.Free;
+  inherited Destroy;
 end;
 
 procedure TCollectThread.Reset;
@@ -1702,11 +1712,10 @@ begin
   CheckThreads;
 end;
 
-procedure TfTaskPlan.CollectResources(aResource: TRessource; aFrom,
+procedure TfTaskPlan.CollectResources(aUser : TUser;aResource: TRessource; aFrom,
   aTo: TDateTime; asUser: string; aConnection: TComponent; CollectTasks,
   CollectCalendar: Boolean; Processmessages: Boolean);
 var
-  aUser: TUser;
   bTasks: TTaskList;
   bInterval: TPInterval;
   aDue: System.TDateTime;
@@ -1728,7 +1737,6 @@ var
   end;
 
 begin
-  aUser := TUser.CreateEx(nil,Data,aConnection);
   aUser.SelectByAccountno(asUser);
   aUser.Open;
   aResource.Resource := aUser.Text.AsString;
@@ -1807,7 +1815,6 @@ begin
         end;
       aResource.Sort;
     end;
-  aUser.Free;
 end;
 
 function TfTaskPlan.GetIntervalFromCoordinates(Gantt: TgsGantt; X, Y,Index : Integer): TInterval;
