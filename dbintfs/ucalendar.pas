@@ -395,18 +395,19 @@ begin
   with  DataSet as IBaseDBFilter, BaseApplication as IBaseDBInterface, DataSet as IBaseManageDB do
     begin
       RefreshUsers(User);
-      Filter := '('+FUserSel+')';
-      Filter := Filter+' AND ((('+Data.QuoteField('STARTDATE')+' >= '+Data.DateToFilter(aStart)+') AND ('+Data.QuoteField('ENDDATE')+' <= '+Data.DateToFilter(aEnd)+')';
-      Filter := Filter+' OR ('+Data.QuoteField('ENDDATE')+' >= '+Data.DateToFilter(aStart)+') AND ('+Data.QuoteField('ENDDATE')+' <= '+Data.DateToFilter(aEnd)+')';
-      Filter := Filter+' OR ('+Data.QuoteField('STARTDATE')+' >= '+Data.DateToFilter(aStart)+') AND ('+Data.QuoteField('STARTDATE')+' <= '+Data.DateToFilter(aEnd)+')';
-      Filter := Filter+' OR ('+Data.QuoteField('STARTDATE')+' < '+Data.DateToFilter(aStart)+') AND ('+Data.QuoteField('ENDDATE')+' > '+Data.DateToFilter(aEnd)+'))';
-      Filter := Filter+' OR (('+Data.QuoteField('ROTATION')+' > 0) AND ('+Data.QuoteField('STARTDATE')+' <= '+Data.DateToFilter(aStart)+') AND ('+Data.QuoteField('ROTTO')+' >= '+Data.DateToFilter(aEnd)+')))';
+      aFilter := '('+FUserSel+')';
+      aFilter := aFilter+' AND ((('+Data.QuoteField('STARTDATE')+' >= '+Data.DateToFilter(aStart)+') AND ('+Data.QuoteField('ENDDATE')+' <= '+Data.DateToFilter(aEnd)+')';
+      aFilter := aFilter+' OR ('+Data.QuoteField('ENDDATE')+' >= '+Data.DateToFilter(aStart)+') AND ('+Data.QuoteField('ENDDATE')+' <= '+Data.DateToFilter(aEnd)+')';
+      aFilter := aFilter+' OR ('+Data.QuoteField('STARTDATE')+' >= '+Data.DateToFilter(aStart)+') AND ('+Data.QuoteField('STARTDATE')+' <= '+Data.DateToFilter(aEnd)+')';
+      aFilter := aFilter+' OR ('+Data.QuoteField('STARTDATE')+' < '+Data.DateToFilter(aStart)+') AND ('+Data.QuoteField('ENDDATE')+' > '+Data.DateToFilter(aEnd)+'))';
+      aFilter := aFilter+' OR (('+Data.QuoteField('ROTATION')+' > 0) AND ('+Data.QuoteField('STARTDATE')+' <= '+Data.DateToFilter(aStart)+') AND ('+Data.QuoteField('ROTTO')+' >= '+Data.DateToFilter(aEnd)+')))';
       if TBaseDBModule(DataModule).IsSQLDB then
         begin
           aUsers := StringReplace(FUserSel,Data.QuoteField('REF_ID_ID'),Data.QuoteField(TEvent(Self).Users.TableName)+'.'+Data.QuoteField('USER_ID'),[rfReplaceAll]);
-          aFilter := '('+aUsers+') OR '+Filter;
+          aFilter := '('+aUsers+') OR '+aFilter;
           FullSQL := 'select * from '+Data.QuoteField(TableName)+' left join '+Data.QuoteField(TEvent(Self).Users.TableName)+' on '+Data.QuoteField(TEvent(Self).Users.TableName)+'.'+Data.QuoteField('REF_ID')+'='+Data.QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+' where '+aFilter;
-        end;
+        end
+      else Filter := aFilter;
     end;
 end;
 
