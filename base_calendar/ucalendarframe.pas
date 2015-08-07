@@ -347,7 +347,7 @@ begin
         TCalendar(DataSet).SelectByIdAndTime(aDirectory,StartOfTheWeek(Date)-1,EndOfTheWeek(Date)+1)
       else if pWeekDayView.Visible then
         TCalendar(DataSet).SelectByIdAndTime(aDirectory,StartOfTheWeek(Date)-8,EndOfTheWeek(Date)+8);
-      if cFilter <> Filter then
+      if (cFilter <> Filter) or Data.IsSQLDB then
         begin
           DataSet.Open;
           DataStore.Resource.Schedule.ClearEvents;

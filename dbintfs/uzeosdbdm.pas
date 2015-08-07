@@ -966,6 +966,8 @@ var
   aPar: TParam;
 begin
   if TZeosDBDM(Owner).CheckForInjection(AValue) then exit;
+  if AValue=FSQL then exit;
+  Close;
   Params.Clear;
   FParams.Clear;
   FSQL := AValue;
