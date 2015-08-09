@@ -357,6 +357,8 @@ begin
                     end;
                   bFilter := copy(bFilter,pos(' ',bFilter)+1,length(bFilter));
                   bFilter := copy(bFilter,pos(' ',bFilter)+1,length(bFilter));
+                  if Uppercase(Lists[i].TableName)='MASTERDATA' then
+                    bFilter:='('+bFilter+') AND '+Data.QuoteField('ACTIVE')+'='+Data.QuoteValue('Y');
                   if bFilter <> '' then
                     bFilter := aFilter+' where '+bFilter
                   else
