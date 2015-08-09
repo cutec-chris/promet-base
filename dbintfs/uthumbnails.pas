@@ -27,7 +27,7 @@ uses
   Classes, SysUtils, uDocuments,Utils,variants,
   FPImage,fpreadgif,FPReadPSD,FPReadPCX,FPReadTGA,FPReadJPEGintfd,fpthumbresize,
   FPWriteJPEG,FPReadBMP,process,uBaseDbClasses,FPCanvas,FPImgCanv,
-  uBaseDBInterface,db,uBaseDatasetInterfaces
+  uBaseDBInterface,db,uBaseDatasetInterfaces,uWlxModule, WlxPlugin,ftfont
   ;
 
 type
@@ -36,12 +36,16 @@ type
     procedure DefineFields(aDataSet: TDataSet); override;
     procedure SelectByRefId(aId : Variant);
   end;
+  TThumbnailGenerateProc = function(aName : string;aFileName : string;var aThumbFile : string;aWidth : Integer;aHeight : Integer) : Boolean;
 
 function GetThumbnailPath(aDocument : TDocuments;aWidth : Integer=310;aHeight : Integer=428) : string;
 function GetThumbTempDir : string;
 function ClearThumbDir : Boolean;
 function GenerateThumbNail(aName : string;aFullStream,aStream : TStream;aText : string;aWidth : Integer=310;aHeight : Integer=428) : Boolean;
 function GenerateThumbNail(aName : string;aFileName : string;aStream : TStream;aText : string;aWidth : Integer=310;aHeight : Integer=428) : Boolean;
+
+var
+  OnGenerateThumb : TThumbnailGenerateProc;
 
 implementation
 
@@ -152,6 +156,7 @@ var
   s: String;
   h: TFPCustomImageReaderClass = nil;
   reader: TFPCustomImageReader;
+  aThumbFile : string;
   Msg: String;
   iOut: TFPMemoryImage;
   wr: TFPWriterJPEG;
@@ -167,6 +172,10 @@ var
   LineHeight: Extended;
   aPrinter: TFPImageCanvas;
   aOldPos: Int64;
+  aMod: TWlxModule;
+  Found: Boolean;
+  aBit: HBITMAP;
+  AFont: TFreeTypeFont;
   function ConvertExec(aCmd,aExt : string) : Boolean;
   begin
     aProcess := TProcess.Create(nil);
@@ -204,55 +213,62 @@ var
   end;
 begin
   Result := False;
+  if Assigned(OnGenerateThumb) then
+    Result := OnGenerateThumb(aName,aFileName,aThumbFile,aWidth,aHeight);
+  if Result and FileExists(UniToSys(aThumbFile)) then aFileName:=aThumbFile;
   with BaseApplication as IBaseApplication do
     Debug('Generate Thumbnail:Enter');
   try
+    Found := False;
     e := lowercase (ExtractFileExt(aName));
     if (e <> '') and (e[1] = '.') then
       System.delete (e,1,1);
     s := e + ';';
-    if (s = 'jpg;') or (s='jpeg;') then
-      h := TFPReaderJPEG
-    else
-      for i := 0 to ImageHandlers.Count-1 do
-        if pos(s,ImageHandlers.{$IF FPC_FULLVERSION>20604}Extensions{$ELSE}Extentions{$ENDIF}[ImageHandlers.TypeNames[i]]+';')>0 then
-          begin
-            h := ImageHandlers.ImageReader[ImageHandlers.TypeNames[i]];
-            break;
-          end;
-    if assigned (h) then
+    if not Found then
       begin
-        Img := TFPMemoryImage.Create(0, 0);
-        Img.UsePalette := false;
-        reader := h.Create;
-        if reader is TFPReaderJPEG then
+        if (s = 'jpg;') or (s='jpeg;') then
+          h := TFPReaderJPEG
+        else
+          for i := 0 to ImageHandlers.Count-1 do
+            if pos(s,ImageHandlers.{$IF FPC_FULLVERSION>20604}Extensions{$ELSE}Extentions{$ENDIF}[ImageHandlers.TypeNames[i]]+';')>0 then
+              begin
+                h := ImageHandlers.ImageReader[ImageHandlers.TypeNames[i]];
+                break;
+              end;
+        if assigned (h) then
           begin
-            TFPReaderJPEG(reader).MinHeight:=aHeight;
-            TFPReaderJPEG(reader).MinWidth:=aWidth;
-          end;
-        try
-          Img.LoadFromFile(aFilename, reader);
-          if reader is TFPReaderJPEG then
-            begin
+            Img := TFPMemoryImage.Create(0, 0);
+            Img.UsePalette := false;
+            reader := h.Create;
+            if reader is TFPReaderJPEG then
+              begin
+                TFPReaderJPEG(reader).MinHeight:=aHeight;
+                TFPReaderJPEG(reader).MinWidth:=aWidth;
+              end;
+            try
+              Img.LoadFromFile(aFilename, reader);
+              if reader is TFPReaderJPEG then
+                begin
+                end;
+            except
+              FreeAndNil(Img);
             end;
-        except
-          FreeAndNil(Img);
-        end;
-        Reader.Free;
-      end
-    else if (s = 'pdf;') then
-      begin
-        Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+{$ENDIF}'pdftopng -l 1 %s %s',[aFileName,aFilename]),'-000001.png');
-        if not Result then
-          Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+'gswin32'+{$ELSE}'gs'+{$ENDIF}' -q -dBATCH -dMaxBitmap=300000000 -dNOPAUSE -dSAFER -sDEVICE=bmp16m -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -dFirstPage=1 -dLastPage=1 -sOutputFile=%s %s -c quit',[aFileName+'.bmp',aFileName]),'.bmp');
-      end
-    else
-      begin
-        Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+{$ENDIF}'convert %s[1] -resize %d -alpha off +antialias "%s"',[aFileName,500,afileName+'.bmp']),'.bmp');
-        if not Result then
-          Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+{$ENDIF}'ffmpeg -i "%s" -qscale 0 -vframes 1 "%s"',[aFileName,aFileName+'.bmp']),'.bmp');
-        if not Result then
-          Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+{$ENDIF}'avconv -i "%s" -qscale 0 -vframes 1 "%s"',[aFileName,aFileName+'.bmp']),'.bmp');
+            Reader.Free;
+          end
+        else if (s = 'pdf;') then
+          begin
+            Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+{$ENDIF}'pdftopng -l 1 %s %s',[aFileName,aFilename]),'-000001.png');
+            if not Result then
+              Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+'gswin32'+{$ELSE}'gs'+{$ENDIF}' -q -dBATCH -dMaxBitmap=300000000 -dNOPAUSE -dSAFER -sDEVICE=bmp16m -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -dFirstPage=1 -dLastPage=1 -sOutputFile=%s %s -c quit',[aFileName+'.bmp',aFileName]),'.bmp');
+          end
+        else
+          begin
+            Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+{$ENDIF}'convert %s[1] -resize %d -alpha off +antialias "%s"',[aFileName,500,afileName+'.bmp']),'.bmp');
+            if not Result then
+              Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+{$ENDIF}'ffmpeg -i "%s" -qscale 0 -vframes 1 "%s"',[aFileName,aFileName+'.bmp']),'.bmp');
+            if not Result then
+              Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+{$ENDIF}'avconv -i "%s" -qscale 0 -vframes 1 "%s"',[aFileName,aFileName+'.bmp']),'.bmp');
+          end;
       end;
     SysUtils.DeleteFile(aFileName);
     if Assigned(Img) then
@@ -281,17 +297,30 @@ begin
       while sl.Count>80 do sl.Delete(79);
       aPrinter.Brush.FPColor:=FPColor(65535,65535,65535);//white
       aPrinter.Rectangle(0,0,aWidth,aHeight);
-      randlinks:=round(aWidth/100);
-      randoben:=round(aHeight/100);
+      randlinks:=round(aWidth/80);
+      randoben:=round(aHeight/80);
       //Schrift-Einstellungen:
-      aPrinter.Font.Name:='Courier New';
+      {$ifndef CPUARM}
+      {$ifdef LINUX}
+      ftfont.InitEngine;
+      AFont:=TFreeTypeFont.Create;
+      FontMgr.SearchPath:='/usr/share/fonts/truetype/ttf-dejavu/';
+      AFont.Name:='DejaVuSans';
+      aPrinter.Font:=AFont;
+      {$endif}
+      {$endif}
       LineHeight := ((aHeight-(randoben*2))/80);
       aPrinter.Font.FPColor:=FPColor(0,0,0);
-      {$ifndef CPUARM}
-      aPrinter.Font.Size:=1;
-      while aPrinter.TextExtent('Äg').cy< LineHeight do
-        aPrinter.Font.Size:=aPrinter.Font.Size+1;
-      {$endif}
+      aPrinter.Font.Size:=9;
+      try
+        {$ifndef CPUARM}
+        aPrinter.Font.Size:=1;
+        while aPrinter.TextExtent('Äg').cy< LineHeight do
+          aPrinter.Font.Size:=aPrinter.Font.Size+1;
+        {$endif}
+      except
+      aPrinter.Font.Size:=9;
+      end;
       x:=randlinks;
       y:=randoben+1;
       for zeile:=0 to sl.Count-1 do
@@ -308,6 +337,7 @@ begin
       wr.Free;
       Img.Free;
       aPrinter.Free;
+      Result:=True;
     end;
   with BaseApplication as IBaseApplication do
     Debug('Generate Thumbnail:Exit');
@@ -347,6 +377,7 @@ end;
 
 initialization
   ThumbDir := '';
+  OnGenerateThumb:=nil;
 finalization
   DeleteDirectorySecure(GetThumbTempDir,false);
 end.
