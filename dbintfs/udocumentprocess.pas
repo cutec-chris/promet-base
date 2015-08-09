@@ -44,6 +44,19 @@ var
   Proc: TProcess;
   ACmd: String;
   tmp: String;
+  function IsFileOpen(const FileName: string): Boolean;
+  var Stream: TFileStream;
+  begin
+    Result := false;
+    if not FileExists(FileName) then exit;
+    try
+      Stream := TFileStream.Create(FileName,fmOpenRead or fmShareExclusive);
+    except
+      Result := true;
+      exit;
+    end;
+    Stream.Free;
+  end;
 begin
   while bCmd <> '' do
     begin
@@ -89,6 +102,11 @@ begin
         begin
           ACmd := StringReplace(copy(ACmd,7,length(ACmd)),#13,'',[rfReplaceAll]);
           ForceDirectories(uniToSys(ACmd));
+        end
+      else if copy(Uppercase(ACmd),0,8) = 'WAITFOR:' then
+        begin
+          ACmd := StringReplace(copy(ACmd,9,length(ACmd)),#13,'',[rfReplaceAll]);
+          while IsFileOpen(ACmd) do sleep(200);
         end
       else raise Exception.Create(strNoValidCommand);
     end;
