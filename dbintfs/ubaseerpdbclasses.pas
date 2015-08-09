@@ -885,12 +885,15 @@ var
   Price : real;
   APrice : real;
   AMPrice : real;
+  EKPrice : real;
   Rec,CRec,SRec,CSRec : LongInt;
 begin
   DisableCalculation;
   DataSet.DisableControls;
   PosCalc.DataSet.DisableControls;
   try
+    //Einkaufspreis
+    EKPrice := 0;
     //Priorität hat Kundenpreis+Staffel
     CSPrice := 0;
     //Danach Staffelpreis
@@ -914,6 +917,9 @@ begin
             PosCalc.DataSet.First;
             while not PosCalc.DataSet.EOF do
               begin
+                //Einkauf
+                if PriceTypes.Get(PosCalc.FieldByName('TYPE').AsString) = 1 then
+                  EKPrice := PosCalc.FieldByName('PRICE').AsFloat;
                 //Allgemeinpreis mengenunabhängig
                 if PriceTypes.Get(PosCalc.FieldByName('TYPE').AsString) = 6 then
                   APrice := APrice+PosCalc.FieldByName('PRICE').AsFloat
@@ -1013,6 +1019,7 @@ begin
               end;
           end;
         DataSet.FieldByName('COMPRICE').AsFloat := APrice;
+        DataSet.FieldByName('PURCHASE').AsFloat := EKPrice;
       end;
   finally
     EnableCalculation;
@@ -1277,9 +1284,10 @@ var
         Masterdata.Prices.Open;
         while not Masterdata.Prices.DataSet.EOF do
           begin
-           if  ((Masterdata.Prices.FieldByName('VALIDFROM').IsNull) or (Masterdata.Prices.FieldByName('VALIDFROM').AsDateTime > Now()))
+            if  ((Masterdata.Prices.FieldByName('VALIDFROM').IsNull) or (Masterdata.Prices.FieldByName('VALIDFROM').AsDateTime > Now()))
             and ((Masterdata.Prices.FieldByName('VALIDTO').IsNull) or (Masterdata.Prices.FieldByName('VALIDTO').AsDateTime < Now()))
             and (   (Masterdata.Prices.GetPriceType = 4)
+                 or (Masterdata.Prices.GetPriceType = 1)
                  or (Masterdata.Prices.GetPriceType = 5)
                  or (Masterdata.Prices.GetPriceType = 6))then
               begin
