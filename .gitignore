@@ -27,3 +27,4 @@
 *.dSYM/
 */.svn/*
 lib
+*.bak
