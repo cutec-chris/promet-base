@@ -23,7 +23,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, ExtCtrls, ComCtrls, Buttons,
   ActnList, StdCtrls, LR_View, LR_Class, uPrometFrames, uDocuments, db, uEditor,
-  uExtControls, Graphics, types,uBaseDbClasses,uWlxModule;
+  uExtControls, Graphics, types,uBaseDbClasses,uWlxModule, WlxPlugin;
 type
 
   { TfPreview }
@@ -82,7 +82,6 @@ type
       procedure tsImageShow(Sender: TObject);
     private
       FAfterGetText: TNotifyEvent;
-      FModules: TWLXModuleList;
       FResetZoom: Boolean;
       FZoomW: Boolean;
       { private declarations }
@@ -113,7 +112,6 @@ type
       property ResetZoom : Boolean read FResetZoom write FResetZoom;
       property ZoomWidth : Boolean read FZoomW write FZoomW;
       property AfterGetText : TNotifyEvent read FAfterGetText write fAfterGetText;
-      property Modules : TWLXModuleList read FModules;
     end;
 
   { TLoadThread }
@@ -142,7 +140,9 @@ type
     property DoAbort : Boolean read FAbort write SetAbort;
   end;
 implementation
-uses uData, UTF8Process, Process,uOCR,Utils,Dialogs,uBaseApplication;
+uses uData, UTF8Process, Process,uOCR,Utils,Dialogs,uBaseApplication,uthumbnails;
+var
+  Modules : TWLXModuleList;
 procedure TLoadThread.StartLoading;
 begin
   FFrame.iHourglass.Visible:=True;
@@ -503,8 +503,6 @@ begin
 end;
 
 constructor TfPreview.Create(AOwner: TComponent);
-var
-  Info: TSearchRec;
 begin
   inherited Create(AOwner);
   FEditor := TfEditor.Create(Self);
@@ -513,23 +511,10 @@ begin
   FImage := TBitmap.Create;
   FScaledImage := TBitmap.Create;
   Clear;
-  FModules := TWLXModuleList.Create;
-  If FindFirstUTF8 (Application.Location+DirectorySeparator+'plugins'+DirectorySeparator+'*.wlx',faAnyFile and faDirectory,Info)=0 then
-    begin
-      Repeat
-        With Info do
-          begin
-            if (Attr and faDirectory) <> faDirectory then
-              FModules.Add(Application.Location+DirectorySeparator+'plugins'+DirectorySeparator+Name);
-          end;
-      Until FindNextUTF8(info)<>0;
-    end;
-  FindCloseUTF8(Info);
 end;
 
 destructor TfPreview.Destroy;
 begin
-  FModules.Free;
   FScaledImage.Free;
   FImage.Free;
   FEditor.Free;
@@ -569,12 +554,9 @@ begin
       Result := True
   ;
   if not Result then
-    for i := 0 to Modules.Count-1 do
-      begin
-        aMod := Modules.GetWlxModule(i);
-        Result := pos(aExtension,aMod.DetectStr)>0;
-        if Result then break;
-      end;
+    begin
+      //Use GeneratePreview
+    end;
 end;
 function TfPreview.LoadFromDocuments(aID: LargeInt): Boolean;
 var
@@ -879,5 +861,60 @@ begin
   ToolButton.Action := aAction;
 end;
 
+procedure InitModules;
+var
+  Info: TSearchRec;
+begin
+  If FindFirst (UniToSys(ExtractFilePath(ParamStr(0))+DirectorySeparator+'plugins'+DirectorySeparator+'*.wlx'),faAnyFile and faDirectory,Info)=0 then
+    begin
+      Repeat
+        With Info do
+          begin
+            if (Attr and faDirectory) <> faDirectory then
+              Modules.Add(ExtractFilePath(ParamStr(0))+DirectorySeparator+'plugins'+DirectorySeparator+Name);
+          end;
+      Until FindNext(info)<>0;
+    end;
+  FindClose(Info);
+end;
+function GeneratePluginThumb(aName : string;aFileName : string;var ThumbFile : string;aWidth : Integer;aHeight : Integer) : Boolean;
+var
+  i: Integer;
+  aMod: TWlxModule;
+  e: String;
+  aBit: HBITMAP;
+  Found: Boolean=False;
+  aBitmap: TBitmap;
+begin
+  Result := False;
+  e := lowercase (ExtractFileExt(aName));
+  if (e <> '') and (e[1] = '.') then
+    System.delete (e,1,1);
+  for i := 0 to Modules.Count-1 do
+    begin
+      aMod := Modules.GetWlxModule(i);
+      if aMod.LoadModule then
+        if pos('"'+Uppercase(e)+'"',aMod.CallListGetDetectString)>0 then
+          begin
+            ThumbFile := aMod.CallListGetPreviewBitmapFile(aFileName,GetTempPath,aWidth,aHeight,'');
+            if ThumbFile='' then
+              begin
+                aBitmap := TBitmap.Create;
+                aBitmap.Handle:=aMod.CallListGetPreviewBitmap(aFileName,aWidth,aHeight,'');
+                aBitmap.SaveToFile(GetTempPath+'thumb.bmp');
+                ThumbFile := GetTempPath+'thumb.bmp';
+                aBitmap.Free;
+              end;
+            Found := True;
+          end;
+    end;
+end;
+
+initialization
+  Modules := TWLXModuleList.Create;
+  InitModules;
+  uthumbnails.OnGenerateThumb:=@GeneratePluginThumb;
+finalization
+  Modules.Free;
 end.
 

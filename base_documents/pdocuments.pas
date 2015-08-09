@@ -9,7 +9,7 @@ interface
 uses
   uDocProperties, uDocumentAcquire, uDocumentAction, uDocumentAddOptions, 
   uDocumentCheckin, uDocumentFrame, uDocumentOptions, ueditor, uMimeTypeEdit, 
-  uPreviewFrame, uSelectTemplate, uSynEditFiler, uWlxModule;
+  uPreviewFrame, uSelectTemplate, uSynEditFiler;
 
 implementation
 

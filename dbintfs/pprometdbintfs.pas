@@ -13,7 +13,7 @@ uses
   ubaseapplicationtools, usync, uSessionDBClasses, utask, uvtools, uimpvcal, 
   uDocumentProcess, uProcessManager, uProcessManagement, uprometipc, umeeting, 
   uBaseDocPages, uthumbnails, ucalc, uimport, uPasswordSave, uzugferd, 
-  uprometscripts, uMeasurement;
+  uprometscripts, uMeasurement, uwlxprototypes, uWlxModule;
 
 implementation
 
