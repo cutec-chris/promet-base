@@ -645,6 +645,7 @@ begin
       try
       if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
         begin
+          FOrigTable.SetDisplayLabels(Self);
           if FOrigTable.UpdateFloatFields then
             begin
               DisableControls;
