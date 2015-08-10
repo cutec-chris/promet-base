@@ -254,8 +254,8 @@ var
   begin
     with BaseApplication as IBaseApplication do
       if Syslog then
-        Log(aStr);
-    bLog.Add(aStr);
+        Log(TimeToStr(Now())+':'+aStr);
+    bLog.Add(TimeToStr(Now())+':'+aStr);
   end;
   function BuildCmdLine : string;
   begin
@@ -279,6 +279,7 @@ var
   var
     i: Integer;
     a: Integer;
+    aStartTime: TDateTime;
   begin
     Found := False;
     for i := 0 to length(ProcessData)-1 do
@@ -345,6 +346,7 @@ var
         end;
     if not Found then
       begin
+        aStartTime := Now();
         aLog.Clear;
         DoLog(aProcess+':'+strStartingProcess+' ('+cmd+')',aLog,True);
         NewProcess := TProcProcess.Create(Self);
@@ -360,7 +362,7 @@ var
         NewProcess.Options := [poNoConsole,poUsePipes];
         NewProcess.Execute;
         Processes.Edit;
-        Processes.DataSet.FieldByName('STARTED').AsDateTime := Now();
+        Processes.DataSet.FieldByName('STARTED').AsDateTime := aStartTime;
         Processes.DataSet.FieldByName('STOPPED').Clear;
         Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
         Processes.Post;
