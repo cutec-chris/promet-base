@@ -101,6 +101,7 @@ resourcestring
   strAttatchments               = 'Anhänge';
   strSync                       = 'Synchronisation';
   strProcesses                  = 'Prozesse';
+  strProcess                    = 'Prozess';
   strMandant                    = 'Mandant';
   strEnterAnFilterName          = 'geben Sie einen Namen für den neuen Filter an';
   strNoRightsToSaveComplexFilers= 'Sie haben nicht die erforderliche Berechtigungstufe um komplexe Filter zu speichern !';
