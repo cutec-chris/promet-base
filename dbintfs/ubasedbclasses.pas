@@ -160,7 +160,7 @@ type
     property Commission : TField read GetCommission;
     property Status : TField read GetStatus;
     property Typ : string read GetTyp;
-    property Matchcode : TField read GetMatchcode;
+    property Matchcode: TField read GetMatchcode;
     function SelectFromLink(aLink : string) : Boolean;virtual;
     function SelectFromNumber(aNumber : string) : Boolean;virtual;
   end;
