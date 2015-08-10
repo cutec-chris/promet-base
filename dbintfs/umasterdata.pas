@@ -95,12 +95,22 @@ type
   public
     procedure FillDefaults(aDataSet : TDataSet);override;
   end;
+
+  { TMasterdataPrices }
+
   TMasterdataPrices = class(TBaseDbDataSet)
+    procedure FDSDataChange(Sender: TObject; Field: TField);
+  private
+    FDS: TDataSource;
+    FMasterdata: TMasterdataList;
   public
+    constructor CreateEx(aOwner: TComponent; DM: TComponent; aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
+    destructor Destroy; override;
     procedure DefineFields(aDataSet : TDataSet);override;
     procedure FillDefaults(aDataSet: TDataSet); override;
     function GetPriceType : Integer;
     function FormatCurrency(Value : real) : string;
+    property Masterdata : TMasterdataList read FMasterdata write FMasterdata;
   end;
   TMdProperties = class(TBaseDbDataSet)
   public
@@ -307,6 +317,52 @@ begin
           end;
     end;
 end;
+
+procedure TMasterdataPrices.FDSDataChange(Sender: TObject; Field: TField);
+begin
+  if not Assigned(Field) then exit;
+  if DataSet.ControlsDisabled then exit;
+  if Field.FieldName = 'PRICE' then
+    begin
+      if Masterdata.FieldByName('CURRENCY').AsString='' then
+        begin
+          Masterdata.Edit;
+          if Data.Currency.DataSet.Active and Data.Currency.DataSet.Locate('DEFAULTCUR', 'Y', []) then
+            Masterdata.FieldByName('CURRENCY').AsString := Data.Currency.FieldByName('SYMBOL').AsString;
+          Masterdata.Post;
+        end;
+      case GetPriceType of
+      1:if Assigned(Masterdata.FieldByName('PURCHASE')) then
+        begin
+          Masterdata.Edit;
+          Masterdata.FieldByName('PURCHASE').AsFloat:=Data.Currency.Convert(DataSet.FieldByName('PRICE').AsFloat,DataSet.FieldByName('CURRENCY').AsString,Masterdata.DataSet.FieldByName('CURRENCY').AsString);
+          Masterdata.Post;
+        end;
+      4:if Assigned(Masterdata.FieldByName('SELLPRICE')) then
+          begin
+            Masterdata.Edit;
+            Masterdata.FieldByName('SELLPRICE').AsFloat:=Data.Currency.Convert(DataSet.FieldByName('PRICE').AsFloat,DataSet.FieldByName('CURRENCY').AsString,Masterdata.DataSet.FieldByName('CURRENCY').AsString);
+            Masterdata.Post;
+          end;
+      end;
+    end;
+end;
+
+constructor TMasterdataPrices.CreateEx(aOwner: TComponent; DM: TComponent;
+  aConnection: TComponent; aMasterdata: TDataSet);
+begin
+  inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
+  FDS := TDataSource.Create(Self);
+  FDS.DataSet := DataSet;
+  FDS.OnDataChange:=@FDSDataChange;
+end;
+
+destructor TMasterdataPrices.Destroy;
+begin
+  FDS.Free;
+  inherited Destroy;
+end;
+
 procedure TMasterdataPrices.DefineFields(aDataSet: TDataSet);
 begin
   with aDataSet as IBaseManageDB do
@@ -685,6 +741,7 @@ begin
   FLinks := TMasterdataLinks.CreateEx(Self,DM,aConnection);
   FTexts := TMasterdataTexts.CreateEx(Self,DM,aConnection,DataSet);
   FPrices := TMasterdataPrices.CreateEx(Self,DM,aConnection,DataSet);
+  FPrices.Masterdata:=Self;
   FProperties := TMdProperties.CreateEx(Self,DM,aConnection,DataSet);
   FAssembly := TRepairAssembly.CreateEx(Self,DM,aConnection,DataSet);
   FSupplier := TSupplier.CreateEx(Self,DM,aConnection,DataSet);
@@ -995,6 +1052,8 @@ begin
             Add('ACCOUNT',ftString,10,False); //Fibu Konto
             Add('ACCOUNTINGINFO',ftMemo,0,False); //Fibu Info
             Add('CATEGORY',ftString,60,False);
+            Add('SELLPRICE',ftFloat,0,False);
+            Add('PURCHASE',ftFloat,0,False);
             Add('ISTEMPLATE',ftString,1,False);
             Add('CURRENCY',ftString,5,False);
             Add('CRDATE',ftDate,0,False);

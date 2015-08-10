@@ -2,6 +2,7 @@
       - MySQL:erste Version die MySQL unterstützt (warscheinlich noch nicht zu 100%)
       - Filter() erzeugt automatisch Parametrisierte SQL Querys (Sicherheits und Geschwindigkeitszuwachs)
       - Suche:Suche auf SQL Datenbanken beschleunigt (wird fast auschließlich Serverseitig durchgeführt)
+      - Arikelpreise:Artikel hat 2 neue Felder die durch Preise automatisch befüllt werden (SELLPRICE,PURCHASE) so das man die wichtigsten preise auch in der Artikelliste einblenden kann
 Build 408
       - neues Datenbanklayer
       - Bugfixes für vergangene 3 Revisionen
