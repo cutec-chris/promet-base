@@ -454,12 +454,14 @@ end;
 procedure TZeosDBDataSet.DoUpdateSQL;
 begin
   Close;
-  SQL.Text:='';
-  FIntSQL := '';
   if FSQL<>'' then
     SetSQL(FSQL)
   else
-    SetFilter(FFilter);
+    begin
+      SQL.Text:='';
+      FIntSQL := '';
+      SetFilter(FFilter);
+    end;
 end;
 
 function TZeosDBDataSet.CreateTable : Boolean;
