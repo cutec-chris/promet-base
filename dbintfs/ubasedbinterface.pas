@@ -647,8 +647,6 @@ var
   aTmp: String;
   aTmp1: String;
   aTmp2: String;
-  aClass: TBaseDBDatasetClass;
-  aData: TBaseDbList = nil;
 begin
   if (pos('@',aLink) = 0) and (pos('://',aLink) = 0) then
     begin
@@ -671,15 +669,6 @@ begin
     aLink := copy(aLink,0,rpos('{',aLink)-1)
   else if rpos('(',aLink) > 0 then
     aLink := copy(aLink,0,rpos('(',aLink)-1);
-  if pos('.ID',aLink)>0 then
-    begin
-      if ListDataSetFromLink(aLink,aClass) then
-        begin
-          aData := TBaseDBList(aClass.Create(nil));
-          aData.SelectFromLink(aLink);
-          aData.Open;
-        end;
-    end;
   if pos('://',aLink) > 0 then
     begin
       Result := strWebsite;
@@ -692,19 +681,15 @@ begin
       tmp2 := copy(aLink, 0, pos('&&', aLink) - 1);
       aLink   := copy(aLink, pos('&&', aLink) + 2, length(aLink));
       tmp3 := aLink;
-      if Assigned(aData) and (aData.Count>0) then
-        Result := strMasterdata+' '+aData.Number.AsString
-      else
-        Result := strMasterdata+' '+tmp1;
+      Result := strMasterdata+' '+tmp1;
       if tmp2 <> '' then
         Result := Result+' '+tmp2;
     end
   else if copy(aLink, 0, 9) = 'CUSTOMERS' then
     begin
-      if Assigned(aData) and (aData.Count>0) then
-        Result := strContact+' '+aData.Number.AsString
-      else
-        Result := strContact+' '+copy(aLink, pos('@', aLink) + 1, length(aLink));
+      Result := strContact;
+      if pos('.ID',aLink)=0 then
+        Result+=' '+copy(aLink, pos('@', aLink) + 1, length(aLink));
     end
   else if copy(aLink, 0, 9) = 'DOCUMENTS' then
     begin
@@ -737,10 +722,7 @@ begin
         end
       else
         begin
-          if Assigned(aData) and (aData.Count>0) then
-            Result := strOrder+' '+aData.Number.AsString
-          else
-            Result := strOrder+' '+copy(aLink, pos('@', aLink) + 1, length(aLink));
+          Result := strOrder+' '+copy(aLink, pos('@', aLink) + 1, length(aLink));
         end;
     end
   else if copy(aLink, 0, 5) = 'CALLS' then
@@ -757,15 +739,9 @@ begin
     end
   else if copy(aLink, 0, 8) = 'PROJECTS' then
     begin
-      if Assigned(aData) and (aData.Count>0) then
-        begin
-          if aData.FieldByName('TYPE').AsString='C' then
-            Result := strProcess+' '+aData.Number.AsString
-          else
-            Result := strProject+' '+aData.Number.AsString;
-        end
-      else
-        Result := strProjectProcess+' '+copy(aLink, pos('@', aLink) + 1, length(aLink));
+      Result := strProjectProcess;
+      if pos('.ID',aLink)=0 then
+        Result+=' '+copy(aLink, pos('@', aLink) + 1, length(aLink));
     end;
   if (Desc <> '') and (Result <> '') then
     Result := Desc+' ('+Result+')'
