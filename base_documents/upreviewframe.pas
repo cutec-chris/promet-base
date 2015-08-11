@@ -901,8 +901,11 @@ begin
               begin
                 aBitmap := TBitmap.Create;
                 aBitmap.Handle:=aMod.CallListGetPreviewBitmap(aFileName,aWidth,aHeight,'');
-                aBitmap.SaveToFile(GetTempPath+'thumb.bmp');
-                ThumbFile := GetTempPath+'thumb.bmp';
+                if aBitmap.Handle<>0 then
+                  begin
+                    aBitmap.SaveToFile(GetTempPath+'thumb.bmp');
+                    ThumbFile := GetTempPath+'thumb.bmp';
+                  end;
                 aBitmap.Free;
               end;
             Found := True;
