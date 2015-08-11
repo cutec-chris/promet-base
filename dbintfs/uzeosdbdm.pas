@@ -918,8 +918,11 @@ begin
 end;
 procedure TZeosDBDataSet.SetFields(const AValue: string);
 begin
-  FFields := AValue;
-  DoUpdateSQL;
+  if FFields<>AValue then
+    begin
+      FFields := AValue;
+      DoUpdateSQL;
+    end;
 end;
 procedure TZeosDBDataSet.SetFilter(const AValue: string);
 var
@@ -1209,7 +1212,7 @@ begin
   FManagedIndexDefs := TIndexDefs.Create(Self);
   FSubDataSets := TList.Create;
   FUsePermissions := False;
-  //Options:= [doCalcDefaults, doAlwaysDetailResync, doDontSortOnPost, doPreferPrepared];
+  Options:= [doCalcDefaults, doDontSortOnPost, doPreferPrepared];
   FOrigTable := nil;
   SortType := stIgnored;
   FUpStdFields := True;

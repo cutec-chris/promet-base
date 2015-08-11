@@ -200,7 +200,7 @@ type
     procedure tstextShow(Sender: TObject);
   private
     { private declarations }
-    FDoc,FFullDataSet : TDocPages;
+    FFullDataSet : TDocPages;
     FLast : string;
     FFetchDS : TDataSet;
     FFetchSQL : string;
@@ -694,16 +694,12 @@ end;
 procedure TfManageDocFrame.ThumbControl1AfterDraw(Sender: TObject;
   Item: TThreadedImage;aRect : Trect);
 begin
-  if not Assigned(FDoc) then
-    FDoc := TDocPages.Create(nil);
   if not Assigned(Item.Pointer) then
     begin
-      FDoc.Select(copy(Item.URL,0,pos('.',Item.URL)-1));
-      FDoc.Open;
-      if FDoc.Count>0 then
+      if DataSet.Locate('SQL_ID',copy(Item.URL,0,pos('.',Item.URL)-1),[]) then
         begin
           Item.Pointer := TImageItem.Create;
-          TImageItem(Item.Pointer).Done:=FDoc.FieldByName('DONE').AsString='Y';
+          TImageItem(Item.Pointer).Done:=DataSet.FieldByName('DONE').AsString='Y';
         end;
     end;
   if Assigned(Item.Pointer) then
@@ -1837,7 +1833,6 @@ begin
   except
   end;
   FFullDataSet.Free;
-  FDoc.Free;
   FTimeLine.Free;
   FreeAndNil(FDataSet);
   FDocFrame.Free;
@@ -1906,7 +1901,7 @@ begin
   FFullDataSet.Open;
   with DataSet.DataSet as IBaseDbFilter do
     begin
-      Fields:=Data.QuoteField('SQL_ID')+','+Data.QuoteField('ORIGDATE')+','+Data.QuoteField('TAGS')+','+Data.QuoteField('NAME')+','+Data.QuoteField('LINK')+','+Data.QuoteField('TYPE');
+      Fields:=Data.QuoteField('SQL_ID')+','+Data.QuoteField('ORIGDATE')+','+Data.QuoteField('TAGS')+','+Data.QuoteField('NAME')+','+Data.QuoteField('LINK')+','+Data.QuoteField('TYPE')+','+Data.QuoteField('DONE');
       SortFields := 'ORIGDATE';
       SortDirection:=sdDescending;
       FetchRows:=100;
