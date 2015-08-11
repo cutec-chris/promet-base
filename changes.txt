@@ -1,4 +1,5 @@
-﻿Build 409
+﻿Build 410
+Build 409
       - MySQL:erste Version die MySQL unterstützt (warscheinlich noch nicht zu 100%)
       - Filter() erzeugt automatisch Parametrisierte SQL Querys (Sicherheits und Geschwindigkeitszuwachs)
       - Suche:Suche auf SQL Datenbanken beschleunigt (wird fast auschließlich Serverseitig durchgeführt)
