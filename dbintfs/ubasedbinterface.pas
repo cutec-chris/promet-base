@@ -1308,6 +1308,7 @@ function TBaseDBModule.DecodeFilter(aSQL: string; Parameters: TStringList;
 var
   aQuotes: String;
   i: Integer;
+  aParamCont: String;
 begin
   aQuotes := QuoteValue('');
   aQuotes := copy(aQuotes,0,1);
@@ -1319,9 +1320,17 @@ begin
       NewSQL:=NewSQL+copy(aSQL,0,pos(aQuotes,aSQL)-1);
       aSQL := copy(aSQL,pos(aQuotes,aSQL)+1,length(aSQL));
       NewSQL:=NewSQL+':Param'+IntToStr(i);
-      Parameters.Values['Param'+IntToStr(i)]:=copy(aSQL,0,pos(aQuotes,aSQL)-1);
-      NewSQL:=NewSQL;
+      aParamCont := copy(aSQL,0,pos(aQuotes,aSQL)-1);
       aSQL := copy(aSQL,pos(aQuotes,aSQL)+1,length(aSQL));
+      if copy(aSQL,0,1)=aQuotes then
+        begin
+          aParamCont += aQuotes+copy(aSQL,0,pos(aQuotes,aSQL)-1);
+          aSQL := copy(aSQL,pos(aQuotes,aSQL)+1,length(aSQL));
+          aParamCont += aQuotes+copy(aSQL,0,pos(aQuotes,aSQL)-1);
+          aSQL := copy(aSQL,pos(aQuotes,aSQL)+1,length(aSQL));
+        end;
+      Parameters.Values['Param'+IntToStr(i)]:=aParamCont;
+      NewSQL:=NewSQL;
       inc(i);
     end;
   NewSQL:=NewSQL+aSQL;
