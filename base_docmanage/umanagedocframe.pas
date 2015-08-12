@@ -1016,6 +1016,8 @@ begin
       aFiles[length(aFiles)-1] := GetTempDir+FSelectTemplate.DataSet.DataSet.FieldByName('NAME').AsString+'.'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString;
       DoOnDropFiles(nil,aFiles);
       DeleteFileUtf8(GetTempDir+FSelectTemplate.DataSet.DataSet.FieldByName('NAME').AsString+'.'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString);
+      ThumbControl1.ImageLoaderManager.ActiveIndex:=0;
+      ThumbControl1ItemIndexChanged(ThumbControl1,TThreadedImage(ThumbControl1.ImageLoaderManager.List[0]));
       acEdit.Execute;
     end;
   aDocument.Free;
