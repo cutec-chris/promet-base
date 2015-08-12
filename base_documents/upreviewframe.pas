@@ -894,20 +894,25 @@ begin
     begin
       aMod := Modules.GetWlxModule(i);
       if aMod.LoadModule then
-        if pos('"'+Uppercase(e)+'"',aMod.CallListGetDetectString)>0 then
+        if (pos('EXT="'+Uppercase(e)+'"',aMod.CallListGetDetectString)>0) or (pos('EXT="*"',aMod.CallListGetDetectString)>0) then
           begin
-            ThumbFile := aMod.CallListGetPreviewBitmapFile(aFileName,GetTempPath,aWidth,aHeight,'');
-            if ThumbFile='' then
-              begin
-                aBitmap := TBitmap.Create;
-                aBitmap.Handle:=aMod.CallListGetPreviewBitmap(aFileName,aWidth,aHeight,'');
-                if aBitmap.Handle<>0 then
-                  begin
-                    aBitmap.SaveToFile(GetTempPath+'thumb.bmp');
-                    ThumbFile := GetTempPath+'thumb.bmp';
-                  end;
-                aBitmap.Free;
-              end;
+            try
+              ThumbFile := aMod.CallListGetPreviewBitmapFile(aFileName,GetTempPath,aWidth,aHeight,'');
+              if ThumbFile='' then
+                begin
+                  aBitmap := TBitmap.Create;
+                  aBitmap.Handle:=aMod.CallListGetPreviewBitmap(aFileName,aWidth,aHeight,'');
+                  if aBitmap.Handle<>0 then
+                    begin
+                      aBitmap.SaveToFile(GetTempPath+'thumb.bmp');
+                      ThumbFile := GetTempPath+'thumb.bmp';
+                    end;
+                  aBitmap.Free;
+                end;
+              Found := True;
+            except
+              aMod.UnloadModule;
+            end;
             Found := True;
           end;
     end;
