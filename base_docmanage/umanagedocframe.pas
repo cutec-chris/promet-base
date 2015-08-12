@@ -1017,7 +1017,7 @@ begin
       DoOnDropFiles(nil,aFiles);
       DeleteFileUtf8(GetTempDir+FSelectTemplate.DataSet.DataSet.FieldByName('NAME').AsString+'.'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString);
       ThumbControl1.ImageLoaderManager.ActiveIndex:=0;
-      ThumbControl1ItemIndexChanged(ThumbControl1,TThreadedImage(ThumbControl1.ImageLoaderManager.List[0]));
+      RebuidThumb;
       acEdit.Execute;
     end;
   aDocument.Free;
@@ -1741,6 +1741,8 @@ begin
           aDocument.Free;
           aFullStream.Free;
           aStream.Free;
+          ThumbControl1.ImageLoaderManager.ActiveItem.LoadState:=lsEmpty;
+          ThumbControl1.Invalidate;
         end;
     end;
   Screen.Cursor:=crDefault;

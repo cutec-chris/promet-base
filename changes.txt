@@ -1,4 +1,6 @@
 ﻿Build 410
+      - Dokumente/Bilder:Aneige beschleunigt
+      - Dokumente/Bilder:Aus Vorlage erstellen selektiert nun immer das richtige Dokument beim Editieren
 Build 409
       - MySQL:erste Version die MySQL unterstützt (warscheinlich noch nicht zu 100%)
       - Filter() erzeugt automatisch Parametrisierte SQL Querys (Sicherheits und Geschwindigkeitszuwachs)
