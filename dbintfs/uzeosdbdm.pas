@@ -1212,7 +1212,6 @@ begin
   FManagedIndexDefs := TIndexDefs.Create(Self);
   FSubDataSets := TList.Create;
   FUsePermissions := False;
-  Options:= [doCalcDefaults, doDontSortOnPost, doPreferPrepared];
   FOrigTable := nil;
   SortType := stIgnored;
   FUpStdFields := True;

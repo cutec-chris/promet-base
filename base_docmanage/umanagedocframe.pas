@@ -386,7 +386,7 @@ begin
   if FFetchSQL <> '' then
     begin
       with DataSet.DataSet as IBaseManageDB do
-        FFetchSQL:='select '+Data.QuoteField('SQL_ID')+','+Data.QuoteField('THUMBNAIL')+' from '+Data.QuoteField(TableName)+' where '+FFetchSQL;
+        FFetchSQL:='select '+Data.QuoteField('SQL_ID')+','+Data.QuoteField('THUMBNAIL')+' from '+Data.QuoteField(TableName)+' where '+FFetchSQL+' order by '+Data.QuoteField('ORIGDATE')+' desc';
       FFetchDS := Data.GetNewDataSet(FFetchSQL);
       FFetchDS.Open;
       if not DirectoryExistsUTF8(FtempPath) then

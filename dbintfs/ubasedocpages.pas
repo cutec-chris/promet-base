@@ -36,6 +36,8 @@ type
     procedure SetParamsFromExif(extn : string;aFullStream : TStream);
     procedure SetType(AValue: string);
   public
+    constructor CreateEx(aOwner: TComponent; DM: TComponent;
+      aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
     function GetUsedFields : string;virtual;
     procedure PrepareDataSet;
     procedure Open; override;
@@ -100,6 +102,17 @@ begin
   if FTyp=AValue then Exit;
   FTyp:=AValue;
   ActualFilter := TBaseDBModule(DataModule).QuoteField('TYPE')+'='+TBaseDBModule(DataModule).QuoteValue(FTyp);
+end;
+
+constructor TDocPages.CreateEx(aOwner: TComponent; DM: TComponent;
+  aConnection: TComponent; aMasterdata: TDataSet);
+begin
+  inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
+  with DataSet as IBaseDBFilter do
+    begin
+      SortFields:='ORIGDATE';
+      SortDirection:=sdDescending;
+    end;
 end;
 
 function TDocPages.GetUsedFields: string;
