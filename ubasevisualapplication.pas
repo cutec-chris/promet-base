@@ -448,7 +448,6 @@ end;
 procedure TBaseVisualApplication.SetConfigName(aName: string);
 begin
   Properties.FileName := UniToSys(GetOurConfigDir+aName+'.xml');
-  RestoreConfig;
 end;
 procedure TBaseVisualApplication.RestoreConfig;
 var
@@ -1008,6 +1007,7 @@ begin
   Result := True;
   if not Assigned(fPassword) then
     Application.CreateForm(TfPassword,fPassword);
+  RestoreConfig;
   fPassword.cbMandant.Text:='';
   fPassword.cbMandant.Enabled := True;
   fPassword.cbUser.Enabled := False;
