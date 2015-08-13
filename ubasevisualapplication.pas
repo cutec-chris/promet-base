@@ -1027,8 +1027,9 @@ begin
               if rMandant<>Config.ReadString('LOGINMANDANT','Standard') then
                 rAutoLogin:='';
             end;
-          if ((Config.ReadInteger('AUTOMATICLOGIN',0)=aID) and (aID <> 0))
+          if ((Config.ReadInteger('AUTOMATICLOGIN',0)=aID) and (aID <> 0) and (rUser<>'') and (rMandant<>''))
           or (IsAutoLogin) then
+            begin
             with Self as IBaseDBInterface do
               if DBLogin(rMandant,rUser,True) then
                 begin
@@ -1057,6 +1058,7 @@ begin
                 end
               else
                 Config.WriteInteger('AUTOMATICLOGIN',0);
+            end;
           with Self as IBaseDBInterface do
             if fPassword.Execute then
               begin
