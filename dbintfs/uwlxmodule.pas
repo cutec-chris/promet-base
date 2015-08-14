@@ -73,6 +73,7 @@ type
     ListSetDefaultParams: TListSetDefaultParams;
     ListGetPreviewBitmap: TListGetPreviewBitmap;
     ListGetPreviewBitmapFile: TListGetPreviewBitmapFile;
+    ListGetText: TListGetText;
     // c) Unicode
     ListLoadW: TListLoadW;
     ListLoadNextW: TListLoadNextW;
@@ -80,6 +81,7 @@ type
     ListPrintW: TListPrintW;
     ListGetPreviewBitmapW: TListGetPreviewBitmapW;
     ListGetPreviewBitmapFileW: TListGetPreviewBitmapFileW;
+    ListGetTextW: TListGetTextW;
   private
     FModuleHandle: TLibHandle;  // Handle to .DLL or .so
     //FParser: TParserControl;
@@ -107,6 +109,7 @@ type
     function CallListGetPreviewBitmap(FileToLoad: String; Width, Height: Integer; contentbuf: String): hbitmap;
     function CallListGetPreviewBitmapFile(FileToLoad, OutputPath: String; Width,
       Height: Integer; contentbuf: String): string;
+    function CallListGetText(FileToLoad: String; contentbuf: String): string;
     //function CallListNotificationReceived(Msg, wParam, lParam: Integer): Integer;
     //function CallListPrint(FileToPrint, DefPrinter: String; PrintFlags: Integer; var Margins: trect): Integer;
     //function CallListSearchDialog(FindNext: Integer): Integer;
@@ -217,6 +220,7 @@ begin
     ListSetDefaultParams := TListSetDefaultParams(GetProcAddress(FModuleHandle, 'ListSetDefaultParams'));
     ListGetPreviewBitmap := TListGetPreviewBitmap(GetProcAddress(FModuleHandle, 'ListGetPreviewBitmap'));
     ListGetPreviewBitmapFile := TListGetPreviewBitmapFile(GetProcAddress(FModuleHandle, 'ListGetPreviewBitmapFile'));
+    ListGetText := TListGetText(GetProcAddress(FModuleHandle, 'ListGetText'));
     { Unicode }
     ListLoadW := TListLoadW(GetProcAddress(FModuleHandle, 'ListLoadW'));
     ListLoadNextW := TListLoadNextW(GetProcAddress(FModuleHandle, 'ListLoadNextW'));
@@ -224,6 +228,7 @@ begin
     ListPrintW := TListPrintW(GetProcAddress(FModuleHandle, 'ListPrintW'));
     ListGetPreviewBitmapW := TListGetPreviewBitmapW(GetProcAddress(FModuleHandle, 'ListGetPreviewBitmapW'));
     ListGetPreviewBitmapFileW := TListGetPreviewBitmapFileW(GetProcAddress(FModuleHandle, 'ListGetPreviewBitmapFileW'));
+    ListGetTextW := TListGetTextW(GetProcAddress(FModuleHandle, 'ListGetTextW'));
     // ListSetDefaultParams must be called immediately after loading the DLL, before ListLoad.
     CallListSetDefaultParams;
     // DCDebug('WLXM LoadModule Leaved');
@@ -457,6 +462,16 @@ begin
   else if Assigned(ListGetPreviewBitmapFile) then
     Result := ListGetPreviewBitmapFile(PAnsiChar(UniToSys(FileToLoad)),PAnsiChar(UniToSys(OutputPath)), Width, Height,
       PChar(contentbuf), length(contentbuf));
+end;
+
+function TWlxModule.CallListGetText(FileToLoad: String; contentbuf: String
+  ): string;
+begin
+  Result := '';
+  if Assigned(ListGetTextW) then
+    Result := ListGetTextW(PWideChar(UTF8Decode(FileToLoad)),PChar(contentbuf), length(contentbuf))
+  else if Assigned(ListGetText) then
+    Result := ListGetText(PAnsiChar(UniToSys(FileToLoad)),PChar(contentbuf), length(contentbuf));
 end;
 
 { TWLXModuleList }

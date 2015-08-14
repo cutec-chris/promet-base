@@ -24,7 +24,7 @@ type
   TListSetDefaultParams = procedure (dps:pListDefaultParamStruct);
   TListGetPreviewBitmap = function (FileToLoad:pchar;width,height:integer; contentbuf:pchar;contentbuflen:integer):hbitmap;
   TListGetPreviewBitmapFile = function (FileToLoad:pchar;OutputPath:pchar;width,height:integer; contentbuf:pchar;contentbuflen:integer):pchar;
-  TListGetText = function (FileToLoad:pchar;width,height:integer; contentbuf:pchar;contentbuflen:integer):pchar;
+  TListGetText = function (FileToLoad:pchar;contentbuf:pchar;contentbuflen:integer):pchar;
   { Unicode }
   TListLoadW = function (ParentWin:thandle;FileToLoad:pwidechar;ShowFlags:integer):thandle;
   TListLoadNextW = function (ParentWin,PluginWin:thandle;FileToLoad:pwidechar;ShowFlags:integer):integer;
@@ -32,6 +32,7 @@ type
   TListPrintW = function (ListWin:thandle;FileToPrint,DefPrinter:pwidechar; PrintFlags:integer;var Margins:trect):integer;
   TListGetPreviewBitmapW = function (FileToLoad:pwidechar;width,height:integer; contentbuf:pchar;contentbuflen:integer):hbitmap;
   TListGetPreviewBitmapFileW = function (FileToLoad:pwidechar;OutputPath:pwidechar;width,height:integer; contentbuf:pchar;contentbuflen:integer):pchar;
+  TListGetTextW = function(FileToLoad:pwidechar;contentbuf:pchar;contentbuflen:integer):pchar;
 
 {$CALLING DEFAULT}
 

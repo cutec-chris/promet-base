@@ -918,10 +918,41 @@ begin
     end;
 end;
 
+function GeneratePluginText(aName : string;aFileName : string;var aText : string) : Boolean;
+var
+  i: Integer;
+  aMod: TWlxModule;
+  e: String;
+  aBit: HBITMAP;
+  Found: Boolean=False;
+  aBitmap: TBitmap;
+begin
+  Result := False;
+  e := lowercase (ExtractFileExt(aName));
+  if (e <> '') and (e[1] = '.') then
+    System.delete (e,1,1);
+  for i := 0 to Modules.Count-1 do
+    begin
+      aMod := Modules.GetWlxModule(i);
+      if aMod.LoadModule then
+        if (pos('EXT="'+Uppercase(e)+'"',aMod.CallListGetDetectString)>0) or (pos('EXT="*"',aMod.CallListGetDetectString)>0) then
+          begin
+            try
+              aText := aMod.CallListGetText(aFileName,'');
+              Found := True;
+            except
+              aMod.UnloadModule;
+            end;
+            Found := True;
+          end;
+    end;
+end;
+
 initialization
   Modules := TWLXModuleList.Create;
   InitModules;
   uthumbnails.OnGenerateThumb:=@GeneratePluginThumb;
+  uthumbnails.OnGenerateText:=@GeneratePluginText;
 finalization
   Modules.Free;
 end.
