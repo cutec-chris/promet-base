@@ -33,6 +33,9 @@ type
   end;
   TSystemMessageEvent = function(Sender : TObject;aMessage : string) : Boolean of Object;
   TSystemCommandEvent = function(Sender : TObject;aCommand : string) : Boolean of Object;
+
+  { TMessageHandler }
+
   TMessageHandler = class(TThread)
   private
     Data : TBaseDBModule;
@@ -44,6 +47,7 @@ type
     MessageHandlers : array of TSystemMessageEvent;
     SysCommands: TSystemCommands;
     SysMessages: TSystemMessages;
+    procedure DoRefresh;
     procedure CommandThere;
     procedure MessageThere;
     procedure ShowException;
@@ -85,6 +89,12 @@ begin
           end;
     end;
 end;
+
+procedure TMessageHandler.DoRefresh;
+begin
+  SysCommands.DataSet.Refresh;
+end;
+
 procedure TMessageHandler.CommandThere;
 var
   Found: Boolean;
@@ -143,7 +153,7 @@ begin
     begin
       if (not Assigned(SysCommands)) or (not Assigned(SysCommands.DataSet)) then break;
       try
-        SysCommands.DataSet.Refresh;
+        Synchronize(@DoRefresh);
       except
         on e : Exception do
           begin
