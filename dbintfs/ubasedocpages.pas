@@ -340,7 +340,7 @@ begin
         FieldByName('ORIGDATE').AsDateTime:=aDocument.FieldByName('DATE').AsDateTime;
       if FieldByName('ORIGDATE').IsNull then
         FieldByName('ORIGDATE').AsDateTime:=Now();
-      aDocument.GetText(aFullStream,extn,aText);
+      GetContentText(aFullStream,extn,aText);
       aFullStream.Position:=0;
       GenerateThumbNail(ExtractFileExt(aDocument.FileName),aFullStream,aStream,aText);
       Self.Post;

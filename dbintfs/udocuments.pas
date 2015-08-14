@@ -128,8 +128,6 @@ type
     function CollectCheckInFiles(Directory : string) : TStrings;
     function CheckCheckInFiles(aFiles : TStrings;Directory: string) : Boolean;
     function CheckinFiles(aFiles : TStrings;Directory: string;Desc : string = '') : Boolean;
-    function GetText(aStream : TStream;aExt : string;var aText : string) : Boolean;
-    //function GetWordText(aStream : TStream;aExt : string;var aText : string) : Boolean;
     property BaseParent : TDocuments read FBaseParent write SetbaseParent;
     property OnCheckCheckinFiles : TCheckCheckinFilesEvent read FOnCheckCheckinFiles write FOnCheckCheckinFiles;
     property AftercheckInFiles : TNotifyEvent read FAfterCheckinFiles write FAfterCheckInFiles;
@@ -140,7 +138,7 @@ type
   end;
 implementation
 uses uBaseDBInterface,uBaseApplication, uBaseApplicationTools,md5,
-  Variants,Process,uRTFtoTXT;
+  Variants,Process,uthumbnails;
 resourcestring
   strFailedCreatingDiff         = 'konnte Differenzdatei von Datei %s nicht erstellen';
   strInvalidLink                = 'Dieser Link ist auf dieser Datenbank ungültig !';
@@ -403,7 +401,7 @@ begin
             begin
               Stream.Position:=OldPos;
               if SetText then
-                GetText(Stream,'.'+Extension,aText);
+                GetContentText(Stream,'.'+Extension,aText);
             end;
           if aText <> '' then
             begin
@@ -1767,7 +1765,7 @@ begin
     if Assigned(FAfterCheckinFiles) then
       FAfterCheckinFiles(Self);
 end;
-
+{
 function TDocument.GetText(aStream: TStream; aExt: string;var aText: string
   ): Boolean;
 var
@@ -1868,6 +1866,7 @@ begin
     end;
   aText := SysToUni(aText);//ConvertEncoding(aText,GuessEncoding(aText),EncodingUTF8);
 end;
+}
 function TDocument.Delete: Boolean;
 var
   aDocuments: TDocuments;

@@ -76,7 +76,7 @@ function GetDateEx(aText: TStrings;var aStart,aLen : Integer): TDateTime;
 var
   OnallprocessDone : TNotifyEvent;
 implementation
-uses uBaseApplication;
+uses uBaseApplication,uthumbnails;
 var
   Processes : TList;
 
@@ -90,7 +90,7 @@ begin
   aFullstream := TMemoryStream.Create;
   aDoc.CheckoutToStream(aFullStream);
   aFullStream.Position:=0;
-  aDoc.GetText(aFullstream,ExtractFileExt(aDoc.FileName),aText);
+  GetContentText(aFullstream,ExtractFileExt(aDoc.FileName),aText);
   aFullStream.Position:=0;
   Result := TOCRPages.Create;
   if aText<>'' then  //Trial to get Text from other Files than Images

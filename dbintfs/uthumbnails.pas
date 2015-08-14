@@ -37,15 +37,19 @@ type
     procedure SelectByRefId(aId : Variant);
   end;
   TThumbnailGenerateProc = function(aName : string;aFileName : string;var aThumbFile : string;aWidth : Integer;aHeight : Integer) : Boolean;
+  TTextGenerateProc = function(aName : string;aFileName : string;var aText : string) : Boolean;
 
 function GetThumbnailPath(aDocument : TDocuments;aWidth : Integer=310;aHeight : Integer=428) : string;
 function GetThumbTempDir : string;
 function ClearThumbDir : Boolean;
 function GenerateThumbNail(aName : string;aFullStream,aStream : TStream;aText : string;aWidth : Integer=310;aHeight : Integer=428) : Boolean;
 function GenerateThumbNail(aName : string;aFileName : string;aStream : TStream;aText : string;aWidth : Integer=310;aHeight : Integer=428) : Boolean;
+function GetContentText(aStream : TStream;aExtension : string;var aText : string) : Boolean;
+function GetFileContextText(aFilename : string;var aText : string) : Boolean;
 
 var
   OnGenerateThumb : TThumbnailGenerateProc;
+  OnGenerateText : TTextGenerateProc;
 
 implementation
 
@@ -343,6 +347,43 @@ begin
     Debug('Generate Thumbnail:Exit');
 end;
 
+function GetContextText(aFilename: string; var aText: string): Boolean;
+begin
+  if Assigned(OnGenerateText) then
+    Result := OnGenerateText(ExtractFileName(aFilename),aFileName,aText);
+end;
+
+
+function GetContentText(aStream: TStream; aExtension : string; var aText: string
+  ): Boolean;
+var
+  e: String;
+  aFilename: String;
+  aFStream: TFileStream;
+  s: String;
+begin
+  Result := True;
+  e := lowercase (ExtractFileExt(aExtension));
+  if (e <> '') and (e[1] = '.') then
+    System.delete (e,1,1);
+  s := e + ';';
+  with BaseApplication as IBaseApplication do
+    begin
+      aFilename := GetInternalTempDir+'rpv.'+e;
+      aFStream := TFileStream.Create(GetInternalTempDir+'rpv.'+e,fmCreate);
+    end;
+  if aStream.Position=aStream.Size then
+    aStream.Position:=0;
+  aFStream.CopyFrom(aStream,aStream.Size-aStream.Position);
+  aFStream.Free;
+  Result := GetFileContextText(aFilename,aText);
+end;
+
+function GetFileContextText(aFilename: string; var aText: string): Boolean;
+begin
+
+end;
+
 procedure TThumbnails.DefineFields(aDataSet: TDataSet);
 begin
   with aDataSet as IBaseManageDB do
@@ -378,6 +419,7 @@ end;
 initialization
   ThumbDir := '';
   OnGenerateThumb:=nil;
+  OnGenerateText:=nil;
 finalization
   DeleteDirectorySecure(GetThumbTempDir,false);
 end.
