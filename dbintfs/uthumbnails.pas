@@ -380,8 +380,92 @@ begin
 end;
 
 function GetFileContextText(aFilename: string; var aText: string): Boolean;
+var
+  aExt: String;
+  aFStream: TFileStream;
+  aProcess: TProcess;
+  aLines: TStringList;
 begin
-
+  Result := False;
+  if Assigned(OnGenerateText) then
+    Result := OnGenerateText(ExtractFileName(aFilename),aFileName,aText);
+  if Result then exit;
+  aExt := Uppercase(ExtractFileExt(aFilename));
+  if aExt = '.RTF' then
+    begin
+      {
+      aStringStream:=TStringStream.Create('');
+      aStringStream.CopyFrom(aStream,aStream.Size);
+      aText := RTF2Plain(aStringStream.DataString);
+      aStringStream.Free;
+      result := True;
+      }
+    end
+  else if (Uppercase(aExt) = '.PDF') then
+    begin
+      try
+        aProcess := TProcess.Create(nil);
+        {$IFDEF WINDOWS}
+        aProcess.Options:= [poNoConsole, poWaitonExit,poNewConsole, poStdErrToOutPut, poNewProcessGroup];
+        {$ELSE}
+        aProcess.Options:= [poWaitonExit,poStdErrToOutPut];
+        {$ENDIF}
+        aProcess.ShowWindow := swoHide;
+        aProcess.CommandLine := Format('pdftotext'+ExtractFileExt(BaseApplication.ExeName)+' %s %s',[aFileName,aFileName+'.txt']);
+        aProcess.CurrentDirectory := AppendPathDelim(AppendPathDelim(BaseApplication.Location)+'tools');
+        {$IFDEF WINDOWS}
+        aProcess.CommandLine := aProcess.CurrentDirectory+aProcess.CommandLine;
+        {$ENDIF}
+        aProcess.Execute;
+        aProcess.Free;
+        SysUtils.DeleteFile(aFileName);
+        if FileExists(aFileName+'.txt') then
+          begin
+            aLines := TStringList.Create;
+            aLines.LoadFromFile(aFileName+'.txt');
+            aText := aLines.Text;
+            Result := True;
+            aLines.Free;
+          end;
+        SysUtils.DeleteFile(aFileName+'.txt');
+      except
+        SysUtils.DeleteFile(aFileName);
+        SysUtils.DeleteFile(aFileName+'.txt');
+      end;
+    end
+  else
+    begin
+      try
+        aProcess := TProcess.Create(nil);
+        {$IFDEF WINDOWS}
+        aProcess.Options:= [poNoConsole, poWaitonExit,poNewConsole, poStdErrToOutPut, poNewProcessGroup];
+        {$ELSE}
+        aProcess.Options:= [poWaitonExit,poStdErrToOutPut];
+        {$ENDIF}
+        aProcess.ShowWindow := swoHide;
+        aProcess.CommandLine := AppendPathDelim(AppendPathDelim(BaseApplication.Location)+'tools')+Format('pextracttext'+ExtractFileExt(BaseApplication.ExeName)+' %s %s',[aFileName,aFileName+'.txt']);
+        aProcess.CurrentDirectory := AppendPathDelim(AppendPathDelim(BaseApplication.Location)+'tools');
+        {$IFDEF WINDOWS}
+        aProcess.CommandLine := aProcess.CurrentDirectory+aProcess.CommandLine;
+        {$ENDIF}
+        aProcess.Execute;
+        aProcess.Free;
+        SysUtils.DeleteFile(aFileName);
+        if FileExists(aFileName+'.txt') then
+          begin
+            aLines := TStringList.Create;
+            aLines.LoadFromFile(aFileName+'.txt');
+            aText := aLines.Text;
+            Result := True;
+            aLines.Free;
+          end;
+        SysUtils.DeleteFile(aFileName+'.txt');
+      except
+        SysUtils.DeleteFile(aFileName);
+        SysUtils.DeleteFile(aFileName+'.txt');
+      end;
+    end;
+  aText := SysToUni(aText);//ConvertEncoding(aText,GuessEncoding(aText),EncodingUTF8);
 end;
 
 procedure TThumbnails.DefineFields(aDataSet: TDataSet);
