@@ -219,12 +219,13 @@ begin
   Result := False;
   if Assigned(OnGenerateThumb) then
     Result := OnGenerateThumb(aName,aFileName,aThumbFile,aWidth,aHeight);
-  if Result and FileExists(UniToSys(aThumbFile)) then aFileName:=aThumbFile;
+  if Result and FileExists(UniToSys(aThumbFile)) then
+    aFileName:=aThumbFile;
   with BaseApplication as IBaseApplication do
     Debug('Generate Thumbnail:Enter');
   try
     Found := False;
-    e := lowercase (ExtractFileExt(aName));
+    e := lowercase (ExtractFileExt(aFileName));
     if (e <> '') and (e[1] = '.') then
       System.delete (e,1,1);
     s := e + ';';

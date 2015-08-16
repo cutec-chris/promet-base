@@ -883,7 +883,6 @@ var
   aMod: TWlxModule;
   e: String;
   aBit: HBITMAP;
-  Found: Boolean=False;
   aBitmap: TBitmap;
 begin
   Result := False;
@@ -897,7 +896,7 @@ begin
         if (pos('EXT="'+Uppercase(e)+'"',aMod.CallListGetDetectString)>0) or (pos('EXT="*"',aMod.CallListGetDetectString)>0) then
           begin
             try
-              ThumbFile := aMod.CallListGetPreviewBitmapFile(aFileName,GetTempPath,aWidth,aHeight,'');
+              ThumbFile := aMod.CallListGetPreviewBitmapFile(aFileName,AppendPathDelim(GetTempPath),aWidth,aHeight,'');
               if ThumbFile='' then
                 begin
                   aBitmap := TBitmap.Create;
@@ -909,11 +908,13 @@ begin
                     end;
                   aBitmap.Free;
                 end;
-              Found := True;
+              Result := True;
+              break;
             except
               aMod.UnloadModule;
             end;
-            Found := True;
+            Result := True;
+            break;
           end;
     end;
 end;
@@ -924,7 +925,6 @@ var
   aMod: TWlxModule;
   e: String;
   aBit: HBITMAP;
-  Found: Boolean=False;
   aBitmap: TBitmap;
 begin
   Result := False;
@@ -939,11 +939,13 @@ begin
           begin
             try
               aText := aMod.CallListGetText(aFileName,'');
-              Found := True;
+              Result := True;
+              break;
             except
               aMod.UnloadModule;
             end;
-            Found := True;
+            Result := True;
+            break;
           end;
     end;
 end;
