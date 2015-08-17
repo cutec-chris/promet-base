@@ -27,7 +27,7 @@ uses
   Classes, SysUtils, uDocuments,Utils,variants,
   FPImage,fpreadgif,FPReadPSD,FPReadPCX,FPReadTGA,FPReadJPEGintfd,fpthumbresize,
   FPWriteJPEG,FPReadBMP,process,uBaseDbClasses,FPCanvas,FPImgCanv,
-  uBaseDBInterface,db,uBaseDatasetInterfaces,uWlxModule, WlxPlugin,ftfont
+  uBaseDBInterface,db,uBaseDatasetInterfaces,uWlxModule, WlxPlugin{$ifdef linux},ftfont{$endif}
   ;
 
 type
@@ -179,7 +179,9 @@ var
   aMod: TWlxModule;
   Found: Boolean;
   aBit: HBITMAP;
+  {$ifdef LINUX}
   AFont: TFreeTypeFont;
+  {$endif}
   function ConvertExec(aCmd,aExt : string) : Boolean;
   begin
     aProcess := TProcess.Create(nil);
