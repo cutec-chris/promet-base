@@ -463,21 +463,27 @@ begin
     end;
   if Data.IsSQLDB then
     begin
-      if Assigned(FBeginSearch) then FBeginSearch(Self);
-      aSQL := aSQL+' order by '+Data.QuoteField('TIMESTAMPD')+' desc';
-      aSQL := uStatistic.AddSQLLimit(aSQL,FMaxResults*length(Lists))+LineEnding;
-      aDataSet := Data.GetNewDataSet(aSQL);
-      aDataSet.Open;
-      i := 0;
-      while not aDataSet.EOF do
-        begin
-          inc(i);
-          FItemFound(aDataSet.FieldByName('ID').AsString,aDataSet.FieldByName('SHORTTEXT').AsString,aDataSet.FieldByName('STATUS').AsString,True,aDataSet.FieldByName('TABLE').AsString+'.ID@'+aDataSet.FieldByName('SQL_ID').AsString+'{'+aDataSet.FieldByName('SHORTTEXT').AsString+'}',0,nil);
-          if i > (FMaxResults*length(Lists)) then break;
-          aDataSet.Next;
-        end;
-      aDataSet.Free;
-      if Assigned(FEndSearch) then FEndSearch(Self);
+      try
+        if Assigned(FBeginSearch) then FBeginSearch(Self);
+        if trim(aSQL) <> '' then
+          begin
+            aSQL := aSQL+' order by '+Data.QuoteField('TIMESTAMPD')+' desc';
+            aSQL := uStatistic.AddSQLLimit(aSQL,FMaxResults*length(Lists))+LineEnding;
+            aDataSet := Data.GetNewDataSet(aSQL);
+            aDataSet.Open;
+            i := 0;
+            while not aDataSet.EOF do
+              begin
+                inc(i);
+                FItemFound(aDataSet.FieldByName('ID').AsString,aDataSet.FieldByName('SHORTTEXT').AsString,aDataSet.FieldByName('STATUS').AsString,True,aDataSet.FieldByName('TABLE').AsString+'.ID@'+aDataSet.FieldByName('SQL_ID').AsString+'{'+aDataSet.FieldByName('SHORTTEXT').AsString+'}',0,nil);
+                if i > (FMaxResults*length(Lists)) then break;
+                aDataSet.Next;
+              end;
+            aDataSet.Free;
+          end;
+      finally
+        if Assigned(FEndSearch) then FEndSearch(Self);
+      end;
     end;
   FActive := False;
   if Assigned(FFullEndSearch) then FFullEndSearch(Self);
