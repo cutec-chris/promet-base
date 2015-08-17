@@ -884,6 +884,7 @@ var
   e: String;
   aBit: HBITMAP;
   aBitmap: TBitmap;
+  aHandle: HBITMAP;
 begin
   Result := False;
   e := lowercase (ExtractFileExt(aName));
@@ -900,9 +901,10 @@ begin
               if ThumbFile='' then
                 begin
                   aBitmap := TBitmap.Create;
-                  aBitmap.Handle:=aMod.CallListGetPreviewBitmap(aFileName,aWidth,aHeight,'');
-                  if aBitmap.Handle<>0 then
+                  aHandle := aMod.CallListGetPreviewBitmap(aFileName,aWidth,aHeight,'');
+                  if aHandle<>0 then
                     begin
+                      aBitmap.Handle:=aHandle;
                       aBitmap.SaveToFile(GetTempPath+'thumb.bmp');
                       ThumbFile := GetTempPath+'thumb.bmp';
                     end;
