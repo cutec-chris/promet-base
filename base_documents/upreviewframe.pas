@@ -909,9 +909,12 @@ begin
                       ThumbFile := GetTempPath+'thumb.bmp';
                     end;
                   aBitmap.Free;
+                end
+              else
+                begin
+                  Result := True;
+                  break;
                 end;
-              Result := True;
-              break;
             except
               aMod.UnloadModule;
             end;
