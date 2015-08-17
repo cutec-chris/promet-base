@@ -171,6 +171,7 @@ type
     property LeftBar : Boolean read GetLeftBar write SetLeftBar;
   end;
   TSimpleIpHtml = class(TIpHtml)
+  protected
   public
     property OnGetImageX;
     constructor Create;
