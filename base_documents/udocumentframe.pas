@@ -1187,7 +1187,7 @@ begin
         DocumentSaveDialog.FileName := UniToSys(DataSet.FieldByName('NAME').AsString);
       if DocumentSaveDialog.Execute then
         begin
-          aID := DataSet.FieldByName('NUMBER').AsInteger;
+          aID := DataSet.FieldByName('NUMBER').AsVariant;
           aDocument := TDocument.CreateEx(Self,Data);
           aDocument.SelectByNumber(aId);
           aDocument.Open;
