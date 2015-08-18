@@ -706,11 +706,11 @@ var
   begin
     result := '';
     aLink := Data.BuildLink(aBDS);
-    Result+='<tr valign="top" align="left">';
+    Result+='<tr valign="top">';
     if TSQLSelectStatement(aStmt).All then
       begin
         for a := 0 to aDS.DataSet.FieldCount-1 do
-          Result+='<td>'+aBDS.Fields[a].AsString+'</td>'
+          Result+='<td align="left">'+aBDS.Fields[a].AsString+'</td>'
       end
     else
       begin
@@ -733,7 +733,7 @@ var
                     if pos('.',aName)>0 then
                       aName := copy(aName,rpos('.',aName)+1,length(aName));
                     if (aBDS.FieldDefs.IndexOf(aName)>-1) then
-                      Result+='<td><a href="'+aLink+'" title="'+Data.GetLinkDesc(aLink)+#10+Data.GetLinkLongDesc(aLink)+'">'+HTMLEncode(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString)+'</a></td>'
+                      Result+='<td align="left"><a href="'+aLink+'" title="'+Data.GetLinkDesc(aLink)+#10+Data.GetLinkLongDesc(aLink)+'">'+HTMLEncode(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString)+'</a></td>'
                   end
                 else if copy(uppercase(aName),0,4)='RTF(' then
                   begin
@@ -743,7 +743,7 @@ var
                         aName := copy(aName,pos('(',aName)+1,length(aname));
                         aName := copy(aName,0,length(aName)-1);
                       end;
-                    Result+='<td>'+HTMLEncode(RTF2Plain(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString))+'</td>';
+                    Result+='<td align="left">'+HTMLEncode(RTF2Plain(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString))+'</td>';
                   end
                 else if copy(uppercase(aName),0,5)='ICON(' then
                   begin
@@ -753,7 +753,7 @@ var
                         aName := copy(aName,pos('(',aName)+1,length(aname));
                         aName := copy(aName,0,length(aName)-1);
                       end;
-                    Result+='<td><img src="ICON('+aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString+')"></img></td>';
+                    Result+='<td align="left"><img src="ICON('+aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString+')"></img></td>';
                   end
                 else if copy(uppercase(aName),0,12)='HISTORYICON(' then
                   begin
@@ -763,19 +763,19 @@ var
                         aName := copy(aName,pos('(',aName)+1,length(aname));
                         aName := copy(aName,0,length(aName)-1);
                       end;
-                    Result+='<td><img src="HISTORYICON('+aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString+')"></img></td>';
+                    Result+='<td align="left"><img src="HISTORYICON('+aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString+')"></img></td>';
                   end
                 else if (aBDS.FieldDefs.IndexOf(copy(aName,rpos('.',aName)+1,length(aName)))>-1) then
                   begin
                     if pos('.',aName)>0 then
                       aName := copy(aName,rpos('.',aName)+1,length(aName));
-                    Result+='<td>'+HTMLEncode(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString)+'</td>';
+                    Result+='<td align="left">'+HTMLEncode(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString)+'</td>';
                   end
                 else if Assigned(TSQLSelectField(aElem).AliasName) then
                   begin
                     aName := TSQLSelectField(aElem).AliasName.GetAsSQL([]);
                     if (aBDS.FieldDefs.IndexOf(aName)>-1) then
-                     Result+='<td>'+HTMLEncode(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString)+'</td>'
+                     Result+='<td align="left">'+HTMLEncode(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString)+'</td>'
                   end;
               end;
           end;
@@ -848,7 +848,7 @@ var
             begin
               if IncHeader then
                 AddHeader(aStmt);
-              if aType=1 then Outp+='<tbody align="left" valign="top">';
+              if aType=1 then Outp+='<tbody align="left" valign="top" align="left">';
               aDs := TBaseDBDataset(aClass.Create(nil));
               if Assigned(TSQLSelectStatement(aStmt).Where) then
                 aFilter:=TSQLSelectStatement(aStmt).Where.GetAsSQL([sfoDoubleQuoteIdentifier]);
