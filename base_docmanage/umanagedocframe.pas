@@ -1011,11 +1011,11 @@ begin
   if fSelectTemplate.Execute(FTyp,aDocument) then
     begin
       Stream := TMemoryStream.Create;
-      Data.BlobFieldToFile(FSelectTemplate.DataSet.DataSet,'DOCUMENT',GetTempDir+FSelectTemplate.DataSet.DataSet.FieldByName('NAME').AsString+'.'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString);
+      Data.BlobFieldToFile(FSelectTemplate.DataSet.DataSet,'DOCUMENT',GetTempDir+FSelectTemplate.eName.Text+'.'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString);
       Setlength(aFiles,1);
-      aFiles[length(aFiles)-1] := GetTempDir+FSelectTemplate.DataSet.DataSet.FieldByName('NAME').AsString+'.'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString;
+      aFiles[length(aFiles)-1] := GetTempDir+FSelectTemplate.eName.Text+'.'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString;
       DoOnDropFiles(nil,aFiles);
-      DeleteFileUtf8(GetTempDir+FSelectTemplate.DataSet.DataSet.FieldByName('NAME').AsString+'.'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString);
+      DeleteFileUtf8(GetTempDir+FSelectTemplate.eName.Text+'.'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString);
       ThumbControl1.ImageLoaderManager.ActiveIndex:=0;
       RebuidThumb;
       acEdit.Execute;

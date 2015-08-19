@@ -1024,7 +1024,7 @@ begin
       aDocument.BaseLanguage:=FLanguage;
       aDocument.BaseVersion:=FVersion;
       aDocument.ParentID:=aDirectoryID;
-      aDocument.AddFromStream(FSelectTemplate.DataSet.FieldByName('NAME').AsString,
+      aDocument.AddFromStream(FSelectTemplate.eName.Text,
                             FSelectTemplate.DataSet.FieldByName('EXTENSION').AsString,
                             Stream,
                             '',

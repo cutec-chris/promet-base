@@ -37,17 +37,21 @@ type
   TfSelectTemplate = class(TForm)
     cbReplacePlaceholders: TCheckBox;
     DocumentActions: TDatasource;
+    eName: TEdit;
     gTemplate: TDBGrid;
     bSelect: TBitBtn;
     bAbort: TBitBtn;
     bNew: TBitBtn;
     bDelete: TBitBtn;
+    Label1: TLabel;
     OpenDialog: TOpenDialog;
     procedure bSelectClick(Sender: TObject);
     procedure bAbortClick(Sender: TObject);
     procedure bNewClick(Sender: TObject);
     procedure bDeleteClick(Sender: TObject);
+    procedure FDataSetDataSetAfterScroll(DataSet: TDataSet);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure gTemplateCellClick(Column: TColumn);
   private
     FDataSet: TBaseDbDataSet;
     { private declarations }
@@ -105,6 +109,12 @@ begin
     DataSet.Delete;
 end;
 
+procedure TfSelectTemplate.FDataSetDataSetAfterScroll(DataSet: TDataSet);
+begin
+  eName.Text:=DataSet.FieldByName('NAME').AsString;
+  eName.SelectAll;
+end;
+
 procedure TfSelectTemplate.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
@@ -114,6 +124,12 @@ begin
       Close;
     end;
 end;
+
+procedure TfSelectTemplate.gTemplateCellClick(Column: TColumn);
+begin
+  eName.SetFocus;
+end;
+
 procedure TfSelectTemplate.SetDataSet(AValue: TBaseDbDataSet);
 begin
   if not Assigned(fSelectTemplate) then
@@ -132,6 +148,7 @@ begin
   FDocuments := aDocuments;
   fType := Typ;
   Data.SetFilter(FDataSet,Data.QuoteField('TYPE')+'='+Data.QuoteValue(Typ));
+  FDataSet.DataSet.AfterScroll:=@FDataSetDataSetAfterScroll;
   DocumentActions.DataSet := FDataSet.DataSet;
   FDataSet.Open;
   OK := false;
@@ -142,6 +159,7 @@ begin
   except
   end;
   Result := OK;
+  FDataSet.DataSet.AfterScroll:=nil;
 end;
 
 initialization

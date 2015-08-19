@@ -10,10 +10,10 @@ object fSelectTemplate: TfSelectTemplate
   KeyPreview = True
   OnKeyDown = FormKeyDown
   Position = poMainFormCenter
-  LCLVersion = '1.3'
+  LCLVersion = '1.5'
   object gTemplate: TDBGrid
     Left = 8
-    Height = 258
+    Height = 208
     Top = 8
     Width = 310
     Anchors = [akTop, akLeft, akRight, akBottom]
@@ -28,6 +28,7 @@ object fSelectTemplate: TfSelectTemplate
     DataSource = DocumentActions
     TabOrder = 0
     TitleStyle = tsNative
+    OnCellClick = gTemplateCellClick
   end
   object bSelect: TBitBtn
     Left = 328
@@ -78,10 +79,10 @@ object fSelectTemplate: TfSelectTemplate
     TabOrder = 1
   end
   object bAbort: TBitBtn
-    Left = 381
+    Left = 378
     Height = 34
     Top = 225
-    Width = 99
+    Width = 102
     Anchors = [akRight, akBottom]
     AutoSize = True
     Cancel = True
@@ -139,10 +140,10 @@ object fSelectTemplate: TfSelectTemplate
     TabOrder = 3
   end
   object bDelete: TBitBtn
-    Left = 405
+    Left = 404
     Height = 28
     Top = 198
-    Width = 75
+    Width = 76
     Anchors = [akRight, akBottom]
     AutoSize = True
     Caption = 'löschen'
@@ -186,15 +187,32 @@ object fSelectTemplate: TfSelectTemplate
     TabOrder = 4
   end
   object cbReplacePlaceholders: TCheckBox
-    Left = 348
-    Height = 24
+    Left = 345
+    Height = 22
     Top = 56
-    Width = 139
+    Width = 142
     Anchors = [akTop, akRight]
     Caption = 'Platzhalter ersetzen'
     Checked = True
     State = cbChecked
     TabOrder = 5
+  end
+  object Label1: TLabel
+    Left = 8
+    Height = 15
+    Top = 224
+    Width = 74
+    Caption = 'neuer Name'
+    ParentColor = False
+  end
+  object eName: TEdit
+    Left = 8
+    Height = 25
+    Top = 240
+    Width = 310
+    Anchors = [akRight, akBottom]
+    TabOrder = 6
+    Text = 'eName'
   end
   object OpenDialog: TOpenDialog
     FilterIndex = 0
