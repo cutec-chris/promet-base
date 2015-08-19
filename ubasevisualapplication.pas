@@ -463,7 +463,8 @@ begin
           aWS := TWindowState(Config.ReadInteger('MainFormState',Integer(wsNormal)));
           Config.ReadRect('MainFormPos',NewRect,MainForm.BoundsRect);
           MainForm.BoundsRect := NewRect;
-          Mainform.WindowState:=aWS;
+          if aWs <> wsMinimized then
+            Mainform.WindowState:=aWS;
         end;
       except
         DeleteFile(Properties.FileName);
