@@ -44,7 +44,10 @@ var
   Proc: TProcess;
   ACmd: String;
   tmp: String;
+  aStartTime: TDateTime;
+  Elapsed: Integer;
 begin
+  aStartTime := Now();
   while bCmd <> '' do
     begin
       if pos(lineending,bCmd) > 0 then
@@ -92,9 +95,13 @@ begin
         end
       else if copy(Uppercase(ACmd),0,8) = 'WAITFOR:' then
         begin
-          sleep(1500);
+          Elapsed := round((Now()-aStartTime)*SecsPerDay*1000);
+          Elapsed := 6000-Elapsed;
+          if Elapsed<0 then Elapsed := 0;
+          sleep(Elapsed);
           ACmd := StringReplace(copy(ACmd,9,length(ACmd)),#13,'',[rfReplaceAll]);
-          while IsFileOpen(ACmd) do sleep(500);
+          while IsFileOpen(ACmd) do sleep(1000);
+          sleep(1000);
         end
       else raise Exception.Create(strNoValidCommand);
     end;
