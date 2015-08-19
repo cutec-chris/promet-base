@@ -1737,6 +1737,17 @@ begin
                   aFS.Free;
                 end;
             end;
+          TDocPages(FFullDataSet).Select(DataSet.Id.AsVariant);
+          TDocPages(FFullDataSet).Open;
+          if TDocPages(FFullDataSet).Count>0 then
+            begin
+              if TDocPages(FFullDataSet).FieldByName('FULLTEXT').AsString<>aText then
+                begin
+                  TDocPages(FFullDataSet).Edit;
+                  TDocPages(FFullDataSet).FieldByName('FULLTEXT').AsString:=aTExt;
+                  TDocPages(FFullDataSet).Post;
+                end;
+            end;
           aSStream.Free;
           aDocument.Free;
           aFullStream.Free;
