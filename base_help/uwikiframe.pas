@@ -769,7 +769,12 @@ var
                   begin
                     if pos('.',aName)>0 then
                       aName := copy(aName,rpos('.',aName)+1,length(aName));
-                    Result+='<td align="left">'+HTMLEncode(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString)+'</td>';
+                    if (aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].DataType=ftFloat)
+                    or (aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].DataType=ftInteger)
+                    then
+                      Result+='<td align="right">'+HTMLEncode(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString)+'</td>'
+                    else
+                      Result+='<td align="left">'+HTMLEncode(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString)+'</td>';
                   end
                 else if Assigned(TSQLSelectField(aElem).AliasName) then
                   begin
