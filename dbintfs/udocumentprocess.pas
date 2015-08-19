@@ -49,8 +49,8 @@ begin
     begin
       if pos(lineending,bCmd) > 0 then
         begin
-          ACmd := copy(FCmd,0,pos(lineending,FCmd)-1);
-          FCmd := copy(FCmd,pos(lineending,FCmd)+length(lineending),length(FCmd));
+          ACmd := copy(bCmd,0,pos(lineending,bCmd)-1);
+          bCmd := copy(bCmd,pos(lineending,bCmd)+length(lineending),length(bCmd));
         end
       else
         begin
