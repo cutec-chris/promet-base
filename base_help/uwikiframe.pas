@@ -119,6 +119,8 @@ type
     procedure acRefreshExecute(Sender: TObject);
     procedure acScreenshotExecute(Sender: TObject);
     procedure acSpellCheckExecute(Sender: TObject);
+    procedure aScriptWrite(const s: string);
+    procedure aScriptWriteln(const s: string);
     procedure bItalicClick(Sender: TObject);
     function FCacheGetFile(Path: string;var NewPath : string): TStream;
     procedure fWikiFrameWikiInclude(Inp: string; var Outp: string; aLevel: Integer=0
@@ -145,6 +147,7 @@ type
     FEditable: Boolean;
     FVariables: TStrings;
     aDataThere : Boolean;
+    FScriptContent : string;
     function GetLeftBar: Boolean;
     procedure SetLeftBar(AValue: Boolean);
     function Wiki2HTML(input: string): TIPHtml;
@@ -180,7 +183,7 @@ implementation
 uses uWiki,uData,WikiToHTML,uDocuments,Utils,LCLIntf,Variants,
   uBaseDbInterface,uscreenshotmain,uMessages,uDocumentFrame,sqlparser,
   sqlscanner, sqltree,uBaseVisualApplication,uStatistic,uspelling,uBaseApplication,
-  uBaseVisualControls,uRTFtoTXT,uIntfStrConsts;
+  uBaseVisualControls,uRTFtoTXT,uIntfStrConsts,uprometpascalscript;
 procedure THistory.SetIndex(const AValue: Integer);
 begin
   Move(AValue,Count-1);
@@ -562,6 +565,16 @@ begin
   fSpellCheck.Execute(eWikiPage,eWikiPage.SelStart);
 end;
 
+procedure TfWikiFrame.aScriptWrite(const s: string);
+begin
+  FScriptContent+=s;
+end;
+
+procedure TfWikiFrame.aScriptWriteln(const s: string);
+begin
+  FScriptContent+=s+LineEnding;
+end;
+
 procedure TfWikiFrame.bItalicClick(Sender: TObject);
 begin
   if (DataSet.DataSet.State <> dsEdit)
@@ -688,6 +701,8 @@ var
   aInclude: String;
   nInp: String;
   ConvertRTF: Boolean = False;
+  aScript: TPrometPascalScript;
+  bScript: String;
   procedure BuildLinkRow(aBDS : TDataSet);
   var
     aLink: String;
@@ -1272,6 +1287,23 @@ begin
         begin
           FilterSQL(4);
         end;
+    end
+  else if (Uppercase(copy(Inp,0,7)) = 'SCRIPT(') then
+    begin
+      Inp := copy(Inp,pos('(',Inp)+1,length(Inp)-(pos('(',Inp)+1));
+      bScript := copy(Inp,0,pos('(',Inp)-1);
+      FScriptContent:='';
+      aScript := TPrometPascalScript.Create(nil);
+      aScript.SelectByName(bScript);
+      aScript.Open;
+      if aScript.Count>0 then
+        begin
+          aScript.Write:=@aScriptWrite;
+          aScript.Writeln:=@aScriptWriteln;
+          Inp := copy(Inp,pos('(',Inp)+1,length(Inp)-(pos('(',Inp)+1));
+          aScript.Execute(Inp);
+        end;
+      aScript.Free;
     end
   else
     begin
