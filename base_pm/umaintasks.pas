@@ -36,7 +36,7 @@ type
     property Tasks : TfTaskFrame read FTasks;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure DoRefresh; override;
+    procedure DoRefresh(ForceRefresh : Boolean = False); override;
     procedure ShowFrame; override;
   end;
 
@@ -105,9 +105,9 @@ begin
   FTasks.Free;
   inherited Destroy;
 end;
-procedure TfMainTaskFrame.DoRefresh;
+procedure TfMainTaskFrame.DoRefresh(ForceRefresh: Boolean);
 begin
-  FTasks.DoRefresh;
+  FTasks.DoRefresh(ForceRefresh);
 end;
 
 procedure TfMainTaskFrame.ShowFrame;

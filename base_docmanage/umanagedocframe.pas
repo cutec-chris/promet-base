@@ -227,7 +227,7 @@ type
     { public declarations }
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure DoRefresh; override;
+    procedure DoRefresh(ForceRefresh : Boolean = False); override;
 
     function GotoCurrentItem: Boolean;
     procedure Open(aType : string);
@@ -1884,7 +1884,7 @@ begin
   acOptimizeDocument.Visible:=aType='D';
   Application.QueueAsyncCall(@DoAOpen,0);
 end;
-procedure TfManageDocFrame.DoRefresh;
+procedure TfManageDocFrame.DoRefresh(ForceRefresh: Boolean);
 begin
   ThumbControl1.Invalidate;
 end;

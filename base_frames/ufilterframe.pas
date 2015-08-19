@@ -266,7 +266,7 @@ type
     procedure AddContextAction(aAction : TAction);
     function AddFilter(FieldName,Value : string) : Boolean;
     procedure ClearFilters(DoFilter : Boolean = True);
-    procedure DoRefresh;override;
+    procedure DoRefresh(ForceRefresh : Boolean = False);override;
     procedure SetRights;
     function GetLink(onlyOne: Boolean=True): string;
     procedure ShowFrame;override;
@@ -1837,7 +1837,7 @@ begin
   if DoFilter then
     acFilter.Execute;
 end;
-procedure TfFilter.DoRefresh;
+procedure TfFilter.DoRefresh(ForceRefresh: Boolean);
 var
   aRec : LargeInt;
   aPrevRec : LargeInt;
@@ -1847,19 +1847,16 @@ begin
       acFilter.Execute;
       exit;
     end;
-  if aFullCount<>DataSet.FullCount then
-    begin
-      aRec := DataSet.GetBookmark;
-      DataSet.DataSet.Prior;
-      aPrevrec := DataSet.GetBookmark;
-      DataSet.DataSet.next;
-      if DataSet.DataSet.Active and (not DataSet.CanEdit) then
-        DataSet.DataSet.Refresh;
-      if DataSet.GetBookmark = aRec then exit;
-      if not aRec = Null and DataSet.GotoBookmark(aRec) then
-        DataSet.GotoBookmark(aPrevrec);
-      DoUpdateDSCount;
-    end;
+  aRec := DataSet.GetBookmark;
+  DataSet.DataSet.Prior;
+  aPrevrec := DataSet.GetBookmark;
+  DataSet.DataSet.next;
+  if DataSet.DataSet.Active and (not DataSet.CanEdit) then
+    DataSet.DataSet.Refresh;
+  if DataSet.GetBookmark = aRec then exit;
+  if not aRec = Null and DataSet.GotoBookmark(aRec) then
+    DataSet.GotoBookmark(aPrevrec);
+  DoUpdateDSCount;
 end;
 procedure TfFilter.SetRights;
 begin

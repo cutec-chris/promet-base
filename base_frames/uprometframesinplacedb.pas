@@ -39,7 +39,7 @@ type
     procedure SetLanguage;virtual;abstract;
     function OpenFromLink(aLink : string) : Boolean;virtual;abstract;
     procedure New;virtual;
-    procedure DoRefresh;override;
+    procedure DoRefresh(ForceRefresh : Boolean = False);override;
     procedure FrameAdded; override;
   end;
 implementation
@@ -59,7 +59,7 @@ end;
 procedure TPrometInplaceDBFrame.New;
 begin
 end;
-procedure TPrometInplaceDBFrame.DoRefresh;
+procedure TPrometInplaceDBFrame.DoRefresh(ForceRefresh: Boolean);
 begin
 end;
 

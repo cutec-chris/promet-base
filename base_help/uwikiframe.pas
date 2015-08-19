@@ -169,7 +169,7 @@ type
     function OpenWikiPage(PageName : string;CreateIfNotExists : Boolean = False) : Boolean;
     procedure Refresh;
     procedure ShowFrame;override;
-    procedure DoRefresh; override;
+    procedure DoRefresh(ForceRefresh : Boolean = False); override;
     property Variables : TStrings read FVariables;
     property LeftBar : Boolean read GetLeftBar write SetLeftBar;
   end;
@@ -1491,9 +1491,9 @@ begin
   DoRefresh;
 end;
 
-procedure TfWikiFrame.DoRefresh;
+procedure TfWikiFrame.DoRefresh(ForceRefresh: Boolean);
 begin
-  inherited DoRefresh;
+  inherited DoRefresh(ForceRefresh);
   if Now()-LastRefresh>60*1000 then
     if TWikiList(DataSet).isDynamic then
       RefreshTimer.Enabled:=True;

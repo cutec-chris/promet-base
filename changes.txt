@@ -9,6 +9,7 @@
           XLSX,ODS,CSV - Plugin spreatsheet
           DWG - Plugin dwgfile
           CDR,DXF,SVG,MML,EPS - Plugin vectorfile
+      - Dokumente:Volltext wird bei jeder Änderung aktualisiert
 Build 409
       - MySQL:erste Version die MySQL unterstützt (warscheinlich noch nicht zu 100%)
       - Filter() erzeugt automatisch Parametrisierte SQL Querys (Sicherheits und Geschwindigkeitszuwachs)

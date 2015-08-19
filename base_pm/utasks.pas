@@ -294,7 +294,7 @@ type
     property UserID : Variant read FUserID write SetUserID;
     procedure SetRights(Editable : Boolean);override;
     procedure ShowFrame; override;
-    procedure DoRefresh; override;
+    procedure DoRefresh(ForceRefresh : Boolean = False); override;
     property BaseFilter : string read FBaseFilter write SetBaseFilter;
     property FilterType : string read FFilterType write SetFilterType;
     property FilterIn : string read GetFilterIn write SetFilterIn;
@@ -1975,9 +1975,10 @@ begin
     FGridView.SetFocus;
 end;
 
-procedure TfTaskFrame.DoRefresh;
+procedure TfTaskFrame.DoRefresh(ForceRefresh: Boolean);
 begin
-  //FGridView.Refresh;
+  if ForceRefresh then
+    FGridView.Refresh;
 end;
 procedure TfTaskFrame.SetLanguage;
 begin

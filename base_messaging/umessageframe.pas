@@ -26,6 +26,9 @@ uses
   DBGrids, Grids, Graphics, Buttons, ExtCtrls, uViewMessage, Variants, db,
   ClipBrd, Menus, uExtControls,uBaseDatasetInterfaces;
 type
+
+  { TfMessageFrame }
+
   TfMessageFrame = class(TPrometMainFrame)
     acNew: TAction;
     acDelete: TAction;
@@ -83,7 +86,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy;override;
     procedure OpenDir(Directory : Variant);
-    procedure DoRefresh;override;
+    procedure DoRefresh(ForceRefresh : Boolean = False);override;
   end;
 procedure RefreshMessages(FMessageNode :TTreeNode);
 implementation
@@ -406,9 +409,9 @@ begin
   acMarkasRead.Enabled:=FList.DataSet.Count>0;
   DoOpen;
 end;
-procedure TfMessageFrame.Dorefresh;
+procedure TfMessageFrame.DoRefresh(ForceRefresh: Boolean);
 begin
-  FList.DoRefresh;
+  FList.DoRefresh(ForceRefresh);
   acAnswer.Enabled:=FList.DataSet.Count>0;
   acForward.Enabled:=FList.DataSet.Count>0;
   acCreateContact.Enabled:=FList.DataSet.Count>0;
