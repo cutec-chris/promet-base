@@ -378,7 +378,7 @@ begin
       istr := copy(istr,pos(#13,istr)-1,length(istr));
       tstr := copy(istr,0,pos(#13+'|}',istr)-1);
       istr := copy(istr,pos(#13+'|}',istr)+3,length(istr));
-      otstr := '<table><tr valign="top" align="left">';
+      otstr := '<table><tr valign="top">';
       //tstr := StringReplace(tstr,'|-','</tr><tr valign="top" align="left">',[rfReplaceAll]);
       intd := False;
       while length(tstr) > 2 do
@@ -398,7 +398,7 @@ begin
               if inTD then
                 otstr := otstr+'</td>'
               else
-                otstr := otstr+'<td>';
+                otstr := otstr+'<td align="left">';
               inTD := not inTD;
               tstr := copy(tstr,3,length(tstr));
             end
@@ -407,7 +407,7 @@ begin
             begin
               if inTD then
                 begin
-                  otstr := otstr+'</td><td>'
+                  otstr := otstr+'</td><td align="left">'
                 end
               else //Schould never happen
                 begin
