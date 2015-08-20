@@ -5,10 +5,12 @@
         Sie sind zu 90% kompatibel zu Total Commander Lister Plugins. Diese können auch genutzt werden (ohne Text extraktion)
         Für folgende Dateiformate sind derzeit Plugins vorhanden:
           PDF,TXT,ME... - intern
-          DOC,XLS,ODT,ODG - Plugin oofile
-          XLSX,ODS,CSV - Plugin spreatsheet
+          PNG,JPG,GIF,TGA,SVG,BMP - intern
+          MPG,MP4,AVI - intern
+          DOC,XLS (MS Office),ODT,ODG (OpenOffice/LibreOffice),FCSTD (FreeCAD) - Plugin oofile
           DWG - Plugin dwgfile
           CDR,DXF,SVG,MML,EPS - Plugin vectorfile
+          SLDPRT,SLDASM,EASM (Solidworks) - Plugin solidworks
       - Dokumente:Volltext wird bei jeder Änderung aktualisiert
       - Dokumente:beim erstellen aus Template kann nun direkt aus dem Dialog heraus ein neuer Name vergeben werden
 Build 409

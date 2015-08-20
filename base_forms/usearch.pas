@@ -619,12 +619,13 @@ end;
 
 procedure TfSearch.seMaxresultsChange(Sender: TObject);
 begin
+  FreeAndNil(ActiveSearch);
   with Application as IBaseDBInterface do
     begin
       if cbMaxresults.Checked then
         DBConfig.WriteInteger('SEARCHMAXRESULTS',seMaxResults.Value)
       else
-        DBConfig.WriteString('SEARCHMAXRESULTS','10');
+        DBConfig.WriteString('SEARCHMAXRESULTS','100');
     end;
   if seMaxresults.Tag=0 then
     DoSearch(nil);
