@@ -413,6 +413,7 @@ var
   aItem: TThreadedImage;
 begin
   SelectedItem := Item;
+  if Item=nil then exit;
   FDocFrame.Refresh(copy(Item.URL,0,pos('.',Item.URL)-1),'S');
   aItem := ThumbControl1.ItemFromPoint(point(ThumbControl1.Left+(ThumbControl1.ThumbWidth div 2),ThumbControl1.Top+(ThumbControl1.ThumbHeight div 2)));
   if Assigned(aItem) then
@@ -885,7 +886,7 @@ begin
       ThumbControl1.ImageLoaderManager.List.Delete(ThumbControl1.ImageLoaderManager.ActiveIndex);
       ThumbControl1.Arrange;
       ThumbControl1.Invalidate;
-      if DataSet.Count=0 then acRefresh.Execute;
+      acRefresh.Execute;
     end;
 end;
 
@@ -1016,7 +1017,6 @@ begin
       aFiles[length(aFiles)-1] := GetTempDir+FSelectTemplate.eName.Text+'.'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString;
       DoOnDropFiles(nil,aFiles);
       DeleteFileUtf8(GetTempDir+FSelectTemplate.eName.Text+'.'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString);
-      ThumbControl1.ImageLoaderManager.ActiveIndex:=0;
       RebuidThumb;
       acEdit.Execute;
     end;
@@ -1329,6 +1329,7 @@ begin
   pSave.Enabled:=DataSet.Count>0;
   ThumbControl1.Arrange;
   ThumbControl1.Invalidate;
+  ThumbControl1ItemIndexChanged(ThumbControl1,ThumbControl1.ImageLoaderManager.ActiveItem);
 end;
 
 procedure TfManageDocFrame.acRenameExecute(Sender: TObject);
