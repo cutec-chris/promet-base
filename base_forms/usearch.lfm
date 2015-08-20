@@ -402,7 +402,7 @@ object fSearch: TfSearch
         Align = alClient
         BorderSpacing.Around = 8
         ItemHeight = 0
-        OnClick = cbSearchTypeClick
+        OnClickCheck = cbSearchInClickCheck
         TabOrder = 0
       end
     end

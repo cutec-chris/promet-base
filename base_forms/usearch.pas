@@ -85,8 +85,6 @@ type
     procedure bEditFilterClick(Sender: TObject);
     procedure bSearchFurtherClick(Sender: TObject);
     procedure cbSearchInClickCheck(Sender: TObject);
-    procedure cbSearchTypeClick(Sender: TObject);
-    procedure cbSearchTypeClickCheck(Sender: TObject);
     procedure DoSearch(Sender: TObject);
     procedure cbAutomaticsearchChange(Sender: TObject);
     procedure cbWildgardsChange(Sender: TObject);
@@ -188,17 +186,6 @@ begin
 end;
 
 procedure TfSearch.cbSearchInClickCheck(Sender: TObject);
-begin
-
-end;
-
-procedure TfSearch.cbSearchTypeClick(Sender: TObject);
-begin
-  FreeAndNil(ActiveSearch);
-  DoSearch(nil);
-end;
-
-procedure TfSearch.cbSearchTypeClickCheck(Sender: TObject);
 begin
   FreeAndNil(ActiveSearch);
   sgResults.RowCount:=sgResults.FixedRows;
