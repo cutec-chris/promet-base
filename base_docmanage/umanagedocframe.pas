@@ -876,7 +876,7 @@ procedure TfManageDocFrame.acDeleteExecute(Sender: TObject);
 var
   aItem: TThreadedImage;
 begin
-  if MessageDlg(strRealdelete,mtInformation,[mbYes,mbNo],0) = mrYes then
+  if GotoCurrentItem and (MessageDlg(strRealdelete,mtInformation,[mbYes,mbNo],0) = mrYes) then
     begin
       aItem := ThumbControl1.ImageLoaderManager.ActiveItem;
 
