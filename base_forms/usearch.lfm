@@ -394,22 +394,15 @@ object fSearch: TfSearch
         Caption = 'Suchtypen'
         ParentColor = False
       end
-      object cbSearchType: TRadioGroup
+      object cbSearchType: TCheckListBox
         Left = 8
         Height = 179
         Top = 25
         Width = 130
         Align = alClient
-        AutoFill = True
         BorderSpacing.Around = 8
-        ChildSizing.LeftRightSpacing = 6
-        ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
-        ChildSizing.EnlargeVertical = crsHomogenousChildResize
-        ChildSizing.ShrinkHorizontal = crsScaleChilds
-        ChildSizing.ShrinkVertical = crsScaleChilds
-        ChildSizing.Layout = cclLeftToRightThenTopToBottom
-        ChildSizing.ControlsPerLine = 1
-        OnSelectionChanged = cbSearchTypeClickCheck
+        ItemHeight = 0
+        OnClick = cbSearchTypeClick
         TabOrder = 0
       end
     end

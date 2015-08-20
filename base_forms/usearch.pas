@@ -43,7 +43,7 @@ type
     bOpen: TBitBtn;
     bSearchFurther: TButton;
     cbMaxResults: TCheckBox;
-    cbSearchType: TRadioGroup;
+    cbSearchType: TCheckListBox;
     IdleTimer: TTimer;
     lHint: TLabel;
     cbSearchIn: TCheckListBox;
@@ -85,6 +85,7 @@ type
     procedure bEditFilterClick(Sender: TObject);
     procedure bSearchFurtherClick(Sender: TObject);
     procedure cbSearchInClickCheck(Sender: TObject);
+    procedure cbSearchTypeClick(Sender: TObject);
     procedure cbSearchTypeClickCheck(Sender: TObject);
     procedure DoSearch(Sender: TObject);
     procedure cbAutomaticsearchChange(Sender: TObject);
@@ -162,8 +163,6 @@ uses uBaseDBInterface,uBaseApplication,uBaseVisualControls,uFormAnimate,
 resourcestring
   strSearchfromOrderMode        = 'Diese Suche wurde aus der Vorgangsverwaltung gestartet, wenn Sie einen Eintrag öffnen wird dieser automatisch in den aktuellen Vorgang übernommen.';
   strDoSearch                   = 'suchen';
-  strPersonSearch               = 'Kontakte,Kontaktdaten,Adressen';
-  strArticleSearch              = 'Artikel,Projekte';
 procedure TfSearch.bCloseClick(Sender: TObject);
 begin
   Close;
@@ -189,6 +188,11 @@ begin
 end;
 
 procedure TfSearch.cbSearchInClickCheck(Sender: TObject);
+begin
+
+end;
+
+procedure TfSearch.cbSearchTypeClick(Sender: TObject);
 begin
   FreeAndNil(ActiveSearch);
   DoSearch(nil);
@@ -345,6 +349,7 @@ var
   SearchLocations : TSearchLocations;
   i: Integer;
   aItems: TSearchLocations;
+  a: Integer;
 begin
   if (bSearch.Caption = strAbort) then
     begin
@@ -371,15 +376,13 @@ begin
       if cbSearchIn.Checked[cbSearchIn.Items.IndexOf(uBaseSearch.SearchLocations[i])] then
         SearchTypes := SearchTypes+[TFullTextSearchType(i)];
   aItems := GetSearchAbleItems;
-  if cbSearchType.ItemIndex>-1 then
-    begin
-      for i := 0 to length(aItems)-1 do
-        if pos(aItems[i],cbSearchtype.Items[cbSearchType.ItemIndex])>0 then
-          begin
-            SetLength(SearchLocations,length(SearchLocations)+1);
-            SearchLocations[length(SearchLocations)-1] := aItems[i];
-          end;
-    end;
+  for i := 0 to length(aItems)-1 do
+    for a := 0 to cbSearchtype.Items.Count-1 do
+      if (aItems[i]=cbSearchtype.Items[a]) and (cbSearchtype.Checked[a]) then
+        begin
+          SetLength(SearchLocations,length(SearchLocations)+1);
+          SearchLocations[length(SearchLocations)-1] := aItems[i];
+        end;
   if SearchLevel=0 then
     sgResults.RowCount := sgResults.FixedRows;
   ActCount := sgResults.RowCount;
@@ -523,7 +526,7 @@ begin
   Options := '';
   for i := 0 to cbSearchType.Items.Count-1 do
     begin
-      if cbSearchType.ItemIndex=i then
+      if cbSearchType.Checked[i] then
         Options := Options+cbSearchType.Items[i]+';';
     end;
   with Application as IBaseDbInterface do
@@ -782,8 +785,6 @@ begin
     end;
   aLocations := GetSearchAbleItems;
   cbSearchtype.Items.Clear;
-  cbSearchType.Items.Add(strPersonSearch);
-  cbSearchType.Items.Add(strArticleSearch);
   for i := 0 to length(aLocations)-1 do
     begin
       found := false;
@@ -804,11 +805,13 @@ begin
   with Application as IBaseDbInterface do
     Options := DBConfig.ReadString('SEARCHTP:'+OptionSet,Options);
   i := 0;
+  for i := 0 to cbSearchType.Items.Count-1 do
+    cbSearchType.Checked[i]:=False;
   while pos(';',Options) > 0 do
     begin
       cbSearchType.Tag:=1;
       if cbSearchType.Items.IndexOf(copy(Options,0,pos(';',Options)-1)) <> -1 then
-        cbSearchType.ItemIndex := cbSearchType.Items.IndexOf(copy(Options,0,pos(';',Options)-1));
+        cbSearchType.Checked[cbSearchType.Items.IndexOf(copy(Options,0,pos(';',Options)-1))] := True;
       cbSearchType.Tag:=0;
       Options := copy(Options,pos(';',Options)+1,length(Options));
       inc(i);
@@ -869,7 +872,7 @@ begin
     end;
   cbSearchType.Tag:=1;
   if fSearch.cbSearchType.Items.Count=1 then
-    fSearch.cbSearchType.ItemIndex:=0;
+    fSearch.cbSearchType.Checked[0]:=true;
   cbSearchType.Tag:=0;
   FreeAndNil(ActiveSearch);
 end;
