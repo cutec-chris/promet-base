@@ -13,6 +13,8 @@
           SLDPRT,SLDASM,EASM (Solidworks) - Plugin solidworks
       - Dokumente:Volltext wird bei jeder Änderung aktualisiert
       - Dokumente:beim erstellen aus Template kann nun direkt aus dem Dialog heraus ein neuer Name vergeben werden
+      - Besprechungen:Kalendar Editor für "Bis"
+      - Wiki:Scripte können nun in Wiki Seiten benutzt werden um Daten zu holen/manipulieren
 Build 409
       - MySQL:erste Version die MySQL unterstützt (warscheinlich noch nicht zu 100%)
       - Filter() erzeugt automatisch Parametrisierte SQL Querys (Sicherheits und Geschwindigkeitszuwachs)
