@@ -60,6 +60,8 @@ begin
           ACmd := bCmd;
           bCmd := '';
         end;
+      with BaseApplication as IBaseApplication do
+        Debug('TDocExecuteThread:Command='+ACmd);
       if copy(Uppercase(ACmd),0,5) = 'EXEC:' then
         begin
           ACmd := StringReplace(copy(ACmd,6,length(ACmd)),#13,'',[rfReplaceAll]);
@@ -116,20 +118,39 @@ var
   FileList: TStrings;
   aDocAction: TDocumentActions;
   aMime: TMimeTypes;
+  i: Integer;
 label DelRetry;
 begin
   FileName := FDocument.GetIDCheckoutPath('',TempId);
+  with BaseApplication as IBaseApplication do
+    Debug('TDocExecuteThread:CollectCheckinDocuments');
   //Collect Checkin Documents
   FileList := FDocument.CollectCheckInFiles(FileName);
   if FDocument.CheckCheckinFiles(FileList,FileName) then
     begin
       //Checkin
       if FileList.Count > 0 then
-        Result := FDocument.CheckinFiles(FileList,FileName)
+        begin
+          with BaseApplication as IBaseApplication do
+            begin
+              for i := 0 to FileList.Count-1 do
+                Debug('TDocExecuteThread:File='+FileList[i]);
+            end;
+          Result := FDocument.CheckinFiles(FileList,FileName);
+          with BaseApplication as IBaseApplication do
+            begin
+              if Result then
+                Debug('TDocExecuteThread:CheckinFiles=True')
+              else
+                Debug('TDocExecuteThread:CheckinFiles=False');
+            end;
+        end
       else Result := True;
     end;
   FileList.Free;
   //Remove Temp Stuff
+  with BaseApplication as IBaseApplication do
+    Debug('TDocExecuteThread:RemoveTempStuff');
   if aDoDelete and Result then
     begin
       if DirectoryExists(UniToSys(filename)) then

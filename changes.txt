@@ -5,7 +5,7 @@
         Sie sind zu 90% kompatibel zu Total Commander Lister Plugins. Diese können auch genutzt werden (ohne Text extraktion)
         Für folgende Dateiformate sind derzeit Plugins vorhanden:
           PDF,TXT,ME... - intern
-          PNG,JPG,GIF,TGA,SVG,BMP - intern
+          PNG,JPG,GIF,TGA (Web Graphics),SVG (Vector Graphics),BMP (Windows Bitmap),PSD (Photoshop) - intern
           MPG,MP4,AVI - intern
           DOC,XLS (MS Office),ODT,ODG (OpenOffice/LibreOffice),FCSTD (FreeCAD) - Plugin oofile
           DWG - Plugin dwgfile
