@@ -89,6 +89,8 @@ type
   { TZeosDBDataSet }
 
   TZeosDBDataSet = class(TZQuery,IBaseDBFilter,IBaseManageDB,IBaseSubDatasets,IBaseModifiedDS)
+    procedure TDateTimeFieldGetText(Sender: TField; var aText: string;
+      DisplayText: Boolean);
   private
     FFirstOpen : Boolean;
     FSubDataSets : Tlist;
@@ -209,6 +211,12 @@ uses ZDbcIntfs,uBaseApplication,uEncrypt;
 resourcestring
   strUnknownDbType                = 'Unbekannter Datenbanktyp';
   strDatabaseConnectionLost       = 'Die Datenbankverbindung wurde verlohren !';
+
+procedure TZeosDBDataSet.TDateTimeFieldGetText(Sender: TField;
+  var aText: string; DisplayText: Boolean);
+begin
+  aText := FormatDateTime(ShortDateFormat+' '+ShortTimeFormat,Sender.AsDateTime);
+end;
 
 procedure TZeosDBDataSet.SetNewIDIfNull;
 begin
@@ -669,9 +677,11 @@ begin
                         end;
                     end;
                   if (Fields[a] is TDateTimeField)
-                  or (Fields[a] is TDateField)
                   then
-                    TDateTimeField(Fields[a]).DisplayFormat := ShortDateFormat+' '+ShortTimeFormat;
+                    begin
+                      TDateTimeField(Fields[a]).DisplayFormat := ShortDateFormat+' '+ShortTimeFormat;
+                      TDateTimeField(Fields[a]).OnGetText:=@TDateTimeFieldGetText;
+                    end;
                 end;
               EnableControls;
             end;
