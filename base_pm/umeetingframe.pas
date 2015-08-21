@@ -27,8 +27,9 @@ uses
   Classes, SysUtils, db, FileUtil, LR_Class, LR_DBSet, Forms, Controls,
   ActnList, ComCtrls, ExtCtrls, StdCtrls, Buttons, DbCtrls, EditBtn,
   uprometframesinplace, uPrometFrames, uExtControls, ugridview, Dialogs,
-  uIntfStrConsts, variants, DBGrids, Grids, Graphics, Menus, DBZVDateTimePicker,
-  ZVDateTimePicker, uBaseSearch, uBaseDbClasses,uBaseDatasetInterfaces;
+  uIntfStrConsts, variants, DBGrids, Grids, Graphics, Menus, ExtDlgs,
+  DBZVDateTimePicker, ZVDateTimePicker, uBaseSearch, uBaseDbClasses,
+  uBaseDatasetInterfaces;
 
 type
   THackCustomGrid = class(TCustomGrid);
@@ -82,6 +83,7 @@ type
     bRefresh1: TSpeedButton;
     bpermanenetEditor: TSpeedButton;
     bRenumber1: TSpeedButton;
+    CalendarDialog1: TCalendarDialog;
     cbStatus: TComboBox;
     Datasource: TDatasource;
     dtStart: TDBZVDateTimePicker;
@@ -365,7 +367,25 @@ begin
       fSearch.Execute(True,'TASKSU',strSearchFromUsers);
       fSearch.SetLanguage;
     end
-  ;
+  else if Field.FieldName = 'DUEDATE' then
+    begin
+      if not Field.Field.IsNull then
+        CalendarDialog1.Date:=Field.Field.AsDateTime;
+      if CalendarDialog1.Execute then
+        begin
+          FGridView.BeginUpdate;
+          if FGridView.GotoActiveRow then
+            begin
+              if not FGridView.DataSet.CanEdit then
+                FGridView.DataSet.DataSet.Edit;
+              Field.Field.AsDateTime := CalendarDialog1.Date;
+              FGridView.SyncActiveRow(FGridView.DataSet.GetBookmark,False,True,True);
+              FGridView.gList.EditorMode:=False;
+            end;
+          FGridView.EndUpdate;
+          FGridView.SetEdited;
+        end;
+    end;
 end;
 
 procedure TfMeetingFrame.FGridViewDblClick(Sender: TObject);
@@ -595,6 +615,10 @@ begin
         begin
           FGridView.Columns[i].ButtonStyle:=cbsEllipsis;
         end
+      else if TColumn(FGridView.Columns[i]).FieldName = 'DUEDATE' then
+        begin
+          FGridView.Columns[i].ButtonStyle:=cbsEllipsis;
+        end
       ;
     end;
 end;
@@ -766,6 +790,7 @@ procedure TfMeetingFrame.acAddTopicExecute(Sender: TObject);
 var
   i: Integer;
 begin
+  fSearch.SetLanguage;
   fSearch.AllowSearchTypes(strProjects+','+strMasterdata);
   fSearch.eContains.Clear;
   fSearch.sgResults.RowCount:=1;

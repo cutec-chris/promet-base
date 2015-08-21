@@ -482,6 +482,8 @@ inherited fMeetingFrame: TfMeetingFrame
       TimeDisplay = tdHM
       DateMode = dmComboBox
       UseDefaultSeparators = True
+      HideDateTimeParts = []
+      MonthNames = 'Long'
     end
     object dtEnd: TDBZVDateTimePicker
       Left = 651
@@ -504,6 +506,8 @@ inherited fMeetingFrame: TfMeetingFrame
       TimeDisplay = tdHM
       DateMode = dmComboBox
       UseDefaultSeparators = True
+      HideDateTimeParts = []
+      MonthNames = 'Long'
     end
   end
   object pcPages: TExtMenuPageControl[2]
@@ -1014,5 +1018,12 @@ inherited fMeetingFrame: TfMeetingFrame
   object MandantDetails: TDataSource[12]
     left = 200
     top = 144
+  end
+  object CalendarDialog1: TCalendarDialog[13]
+    Date = 42237
+    OKCaption = '&Ok'
+    CancelCaption = 'Abbrechen'
+    left = 117
+    top = 232
   end
 end
