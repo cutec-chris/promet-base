@@ -703,6 +703,7 @@ var
   ConvertRTF: Boolean = False;
   aScript: TPrometPascalScript;
   bScript: String;
+  Found: Boolean;
   procedure BuildLinkRow(aBDS : TDataSet);
   var
     aLink: String;
@@ -1291,19 +1292,31 @@ begin
   else if (Uppercase(copy(Inp,0,7)) = 'SCRIPT(') then
     begin
       Inp := copy(Inp,pos('(',Inp)+1,length(Inp)-(pos('(',Inp)+1));
-      bScript := copy(Inp,0,pos('(',Inp)-1);
-      FScriptContent:='';
       aScript := TPrometPascalScript.Create(nil);
-      aScript.SelectByName(bScript);
-      aScript.Open;
-      if aScript.Count>0 then
+      aScript.Write:=@aScriptWrite;
+      aScript.Writeln:=@aScriptWriteln;
+      FScriptContent:='';
+      Found := False;
+      if pos('(',Inp)=1 then
         begin
-          aScript.Write:=@aScriptWrite;
-          aScript.Writeln:=@aScriptWriteln;
-          Inp := copy(Inp,pos('(',Inp)+1,length(Inp)-(pos('(',Inp)+1));
-          aScript.Execute(Inp);
+          bScript := copy(Inp,0,pos('(',Inp)-1);
+          aScript.SelectByName(bScript);
+          aScript.Open;
+          if aScript.Count>0 then
+            begin
+              Inp := copy(Inp,pos('(',Inp)+1,length(Inp)-(pos('(',Inp)+1));
+              aScript.Execute(Inp);
+              Found := True;
+            end;
+        end;
+      if not Found then
+        begin
+          aScript.Script.Source:=Inp;
+          if not aScript.Script.Execute(Null) then
+            FScriptContent:=aScript.Script.Results;
         end;
       aScript.Free;
+      Outp := Outp+FScriptContent;
     end
   else
     begin

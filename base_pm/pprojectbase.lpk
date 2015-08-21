@@ -112,32 +112,35 @@
       </Item25>
       <Item26>
         <Filename Value="urefreshwizard.pas"/>
-        <UnitName Value="urefreshwizard"/>
+        <UnitName Value="uRefreshWizard"/>
       </Item26>
       <Item27>
         <Filename Value="uchangegantt.pas"/>
         <UnitName Value="uchangegantt"/>
       </Item27>
     </Files>
-    <RequiredPkgs Count="5">
+    <RequiredPkgs Count="6">
       <Item1>
-        <PackageName Value="pcalendar"/>
-        <DefaultFilename Value="../base_calendar/pcalendar.lpk"/>
+        <PackageName Value="DateTimeCtrls"/>
       </Item1>
       <Item2>
-        <PackageName Value="perp"/>
-        <DefaultFilename Value="../base_erp/perp.lpk"/>
+        <PackageName Value="pcalendar"/>
+        <DefaultFilename Value="../base_calendar/pcalendar.lpk"/>
       </Item2>
       <Item3>
-        <PackageName Value="pDocuments"/>
-        <DefaultFilename Value="../base_documents/pdocuments.lpk"/>
+        <PackageName Value="perp"/>
+        <DefaultFilename Value="../base_erp/perp.lpk"/>
       </Item3>
       <Item4>
-        <PackageName Value="LCL"/>
+        <PackageName Value="pDocuments"/>
+        <DefaultFilename Value="../base_documents/pdocuments.lpk"/>
       </Item4>
       <Item5>
-        <PackageName Value="FCL"/>
+        <PackageName Value="LCL"/>
       </Item5>
+      <Item6>
+        <PackageName Value="FCL"/>
+      </Item6>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

@@ -75,7 +75,7 @@ var
 implementation
 
 uses uBaseDbClasses,uPerson,uMasterdata,uBaseERPDBClasses,uProjects,uMessages,
-  uDocuments,utask,uOrder,uData,variants,uBaseApplication;
+  uDocuments,utask,uOrder,uData,variants,uBaseApplication,uStatistic;
 
 procedure TBaseDbListPropertyTextR(Self: TBaseDbList; var T: TField); begin T := Self.Text; end;
 procedure TBaseDbListPropertyNumberR(Self: TBaseDbList; var T: TField); begin T := Self.Number; end;
@@ -619,7 +619,7 @@ end;
 
 function TPrometPascalScript.InternalDataSet(SQL: string): TDataSet;
 begin
-  Result := TBaseDBModule(DataModule).GetNewDataSet(SQL,Connection);
+  Result := TBaseDBModule(DataModule).GetNewDataSet(ReplaceSQLFunctions(SQL),Connection);
 end;
 
 function TPrometPascalScript.InternalData: TBaseDBModule;
@@ -757,6 +757,7 @@ constructor TPrometPascalScript.CreateEx(aOwner: TComponent; DM: TComponent;
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
   FScript := TPascalScript.Create;
+  TPascalScript(FScript).OnUses:=@TPascalScriptUses;
   DataSet.AfterScroll:=@DataSetAfterScroll;
   dataSet.AfterOpen:=@DataSetAfterOpen;
 end;
