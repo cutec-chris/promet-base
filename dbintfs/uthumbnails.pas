@@ -356,6 +356,23 @@ begin
     Result := OnGenerateText(ExtractFileName(aFilename),aFileName,aText);
 end;
 
+function StripUnwantedChar(Text: string):string;
+var
+  Allowed: Set of Char;
+  i, LeftOvers: Integer;
+begin
+  Allowed := [' ', '0'..'9', 'a'..'z', 'A'..'Z', '~'..')', '-', '.', '\', ':', '`', '/', '<', ',', '>', ';', '{', '}',#13,#9];
+
+  SetLength(Result, Length(Text));
+  LeftOvers := 1;
+  for i := 1 to Length(Text) do begin
+    if Text[i] in Allowed then begin
+      Result[LeftOvers]:= Text[i];
+      Inc(LeftOvers);
+    end
+  end;
+  SetLength(Result, LeftOvers-1);
+end;
 
 function GetContentText(aStream: TStream; aExtension : string; var aText: string
   ): Boolean;
@@ -380,6 +397,7 @@ begin
   aFStream.CopyFrom(aStream,aStream.Size-aStream.Position);
   aFStream.Free;
   Result := GetFileContextText(aFilename,aText);
+  aText := StripUnwantedChar(aText);
 end;
 
 function GetFileContextText(aFilename: string; var aText: string): Boolean;
