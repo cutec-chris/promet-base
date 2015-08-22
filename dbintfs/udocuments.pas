@@ -197,8 +197,8 @@ begin
         with ManagedFieldDefs do
           begin
             Add('HOST',ftString,100,False);
-            Add('EXTENSIONS',ftString,100,False);
-            Add('MIME',ftString,20,True);
+            Add('EXTENSIONS',ftString,150,False);
+            Add('MIME',ftString,80,True);
             Add('ADDFILES',ftString,1,False);
             Add('DESC',ftString,60,False);
             Add('VIEW',ftString,255,False);
