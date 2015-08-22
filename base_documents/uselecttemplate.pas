@@ -52,6 +52,7 @@ type
     procedure FDataSetDataSetAfterScroll(DataSet: TDataSet);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure gTemplateCellClick(Column: TColumn);
+    procedure SetEditFocus(Data: PtrInt);
   private
     FDataSet: TBaseDbDataSet;
     { private declarations }
@@ -113,6 +114,7 @@ procedure TfSelectTemplate.FDataSetDataSetAfterScroll(DataSet: TDataSet);
 begin
   eName.Text:=DataSet.FieldByName('NAME').AsString;
   eName.SelectAll;
+  Application.QueueAsyncCall(@SetEditFocus,0);
 end;
 
 procedure TfSelectTemplate.FormKeyDown(Sender: TObject; var Key: Word;
@@ -128,6 +130,12 @@ end;
 procedure TfSelectTemplate.gTemplateCellClick(Column: TColumn);
 begin
   eName.SetFocus;
+end;
+
+procedure TfSelectTemplate.SetEditFocus(Data: PtrInt);
+begin
+  if Visible then
+    eName.SetFocus;
 end;
 
 procedure TfSelectTemplate.SetDataSet(AValue: TBaseDbDataSet);
