@@ -330,6 +330,12 @@ var
                     DoLog(aprocess+':'+strStartingProcessTimeout+' '+DateTimeToStr((Processes.FieldByName('STOPPED').AsDateTime+(max(Processes.FieldByName('INTERVAL').AsInteger,2)/MinsPerDay)))+'>'+DateTimeToStr(aNow),aLog,BaseApplication.HasOption('debug'));
                     DoLog(aProcess+':'+strStartingProcess+' ('+bProcess.CommandLine+')',aLog,True);
                     bProcess.Informed:=False;
+                    Processes.Edit;
+                    Processes.DataSet.FieldByName('STATUS').AsString := 'R';
+                    Processes.DataSet.FieldByName('STARTED').AsDateTime := Now();
+                    Processes.DataSet.FieldByName('STOPPED').Clear;
+                    Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
+                    Processes.Post;
                     try
                       bProcess.Execute;
                     except
@@ -365,7 +371,7 @@ var
         NewProcess.Execute;
         Processes.Edit;
         Processes.DataSet.FieldByName('STATUS').AsString := 'R';
-        Processes.DataSet.FieldByName('STARTED').AsDateTime := aStartTime;
+        Processes.DataSet.FieldByName('STARTED').AsDateTime := Now();
         Processes.DataSet.FieldByName('STOPPED').Clear;
         Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
         Processes.Post;
