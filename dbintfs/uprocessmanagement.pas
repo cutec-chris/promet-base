@@ -309,9 +309,10 @@ var
               sl.Free;
               if not bProcess.Informed then
                 begin
-                  DoLog(aprocess+':'+strExitted,aLog,BaseApplication.HasOption('debug'));
+                  DoLog(aprocess+':'+strExitted,aLog,True);
                   Processes.Edit;
                   Processes.DataSet.FieldByName('STOPPED').AsDateTime := Now();
+                  Processes.FieldByName('STATUS').AsString:='N';
                   Processes.Post;
                   if Processes.DataSet.FieldByName('LOG').AsString<>aLog.Text then
                     begin
@@ -328,6 +329,7 @@ var
                     aLog.Clear;
                     DoLog(aprocess+':'+strStartingProcessTimeout+' '+DateTimeToStr((Processes.FieldByName('STOPPED').AsDateTime+(max(Processes.FieldByName('INTERVAL').AsInteger,2)/MinsPerDay)))+'>'+DateTimeToStr(aNow),aLog,BaseApplication.HasOption('debug'));
                     DoLog(aProcess+':'+strStartingProcess+' ('+bProcess.CommandLine+')',aLog,True);
+                    bProcess.Informed:=False;
                     try
                       bProcess.Execute;
                     except
@@ -362,6 +364,7 @@ var
         NewProcess.Options := [poNoConsole,poUsePipes];
         NewProcess.Execute;
         Processes.Edit;
+        Processes.DataSet.FieldByName('STATUS').AsString := 'R';
         Processes.DataSet.FieldByName('STARTED').AsDateTime := aStartTime;
         Processes.DataSet.FieldByName('STOPPED').Clear;
         Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
