@@ -436,6 +436,7 @@ begin
         ProcessRow
       else
         begin
+          Processes.DataSet.Refresh;
           Processes.DataSet.First;
           while not Processes.DataSet.EOF do
             begin
