@@ -78,6 +78,7 @@ begin
   if Data.ProcessClient.Processes.CanEdit then exit;
   if Data.ProcessClient.Processes.Parameters.CanEdit then exit;
   Processes.DataSet.DisableControls;
+  ProcessParameters.DataSet.DisableControls;
   if Processes.DataSet.Active then
     begin
       rec := Processes.DataSet.GetBookmark;
@@ -88,6 +89,7 @@ begin
       DBMemo1.ScrollBy(0, DBMemo1.Lines.Count);
       DBMemo1.Refresh;
     end;
+  ProcessParameters.DataSet.EnableControls;
   Processes.DataSet.EnableControls;
 end;
 
