@@ -300,9 +300,6 @@ type
     property WorkTime : Extended read GetWorktime;
     property IDCode : TField read GetIDCode;
   end;
-
-  { TActiveUsers }
-
   TActiveUsers = class(TBaseDBDataSet)
   public
     procedure DefineFields(aDataSet : TDataSet);override;
@@ -362,9 +359,6 @@ type
   public
     procedure DefineFields(aDataSet : TDataSet);override;
   end;
-
-  { TOptions }
-
   TOptions = class(TBaseDBDataSet)
   public
     procedure DefineFields(aDataSet : TDataSet);override;
@@ -446,6 +440,14 @@ type
     function CreateTable: Boolean; override;
     property Data : TMeasurementData read FMesdata;
     property Current : TField read GetCurrent;
+  end;
+
+  { TNumberHelper }
+
+  TNumberHelper = class(TBaseDBDataSet)
+  public
+    procedure DefineFields(aDataSet : TDataSet);override;
+    function CreateTable: Boolean; override;
   end;
 var ImportAble : TClassList;
 implementation
@@ -550,6 +552,43 @@ resourcestring
   strOwner                      = 'Eigentümer';
   strAvalible                   = 'Verfügbar';
   strNeedsAction                = 'benötigt Hilfe';
+
+{ TNumberHelper }
+
+procedure TNumberHelper.DefineFields(aDataSet: TDataSet);
+begin
+  with aDataSet as IBaseManageDB do
+    begin
+      TableName := 'HELPER_NUMBER';
+      if Assigned(ManagedFieldDefs) then
+        with ManagedFieldDefs do
+          begin
+            Add('NUMBER',ftInteger,0,True);
+          end;
+    end;
+end;
+
+function TNumberHelper.CreateTable: Boolean;
+var
+  i: Integer;
+begin
+  with DataSet as IBaseManageDB do
+    SetUpStdFields(False);
+  if not TBaseDBModule(DataModule).TableExists(Self.TableName) then
+    begin
+      Result:=inherited CreateTable;
+      if Result then
+        begin
+          Open;
+          for i := 0 to 1024 do
+            begin
+              Append;
+              FieldByName('NUMBER').AsInteger:=i;
+            end;
+          Post;
+        end;
+    end;
+end;
 
 { TVariables }
 
