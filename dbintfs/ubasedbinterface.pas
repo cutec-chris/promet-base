@@ -155,7 +155,6 @@ type
     procedure RegisterLinkHandler(aLink : string;aOpenHandler : TOpenLinkEvent;DataSetClass : TBaseDBDatasetClass;DataSetListClass : TBaseDBDatasetClass = nil);
     function GetBookmark(aDataSet : TBaseDbDataSet) : Variant;
     function GotoBookmark(aDataSet : TBaseDbDataSet;aRec : Variant) : Boolean;
-    function Locate(aDataSet : TBaseDbDataSet;const keyfields: string; const keyvalues: Variant; aoptions: TLocateOptions) : boolean;
     function GetErrorNum(e : EDatabaseError) : Integer;virtual;
     function RecordCount(aDataSet : TBaseDbDataSet) : Integer;
     function DeleteItem(aDataSet : TBaseDBDataSet) : Boolean;
@@ -1177,13 +1176,6 @@ function TBaseDBModule.GotoBookmark(aDataSet: TBaseDbDataSet; aRec: Variant
 begin
   Result := aDataSet.GotoBookmark(aRec);
 end;
-function TBaseDBModule.Locate(aDataSet: TBaseDbDataSet;
-  const keyfields: string; const keyvalues: Variant; aoptions: TLocateOptions
-  ): boolean;
-begin
-  Result := aDataSet.DataSet.Locate(keyfields,keyvalues,aoptions);
-end;
-
 function TBaseDBModule.GetErrorNum(e: EDatabaseError): Integer;
 begin
   Result := -1;
@@ -1654,6 +1646,7 @@ var
   FHistory: TBaseHistory;
   mSettings: TStringList;
   FCategory: TCategory;
+  aNumHelper: TNumberHelper;
 begin
   Result := False;
   //Check if FDB already is our Mandant
@@ -1745,6 +1738,9 @@ begin
   if AppendToActiveList then
     FDB.AppendUserToActiveList;
   FDB.Tree.CreateTable;
+  aNumHelper := TNumberHelper.CreateEx(nil,FDB,FDB.MainConnection);
+  aNumHelper.CreateTable;
+  aNumHelper.Free;
   FDB.Users.LoginWasOK;
   Result := True;
 end;

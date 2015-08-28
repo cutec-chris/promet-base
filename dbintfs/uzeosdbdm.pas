@@ -491,11 +491,14 @@ begin
           bConnection := Connection;
           Result := True;
           aSQL := 'CREATE TABLE '+QuoteField(Uppercase(Self.FDefaultTableName))+' ('+lineending;
-          if FManagedFieldDefs.IndexOf('AUTO_ID') = -1 then
-            aSQL += TZeosDBDM(Self.Owner).FieldToSQL('SQL_ID',ftLargeInt,0,True)+' PRIMARY KEY,'+lineending
-          else
+          if FUpStdFields then
             begin
-              aSQL += TZeosDBDM(Self.Owner).FieldToSQL('AUTO_ID',ftLargeInt,0,True)+' PRIMARY KEY,'+lineending;
+              if FManagedFieldDefs.IndexOf('AUTO_ID') = -1 then
+                aSQL += TZeosDBDM(Self.Owner).FieldToSQL('SQL_ID',ftLargeInt,0,True)+' PRIMARY KEY,'+lineending
+              else
+                begin
+                  aSQL += TZeosDBDM(Self.Owner).FieldToSQL('AUTO_ID',ftLargeInt,0,True)+' PRIMARY KEY,'+lineending;
+                end;
             end;
           if Assigned(MasterSource) then
             begin
@@ -517,7 +520,10 @@ begin
           for i := 0 to FManagedFieldDefs.Count-1 do
             if FManagedFieldDefs[i].Name <> 'AUTO_ID' then
               aSQL += TZeosDBDM(Self.Owner).FieldToSQL(FManagedFieldDefs[i].Name,FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,FManagedFieldDefs[i].Required)+','+lineending;
-          aSQL += TZeosDBDM(Self.Owner).FieldToSQL('TIMESTAMPD',ftDateTime,0,True)+');';
+          if FUpStdFields then
+            aSQL += TZeosDBDM(Self.Owner).FieldToSQL('TIMESTAMPD',ftDateTime,0,True)+');'
+          else
+            aSql := copy(aSQL,0,length(aSQL)-2)+');';
           try
             try
               GeneralQuery := TZQuery.Create(Self);
