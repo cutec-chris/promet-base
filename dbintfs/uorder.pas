@@ -1226,7 +1226,7 @@ begin
   then
     begin
       Data.SetFilter(Dispatchtypes,Data.QuoteField('ID')+'='+Data.QuoteValue(trim(copy(DataSet.FieldByName('SHIPPING').AsString,0,3))));
-      if not Data.Locate(Dispatchtypes,'ID',copy(DataSet.FieldByName('SHIPPING').AsString,0,3),[loPartialKey]) then
+      if not Dispatchtypes.Locate('ID',copy(DataSet.FieldByName('SHIPPING').AsString,0,3),[loPartialKey]) then
         begin
           raise Exception.Create(strDispatchTypenotfound);
           exit;

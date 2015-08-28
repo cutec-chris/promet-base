@@ -412,7 +412,7 @@ begin
   aMasterdata := TMasterdata.CreateEx(Self,Data);
   aMasterdata.CreateTable;
   Data.SetFilter(aMasterdata,'('+Data.QuoteField('ID')+'='+Data.QuoteValue(fSearch.sgResults.Cells[1,fSearch.sgResults.Row])+')'+' AND '+Data.QuoteField('ACTIVE')+'='+Data.QuoteValue('Y'));
-  if Data.Locate(aMasterdata,'ID',fSearch.sgResults.Cells[1,fSearch.sgResults.Row],[loCaseInsensitive,loPartialKey]) then
+  if aMasterdata.Locate('ID',fSearch.sgResults.Cells[1,fSearch.sgResults.Row],[loCaseInsensitive,loPartialKey]) then
     begin
       if not DataSet.CanEdit then
         DataSet.DataSet.Edit;
