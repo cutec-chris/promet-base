@@ -150,6 +150,7 @@ begin
   aFStream.CopyFrom(aFullStream,aFullStream.Size-aFullStream.Position);
   aFStream.Free;
   Result := GenerateThumbNail(aName,aFilename,aStream,aText,aWidth,aHeight);
+  DeleteFile(aFilename);
 end;
 
 function GenerateThumbNail(aName: string; aFileName: string; aStream: TStream;
@@ -268,6 +269,10 @@ begin
             if not Result then
               Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+'gswin32'+{$ELSE}'gs'+{$ENDIF}' -q -dBATCH -dMaxBitmap=300000000 -dNOPAUSE -dSAFER -sDEVICE=bmp16m -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -dFirstPage=1 -dLastPage=1 -sOutputFile=%s %s -c quit',[aFileName+'.bmp',aFileName]),'.bmp');
           end
+        else if (s = 'txt;') then
+          begin
+            Result := False;
+          end
         else
           begin
             Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+{$ENDIF}'convert %s[1] -resize %d -alpha off +antialias "%s"',[aFileName,500,afileName+'.bmp']),'.bmp');
@@ -303,7 +308,7 @@ begin
       sl.Text:=aText;
       while sl.Count>80 do sl.Delete(79);
       aPrinter.Brush.FPColor:=FPColor(65535,65535,65535);//white
-      aPrinter.Rectangle(0,0,aWidth,aHeight);
+      aPrinter.FillRect(0,0,aWidth,aHeight);
       randlinks:=round(aWidth/80);
       randoben:=round(aHeight/80);
       //Schrift-Einstellungen:
@@ -311,7 +316,7 @@ begin
       {$ifdef LINUX}
       ftfont.InitEngine;
       AFont:=TFreeTypeFont.Create;
-      FontMgr.SearchPath:='/usr/share/fonts/truetype/ttf-dejavu/';
+      FontMgr.SearchPath:='/usr/share/fonts/truetype/ttf-dejavu/;/usr/share/fonts/truetype/';
       AFont.Name:='DejaVuSans';
       aPrinter.Font:=AFont;
       {$endif}
@@ -361,7 +366,7 @@ var
   Allowed: Set of Char;
   i, LeftOvers: Integer;
 begin
-  Allowed := [' ', '0'..'9', 'a'..'z', 'A'..'Z', '~'..')', '-', '.', '\', ':', '`', '/', '<', ',', '>', ';', '{', '}',#13,#9];
+  Allowed := [' ', '0'..'9', 'a'..'z', 'A'..'Z', '~'..')', '-', '.', '\', ':', '`', '/', '<', ',', '>', ';', '{', '}',#10,#9];
 
   SetLength(Result, Length(Text));
   LeftOvers := 1;

@@ -194,14 +194,14 @@ inherited fPreview: TfPreview
     Height = 524
     Top = 32
     Width = 758
-    ActivePage = tsImage
+    ActivePage = tsText
     Align = alClient
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 1
     object tsImage: TTabSheet
       Caption = 'Inhalt'
-      ClientHeight = 1473
-      ClientWidth = 2256
+      ClientHeight = 491
+      ClientWidth = 752
       OnShow = tsImageShow
       object pfrPreview: TPanel
         Left = 0
@@ -276,8 +276,8 @@ inherited fPreview: TfPreview
     end
     object tsText: TTabSheet
       Caption = 'Text'
-      ClientHeight = 1473
-      ClientWidth = 2256
+      ClientHeight = 491
+      ClientWidth = 752
       object mText: TMemo
         Left = 44
         Height = 491
