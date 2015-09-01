@@ -1739,7 +1739,10 @@ begin
     FDB.AppendUserToActiveList;
   FDB.Tree.CreateTable;
   aNumHelper := TNumberHelper.CreateEx(nil,FDB,FDB.MainConnection);
-  aNumHelper.CreateTable;
+  try
+    aNumHelper.CreateTable;
+  except
+  end;
   aNumHelper.Free;
   FDB.Users.LoginWasOK;
   Result := True;
