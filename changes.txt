@@ -1,4 +1,6 @@
-﻿Build 410
+﻿Build 411
+      - kleine Bugfixes
+Build 410
       - Dokumente/Bilder:Anzeige beschleunigt
       - Dokumente/Bilder:Aus Vorlage erstellen selektiert nun immer das richtige Dokument beim Editieren
       - Plugins: Für Thumbnail erstellung,Text extraktion können nun Plugins genutzt werden

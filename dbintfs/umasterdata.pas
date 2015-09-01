@@ -1019,6 +1019,7 @@ begin
     begin
       TableName := 'MASTERDATA';
       TableCaption := strMasterdata;
+      UpdateFloatFields:=True;
       if Assigned(ManagedFieldDefs) then
         with ManagedFieldDefs do
           begin
