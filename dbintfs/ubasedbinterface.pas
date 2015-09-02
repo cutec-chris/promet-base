@@ -1738,12 +1738,14 @@ begin
   if AppendToActiveList then
     FDB.AppendUserToActiveList;
   FDB.Tree.CreateTable;
+  {
   aNumHelper := TNumberHelper.CreateEx(nil,FDB,FDB.MainConnection);
   try
     aNumHelper.CreateTable;
   except
   end;
   aNumHelper.Free;
+  }
   FDB.Users.LoginWasOK;
   Result := True;
 end;

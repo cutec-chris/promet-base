@@ -1452,14 +1452,14 @@ begin
     if FConnection.Protocol = 'sqlite-3' then
       begin
         //FConnection.ExecuteDirect('PRAGMA synchronous = NORMAL;');
-        FConnection.ExecuteDirect('PRAGMA synchronous = FULL;');
+        //FConnection.ExecuteDirect('PRAGMA synchronous = FULL;');
         FConnection.ExecuteDirect('PRAGMA cache_size = 5120;');
-        FConnection.ExecuteDirect('PRAGMA auto_vacuum = INCREMENTAL;');
-        FConnection.ExecuteDirect('PRAGMA journal_mode = TRUNCATE;');
+        //FConnection.ExecuteDirect('PRAGMA auto_vacuum = INCREMENTAL;');
+        //FConnection.ExecuteDirect('PRAGMA journal_mode = TRUNCATE;');
         FConnection.ExecuteDirect('PRAGMA recursive_triggers = ON;');
         FConnection.ExecuteDirect('PRAGMA foreign_keys = ON;');
         FConnection.ExecuteDirect('PRAGMA case_sensitive_like = ON;');
-        FConnection.ExecuteDirect('PRAGMA secure_delete = ON;');
+        //FConnection.ExecuteDirect('PRAGMA secure_delete = ON;');
         FConnection.ExecuteDirect('PRAGMA incremental_vacuum(50);');
       end
     else if (copy(FConnection.Protocol,0,8) = 'firebird')
