@@ -2,12 +2,14 @@
 <CONFIG>
   <Package Version="4">
     <Name Value="pProjectbase"/>
-    <Type Value="RunAndDesignTime"/>
     <CompilerOptions>
       <Version Value="11"/>
       <SearchPaths>
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
+      <Other>
+        <CompilerPath Value="$(CompPath)"/>
+      </Other>
     </CompilerOptions>
     <Files Count="27">
       <Item1>
@@ -119,28 +121,26 @@
         <UnitName Value="uchangegantt"/>
       </Item27>
     </Files>
-    <RequiredPkgs Count="6">
+    <Type Value="RunAndDesignTime"/>
+    <RequiredPkgs Count="5">
       <Item1>
-        <PackageName Value="DateTimeCtrls"/>
-      </Item1>
-      <Item2>
         <PackageName Value="pcalendar"/>
         <DefaultFilename Value="../base_calendar/pcalendar.lpk"/>
-      </Item2>
-      <Item3>
+      </Item1>
+      <Item2>
         <PackageName Value="perp"/>
         <DefaultFilename Value="../base_erp/perp.lpk"/>
-      </Item3>
-      <Item4>
+      </Item2>
+      <Item3>
         <PackageName Value="pDocuments"/>
         <DefaultFilename Value="../base_documents/pdocuments.lpk"/>
+      </Item3>
+      <Item4>
+        <PackageName Value="LCL"/>
       </Item4>
       <Item5>
-        <PackageName Value="LCL"/>
-      </Item5>
-      <Item6>
         <PackageName Value="FCL"/>
-      </Item6>
+      </Item5>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

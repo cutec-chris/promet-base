@@ -1350,16 +1350,14 @@ begin
 end;
 destructor TZeosDBDM.Destroy;
 begin
-  if FMainconnection.Connected then
-    FMainConnection.Disconnect;
-  if Assigned(Sequence) then
-    begin
-      Sequence.Connection := nil;
-      FreeAndNil(Sequence);
-    end;
-  Monitor.Free;
-  FMainConnection.Free;
   try
+    if FMainconnection.Connected then
+      FMainConnection.Disconnect;
+    if Assigned(Sequence) then
+      begin
+        Sequence.Connection := nil;
+        FreeAndNil(Sequence);
+      end;
     inherited Destroy;
   except
   end;
