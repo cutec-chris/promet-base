@@ -251,6 +251,7 @@ end;
 function TProcessClient.ProcessAll: Boolean;
 begin
   Result := True;
+  Open;
   if not Active then exit;
   if Locate('NAME','*',[]) then
     Process
@@ -486,6 +487,8 @@ begin
   aNow := Now();
   if aNow>0 then
     begin
+      Processes.Open;
+      Processes.Parameters.Open;
       aLog := TStringList.Create;
       //Check processes
       if OnlyActiveRow then
