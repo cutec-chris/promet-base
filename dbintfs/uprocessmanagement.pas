@@ -35,7 +35,6 @@ type
     property Name : string read FName write FName;
     property Id : Variant read FId write FId;
     procedure Execute; override;
-    procedure DoExit;
   end;
   TProcessParameters = class(TBaseDBDataset)
   public
@@ -72,6 +71,9 @@ type
     property Processes : TProcesses read FProcesses;
     property LastRefresh : TDateTime read FLastRefresh;
     procedure RefreshList;
+    procedure Startup;
+    procedure ShutDown;
+    function ProcessAll : Boolean;
     function Process(OnlyActiveRow : Boolean = False;DoAlwasyRun : Boolean = False) : Boolean;
   end;
 
@@ -100,24 +102,6 @@ begin
   aProc.Free;
 end;
 
-procedure TProcProcess.DoExit;
-var
-  aProc: TProcesses;
-begin
-  aProc := uProcessManagement.TProcesses.Create(nil);
-  aProc.Select(Id);
-  aProc.Open;
-  if aProc.Count > 0 then
-    begin
-      aProc.DataSet.Edit;
-      if ExitStatus=0 then
-        aProc.FieldByName('STATUS').AsString:='N'
-      else
-        aProc.FieldByName('STATUS').AsString:='E';
-      aProc.DataSet.Post;
-    end;
-  aProc.Free;
-end;
 procedure TProcessParameters.DefineFields(aDataSet: TDataSet);
 begin
   with aDataSet as IBaseManageDB do
@@ -232,6 +216,70 @@ begin
     end;
 end;
 
+procedure TProcessClient.Startup;
+begin
+  CreateTable;
+  Open;
+  if not DataSet.Locate('NAME',GetSystemName,[]) then
+    begin
+      Insert;
+      DataSet.FieldByName('NAME').AsString:=GetSystemName;
+      DataSet.FieldByName('STATUS').AsString:='R';
+      DataSet.Post;
+    end
+  else
+    begin
+      DataSet.Edit;
+      DataSet.FieldByName('STATUS').AsString:='R';
+      DataSet.Post;
+    end;
+end;
+
+procedure TProcessClient.ShutDown;
+begin
+  try
+    if DataSet.Locate('NAME',GetSystemName,[]) then
+      begin
+        DataSet.Edit;
+        DataSet.FieldByName('STATUS').AsString:='N';
+        DataSet.Post;
+      end;
+  except
+  end;
+end;
+
+function TProcessClient.ProcessAll: Boolean;
+begin
+  Result := True;
+  if not Active then exit;
+  if Locate('NAME','*',[]) then
+    Process
+  else
+    begin
+      Insert;
+      FieldByName('NAME').AsString:='*';
+      FieldByName('STATUS').AsString:='N';
+      FieldByName('NOTES').AsString:=strRunsOnEveryMashine;
+      Post;
+      Process
+    end;
+  if DataSet.Locate('NAME',GetSystemName,[]) then
+    begin
+      if FieldByName('STATUS').AsString = '' then
+        begin
+          Edit;
+          FieldByName('STATUS').AsString := 'R';
+          Post;
+        end;
+      if FieldByName('STATUS').AsString = 'N' then
+        begin
+          Result := False;
+          exit;
+        end;
+      Process;
+    end;
+end;
+
 function ExpandFileName(aDir : string) : string;
 begin
   Result := aDir;
@@ -259,7 +307,7 @@ var
   end;
   function BuildCmdLine : string;
   begin
-    with Data.ProcessClient.Processes.Parameters.DataSet do
+    with Processes.Parameters.DataSet do
       begin
         First;
         while not EOF do
@@ -300,6 +348,9 @@ var
             end
           else
             begin
+              aStartTime := Now();
+              if aStartTime=0 then
+                aStartTime:=Now();
               sl := TStringList.Create;
               aCount :=  bProcess.Output.NumBytesAvailable;
               setlength(tmp,aCount);
@@ -311,7 +362,7 @@ var
                 begin
                   DoLog(aprocess+':'+strExitted,aLog,True);
                   Processes.Edit;
-                  Processes.DataSet.FieldByName('STOPPED').AsDateTime := Now();
+                  Processes.DataSet.FieldByName('STOPPED').AsDateTime := aStartTime;
                   Processes.FieldByName('STATUS').AsString:='N';
                   Processes.Post;
                   if Processes.DataSet.FieldByName('LOG').AsString<>aLog.Text then
@@ -320,7 +371,6 @@ var
                       Processes.DataSet.FieldByName('LOG').AsString:=aLog.Text;
                       Processes.DataSet.Post;
                     end;
-                  bProcess.DoExit;
                   bProcess.Informed := True;
                 end;
               if Assigned(Processes) then
@@ -371,7 +421,7 @@ var
         NewProcess.Execute;
         Processes.Edit;
         Processes.DataSet.FieldByName('STATUS').AsString := 'R';
-        Processes.DataSet.FieldByName('STARTED').AsDateTime := Now();
+        Processes.DataSet.FieldByName('STARTED').AsDateTime := aStartTime;
         Processes.DataSet.FieldByName('STOPPED').Clear;
         Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
         Processes.Post;
