@@ -845,15 +845,7 @@ begin
   i := 0;
   while i < fSearch.cbSearchType.Items.Count do
     begin
-      found := false;
-      tmp := aTypes+',';
-      while pos(',',tmp)>0 do
-        begin
-          if pos(copy(tmp,0,pos(',',tmp)-1),fSearch.cbSearchType.Items[i])>0 then
-            found := True;
-          tmp := copy(tmp,0,pos(',',tmp)-1);
-        end;
-      if not found then
+      if pos(fSearch.cbSearchType.Items[i],aTypes)=0 then
         fSearch.cbSearchType.Items.Delete(i)
       else
         inc(i);
