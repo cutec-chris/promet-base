@@ -1,4 +1,6 @@
-﻿Build 413
+﻿Build 414
+      - Suche:in letzten Revisionen waren einige Suchtypen nicht sichtbar-behoben
+Build 413
       - Messagemanager:start processes direct (without processmanager)
 Build 411,412
       - kleine Bugfixes
