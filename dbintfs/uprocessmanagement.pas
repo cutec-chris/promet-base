@@ -466,9 +466,14 @@ var
         cmd := AppendPathDelim(BaseApplication.Location)+'pscript'+ExtractFileExt(BaseApplication.ExeName);
         if not FileExists(UniToSys(cmd)) then
           cmd := AppendPathDelim(BaseApplication.Location)+'tools'+DirectorySeparator+'pscript'+ExtractFileExt(BaseApplication.ExeName);
-        cmd := cmd+BuildCmdLine;
-        cmd := cmd+' '+aProcess;
-        ExecCommand;
+        if FileExists(UniToSys(cmd)) then
+          begin
+            cmd := cmd+BuildCmdLine;
+            cmd := cmd+' '+aProcess;
+            ExecCommand;
+          end
+        else
+          DoLog(cmd+':'+'File dosend exists',aLog,True);
       end
     else
       begin
