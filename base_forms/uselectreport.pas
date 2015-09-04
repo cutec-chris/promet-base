@@ -342,6 +342,7 @@ var
   NewRect: TRect;
 begin
   if not Supports(Application, IBaseApplication, BaseApplication) then exit;
+  ForceDirectoriesUTF8(AppendPathDelim(GetAppConfigDirUTF8(false, true))+'LazReport');
   with Application as IBaseDbInterface do
     begin
       try
