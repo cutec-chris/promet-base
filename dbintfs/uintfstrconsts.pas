@@ -209,7 +209,7 @@ resourcestring
   strreadingOptions             = 'lese Optionen ...';
   strProjects                   = 'Projekte';
   strEdit                       = 'bearbeiten';
-  strWikiMainPageText           = '==Willkommen zur Prometheus Wiki==<br>'+lineending+'<br>'+lineending+'Sie können dieses Wiki als zentralen Wissenspool verstehen. Sie können hier Informationen jeglicher Art strukturiert ablegen.<br>'+lineending+'<br>'+lineending+'Dazu stehen Ihnen interne Links [[Ihre erste Seite]] durch die Sie auch ganz einfach neue Sieten anlegen könenn einfach indem Sie, sie anlegen und draufklicken. Externe Links, zu beliebigen Websites [http://www.ullihome.de www.ullihome.de], Aufzählungen'+lineending+'*1'+lineending+'*2'+lineending+'*3'+lineending+'===Überschriften==='+lineending+'====In verschiedenen Größen===='+lineending+'und ähnliche Elemente zur Verfügung.';
+  strWikiMainPageText           = '==Willkommen zur Promet Wiki==<br>'+lineending+'<br>'+lineending+'Sie können dieses Wiki als zentralen Wissenspool verstehen. Sie können hier Informationen jeglicher Art strukturiert ablegen.<br>'+lineending+'<br>'+lineending+'Dazu stehen Ihnen interne Links [[Ihre erste Seite]] durch die Sie auch ganz einfach neue Sieten anlegen könenn einfach indem Sie, sie anlegen und draufklicken. Externe Links, zu beliebigen Websites [http://www.ullihome.de www.ullihome.de], Aufzählungen'+lineending+'*1'+lineending+'*2'+lineending+'*3'+lineending+'===Überschriften==='+lineending+'====In verschiedenen Größen===='+lineending+'und ähnliche Elemente zur Verfügung.';
   strWikiPage                   = 'Wiki Seite';
   strAccountexchange            = 'Bankbuchungen';
   strHistory                    = 'Verlauf';
