@@ -882,7 +882,6 @@ begin
       Sender.Canvas.Pen.Color:=Sender.Canvas.Brush.Color;
       Sender.Canvas.FillRect(NodeRect);
     end;
-  if Stage <> cdPostPaint then exit;
   if not Assigned(Node.Data) then exit;
   aData := TTreeEntry(Node.Data);
   if not Assigned(aData) then exit;
