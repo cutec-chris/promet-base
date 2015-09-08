@@ -215,7 +215,13 @@ resourcestring
 procedure TZeosDBDataSet.TDateTimeFieldGetText(Sender: TField;
   var aText: string; DisplayText: Boolean);
 begin
-  aText := FormatDateTime(ShortDateFormat+' '+ShortTimeFormat,Sender.AsDateTime);
+  if not Sender.IsNull then
+    begin
+      if trunc(Sender.AsDateTime)=Sender.AsDateTime then
+        aText := FormatDateTime(ShortDateFormat,Sender.AsDateTime)
+      else
+        aText := FormatDateTime(ShortDateFormat+' '+ShortTimeFormat,Sender.AsDateTime);
+    end;
 end;
 
 procedure TZeosDBDataSet.SetNewIDIfNull;
