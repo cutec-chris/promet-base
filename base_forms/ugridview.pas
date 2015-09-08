@@ -2847,10 +2847,12 @@ begin
             if (dgFake.Columns[i-1].Field.FieldName = TextField) and (ShortTextField <> '') then
               begin
                 if dgFake.Columns[i-1].Field.AsString = '' then
-                  gList.Cells[i,gList.Row] := dgFake.DataSource.DataSet.FieldByName(ShortTextField).Text
+                  gList.Cells[i,gList.Row] := dgFake.DataSource.DataSet.FieldByName(ShortTextField).AsString
                 else
-                  gList.Cells[i,gList.Row] := dgFake.DataSource.DataSet.FieldByName(ShortTextField).Text+lineending+dgFake.Columns[i-1].Field.Text;
+                  gList.Cells[i,gList.Row] := dgFake.DataSource.DataSet.FieldByName(ShortTextField).AsString+lineending+dgFake.Columns[i-1].Field.AsString;
               end
+            else if (dgFake.Columns[i-1].Field.DataType=ftString) or (dgFake.Columns[i-1].Field.DataType=ftWideString) then
+              gList.Cells[i,gList.Row] := dgFake.Columns[i-1].Field.AsString
             else
               gList.Cells[i,gList.Row] := dgFake.Columns[i-1].Field.Text;
             if (dgFake.Columns[i-1].Field.FieldName = IdentField) and (aCol > -1) then
