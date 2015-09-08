@@ -120,7 +120,7 @@ begin
       if not FileExists(UniToSys(aDir+aProcess+ExtractFileExt(BaseApplication.ExeName))) then exit;
     end;
   Result := TProcess.Create(nil);
-  Result.Options:=[poNoConsole];
+  Result.Options:=[poNoConsole,poStderrToOutPut,poNewProcessGroup];
   Result.CommandLine:=aDir+aProcess+ExtractFileExt(BaseApplication.ExeName)+' '+cmdln;
   try
     Result.Execute;

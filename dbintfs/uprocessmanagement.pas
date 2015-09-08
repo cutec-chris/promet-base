@@ -22,19 +22,33 @@ interface
 uses
   Classes, SysUtils,uBaseDbClasses,db,Process,uBaseDatasetInterfaces;
 type
-  TProcProcess = class(TProcess)
+  TProcProcess = class(TThread)
   private
+    FActive: Boolean;
+    FCommandline: string;
     FId: Variant;
     FInformed: Boolean;
     FName: string;
+    FOutput: TStringList;
     FTimeout: TDateTime;
+    FStatus : string;
+    OutputLine: String;
+    procedure DoSetStatus;
+    procedure SetActive(AValue: Boolean);
     procedure SetTimeout(AValue: TDateTime);
+    procedure DoOutputLine;
   public
     aOutput,aBuffer,aLogOutput : string;
+    constructor Create;
+    destructor Destroy; override;
     property Informed : Boolean read FInformed write FInformed;
     property Name : string read FName write FName;
     property Id : Variant read FId write FId;
+    procedure Start;
+    property Active : Boolean read FActive write SetActive;
     procedure Execute; override;
+    property Commandline : string read FCommandline write FCommandline;
+    property Output : TStringList read FOutput;
   end;
   TProcessParameters = class(TBaseDBDataset)
   public
@@ -80,12 +94,8 @@ type
 implementation
 uses uBaseDBInterface,uData,Utils,uBaseApplication,uIntfStrConsts,math,
   uprometscripts;
-procedure TProcProcess.SetTimeout(AValue: TDateTime);
-begin
-  if FTimeout=AValue then Exit;
-  FTimeout:=AValue;
-end;
-procedure TProcProcess.Execute;
+
+procedure TProcProcess.DoSetStatus;
 var
   aProc: TProcesses;
 begin
@@ -95,11 +105,139 @@ begin
   if aProc.Count > 0 then
     begin
       aProc.DataSet.Edit;
-      aProc.FieldByName('STATUS').AsString:='R';
+      aProc.FieldByName('STATUS').AsString:=FStatus;
+      if FStatus='R' then
+        begin
+          aProc.FieldByName('STARTED').AsDateTime:=Now;
+          aProc.FieldByName('STOPPED').Clear;
+        end
+      else
+        begin
+          aProc.FieldByName('STOPPED').AsDateTime:=Now;
+        end;
       aProc.DataSet.Post;
     end;
-  inherited Execute;
   aProc.Free;
+end;
+
+procedure TProcProcess.SetActive(AValue: Boolean);
+begin
+  if FActive=AValue then Exit;
+  FActive:=AValue;
+  if FActive then Resume;
+end;
+
+procedure TProcProcess.SetTimeout(AValue: TDateTime);
+begin
+  if FTimeout=AValue then Exit;
+  FTimeout:=AValue;
+end;
+
+procedure TProcProcess.DoOutputLine;
+begin
+  FOutput.Add(OutputLine);
+end;
+
+constructor TProcProcess.Create;
+begin
+  FOutput:=TStringList.Create;
+  inherited Create(True);
+end;
+
+destructor TProcProcess.Destroy;
+begin
+  inherited Destroy;
+  FOutput.Free;
+end;
+
+procedure TProcProcess.Start;
+begin
+  Resume;
+end;
+
+procedure TProcProcess.Execute;
+var
+  p: TProcess;
+  Buf: string;
+  Count,LineStart: LongInt;
+  i: Integer;
+const
+  BufSize = 1024; //4096;
+begin
+  FStatus:='R';
+  FActive:=True;
+  Synchronize(@DoSetStatus);
+  p := TProcess.Create(nil);
+  p.Options := [poUsePipes, poStdErrToOutPut, poNoConsole];
+  //p.ShowWindow := swoHIDE;
+//  AddMessage('Compile command: ' + c);
+  p.CommandLine := FCommandline;
+  p.CurrentDirectory:= copy(BaseApplication.Location,0,rpos(DirectorySeparator,BaseApplication.Location)-1);
+  try
+    try
+      p.Execute;
+
+      { Now process the output }
+      OutputLine:='';
+      SetLength(Buf,BufSize);
+      repeat
+        if (p.Output<>nil) then
+        begin
+          Count:=p.Output.Read(Buf[1],Length(Buf));
+        end
+        else
+          Count:=0;
+        LineStart:=1;
+        i:=1;
+        while i<=Count do
+        begin
+          if Buf[i] in [#10,#13] then
+          begin
+            OutputLine:=OutputLine+Copy(Buf,LineStart,i-LineStart);
+            Synchronize(@DoOutputLine);
+            OutputLine:='';
+            if (i<Count) and (Buf[i+1] in [#10,#13]) and (Buf[i]<>Buf[i+1]) then
+              inc(i);
+            LineStart:=i+1;
+          end;
+          inc(i);
+        end;
+        OutputLine:=Copy(Buf,LineStart,Count-LineStart+1);
+      until Count=0;
+      if OutputLine <> '' then
+        Synchronize(@DoOutputLine);
+      p.WaitOnExit;
+      if (p.Output<>nil) then
+      begin
+        Count:=p.Output.Read(Buf[1],Length(Buf));
+      end
+      else
+        Count:=0;
+      LineStart:=1;
+      i:=1;
+      while i<=Count do
+      begin
+        if Buf[i] in [#10,#13] then
+        begin
+          OutputLine:=OutputLine+Copy(Buf,LineStart,i-LineStart);
+          Synchronize(@DoOutputLine);
+          OutputLine:='';
+          if (i<Count) and (Buf[i+1] in [#10,#13]) and (Buf[i]<>Buf[i+1]) then
+            inc(i);
+          LineStart:=i+1;
+        end;
+        inc(i);
+      end;
+      FStatus:='N';
+      Synchronize(@DoSetStatus);
+    except
+      FStatus:='E';
+      Synchronize(@DoSetStatus);
+    end;
+  finally
+    FreeAndNil(p);
+  end;
+  FActive:=False;
 end;
 
 procedure TProcessParameters.DefineFields(aDataSet: TDataSet);
@@ -338,34 +476,25 @@ var
           if bProcess.Active then
             begin
               Found := True;
-              sl := TStringList.Create;
-              aCount :=  bProcess.Output.NumBytesAvailable;
-              setlength(tmp,aCount);
-              bProcess.Output.Read(tmp[1],aCount);
-              sl.Text:=tmp;
-              for a := 0 to sl.Count-1 do
-                DoLog(aprocess+':'+sl[a],aLog,BaseApplication.HasOption('debug'));
-              sl.Free;
+              while bProcess.Output.Count>0 do
+                begin
+                  DoLog(aprocess+':'+bProcess.Output[0],aLog,BaseApplication.HasOption('debug'));
+                  bProcess.Output.Delete(0);
+                end;
             end
           else
             begin
               aStartTime := Now();
               if aStartTime=0 then
                 aStartTime:=Now();
-              sl := TStringList.Create;
-              aCount :=  bProcess.Output.NumBytesAvailable;
-              setlength(tmp,aCount);
-              bProcess.Output.Read(tmp[1],aCount);
-              for a := 0 to sl.Count-1 do
-                DoLog(aprocess+':'+sl[a],aLog,BaseApplication.HasOption('debug'));
-              sl.Free;
+              while bProcess.Output.Count>0 do
+                begin
+                  DoLog(aprocess+':'+bProcess.Output[0],aLog,BaseApplication.HasOption('debug'));
+                  bProcess.Output.Delete(0);
+                end;
               if not bProcess.Informed then
                 begin
                   DoLog(aprocess+':'+strExitted,aLog,True);
-                  Processes.Edit;
-                  Processes.DataSet.FieldByName('STOPPED').AsDateTime := aStartTime;
-                  Processes.FieldByName('STATUS').AsString:='N';
-                  Processes.Post;
                   if Processes.DataSet.FieldByName('LOG').AsString<>aLog.Text then
                     begin
                       if not Processes.CanEdit then Processes.DataSet.Edit;
@@ -375,29 +504,13 @@ var
                   bProcess.Informed := True;
                 end;
               if Assigned(Processes) then
-                if (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(max(Processes.FieldByName('INTERVAL').AsInteger,2)/MinsPerDay))) or DoAlwasyRun then
+                if (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay))) or DoAlwasyRun then
                   begin
                     aLog.Clear;
                     DoLog(aprocess+':'+strStartingProcessTimeout+' '+DateTimeToStr((Processes.FieldByName('STOPPED').AsDateTime+(max(Processes.FieldByName('INTERVAL').AsInteger,2)/MinsPerDay)))+'>'+DateTimeToStr(aNow),aLog,BaseApplication.HasOption('debug'));
                     DoLog(aProcess+':'+strStartingProcess+' ('+bProcess.CommandLine+')',aLog,True);
                     bProcess.Informed:=False;
-                    Processes.Edit;
-                    Processes.DataSet.FieldByName('STATUS').AsString := 'R';
-                    Processes.DataSet.FieldByName('STARTED').AsDateTime := Now();
-                    Processes.DataSet.FieldByName('STOPPED').Clear;
-                    Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
-                    Processes.Post;
-                    try
-                      bProcess.Execute;
-                    except
-                      on e : Exception do
-                        begin
-                          DoLog(aprocess+':'+strError+' '+e.Message,alog,True);
-                          Processes.Edit;
-                          Processes.FieldByName('STATUS').AsString:='E';
-                          Processes.Post;
-                        end;
-                    end;
+                    bProcess.Start;
                     bProcess.Informed := False;
                   end;
               Found := True;
@@ -405,27 +518,22 @@ var
         end;
     if not Found then
       begin
-        aStartTime := Now();
-        aLog.Clear;
-        DoLog(aProcess+':'+strStartingProcess+' ('+cmd+')',aLog,True);
-        NewProcess := TProcProcess.Create(Self);
-        {$if FPC_FULLVERSION<20400}
-        NewProcess.InheritHandles := false;
-        {$endif}
-        NewProcess.Id := Processes.Id.AsVariant;
-        NewProcess.Informed:=False;
-        Setlength(ProcessData,length(ProcessData)+1);
-        ProcessData[length(ProcessData)-1] := NewProcess;
-        NewProcess.CommandLine:=cmd;
-        NewProcess.CurrentDirectory:= copy(BaseApplication.Location,0,rpos(DirectorySeparator,BaseApplication.Location)-1);
-        NewProcess.Options := [poNoConsole,poUsePipes];
-        NewProcess.Execute;
-        Processes.Edit;
-        Processes.DataSet.FieldByName('STATUS').AsString := 'R';
-        Processes.DataSet.FieldByName('STARTED').AsDateTime := aStartTime;
-        Processes.DataSet.FieldByName('STOPPED').Clear;
-        Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
-        Processes.Post;
+        if (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay))) or DoAlwasyRun then
+          begin
+            aStartTime := Now();
+            aLog.Clear;
+            DoLog(aProcess+':'+strStartingProcess+' ('+cmd+')',aLog,True);
+            NewProcess := TProcProcess.Create;
+            {$if FPC_FULLVERSION<20400}
+            NewProcess.InheritHandles := false;
+            {$endif}
+            NewProcess.Id := Processes.Id.AsVariant;
+            NewProcess.Informed:=False;
+            Setlength(ProcessData,length(ProcessData)+1);
+            ProcessData[length(ProcessData)-1] := NewProcess;
+            NewProcess.CommandLine:=cmd;
+            NewProcess.Start;
+          end;
       end;
   end;
 
