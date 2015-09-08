@@ -2851,7 +2851,7 @@ begin
                 else
                   gList.Cells[i,gList.Row] := dgFake.DataSource.DataSet.FieldByName(ShortTextField).AsString+lineending+dgFake.Columns[i-1].Field.AsString;
               end
-            else if (dgFake.Columns[i-1].Field.DataType=ftString) or (dgFake.Columns[i-1].Field.DataType=ftWideString) then
+            else if (dgFake.Columns[i-1].Field.DataType=ftString) or (dgFake.Columns[i-1].Field.DataType=ftWideString) or (dgFake.Columns[i-1].Field.DataType=ftMemo) then
               gList.Cells[i,gList.Row] := dgFake.Columns[i-1].Field.AsString
             else
               gList.Cells[i,gList.Row] := dgFake.Columns[i-1].Field.Text;
