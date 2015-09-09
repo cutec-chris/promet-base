@@ -203,31 +203,10 @@ begin
           inc(i);
         end;
         OutputLine:=Copy(Buf,LineStart,Count-LineStart+1);
-      until Count=0;
+      until (Count=0) or Terminated;
       if OutputLine <> '' then
         Synchronize(@DoOutputLine);
-      p.WaitOnExit;
-      if (p.Output<>nil) then
-      begin
-        Count:=p.Output.Read(Buf[1],Length(Buf));
-      end
-      else
-        Count:=0;
-      LineStart:=1;
-      i:=1;
-      while i<=Count do
-      begin
-        if Buf[i] in [#10,#13] then
-        begin
-          OutputLine:=OutputLine+Copy(Buf,LineStart,i-LineStart);
-          Synchronize(@DoOutputLine);
-          OutputLine:='';
-          if (i<Count) and (Buf[i+1] in [#10,#13]) and (Buf[i]<>Buf[i+1]) then
-            inc(i);
-          LineStart:=i+1;
-        end;
-        inc(i);
-      end;
+      if not  Terminated then p.WaitOnExit;
       FStatus:='N';
       Synchronize(@DoSetStatus);
     except
@@ -310,8 +289,6 @@ destructor TProcessClient.Destroy;
 var
   i: Integer;
 begin
-  for i := 0 to length(ProcessData)-1 do
-    ProcessData[i].Free;
   FProcesses.Destroy;
   inherited Destroy;
 end;
@@ -442,7 +419,9 @@ var
     with BaseApplication as IBaseApplication do
       if Syslog then
         Log(TimeToStr(Now())+':'+aStr);
-    bLog.Add(TimeToStr(Now())+':'+aStr);
+    if bLog.Count>100 then
+      bLog.Clear;
+    bLog.Add(TimeToStr(Now())+':'+SysToUni(aStr));
   end;
   function BuildCmdLine : string;
   begin

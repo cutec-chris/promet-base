@@ -10,8 +10,8 @@ inherited fProcessOptions: TfProcessOptions
   DesignTop = 306
   object gProcesses: TDBGrid[0]
     Left = 8
-    Height = 85
-    Top = 27
+    Height = 87
+    Top = 25
     Width = 436
     Align = alTop
     Anchors = [akTop, akLeft, akRight, akBottom]
@@ -21,7 +21,7 @@ inherited fProcessOptions: TfProcessOptions
     Columns = <    
       item
         Title.Caption = 'Client'
-        Width = 174
+        Width = 171
         FieldName = 'NAME'
       end    
       item
@@ -32,7 +32,7 @@ inherited fProcessOptions: TfProcessOptions
       end    
       item
         Title.Caption = 'Notizen'
-        Width = 174
+        Width = 172
         FieldName = 'NOTES'
       end>
     DataSource = Clients
@@ -50,7 +50,7 @@ inherited fProcessOptions: TfProcessOptions
   end
   object lProcesses: TLabel[2]
     Left = 4
-    Height = 15
+    Height = 13
     Top = 4
     Width = 444
     Align = alTop
@@ -62,7 +62,7 @@ inherited fProcessOptions: TfProcessOptions
   end
   object lProcesses1: TLabel[3]
     Left = 4
-    Height = 15
+    Height = 13
     Top = 129
     Width = 444
     Align = alTop
@@ -74,8 +74,8 @@ inherited fProcessOptions: TfProcessOptions
   end
   object gProcesses1: TDBGrid[4]
     Left = 8
-    Height = 169
-    Top = 152
+    Height = 171
+    Top = 150
     Width = 436
     Align = alTop
     Anchors = [akTop, akLeft, akRight, akBottom]
@@ -103,7 +103,7 @@ inherited fProcessOptions: TfProcessOptions
         )
         SizePriority = 2
         Title.Caption = 'Prozess'
-        Width = 102
+        Width = 101
         FieldName = 'NAME'
       end    
       item
@@ -120,12 +120,12 @@ inherited fProcessOptions: TfProcessOptions
       end    
       item
         Title.Caption = 'gestartet'
-        Width = 102
+        Width = 101
         FieldName = 'STARTED'
       end    
       item
         Title.Caption = 'beended'
-        Width = 104
+        Width = 101
         FieldName = 'STOPPED'
       end>
     DataSource = Processes
@@ -188,8 +188,8 @@ inherited fProcessOptions: TfProcessOptions
     TabOrder = 5
     object DBGrid1: TDBGrid
       Left = 0
-      Height = 107
-      Top = 23
+      Height = 109
+      Top = 21
       Width = 224
       Align = alLeft
       AutoFillColumns = True
@@ -197,12 +197,12 @@ inherited fProcessOptions: TfProcessOptions
       Columns = <      
         item
           Title.Caption = 'Parameter'
-          Width = 98
+          Width = 95
           FieldName = 'NAME'
         end      
         item
           Title.Caption = 'Value'
-          Width = 98
+          Width = 96
           FieldName = 'VALUE'
         end>
       DataSource = ProcessParameters
@@ -211,8 +211,8 @@ inherited fProcessOptions: TfProcessOptions
     end
     object DBMemo1: TDBMemo
       Left = 224
-      Height = 107
-      Top = 23
+      Height = 109
+      Top = 21
       Width = 228
       Align = alClient
       DataField = 'LOG'
@@ -223,7 +223,7 @@ inherited fProcessOptions: TfProcessOptions
     end
     object Label1: TLabel
       Left = 4
-      Height = 15
+      Height = 13
       Top = 4
       Width = 444
       Align = alTop
@@ -236,9 +236,9 @@ inherited fProcessOptions: TfProcessOptions
     object Label2: TLabel
       AnchorSideLeft.Control = DBMemo1
       Left = 224
-      Height = 15
+      Height = 13
       Top = 4
-      Width = 99
+      Width = 80
       Caption = '(letzte) Ausgabe'
       ParentColor = False
     end
@@ -274,15 +274,15 @@ inherited fProcessOptions: TfProcessOptions
     Flat = True
     ShowCaption = False
   end
-  object Processes: TDatasource[11]
+  object Processes: TDataSource[11]
     left = 32
     top = 232
   end
-  object ProcessParameters: TDatasource[12]
+  object ProcessParameters: TDataSource[12]
     left = 24
     top = 328
   end
-  object Clients: TDatasource[13]
+  object Clients: TDataSource[13]
     left = 32
     top = 48
   end
@@ -305,7 +305,7 @@ inherited fProcessOptions: TfProcessOptions
   end
   object Timer1: TTimer[15]
     Enabled = False
-    Interval = 3000
+    Interval = 6000
     OnTimer = Timer1Timer
     left = 88
     top = 184

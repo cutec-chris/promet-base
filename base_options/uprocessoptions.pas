@@ -77,6 +77,7 @@ var
 begin
   if Data.ProcessClient.Processes.CanEdit then exit;
   if Data.ProcessClient.Processes.Parameters.CanEdit then exit;
+  Timer1.Enabled:=False;
   Processes.DataSet.DisableControls;
   ProcessParameters.DataSet.DisableControls;
   if Processes.DataSet.Active then
@@ -91,6 +92,7 @@ begin
     end;
   ProcessParameters.DataSet.EnableControls;
   Processes.DataSet.EnableControls;
+  Timer1.Enabled:=True;
 end;
 
 procedure TfProcessOptions.acStopProcessExecute(Sender: TObject);
