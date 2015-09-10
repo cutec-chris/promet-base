@@ -32,6 +32,7 @@ type
     FOutput: TStringList;
     FTimeout: TDateTime;
     FStatus : string;
+    p: TProcess;
     OutputLine: String;
     procedure DoSetStatus;
     procedure SetActive(AValue: Boolean);
@@ -45,6 +46,7 @@ type
     property Name : string read FName write FName;
     property Id : Variant read FId write FId;
     procedure Start;
+    procedure Stop;
     property Active : Boolean read FActive write SetActive;
     procedure Execute; override;
     property Commandline : string read FCommandline write FCommandline;
@@ -146,6 +148,7 @@ end;
 
 destructor TProcProcess.Destroy;
 begin
+  Stop;
   inherited Destroy;
   FOutput.Free;
 end;
@@ -155,9 +158,13 @@ begin
   Resume;
 end;
 
+procedure TProcProcess.Stop;
+begin
+  p.Terminate(255);
+end;
+
 procedure TProcProcess.Execute;
 var
-  p: TProcess;
   Buf: string;
   Count,LineStart: LongInt;
   i: Integer;
@@ -351,8 +358,13 @@ begin
 end;
 
 procedure TProcessClient.ShutDown;
+var
+  i: Integer;
 begin
   try
+    for i := 0 to length(ProcessData)-1 do
+      ProcessData[i].Free;
+    SetLength(ProcessData,0);
     if DataSet.Locate('NAME',GetSystemName,[]) then
       begin
         DataSet.Edit;
