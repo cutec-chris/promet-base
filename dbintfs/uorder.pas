@@ -1632,6 +1632,13 @@ begin
   with aDataSet as IBaseManageDB do
     begin
       TableName := 'ORDERPOS';
+      if Assigned(ManagedFieldDefs) then
+        with ManagedFieldDefs do
+          begin
+            Add('COSTCENTRE',ftString,10,False);//Kostenstelle
+            Add('ACCOUNT',ftString,10,False); //Fibu Konto
+            Add('PROJECTNR',ftString,20,False);
+          end;
       if Data.ShouldCheckTable(TableName) then
         DefineUserFields(aDataSet);
     end;
@@ -1865,6 +1872,7 @@ begin
             Add('COMMISSION',ftString,30,False);
             Add('PROJECTID',ftLargeInt,0,False);
             Add('PROJECT',ftString,260,False);
+            Add('PROJECTNR',ftString,20,False);
             Add('NOTE',ftMemo,0,False);
             Add('HEADERTEXT',ftMemo,0,False);
             Add('FOOTERTEXT',ftMemo,0,False);

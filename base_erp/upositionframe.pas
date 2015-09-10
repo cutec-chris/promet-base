@@ -112,6 +112,7 @@ type
     procedure acViewDetailsExecute(Sender: TObject);
     procedure acViewTextsExecute(Sender: TObject);
     procedure AddCalcTab(Sender: TObject);
+    function fSearchOpenProjectItem(aLink: string): Boolean;
     procedure PositionDataChange(Sender: TObject; Field: TField);
     procedure PositionStateChange(Sender: TObject);
     procedure DoAsyncInit(Data: PtrInt);
@@ -171,7 +172,7 @@ type
   end;
 implementation
 uses uRowEditor, uSearch, uBaseDbInterface, uOrder, uDocumentFrame, uDocuments,
-  uData,uMasterdata,uBaseVisualApplication,uMainTreeFrame,ucalcframe;
+  uData,uMasterdata,uBaseVisualApplication,uMainTreeFrame,ucalcframe,uProjects;
 {$R *.lfm}
 procedure TfPosition.FDataSourceStateChange(Sender: TObject);
 begin
@@ -192,6 +193,16 @@ begin
   if Field.FieldName = 'IDENT' then
     begin
       acSearchArticle.Execute;
+    end
+  else if Field.FieldName = 'PROJECTNR' then
+    begin
+      fSearch.SetLanguage;
+      fSearch.AllowSearchTypes(strProjects);
+      fSearch.eContains.Clear;
+      fSearch.sgResults.RowCount:=1;
+      fSearch.OnOpenItem:=@fSearchOpenProjectItem;
+      fSearch.Execute(True,'POSPROJECT',strSearchFromOrder);
+      fSearch.SetLanguage;
     end;
 end;
 procedure TfPosition.FGridViewCellChanging(Sender: TObject);
@@ -365,6 +376,10 @@ begin
           aUnits.Free;
         end
       else if TColumn(FGridView.Columns[i]).FieldName = 'IDENT' then
+        begin
+          FGridView.Columns[i].ButtonStyle:=cbsEllipsis;
+        end
+      else if TColumn(FGridView.Columns[i]).FieldName = 'PROJECTNR' then
         begin
           FGridView.Columns[i].ButtonStyle:=cbsEllipsis;
         end
@@ -638,6 +653,22 @@ procedure TfPosition.AddCalcTab(Sender: TObject);
 begin
   TfCalcPositionFrame(Sender).DataSet := FDataset;
   TfCalcPositionFrame(Sender).TabCaption:=strCalc;
+end;
+
+function TfPosition.fSearchOpenProjectItem(aLink: string): Boolean;
+var
+  aProject: TProject;
+begin
+  aProject := TProject.CreateEx(Self,Data);
+  aProject.SelectFromLink(aLink);
+  aProject.Open;
+  if aProject.Count>0 then
+    begin
+      if not DataSet.CanEdit then
+        DataSet.DataSet.Edit;
+      DataSet.FieldByName('PROJECTNR').AsString:=aProject.FieldByName('ID').AsString;
+    end;
+  aProject.Destroy;
 end;
 
 procedure TfPosition.PositionDataChange(Sender: TObject; Field: TField);

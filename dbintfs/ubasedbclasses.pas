@@ -552,6 +552,7 @@ resourcestring
   strOwner                      = 'Eigentümer';
   strAvalible                   = 'Verfügbar';
   strNeedsAction                = 'benötigt Hilfe';
+  strCostCentre                 = 'Kostenstelle';
 
 { TNumberHelper }
 
@@ -3221,11 +3222,13 @@ begin
   SetDisplayLabelName(aDataSet,'ODATE',strOriginaldate);
   SetDisplayLabelName(aDataSet,'NOTE',strNotes);
   SetDisplayLabelName(aDataSet,'PROJECT',strProject);
+  SetDisplayLabelName(aDataSet,'PROJECTNR',strProjectNumber);
   SetDisplayLabelName(aDataSet,'SUMMARY',strSummary);
   SetDisplayLabelName(aDataSet,'OWNER',strOwner);
   SetDisplayLabelName(aDataSet,'AVALIBLE',strAvalible);
   SetDisplayLabelName(aDataSet,'ICON',' ');
   SetDisplayLabelName(aDataSet,'NEEDSACTION',strNeedsAction);
+  SetDisplayLabelName(aDataSet,'COSTCENTRE',strCostcentre);
 end;
 function TBaseDBDataset.GetBookmark: LargeInt;
 begin
