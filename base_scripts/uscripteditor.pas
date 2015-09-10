@@ -554,7 +554,8 @@ begin
         FResume := True
       end else
       begin
-        TPascalScript(TPrometPascalScript(FDataSet).Script).OnToolRegistering:=@TPascalScriptToolRegistering;
+        if Assigned(TPrometPascalScript(FDataSet).Script) then
+          TPascalScript(TPrometPascalScript(FDataSet).Script).OnToolRegistering:=@TPascalScriptToolRegistering;
         if Compile then
           begin
             SetCurrentDir(GetHomeDir);
@@ -771,7 +772,7 @@ var
   mo: TMessageObject;
   aMsg: TPSPascalCompilerMessage;
 begin
-  if Assigned(Data) then
+  if Assigned(Data) and (FDataSet is TPrometPascalScript) then
     begin
       TPascalScript(TPrometPascalScript(FDataSet).Script).Compiler:=Debugger.Comp;
       TPascalScript(TPrometPascalScript(FDataSet).Script).Runtime:=Debugger.Exec;

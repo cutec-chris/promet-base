@@ -64,6 +64,7 @@ type
     property Links : TLinks read FLinks;
     property Version : TField read GetVersion;
     function Copy(aNewVersion : Variant) : Boolean;
+    procedure OpenItem(AccHistory: Boolean=True); override;
     function Versionate(aNewversion : Variant;aMakeActive : Boolean = True) : Boolean;
     destructor Destroy;override;
   end;
@@ -343,6 +344,10 @@ begin
   Change;
 end;
 
+procedure TBaseScript.OpenItem(AccHistory: Boolean);
+begin
+end;
+
 function TBaseScript.Versionate(aNewversion: Variant; aMakeActive: Boolean
   ): Boolean;
 var
@@ -354,7 +359,7 @@ begin
       bScript := TBaseScript.CreateEx(Self,DataModule,Self.Connection);
       try
         try
-          bScript.Select(Number.AsString);
+          bScript.SelectByName(Number.AsString);
           bScript.Open;
           while not bScript.EOF do
             begin
