@@ -1,5 +1,8 @@
 ﻿Build 415
-      -
+      - Scripte:Versionierung funktioniert vollständig
+      - Aufträge:Kostenstelle,Projekt (Kostenträger) pro Position
+      - Dokumente/Dateien:Es wird nicht mehr nach dem Programm zum öffnen gefragt sodnern automatisch das Standardprogramm benutzt
+      - Datumsanzeigen:sind nun immer ohne Sekunden formatiert
 Build 414
       - Suche:in letzten Revisionen waren einige Suchtypen nicht sichtbar-behoben
 Build 413
