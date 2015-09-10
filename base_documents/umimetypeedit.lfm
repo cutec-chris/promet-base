@@ -11,51 +11,71 @@ object fMimeTypeEdit: TfMimeTypeEdit
   OnKeyDown = FormKeyDown
   OnShow = FormShow
   Position = poMainFormCenter
-  LCLVersion = '1.1'
+  LCLVersion = '1.5'
   object lMimeTypes: TLabel
+    AnchorSideTop.Control = eOpenWith
+    AnchorSideTop.Side = asrBottom
     Left = 8
-    Height = 20
-    Top = 152
+    Height = 13
+    Top = 105
     Width = 479
     Anchors = [akTop, akLeft, akRight]
-    AutoSize = False
+    BorderSpacing.Top = 12
     Caption = 'Mime Typen'
     ParentColor = False
     WordWrap = True
   end
   object lOpenWith: TLabel
+    AnchorSideTop.Control = Label1
+    AnchorSideTop.Side = asrBottom
     Left = 8
-    Height = 17
-    Top = 104
+    Height = 13
+    Top = 56
     Width = 383
     Anchors = [akTop, akLeft, akRight]
-    Caption = 'Öffnen mit (%s wird dabei durch den Dateinamen ersetzt)'
+    BorderSpacing.Top = 9
+    Caption = 'Editieren mit (%s wird dabei durch den Dateinamen ersetzt)'
     ParentColor = False
   end
   object gMimes: TDBGrid
+    AnchorSideTop.Control = lMimeTypes
+    AnchorSideTop.Side = asrBottom
     Left = 40
-    Height = 129
+    Height = 184
     Hint = 'Eie Liste mit Mime Typen,'#10'Wenn Sie eine Eintrag auswählen wird die aktuelle'#10'Dateierweiterung zu den Erweiterungen für diesen'#10'Mime Typen hinzugefügt'
-    Top = 176
+    Top = 121
     Width = 447
     Anchors = [akTop, akLeft, akRight, akBottom]
+    BorderSpacing.Top = 3
     BorderStyle = bsNone
     Color = clWindow
     Columns = <    
       item
-        Title.Caption = 'MIME'
+        Title.Caption = 'Dateierweiterung(en)'
         Width = 100
-        FieldName = 'MIME'
+        FieldName = 'EXTENSIONS'
       end    
       item
-        Title.Caption = 'DESC'
+        Title.Caption = 'Beschreibung'
         Width = 100
         FieldName = 'DESC'
       end    
       item
-        Title.Caption = 'EXTENSIONS'
-        Width = 200
-        FieldName = 'EXTENSIONS'
+        Title.Caption = 'Editieren'
+        FieldName = 'EDIT'
+      end    
+      item
+        Title.Caption = 'Anzeigen'
+        FieldName = 'VIEW'
+      end    
+      item
+        Title.Caption = 'Drucken'
+        FieldName = 'PRINT'
+      end    
+      item
+        Title.Caption = 'Mime Typ'
+        Width = 100
+        FieldName = 'MIME'
       end>
     DataSource = MimeTypes
     ShowHint = True
@@ -63,21 +83,24 @@ object fMimeTypeEdit: TfMimeTypeEdit
     TitleStyle = tsNative
   end
   object eOpenWith: TDBEdit
+    AnchorSideTop.Control = lOpenWith
+    AnchorSideTop.Side = asrBottom
     Left = 8
-    Height = 27
-    Top = 119
+    Height = 21
+    Top = 72
     Width = 479
     DataField = 'EDIT'
     DataSource = MimeTypes
     Anchors = [akTop, akLeft, akRight]
+    BorderSpacing.Top = 3
     CharCase = ecNormal
     MaxLength = 0
     TabOrder = 1
   end
   object ButtonPanel1: TButtonPanel
     Left = 6
-    Height = 43
-    Top = 319
+    Height = 40
+    Top = 322
     Width = 489
     OKButton.Name = 'OKButton'
     OKButton.DefaultCaption = True
@@ -94,11 +117,14 @@ object fMimeTypeEdit: TfMimeTypeEdit
     ShowButtons = [pbOK, pbCancel]
   end
   object DBNavigator1: TDBNavigator
+    AnchorSideTop.Control = lMimeTypes
+    AnchorSideTop.Side = asrBottom
     Left = 8
     Height = 96
-    Top = 200
+    Top = 121
     Width = 23
     BevelOuter = bvNone
+    BorderSpacing.Top = 3
     ChildSizing.EnlargeHorizontal = crsScaleChilds
     ChildSizing.EnlargeVertical = crsScaleChilds
     ChildSizing.ShrinkHorizontal = crsScaleChilds
@@ -115,18 +141,19 @@ object fMimeTypeEdit: TfMimeTypeEdit
   end
   object Label1: TLabel
     Left = 8
-    Height = 96
+    Height = 39
     Top = 8
-    Width = 479
-    AutoSize = False
+    Width = 485
+    Align = alTop
+    BorderSpacing.Around = 8
     Caption = 'In diesem Dialog können Sie festlegen, mit welchem Programm die Dateiverwaltung den gewählten Dokumententyp/Mimetyp öffnet. Sollten Sie unsicher sein, lassen Sie die automatisch vorgeschlagene Einstellung und klicken Sie OK.'
     Font.Style = [fsBold]
     ParentColor = False
     ParentFont = False
     WordWrap = True
   end
-  object MimeTypes: TDatasource
-    left = 56
-    top = 56
+  object MimeTypes: TDataSource
+    left = 424
+    top = 48
   end
-end
+end
