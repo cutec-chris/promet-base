@@ -1337,6 +1337,7 @@ var
   aDocument: TDocument;
   bDocument: TDocument;
   aID: Integer;
+  aCommand: String;
 begin
   if not GotoSelected then exit;
   Randomize;
@@ -1406,6 +1407,7 @@ begin
   or (bDocument.MimeTypes.FieldByName(Method).AsString = '') then
     begin
       //add extension
+      {
       fMimeTypeEdit.SetLanguage;
       fMimeTypeEdit.SetupDB;
       fMimeTypeEdit.eOpenWith.DataField := Method;
@@ -1443,7 +1445,13 @@ begin
         end;
       if bDocument.MimeTypes.DataSet.State = dsEdit then
         bDocument.MimeTypes.DataSet.Post;
-    end;
+      }
+      if (Method = 'EDIT') or (Method = 'VIEW') then
+        aCommand := GetProcessforExtension(piOpen,DataSet.FieldByName('EXTENSION').AsString)
+      else if Method = 'PRINT' then
+        aCommand := GetProcessforExtension(piPrint,DataSet.FieldByName('EXTENSION').AsString);
+    end
+  else aCommand := bDocument.MimeTypes.FieldByName(Method).AsString;
   fWaitForm.SetLanguage;
   fWaitForm.lStep.Caption := '';
   fWaitForm.Show;
@@ -1458,7 +1466,7 @@ begin
   UseStarter := FileExistsUTF8(ExtractFilePath(Application.Exename)+'pstarter'+ExtractFileExt(Application.Exename));
   aDocument.AftercheckInFiles:=FAfterCheckinFiles;
   aDocument.OnCheckCheckinFiles:=@aDocumentCheckCheckinFiles;
-  TDocExecuteThread.Create(aDocument,'exec:'+StringReplace(bDocument.MimeTypes.FieldByName(Method).AsString,'%s',filename,[rfReplaceAll])+lineending+StringReplace('waitfor:%s','%s',filename,[rfReplaceAll]),DoDelete,UseStarter and (bDocument.MimeTypes.FieldByName('USESTARTER').AsString<>'N'),TempID,Null,bDocument.MimeTypes.Id.AsVariant);
+  TDocExecuteThread.Create(aDocument,'exec:'+StringReplace(aCommand,'%s',filename,[rfReplaceAll])+lineending+StringReplace('waitfor:%s','%s',filename,[rfReplaceAll]),DoDelete,UseStarter and (bDocument.MimeTypes.FieldByName('USESTARTER').AsString<>'N'),TempID,Null,bDocument.MimeTypes.Id.AsVariant);
   bDocument.Free;
 end;
 

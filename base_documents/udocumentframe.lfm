@@ -9,12 +9,12 @@ inherited fDocumentFrame: TfDocumentFrame
   DesignTop = 341
   object pToolbar: TPanel[0]
     Left = 0
-    Height = 321
-    Top = 44
+    Height = 325
+    Top = 40
     Width = 44
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 321
+    ClientHeight = 325
     ClientWidth = 44
     ParentShowHint = False
     ShowHint = True
@@ -551,8 +551,8 @@ inherited fDocumentFrame: TfDocumentFrame
   end
   object lvDocuments: TListView[1]
     Left = 44
-    Height = 321
-    Top = 44
+    Height = 325
+    Top = 40
     Width = 272
     Align = alClient
     Columns = <    
@@ -598,8 +598,8 @@ inherited fDocumentFrame: TfDocumentFrame
   end
   object spPreview: TSplitter[2]
     Left = 316
-    Height = 321
-    Top = 44
+    Height = 325
+    Top = 40
     Width = 5
     Align = alRight
     OnMoved = spPreviewMoved
@@ -608,26 +608,26 @@ inherited fDocumentFrame: TfDocumentFrame
   end
   object pPreviewT: TPanel[3]
     Left = 321
-    Height = 321
-    Top = 44
+    Height = 325
+    Top = 40
     Width = 179
     Align = alRight
     TabOrder = 3
   end
   object pHeader: TPanel[4]
     Left = 0
-    Height = 44
+    Height = 40
     Top = 0
     Width = 500
     Align = alTop
     BevelOuter = bvNone
-    ClientHeight = 44
+    ClientHeight = 40
     ClientWidth = 500
     TabOrder = 4
     Visible = False
     object bExecute1: TSpeedButton
       Left = 4
-      Height = 36
+      Height = 32
       Top = 4
       Width = 36
       Action = acExecute
@@ -673,21 +673,21 @@ inherited fDocumentFrame: TfDocumentFrame
     end
     object Panel7: TPanel
       Left = 44
-      Height = 44
+      Height = 40
       Top = 0
       Width = 60
       Align = alLeft
       BevelOuter = bvNone
-      ClientHeight = 44
+      ClientHeight = 40
       ClientWidth = 60
       TabOrder = 0
       object Label5: TLabel
         Left = 4
         Height = 15
-        Top = -4
+        Top = 24
         Width = 48
         Alignment = taCenter
-        Anchors = [akLeft, akRight, akBottom]
+        Anchors = [akTop, akLeft, akRight]
         AutoSize = False
         BorderSpacing.Left = 5
         Caption = 'Neu'
@@ -698,7 +698,7 @@ inherited fDocumentFrame: TfDocumentFrame
       end
       object Bevel5: TBevel
         Left = 0
-        Height = 36
+        Height = 32
         Top = 4
         Width = 8
         Align = alLeft
@@ -710,7 +710,7 @@ inherited fDocumentFrame: TfDocumentFrame
         Left = 4
         Height = 24
         Hint = 'Dateien hinzufügen'
-        Top = 16
+        Top = 0
         Width = 24
         Flat = True
         Glyph.Data = {
@@ -756,7 +756,7 @@ inherited fDocumentFrame: TfDocumentFrame
       object bDocuAdd3: TSpeedButton
         Left = 28
         Height = 24
-        Top = 16
+        Top = 0
         Width = 24
         Action = acAcquire
         Flat = True
@@ -765,21 +765,21 @@ inherited fDocumentFrame: TfDocumentFrame
     end
     object Panel8: TPanel
       Left = 104
-      Height = 44
+      Height = 40
       Top = 0
       Width = 56
       Align = alLeft
       BevelOuter = bvNone
-      ClientHeight = 44
+      ClientHeight = 40
       ClientWidth = 56
       TabOrder = 1
       object Label6: TLabel
         Left = 4
         Height = 15
-        Top = -4
+        Top = 24
         Width = 44
         Alignment = taCenter
-        Anchors = [akLeft, akRight, akBottom]
+        Anchors = [akTop, akLeft, akRight]
         AutoSize = False
         BorderSpacing.Left = 5
         Caption = 'Datei'
@@ -790,7 +790,7 @@ inherited fDocumentFrame: TfDocumentFrame
       end
       object Bevel6: TBevel
         Left = 0
-        Height = 36
+        Height = 32
         Top = 4
         Width = 8
         Align = alLeft
@@ -801,7 +801,7 @@ inherited fDocumentFrame: TfDocumentFrame
       object bCheckout1: TSpeedButton
         Left = 4
         Height = 24
-        Top = 16
+        Top = 0
         Width = 24
         Action = acSaveToFile
         Flat = True
@@ -846,7 +846,7 @@ inherited fDocumentFrame: TfDocumentFrame
       object bDocuremove1: TSpeedButton
         Left = 28
         Height = 24
-        Top = 16
+        Top = 0
         Width = 24
         Action = acRemoveDocument
         Flat = True
@@ -891,21 +891,21 @@ inherited fDocumentFrame: TfDocumentFrame
     end
     object Panel9: TPanel
       Left = 160
-      Height = 44
+      Height = 40
       Top = 0
       Width = 56
       Align = alLeft
       BevelOuter = bvNone
-      ClientHeight = 44
+      ClientHeight = 40
       ClientWidth = 56
       TabOrder = 2
       object Label7: TLabel
         Left = 4
         Height = 15
-        Top = -4
+        Top = 24
         Width = 44
         Alignment = taCenter
-        Anchors = [akLeft, akRight, akBottom]
+        Anchors = [akTop, akLeft, akRight]
         AutoSize = False
         BorderSpacing.Left = 5
         Caption = 'Ansicht'
@@ -916,7 +916,7 @@ inherited fDocumentFrame: TfDocumentFrame
       end
       object Bevel7: TBevel
         Left = 0
-        Height = 36
+        Height = 32
         Top = 4
         Width = 8
         Align = alLeft
@@ -928,7 +928,7 @@ inherited fDocumentFrame: TfDocumentFrame
         Left = 4
         Height = 24
         Hint = 'wählt eine Ansicht'
-        Top = 16
+        Top = 0
         Width = 24
         BorderSpacing.InnerBorder = 2
         Flat = True
@@ -975,7 +975,7 @@ inherited fDocumentFrame: TfDocumentFrame
       object bRefresh2: TSpeedButton
         Left = 27
         Height = 24
-        Top = 16
+        Top = 0
         Width = 24
         Action = acRefresh
         AllowAllUp = True
@@ -1022,21 +1022,21 @@ inherited fDocumentFrame: TfDocumentFrame
     end
     object Panel10: TPanel
       Left = 216
-      Height = 44
+      Height = 40
       Top = 0
       Width = 64
       Align = alLeft
       BevelOuter = bvNone
-      ClientHeight = 44
+      ClientHeight = 40
       ClientWidth = 64
       TabOrder = 3
       object Label8: TLabel
         Left = 4
         Height = 15
-        Top = -4
+        Top = 24
         Width = 52
         Alignment = taCenter
-        Anchors = [akLeft, akRight, akBottom]
+        Anchors = [akTop, akLeft, akRight]
         AutoSize = False
         BorderSpacing.Left = 5
         Caption = 'Zusätzlich'
@@ -1047,7 +1047,7 @@ inherited fDocumentFrame: TfDocumentFrame
       end
       object Bevel8: TBevel
         Left = 0
-        Height = 36
+        Height = 32
         Top = 4
         Width = 8
         Align = alLeft
@@ -1059,7 +1059,7 @@ inherited fDocumentFrame: TfDocumentFrame
         Left = 4
         Height = 24
         Hint = 'zeigt ein Menü mit weiteren Möglichkeiten'
-        Top = 16
+        Top = 0
         Width = 24
         BorderSpacing.InnerBorder = 2
         Flat = True
