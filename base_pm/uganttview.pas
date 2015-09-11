@@ -570,6 +570,7 @@ var
   oD2: TDateTime;
   aBuffer: TDateTime;
 begin
+  debugln('IntervalMove('+TInterval(Sender).Task+')');
   with TInterval(Sender) do
     begin
       BeginUpdate;
@@ -607,7 +608,7 @@ begin
           inc(i,1);
         end;
 
-      for i := 0 to ConnectionCount-1 do
+      for i := ConnectionCount-1 downto 0 do
         begin
           Connection[i].BeginUpdate;
           oD := Connection[i].Duration;
