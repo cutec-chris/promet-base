@@ -726,7 +726,12 @@ var
     if TSQLSelectStatement(aStmt).All then
       begin
         for a := 0 to aDS.DataSet.FieldCount-1 do
-          Result+='<td align="left">'+aBDS.Fields[a].AsString+'</td>'
+          begin
+            if (aBDS.Fields[a].DataType=ftString) or (aBDS.Fields[a].DataType=ftMemo) or (aBDS.Fields[a].DataType=ftWideString) then
+              Result+='<td align="left">'+aBDS.Fields[a].AsString+'</td>'
+            else
+              Result+='<td align="left">'+aBDS.Fields[a].Text+'</td>';
+          end;
       end
     else
       begin
@@ -787,8 +792,9 @@ var
                       aName := copy(aName,rpos('.',aName)+1,length(aName));
                     if (aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].DataType=ftFloat)
                     or (aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].DataType=ftInteger)
+                    or (aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].DataType=ftDateTime)
                     then
-                      Result+='<td align="right">'+HTMLEncode(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString)+'</td>'
+                      Result+='<td align="right">'+HTMLEncode(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].Text)+'</td>'
                     else
                       Result+='<td align="left">'+HTMLEncode(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString)+'</td>';
                   end
@@ -796,7 +802,12 @@ var
                   begin
                     aName := TSQLSelectField(aElem).AliasName.GetAsSQL([]);
                     if (aBDS.FieldDefs.IndexOf(aName)>-1) then
-                     Result+='<td align="left">'+HTMLEncode(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString)+'</td>'
+                      begin
+                        if (aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].DataType=ftString) or (aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].DataType=ftMemo) or (aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].DataType=ftWideString) then
+                          Result+='<td align="left">'+HTMLEncode(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString)+'</td>'
+                        else
+                          Result+='<td align="left">'+HTMLEncode(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].Text)+'</td>';
+                      end;
                   end;
               end;
           end;
