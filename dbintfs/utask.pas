@@ -31,17 +31,20 @@ type
     procedure DefineFields(aDataSet : TDataSet);override;
   end;
   //In memory class to hold an task during calculations
-  TTaskInterval = class
+  TBaseInterval = class
   private
-    FDueDate: TDateTime;
+  protected
     FName: string;
-    FPlan: Double;
+    FProject: string;
+    FFinishDate: TDateTime;
     FStartDate: TDateTime;
+    FPlan: Double;
   public
     property StartDate : TDateTime read FStartDate write FStartDate;
-    property DueDate : TDateTime read FDueDate write FDueDate;
+    property DueDate : TDateTime read FFinishDate write FFinishDate;
     property PlanTime : Double read FPlan write FPlan;
     property Name : string read FName write FName;
+    property Project : string read FProject write FProject;
   end;
   TTaskList = class(TBaseERPList,IBaseHistory)
     procedure DataSetAfterCancel(aDataSet: TDataSet);
@@ -108,7 +111,7 @@ type
     //Collect Times from Timeregistering
     function GetTimesForTask(WorkTime: real=8): float;
     function WaitTimeDone : TDateTime;
-    function GetInterval : TTaskInterval;
+    function GetInterval : TBaseInterval;
     procedure MakeSnapshot(aName : string);
     procedure DisableDS;
     property OwnerName : string read GetownerName;
@@ -188,10 +191,10 @@ uses uBaseApplication,uIntfStrConsts,uProjects,uData,uCalendar,uTimes;
 function CompareStarts(Item1, Item2: Pointer): Integer;
 begin
   Result:= 0;
-  if (TTaskInterval(Item1)).StartDate > (TTaskInterval(Item2)).StartDate then
+  if (TBaseInterval(Item1)).StartDate > (TBaseInterval(Item2)).StartDate then
     Result:= 1
   else
-    if (TTaskInterval(Item1)).StartDate < (TTaskInterval(Item2)).StartDate then
+    if (TBaseInterval(Item1)).StartDate < (TBaseInterval(Item2)).StartDate then
       Result:= -1
 end;
 
@@ -646,10 +649,10 @@ var
   aNetTime: Double;
   aIntervals: TList;
   i: Integer;
-  Int1: TTaskInterval;
-  Int2: TTaskInterval;
+  Int1: TBaseInterval;
+  Int2: TBaseInterval;
   aCalendar: TCalendar;
-  aInterval: TTaskInterval;
+  aInterval: TBaseInterval;
   aTime: Extended;
   a: Int64;
   aNow: Int64;
@@ -659,7 +662,7 @@ var
   TimeNeeded: Double;
   aDayUseTime: Extended;
   aActEndDate: Extended;
-  aInt: TTaskInterval;
+  aInt: TBaseInterval;
   aUsedTime: float;
 begin
   Result := False;
@@ -718,8 +721,8 @@ begin
       bTasks.SortFields:='STARTDATE';
       bTasks.SortDirection:=sdAscending;
       bTasks.Open;
-      aIntervals.Add(TTaskInterval.Create);
-      TTaskInterval(aIntervals[0]).DueDate:=aStartDate;
+      aIntervals.Add(TBaseInterval.Create);
+      TBaseInterval(aIntervals[0]).DueDate:=aStartDate;
       with bTasks.DataSet do
         begin
           while not EOF do
@@ -770,7 +773,7 @@ begin
           First;
           while not EOF do
             begin
-              aInterval := TTaskInterval.Create;
+              aInterval := TBaseInterval.Create;
               aInterval.StartDate:=aCalendar.FieldByName('STARTDATE').AsDateTime;
               aInterval.DueDate:=aCalendar.FieldByName('ENDDATE').AsDateTime;
               aInterval.PlanTime:=-1;
@@ -806,7 +809,7 @@ begin
           aPercent := 0;
           for i := 1 to aIntervals.Count-1 do
             begin
-              Int2 := TTaskInterval(aIntervals[i]);
+              Int2 := TBaseInterval(aIntervals[i]);
               if ((trunc(Int2.StartDate)<=aNow)
               and (trunc(Int2.DueDate)>aNow)) then
                 begin
@@ -846,7 +849,7 @@ begin
     end;
   if not aFound then
     begin
-      aActStartDate:=TTaskInterval(aIntervals[aIntervals.Count-1]).DueDate;
+      aActStartDate:=TBaseInterval(aIntervals[aIntervals.Count-1]).DueDate;
       aFound:=True;
     end;
   bTasks.Free;
@@ -953,9 +956,9 @@ begin
       Result := FieldByName('DUEDATE').AsDateTime+FieldByName('BUFFERTIME').AsFloat;
     end;
 end;
-function TTaskList.GetInterval: TTaskInterval;
+function TTaskList.GetInterval: TBaseInterval;
 begin
-  Result := TTaskInterval.Create;
+  Result := TBaseInterval.Create;
   Result.StartDate:=FieldByName('STARTDATE').AsDateTime;
   Result.DueDate:=FieldByName('DUEDATE').AsDateTime;
   Result.PlanTime := FieldByName('PLANTIME').AsFloat;

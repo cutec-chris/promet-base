@@ -34,7 +34,7 @@ interface
 uses
   LCLproc,LCLIntf,LCLType,LMessages, SysUtils,Classes, Graphics, Controls,
   Forms, Dialogs, ExtCtrls, StdCtrls, Grids, Spin, ComCtrls, Buttons,
-  EditBtn,dateutils,Calendar;
+  EditBtn,dateutils,Calendar,utask;
 
 
 const
@@ -80,7 +80,7 @@ type
 
   { TInterval }
 
-  TInterval = class
+  TInterval = class(TBaseInterval)
   private
     FBP: TPaitBackgroundEvent;
     FBuffer: TDateTime;
@@ -103,15 +103,11 @@ type
     FPB: TPaitBackgroundEvent;
     FPointer: Pointer;
     FPointer2: Pointer;
-    FProject: String;
     FRes: string;
     FResPerDay: Real;
 
-    FStartDate: TDateTime;
-    FFinishDate: TDateTime;
     FStarted: Boolean;
     FStyle: TFontStyles;
-    FTask: String;
     FParent: TInterval;
 
     FDrawRect: TRect;
@@ -217,7 +213,7 @@ type
     property NetTime: TDateTime read FNetTime write SetNetTime;
     property WaitTime: TDateTime read FBuffer write SetBuffer;
     property StampDuration: TTimeStamp read GetStampDuration;
-    property Task: String read FTask write SetTask;
+    property Task: String read FName write SetTask;
     property Project: String read FProject write Fproject;
     property Started: Boolean read FStarted write FStarted;
     property Parent: TInterval read FParent write FParent;
@@ -260,6 +256,7 @@ type
     property DontChange : Boolean read FDontChange write FDontChange;
     procedure Change;
     procedure BeginUpdate;
+    function IsUpdating : Boolean;
     procedure EndUpdate(aDontchange : Boolean = False);
     property Pointer : Pointer read FPointer write FPointer;
     property Pointer2 : Pointer read FPointer2 write FPointer2;
@@ -1644,7 +1641,7 @@ end;
 
 procedure TInterval.SetTask(const Value: String);
 begin
-  FTask := Value;
+  Name := Value;
   if Assigned(FGantt) then
     FGantt.UpdateInterval;
   FChanged:=True;
@@ -1900,16 +1897,23 @@ end;
 
 procedure TInterval.BeginUpdate;
 begin
-  if FUpdating=0 then
+  if FUpdating<=0 then
     FUpdateCount:=0;
   inc(FUpdating);
+end;
+
+function TInterval.IsUpdating: Boolean;
+begin
+  Result := FUpdating>0;
 end;
 
 procedure TInterval.EndUpdate(aDontchange: Boolean);
 begin
   dec(FUpdating);
   if FUpdating>0 then exit;
-  if FUpdateCount>0 then
+  if FUpdating<=0 then
+    FUpdating:=0;
+  if FUpdating=0 then
     begin
       if not aDontchange then
         Change;

@@ -427,13 +427,13 @@ var
   oD2: TDateTime;
   Found: Boolean;
 begin
-  bSave.Enabled:=True;
-  bCSave.Enabled:=True;
-  bCancel.Enabled:=true;
   with TInterval(Sender) do
     begin
       if TInterval(Sender).Fixed then exit;
-      TInterval(Sender).BeginUpdate;
+      if TInterval(Sender).IsUpdating then exit;
+      bSave.Enabled:=True;
+      bCSave.Enabled:=True;
+      bCancel.Enabled:=true;
       debugln('IntervalChanged('+TInterval(Sender).Task+')');
       if TInterval(Sender).StartDate<TInterval(Sender).Earliest then
         TInterval(Sender).StartDate:=TInterval(Sender).Earliest;
@@ -550,8 +550,10 @@ begin
   with TInterval(Sender) do
     begin
       BeginUpdate;
+      aDur := NetTime;
       if Assigned(Parent) then
         StartDate := aDate;
+      FinishDate:=StartDate+aDur;
       EndUpdate;
       if MoveTreeOnly then
         for i := 0 to ConnectionCount-1 do
@@ -1119,6 +1121,7 @@ var
   aLink: String;
   aInt: TInterval;
 begin
+  debugln('======Calculate from Here=====');
   aLink := TP.GetTaskFromCoordinates(FGantt,aClickPoint.X,aClickPoint.Y,aSelInterval);
   if aLink <> '' then
     begin
@@ -1210,6 +1213,7 @@ var
   aLink: String;
   aInt: TInterval;
 begin
+  debugln('======Move Together from Here=====');
   aLink := TP.GetTaskFromCoordinates(FGantt,aClickPoint.X,aClickPoint.Y,aSelInterval);
   if aLink <> '' then
     begin

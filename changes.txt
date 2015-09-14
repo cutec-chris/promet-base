@@ -1,4 +1,6 @@
-﻿Build 415
+﻿Build 416
+      -
+Build 415
       - Scripte:Versionierung funktioniert vollständig
       - Aufträge:Kostenstelle,Projekt (Kostenträger) pro Position
       - Dokumente/Dateien:Es wird nicht mehr nach dem Programm zum öffnen gefragt sodnern automatisch das Standardprogramm benutzt
