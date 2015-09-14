@@ -1,5 +1,5 @@
 ﻿Build 416
-      -
+      - Projekte:Gantt Berechnung um kleinere Berechnungsfehler erleichtert
 Build 415
       - Scripte:Versionierung funktioniert vollständig
       - Aufträge:Kostenstelle,Projekt (Kostenträger) pro Position

@@ -1121,6 +1121,7 @@ var
   aLink: String;
   aInt: TInterval;
 begin
+  Screen.Cursor:=crHourGlass;
   debugln('======Calculate from Here=====');
   aLink := TP.GetTaskFromCoordinates(FGantt,aClickPoint.X,aClickPoint.Y,aSelInterval);
   if aLink <> '' then
@@ -1131,6 +1132,7 @@ begin
           MoveForward(aInt,true);
         end;
     end;
+  Screen.Cursor:=crDefault;
 end;
 
 procedure TfGanttView.acAddSnapshotExecute(Sender: TObject);
