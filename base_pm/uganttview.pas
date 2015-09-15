@@ -1891,7 +1891,7 @@ begin
     aInterval.Earliest := aTasks.FieldByName('EARLIEST').AsDateTime;
   if not (aTasks.FieldByName('BUFFERTIME').AsString = '') then
     aInterval.WaitTime:=aTasks.FieldByName('BUFFERTIME').AsFloat;
-  aInterval.NetDuration:=aInterval.Duration;
+  aInterval.NetDuration:=aTasks.FieldByName('PLANTIME').AsFloat;
   for i := trunc(aInterval.StartDate) to Trunc(aInterval.FinishDate) do
     if ((DayOfWeek(i)=1) or (DayOfWeek(i)=7)) then
       aInterval.NetDuration:= aInterval.NetDuration-1;
