@@ -1466,7 +1466,7 @@ begin
   UseStarter := FileExistsUTF8(ExtractFilePath(Application.Exename)+'pstarter'+ExtractFileExt(Application.Exename));
   aDocument.AftercheckInFiles:=FAfterCheckinFiles;
   aDocument.OnCheckCheckinFiles:=@aDocumentCheckCheckinFiles;
-  TDocExecuteThread.Create(aDocument,'exec:'+StringReplace(aCommand,'%s',filename,[rfReplaceAll])+lineending+StringReplace('waitfor:%s','%s',filename,[rfReplaceAll]),DoDelete,UseStarter and (bDocument.MimeTypes.FieldByName('USESTARTER').AsString<>'N'),TempID,Null,bDocument.MimeTypes.Id.AsVariant);
+  TDocExecuteThread.Create(aDocument,'exec:'+StringReplace(aCommand,'%s',Utf8ToSys(filename),[rfReplaceAll])+lineending+StringReplace('waitfor:%s','%s',filename,[rfReplaceAll]),DoDelete,UseStarter and (bDocument.MimeTypes.FieldByName('USESTARTER').AsString<>'N'),TempID,Null,bDocument.MimeTypes.Id.AsVariant);
   bDocument.Free;
 end;
 
