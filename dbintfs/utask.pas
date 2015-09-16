@@ -939,13 +939,13 @@ begin
   while not aTimes.EOF do
     begin
       if (aTimes.FieldByName('END').IsNull) and  (Now()-aTimes.FieldByName('START').AsDateTime<1) then
-        aColTime:=aColTime+((Now()-aTimes.FieldByName('START').AsDateTime)*WorkTime)
+        aColTime:=aColTime+((Now()-aTimes.FieldByName('START').AsDateTime))
       else if (aTimes.FieldByName('END').AsDateTime-aTimes.FieldByName('START').AsDateTime<1) then
-        aColTime:=aColTime+((aTimes.FieldByName('END').AsDateTime-aTimes.FieldByName('START').AsDateTime)*WorkTime);
+        aColTime:=aColTime+((aTimes.FieldByName('END').AsDateTime-aTimes.FieldByName('START').AsDateTime));
       aTimes.Next;
     end;
   aTimes.Free;
-  Result := aColTime;
+  Result := ((aColTime)*HoursPerDay)/WorkTime;
 end;
 
 function TTaskList.WaitTimeDone: TDateTime;

@@ -1,4 +1,6 @@
-﻿Build 416
+﻿Build 417
+      - Aufgabeneditor:Berechnung der erfassten zeit auf Aufgaben korrigiert
+Build 416
       - Projekte:Gantt Berechnung um kleinere Berechnungsfehler erleichtert
 Build 415
       - Scripte:Versionierung funktioniert vollständig
