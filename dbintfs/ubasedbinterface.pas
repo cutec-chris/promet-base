@@ -1418,7 +1418,6 @@ procedure TBaseDBModule.RemoveUserFromActiveList;
 begin
   if FIgnoreOpenRequests then exit;
   try
-
     with ActiveUsers.DataSet as IBaseManageDB do
       UpdateStdFields := False;
     if ActiveUsers.DataSet.Active then

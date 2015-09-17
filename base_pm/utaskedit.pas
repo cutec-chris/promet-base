@@ -48,7 +48,7 @@ type
     cbCompleted1: TDBCheckBox;
     cbPriority: TDBComboBox;
     cbState: TExtDBCombobox;
-    DBText1: TDBText;
+    DBText1: TLabel;
     EarlystDate: TDBZVDateTimePicker;
     EarlystDate1: TDBZVDateTimePicker;
     eBuffer: TEdit;
@@ -325,6 +325,7 @@ begin
           FieldByName('TIME').AsFloat:=aColTime;
         end;
     end;
+  DBText1.Caption:=DayTimeToStr(FDataSet.FieldByName('TIME').AsFloat);
 end;
 
 procedure TfTaskEdit.cbStateSelect(Sender: TObject);
@@ -504,6 +505,7 @@ begin
   aUser.Open;
   eOwner.Text:=aUser.FieldByName('NAME').AsString;
   aUser.Free;
+  DBText1.Caption:=DayTimeToStr(FDataSet.FieldByName('TIME').AsFloat);
 end;
 procedure TfTaskEdit.AddDocuments(Sender: TObject);
 var

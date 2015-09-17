@@ -795,6 +795,17 @@ begin
             end;
         end;
     end
+  else if copy(aLink,0,pos('@',aLink)-1) = 'PROJECTS' then
+    begin
+      with BaseApplication as IBaseDbInterface do
+        begin
+          with DataSet as IBaseDBFilter do
+            begin
+              Filter := Data.QuoteField('ID')+'='+Data.QuoteValue(copy(aLink,pos('@',aLink)+1,length(aLink)));
+              Result := True;
+            end;
+        end;
+    end
   else
     Result := inherited SelectFromLink(aLink);
 end;
