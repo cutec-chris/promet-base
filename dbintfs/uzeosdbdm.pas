@@ -1348,9 +1348,13 @@ constructor TZeosDBDM.Create(AOwner: TComponent);
 begin
   FDataSetClass := TZeosDBDataSet;
   FMainConnection := TZConnection.Create(AOwner);
-  Monitor := TZSQLMonitor.Create(FMainConnection);
-  Monitor.Active:=True;
-  Monitor.OnTrace:=@MonitorTrace;
+  if BaseApplication.HasOption('debug') or BaseApplication.HasOption('debug-sql') then
+    begin
+      Monitor := TZSQLMonitor.Create(FMainConnection);
+      Monitor.Active:=True;
+      Monitor.OnTrace:=@MonitorTrace;
+    end
+  else Monitor:=nil;
   Sequence := nil;
   inherited Create(AOwner);
 end;
