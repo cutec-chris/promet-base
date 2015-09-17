@@ -458,38 +458,6 @@ begin
         SysUtils.DeleteFile(aFileName);
         SysUtils.DeleteFile(aFileName+'.txt');
       end;
-    end
-  else
-    begin
-      try
-        aProcess := TProcess.Create(nil);
-        {$IFDEF WINDOWS}
-        aProcess.Options:= [poNoConsole, poWaitonExit,poNewConsole, poStdErrToOutPut, poNewProcessGroup];
-        {$ELSE}
-        aProcess.Options:= [poWaitonExit,poStdErrToOutPut];
-        {$ENDIF}
-        aProcess.ShowWindow := swoHide;
-        aProcess.CommandLine := AppendPathDelim(AppendPathDelim(BaseApplication.Location)+'tools')+Format('pextracttext'+ExtractFileExt(BaseApplication.ExeName)+' %s %s',[aFileName,aFileName+'.txt']);
-        aProcess.CurrentDirectory := AppendPathDelim(AppendPathDelim(BaseApplication.Location)+'tools');
-        {$IFDEF WINDOWS}
-        aProcess.CommandLine := aProcess.CurrentDirectory+aProcess.CommandLine;
-        {$ENDIF}
-        aProcess.Execute;
-        aProcess.Free;
-        SysUtils.DeleteFile(aFileName);
-        if FileExists(aFileName+'.txt') then
-          begin
-            aLines := TStringList.Create;
-            aLines.LoadFromFile(aFileName+'.txt');
-            aText := aLines.Text;
-            Result := True;
-            aLines.Free;
-          end;
-        SysUtils.DeleteFile(aFileName+'.txt');
-      except
-        SysUtils.DeleteFile(aFileName);
-        SysUtils.DeleteFile(aFileName+'.txt');
-      end;
     end;
   aText := SysToUni(aText);//ConvertEncoding(aText,GuessEncoding(aText),EncodingUTF8);
 end;

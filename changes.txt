@@ -1,5 +1,7 @@
 ﻿Build 416
       - Projekte:Gantt Berechnung um kleinere Berechnungsfehler erleichtert
+      - Feedreceiver:zu lange Feedtitel werden automatisch gekürzt
+      - Feedreceiver:Unicodekonvertierung korrigiert
 Build 415
       - Scripte:Versionierung funktioniert vollständig
       - Aufträge:Kostenstelle,Projekt (Kostenträger) pro Position
