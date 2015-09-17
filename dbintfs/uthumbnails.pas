@@ -107,7 +107,8 @@ begin
   if ThumbDir='' then
     begin
       try
-        Result := GetTempDir+'promet_thumbs';
+        Randomize;
+        Result := GetTempDir+'promet_thumbs'+IntToStr(Random(10000));
         if Assigned(BaseApplication) and (not BaseApplication.ConsoleApplication) then
           if Supports(BaseApplication,IBaseApplication) then
             with BaseApplication as IBaseApplication do
