@@ -222,8 +222,7 @@ inherited fImportOptions: TfImportOptions
       end    
       item
         Command = ecCopy
-        ShortCut = 16451
-      end    
+      end
       item
         Command = ecBlockIndent
         ShortCut = 24649
