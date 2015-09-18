@@ -22,6 +22,9 @@ interface
 uses
   Classes, SysUtils,uBaseDbClasses,db,Process,uBaseDatasetInterfaces;
 type
+
+  { TProcProcess }
+
   TProcProcess = class(TThread)
   private
     FActive: Boolean;
@@ -38,6 +41,7 @@ type
     procedure SetActive(AValue: Boolean);
     procedure SetTimeout(AValue: TDateTime);
     procedure DoOutputLine;
+    procedure DoSynchronize(AMethod: TThreadMethod);
   public
     aOutput,aBuffer,aLogOutput : string;
     constructor Create;
@@ -47,10 +51,12 @@ type
     property Id : Variant read FId write FId;
     procedure Start;
     procedure Stop;
+    procedure InformStopped;
     property Active : Boolean read FActive write SetActive;
     procedure Execute; override;
     property Commandline : string read FCommandline write FCommandline;
     property Output : TStringList read FOutput;
+    property Status : string read FStatus;
   end;
   TProcessParameters = class(TBaseDBDataset)
   public
@@ -138,6 +144,17 @@ end;
 procedure TProcProcess.DoOutputLine;
 begin
   FOutput.Add(OutputLine);
+  with BaseApplication as IBaseApplication do
+    Debug(FName+':'+OutputLine);
+end;
+
+procedure TProcProcess.DoSynchronize(AMethod: TThreadMethod);
+begin
+  {$ifdef WINDOWS}
+  Synchronize(AMethod);
+  {$else}
+  AMethod;
+  {$endif}
 end;
 
 constructor TProcProcess.Create;
@@ -155,12 +172,20 @@ end;
 
 procedure TProcProcess.Start;
 begin
+  FActive:=True;
+  with BaseApplication as IBaseApplication do
+    Debug(FName+':resuming Process');
   Resume;
 end;
 
 procedure TProcProcess.Stop;
 begin
   p.Terminate(255);
+end;
+
+procedure TProcProcess.InformStopped;
+begin
+  DoSetStatus;
 end;
 
 procedure TProcProcess.Execute;
@@ -171,9 +196,6 @@ var
 const
   BufSize = 1024; //4096;
 begin
-  FStatus:='R';
-  FActive:=True;
-  Synchronize(@DoSetStatus);
   p := TProcess.Create(nil);
   p.Options := [poUsePipes, poStdErrToOutPut, poNoConsole];
   //p.ShowWindow := swoHIDE;
@@ -182,7 +204,11 @@ begin
   p.CurrentDirectory:= copy(BaseApplication.Location,0,rpos(DirectorySeparator,BaseApplication.Location)-1);
   try
     try
-      p.Execute;
+      with BaseApplication as IBaseApplication do
+        Debug(FName+':starting...');
+      p.Active:=True;
+      with BaseApplication as IBaseApplication do
+        Debug(FName+':running...');
 
       { Now process the output }
       OutputLine:='';
@@ -201,7 +227,7 @@ begin
           if Buf[i] in [#10,#13] then
           begin
             OutputLine:=OutputLine+Copy(Buf,LineStart,i-LineStart);
-            Synchronize(@DoOutputLine);
+            DoOutputLine;
             OutputLine:='';
             if (i<Count) and (Buf[i+1] in [#10,#13]) and (Buf[i]<>Buf[i+1]) then
               inc(i);
@@ -212,17 +238,21 @@ begin
         OutputLine:=Copy(Buf,LineStart,Count-LineStart+1);
       until (Count=0) or Terminated;
       if OutputLine <> '' then
-        Synchronize(@DoOutputLine);
+        DoOutputLine;
       if not  Terminated then p.WaitOnExit;
       FStatus:='N';
-      Synchronize(@DoSetStatus);
     except
       FStatus:='E';
-      Synchronize(@DoSetStatus);
+      with BaseApplication as IBaseApplication do
+        Debug(FName+':Error');
     end;
   finally
     FreeAndNil(p);
   end;
+  if FStatus='R' then
+    FStatus:='N';
+  with BaseApplication as IBaseApplication do
+    Debug(FName+':Stopped');
   FActive:=False;
 end;
 
@@ -486,12 +516,13 @@ var
               if not bProcess.Informed then
                 begin
                   DoLog(aprocess+':'+strExitted,aLog,True);
-                  if Processes.DataSet.FieldByName('LOG').AsString<>aLog.Text then
-                    begin
-                      if not Processes.CanEdit then Processes.DataSet.Edit;
-                      Processes.DataSet.FieldByName('LOG').AsString:=aLog.Text;
-                      Processes.DataSet.Post;
-                    end;
+                  if not Processes.CanEdit then Processes.DataSet.Edit;
+                  Processes.DataSet.FieldByName('LOG').AsString:=aLog.Text;
+                  Processes.DataSet.FieldByName('STOPPED').AsDateTime:=Now();
+                  if bProcess.Status<>'R' then
+                    Processes.DataSet.FieldByName('STATUS').AsString := bProcess.Status
+                  else Processes.DataSet.FieldByName('STATUS').AsString := 'N';
+                  Processes.DataSet.Post;
                   bProcess.Informed := True;
                 end;
               if Assigned(Processes) then
@@ -502,6 +533,11 @@ var
                     DoLog(aProcess+':'+strStartingProcess+' ('+bProcess.CommandLine+')',aLog,True);
                     bProcess.Informed:=False;
                     bProcess.Start;
+                    if not Processes.CanEdit then Processes.DataSet.Edit;
+                    Processes.DataSet.FieldByName('STATUS').AsString := 'R';
+                    Processes.DataSet.FieldByName('STARTED').AsDateTime:=Now();
+                    Processes.DataSet.FieldByName('STOPPED').Clear;
+                    Processes.DataSet.Post;
                     bProcess.Informed := False;
                   end;
               Found := True;
@@ -524,6 +560,11 @@ var
             ProcessData[length(ProcessData)-1] := NewProcess;
             NewProcess.CommandLine:=cmd;
             NewProcess.Start;
+            if not Processes.CanEdit then Processes.DataSet.Edit;
+            Processes.DataSet.FieldByName('STATUS').AsString := 'R';
+            Processes.DataSet.FieldByName('STARTED').AsDateTime:=Now();
+            Processes.DataSet.FieldByName('STOPPED').Clear;
+            Processes.DataSet.Post;
           end;
       end;
   end;
