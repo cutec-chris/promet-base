@@ -118,7 +118,7 @@
         <UnitName Value="uscreenshotmain"/>
       </Item27>
     </Files>
-    <RequiredPkgs Count="5">
+    <RequiredPkgs Count="4">
       <Item1>
         <PackageName Value="pVisualPrometApp"/>
         <DefaultFilename Value="../pvisualprometapp.lpk"/>
@@ -131,11 +131,8 @@
         <PackageName Value="lr_DialogDesign"/>
       </Item3>
       <Item4>
-        <PackageName Value="LR_ZeosDB"/>
-      </Item4>
-      <Item5>
         <PackageName Value="lazreportpdfexport"/>
-      </Item5>
+      </Item4>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

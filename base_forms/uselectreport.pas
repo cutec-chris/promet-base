@@ -28,7 +28,7 @@ uses
   Classes, SysUtils,  Forms, Controls, Graphics, Dialogs, StdCtrls,
   Buttons, DBGrids, db, Printers, LR_Class, LR_Desgn, LR_View, Spin, LR_DBSet,
   Process, LR_Prntr, LR_ChBox, LR_Shape, LR_RRect, LR_BarC, LR_E_TXT, LR_E_HTM,
-  LR_E_CSV, lr_e_pdf, LR_DB_Zeos, LRDialogControls, Variants, UTF8process,
+  LR_E_CSV, lr_e_pdf, LRDialogControls, Variants, UTF8process,
   ExtCtrls, DbCtrls, LCLType, uExtControls, FileUtil, uBaseApplication, uOrder,
   lr_richview, lr_tachart, SynBeautifier, PrintersDlgs,uBaseERPDBClasses,uBaseDbClasses,
   Utils,uBaseDatasetInterfaces;
@@ -64,7 +64,6 @@ type
     gReports: TExtDBGrid;
     Label1: TLabel;
     LRDialogControls1: TLRDialogControls;
-    lrZeosData1: TlrZeosData;
     PrinterSetupDialog1: TPrinterSetupDialog;
     Reports: TDatasource;
     dnReport: TDBNavigator;
@@ -136,7 +135,7 @@ implementation
 uses
   uIntfStrConsts,uError,uData,
   uLogWait,uBaseDbInterface,uDocuments,uPerson,uSendMail,uEditText,umeeting,
-  ubaseconfig;
+  ubaseconfig,LCLVersion;
 
 resourcestring
   strDispatchTypenotfound       = 'Versandart nicht gefunden !';
@@ -547,8 +546,13 @@ begin
       if cbPrinter.Text = '<'+strFileExport+'>' then
         begin
           s := '';
+          {$IF ((LCL_MAJOR >= 1) and (LCL_MINOR >= 5) and (LCL_RELEASE >= 0))}
+          FOR i := 0 TO ExportFilters.Count - 1 DO
+            s := s + ExportFilters[i].FilterDesc + '|';
+          {$ELSE}
           FOR i := 0 TO frFiltersCount - 1 DO
             s := s + frFilters[i].FilterDesc + '|';
+          {$ENDIF}
           WITH SaveDialog DO
             BEGIN
               Filter := s;
@@ -558,7 +562,11 @@ begin
                   if isPrepared or Report.PrepareReport then
                     begin
                       isPrepared := True;
+                      {$IF ((LCL_MAJOR >= 1) and (LCL_MINOR >= 5) and (LCL_RELEASE >= 0))}
+                      Report.ExportTo(ExportFilters[FilterIndex - 1].ClassRef, UniToSys(ChangeFileExt(FileName, Copy(ExportFilters[FilterIndex - 1].FilterExt, 2, 255))));
+                      {$ELSE}
                       Report.ExportTo(frFilters[FilterIndex - 1].ClassRef, UniToSys(ChangeFileExt(FileName, Copy(frFilters[FilterIndex - 1].FilterExt, 2, 255))));
+                      {$ENDIF}
                       Res := True;
                     end
                   else fError.ShowWarning(strCantPrepareReport);
@@ -627,14 +635,23 @@ begin
             end;
           if Report.Title='' then
             Report.Title:='PrometERP-'+aName;
+          {$IF ((LCL_MAJOR >= 1) and (LCL_MINOR >= 5) and (LCL_RELEASE >= 0))}
+          FOR i := 0 TO ExportFilters.Count - 1 DO
+             if pos('PDF',Uppercase(ExportFilters[i].FilterDesc)) > 0 then
+          {$ELSE}
           FOR i := 0 TO frFiltersCount - 1 DO
-            if pos('PDF',Uppercase(frFilters[i].FilterDesc)) > 0 then
+             if pos('PDF',Uppercase(frFilters[i].FilterDesc)) > 0 then
+          {$ENDIF}
               if isPrepared or Report.PrepareReport then
                 begin
                   isPrepared := True;
                   with BaseApplication as IBaseApplication do
                     aFile := GetInternalTempDir+ValidateFileName(Report.Title)+'.pdf';
+                  {$IF ((LCL_MAJOR >= 1) and (LCL_MINOR >= 5) and (LCL_RELEASE >= 0))}
+                  Report.ExportTo(ExportFilters[i].ClassRef,aFile);
+                  {$ELSE}
                   Report.ExportTo(frFilters[i].ClassRef,aFile);
+                  {$ENDIF}
                   DoSendMail(Report.Title,Data.Reports.FieldByName('TEXT').AsString, aFile,'','','',eMail);
                   res := True;
                 end
