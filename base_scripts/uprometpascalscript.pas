@@ -32,8 +32,8 @@ type
   { TPrometPascalScript }
 
   TPrometPascalScript = class(TBaseScript)
-    function TPascalScriptUses(Sender: TPascalScript; const aName: tbtString
-      ): Boolean;
+    function TPascalScriptUses(Sender: TPascalScript; const aName: tbtString;
+      OnlyAdditional : Boolean): Boolean;
     procedure DataSetAfterOpen(aDataSet: TDataSet);
     procedure DataSetAfterScroll(ADataSet: TDataSet);
   private
@@ -111,11 +111,13 @@ procedure TBaseDbListPropertyDependenciesR(Self : TTaskList;var T : TDependencie
 
 
 function TPrometPascalScript.TPascalScriptUses(Sender: TPascalScript;
-  const aName: tbtString): Boolean;
+  const aName: tbtString; OnlyAdditional: Boolean): Boolean;
 var
   aScript: TPrometPascalScript;
 begin
   Result:=False;
+  with BaseApplication as IBaseApplication do
+    Debug('Uses start:'+aName);
   if aName = 'SYSTEM' then
     begin
       Result := True;
@@ -575,10 +577,13 @@ begin
         Result := False; // will halt compilation
       end;
     end
-  else
+  else if not OnlyAdditional then
     begin
       try
         try
+          Result:=False;
+          with BaseApplication as IBaseApplication do
+            Debug('Uses get Unit from Database:'+aName);
           aScript := TPrometPascalScript.CreateEx(nil,DataModule);
           aScript.Filter(Data.ProcessTerm('UPPER('+Data.QuoteField('NAME')+')=UPPER('+Data.QuoteValue(aName)+')'));
           if aScript.Count>0 then
@@ -591,6 +596,13 @@ begin
         aScript.Free;
       end;
     end;
+    with BaseApplication as IBaseApplication do
+      begin
+        if Result then
+          Debug('Uses end:'+aName+' successfully')
+        else
+          Debug('Uses end:'+aName+' failed');
+      end;
 end;
 
 procedure TPrometPascalScript.DataSetAfterOpen(aDataSet: TDataSet);

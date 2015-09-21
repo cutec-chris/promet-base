@@ -253,9 +253,10 @@ resourcestring
   strScriptRunning       = 'Das Script wurde gestartet';
 function OnUses(Sender: TPSPascalCompiler; const Name: tbtString): Boolean;
 begin
+  Result := False;
   if Assigned(fScriptEditor) and Assigned(Data) then
-    TPascalScript(TPrometPascalScript(fScriptEditor.FDataSet).Script).InternalUses(Sender,Name)
-  else if Assigned(flastScriptEditor) and Assigned(Data) then
+    Result := TPascalScript(TPrometPascalScript(fScriptEditor.FDataSet).Script).InternalUses(Sender,Name);
+  if not Result and (Assigned(flastScriptEditor) and Assigned(Data)) then
     TPascalScript(TPrometPascalScript(fLastScriptEditor.FDataSet).Script).InternalUses(Sender,Name)
 end;
 
