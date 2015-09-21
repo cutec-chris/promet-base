@@ -6,7 +6,7 @@
     <CompilerOptions>
       <Version Value="11"/>
       <SearchPaths>
-        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
+        <UnitOutputDirectory Value="lib/lowlevel/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
     </CompilerOptions>
     <Files Count="6">
