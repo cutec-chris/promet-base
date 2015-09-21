@@ -546,7 +546,7 @@ begin
       if cbPrinter.Text = '<'+strFileExport+'>' then
         begin
           s := '';
-          {$IF ((LCL_MAJOR >= 1) and (LCL_MINOR >= 5) and (LCL_RELEASE >= 0))}
+          {$IF ((LCL_MAJOR >= 1) and (LCL_MINOR >= 5) and (LCL_RELEASE > 0))}
           FOR i := 0 TO ExportFilters.Count - 1 DO
             s := s + ExportFilters[i].FilterDesc + '|';
           {$ELSE}
@@ -562,7 +562,7 @@ begin
                   if isPrepared or Report.PrepareReport then
                     begin
                       isPrepared := True;
-                      {$IF ((LCL_MAJOR >= 1) and (LCL_MINOR >= 5) and (LCL_RELEASE >= 0))}
+                      {$IF ((LCL_MAJOR >= 1) and (LCL_MINOR >= 5) and (LCL_RELEASE > 0))}
                       Report.ExportTo(ExportFilters[FilterIndex - 1].ClassRef, UniToSys(ChangeFileExt(FileName, Copy(ExportFilters[FilterIndex - 1].FilterExt, 2, 255))));
                       {$ELSE}
                       Report.ExportTo(frFilters[FilterIndex - 1].ClassRef, UniToSys(ChangeFileExt(FileName, Copy(frFilters[FilterIndex - 1].FilterExt, 2, 255))));
@@ -635,7 +635,7 @@ begin
             end;
           if Report.Title='' then
             Report.Title:='PrometERP-'+aName;
-          {$IF ((LCL_MAJOR >= 1) and (LCL_MINOR >= 5) and (LCL_RELEASE >= 0))}
+          {$IF ((LCL_MAJOR >= 1) and (LCL_MINOR >= 5) and (LCL_RELEASE > 0))}
           FOR i := 0 TO ExportFilters.Count - 1 DO
              if pos('PDF',Uppercase(ExportFilters[i].FilterDesc)) > 0 then
           {$ELSE}
@@ -647,7 +647,7 @@ begin
                   isPrepared := True;
                   with BaseApplication as IBaseApplication do
                     aFile := GetInternalTempDir+ValidateFileName(Report.Title)+'.pdf';
-                  {$IF ((LCL_MAJOR >= 1) and (LCL_MINOR >= 5) and (LCL_RELEASE >= 0))}
+                  {$IF ((LCL_MAJOR >= 1) and (LCL_MINOR >= 5) and (LCL_RELEASE > 0))}
                   Report.ExportTo(ExportFilters[i].ClassRef,aFile);
                   {$ELSE}
                   Report.ExportTo(frFilters[i].ClassRef,aFile);

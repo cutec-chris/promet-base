@@ -526,7 +526,7 @@ var
                   bProcess.Informed := True;
                 end;
               if Assigned(Processes) then
-                if (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay))) or DoAlwasyRun then
+                if ((Processes.FieldByName('STATUS').AsString<>'R') and (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay)))) or DoAlwasyRun then
                   begin
                     aLog.Clear;
                     DoLog(aprocess+':'+strStartingProcessTimeout+' '+DateTimeToStr((Processes.FieldByName('STOPPED').AsDateTime+(max(Processes.FieldByName('INTERVAL').AsInteger,2)/MinsPerDay)))+'>'+DateTimeToStr(aNow),aLog,BaseApplication.HasOption('debug'));
@@ -545,7 +545,7 @@ var
         end;
     if not Found then
       begin
-        if (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay))) or DoAlwasyRun then
+        if ((Processes.FieldByName('STATUS').AsString<>'R') and (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay)))) or DoAlwasyRun then
           begin
             aStartTime := Now();
             aLog.Clear;
