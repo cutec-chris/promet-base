@@ -95,7 +95,7 @@ type
     procedure RefreshList;
     procedure Startup;
     procedure ShutDown;
-    function ProcessAll : Boolean;
+    function ProcessAll(Systemname: string=''): Boolean;
     function Process(OnlyActiveRow : Boolean = False;DoAlwasyRun : Boolean = False) : Boolean;
   end;
 
@@ -180,6 +180,7 @@ end;
 
 procedure TProcProcess.Stop;
 begin
+  FActive:=False;
   p.Terminate(255);
 end;
 
@@ -196,64 +197,69 @@ var
 const
   BufSize = 1024; //4096;
 begin
-  p := TProcess.Create(nil);
-  p.Options := [poUsePipes, poStdErrToOutPut, poNoConsole];
-  //p.ShowWindow := swoHIDE;
-//  AddMessage('Compile command: ' + c);
-  p.CommandLine := FCommandline;
-  p.CurrentDirectory:= copy(BaseApplication.Location,0,rpos(DirectorySeparator,BaseApplication.Location)-1);
-  try
-    try
-      with BaseApplication as IBaseApplication do
-        Debug(FName+':starting...');
-      p.Active:=True;
-      with BaseApplication as IBaseApplication do
-        Debug(FName+':running...');
+  while not Terminated do
+    begin
+      p := TProcess.Create(nil);
+      p.Options := [poUsePipes, poStdErrToOutPut, poNoConsole];
+      //p.ShowWindow := swoHIDE;
+    //  AddMessage('Compile command: ' + c);
+      p.CommandLine := FCommandline;
+      p.CurrentDirectory:= copy(BaseApplication.Location,0,rpos(DirectorySeparator,BaseApplication.Location)-1);
+      try
+        try
+          with BaseApplication as IBaseApplication do
+            Debug(FName+':starting...');
+          p.Active:=True;
+          with BaseApplication as IBaseApplication do
+            Debug(FName+':running...');
 
-      { Now process the output }
-      OutputLine:='';
-      SetLength(Buf,BufSize);
-      repeat
-        if (p.Output<>nil) then
-        begin
-          Count:=p.Output.Read(Buf[1],Length(Buf));
-        end
-        else
-          Count:=0;
-        LineStart:=1;
-        i:=1;
-        while i<=Count do
-        begin
-          if Buf[i] in [#10,#13] then
-          begin
-            OutputLine:=OutputLine+Copy(Buf,LineStart,i-LineStart);
-            DoOutputLine;
-            OutputLine:='';
-            if (i<Count) and (Buf[i+1] in [#10,#13]) and (Buf[i]<>Buf[i+1]) then
+          { Now process the output }
+          OutputLine:='';
+          SetLength(Buf,BufSize);
+          repeat
+            if (p.Output<>nil) then
+            begin
+              Count:=p.Output.Read(Buf[1],Length(Buf));
+            end
+            else
+              Count:=0;
+            LineStart:=1;
+            i:=1;
+            while i<=Count do
+            begin
+              if Buf[i] in [#10,#13] then
+              begin
+                OutputLine:=OutputLine+Copy(Buf,LineStart,i-LineStart);
+                DoOutputLine;
+                OutputLine:='';
+                if (i<Count) and (Buf[i+1] in [#10,#13]) and (Buf[i]<>Buf[i+1]) then
+                  inc(i);
+                LineStart:=i+1;
+              end;
               inc(i);
-            LineStart:=i+1;
-          end;
-          inc(i);
+            end;
+            OutputLine:=Copy(Buf,LineStart,Count-LineStart+1);
+          until (Count=0) or Terminated;
+          if OutputLine <> '' then
+            DoOutputLine;
+          if not  Terminated then p.WaitOnExit;
+          FStatus:='N';
+          FActive:=False;
+        except
+          FStatus:='E';
+          with BaseApplication as IBaseApplication do
+            Debug(FName+':Error');
+          FActive:=False;
         end;
-        OutputLine:=Copy(Buf,LineStart,Count-LineStart+1);
-      until (Count=0) or Terminated;
-      if OutputLine <> '' then
-        DoOutputLine;
-      if not  Terminated then p.WaitOnExit;
-      FStatus:='N';
-    except
-      FStatus:='E';
+      finally
+        FreeAndNil(p);
+      end;
+      if FStatus='R' then
+        FStatus:='N';
       with BaseApplication as IBaseApplication do
-        Debug(FName+':Error');
+        Debug(FName+':Stopped');
+      Suspend;
     end;
-  finally
-    FreeAndNil(p);
-  end;
-  if FStatus='R' then
-    FStatus:='N';
-  with BaseApplication as IBaseApplication do
-    Debug(FName+':Stopped');
-  FActive:=False;
 end;
 
 procedure TProcessParameters.DefineFields(aDataSet: TDataSet);
@@ -405,9 +411,10 @@ begin
   end;
 end;
 
-function TProcessClient.ProcessAll: Boolean;
+function TProcessClient.ProcessAll(Systemname : string = ''): Boolean;
 begin
   Result := True;
+  if Systemname='' then Systemname:=GetSystemName;
   Open;
   if not Active then exit;
   if Locate('NAME','*',[]) then
@@ -421,7 +428,7 @@ begin
       Post;
       Process
     end;
-  if DataSet.Locate('NAME',GetSystemName,[]) then
+  if DataSet.Locate('NAME',Systemname,[]) then
     begin
       if FieldByName('STATUS').AsString = '' then
         begin
@@ -526,18 +533,18 @@ var
                   bProcess.Informed := True;
                 end;
               if Assigned(Processes) then
-                if ((Processes.FieldByName('STATUS').AsString<>'R') and (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay)))) or DoAlwasyRun then
+                if ((aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay)))) or DoAlwasyRun then
                   begin
                     aLog.Clear;
                     DoLog(aprocess+':'+strStartingProcessTimeout+' '+DateTimeToStr((Processes.FieldByName('STOPPED').AsDateTime+(max(Processes.FieldByName('INTERVAL').AsInteger,2)/MinsPerDay)))+'>'+DateTimeToStr(aNow),aLog,BaseApplication.HasOption('debug'));
                     DoLog(aProcess+':'+strStartingProcess+' ('+bProcess.CommandLine+')',aLog,True);
                     bProcess.Informed:=False;
-                    bProcess.Start;
                     if not Processes.CanEdit then Processes.DataSet.Edit;
                     Processes.DataSet.FieldByName('STATUS').AsString := 'R';
                     Processes.DataSet.FieldByName('STARTED').AsDateTime:=Now();
                     Processes.DataSet.FieldByName('STOPPED').Clear;
                     Processes.DataSet.Post;
+                    bProcess.Start;
                     bProcess.Informed := False;
                   end;
               Found := True;
@@ -545,7 +552,7 @@ var
         end;
     if not Found then
       begin
-        if ((Processes.FieldByName('STATUS').AsString<>'R') and (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay)))) or DoAlwasyRun then
+        if (((Processes.FieldByName('STATUS').AsString<>'R') or (Processes.DataSet.FieldByName('STARTED').AsDateTime<(Now()-(1/HoursPerDay)))) and (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay)))) or DoAlwasyRun then
           begin
             aStartTime := Now();
             aLog.Clear;
