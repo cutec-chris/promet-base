@@ -436,6 +436,7 @@ begin
       DataSet.Assign(aMasterdata);
       if (GetPostyp <> -1) and Assigned(InplaceFrames[GetPosTyp]) then
         begin
+          TUnprotectedFrame(InplaceFrames[GetPosTyp]).DoEnter;
           InplaceFrames[GetPosTyp].SetArticle(aMasterdata);
         end;
       if DataSet.CanEdit then DataSet.Post;
