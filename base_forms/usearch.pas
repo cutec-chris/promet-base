@@ -842,6 +842,7 @@ var
   tmp: String;
 begin
   SetLanguage;
+  Self := fSearch;
   i := 0;
   while i < fSearch.cbSearchType.Items.Count do
     begin
