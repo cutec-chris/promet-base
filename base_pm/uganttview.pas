@@ -427,6 +427,7 @@ var
   oD2: TDateTime;
   Found: Boolean;
 begin
+  TInterval(Sender).BeginUpdate;
   with TInterval(Sender) do
     begin
       if TInterval(Sender).Fixed then exit;
@@ -434,7 +435,7 @@ begin
       bSave.Enabled:=True;
       bCSave.Enabled:=True;
       bCancel.Enabled:=true;
-      debugln('IntervalChanged('+TInterval(Sender).Task+')');
+      //debugln('IntervalChanged('+TInterval(Sender).Task+')');
       if TInterval(Sender).StartDate<TInterval(Sender).Earliest then
         TInterval(Sender).StartDate:=TInterval(Sender).Earliest;
       //Move Forward
@@ -572,7 +573,7 @@ var
   oD2: TDateTime;
   aBuffer: TDateTime;
 begin
-  debugln('IntervalMove('+TInterval(Sender).Task+')');
+  //debugln('IntervalMove('+TInterval(Sender).Task+')');
   with TInterval(Sender) do
     begin
       BeginUpdate;
