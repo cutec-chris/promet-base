@@ -218,11 +218,11 @@ object fSelectReport: TfSelectReport
   end
   object cbPrinter: TComboBox
     Left = 8
-    Height = 29
+    Height = 21
     Hint = 'wählen Sie hier den Drucker auf dem der Beleg gedruckt werden soll'#13#10'Die Einstellung wird abhängig vom Report gespeichert'
     Top = 152
     Width = 196
-    ItemHeight = 0
+    ItemHeight = 13
     OnSelect = cbPrinterSelect
     ParentShowHint = False
     ShowHint = True
@@ -231,7 +231,7 @@ object fSelectReport: TfSelectReport
   end
   object ePages: TEdit
     Left = 9
-    Height = 25
+    Height = 21
     Hint = 'hier können Sie festlegen, welche Seiten gedruckt werden sollen,'#13#10'dies kann im Format 1-8 oder 1,2,5 erfolgen.'
     Top = 203
     Width = 175
@@ -239,7 +239,7 @@ object fSelectReport: TfSelectReport
   end
   object eCopies: TSpinEdit
     Left = 195
-    Height = 25
+    Height = 21
     Hint = 'Stellen Sie hier ein, wie viele Kopien des Reports gedruckt werden sollen'#13#10'Die Einstellung wird abhängig vom Report gespeichert'
     Top = 204
     Width = 51
@@ -249,12 +249,12 @@ object fSelectReport: TfSelectReport
   end
   object cbInfo: TComboBox
     Left = 8
-    Height = 29
+    Height = 21
     Hint = 'Wählen Sie hier eine zusätzliche Ausgabe aus, '#13#10'so können Sie z.b. e-Mail Benachrichtigungen für bestimmte Belege erzeugen.'#13#10'Die Einstellung wird abhängig vom Beleg gespeichert'
     Top = 248
     Width = 238
     Anchors = [akTop, akLeft, akRight]
-    ItemHeight = 0
+    ItemHeight = 13
     Style = csDropDownList
     TabOrder = 6
   end
@@ -494,9 +494,9 @@ object fSelectReport: TfSelectReport
   end
   object Label1: TLabel
     Left = 8
-    Height = 15
+    Height = 13
     Top = 8
-    Width = 91
+    Width = 74
     Caption = 'Beleg wählen'
     Font.Style = [fsBold]
     ParentColor = False
@@ -507,7 +507,7 @@ object fSelectReport: TfSelectReport
     left = 64
     top = 56
   end
-  object Reports: TDatasource
+  object Reports: TDataSource
     left = 32
     top = 144
   end
@@ -539,10 +539,6 @@ object fSelectReport: TfSelectReport
     left = 393
     top = 128
   end
-  object lrZeosData1: TlrZeosData
-    left = 32
-    top = 264
-  end
   object frTextExport1: TfrTextExport
     ShowExportParamsDlg = False
     left = 72
@@ -560,8 +556,8 @@ object fSelectReport: TfSelectReport
     left = 112
     top = 224
   end
-  object LRDialogControls1: TLRDialogControls
-    left = 72
-    top = 304
+  object lrZeosData1: TlrZeosData
+    left = 122
+    top = 280
   end
 end
