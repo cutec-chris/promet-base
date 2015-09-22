@@ -95,7 +95,7 @@ type
     procedure RefreshList;
     procedure Startup;
     procedure ShutDown;
-    function ProcessAll(Systemname: string=''): Boolean;
+    function ProcessAll : Boolean;
     function Process(OnlyActiveRow : Boolean = False;DoAlwasyRun : Boolean = False) : Boolean;
   end;
 
@@ -180,7 +180,6 @@ end;
 
 procedure TProcProcess.Stop;
 begin
-  FActive:=False;
   p.Terminate(255);
 end;
 
@@ -244,15 +243,14 @@ begin
             DoOutputLine;
           if not  Terminated then p.WaitOnExit;
           FStatus:='N';
-          FActive:=False;
         except
           FStatus:='E';
           with BaseApplication as IBaseApplication do
             Debug(FName+':Error');
-          FActive:=False;
         end;
       finally
         FreeAndNil(p);
+        FActive:=False;
       end;
       if FStatus='R' then
         FStatus:='N';
@@ -411,10 +409,9 @@ begin
   end;
 end;
 
-function TProcessClient.ProcessAll(Systemname : string = ''): Boolean;
+function TProcessClient.ProcessAll: Boolean;
 begin
   Result := True;
-  if Systemname='' then Systemname:=GetSystemName;
   Open;
   if not Active then exit;
   if Locate('NAME','*',[]) then
@@ -428,7 +425,7 @@ begin
       Post;
       Process
     end;
-  if DataSet.Locate('NAME',Systemname,[]) then
+  if DataSet.Locate('NAME',GetSystemName,[]) then
     begin
       if FieldByName('STATUS').AsString = '' then
         begin
@@ -509,6 +506,10 @@ var
                   DoLog(aprocess+':'+bProcess.Output[0],aLog,BaseApplication.HasOption('debug'));
                   bProcess.Output.Delete(0);
                 end;
+              if not Processes.CanEdit then Processes.DataSet.Edit;
+              Processes.DataSet.FieldByName('STATUS').AsString := 'R';
+              Processes.DataSet.FieldByName('STOPPED').Clear;
+              Processes.DataSet.Post;
             end
           else
             begin
@@ -533,18 +534,18 @@ var
                   bProcess.Informed := True;
                 end;
               if Assigned(Processes) then
-                if ((aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay)))) or DoAlwasyRun then
+                if ((Processes.FieldByName('STATUS').AsString<>'R') and (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay)))) or DoAlwasyRun then
                   begin
                     aLog.Clear;
                     DoLog(aprocess+':'+strStartingProcessTimeout+' '+DateTimeToStr((Processes.FieldByName('STOPPED').AsDateTime+(max(Processes.FieldByName('INTERVAL').AsInteger,2)/MinsPerDay)))+'>'+DateTimeToStr(aNow),aLog,BaseApplication.HasOption('debug'));
                     DoLog(aProcess+':'+strStartingProcess+' ('+bProcess.CommandLine+')',aLog,True);
                     bProcess.Informed:=False;
+                    bProcess.Start;
                     if not Processes.CanEdit then Processes.DataSet.Edit;
                     Processes.DataSet.FieldByName('STATUS').AsString := 'R';
                     Processes.DataSet.FieldByName('STARTED').AsDateTime:=Now();
                     Processes.DataSet.FieldByName('STOPPED').Clear;
                     Processes.DataSet.Post;
-                    bProcess.Start;
                     bProcess.Informed := False;
                   end;
               Found := True;
@@ -552,7 +553,7 @@ var
         end;
     if not Found then
       begin
-        if (((Processes.FieldByName('STATUS').AsString<>'R') or (Processes.DataSet.FieldByName('STARTED').AsDateTime<(Now()-(1/HoursPerDay)))) and (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay)))) or DoAlwasyRun then
+        if (((Processes.FieldByName('STATUS').AsString<>'R') or (Processes.TimeStamp.AsDateTime<(aNow-(1)))) and (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay)))) or DoAlwasyRun then
           begin
             aStartTime := Now();
             aLog.Clear;

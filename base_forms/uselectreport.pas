@@ -28,7 +28,7 @@ uses
   Classes, SysUtils,  Forms, Controls, Graphics, Dialogs, StdCtrls,
   Buttons, DBGrids, db, Printers, LR_Class, LR_Desgn, LR_View, Spin, LR_DBSet,
   Process, LR_Prntr, LR_ChBox, LR_Shape, LR_RRect, LR_BarC, LR_E_TXT, LR_E_HTM,
-  LR_E_CSV, lr_e_pdf, LRDialogControls, Variants, UTF8process,
+  LR_E_CSV, lr_e_pdf, LRDialogControls, LR_DB_Zeos, Variants, UTF8process,
   ExtCtrls, DbCtrls, LCLType, uExtControls, FileUtil, uBaseApplication, uOrder,
   lr_richview, lr_tachart, SynBeautifier, PrintersDlgs,uBaseERPDBClasses,uBaseDbClasses,
   Utils,uBaseDatasetInterfaces;
@@ -64,6 +64,7 @@ type
     gReports: TExtDBGrid;
     Label1: TLabel;
     LRDialogControls1: TLRDialogControls;
+    lrZeosData1: TlrZeosData;
     PrinterSetupDialog1: TPrinterSetupDialog;
     Reports: TDatasource;
     dnReport: TDBNavigator;
