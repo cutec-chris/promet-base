@@ -95,7 +95,7 @@ type
     procedure RefreshList;
     procedure Startup;
     procedure ShutDown;
-    function ProcessAll : Boolean;
+    function ProcessAll(aSystem : string = '') : Boolean;
     function Process(OnlyActiveRow : Boolean = False;DoAlwasyRun : Boolean = False) : Boolean;
   end;
 
@@ -409,9 +409,11 @@ begin
   end;
 end;
 
-function TProcessClient.ProcessAll: Boolean;
+function TProcessClient.ProcessAll(aSystem: string): Boolean;
 begin
   Result := True;
+  if aSystem='' then
+    aSystem:=GetSystemName;
   Open;
   if not Active then exit;
   if Locate('NAME','*',[]) then
@@ -425,7 +427,7 @@ begin
       Post;
       Process
     end;
-  if DataSet.Locate('NAME',GetSystemName,[]) then
+  if DataSet.Locate('NAME',aSystem,[]) then
     begin
       if FieldByName('STATUS').AsString = '' then
         begin
