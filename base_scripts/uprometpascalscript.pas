@@ -596,13 +596,17 @@ begin
         aScript.Free;
       end;
     end;
-    with BaseApplication as IBaseApplication do
-      begin
-        if Result then
-          Debug('Uses end:'+aName+' successfully')
-        else
-          Debug('Uses end:'+aName+' failed');
-      end;
+  if not OnlyAdditional then
+    begin
+      with BaseApplication as IBaseApplication do
+        begin
+          if Result then
+            Debug('Uses end:'+aName+' successfully')
+          else
+            Debug('Uses end:'+aName+' failed');
+        end;
+    end
+  else Result:=True;
 end;
 
 procedure TPrometPascalScript.DataSetAfterOpen(aDataSet: TDataSet);

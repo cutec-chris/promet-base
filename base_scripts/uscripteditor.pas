@@ -257,7 +257,7 @@ begin
   if Assigned(fScriptEditor) and Assigned(Data) then
     Result := TPascalScript(TPrometPascalScript(fScriptEditor.FDataSet).Script).InternalUses(Sender,Name);
   if not Result and (Assigned(flastScriptEditor) and Assigned(Data)) then
-    TPascalScript(TPrometPascalScript(fLastScriptEditor.FDataSet).Script).InternalUses(Sender,Name)
+    Result := TPascalScript(TPrometPascalScript(fLastScriptEditor.FDataSet).Script).InternalUses(Sender,Name)
 end;
 
 procedure DoSleep(aTime: LongInt); StdCall;
