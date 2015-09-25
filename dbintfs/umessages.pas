@@ -27,10 +27,14 @@ type
   { TMessageList }
 
   TMessageList = class(TBaseDBList)
+    procedure FDSDataChange(Sender: TObject; Field: TField);
   private
+    FDS: TDataSource;
     function GetMsgID: TField;
     function GetSubject: TField;
   public
+    constructor CreateEx(aOwner: TComponent; DM: TComponent=nil; aConnection: TComponent=
+      nil; aMasterdata: TDataSet=nil); override;
     procedure DefineFields(aDataSet : TDataSet);override;
     procedure SelectByID(aID : string);overload; //Select by ID
     procedure SelectByDir(aDir : Variant);
@@ -332,6 +336,20 @@ begin
   Result := Content.ToString;
 end;
 
+procedure TMessageList.FDSDataChange(Sender: TObject; Field: TField);
+begin
+  if not Assigned(Field) then exit;
+  if DataSet.ControlsDisabled then exit;
+  if (Dataset.State <> dsInsert)
+  then
+    begin
+      if (Field.FieldName = 'TREEENTRY') then
+        begin
+          FieldByName('GRP_ID').Clear;
+        end;
+    end;
+end;
+
 function TMessageList.GetMsgID: TField;
 begin
   result := FieldByName('MSG_ID');
@@ -340,6 +358,15 @@ end;
 function TMessageList.GetSubject: TField;
 begin
   result := FieldByName('SUBJECT');
+end;
+
+constructor TMessageList.CreateEx(aOwner: TComponent; DM: TComponent;
+  aConnection: TComponent; aMasterdata: TDataSet);
+begin
+  inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
+  FDS := TDataSource.Create(nil);
+  FDS.DataSet := DataSet;
+  FDS.OnDataChange:=@FDSDataChange;
 end;
 
 procedure TMessageList.DefineFields(aDataSet: TDataSet);
