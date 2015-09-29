@@ -821,7 +821,7 @@ end;
 function TfPosition.GetPosTyp: Integer;
 begin
   Result := -1;
-  if DataSet is TOrderPos then
+  if DataSet is TBaseDBPosition then
     if TBaseDBPosition(DataSet).PosTyp.FieldByName('NAME').AsString = DataSet.FieldByName('POSTYP').AsString then
       Result := StrToIntDef(StringReplace(Trim(TBaseDBPosition(DataSet).PosTyp.FieldByName('TYPE').AsString),#13,'',[rfReplaceAll]),-1)
 end;

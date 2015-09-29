@@ -1,5 +1,6 @@
 ﻿Build 417
       - Aufgabeneditor:Berechnung der erfassten zeit auf Aufgaben korrigiert
+      - Artikelstückliste:Inplace Editoren werden angezeigt
 Build 416
       - Projekte:Gantt Berechnung um kleinere Berechnungsfehler erleichtert
       - Feedreceiver:zu lange Feedtitel werden automatisch gekürzt
