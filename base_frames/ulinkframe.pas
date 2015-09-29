@@ -315,6 +315,7 @@ var
   aLinks: TLinks;
   aDS: TBaseDbList;
   DeleteBack : Boolean = False;
+  aRec: TBookmark;
   procedure DeleteBackLink;
   begin
     with FContList do
@@ -367,7 +368,11 @@ begin
           with Application as IBaseDbInterface do
             begin
               DeleteBackLink;
-              gList.DataSource.DataSet.Delete;
+              aRec := gList.DataSource.DataSet.GetBookmark;
+              gList.DataSource.DataSet.Refresh;
+              gList.DataSource.DataSet.GotoBookmark(arec);
+              if gList.DataSource.DataSet.RecordCount>0 then
+                gList.DataSource.DataSet.Delete;
             end;
       end;
 end;
@@ -618,6 +623,18 @@ begin
   while pos(';',aLinks) > 0 do
     begin
       aLink := copy(aLinks,0,pos(';',aLinks)-1);
+      if Data.ListDataSetFromLink(aLink,aClass) then
+        begin
+          aDS := aClass.Create(nil);
+        end;
+      if Assigned(aDS) then
+        begin
+          tBaseDbList(aDS).SelectFromLink(aLink);
+          aDS.Open;
+          if aDS.Count>0 then
+            aLink := Data.BuildLink(aDS.DataSet);
+          FreeAndNil(aDS);
+        end;
       aLinks := copy(aLinks,pos(';',aLinks)+1,length(aLinks));
       aLinkDesc := Data.GetLinkDesc(aLink);
       aIcon := Data.GetLinkIcon(aLink,True);

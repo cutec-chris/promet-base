@@ -824,15 +824,47 @@ end;
 function TfSearch.GetLink(Multi: Boolean): string;
 var
   i: LongInt;
+  aClass: TBaseDBDatasetClass;
+  aDS: TBaseDBDataset;
+  tmp: String;
 begin
   Result := '';
   if Multi then
     begin
       for i := sgResults.Selection.Top to sgResults.Selection.Bottom do
-        Result := Result+sgResults.Cells[4,i]+';'
+        begin
+          tmp := sgResults.Cells[4,i];
+          if Data.ListDataSetFromLink(tmp,aClass) then
+            begin
+              aDS := aClass.Create(nil);
+            end;
+          if Assigned(aDS) then
+            begin
+              tBaseDbList(aDS).SelectFromLink(tmp);
+              aDS.Open;
+              if aDS.Count>0 then
+                tmp := Data.BuildLink(aDS.DataSet);
+              FreeAndNil(aDS);
+            end;
+          Result := Result+tmp+';'
+        end;
     end
   else if (sgResults.RowCount > 0) and (sgResults.Row > -1) then
-    Result := sgResults.Cells[4,sgResults.Row];
+    begin
+      Result := sgResults.Cells[4,sgResults.Row];
+      if Data.ListDataSetFromLink(Result,aClass) then
+        begin
+          aDS := aClass.Create(nil);
+        end;
+      if Assigned(aDS) then
+        begin
+          tBaseDbList(aDS).SelectFromLink(Result);
+          aDS.Open;
+          if aDS.Count>0 then
+            Result := Data.BuildLink(aDS.DataSet);
+          FreeAndNil(aDS);
+        end;
+    end;
 end;
 
 procedure TfSearch.AllowSearchTypes(aTypes: string);
