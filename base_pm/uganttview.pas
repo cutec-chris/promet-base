@@ -1071,6 +1071,7 @@ var
   TP : TfTaskPlan;
   aLink: String;
   aInt: TInterval;
+  i: Integer;
 begin
   Screen.Cursor:=crHourGlass;
   debugln('======Calculate from Here=====');
@@ -1080,7 +1081,12 @@ begin
       aInt := TP.GetTaskIntervalFromCoordinates(FGantt,aClickPoint.X,aClickPoint.Y,aSelInterval);
       if Assigned(aInt) then
         begin
-          MoveForward(aInt,true);
+          for i := aInt.ConnectionCount-1 downto 0 do
+            begin
+              if aInt.Connection[i].StartDate<aInt.FinishDate then
+                aInt.Connection[i].StartDate:=aInt.FinishDate;
+              MoveForward(aInt.Connection[i],true);
+            end;
         end;
     end;
   Screen.Cursor:=crDefault;
@@ -1165,6 +1171,7 @@ var
   TP : TfTaskPlan;
   aLink: String;
   aInt: TInterval;
+  i: Integer;
 begin
   debugln('======Move Together from Here=====');
   Screen.Cursor:=crHourGlass;
@@ -1174,8 +1181,13 @@ begin
       aInt := TP.GetTaskIntervalFromCoordinates(FGantt,aClickPoint.X,aClickPoint.Y,aSelInterval);
       if Assigned(aInt) then
         begin
-          MoveTogether(aInt,aInt.StartDate,True);
-          MoveForward(aInt,True);
+          for i := aInt.ConnectionCount-1 downto 0 do
+            begin
+              MoveTogether(aInt.Connection[i],aInt.StartDate,True);
+              if aInt.Connection[i].StartDate<aInt.FinishDate then
+                aInt.Connection[i].StartDate:=aInt.FinishDate;
+              MoveForward(aInt.Connection[i],true);
+            end;
         end;
     end;
   Screen.Cursor:=crDefault;
