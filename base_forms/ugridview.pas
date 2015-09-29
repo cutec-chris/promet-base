@@ -1538,6 +1538,18 @@ begin
           Key := 0;
         end;
     end
+  else if (Key in [VK_V]) and (ssCtrl in Shift) then
+    begin
+      if not gList.EditorMode then
+        begin
+          gList.EditorMode:=True;
+        end;
+    end
+  else if (Key in [VK_C]) and (ssCtrl in Shift) then
+    begin
+      Clipboard.AsText:=gList.Cells[gList.Col,glist.Row];
+      Key := 0;
+    end
   {$IFDEF WINDOWS}
   else if Key in [VK_A..VK_Z,VK_0..VK_9] then
     begin
