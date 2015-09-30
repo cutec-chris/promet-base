@@ -112,6 +112,7 @@ type
     procedure acViewDetailsExecute(Sender: TObject);
     procedure acViewTextsExecute(Sender: TObject);
     procedure AddCalcTab(Sender: TObject);
+    procedure AddAutomationTab(Sender: TObject);
     function fSearchOpenProjectItem(aLink: string): Boolean;
     procedure PositionDataChange(Sender: TObject; Field: TField);
     procedure PositionStateChange(Sender: TObject);
@@ -172,7 +173,8 @@ type
   end;
 implementation
 uses uRowEditor, uSearch, uBaseDbInterface, uOrder, uDocumentFrame, uDocuments,
-  uData,uMasterdata,uBaseVisualApplication,uMainTreeFrame,ucalcframe,uProjects;
+  uData,uMasterdata,uBaseVisualApplication,uMainTreeFrame,ucalcframe,uProjects,
+  uautomationframe;
 {$R *.lfm}
 procedure TfPosition.FDataSourceStateChange(Sender: TObject);
 begin
@@ -650,6 +652,12 @@ begin
   acViewTexts.Enabled:=True;
 end;
 
+procedure TfPosition.AddAutomationTab(Sender: TObject);
+begin
+  TfAutomationframe(Sender).DataSet := FDataset;
+  TfAutomationframe(Sender).TabCaption:=strAutomation;
+end;
+
 procedure TfPosition.AddCalcTab(Sender: TObject);
 begin
   TfCalcPositionFrame(Sender).DataSet := FDataset;
@@ -832,6 +840,7 @@ begin
   pcTabs.ClearTabClasses;
   pcTabs.AddTabClass(TfDocumentFrame,strFiles,@AddDocumentsTab);
   pcTabs.AddTabClass(TfCalcPositionFrame,strCalc,@AddCalcTab);
+  pcTabs.AddTabClass(TfAutomationframe,strAutomation,@AddAutomationTab);
   with Application as TBaseVisualApplication do
     AddTabClasses(FFormName,pcTabs);
 end;

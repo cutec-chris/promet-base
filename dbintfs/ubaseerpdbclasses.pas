@@ -1213,6 +1213,8 @@ begin
             Add('REPAIRTIME',ftFloat,0,False);              //reparaturzeit
             Add('POSPRICE',ftFloat,0,False);                //Gesamtpreis
             Add('GROSSPRICE',ftFloat,0,False);              //Bruttoprice
+            Add('SYNTAX',ftString,15,False);
+            Add('SCRIPT',ftMemo,0,False);
             Add('PARENT',ftLargeInt,0,False);
           end;
       if Assigned(ManagedIndexdefs) then

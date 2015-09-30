@@ -1057,6 +1057,8 @@ begin
             Add('PURCHASE',ftFloat,0,False);
             Add('ISTEMPLATE',ftString,1,False);
             Add('CURRENCY',ftString,5,False);
+            Add('SYNTAX',ftString,15,False);
+            Add('SCRIPT',ftMemo,0,False);
             Add('CRDATE',ftDate,0,False);
             Add('CHDATE',ftDate,0,False);
             Add('CHANGEDBY',ftString,4,False);

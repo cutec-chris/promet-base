@@ -22,7 +22,7 @@ unit uautomationframe;
 interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, ExtCtrls, StdCtrls, DbCtrls,
-  DBGrids, Menus, db, uPrometFramesInplace,uBaseDbClasses;
+  DBGrids, Menus, db, uPrometFramesInplace,uBaseDbClasses,uScriptEditor;
 
 type
 
@@ -33,33 +33,61 @@ type
     MenuItem9: TMenuItem;
     pmImage: TPopupMenu;
     Position: TDatasource;
+    procedure FEditorOpenUnit(aUnitName: string; X, Y: Integer);
   private
     FDataSet: TBaseDBDataset;
+    FEditor: TfScriptEditor;
     procedure SetDataSet(AValue: TBaseDBDataset);
     { private declarations }
   public
     { public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure SetRights(Editable : Boolean);override;
     property DataSet : TBaseDBDataset read FDataSet write SetDataSet;
   end; 
 
 resourcestring
-  strCalc                             = 'Berechnung';
-
+  strAutomation        = 'Automation';
 implementation
 {$R *.lfm}
 uses uPositionFrame,uBaseERPDBClasses;
 
+procedure TfAutomationframe.FEditorOpenUnit(aUnitName: string; X, Y: Integer);
+begin
+
+end;
+
 procedure TfAutomationframe.SetDataSet(AValue: TBaseDBDataset);
 begin
+  Position.DataSet:=nil;
   if FDataSet=AValue then Exit;
   FDataSet:=AValue;
-  Position.DataSet := TBaseDBPosition(FDataSet).DataSet;
+  if FDataSet is TBaseDBPosition then
+    Position.DataSet := TBaseDBPosition(FDataSet).DataSet;
 end;
 
 procedure TfAutomationframe.SetRights(Editable: Boolean);
 begin
   Enabled := Editable;
+end;
+
+constructor TfAutomationframe.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FEditor:=TfScriptEditor.Create(Self);
+  FEditor.BorderStyle:=bsNone;
+  FEditor.Parent:=Self;
+  FEditor.Align:=alClient;
+  FEditor.acSave.Visible:=False;
+  FEditor.OnOpenUnit:=@FEditorOpenUnit;
+  FEditor.Visible:=True;
+end;
+
+destructor TfAutomationframe.Destroy;
+begin
+  FEditor.Free;
+  inherited Destroy;
 end;
 
 end.
