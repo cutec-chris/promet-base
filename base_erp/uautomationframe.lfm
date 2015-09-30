@@ -1,0 +1,20 @@
+inherited fAutomationframe: TfAutomationframe
+  Height = 214
+  Width = 620
+  Color = clWindow
+  ParentColor = False
+  DesignLeft = 405
+  DesignTop = 322
+  object Position: TDataSource[0]
+    left = 16
+    top = 152
+  end
+  object pmImage: TPopupMenu[1]
+    left = 468
+    top = 250
+    object MenuItem8: TMenuItem
+    end
+    object MenuItem9: TMenuItem
+    end
+  end
+end
