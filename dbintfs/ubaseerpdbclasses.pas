@@ -370,10 +370,9 @@ begin
                   aField := DataSet.Fields[i];
                   if aField.OldValue<>aField.NewValue then
                     saType := saType+','+aField.FieldName;
-
                 end;
-              saType:=Stringreplace(sType,'(,','(',[rfReplaceAll])+')';
-              saType:=Stringreplace(sType,'()','',[rfReplaceAll]);
+              saType:=Stringreplace(saType,'(,','(',[rfReplaceAll])+')';
+              saType:=Stringreplace(saType,'()','',[rfReplaceAll]);
             end;
         end;
       Hist.History.ChangedDuringSession := False;
