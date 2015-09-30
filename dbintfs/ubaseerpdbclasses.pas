@@ -210,7 +210,7 @@ var
   RepairProblems : TRepairProblems;
 implementation
 uses uBaseDBInterface,uMasterdata, uBaseApplication,Math,Variants,uRTFtoTXT,
-  uDocuments,usync;
+  uDocuments,usync,uprometscripts;
 resourcestring
   strEdited                        = 'bearbeitet';
   strCreated                       = 'erstellt';
@@ -1212,9 +1212,9 @@ begin
             Add('REPAIRTIME',ftFloat,0,False);              //reparaturzeit
             Add('POSPRICE',ftFloat,0,False);                //Gesamtpreis
             Add('GROSSPRICE',ftFloat,0,False);              //Bruttoprice
-            Add('SYNTAX',ftString,15,False);
-            Add('SCRIPT',ftMemo,0,False);
             Add('PARENT',ftLargeInt,0,False);
+            Add('SCRIPT',ftString,60,False);
+            Add('SCRIPTVER',ftString,8,False);
           end;
       if Assigned(ManagedIndexdefs) then
         with ManagedIndexDefs do

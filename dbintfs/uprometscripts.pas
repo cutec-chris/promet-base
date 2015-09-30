@@ -39,6 +39,7 @@ type
     FRlFunc: TStrInFunc;
     FWrFunc: TStrOutFunc;
     FWriFunc: TStrOutFunc;
+    FSelectedName : variant;
     function GetVersion: TField;
     procedure SQLConn;
   protected
@@ -207,6 +208,7 @@ constructor TBaseScript.CreateEx(aOwner: TComponent; DM: TComponent;
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
   FDataSource := TDataSource.Create(Self);
+  FSelectedName := Null;
   FDataSource.DataSet := DataSet;
   FHistory := TBaseHistory.CreateEx(Self,DM,aConnection,DataSet);
   FLinks := TLinks.CreateEx(Self,DM,aConnection);
@@ -248,6 +250,8 @@ begin
   FieldByName('SYNTAX').AsString:='Pascal';
   FieldByName('SCRIPT').AsString:='begin'+LineEnding+'  '+LineEnding+'end.';
   FieldByName('ACTIVE').AsString  := 'Y';
+  if FSelectedName<>Null then
+    FieldByName('NAME').AsVariant:=FSelectedName;
 end;
 
 function TBaseScript.SelectByName(aName: string): Boolean;
@@ -256,6 +260,7 @@ begin
     with DataSet as IBaseDBFilter do
       begin
         Filter := Data.QuoteField('NAME')+'='+Data.QuoteValue(aName);
+        FSelectedName := aName;
       end;
 end;
 

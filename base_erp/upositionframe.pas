@@ -901,6 +901,19 @@ begin
           aFrame.Free;
           pcTabs.TabIndex:=0;
         end;
+      aFrame := pcTabs.GetTab(TfAutomationframe);
+      if (not Assigned(aFrame)) and (TBaseDBPosition(Dataset).FieldByName('SCRIPT').AsString<>'') then
+        begin
+          pcTabs.AddTab(TfCalcPositionFrame.Create(Self),False);
+          aFrame := pcTabs.GetTab(TfCalcPositionFrame);
+          AddCalcTab(aFrame.Controls[0]);
+        end
+      else if Assigned(aFrame) and (TBaseDBPosition(Dataset).FieldByName('SCRIPT').AsString<>'') then
+        begin
+          pcTabs.WillRemoveTab(aFrame);
+          aFrame.Free;
+          pcTabs.TabIndex:=0;
+        end;
     end;
 end;
 procedure TfPosition.AddDocumentsTab(Sender: TObject);

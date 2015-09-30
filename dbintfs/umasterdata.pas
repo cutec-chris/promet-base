@@ -192,7 +192,7 @@ type
   end;
 implementation
 uses uBaseDBInterface, uBaseSearch, uBaseApplication, uBaseApplicationTools,
-  uData, Utils,uOrder,uthumbnails;
+  uData, Utils,uOrder,uthumbnails,uprometscripts;
 procedure TSupplierPrices.DefineFields(aDataSet: TDataSet);
 begin
   with aDataSet as IBaseManageDB do
@@ -1057,8 +1057,8 @@ begin
             Add('PURCHASE',ftFloat,0,False);
             Add('ISTEMPLATE',ftString,1,False);
             Add('CURRENCY',ftString,5,False);
-            Add('SYNTAX',ftString,15,False);
-            Add('SCRIPT',ftMemo,0,False);
+            Add('SCRIPT',ftString,60,False);
+            Add('SCRIPTVER',ftString,8,False);
             Add('CRDATE',ftDate,0,False);
             Add('CHDATE',ftDate,0,False);
             Add('CHANGEDBY',ftString,4,False);

@@ -29,7 +29,8 @@ uses
   uPSRuntime, uPSDisassembly, uPSUtils,
   uPSComponent, uPSDebugger, uPSComponent_DB, SynEditRegexSearch, 
   SynEditSearch, SynEditMiscClasses, SynEditHighlighter, SynGutterBase, SynEditMarks,
-  SynEditMarkupSpecialLine, SynHighlighterSQL,uPSCompiler, uprometscripts,LCLIntf;
+  SynEditMarkupSpecialLine, SynHighlighterSQL,uPSCompiler, uprometscripts,LCLIntf,
+  uBaseDbClasses;
 
 type
   TOpenUnitEvent = procedure(UnitName : string;X,Y : Integer) of object;
@@ -177,7 +178,7 @@ type
     FResume: Boolean;
     FSynCompletion: TSynCompletion;
     FActiveFile: string;
-    FDataSet : TBaseScript;
+    FDataSet : TBaseDBDataset;
     Fuses : TBaseScript;
     FOldUses : TPSOnUses;
     FWasRunning: Boolean;
@@ -193,12 +194,12 @@ type
     procedure SetActiveFile(const Value: string);
 
     procedure DoSearchReplaceText(AReplace: boolean; ABackwards: boolean);
-    procedure SetDataSet(AValue: TBaseScript);
+    procedure SetDataSet(AValue: TBaseDBDataSet);
 
     property aFile: string read FActiveFile write SetActiveFile;
   public
     constructor Create(TheOwner: TComponent); override;
-    property DataSet : TBaseScript read FDataSet write SetDataSet;
+    property DataSet : TBaseDBDataSet read FDataSet write SetDataSet;
     function SaveCheck: Boolean;
     function Execute(aScript: string; aConnection: TComponent = nil;DefScript : string=''): Boolean;
     property OnOpenUnit : TOpenUnitEvent read FOpenUnit write FOpenUnit;
@@ -256,7 +257,7 @@ begin
   Result := False;
   if Assigned(fScriptEditor) and Assigned(Data) then
     Result := TPascalScript(TPrometPascalScript(fScriptEditor.FDataSet).Script).InternalUses(Sender,Name);
-  if not Result and (Assigned(flastScriptEditor) and Assigned(Data)) then
+  if not Result and (Assigned(flastScriptEditor) and Assigned(Data)) and (fLastScriptEditor.FDataSet is TPrometPascalScript) then
     Result := TPascalScript(TPrometPascalScript(fLastScriptEditor.FDataSet).Script).InternalUses(Sender,Name)
 end;
 
@@ -301,7 +302,7 @@ begin
 
 end;
 
-procedure TfScriptEditor.SetDataSet(AValue: TBaseScript);
+procedure TfScriptEditor.SetDataSet(AValue: TBaseDBDataSet);
 begin
   if FDataSet=AValue then Exit;
   FDataSet:=AValue;
@@ -427,7 +428,7 @@ end;
 procedure TfScriptEditor.DebuggerExecImport(Sender: TObject; se: TPSExec;
   x: TPSRuntimeClassImporter);
 begin
-  if Assigned(Data) then
+  if Assigned(Data) and (FDataSet is TPrometPascalScript) then
     TPascalScript(TPrometPascalScript(FDataSet).Script).ClassImporter:=x;
 end;
 
@@ -555,12 +556,12 @@ begin
         FResume := True
       end else
       begin
-        if Assigned(TPrometPascalScript(FDataSet).Script) then
+        if (FDataSet is TPrometPascalScript) and Assigned(TPrometPascalScript(FDataSet).Script) then
           TPascalScript(TPrometPascalScript(FDataSet).Script).OnToolRegistering:=@TPascalScriptToolRegistering;
         if Compile then
           begin
             SetCurrentDir(GetHomeDir);
-            if Assigned(Data) then
+            if Assigned(Data) and (FDataSet is TPrometPascalScript) then
               begin
                 TPascalScript(TPrometPascalScript(FDataSet).Script).Runtime := Debugger.Exec;
                 TPascalScript(TPrometPascalScript(FDataSet).Script).Compiler := Debugger.Comp;
@@ -587,10 +588,13 @@ begin
   else if (ed.Highlighter=HigSQL) then
     begin
       messages.Clear;
-      FDataSet.writeln := @FDataSetWriteln;
-      acSave.Execute;
-      if not FDataSet.Execute(Null) then
-        messages.AddItem('failed to executing',nil);
+      if (FDataSet is TBaseScript) then
+        begin
+          TBaseScript(FDataSet).writeln := @FDataSetWriteln;
+          acSave.Execute;
+          if not TBaseScript(FDataSet).Execute(Null) then
+            messages.AddItem('failed to executing',nil);
+        end;
     end
   else
     begin
@@ -859,8 +863,8 @@ end;
 procedure TfScriptEditor.DebuggerCompile(Sender: TPSScript);
 begin
   FOldUses:=Sender.Comp.OnUses;
-  if Assigned(Data) then
-    FDataSet.Writeln:=@FDataSetWriteln;
+  if Assigned(Data) and (FDataSet is TBaseScript) then
+    TBaseScript(FDataSet).Writeln:=@FDataSetWriteln;
   Sender.Comp.OnUses:=@OnUses;
   OnUses(Sender.Comp,'SYSTEM');
 end;

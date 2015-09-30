@@ -22,21 +22,25 @@ unit uautomationframe;
 interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, ExtCtrls, StdCtrls, DbCtrls,
-  DBGrids, Menus, db, uPrometFramesInplace,uBaseDbClasses,uScriptEditor;
+  DBGrids, Menus, Buttons, db, uPrometFramesInplace, uBaseDbClasses,
+  uScriptEditor;
 
 type
 
   { TfAutomationframe }
 
   TfAutomationframe = class(TPrometInplaceFrame)
+    eVersion: TDBEdit;
+    eScript: TDBEdit;
+    Label1: TLabel;
+    Label2: TLabel;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     pmImage: TPopupMenu;
     Position: TDatasource;
-    procedure FEditorOpenUnit(aUnitName: string; X, Y: Integer);
+    SpeedButton1: TSpeedButton;
   private
     FDataSet: TBaseDBDataset;
-    FEditor: TfScriptEditor;
     procedure SetDataSet(AValue: TBaseDBDataset);
     { private declarations }
   public
@@ -51,12 +55,7 @@ resourcestring
   strAutomation        = 'Automation';
 implementation
 {$R *.lfm}
-uses uPositionFrame,uBaseERPDBClasses;
-
-procedure TfAutomationframe.FEditorOpenUnit(aUnitName: string; X, Y: Integer);
-begin
-
-end;
+uses uPositionFrame,uBaseERPDBClasses,uMasterdata;
 
 procedure TfAutomationframe.SetDataSet(AValue: TBaseDBDataset);
 begin
@@ -64,7 +63,13 @@ begin
   if FDataSet=AValue then Exit;
   FDataSet:=AValue;
   if FDataSet is TBaseDBPosition then
-    Position.DataSet := TBaseDBPosition(FDataSet).DataSet;
+    begin
+      Position.DataSet := TBaseDBPosition(FDataSet).DataSet;
+    end;
+  if FDataSet is TMasterdata then
+    begin
+      Position.DataSet := TMasterdata(FDataSet).DataSet;
+    end;
 end;
 
 procedure TfAutomationframe.SetRights(Editable: Boolean);
@@ -75,18 +80,10 @@ end;
 constructor TfAutomationframe.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FEditor:=TfScriptEditor.Create(Self);
-  FEditor.BorderStyle:=bsNone;
-  FEditor.Parent:=Self;
-  FEditor.Align:=alClient;
-  FEditor.acSave.Visible:=False;
-  FEditor.OnOpenUnit:=@FEditorOpenUnit;
-  FEditor.Visible:=True;
 end;
 
 destructor TfAutomationframe.Destroy;
 begin
-  FEditor.Free;
   inherited Destroy;
 end;
 
