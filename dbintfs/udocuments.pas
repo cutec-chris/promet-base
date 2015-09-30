@@ -283,6 +283,7 @@ function TDocument.GetFileSize: Int64;
 var
   aRec: LargeInt;
 begin
+  Result := 0;
   if Count = 0 then exit;
   aRec := GetBookmark;
   DataSet.First;

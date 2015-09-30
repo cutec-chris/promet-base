@@ -228,7 +228,7 @@ end;
 
 procedure TLoadThread.Execute;
 var
-  aNumber: Integer;
+  aNumber: Int64;
 label aExit;
 begin
   Synchronize(@getConnection);
@@ -238,7 +238,7 @@ begin
   if aDocument.Count > 0 then
     begin
       Synchronize(@StartLoading);
-      aNumber := aDocument.FieldByName('NUMBER').AsInteger;
+      aNumber := aDocument.FieldByName('NUMBER').AsVariant;
       aDocument.SelectByNumber(aNumber);
       if DoAbort then goto aExit;
       aDocument.Open;
@@ -526,37 +526,7 @@ var
   i: Integer;
   aMod: TWlxModule;
 begin
-  Result := False;
-  if (aExtension = 'JPG')
-  or (aExtension = 'JPEG')
-  or (aExtension = 'PNG')
-  or (aExtension = 'BMP')
-  or (aExtension = 'GIF')
-  or (aExtension = 'TGA')
-  then
-    Result := True
-  else if (aExtension = 'PDF') then
-    Result := True
-  else if (aExtension = 'EMFP') then
-    Result := True
-  else if FEditor.CanHandleFile('.'+aExtension) then
-    Result := True
-  else if (aExtension = 'AVI')
-    or (aExtension = 'FLV')
-    or (aExtension = 'MPG')
-    or (aExtension = 'MP4')
-    or (aExtension = 'WEBM')
-    or (aExtension = '3GP')
-    or (aExtension = 'MOV')
-    or (aExtension = 'WMV')
-    or (aExtension = 'RM')
-    then
-      Result := True
-  ;
-  if not Result then
-    begin
-      //Use GeneratePreview
-    end;
+  Result := True;
 end;
 function TfPreview.LoadFromDocuments(aID: LargeInt): Boolean;
 var
@@ -573,12 +543,92 @@ begin
   FID := aID;
   aThread := TLoadThread.Create(Self,aID);
 end;
+function GeneratePluginThumb(aName : string;aFileName : string;var ThumbFile : string;aWidth : Integer;aHeight : Integer) : Boolean;
+var
+  i: Integer;
+  aMod: TWlxModule;
+  e: String;
+  aBit: HBITMAP;
+  aBitmap: TBitmap;
+  aHandle: HBITMAP;
+begin
+  Result := False;
+  e := lowercase (ExtractFileExt(aName));
+  if (e <> '') and (e[1] = '.') then
+    System.delete (e,1,1);
+  for i := 0 to Modules.Count-1 do
+    begin
+      aMod := Modules.GetWlxModule(i);
+      if aMod.LoadModule then
+        if (pos('EXT="'+Uppercase(e)+'"',aMod.CallListGetDetectString)>0) or (pos('EXT="*"',aMod.CallListGetDetectString)>0) then
+          begin
+            try
+              ThumbFile := aMod.CallListGetPreviewBitmapFile(aFileName,AppendPathDelim(GetTempPath),aWidth,aHeight,'');
+              if ThumbFile='' then
+                begin
+                  aBitmap := TBitmap.Create;
+                  aHandle := aMod.CallListGetPreviewBitmap(aFileName,aWidth,aHeight,'');
+                  if aHandle<>0 then
+                    begin
+                      aBitmap.Handle:=aHandle;
+                      aBitmap.SaveToFile(GetTempPath+'thumb.bmp');
+                      ThumbFile := GetTempPath+'thumb.bmp';
+                    end;
+                  aBitmap.Free;
+                end
+              else
+                begin
+                  Result := True;
+                  break;
+                end;
+            except
+              aMod.UnloadModule;
+            end;
+            Result := True;
+            break;
+          end;
+    end;
+end;
+
+function GeneratePluginText(aName : string;aFileName : string;var aText : string) : Boolean;
+var
+  i: Integer;
+  aMod: TWlxModule;
+  e: String;
+  aBit: HBITMAP;
+  aBitmap: TBitmap;
+begin
+  Result := False;
+  e := lowercase (ExtractFileExt(aName));
+  if (e <> '') and (e[1] = '.') then
+    System.delete (e,1,1);
+  for i := 0 to Modules.Count-1 do
+    begin
+      aMod := Modules.GetWlxModule(i);
+      if aMod.LoadModule then
+        if (pos('EXT="'+Uppercase(e)+'"',aMod.CallListGetDetectString)>0) or (pos('EXT="*"',aMod.CallListGetDetectString)>0) then
+          begin
+            try
+              aText := aMod.CallListGetText(aFileName,'');
+              Result := True;
+              break;
+            except
+              aMod.UnloadModule;
+            end;
+            Result := True;
+            break;
+          end;
+    end;
+end;
+
 function TfPreview.LoadFromStream(aStream: TStream; aExtension: string) : Boolean;
 var
   aFStream: TFileStream;
   aFilename: String;
   aProcess: TProcessUTF8;
   aPic: TPicture;
+  ThumbFile: string;
+  aText: string;
 begin
   Result := false;
   if aLoading and Assigned(aThread) then
@@ -746,7 +796,7 @@ begin
       tsImage.TabVisible:=True;
       tsText.TabVisible:=False;
     end
-  else //Try to Use Imagemagick to determinate the file typ and render it
+  else //Use Thumbnail Handlers to generate Thumb and show as Picture
     begin
       try
         with BaseApplication as IBaseApplication do
@@ -757,43 +807,45 @@ begin
         aStream.Position:=0;
         aFStream.CopyFrom(aStream,aStream.Size);
         aFStream.Free;
-        aProcess := TProcessUTF8.Create(Self);
-        {$IFDEF WINDOWS}
-        aProcess.Options:= [poNoConsole, poWaitonExit,poNewConsole, poStdErrToOutPut, poNewProcessGroup];
-        {$ELSE}
-        aProcess.Options:= [poWaitonExit,poStdErrToOutPut];
-        {$ENDIF}
-        aProcess.ShowWindow := swoHide;
-        aProcess.CommandLine := Format('convert'+ExtractFileExt(Application.ExeName)+' %s[1] -resize %d -alpha off +antialias "%s"',[aFileName,500,afileName+'.bmp']);
-        aProcess.CurrentDirectory := Application.Location+'tools';
-        {$IFDEF WINDOWS}
-        aProcess.CommandLine := aProcess.CurrentDirectory+aProcess.CommandLine;
-        {$ENDIF}
-        aProcess.Execute;
-        aProcess.Free;
-        SysUtils.DeleteFile(aFileName);
-        aPic := TPicture.Create;
-        aPic.LoadFromFile(afileName+'.bmp');
-        if FResetZoom then
+        with BaseApplication as IBaseApplication do
+        if GeneratePluginThumb('rpv.'+aExtension,GetInternalTempDir+'rpv.'+aExtension,ThumbFile,600,800) and (ThumbFile<>'') then
           begin
-            if (APic.Width > aPic.Height) or FZoomW then
-              FScale := Width/aPic.Width
-            else
-              FScale := Height/aPic.Height;
+            aPic := TPicture.Create;
+            aPic.LoadFromFile(ThumbFile);
+            if FResetZoom then
+              begin
+                if (APic.Width > aPic.Height) or FZoomW then
+                  FScale := Width/aPic.Width
+                else
+                  FScale := Height/aPic.Height;
+              end;
+            FImage.Assign(aPic.Bitmap);
+            aPic.Free;
+            SysUtils.DeleteFile(ThumbFile);
+            sbImage.Visible:=True;
+            pImageControls.Visible:=True;
+            pfrPreview.Visible:=False;
+            FEditor.Hide;
+            tsImage.TabVisible:=True;
+            tsText.TabVisible:=False;
+            Result := True;
+          end
+        else if GeneratePluginText('rpv.'+aExtension,GetInternalTempDir+'rpv.'+aExtension,aText) and (aText<>'') then
+          begin
+            sbImage.Visible:=false;
+            aStream.Position:=0;
+            pfrPreview.Visible:=false;
+            FEditor.Editor.Text:=SysToUni(aText);
+            FEditor.Align:=alClient;
+            FEditor.BorderStyle:=bsNone;
+            FEditor.Parent := tsImage;
+            FEditor.Show;
+            tsImage.TabVisible:=True;
+            tsText.TabVisible:=False;
           end;
-        FImage.Assign(aPic.Bitmap);
-        aPic.Free;
-        SysUtils.DeleteFile(aFileName+'.bmp');
-        sbImage.Visible:=True;
-        pImageControls.Visible:=True;
-        pfrPreview.Visible:=False;
-        FEditor.Hide;
-        tsImage.TabVisible:=True;
-        tsText.TabVisible:=False;
-        Result := True;
       except
         SysUtils.DeleteFile(aFileName);
-        SysUtils.DeleteFile(aFileName+'.bmp');
+        SysUtils.DeleteFile(ThumbFile);
       end;
     end;
   DoScalePreview;
@@ -876,83 +928,6 @@ begin
       Until FindNext(info)<>0;
     end;
   FindClose(Info);
-end;
-function GeneratePluginThumb(aName : string;aFileName : string;var ThumbFile : string;aWidth : Integer;aHeight : Integer) : Boolean;
-var
-  i: Integer;
-  aMod: TWlxModule;
-  e: String;
-  aBit: HBITMAP;
-  aBitmap: TBitmap;
-  aHandle: HBITMAP;
-begin
-  Result := False;
-  e := lowercase (ExtractFileExt(aName));
-  if (e <> '') and (e[1] = '.') then
-    System.delete (e,1,1);
-  for i := 0 to Modules.Count-1 do
-    begin
-      aMod := Modules.GetWlxModule(i);
-      if aMod.LoadModule then
-        if (pos('EXT="'+Uppercase(e)+'"',aMod.CallListGetDetectString)>0) or (pos('EXT="*"',aMod.CallListGetDetectString)>0) then
-          begin
-            try
-              ThumbFile := aMod.CallListGetPreviewBitmapFile(aFileName,AppendPathDelim(GetTempPath),aWidth,aHeight,'');
-              if ThumbFile='' then
-                begin
-                  aBitmap := TBitmap.Create;
-                  aHandle := aMod.CallListGetPreviewBitmap(aFileName,aWidth,aHeight,'');
-                  if aHandle<>0 then
-                    begin
-                      aBitmap.Handle:=aHandle;
-                      aBitmap.SaveToFile(GetTempPath+'thumb.bmp');
-                      ThumbFile := GetTempPath+'thumb.bmp';
-                    end;
-                  aBitmap.Free;
-                end
-              else
-                begin
-                  Result := True;
-                  break;
-                end;
-            except
-              aMod.UnloadModule;
-            end;
-            Result := True;
-            break;
-          end;
-    end;
-end;
-
-function GeneratePluginText(aName : string;aFileName : string;var aText : string) : Boolean;
-var
-  i: Integer;
-  aMod: TWlxModule;
-  e: String;
-  aBit: HBITMAP;
-  aBitmap: TBitmap;
-begin
-  Result := False;
-  e := lowercase (ExtractFileExt(aName));
-  if (e <> '') and (e[1] = '.') then
-    System.delete (e,1,1);
-  for i := 0 to Modules.Count-1 do
-    begin
-      aMod := Modules.GetWlxModule(i);
-      if aMod.LoadModule then
-        if (pos('EXT="'+Uppercase(e)+'"',aMod.CallListGetDetectString)>0) or (pos('EXT="*"',aMod.CallListGetDetectString)>0) then
-          begin
-            try
-              aText := aMod.CallListGetText(aFileName,'');
-              Result := True;
-              break;
-            except
-              aMod.UnloadModule;
-            end;
-            Result := True;
-            break;
-          end;
-    end;
 end;
 
 initialization
