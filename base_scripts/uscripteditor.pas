@@ -30,7 +30,7 @@ uses
   uPSComponent, uPSDebugger, uPSComponent_DB, SynEditRegexSearch, 
   SynEditSearch, SynEditMiscClasses, SynEditHighlighter, SynGutterBase, SynEditMarks,
   SynEditMarkupSpecialLine, SynHighlighterSQL,uPSCompiler, uprometscripts,LCLIntf,
-  uBaseDbClasses;
+  uBaseDbClasses,variants;
 
 type
   TOpenUnitEvent = procedure(UnitName : string;X,Y : Integer) of object;
@@ -201,7 +201,7 @@ type
     constructor Create(TheOwner: TComponent); override;
     property DataSet : TBaseDBDataSet read FDataSet write SetDataSet;
     function SaveCheck: Boolean;
-    function Execute(aScript: string; aConnection: TComponent = nil;DefScript : string=''): Boolean;
+    function Execute(aScript: string;aVersion:Variant; aConnection: TComponent = nil;DefScript : string=''): Boolean;
     property OnOpenUnit : TOpenUnitEvent read FOpenUnit write FOpenUnit;
   end;
   TMessageObject = class
@@ -622,7 +622,7 @@ procedure TfScriptEditor.acSaveExecute(Sender: TObject);
 begin
   if Assigned(Data) then
     begin
-      FDataSet.Post;
+      FDataSet.CascadicPost;
     end
   else
     begin
@@ -937,8 +937,10 @@ begin
     end else Result := True;
 end;
 
-function TfScriptEditor.Execute(aScript: string; aConnection: TComponent;
-  DefScript: string): Boolean;
+function TfScriptEditor.Execute(aScript: string; aVersion: Variant;
+  aConnection: TComponent; DefScript: string): Boolean;
+var
+  aCreate: Boolean;
 begin
   if not Assigned(Self) then
     begin
@@ -952,15 +954,25 @@ begin
           FDataSet := TPrometPascalScript.CreateEx(nil,Data,aConnection);
           FDataSet.CreateTable;
         end;
+      TPrometPascalScript(FDataSet).SelectByName(aScript);
       FDataSet.Open;
       DataSource.DataSet := FDataSet.DataSet;
       FDataSet.DataSet.BeforeScroll:=@FDataSetDataSetBeforeScroll;
       FDataSet.DataSet.AfterScroll:=@FDataSetDataSetAfterScroll;
       FDataSet.DataSet.AfterCancel:=@FDataSetDataSetAfterScroll;
-      if (not FDataSet.Locate('NAME',aScript,[loCaseInsensitive])) or (aScript='') then
+      aCreate := False;
+      if (aVersion=Null) or (aVersion='') then
+        if (not FDataSet.Locate('NAME;ACTIVE',VarArrayOf([aScript,'Y']),[loCaseInsensitive])) then
+          if (not FDataSet.Locate('NAME',VarArrayOf([aScript]),[loCaseInsensitive])) then
+            aCreate := True;
+      if not aCreate then
+        if (not FDataSet.Locate('NAME;VERSION',VarArrayOf([aScript,aVersion]),[loCaseInsensitive])) or (aScript='') then
+          aCreate := True;
+      if aCreate or (aScript='') then
         begin
           FDataSet.Insert;
           FDataSet.FieldByName('NAME').AsString:=aScript;
+          FDataSet.FieldByName('VERSION').AsVariant:=aVersion;
           if DefScript<>'' then
             FDataSet.FieldByName('SCRIPT').AsString:=DefScript;
         end

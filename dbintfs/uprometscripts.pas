@@ -77,7 +77,7 @@ var
 
 implementation
 uses uStatistic,uData,httpsend,variants,uPerson,uMasterdata,uProjects,uOrder,
-  uBaseApplication,uSystemMessage,utask,uMessages,uDocuments;
+  uBaseApplication,uSystemMessage,utask,uMessages,uDocuments, uIntfStrConsts;
 function ProcessScripts : Boolean;//process Scripts that must be runned cyclic Result shows that it should be runned faster (debug)
 var
   aScript: TBaseScript;
@@ -350,7 +350,104 @@ begin
 end;
 
 procedure TBaseScript.OpenItem(AccHistory: Boolean);
+var
+  aHistory: TAccessHistory;
+  aObj: TObjects;
+  aID: String;
+  aFilter: String;
 begin
+  if Self.Count=0 then exit;
+  try
+    try
+      aHistory := TAccessHistory.Create(nil);
+      aObj := TObjects.Create(nil);
+      if AccHistory then
+        begin
+          if DataSet.State<>dsInsert then
+            begin
+              if not Data.TableExists(aHistory.TableName) then
+                aHistory.CreateTable;
+              aHistory.Free;
+              aHistory := TAccessHistory.CreateEx(nil,Data,nil,DataSet);
+              aHistory.AddItem(DataSet,Format(strItemOpened,[Data.GetLinkDesc(Data.BuildLink(DataSet))]),Data.BuildLink(DataSet));
+            end;
+        end;
+      if (DataSet.State<>dsInsert) and (Self.FieldByName('ACTIVE').AsString='Y') then
+        begin
+          if not Data.TableExists(aObj.TableName) then
+            begin
+              aObj.CreateTable;
+              aObj.Free;
+              aObj := TObjects.CreateEx(nil,Data,nil,DataSet);
+            end;
+          with aObj.DataSet as IBaseDBFilter do
+            begin
+              aID := FieldByName('NAME').AsString;
+              aFilter :=  Data.QuoteField('NUMBER')+'='+Data.QuoteValue(aID);
+              Filter := aFilter;
+              Limit := 0;
+            end;
+          aObj.Open;
+          if aObj.Count=0 then
+            begin
+              aObj.Insert;
+              aObj.Text.AsString := Self.Text.AsString;
+              aObj.FieldByName('SQL_ID').AsVariant:=Self.Id.AsVariant;
+              if Assigned(Self.Matchcode) then
+                aObj.Matchcode.AsString := Self.Matchcode.AsString;
+              if Assigned(Self.Status) then
+                aObj.Status.AsString := Self.Status.AsString;
+              aObj.Number.AsVariant:=Self.Number.AsVariant;
+              aObj.FieldByName('LINK').AsString:=Data.BuildLink(Self.DataSet);
+              aObj.FieldByName('ICON').AsInteger:=Data.GetLinkIcon(Data.BuildLink(Self.DataSet),True);
+              aObj.FieldByName('VERSION').AsString:=Self.FieldByName('VERSION').AsString;
+              aObj.Post;
+              Self.GenerateThumbnail;
+            end
+          else //Modify existing
+            begin
+              while aObj.Count>1 do
+                aObj.Delete;
+              if aObj.Text.AsString<>Self.Text.AsString then
+                begin
+                  aObj.Edit;
+                  aObj.Text.AsString := Self.Text.AsString;
+                end;
+              if aObj.Number.AsString<>Self.Number.AsString then
+                begin
+                  aObj.Edit;
+                  aObj.Number.AsString := Self.FieldByName('NAME').AsString;
+                end;
+              if Assigned(Self.Status) and (aObj.Status.AsString<>Self.Status.AsString) then
+                begin
+                  aObj.Edit;
+                  aObj.Status.AsString := Self.Status.AsString;
+                end;
+              if Assigned(Self.Matchcode) and (aObj.Matchcode.AsString<>Self.Matchcode.AsString) then
+                begin
+                  aObj.Edit;
+                  aObj.Matchcode.AsString := Self.Matchcode.AsString;
+                end;
+              if aObj.FieldByName('LINK').AsString<>Data.BuildLink(Self.DataSet) then
+                begin
+                  aObj.Edit;
+                  aObj.FieldByName('LINK').AsString:=Data.BuildLink(Self.DataSet);
+                end;
+              if aObj.FieldByName('VERSION').AsString<>Self.FieldByName('VERSION').AsString then
+                begin
+                  aObj.Edit;
+                  aObj.FieldByName('VERSION').AsString:=Self.FieldByName('VERSION').AsString;
+                end;
+              if aObj.CanEdit then
+                aObj.Post;
+            end;
+        end;
+    finally
+      aObj.Free;
+      aHistory.Free;
+    end;
+  except
+  end;
 end;
 
 function TBaseScript.Versionate(aNewversion: Variant; aMakeActive: Boolean

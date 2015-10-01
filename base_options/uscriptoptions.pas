@@ -66,7 +66,7 @@ procedure TfScriptOptions.acEditExecute(Sender: TObject);
 var
   aRec: TBookmark;
 begin
-  fScriptEditor.Execute(FScripts.FieldByName('NAME').AsString,aConnection);
+  fScriptEditor.Execute(FScripts.FieldByName('NAME').AsString,FScripts.FieldByName('VERSION').AsVariant,aConnection);
   aRec := Scripts.DataSet.GetBookmark;
   Scripts.DataSet.Refresh;
   Scripts.DataSet.GotoBookmark(aRec);

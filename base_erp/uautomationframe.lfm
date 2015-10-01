@@ -1,16 +1,16 @@
 inherited fAutomationframe: TfAutomationframe
-  Height = 214
+  Height = 283
   Width = 620
-  ClientHeight = 214
+  ClientHeight = 283
   ClientWidth = 620
   Color = clWindow
   ParentColor = False
   DesignLeft = 405
   DesignTop = 322
   object eScript: TDBEdit[0]
-    Left = 16
+    Left = 56
     Height = 21
-    Top = 32
+    Top = 40
     Width = 224
     DataField = 'SCRIPT'
     DataSource = Position
@@ -19,25 +19,25 @@ inherited fAutomationframe: TfAutomationframe
     TabOrder = 0
   end
   object Label1: TLabel[1]
-    Left = 16
+    Left = 56
     Height = 13
-    Top = 16
+    Top = 24
     Width = 27
     Caption = 'Script'
     ParentColor = False
   end
   object Label2: TLabel[2]
-    Left = 248
+    Left = 288
     Height = 13
-    Top = 18
+    Top = 26
     Width = 35
     Caption = 'Version'
     ParentColor = False
   end
   object eVersion: TDBEdit[3]
-    Left = 248
+    Left = 288
     Height = 21
-    Top = 32
+    Top = 40
     Width = 80
     DataField = 'SCRIPTVER'
     DataSource = Position
@@ -45,22 +45,91 @@ inherited fAutomationframe: TfAutomationframe
     MaxLength = 0
     TabOrder = 1
   end
-  object SpeedButton1: TSpeedButton[4]
-    Left = 344
-    Height = 29
-    Top = 24
-    Width = 32
+  object pToolbar: TPanel[4]
+    Left = 0
+    Height = 283
+    Top = 0
+    Width = 44
+    Align = alLeft
+    BevelOuter = bvNone
+    ClientHeight = 283
+    ClientWidth = 44
+    TabOrder = 2
+    object Panel2: TPanel
+      Left = 0
+      Height = 76
+      Top = 20
+      Width = 44
+      Align = alTop
+      BorderSpacing.Top = 20
+      BevelOuter = bvNone
+      ClientHeight = 76
+      ClientWidth = 44
+      TabOrder = 0
+      object Bevel1: TBevel
+        Left = 4
+        Height = 4
+        Top = 0
+        Width = 36
+        Align = alTop
+        BorderSpacing.Left = 4
+        BorderSpacing.Right = 4
+        Shape = bsTopLine
+      end
+      object ExtRotatedLabel1: TExtRotatedLabel
+        Left = 0
+        Height = 72
+        Top = 4
+        Width = 14
+        Align = alLeft
+        AutoSize = False
+        Caption = 'Script'
+        Font.Color = clMedGray
+        Font.Height = 11
+        Font.Orientation = 900
+        Layout = tlBottom
+        ParentColor = False
+        ParentFont = False
+      end
+      object SpeedButton1: TSpeedButton
+        Left = 17
+        Height = 22
+        Top = 4
+        Width = 23
+        Action = acNewScript
+        Flat = True
+        ShowCaption = False
+      end
+      object SpeedButton2: TSpeedButton
+        Left = 17
+        Height = 22
+        Top = 29
+        Width = 23
+        Action = acEditScript
+        Flat = True
+        ShowCaption = False
+      end
+    end
   end
   object Position: TDataSource[5]
-    left = 16
-    top = 152
+    left = 408
+    top = 59
   end
-  object pmImage: TPopupMenu[6]
-    left = 468
-    top = 250
-    object MenuItem8: TMenuItem
+  object ActionList1: TActionList[6]
+    Images = fVisualControls.Images
+    left = 408
+    top = 8
+    object acNewScript: TAction
+      Caption = 'Neues Script'
+      Hint = 'erstellt ein neues Script'
+      ImageIndex = 62
+      OnExecute = acNewScriptExecute
     end
-    object MenuItem9: TMenuItem
+    object acEditScript: TAction
+      Caption = 'Script editieren'
+      Hint = 'Editiert das vorhandene Script'
+      ImageIndex = 67
+      OnExecute = acEditScriptExecute
     end
   end
 end

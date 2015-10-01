@@ -22,23 +22,32 @@ unit uautomationframe;
 interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, ExtCtrls, StdCtrls, DbCtrls,
-  DBGrids, Menus, Buttons, db, uPrometFramesInplace, uBaseDbClasses,
-  uScriptEditor;
+  DBGrids, Menus, Buttons, ComCtrls, ActnList, uExtControls, db,
+  uPrometFramesInplace, uBaseDbClasses, uScriptEditor;
 
 type
 
   { TfAutomationframe }
 
   TfAutomationframe = class(TPrometInplaceFrame)
+    acNewScript: TAction;
+    acEditScript: TAction;
+    ActionList1: TActionList;
+    Bevel1: TBevel;
     eVersion: TDBEdit;
     eScript: TDBEdit;
+    ExtRotatedLabel1: TExtRotatedLabel;
     Label1: TLabel;
     Label2: TLabel;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
-    pmImage: TPopupMenu;
+    Panel2: TPanel;
     Position: TDatasource;
+    pToolbar: TPanel;
     SpeedButton1: TSpeedButton;
+    SpeedButton2: TSpeedButton;
+    procedure acEditScriptExecute(Sender: TObject);
+    procedure acNewScriptExecute(Sender: TObject);
   private
     FDataSet: TBaseDBDataset;
     procedure SetDataSet(AValue: TBaseDBDataset);
@@ -55,7 +64,29 @@ resourcestring
   strAutomation        = 'Automation';
 implementation
 {$R *.lfm}
-uses uPositionFrame,uBaseERPDBClasses,uMasterdata;
+uses uPositionFrame,uBaseERPDBClasses,uMasterdata,uprometpascalscript;
+
+procedure TfAutomationframe.acNewScriptExecute(Sender: TObject);
+var
+  aScript: TPrometPascalScript;
+begin
+  SetFocus;
+  if eScript.Text='' then
+    begin
+      FDataSet.Edit;
+      if FDataSet is TMasterdataList then
+        FDataSet.FieldByName('SCRIPT').AsString:= TMasterdataList(FDataSet).Number.AsString
+      else FDataSet.FieldByName('SCRIPT').AsString:=FDataSet.Id.AsString;
+      fScriptEditor.Execute(FDataSet.FieldByName('SCRIPT').AsString,FDataSet.FieldByName('SCRIPTVER').AsVariant);
+    end
+  else acEditScript.Execute;
+end;
+
+procedure TfAutomationframe.acEditScriptExecute(Sender: TObject);
+begin
+  SetFocus;
+  fScriptEditor.Execute(FDataSet.FieldByName('SCRIPT').AsString,FDataSet.FieldByName('SCRIPTVER').AsVariant);
+end;
 
 procedure TfAutomationframe.SetDataSet(AValue: TBaseDBDataset);
 begin

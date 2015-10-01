@@ -93,9 +93,9 @@ begin
   else
     begin
       if FTyp=icImport then
-        fScriptEditor.Execute('Import.'+FFormat+'.'+cbFormat.Text)
+        fScriptEditor.Execute('Import.'+FFormat+'.'+cbFormat.Text,Null)
       else
-        fScriptEditor.Execute('Export.'+FFormat+'.'+cbFormat.Text);
+        fScriptEditor.Execute('Export.'+FFormat+'.'+cbFormat.Text,Null);
     end;
 end;
 
