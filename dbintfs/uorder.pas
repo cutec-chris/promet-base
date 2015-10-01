@@ -52,6 +52,7 @@ type
     function GetStatusIcon: Integer; override;
     procedure Open; override;
     procedure Select(aID : string);overload;
+    function SelectFromCommission(aNumber : string) : Boolean;
     procedure OpenItem(AccHistory: Boolean=True); override;
     procedure DefineFields(aDataSet : TDataSet);override;
     property History : TBaseHistory read FHistory;
@@ -207,6 +208,7 @@ type
     function FailMessage : string;
     function FormatCurrency(Value : real) : string;
     function CalcDispatchType : Boolean;
+    function GetOrderTyp: Integer;
     function SelectFromLink(aLink: string): Boolean; override;
   end;
 implementation
@@ -696,6 +698,19 @@ begin
       Limit := 99;
     end;
 end;
+
+function TOrderList.SelectFromCommission(aNumber: string): Boolean;
+var
+  aFilter: String;
+begin
+  with  DataSet as IBaseDBFilter, BaseApplication as IBaseDBInterface, DataSet as IBaseManageDB do
+    begin
+      aFilter :=  QuoteField('COMMISSION')+'='+QuoteValue(aNumber);
+      Filter := aFilter;
+      Limit := 99;
+    end;
+end;
+
 procedure TOrder.Open;
 begin
   if not Assigned(DataSet) then exit;
@@ -1266,6 +1281,7 @@ begin
     end;
   Dispatchtypes.Free;
 end;
+
 function TOrder.PostArticle(aTyp, aID, aVersion, aLanguage: variant;
   Quantity: real; QuantityUnit, PosNo: string; var aStorage: string;
   var OrderDelivered: boolean): Boolean;
@@ -1496,6 +1512,13 @@ begin
       aDisp.Free;
     end;
   aPosTyp.Free;
+end;
+
+function TOrder.GetOrderTyp: Integer;
+begin
+  Result := -1;
+  if OrderType.DataSet.Locate('STATUS', DataSet.FieldByName('STATUS').AsString, [loCaseInsensitive]) then
+    Result := StrToIntDef(trim(copy(OrderType.FieldByName('TYPE').AsString, 0, 2)), -1);
 end;
 
 function TOrder.SelectFromLink(aLink: string): Boolean;
@@ -1855,7 +1878,10 @@ begin
             Add('STORAGE',ftString,3,False);
             Add('CURRENCY',ftString,5,False);
             Add('PAYMENTTAR',ftString,2,False);
-            Add('PID',ftString,50,False);
+            Add('PID',ftString,50,False);                   //Produktid wird mit Artikeln befüllt die hinzugefügt werden beim Produktionsauftrag = zu Fertigender Artikel
+            Add('PVERSION',ftString,8,False);               //Version des zu fertigen Artikels
+            Add('PLANGUAGE',ftString,4,False);              //Sprache des zu fertigen Artikels
+            Add('PQUATITY',ftFloat,0,False);                //Fertigungsmenge
             Add('SHIPPING',ftString,3,False);
             Add('SHIPPINGD',ftDate,0,False);
             Add('WEIGHT',ftFloat,0,False);
