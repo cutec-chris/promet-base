@@ -650,6 +650,8 @@ begin
         ParamByName('Limit').AsInteger:=FLimit;
       FFirstOpen:=False;
     end;
+  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
+    TBaseDBModule(ForigTable.DataModule).CriticalSection.Enter;
   try
       try
         inherited InternalOpen;
@@ -705,12 +707,17 @@ begin
         end;
       end;
   finally
+    if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
+      TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
   end;
 end;
 
 procedure TZeosDBDataSet.InternalRefresh;
 begin
   if TZeosDBDM(Owner).IgnoreOpenRequests then exit;
+  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
+    TBaseDBModule(ForigTable.DataModule).CriticalSection.Enter;
+  try
   try
     inherited InternalRefresh;
   except
@@ -725,6 +732,10 @@ begin
             InternalOpen;
           end;
       end;
+  end;
+  finally
+    if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
+      TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
   end;
 end;
 
