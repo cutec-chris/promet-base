@@ -634,6 +634,11 @@ begin
     Result := False;
   end;
   TBaseDBModule(Self.Owner).UpdateTableVersion(Self.FDefaultTableName);
+  if Changed then
+    begin
+      TZConnection(TBaseDBModule(Self.Owner).MainConnection).Disconnect;
+      TZConnection(TBaseDBModule(Self.Owner).MainConnection).Connect;
+    end;
 end;
 procedure TZeosDBDataSet.InternalOpen;
 var
