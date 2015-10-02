@@ -1248,6 +1248,8 @@ var
   tParent : Variant;
 
   procedure InsertData(Masterdata : TMasterdata;Quantity : float;aParent : Variant;Active : string = 'Y');
+  var
+    aVat: String;
   begin
     DisableCalculation;
     if (DataSet.State <> dsInsert) and (DataSet.State <> dsEdit) then
@@ -1263,7 +1265,9 @@ var
     DataSet.FieldByName('WEIGHT').AsFloat := MasterData.FieldByName('WEIGHT').AsFloat;
     DataSet.FieldByName('QUANTITYU').AsString := MasterData.FieldByName('QUANTITYU').AsString;
     DataSet.FieldByName('ACTIVE').AsString := Active;
-    DataSet.FieldByName('VAT').AsString := MasterData.FieldByName('VAT').AsString;
+    aVat := MasterData.FieldByName('VAT').AsString;
+    if pos(' ',aVat)>0 then aVat := copy(aVat,0,pos(' ',aVat)-1);
+    DataSet.FieldByName('VAT').AsString := aVat;
     Masterdata.Texts.Open;
     if Masterdata.Texts.DataSet.Locate('TEXTTYPE',VarArrayOf([0]),[loCaseInsensitive]) then
       begin
