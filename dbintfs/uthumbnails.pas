@@ -221,13 +221,13 @@ var
   end;
 begin
   Result := False;
+  try
   if Assigned(OnGenerateThumb) then
     Result := OnGenerateThumb(aName,aFileName,aThumbFile,aWidth,aHeight);
   if Result and FileExists(UniToSys(aThumbFile)) then
     aFileName:=aThumbFile;
   with BaseApplication as IBaseApplication do
     Debug('Generate Thumbnail:Enter');
-  try
     Found := False;
     e := lowercase (ExtractFileExt(aFileName));
     if (e <> '') and (e[1] = '.') then
@@ -247,6 +247,7 @@ begin
         if assigned (h) then
           begin
             Img := TFPMemoryImage.Create(0, 0);
+            try
             Img.UsePalette := false;
             reader := h.Create;
             if reader is TFPReaderJPEG then
@@ -260,6 +261,8 @@ begin
                 begin
                 end;
             except
+            end;
+            finally
               FreeAndNil(Img);
             end;
             Reader.Free;
@@ -297,9 +300,6 @@ begin
         Img.Free;
         Result := True;
       end;
-  except
-    Result := False;
-  end;
   if not result and (trim(aText)<>'') then
     begin
       Img := TFPMemoryImage.Create(aWidth, aHeight);
@@ -352,6 +352,9 @@ begin
       aPrinter.Free;
       Result:=True;
     end;
+  except
+    Result := False;
+  end;
   with BaseApplication as IBaseApplication do
     Debug('Generate Thumbnail:Exit');
 end;
