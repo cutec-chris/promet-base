@@ -1765,45 +1765,48 @@ var
   aStream: TFileStream;
   i: Integer;
 begin
-  if Assigned(ThumbControl1.ImageLoaderManager.ActiveItem) then
+  if bShowDetail.Down then
     begin
-      if loadedDocument<>ThumbControl1.ImageLoaderManager.ActiveItem.URL then
+      if Assigned(ThumbControl1.ImageLoaderManager.ActiveItem) then
         begin
-          try
-            aStream := TFileStream.Create(FtempPath+ThumbControl1.ImageLoaderManager.ActiveItem.URL,fmOpenRead);
-            PreviewFrame.LoadFromStream(aStream,'JPG');
-            loadedDocument:=ThumbControl1.ImageLoaderManager.ActiveItem.URL;
-            aStream.Free;
-          except
-          end;
-        end;
-    end
-  else
-    begin
-      if ThumbControl1.ImageLoaderManager.CountItems>0 then
-        ThumbControl1.ImageLoaderManager.ActiveIndex:=0;
-    end;
-  Application.ProcessMessages;
-  for i := 0 to FDocFrame.lvDocuments.Items.Count-1 do
-    begin
-      if FDocFrame.GotoEntry(FDocFrame.lvDocuments.Items[i]) then
-        if FDocFrame.DataSet.FieldByName('SIZE').AsInteger<(2*1024*1024) then
-          if PreviewFrame.CanHandleType(Uppercase(FDocFrame.DataSet.FieldByName('EXTENSION').AsString)) then
+          if loadedDocument<>ThumbControl1.ImageLoaderManager.ActiveItem.URL then
             begin
-              PreviewFrame.LoadFromDocuments(TDocuments(FDocFrame.DataSet).Id.AsVariant);
-              break;
+              try
+                aStream := TFileStream.Create(FtempPath+ThumbControl1.ImageLoaderManager.ActiveItem.URL,fmOpenRead);
+                PreviewFrame.LoadFromStream(aStream,'JPG');
+                loadedDocument:=ThumbControl1.ImageLoaderManager.ActiveItem.URL;
+                aStream.Free;
+              except
+              end;
             end;
+        end
+      else
+        begin
+          if ThumbControl1.ImageLoaderManager.CountItems>0 then
+            ThumbControl1.ImageLoaderManager.ActiveIndex:=0;
+        end;
+      Application.ProcessMessages;
+      for i := 0 to FDocFrame.lvDocuments.Items.Count-1 do
+        begin
+          if FDocFrame.GotoEntry(FDocFrame.lvDocuments.Items[i]) then
+            if FDocFrame.DataSet.FieldByName('SIZE').AsInteger<(2*1024*1024) then
+              if PreviewFrame.CanHandleType(Uppercase(FDocFrame.DataSet.FieldByName('EXTENSION').AsString)) then
+                begin
+                  PreviewFrame.LoadFromDocuments(TDocuments(FDocFrame.DataSet).Id.AsVariant);
+                  break;
+                end;
+        end;
+      acRotate.Enabled:=False;
+      for i := 0 to FDocFrame.lvDocuments.Items.Count-1 do
+        if (lowercase(copy(FDocFrame.lvDocuments.Items[i].SubItems[0],0,4)) = '.jpg')
+        or (lowercase(copy(FDocFrame.lvDocuments.Items[i].SubItems[0],0,5)) = '.jpeg')
+        then
+          begin
+            acRotate.Enabled:=True;
+          end;
+      if tstext.Visible then
+        tstext.OnShow(tsText);
     end;
-  acRotate.Enabled:=False;
-  for i := 0 to FDocFrame.lvDocuments.Items.Count-1 do
-    if (lowercase(copy(FDocFrame.lvDocuments.Items[i].SubItems[0],0,4)) = '.jpg')
-    or (lowercase(copy(FDocFrame.lvDocuments.Items[i].SubItems[0],0,5)) = '.jpeg')
-    then
-      begin
-        acRotate.Enabled:=True;
-      end;
-  if tstext.Visible then
-    tstext.OnShow(tsText);
 end;
 
 constructor TfManageDocFrame.Create(AOwner: TComponent);
