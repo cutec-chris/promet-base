@@ -1550,17 +1550,20 @@ var
                       Edit;
                     FieldByName('SIZE').AsInteger:=FileSize(aDir);
                     Post;
-                    with BaseApplication as IBaseDbInterface,BaseApplication as IBaseApplication do
-                      begin
-                        //diff it
-                        {$IFDEF WINDOWS}
-                        ExecProcessEx('"'+AppendPathDelim(AppendPathDelim(ExtractFilePath(Paramstr(0)))+'tools')+'bsdiff'+ExtractFileExt(ParamStr(0))+'" "'+GetInternalTempDir+'prometheusfile.tmp" "'+aDir+'" "'+GetInternalTempDir+'prometheusfile1.tmp"');
-                        {$ELSE}
-                        ExecProcess('"'+'bsdiff'+ExtractFileExt(ParamStr(0))+'" "'+GetInternalTempDir+'prometheusfile.tmp" "'+aDir+'" "'+GetInternalTempDir+'prometheusfile1.tmp"','',True);
-                        {$ENDIF}
-                      end;
                     //TODO: use a better logic to not always use full files but for now its the save way
                     UseFullFile := True;
+                    if not UseFullFile then
+                      begin
+                        with BaseApplication as IBaseDbInterface,BaseApplication as IBaseApplication do
+                          begin
+                            //diff it
+                            {$IFDEF WINDOWS}
+                            ExecProcessEx('"'+AppendPathDelim(AppendPathDelim(ExtractFilePath(Paramstr(0)))+'tools')+'bsdiff'+ExtractFileExt(ParamStr(0))+'" "'+GetInternalTempDir+'prometheusfile.tmp" "'+aDir+'" "'+GetInternalTempDir+'prometheusfile1.tmp"');
+                            {$ELSE}
+                            ExecProcess('"'+'bsdiff'+ExtractFileExt(ParamStr(0))+'" "'+GetInternalTempDir+'prometheusfile.tmp" "'+aDir+'" "'+GetInternalTempDir+'prometheusfile1.tmp"','',True);
+                            {$ENDIF}
+                          end;
+                      end;
                     with BaseApplication as IBaseDbInterface,BaseApplication as IBaseApplication do
                       begin
                         if (not FileExists(UniToSys(GetInternalTempDir+'prometheusfile1.tmp'))) or UseFullfile then
