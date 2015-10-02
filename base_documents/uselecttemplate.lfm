@@ -28,7 +28,6 @@ object fSelectTemplate: TfSelectTemplate
     DataSource = DocumentActions
     TabOrder = 0
     TitleStyle = tsNative
-    OnCellClick = gTemplateCellClick
   end
   object bSelect: TBitBtn
     Left = 328
@@ -79,10 +78,10 @@ object fSelectTemplate: TfSelectTemplate
     TabOrder = 1
   end
   object bAbort: TBitBtn
-    Left = 378
-    Height = 34
-    Top = 225
-    Width = 102
+    Left = 382
+    Height = 26
+    Top = 233
+    Width = 98
     Anchors = [akRight, akBottom]
     AutoSize = True
     Cancel = True
@@ -93,10 +92,10 @@ object fSelectTemplate: TfSelectTemplate
     TabOrder = 2
   end
   object bNew: TBitBtn
-    Left = 426
-    Height = 28
-    Top = 166
-    Width = 54
+    Left = 415
+    Height = 26
+    Top = 168
+    Width = 65
     Anchors = [akRight, akBottom]
     AutoSize = True
     Caption = 'Neu'
@@ -140,10 +139,10 @@ object fSelectTemplate: TfSelectTemplate
     TabOrder = 3
   end
   object bDelete: TBitBtn
-    Left = 404
-    Height = 28
-    Top = 198
-    Width = 76
+    Left = 398
+    Height = 26
+    Top = 200
+    Width = 82
     Anchors = [akRight, akBottom]
     AutoSize = True
     Caption = 'löschen'
@@ -187,10 +186,10 @@ object fSelectTemplate: TfSelectTemplate
     TabOrder = 4
   end
   object cbReplacePlaceholders: TCheckBox
-    Left = 345
-    Height = 22
+    Left = 373
+    Height = 17
     Top = 56
-    Width = 142
+    Width = 114
     Anchors = [akTop, akRight]
     Caption = 'Platzhalter ersetzen'
     Checked = True
@@ -199,16 +198,16 @@ object fSelectTemplate: TfSelectTemplate
   end
   object Label1: TLabel
     Left = 8
-    Height = 15
+    Height = 13
     Top = 224
-    Width = 74
+    Width = 58
     Caption = 'neuer Name'
     ParentColor = False
   end
   object eName: TEdit
     Left = 8
-    Height = 25
-    Top = 240
+    Height = 21
+    Top = 244
     Width = 310
     Anchors = [akRight, akBottom]
     TabOrder = 6
@@ -219,7 +218,7 @@ object fSelectTemplate: TfSelectTemplate
     left = 316
     top = 128
   end
-  object DocumentActions: TDatasource
+  object DocumentActions: TDataSource
     left = 32
     top = 40
   end

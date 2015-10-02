@@ -51,7 +51,6 @@ type
     procedure bDeleteClick(Sender: TObject);
     procedure FDataSetDataSetAfterScroll(DataSet: TDataSet);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure gTemplateCellClick(Column: TColumn);
     procedure SetEditFocus(Data: PtrInt);
   private
     FDataSet: TBaseDbDataSet;
@@ -125,11 +124,6 @@ begin
       Key := 0;
       Close;
     end;
-end;
-
-procedure TfSelectTemplate.gTemplateCellClick(Column: TColumn);
-begin
-  eName.SetFocus;
 end;
 
 procedure TfSelectTemplate.SetEditFocus(Data: PtrInt);
