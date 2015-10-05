@@ -90,8 +90,8 @@ end;
 
 procedure TfAutomationframe.SetDataSet(AValue: TBaseDBDataset);
 begin
-  Position.DataSet:=nil;
   if FDataSet=AValue then Exit;
+  Position.DataSet:=nil;
   FDataSet:=AValue;
   if FDataSet is TBaseDBPosition then
     begin

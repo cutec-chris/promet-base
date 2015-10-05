@@ -904,11 +904,11 @@ begin
       aFrame := pcTabs.GetTab(TfAutomationframe);
       if (not Assigned(aFrame)) and Assigned(TBaseDBPosition(Dataset).FieldByName('SCRIPT')) and (TBaseDBPosition(Dataset).FieldByName('SCRIPT').AsString<>'') then
         begin
-          pcTabs.AddTab(TfCalcPositionFrame.Create(Self),False);
-          aFrame := pcTabs.GetTab(TfCalcPositionFrame);
-          AddCalcTab(aFrame.Controls[0]);
+          pcTabs.AddTab(TfAutomationframe.Create(Self),False);
+          aFrame := pcTabs.GetTab(TfAutomationframe);
+          AddAutomationTab(aFrame.Controls[0]);
         end
-      else if Assigned(aFrame) and Assigned(TBaseDBPosition(Dataset).FieldByName('SCRIPT')) and (TBaseDBPosition(Dataset).FieldByName('SCRIPT').AsString<>'') then
+      else if Assigned(aFrame) and Assigned(TBaseDBPosition(Dataset).FieldByName('SCRIPT')) and (TBaseDBPosition(Dataset).FieldByName('SCRIPT').AsString='') then
         begin
           pcTabs.WillRemoveTab(aFrame);
           aFrame.Free;
