@@ -33,10 +33,11 @@ type
   public
     constructor CreateEx(aOwner: TComponent; DM: TComponent; aConnection: TComponent=nil;
       aMasterdata: TDataSet=nil); override;
-    constructor Create(aOwner : TComponent);override;
     function GetTyp: string; override;
     procedure DefineFields(aDataSet : TDataSet);override;
     procedure SetDisplayLabels(aDataSet : TDataSet);override;
+  published
+    constructor Create(aOwner : TComponent);override;
     function SelectFromLink(aLink: string) : Boolean; override;
     procedure SelectFromParent(aParent : Variant);virtual;
   end;
@@ -109,9 +110,10 @@ type
     procedure Recalculate;
     procedure Reorganize;
     function CreateTable : Boolean;override;
+    procedure FillDefaults(aDataSet : TDataSet);override;
+  published
     procedure CascadicPost;override;
     procedure CascadicCancel;override;
-    procedure FillDefaults(aDataSet : TDataSet);override;
     property History : TProjectHistory read FHistory;
     property Images : TImages read FImages;
     property Links : TProjectLinks read FLinks;

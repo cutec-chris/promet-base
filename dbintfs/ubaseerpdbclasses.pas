@@ -39,9 +39,10 @@ type
   public
     constructor CreateEx(aOwner: TComponent; DM: TComponent; aConnection: TComponent=nil;
       aMasterdata: TDataSet=nil); override;
+    function CombineItems(aRemoteLink : string) : Boolean;virtual;
+  published
     procedure CascadicPost;override;
     procedure CascadicCancel; override;
-    function CombineItems(aRemoteLink : string) : Boolean;virtual;
   end;
   TStorageTypes = class(TBaseDBDataSet)
   public

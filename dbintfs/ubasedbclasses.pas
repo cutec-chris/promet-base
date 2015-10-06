@@ -152,6 +152,7 @@ type
     procedure BuildSearchIndexes;virtual;
     procedure CascadicPost; override;
     procedure GenerateThumbnail;virtual;
+  published
     property Text : TField read GetText;
     property Number : TField read GetNumber;
     property BookNumber : TField read GetBookNumber;
