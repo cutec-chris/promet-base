@@ -37,11 +37,9 @@ type
     FStatus : string;
     p: TProcess;
     OutputLine: String;
-    procedure DoSetStatus;
     procedure SetActive(AValue: Boolean);
     procedure SetTimeout(AValue: TDateTime);
     procedure DoOutputLine;
-    procedure DoSynchronize(AMethod: TThreadMethod);
   public
     aOutput,aBuffer,aLogOutput : string;
     constructor Create;
@@ -51,7 +49,6 @@ type
     property Id : Variant read FId write FId;
     procedure Start;
     procedure Stop;
-    procedure InformStopped;
     property Active : Boolean read FActive write SetActive;
     procedure Execute; override;
     property Commandline : string read FCommandline write FCommandline;
@@ -103,31 +100,6 @@ implementation
 uses uBaseDBInterface,uData,Utils,uBaseApplication,uIntfStrConsts,math,
   uprometscripts;
 
-procedure TProcProcess.DoSetStatus;
-var
-  aProc: TProcesses;
-begin
-  aProc := uProcessManagement.TProcesses.CreateEx(nil,Data);
-  aProc.Select(Id);
-  aProc.Open;
-  if aProc.Count > 0 then
-    begin
-      aProc.DataSet.Edit;
-      aProc.FieldByName('STATUS').AsString:=FStatus;
-      if FStatus='R' then
-        begin
-          aProc.FieldByName('STARTED').AsDateTime:=Now;
-          aProc.FieldByName('STOPPED').Clear;
-        end
-      else
-        begin
-          aProc.FieldByName('STOPPED').AsDateTime:=Now;
-        end;
-      aProc.DataSet.Post;
-    end;
-  aProc.Free;
-end;
-
 procedure TProcProcess.SetActive(AValue: Boolean);
 begin
   if FActive=AValue then Exit;
@@ -146,15 +118,6 @@ begin
   FOutput.Add(OutputLine);
   with BaseApplication as IBaseApplication do
     Debug(FName+':'+OutputLine);
-end;
-
-procedure TProcProcess.DoSynchronize(AMethod: TThreadMethod);
-begin
-  {$ifdef WINDOWS}
-  Synchronize(AMethod);
-  {$else}
-  AMethod;
-  {$endif}
 end;
 
 constructor TProcProcess.Create;
@@ -181,11 +144,6 @@ end;
 procedure TProcProcess.Stop;
 begin
   p.Terminate(255);
-end;
-
-procedure TProcProcess.InformStopped;
-begin
-  DoSetStatus;
 end;
 
 procedure TProcProcess.Execute;
@@ -494,6 +452,8 @@ var
     i: Integer;
     a: Integer;
     aStartTime: TDateTime;
+    arec: LargeInt;
+    aProc : TProcesses;
   begin
     Found := False;
     for i := 0 to length(ProcessData)-1 do
@@ -525,17 +485,24 @@ var
                 end;
               if not bProcess.Informed then
                 begin
-                  DoLog(aprocess+':'+strExitted,aLog,True);
-                  if not Processes.CanEdit then Processes.DataSet.Edit;
-                  Processes.DataSet.FieldByName('LOG').AsString:=aLog.Text;
-                  Processes.DataSet.FieldByName('STOPPED').AsDateTime:=Now();
-                  if bProcess.Status<>'R' then
-                    Processes.DataSet.FieldByName('STATUS').AsString := bProcess.Status
-                  else Processes.DataSet.FieldByName('STATUS').AsString := 'N';
-                  Processes.DataSet.Post;
+                  DoLog(aprocess+'('+Processes.DataSet.FieldByName('NAME').AsString+'):'+strExitted,aLog,True);
+                  arec := Processes.GetBookmark;
+                  aProc := TProcesses.Create(nil);
+                  aProc.Select(arec);
+                  aProc.Open;
+                  if aProc.Count>0 then
+                    begin
+                      if not aProc.CanEdit then aProc.Edit;
+                      aProc.FieldByName('LOG').AsString:=aLog.Text;
+                      aProc.FieldByName('STOPPED').AsDateTime:=aStartTime;
+                      aProc.FieldByName('STATUS').AsString := 'N';
+                      aProc.Post;
+                    end;
+                  aProc.Free;
+                  writeln(Processes.DataSet.FieldByName('STOPPED').AsString+':'+Processes.DataSet.FieldByName('STATUS').AsString);
                   bProcess.Informed := True;
-                end;
-              if Assigned(Processes) then
+                end
+              else if Assigned(Processes) then
                 if ((Processes.FieldByName('STATUS').AsString<>'R') and (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay)))) or DoAlwasyRun then
                   begin
                     aLog.Clear;
