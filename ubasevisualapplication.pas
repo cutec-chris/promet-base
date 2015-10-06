@@ -1173,6 +1173,8 @@ begin
 end;
 procedure TBaseVisualApplication.DoExit;
 begin
+  with Self as IBaseDbInterface do
+    DBLogout;
   if Assigned(Messagehandler) then
     begin
       MessageHandler.OnExit:=@MessageHandlerExit;
@@ -1185,8 +1187,6 @@ begin
     if Processmanager.Active then Processmanager.Terminate(1);
   if Assigned(Processmanager) then
     FreeAndNil(ProcessManager);
-  with Self as IBaseDbInterface do
-    DBLogout;
 end;
 
 procedure TBaseVisualApplication.LoginDone;
