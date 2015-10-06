@@ -118,26 +118,10 @@ begin
   Clients.DataSet := Data.ProcessClient.DataSet;
   Processes.DataSet := Data.ProcessClient.Processes.DataSet;
   Data.ProcessClient.Open;
-  with Data.ProcessClient.DataSet do
-    begin
-      DisableControls;
-      First;
-      while not EOF do
-        begin
-          if FieldByName('TIMESTAMPD').AsDateTime<(Now()-(1/24)) then
-            begin
-              Edit;
-              FieldByName('STATUS').AsString:='';
-              Post;
-            end;
-          Next;
-        end;
-      EnableControls;
-    end;
   Data.ProcessClient.Processes.Open;
   ProcessParameters.DataSet := Data.ProcessClient.Processes.Parameters.DataSet;
   Data.ProcessClient.Processes.Parameters.DataSet.Open;
-  Timer1.Enabled:=True;
+  //Timer1.Enabled:=True;
   Clients.DataSet.Locate('NAME','*',[]);
 end;
 procedure TfProcessOptions.CommitTransaction;
