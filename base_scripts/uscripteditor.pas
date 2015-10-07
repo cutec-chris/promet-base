@@ -258,7 +258,7 @@ function OnUses(Sender: TPSPascalCompiler; const Name: tbtString): Boolean;
 begin
   Result := False;
   if (Assigned(flastScriptEditor) and Assigned(Data)) and (fLastScriptEditor.FDataSet is TBaseScript) and (TBaseScript(fLastScriptEditor.FDataSet).Script is TPascalScript) then
-    Result := TPascalScript(TBaseScript(fScriptEditor.FDataSet).Script).InternalUses(Sender,Name);
+    Result := TPascalScript(TBaseScript(flastScriptEditor.FDataSet).Script).InternalUses(Sender,Name);
   if not Result and (Assigned(flastScriptEditor) and Assigned(Data)) and (fLastScriptEditor.FDataSet is TBaseScript) and (TBaseScript(fLastScriptEditor.FDataSet).Script is TPascalScript) then
     Result := TPascalScript(TBaseScript(fLastScriptEditor.FDataSet).Script).InternalUses(Sender,Name)
 end;
@@ -489,7 +489,7 @@ end;
 
 procedure TfScriptEditor.acPauseExecute(Sender: TObject);
 begin
-  if lowercase(FDataSet.FieldByName('SYNTAX').AsString)='pascal' then
+  if ed.Highlighter=HigPascal then
     begin
       if Debugger.Exec.Status = isRunning then
         begin
@@ -509,7 +509,7 @@ end;
 
 procedure TfScriptEditor.acResetExecute(Sender: TObject);
 begin
-  if lowercase(FDataSet.FieldByName('SYNTAX').AsString)='pascal' then
+  if ed.Highlighter=HigPascal then
     begin
       if Debugger.Exec.Status in isRunningOrPaused then
         begin
