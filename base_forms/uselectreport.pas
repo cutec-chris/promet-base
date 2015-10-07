@@ -340,9 +340,24 @@ procedure TfSelectReport.bDesignClick(Sender: TObject);
 var
   BaseApplication : IBaseApplication;
   NewRect: TRect;
+  aNewName: String;
 begin
   if not Supports(Application, IBaseApplication, BaseApplication) then exit;
   ForceDirectoriesUTF8(AppendPathDelim(GetAppConfigDirUTF8(false, true))+'LazReport');
+  Printer.PrinterIndex:=-1;
+  if cbPrinter.Text = '<'+strFileExport+'>' then
+  else if cbPrinter.Text = '<'+streMail+'>' then
+  else if cbPrinter.Text = '<'+strExterneMail+'>' then
+  else if cbPrinter.Text = '<'+strDefaultPrinter+'>' then
+  else if cbPrinter.Text = '<'+strDocumentDefaultPrinter+'>' then
+  else if cbPrinter.Text = '<'+strNoOutput+'>' then
+  else
+    begin
+      if cbPrinter.ItemIndex > -1 then
+        begin
+          Prn.PrinterIndex := cbPrinter.ItemIndex-DefaultPrinterTypes;
+        end;
+    end;
   with Application as IBaseDbInterface do
     begin
       try
@@ -389,8 +404,11 @@ begin
       with Application as IBaseConfig do
         Config.WriteRect('ReportEditor',TfrDesignerForm(LR_Class.frDesigner).BoundsRect);
       Data.Reports.DataSet.Edit;
-      with BaseApplication as IBaseApplication do
-        Data.FileToBlobField(TfrDesignerForm(LR_Class.frDesigner).CurDocName,Data.Reports.DataSet,'REPORT');
+      aNewName := TfrDesignerForm(LR_Class.frDesigner).CurDocName;
+      if FileExistsUTF8(TfrDesignerForm(LR_Class.frDesigner).CurDocName) then
+        with BaseApplication as IBaseApplication do
+          Data.FileToBlobField(TfrDesignerForm(LR_Class.frDesigner).CurDocName,Data.Reports.DataSet,'REPORT');
+      DeleteFileUTF8(TfrDesignerForm(LR_Class.frDesigner).CurDocName);
       if Data.Reports.DataSet.FieldByName('NAME').IsNull then
         begin
           Data.Reports.DataSet.FieldByName('NAME').AsString:=strStandard;
@@ -414,10 +432,23 @@ var
 begin
   if not Supports(Application, IBaseApplication, BaseApplication) then exit;
   Screen.Cursor:=crHourglass;
-  Printer.PrinterIndex:=-1;//Default Printer
   with Application as IBaseDbInterface do
     begin
       LoadReport;
+      Printer.PrinterIndex:=-1;//Default Printer
+      if cbPrinter.Text = '<'+strFileExport+'>' then
+      else if cbPrinter.Text = '<'+streMail+'>' then
+      else if cbPrinter.Text = '<'+strExterneMail+'>' then
+      else if cbPrinter.Text = '<'+strDefaultPrinter+'>' then
+      else if cbPrinter.Text = '<'+strDocumentDefaultPrinter+'>' then
+      else if cbPrinter.Text = '<'+strNoOutput+'>' then
+      else
+        begin
+          if cbPrinter.ItemIndex > -1 then
+            begin
+              Prn.PrinterIndex := cbPrinter.ItemIndex-DefaultPrinterTypes;
+            end;
+        end;
       pv := TfrPreviewForm.Create(Self);
       pv.WindowState:=wsNormal;
       with Application as IBaseConfig do
@@ -895,6 +926,7 @@ begin
                 begin
                   Data.BlobFieldToFile(Data.Reports.DataSet,'REPORT',GetInternalTempDir+'preport.lrf');
                   Report.LoadFromFile(GetInternalTempDir+'preport.lrf');
+                  DeleteFileUTF8(GetInternalTempDir+'preport.lrf');
                 end;
             end
           else
