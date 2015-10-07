@@ -256,9 +256,9 @@ function OnUses(Sender: TPSPascalCompiler; const Name: tbtString): Boolean;
 begin
   Result := False;
   if Assigned(fScriptEditor) and Assigned(Data) then
-    Result := TPascalScript(TPrometPascalScript(fScriptEditor.FDataSet).Script).InternalUses(Sender,Name);
-  if not Result and (Assigned(flastScriptEditor) and Assigned(Data)) and (fLastScriptEditor.FDataSet is TPrometPascalScript) then
-    Result := TPascalScript(TPrometPascalScript(fLastScriptEditor.FDataSet).Script).InternalUses(Sender,Name)
+    Result := TPascalScript(TBaseScript(fScriptEditor.FDataSet).Script).InternalUses(Sender,Name);
+  if not Result and (Assigned(flastScriptEditor) and Assigned(Data)) and (fLastScriptEditor.FDataSet is TBaseScript) and (TBaseScript(fLastScriptEditor.FDataSet).Script is TPascalScript) then
+    Result := TPascalScript(TBaseScript(fLastScriptEditor.FDataSet).Script).InternalUses(Sender,Name)
 end;
 
 procedure DoSleep(aTime: LongInt); StdCall;
@@ -428,8 +428,8 @@ end;
 procedure TfScriptEditor.DebuggerExecImport(Sender: TObject; se: TPSExec;
   x: TPSRuntimeClassImporter);
 begin
-  if Assigned(Data) and (FDataSet is TPrometPascalScript) then
-    TPascalScript(TPrometPascalScript(FDataSet).Script).ClassImporter:=x;
+  if Assigned(Data) and (fLastScriptEditor.FDataSet is TBaseScript) and (TBaseScript(fLastScriptEditor.FDataSet).Script is TPascalScript) then
+    TPascalScript(TBaseScript(FDataSet).Script).ClassImporter:=x;
 end;
 
 function TfScriptEditor.DebuggerGetNotificationVariant(Sender: TPSScript;
@@ -469,7 +469,8 @@ end;
 
 procedure TfScriptEditor.aButtonClick(Sender: TObject);
 begin
-  TPascalScript(TPrometPascalScript(FDataSet).Script).OpenTool(TToolButton(Sender).Caption);
+  if (fLastScriptEditor.FDataSet is TBaseScript) and (TBaseScript(fLastScriptEditor.FDataSet).Script is TPascalScript) then
+    TPascalScript(TBaseScript(FDataSet).Script).OpenTool(TToolButton(Sender).Caption);
 end;
 
 procedure TfScriptEditor.acLogoutExecute(Sender: TObject);
@@ -556,15 +557,15 @@ begin
         FResume := True
       end else
       begin
-        if (FDataSet is TPrometPascalScript) and Assigned(TPrometPascalScript(FDataSet).Script) then
-          TPascalScript(TPrometPascalScript(FDataSet).Script).OnToolRegistering:=@TPascalScriptToolRegistering;
+        if (fLastScriptEditor.FDataSet is TBaseScript) and (TBaseScript(fLastScriptEditor.FDataSet).Script is TPascalScript) then
+          TPascalScript(TBaseScript(FDataSet).Script).OnToolRegistering:=@TPascalScriptToolRegistering;
         if Compile then
           begin
             SetCurrentDir(GetHomeDir);
-            if Assigned(Data) and (FDataSet is TPrometPascalScript) then
+            if Assigned(Data) and (fLastScriptEditor.FDataSet is TBaseScript) and (TBaseScript(fLastScriptEditor.FDataSet).Script is TPascalScript) then
               begin
-                TPascalScript(TPrometPascalScript(FDataSet).Script).Runtime := Debugger.Exec;
-                TPascalScript(TPrometPascalScript(FDataSet).Script).Compiler := Debugger.Comp;
+                TPascalScript(TBaseScript(FDataSet).Script).Runtime := Debugger.Exec;
+                TPascalScript(TBaseScript(FDataSet).Script).Compiler := Debugger.Comp;
               end;
             if Debugger.Execute then
             begin
@@ -777,10 +778,10 @@ var
   mo: TMessageObject;
   aMsg: TPSPascalCompilerMessage;
 begin
-  if Assigned(Data) and (FDataSet is TPrometPascalScript) then
+  if Assigned(Data) and (fLastScriptEditor.FDataSet is TBaseScript) and (TBaseScript(fLastScriptEditor.FDataSet).Script is TPascalScript) then
     begin
-      TPascalScript(TPrometPascalScript(FDataSet).Script).Compiler:=Debugger.Comp;
-      TPascalScript(TPrometPascalScript(FDataSet).Script).Runtime:=Debugger.Exec;
+      TPascalScript(TBaseScript(FDataSet).Script).Compiler:=Debugger.Comp;
+      TPascalScript(TBaseScript(FDataSet).Script).Runtime:=Debugger.Exec;
     end;
   Debugger.OnExecImport:=@DebuggerExecImport;
   Debugger.Script.Assign(ed.Lines);
@@ -951,10 +952,10 @@ begin
     begin
       if not Assigned(FDataSet) then
         begin
-          FDataSet := TPrometPascalScript.CreateEx(nil,Data,aConnection);
+          FDataSet := TBaseScript.CreateEx(nil,Data,aConnection);
           FDataSet.CreateTable;
         end;
-      TPrometPascalScript(FDataSet).SelectByName(aScript);
+      TBaseScript(FDataSet).SelectByName(aScript);
       FDataSet.Open;
       DataSource.DataSet := FDataSet.DataSet;
       FDataSet.DataSet.BeforeScroll:=@FDataSetDataSetBeforeScroll;

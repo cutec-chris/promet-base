@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, uBaseDbClasses, uBaseDBInterface, db, Utils
-  ,uBaseDatasetInterfaces,uBaseERPDBClasses;
+  ,uBaseDatasetInterfaces,uBaseERPDBClasses,contnrs,genscript;
 
 type
   { TBaseScript }
@@ -39,7 +39,9 @@ type
     FRlFunc: TStrInFunc;
     FWrFunc: TStrOutFunc;
     FWriFunc: TStrOutFunc;
+    FScript : TScript;
     FSelectedName : variant;
+    function GetScript: TScript;
     function GetVersion: TField;
     procedure SQLConn;
   protected
@@ -57,6 +59,7 @@ type
     procedure DefineFields(aDataSet: TDataSet); override;
     procedure FillDefaults(aDataSet: TDataSet); override;
     function SelectByName(aName: string): Boolean;
+    property Script : TScript read GetScript;
     function Execute(Parameters : Variant) : Boolean;virtual;
     property Write : TStrOutFunc read FWriFunc write FWriFunc;
     property Writeln : TStrOutFunc read FWrFunc write FWRFunc;
@@ -71,13 +74,22 @@ type
   end;
 
   function ProcessScripts : Boolean;//process Scripts that must be runned cyclic
+  procedure RegisterScriptType(aType : TScriptClass);
 
 var
   Historyrun : Boolean;
+  ScriptTypes : TClassList;
 
 implementation
+
 uses uStatistic,uData,httpsend,variants,uPerson,uMasterdata,uProjects,uOrder,
   uBaseApplication,uSystemMessage,utask,uMessages,uDocuments, uIntfStrConsts;
+
+procedure RegisterScriptType(aType : TScriptClass);
+begin
+  ScriptTypes.Add(aType);
+end;
+
 function ProcessScripts : Boolean;//process Scripts that must be runned cyclic Result shows that it should be runned faster (debug)
 var
   aScript: TBaseScript;
@@ -149,6 +161,29 @@ end;
 function TBaseScript.GetVersion: TField;
 begin
   Result := FieldByName('VERSION');
+end;
+
+function TBaseScript.GetScript: TScript;
+var
+  aScript: TScript;
+  i: Integer;
+begin
+  if not Assigned(FScript) then
+    begin
+      for i := 0 to ScriptTypes.Count-1 do
+        begin
+          aScript := TScript(ScriptTypes[i].Create);
+          if aScript.Typ<>FieldByName('TYPE').AsString then
+            FreeAndNil(aScript);
+          if Assigned(aScript) then break;
+        end;
+      if Assigned(aScript) then
+        begin
+          aScript.Source:=FieldByName('SCRIPT').AsString;
+          FScript:=aScript;
+        end;
+    end;
+  Result := FScript;
 end;
 
 destructor TBaseScript.Destroy;
@@ -490,5 +525,8 @@ end;
 
 initialization
   Historyrun:=True;
+  ScriptTypes:=TClassList.Create;
+finalization
+  ScriptTypes.Free;
 end.
 

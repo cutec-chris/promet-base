@@ -24,13 +24,13 @@ unit uspeakinginterface;
 interface
 
 uses
-  Classes, SysUtils,uprometpascalscript,variants,uBaseDbClasses;
+  Classes, SysUtils,uprometscripts,variants,uBaseDbClasses;
 
 type
 
   { TSpeakingInterface }
 
-  TSpeakingInterface = class(TPrometPascalScript)
+  TSpeakingInterface = class(TBaseScript)
   public
     function CheckSentence(aSentence : string) : Boolean;
   end;

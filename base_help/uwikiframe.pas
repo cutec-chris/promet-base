@@ -24,7 +24,7 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, ComCtrls, DbCtrls, Buttons,
   StdCtrls, ExtCtrls, IpHtml, db, uPrometFrames, uExtControls, Graphics,
   DBGrids, ActnList, Dialogs, Menus, uImageCache, uBaseDbClasses, LCLProc,
-  Clipbrd, contnrs,Aspell;
+  Clipbrd, contnrs,Aspell,uprometscripts;
 type
   THistory = class(TStringList)
   private
@@ -701,7 +701,7 @@ var
   aInclude: String;
   nInp: String;
   ConvertRTF: Boolean = False;
-  aScript: TPrometPascalScript;
+  aScript: TBaseScript;
   bScript: String;
   Found: Boolean;
   procedure BuildLinkRow(aBDS : TDataSet);
@@ -1303,7 +1303,7 @@ begin
   else if (Uppercase(copy(Inp,0,7)) = 'SCRIPT(') then
     begin
       Inp := copy(Inp,pos('(',Inp)+1,length(Inp)-(pos('(',Inp)+1));
-      aScript := TPrometPascalScript.Create(nil);
+      aScript := TBaseScript.Create(nil);
       aScript.Write:=@aScriptWrite;
       aScript.Writeln:=@aScriptWriteln;
       FScriptContent:='';

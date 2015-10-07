@@ -25,17 +25,15 @@ interface
 
 uses
   Classes, SysUtils, genpascalscript, uprometscripts,uPSRuntime,uPSCompiler,uPSUtils,
-  Utils,db,uBaseDBInterface;
+  Utils,db,uBaseDBInterface,genscript;
 
 type
 
   { TPrometPascalScript }
 
-  TPrometPascalScript = class(TBaseScript)
+  TPrometPascalScript = class(TPascalScript)
     function TPascalScriptUses(Sender: TPascalScript; const aName: tbtString;
       OnlyAdditional : Boolean): Boolean;
-    procedure DataSetAfterOpen(aDataSet: TDataSet);
-    procedure DataSetAfterScroll(ADataSet: TDataSet);
   private
     FRlFunc: TStrInFunc;
     FScript: TScript;
@@ -50,10 +48,10 @@ type
     function InternalData : TBaseDBModule;
     function ContextDataSet : TDataSet;
     function InternalHistory(Action: string; ParentLink: string; Icon: Integer=0;
-      ObjectLink: string=''; Reference: string='';aCommission: string='';Source : string='';Date:TDateTime = 0) : Boolean;
+      ObjectLink: string=''; Reference: string='';aCommission: string='';aSource : string='';Date:TDateTime = 0) : Boolean;
     function InternalUserHistory(Action: string; UserName: string; Icon: Integer;
       ObjectLink: string; Reference: string; aCommission: string;
-  Source: string; Date: TDateTime): Boolean;
+  aSource: string; Date: TDateTime): Boolean;
     procedure InternalStorValue(aName,aId : string;aValue : Double);
     procedure InternalExecuteScript(aCommand, aClient: string);
 
@@ -61,11 +59,8 @@ type
     function InternalExecuteScriptFuncionPSRS(aScript, aFunc, aParam: string) : string;
     function InternalExecuteScriptFuncionRS(aScript, aFunc : string) : string;
   public
-    constructor CreateEx(aOwner: TComponent; DM: TComponent; aConnection: TComponent
-  =nil; aMasterdata: TDataSet=nil); override;
     property Sleep : TSleepFunc read FSlFunc write FSlFunc;
-    property Script : TScript read FScript;
-    function Execute(Parameters: Variant): Boolean; override;
+    function Execute(aParameters: Variant): Boolean; override;
     destructor Destroy;override;
   end;
 
@@ -113,7 +108,7 @@ procedure TBaseDbListPropertyDependenciesR(Self : TTaskList;var T : TDependencie
 function TPrometPascalScript.TPascalScriptUses(Sender: TPascalScript;
   const aName: tbtString; OnlyAdditional: Boolean): Boolean;
 var
-  aScript: TPrometPascalScript;
+  aScript: TBaseScript;
 begin
   Result:=False;
   with BaseApplication as IBaseApplication do
@@ -122,10 +117,10 @@ begin
     begin
       Result := True;
       try
-        Sender.AddMethod(Self,@TPrometPascalScript.InternalWriteln,'procedure Writeln(P1: string);');
-        Sender.AddMethod(Self,@TPrometPascalScript.InternalWrite,'procedure Write(P1: string);');
-        Sender.AddMethod(Self, @TPrometPascalScript.InternalParamStr,'function ParamStr(Param : Integer) : String;');
-        Sender.AddMethod(Self, @TPrometPascalScript.InternalParamCount,'function ParamCount : Integer;');
+        //Sender.AddMethod(Self,@TPrometPascalScript.InternalWriteln,'procedure Writeln(P1: string);');
+        //Sender.AddMethod(Self,@TPrometPascalScript.InternalWrite,'procedure Write(P1: string);');
+        //Sender.AddMethod(Self, @TPrometPascalScript.InternalParamStr,'function ParamStr(Param : Integer) : String;');
+        //Sender.AddMethod(Self, @TPrometPascalScript.InternalParamCount,'function ParamCount : Integer;');
         Sender.AddFunction(@UniToSys,'function UniToSys(const s: string): string;');
         Sender.AddFunction(@SysToUni,'function SysToUni(const s: string): string;');
       except
@@ -584,7 +579,7 @@ begin
           Result:=False;
           with BaseApplication as IBaseApplication do
             Debug('Uses get Unit from Database:'+aName);
-          aScript := TPrometPascalScript.CreateEx(nil,DataModule);
+          aScript := TBaseScript.CreateEx(nil,Data);
           aScript.Filter(Data.ProcessTerm('UPPER('+Data.QuoteField('NAME')+')=UPPER('+Data.QuoteValue(aName)+')'));
           if aScript.Count>0 then
             if aScript.Locate('NAME',aName,[loCaseInsensitive]) then
@@ -609,16 +604,6 @@ begin
   else Result:=True;
 end;
 
-procedure TPrometPascalScript.DataSetAfterOpen(aDataSet: TDataSet);
-begin
-  TPascalScript(FScript).OnUses:=@TPascalScriptUses;
-end;
-
-procedure TPrometPascalScript.DataSetAfterScroll(ADataSet: TDataSet);
-begin
-  FScript.Source:=FieldByName('SCRIPT').AsString;
-end;
-
 function TPrometPascalScript.InternalParamStr(Param: Integer): String;
 begin
   Result:='';
@@ -635,7 +620,7 @@ end;
 
 function TPrometPascalScript.InternalDataSet(SQL: string): TDataSet;
 begin
-  Result := TBaseDBModule(DataModule).GetNewDataSet(ReplaceSQLFunctions(SQL),Connection);
+  Result := TBaseDBModule(Data).GetNewDataSet(ReplaceSQLFunctions(SQL));
 end;
 
 function TPrometPascalScript.InternalData: TBaseDBModule;
@@ -650,24 +635,24 @@ end;
 
 function TPrometPascalScript.InternalHistory(Action: string; ParentLink: string;
   Icon: Integer; ObjectLink: string; Reference: string; aCommission: string;
-  Source: string; Date: TDateTime): Boolean;
+  aSource: string; Date: TDateTime): Boolean;
 var
   aHistory: TBaseHistory;
   aDataSetClass: TBaseDBDatasetClass;
   aDataSet: TBaseDBDataset;
 begin
   Result := False;
-  if TBaseDBModule(DataModule).DataSetFromLink(ParentLink,aDataSetClass) then
+  if TBaseDBModule(Data).DataSetFromLink(ParentLink,aDataSetClass) then
     begin
-      aDataSet := aDataSetClass.CreateEx(nil,DataModule,Connection);
+      aDataSet := aDataSetClass.CreateEx(nil,Data);
       TBaseDbList(aDataSet).SelectFromLink(ParentLink);
       aDataSet.Open;
       if aDataSet.Count>0 then
         begin
-          aHistory := TBaseHistory.CreateEx(nil,DataModule,Connection,aDataSet.DataSet);
+          aHistory := TBaseHistory.CreateEx(nil,Data,nil,aDataSet.DataSet);
           aHistory.AddItemSR(aDataSet.DataSet,Action,ObjectLink,Reference,ObjectLink,Icon,aCommission,True,False);
-          if Source<>'' then
-            aHistory.FieldByName('SOURCE').AsString:=Source;
+          if aSource<>'' then
+            aHistory.FieldByName('SOURCE').AsString:=aSource;
           aHistory.Post;
           aHistory.Free;
           result := True;
@@ -677,7 +662,7 @@ begin
 end;
 function TPrometPascalScript.InternalUserHistory(Action: string; UserName: string;
   Icon: Integer; ObjectLink: string; Reference: string; aCommission: string;
-  Source: string; Date: TDateTime): Boolean;
+  aSource: string; Date: TDateTime): Boolean;
 var
   aUsers: TUser;
 begin
@@ -686,8 +671,8 @@ begin
   if aUsers.Locate('NAME',UserName,[loCaseInsensitive]) then
     begin
       Result := aUsers.History.AddItemSR(aUsers.DataSet,Action,ObjectLink,Reference,ObjectLink,Icon,aCommission,True,False);
-      if Source<>'' then
-        aUsers.History.FieldByName('SOURCE').AsString:=Source;
+      if aSource<>'' then
+        aUsers.History.FieldByName('SOURCE').AsString:=aSource;
       aUsers.History.Post;
     end;
   aUsers.Free;
@@ -715,15 +700,15 @@ end;
 procedure TPrometPascalScript.InternalExecuteScriptFuncionPS(aScript,aFunc,
   aParam: string);
 var
-  bScript: TPrometPascalScript;
+  bScript: TBaseScript;
 begin
-  bScript := TPrometPascalScript.Create(nil);
+  bScript := TBaseScript.Create(nil);
   bScript.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(aScript));
   if bScript.Count>0 then
     begin
       try
-        if TPascalScript(bScript.Script).Compile then
-          TPascalScript(bScript.Script).Runtime.RunProcPN([aParam],aFunc);
+        if TPrometPascalScript(bScript.Script).Compile then
+          TPrometPascalScript(bScript.Script).Runtime.RunProcPN([aParam],aFunc);
       except
       end;
     end;
@@ -733,9 +718,9 @@ end;
 function TPrometPascalScript.InternalExecuteScriptFuncionPSRS(aScript, aFunc,
   aParam: string): string;
 var
-  bScript: TPrometPascalScript;
+  bScript: TBaseScript;
 begin
-  bScript := TPrometPascalScript.Create(nil);
+  bScript := TBaseScript.Create(nil);
   bScript.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(aScript));
   if bScript.Count>0 then
     begin
@@ -752,9 +737,9 @@ end;
 function TPrometPascalScript.InternalExecuteScriptFuncionRS(aScript,
   aFunc: string): string;
 var
-  bScript: TPrometPascalScript;
+  bScript: TBaseScript;
 begin
-  bScript := TPrometPascalScript.Create(nil);
+  bScript := TBaseScript.Create(nil);
   bScript.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(aScript));
   if bScript.Count>0 then
     begin
@@ -768,39 +753,11 @@ begin
   bScript.Free;
 end;
 
-constructor TPrometPascalScript.CreateEx(aOwner: TComponent; DM: TComponent;
-  aConnection: TComponent; aMasterdata: TDataSet);
-begin
-  inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FScript := TPascalScript.Create;
-  TPascalScript(FScript).OnUses:=@TPascalScriptUses;
-  DataSet.AfterScroll:=@DataSetAfterScroll;
-  dataSet.AfterOpen:=@DataSetAfterOpen;
-end;
-
-function TPrometPascalScript.Execute(Parameters: Variant): Boolean;
+function TPrometPascalScript.Execute(aParameters: Variant): Boolean;
 var
   aStartTime: TDateTime;
 begin
-  aStartTime := Now();
-  if lowercase(FieldByName('SYNTAX').AsString) = 'pascal' then
-    begin
-      Result := FScript.Execute(Parameters);
-      if not Result then
-        DoSetResults(FScript.Results);
-      if Result then
-        begin
-          DoSetStatus('N');
-          Edit;
-          FieldByName('LASTRUN').AsDateTime:=aStartTime;
-          Post;
-        end
-      else
-        begin
-          DoSetStatus('E');
-        end;
-    end
-  else Inherited;
+  inherited;
 end;
 
 destructor TPrometPascalScript.Destroy;

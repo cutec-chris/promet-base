@@ -26,7 +26,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
   ButtonPanel, ExtCtrls, Buttons, EditBtn, ActnList, db,uprometpascalscript,
-  DBGrids;
+  DBGrids,uprometscripts;
 
 type
   TImporterCapability = (icImport,icExport);
@@ -53,7 +53,7 @@ type
   private
     FTyp : TImporterCapability;
     FFormat : string;
-    aScripts: TPrometPascalScript;
+    aScripts: TBaseScript;
     procedure CheckAll;
     { private declarations }
   public
@@ -112,10 +112,10 @@ begin
   if aRes then
     begin
       lInfo.Caption:=strConfigureDataSource;
-      if (TPrometPascalScript(aScripts).Script is  TPascalScript) then
-        with TPrometPascalScript(aScripts).Script as TPascalScript do
+      if (TBaseScript(aScripts).Script is TPascalScript) then
+        with TBaseScript(aScripts).Script as TPascalScript do
           begin
-            if not TPascalScript(aScripts.Script).Compile then
+            if not Compile then
               begin
                 for i:= 0 to Compiler.MsgCount - 1 do
                   if Length(aResults) = 0 then
@@ -168,7 +168,7 @@ begin
     end;
   Ftyp := Typ;
   fFormat := DefaultFormat;
-  aScripts := TPrometPascalScript.Create(nil);
+  aScripts := TBaseScript.Create(nil);
   if FTyp=icImport then
     aScripts.Filter(Data.ProcessTerm(Data.QuoteField('NAME')+'='+Data.QuoteValue('Import.'+FFormat+'.*')))
   else
@@ -199,7 +199,7 @@ begin
             begin
 
             end;
-          with TPrometPascalScript(aScripts).Script as TPascalScript do
+          with TBaseScript(aScripts).Script as TPascalScript do
             begin
               Screen.Cursor:=crHourGlass;
               if FTyp = icImport then
