@@ -222,7 +222,7 @@ implementation
 
 uses
   uFrmGotoLine,uData,uBaseApplication,genpascalscript,Utils,uSystemMessage,uStatistic,
-  Clipbrd,uprometpascalscript;
+  Clipbrd,uprometpascalscript,uprometpythonscript;
 
 {$R *.lfm}
 

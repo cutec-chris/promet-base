@@ -32,6 +32,7 @@ type
 
   TBaseScript = class(TBaseERPList,IBaseHistory)
     procedure DataSetAfterScroll(aDataSet: TDataSet);
+    procedure FDataSourceDataChange(Sender: TObject; Field: TField);
   private
     FHistory: TBaseHistory;
     FLinks: TLinks;
@@ -198,7 +199,8 @@ begin
   except
     on e : Exception do
       begin
-        Write('Error:'+e.Message);
+        if Assigned(Write) then
+          Write('Error:'+e.Message);
         DoSetResults(e.Message);
         Result := False;
       end;
@@ -251,6 +253,16 @@ end;
 procedure TBaseScript.DataSetAfterScroll(aDataSet: TDataSet);
 begin
   ResetScript;
+end;
+
+procedure TBaseScript.FDataSourceDataChange(Sender: TObject; Field: TField);
+begin
+  if Assigned(Field) then
+    begin
+      if Field.FieldName='SCRIPT' then
+        if Assigned(GetScript) then
+          FScript.Source:=Field.AsString;
+    end;
 end;
 
 function TBaseScript.GetScript: TScript;
@@ -310,6 +322,7 @@ constructor TBaseScript.CreateEx(aOwner: TComponent; DM: TComponent;
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
   FDataSource := TDataSource.Create(Self);
+  FDataSource.OnDataChange:=@FDataSourceDataChange;
   FSelectedName := Null;
   FDataSource.DataSet := DataSet;
   FHistory := TBaseHistory.CreateEx(Self,DM,aConnection,DataSet);
