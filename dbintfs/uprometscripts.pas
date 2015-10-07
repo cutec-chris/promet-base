@@ -272,6 +272,7 @@ begin
         end;
       if Assigned(aScript) then
         begin
+          aScript.Init;
           aScript.Source:=FieldByName('SCRIPT').AsString;
           FScript:=aScript;
           ConnectEvents;
@@ -376,6 +377,8 @@ var
   aStartTime: TDateTime;
 begin
   Result := False;
+  if Assigned(GetScript) then
+    Result := FScript.Execute(Parameters);
 end;
 
 function TBaseScript.Copy(aNewVersion: Variant): Boolean;

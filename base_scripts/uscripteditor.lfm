@@ -633,6 +633,7 @@ object fScriptEditor: TfScriptEditor
           Items.Strings = (
             'Pascal'
             'SQL'
+            'Python'
           )
           MaxLength = 0
           OnSelect = cbSyntaxSelect

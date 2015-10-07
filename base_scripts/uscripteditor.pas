@@ -30,7 +30,7 @@ uses
   SynEditMiscClasses, SynEditHighlighter, SynGutterBase, SynEditMarks,
   SynEditMarkupSpecialLine, SynHighlighterSQL, SynHighlighterPython,
   SynHighlighterCpp, uPSCompiler, uprometscripts, LCLIntf, uBaseDbClasses,
-  variants;
+  variants,genpythonscript;
 
 type
   TOpenUnitEvent = procedure(UnitName : string;X,Y : Integer) of object;
@@ -1288,6 +1288,6 @@ end;
 initialization
   RegisterPropertyToSkip(TSynEdit, 'MouseTextActions', 'Not available in Laz 1.0', '');
   RegisterPropertyToSkip(TSynEdit, 'VisibleSpecialChars', 'Not available in Laz 1.0', '');
-
+  RegisterScriptType(TPythonScript);
 end.
 
