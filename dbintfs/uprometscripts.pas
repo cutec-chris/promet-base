@@ -31,8 +31,8 @@ type
   { TBaseScript }
 
   TBaseScript = class(TBaseERPList,IBaseHistory)
+    procedure DataSetAfterScroll(aDataSet: TDataSet);
   private
-    aDS: TDataSet;
     FHistory: TBaseHistory;
     FLinks: TLinks;
     FDataSource: TDataSource;
@@ -43,15 +43,14 @@ type
     FSelectedName : variant;
     function GetScript: TScript;
     function GetVersion: TField;
-    procedure SQLConn;
-  protected
-    procedure DoSetResults(aRes : string);
+    procedure SetRlFunc(AValue: TStrInFunc);
+    procedure SetWRFunc(AValue: TStrOutFunc);
+    procedure SetWriFunc(AValue: TStrOutFunc);
+    procedure ConnectEvents;
     procedure DoSetStatus(s : string);
+  protected
     function GetTextFieldName: string;override;
     function GetNumberFieldName : string;override;
-    procedure InternalWrite(const s: string);
-    procedure InternalWriteln(const s: string);
-    procedure InternalReadln(var s: string);
     function GetHistory: TBaseHistory;
   public
     constructor CreateEx(aOwner: TComponent; DM: TComponent;
@@ -60,10 +59,11 @@ type
     procedure FillDefaults(aDataSet: TDataSet); override;
     function SelectByName(aName: string): Boolean;
     property Script : TScript read GetScript;
+    procedure ResetScript;
     function Execute(Parameters : Variant) : Boolean;virtual;
-    property Write : TStrOutFunc read FWriFunc write FWriFunc;
-    property Writeln : TStrOutFunc read FWrFunc write FWRFunc;
-    property Readln : TStrInFunc read FRlFunc write FRlFunc;
+    property Write : TStrOutFunc read FWriFunc write SetWriFunc;
+    property Writeln : TStrOutFunc read FWrFunc write SetWRFunc;
+    property Readln : TStrInFunc read FRlFunc write SetRlFunc;
     property History : TBaseHistory read FHistory;
     property Links : TLinks read FLinks;
     property Version : TField read GetVersion;
@@ -71,6 +71,18 @@ type
     procedure OpenItem(AccHistory: Boolean=True); override;
     function Versionate(aNewversion : Variant;aMakeActive : Boolean = True) : Boolean;
     destructor Destroy;override;
+  end;
+
+  TSQLScript = class(TScript)
+  private
+    aDS: TDataSet;
+    procedure SQLConn;
+    procedure DoSetResults(aRes : string);
+    procedure DoSetStatus(s : string);
+  protected
+    function GetTyp: string; override;
+  public
+    function Execute(aParameters: Variant): Boolean; override;
   end;
 
   function ProcessScripts : Boolean;//process Scripts that must be runned cyclic
@@ -150,55 +162,57 @@ begin
   aScript.Free;
 end;
 
-procedure TBaseScript.SQLConn;
+procedure TSQLScript.SQLConn;
 var
   aSQL: String;
 begin
-  aSQL := ReplaceSQLFunctions(FieldByName('SCRIPT').AsString);
-  aDS := TBaseDBModule(DataModule).GetNewDataSet(aSQL,Connection);
+  aSQL := ReplaceSQLFunctions(Source);
+  aDS := TBaseDBModule(Data).GetNewDataSet(aSQL);
 end;
 
-function TBaseScript.GetVersion: TField;
+procedure TSQLScript.DoSetResults(aRes: string);
 begin
-  Result := FieldByName('VERSION');
+  Results:=aRes;
 end;
 
-function TBaseScript.GetScript: TScript;
-var
-  aScript: TScript;
-  i: Integer;
+procedure TSQLScript.DoSetStatus(s: string);
 begin
-  if not Assigned(FScript) then
+  if length(s)>0 then
+    Status:=s[1];
+end;
+
+function TSQLScript.GetTyp: string;
+begin
+  Result := 'SQL';
+end;
+
+function TSQLScript.Execute(aParameters: Variant): Boolean;
+begin
+  try
+    SQLConn;
+    with aDS as IBaseDbFilter do
+      DoExecSQL;
+    with aDS as IBaseDbFilter do
+      DoSetResults('Num Rows Affected: '+IntToStr(NumRowsAffected));
+    Result := True;
+  except
+    on e : Exception do
+      begin
+        Write('Error:'+e.Message);
+        DoSetResults(e.Message);
+        Result := False;
+      end;
+  end;
+end;
+
+procedure TBaseScript.ConnectEvents;
+begin
+  if Assigned(GetScript) then
     begin
-      for i := 0 to ScriptTypes.Count-1 do
-        begin
-          aScript := TScript(ScriptTypes[i].Create);
-          if aScript.Typ<>FieldByName('TYPE').AsString then
-            FreeAndNil(aScript);
-          if Assigned(aScript) then break;
-        end;
-      if Assigned(aScript) then
-        begin
-          aScript.Source:=FieldByName('SCRIPT').AsString;
-          FScript:=aScript;
-        end;
+      GetScript.Write:=Write;
+      GetScript.Readln:=Readln;
+      GetScript.Writeln:=Writeln;
     end;
-  Result := FScript;
-end;
-
-destructor TBaseScript.Destroy;
-begin
-  FLinks.Free;
-  FHistory.Free;
-  FDataSource.Destroy;
-  inherited Destroy;
-end;
-
-procedure TBaseScript.DoSetResults(aRes: string);
-begin
-  Edit;
-  FieldByName('LASTRESULT').AsString:=aRes;
-  Post;
 end;
 
 procedure TBaseScript.DoSetStatus(s: string);
@@ -206,6 +220,73 @@ begin
   Edit;
   FieldByName('STATUS').AsString:=s;
   Post;
+end;
+
+function TBaseScript.GetVersion: TField;
+begin
+  Result := FieldByName('VERSION');
+end;
+
+procedure TBaseScript.SetRlFunc(AValue: TStrInFunc);
+begin
+  if FRlFunc=AValue then Exit;
+  FRlFunc:=AValue;
+  ConnectEvents;
+end;
+
+procedure TBaseScript.SetWRFunc(AValue: TStrOutFunc);
+begin
+  if FWrFunc=AValue then Exit;
+  FWrFunc:=AValue;
+  ConnectEvents;
+end;
+
+procedure TBaseScript.SetWriFunc(AValue: TStrOutFunc);
+begin
+  if FWriFunc=AValue then Exit;
+  FWriFunc:=AValue;
+  ConnectEvents;
+end;
+
+procedure TBaseScript.DataSetAfterScroll(aDataSet: TDataSet);
+begin
+  ResetScript;
+end;
+
+function TBaseScript.GetScript: TScript;
+var
+  aScript: TScript = nil;
+  i: Integer;
+  aType: String;
+begin
+  aScript:=nil;
+  if not Assigned(FScript) then
+    begin
+      for i := 0 to ScriptTypes.Count-1 do
+        begin
+          aScript := TScript(ScriptTypes[i].Create);
+          aType := Uppercase(FieldByName('SYNTAX').AsString);
+          if Uppercase(aScript.Typ)<>aType then
+            FreeAndNil(aScript);
+          if Assigned(aScript) then break;
+        end;
+      if Assigned(aScript) then
+        begin
+          aScript.Source:=FieldByName('SCRIPT').AsString;
+          FScript:=aScript;
+          ConnectEvents;
+        end;
+    end;
+  Result := FScript;
+end;
+
+destructor TBaseScript.Destroy;
+begin
+  ResetScript;
+  FLinks.Free;
+  FHistory.Free;
+  FDataSource.Destroy;
+  inherited Destroy;
 end;
 
 function TBaseScript.GetTextFieldName: string;
@@ -216,21 +297,6 @@ end;
 function TBaseScript.GetNumberFieldName: string;
 begin
   Result := 'NAME';
-end;
-
-procedure TBaseScript.InternalWrite(const s: string);
-begin
-  if Assigned(FWriFunc) then FWriFunc(s);
-end;
-
-procedure TBaseScript.InternalWriteln(const s: string);
-begin
-  if Assigned(FWrFunc) then FWrFunc(s);
-end;
-
-procedure TBaseScript.InternalReadln(var s: string);
-begin
-  if Assigned(FRlFunc) then FRlFunc(s);
 end;
 
 function TBaseScript.GetHistory: TBaseHistory;
@@ -247,6 +313,7 @@ begin
   FDataSource.DataSet := DataSet;
   FHistory := TBaseHistory.CreateEx(Self,DM,aConnection,DataSet);
   FLinks := TLinks.CreateEx(Self,DM,aConnection);
+  DataSet.AfterScroll:=@DataSetAfterScroll;
 end;
 
 procedure TBaseScript.DefineFields(aDataSet: TDataSet);
@@ -299,63 +366,16 @@ begin
       end;
 end;
 
+procedure TBaseScript.ResetScript;
+begin
+  FreeAndNil(FScript);
+end;
+
 function TBaseScript.Execute(Parameters: Variant): Boolean;
 var
   aStartTime: TDateTime;
 begin
   Result := False;
-  if Count=0 then exit;
-  OpenItem(False);
-  if (pos(GetSystemName,FieldByName('RUNMASHINE').AsString)>0) or (trim(FieldByName('RUNMASHINE').AsString)='') then
-    begin
-      DoSetStatus('R');
-      Edit;
-      FieldByName('LASTRESULT').Clear;
-      aStartTime:=Now();
-      Post;
-      Result := False;
-      try
-        if lowercase(FieldByName('SYNTAX').AsString) = 'sql' then
-          begin
-            try
-              SQLConn;
-              with aDS as IBaseDbFilter do
-                DoExecSQL;
-              with aDS as IBaseDbFilter do
-                DoSetResults('Num Rows Affected: '+IntToStr(NumRowsAffected));
-              Result := True;
-            except
-              on e : Exception do
-                begin
-                  InternalWriteln('Error:'+e.Message);
-                  DoSetResults(e.Message);
-                  Result := False;
-                end;
-            end;
-          end;
-        if Result then
-          begin
-            DoSetStatus('N');
-            Edit;
-            FieldByName('LASTRUN').AsDateTime:=aStartTime;
-            Post;
-          end
-        else
-          begin
-            DoSetStatus('E');
-          end;
-      except
-      end;
-    end
-  else
-    begin
-      DoSetStatus('r');
-      while FieldByName('STATUS').AsString='r' do
-        begin
-          sleep(500);
-          DataSet.Refresh;
-        end;
-    end;
 end;
 
 function TBaseScript.Copy(aNewVersion: Variant): Boolean;
@@ -526,6 +546,7 @@ end;
 initialization
   Historyrun:=True;
   ScriptTypes:=TClassList.Create;
+  RegisterScriptType(TSQLScript);
 finalization
   ScriptTypes.Free;
 end.

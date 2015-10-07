@@ -22,15 +22,15 @@ unit uScriptEditor;
 interface
 
 uses
-  SysUtils, Classes, types, db, Graphics, Controls, Forms,
-  Dialogs, Menus, ExtCtrls, StdCtrls, ComCtrls, ActnList, DbCtrls, DBGrids,
-  SynEdit, SynEditTypes, SynHighlighterPas, SynCompletion,LCLType,
-  uPSComponent_Default,RegExpr,LResources,
-  uPSRuntime, uPSDisassembly, uPSUtils,
-  uPSComponent, uPSDebugger, uPSComponent_DB, SynEditRegexSearch, 
-  SynEditSearch, SynEditMiscClasses, SynEditHighlighter, SynGutterBase, SynEditMarks,
-  SynEditMarkupSpecialLine, SynHighlighterSQL,uPSCompiler, uprometscripts,LCLIntf,
-  uBaseDbClasses,variants;
+  SysUtils, Classes, types, db, Graphics, Controls, Forms, Dialogs, Menus,
+  ExtCtrls, StdCtrls, ComCtrls, ActnList, DbCtrls, DBGrids, SynEdit,
+  SynEditTypes, SynHighlighterPas, SynCompletion, LCLType, uPSComponent_Default,
+  RegExpr, LResources, uPSRuntime, uPSDisassembly, uPSUtils, uPSComponent,
+  uPSDebugger, uPSComponent_DB, SynEditRegexSearch, SynEditSearch,
+  SynEditMiscClasses, SynEditHighlighter, SynGutterBase, SynEditMarks,
+  SynEditMarkupSpecialLine, SynHighlighterSQL, SynHighlighterPython,
+  SynHighlighterCpp, uPSCompiler, uprometscripts, LCLIntf, uBaseDbClasses,
+  variants;
 
 type
   TOpenUnitEvent = procedure(UnitName : string;X,Y : Integer) of object;
@@ -97,6 +97,7 @@ type
     N5: TMenuItem;
     Pause1: TMenuItem;
     ed: TSynEdit;
+    HigCJavaScript: TSynCppSyn;
     SynEditRegexSearch: TSynEditRegexSearch;
     Search1: TMenuItem;
     Find1: TMenuItem;
@@ -106,6 +107,7 @@ type
     Gotolinenumber1: TMenuItem;
     HigSQL: TSynSQLSyn;
     HigPascal: TSynPasSyn;
+    HigPython: TSynPythonSyn;
     Syntaxcheck1: TMenuItem;
     tmDebug: TTimer;
     ToolBar1: TToolBar;
@@ -160,10 +162,10 @@ type
     procedure FSynCompletionUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char
       );
     procedure MenuItem6Click(Sender: TObject);
-    procedure messagesClick(Sender: TObject);
     procedure messagesDblClick(Sender: TObject);
     procedure Gotolinenumber1Click(Sender: TObject);
     procedure Find1Click(Sender: TObject);
+    procedure Open1Click(Sender: TObject);
     procedure Searchagain1Click(Sender: TObject);
     procedure Replace1Click(Sender: TObject);
     procedure edDropFiles(Sender: TObject; X, Y: Integer;
@@ -255,7 +257,7 @@ resourcestring
 function OnUses(Sender: TPSPascalCompiler; const Name: tbtString): Boolean;
 begin
   Result := False;
-  if Assigned(fScriptEditor) and Assigned(Data) then
+  if (Assigned(flastScriptEditor) and Assigned(Data)) and (fLastScriptEditor.FDataSet is TBaseScript) and (TBaseScript(fLastScriptEditor.FDataSet).Script is TPascalScript) then
     Result := TPascalScript(TBaseScript(fScriptEditor.FDataSet).Script).InternalUses(Sender,Name);
   if not Result and (Assigned(flastScriptEditor) and Assigned(Data)) and (fLastScriptEditor.FDataSet is TBaseScript) and (TBaseScript(fLastScriptEditor.FDataSet).Script is TPascalScript) then
     Result := TPascalScript(TBaseScript(fLastScriptEditor.FDataSet).Script).InternalUses(Sender,Name)
@@ -428,7 +430,7 @@ end;
 procedure TfScriptEditor.DebuggerExecImport(Sender: TObject; se: TPSExec;
   x: TPSRuntimeClassImporter);
 begin
-  if Assigned(Data) and (fLastScriptEditor.FDataSet is TBaseScript) and (TBaseScript(fLastScriptEditor.FDataSet).Script is TPascalScript) then
+  if Assigned(Data) and (FDataSet is TBaseScript) and (TBaseScript(FDataSet).Script is TPascalScript) then
     TPascalScript(TBaseScript(FDataSet).Script).ClassImporter:=x;
 end;
 
@@ -469,7 +471,7 @@ end;
 
 procedure TfScriptEditor.aButtonClick(Sender: TObject);
 begin
-  if (fLastScriptEditor.FDataSet is TBaseScript) and (TBaseScript(fLastScriptEditor.FDataSet).Script is TPascalScript) then
+  if (FDataSet is TBaseScript) and (TBaseScript(FDataSet).Script is TPascalScript) then
     TPascalScript(TBaseScript(FDataSet).Script).OpenTool(TToolButton(Sender).Caption);
 end;
 
@@ -557,12 +559,12 @@ begin
         FResume := True
       end else
       begin
-        if (fLastScriptEditor.FDataSet is TBaseScript) and (TBaseScript(fLastScriptEditor.FDataSet).Script is TPascalScript) then
+        if (FDataSet is TBaseScript) and (TBaseScript(FDataSet).Script is TPascalScript) then
           TPascalScript(TBaseScript(FDataSet).Script).OnToolRegistering:=@TPascalScriptToolRegistering;
         if Compile then
           begin
             SetCurrentDir(GetHomeDir);
-            if Assigned(Data) and (fLastScriptEditor.FDataSet is TBaseScript) and (TBaseScript(fLastScriptEditor.FDataSet).Script is TPascalScript) then
+            if Assigned(Data) and (FDataSet is TBaseScript) and (TBaseScript(FDataSet).Script is TPascalScript) then
               begin
                 TPascalScript(TBaseScript(FDataSet).Script).Runtime := Debugger.Exec;
                 TPascalScript(TBaseScript(FDataSet).Script).Compiler := Debugger.Comp;
@@ -586,9 +588,11 @@ begin
       SelectData.DataSet := Data.GetNewDataSet(FDataSet.FieldByName('SCRIPT').AsString);
       SelectData.DataSet.Open;
     end
-  else if (ed.Highlighter=HigSQL) then
+  else
     begin
       messages.Clear;
+      acStepinto.Enabled:=False;
+      acStepover.Enabled:=False;
       if (FDataSet is TBaseScript) then
         begin
           TBaseScript(FDataSet).writeln := @FDataSetWriteln;
@@ -596,11 +600,6 @@ begin
           if not TBaseScript(FDataSet).Execute(Null) then
             messages.AddItem('failed to executing',nil);
         end;
-    end
-  else
-    begin
-      acStepinto.Enabled:=False;
-      acStepover.Enabled:=False;
     end;
   sl.Free;
 end;
@@ -778,7 +777,7 @@ var
   mo: TMessageObject;
   aMsg: TPSPascalCompilerMessage;
 begin
-  if Assigned(Data) and (fLastScriptEditor.FDataSet is TBaseScript) and (TBaseScript(fLastScriptEditor.FDataSet).Script is TPascalScript) then
+  if Assigned(Data) and (FDataSet is TBaseScript) and (TBaseScript(FDataSet).Script is TPascalScript) then
     begin
       TPascalScript(TBaseScript(FDataSet).Script).Compiler:=Debugger.Comp;
       TPascalScript(TBaseScript(FDataSet).Script).Runtime:=Debugger.Exec;
@@ -873,6 +872,7 @@ end;
 procedure TfScriptEditor.FDataSetDataSetAfterScroll(DataSet: TDataSet);
 begin
  try
+   TBaseScript(FDataSet).ResetScript;
    ed.Lines.Text:=FDataSet.FieldByName('SCRIPT').AsString;
    aFile := FDataSet.FieldByName('NAME').AsString;
    ed.FoldState := FDataSet.FieldByName('FOLDSTATE').AsString;
@@ -1140,21 +1140,6 @@ begin
     Clipboard.AsText:=messages.Items[messages.ItemIndex];
 end;
 
-procedure TfScriptEditor.messagesClick(Sender: TObject);
-var
-  mo: TObject;
-begin
-  if messages.ItemIndex>-1 then
-    begin
-      mo := messages.Items.Objects[messages.ItemIndex];
-      if Assigned(mo) then
-        begin
-          ed.CaretY:=TMessageObject(mo).Y;
-          ed.CaretX:=TMessageObject(mo).X;
-        end;
-    end;
-end;
-
 procedure TfScriptEditor.SetActiveFile(const Value: string);
 begin
   FActiveFile := Value;
@@ -1189,6 +1174,7 @@ end;
 procedure TfScriptEditor.messagesDblClick(Sender: TObject);
 var
   mo: TObject;
+  Found: Boolean = False;
 begin
  mo := messages.Items.Objects[messages.ItemIndex];
  if Assigned(mo) then
@@ -1197,7 +1183,14 @@ begin
      ed.CaretX:=TMessageObject(mo).X;
      if TMessageObject(mo).ModuleName<>Debugger.MainFileName then
        if Assigned(OnOpenUnit) then
-         OnOpenUnit(TMessageObject(mo).ModuleName,TMessageObject(mo).X,TMessageObject(mo).Y);
+         begin
+           OnOpenUnit(TMessageObject(mo).ModuleName,TMessageObject(mo).X,TMessageObject(mo).Y);
+           Found := True;
+         end;
+     if not Found then
+       begin
+         ed.SetFocus;
+       end;
    end;
 end;
 
@@ -1221,6 +1214,11 @@ end;
 
 procedure TfScriptEditor.Find1Click(Sender: TObject);
 begin
+end;
+
+procedure TfScriptEditor.Open1Click(Sender: TObject);
+begin
+
 end;
 
 procedure TfScriptEditor.Searchagain1Click(Sender: TObject);

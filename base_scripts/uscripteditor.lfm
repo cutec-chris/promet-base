@@ -1,7 +1,7 @@
 object fScriptEditor: TfScriptEditor
-  Left = 259
+  Left = 383
   Height = 600
-  Top = 210
+  Top = 211
   Width = 1039
   Caption = 'Editor'
   ClientHeight = 580
@@ -711,7 +711,6 @@ object fScriptEditor: TfScriptEditor
         Width = 754
         Align = alClient
         ItemHeight = 0
-        OnClick = messagesClick
         OnDblClick = messagesDblClick
         PopupMenu = PopupMenu2
         TabOrder = 0
@@ -755,9 +754,18 @@ object fScriptEditor: TfScriptEditor
       Color = clWindow
       Columns = <      
         item
-          Title.Caption = 'Name'
-          Width = 247
+          MinSize = 150
+          SizePriority = 2
+          Title.Caption = 'NAME'
+          Width = 123
           FieldName = 'NAME'
+        end      
+        item
+          MinSize = 50
+          MaxSize = 50
+          Title.Caption = 'VERSION'
+          Width = 124
+          FieldName = 'VERSION'
         end>
       DataSource = DataSource
       TabOrder = 0
@@ -821,6 +829,7 @@ object fScriptEditor: TfScriptEditor
       object Open1: TMenuItem
         Caption = 'Öffnen'
         ShortCut = 16463
+        OnClick = Open1Click
       end
       object Save1: TMenuItem
         Action = acSave
@@ -2552,5 +2561,41 @@ object fScriptEditor: TfScriptEditor
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000
     }
+  end
+  object HigPython: TSynPythonSyn
+    DefaultFilter = 'Python-Dateien (*.py)|*.py'
+    Enabled = False
+    CommentAttri.FrameEdges = sfeAround
+    IdentifierAttri.FrameEdges = sfeAround
+    KeyAttri.FrameEdges = sfeAround
+    NonKeyAttri.FrameEdges = sfeAround
+    SystemAttri.FrameEdges = sfeAround
+    NumberAttri.FrameEdges = sfeAround
+    HexAttri.FrameEdges = sfeAround
+    OctalAttri.FrameEdges = sfeAround
+    FloatAttri.FrameEdges = sfeAround
+    SpaceAttri.FrameEdges = sfeAround
+    StringAttri.FrameEdges = sfeAround
+    DocStringAttri.FrameEdges = sfeAround
+    SymbolAttri.FrameEdges = sfeAround
+    ErrorAttri.FrameEdges = sfeAround
+    left = 752
+    top = 112
+  end
+  object HigCJavaScript: TSynCppSyn
+    DefaultFilter = 'C++-Quelltexte (*.c,*.cpp,*.h,*.hpp,*.hh)|*.c;*.cpp;*.h;*.hpp;*.hh'
+    Enabled = False
+    AsmAttri.FrameEdges = sfeAround
+    CommentAttri.FrameEdges = sfeAround
+    DirecAttri.FrameEdges = sfeAround
+    IdentifierAttri.FrameEdges = sfeAround
+    InvalidAttri.FrameEdges = sfeAround
+    KeyAttri.FrameEdges = sfeAround
+    NumberAttri.FrameEdges = sfeAround
+    SpaceAttri.FrameEdges = sfeAround
+    StringAttri.FrameEdges = sfeAround
+    SymbolAttri.FrameEdges = sfeAround
+    left = 800
+    top = 112
   end
 end

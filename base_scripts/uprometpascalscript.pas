@@ -59,6 +59,7 @@ type
     function InternalExecuteScriptFuncionPSRS(aScript, aFunc, aParam: string) : string;
     function InternalExecuteScriptFuncionRS(aScript, aFunc : string) : string;
   public
+    function InternalUses(Comp: TPSPascalCompiler; Name: string): Boolean; override;
     property Sleep : TSleepFunc read FSlFunc write FSlFunc;
     function Execute(aParameters: Variant): Boolean; override;
     destructor Destroy;override;
@@ -117,10 +118,10 @@ begin
     begin
       Result := True;
       try
-        //Sender.AddMethod(Self,@TPrometPascalScript.InternalWriteln,'procedure Writeln(P1: string);');
-        //Sender.AddMethod(Self,@TPrometPascalScript.InternalWrite,'procedure Write(P1: string);');
-        //Sender.AddMethod(Self, @TPrometPascalScript.InternalParamStr,'function ParamStr(Param : Integer) : String;');
-        //Sender.AddMethod(Self, @TPrometPascalScript.InternalParamCount,'function ParamCount : Integer;');
+        Sender.AddMethod(Self,@TPrometPascalScript.InternalWriteln,'procedure Writeln(P1: string);');
+        Sender.AddMethod(Self,@TPrometPascalScript.InternalWrite,'procedure Write(P1: string);');
+        Sender.AddMethod(Self, @TPrometPascalScript.InternalParamStr,'function ParamStr(Param : Integer) : String;');
+        Sender.AddMethod(Self, @TPrometPascalScript.InternalParamCount,'function ParamCount : Integer;');
         Sender.AddFunction(@UniToSys,'function UniToSys(const s: string): string;');
         Sender.AddFunction(@SysToUni,'function SysToUni(const s: string): string;');
       except
@@ -753,6 +754,13 @@ begin
   bScript.Free;
 end;
 
+function TPrometPascalScript.InternalUses(Comp: TPSPascalCompiler; Name: string
+  ): Boolean;
+begin
+  Result:=inherited InternalUses(Comp, Name);
+  Result := TPascalScriptUses(Self,Name,Result);
+end;
+
 function TPrometPascalScript.Execute(aParameters: Variant): Boolean;
 var
   aStartTime: TDateTime;
@@ -762,10 +770,10 @@ end;
 
 destructor TPrometPascalScript.Destroy;
 begin
-  fScript.Destroy;
   inherited Destroy;
 end;
 
-
+initialization
+  RegisterScriptType(TPrometPascalScript);
 end.
 
