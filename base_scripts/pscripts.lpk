@@ -36,39 +36,31 @@
         <UnitName Value="uscriptimport"/>
       </Item6>
     </Files>
-    <RequiredPkgs Count="9">
+    <RequiredPkgs Count="7">
       <Item1>
-        <PackageName Value="general_python_script"/>
-        <DefaultFilename Value="..\..\..\..\general\general_python_script.lpk"/>
-      </Item1>
-      <Item2>
         <PackageName Value="promet_scripts"/>
         <DefaultFilename Value="promet_scripts.lpk"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="general"/>
       </Item2>
       <Item3>
-        <PackageName Value="general"/>
-      </Item3>
-      <Item4>
-        <PackageName Value="general_pascal_script"/>
-        <DefaultFilename Value="..\..\..\..\general\general_pascal_script.lpk"/>
-      </Item4>
-      <Item5>
         <PackageName Value="ppascalscriptlcl"/>
         <DefaultFilename Value="..\..\components\pascalscript\ppascalscriptlcl.lpk"/>
-      </Item5>
-      <Item6>
+      </Item3>
+      <Item4>
         <PackageName Value="pPrometDBIntfs"/>
         <DefaultFilename Value="..\dbintfs\pprometdbintfs.lpk"/>
+      </Item4>
+      <Item5>
+        <PackageName Value="SynEdit"/>
+      </Item5>
+      <Item6>
+        <PackageName Value="LCL"/>
       </Item6>
       <Item7>
-        <PackageName Value="SynEdit"/>
-      </Item7>
-      <Item8>
-        <PackageName Value="LCL"/>
-      </Item8>
-      <Item9>
         <PackageName Value="FCL"/>
-      </Item9>
+      </Item7>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>
