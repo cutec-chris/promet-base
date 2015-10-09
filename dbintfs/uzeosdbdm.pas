@@ -128,6 +128,11 @@ type
   protected
     //Internal DataSet Methods that needs to be changed
     procedure InternalOpen; override;
+    function GetRecord(Buffer: PChar; GetMode: TGetMode; aDoCheck: Boolean
+      ): TGetResult; override;
+    procedure FetchAll; override;
+    procedure InternalLast; override;
+    function GetRecordCount: Integer; override;
     procedure InternalRefresh; override;
     procedure InternalPost; override;
     procedure DoAfterInsert; override;
@@ -560,10 +565,17 @@ begin
       if DoCheck or (FFields = '') then
           begin
             for i := 0 to FManagedFieldDefs.Count-1 do
-              if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name) = -1) and (FManagedFieldDefs[i].Name <> 'AUTO_ID') then
-                begin
-                  Result := True;
-                end;
+              begin
+                if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name) = -1) and (FManagedFieldDefs[i].Name <> 'AUTO_ID') then
+                  begin
+                    Result := True;
+                  end
+                else if FieldDefs.IndexOf(FManagedFieldDefs[i].Name)>-1 then
+                  begin
+                    if FieldByName(FManagedFieldDefs[i].Name).Size<FManagedFieldDefs[i].Size then
+                      Result := True;
+                  end;
+              end;
             if Assigned(FManagedIndexDefs) then
               for i := 0 to FManagedIndexDefs.Count-1 do                                           //Primary key
                 if (not IndexExists(Uppercase(Self.DefaultTableName+'_'+FManagedIndexDefs.Items[i].Name))) and (FManagedIndexDefs.Items[i].Name <>'SQL_ID') then
@@ -605,7 +617,25 @@ begin
               end;
               Changed := True;
               Result := True;
-            end;
+            end
+        else if FieldDefs.IndexOf(FManagedFieldDefs[i].Name)>-1 then
+          begin
+            if FieldByName(FManagedFieldDefs[i].Name).Size<FManagedFieldDefs[i].Size then
+              begin
+                aSQL := 'ALTER TABLE '+QuoteField(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' TYPE '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
+                aConnection := Connection;
+                GeneralQuery := TZQuery.Create(Self);
+                try
+                  GeneralQuery.Connection := aConnection;
+                  GeneralQuery.SQL.Text := aSQL;
+                  GeneralQuery.ExecSQL;
+                finally
+                  GeneralQuery.Free;
+                end;
+                Changed := True;
+                Result := True;
+              end;
+          end;
         aSQL := '';
         if Assigned(FManagedIndexDefs) then
           for i := 0 to FManagedIndexDefs.Count-1 do                                           //Primary key
@@ -635,6 +665,44 @@ begin
   end;
   TBaseDBModule(Self.Owner).UpdateTableVersion(Self.FDefaultTableName);
 end;
+
+function TZeosDBDataSet.GetRecord(Buffer: PChar; GetMode: TGetMode;
+  aDoCheck: Boolean): TGetResult;
+begin
+  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
+    TBaseDBModule(ForigTable.DataModule).CriticalSection.Enter;
+  Result:=inherited GetRecord(Buffer, GetMode, aDoCheck);
+  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
+    TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
+end;
+
+procedure TZeosDBDataSet.FetchAll;
+begin
+  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
+    TBaseDBModule(ForigTable.DataModule).CriticalSection.Enter;
+  inherited FetchAll;
+  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
+    TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
+end;
+
+procedure TZeosDBDataSet.InternalLast;
+begin
+  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
+    TBaseDBModule(ForigTable.DataModule).CriticalSection.Enter;
+  inherited InternalLast;
+  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
+    TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
+end;
+
+function TZeosDBDataSet.GetRecordCount: Integer;
+begin
+  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
+    TBaseDBModule(ForigTable.DataModule).CriticalSection.Enter;
+  Result:=inherited GetRecordCount;
+  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
+    TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
+end;
+
 procedure TZeosDBDataSet.InternalOpen;
 var
   a: Integer;
@@ -2124,10 +2192,12 @@ begin
   Result := True;
   RemoveCheckTable(aTableName);
 end;
-function TZeosDBDM.FieldToSQL(aName: string; aType: TFieldType;aSize : Integer;
+function TZeosDBDM.FieldToSQL(aName: string; aType: TFieldType; aSize: Integer;
   aRequired: Boolean): string;
 begin
-  Result := QuoteField(aName);
+  if aName <> '' then
+    Result := QuoteField(aName)
+  else Result:='';
   case aType of
   ftString:
     begin
