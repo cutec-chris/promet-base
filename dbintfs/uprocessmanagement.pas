@@ -499,7 +499,6 @@ var
                       aProc.Post;
                     end;
                   aProc.Free;
-                  writeln(Processes.DataSet.FieldByName('STOPPED').AsString+':'+Processes.DataSet.FieldByName('STATUS').AsString);
                   bProcess.Informed := True;
                 end
               else if Assigned(Processes) then
