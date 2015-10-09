@@ -3,6 +3,7 @@
       - Artikelstückliste:Inplace Editoren werden angezeigt
       - Dokumente:Vorschau wird nun von den Plugins erstellt (mehr Dateiformate unterstützt)
       - Automation:Produktionsabläufe können mit Scripten auomatisiert werden
+      - Datenbank:Felder können nun automatisch vergrössert werden wenn sich die Definition ändert (ALTER COLUMN)
 Build 416
       - Projekte:Gantt Berechnung um kleinere Berechnungsfehler erleichtert
       - Feedreceiver:zu lange Feedtitel werden automatisch gekürzt

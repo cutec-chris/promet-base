@@ -594,7 +594,7 @@ var
   i: Integer;
   aSQL: String;
   GeneralQuery: TZQuery;
-  Changed: Boolean;
+  Changed: Boolean = False;
   aConnection : TZAbstractConnection;
 begin
   Result := True;
@@ -622,7 +622,10 @@ begin
           begin
             if FieldByName(FManagedFieldDefs[i].Name).Size<FManagedFieldDefs[i].Size then
               begin
-                aSQL := 'ALTER TABLE '+QuoteField(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' TYPE '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
+                if (copy(Connection.Protocol,0,8) = 'postgres') then
+                  aSQL := 'ALTER TABLE '+QuoteField(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' TYPE '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';'
+                else
+                  aSQL := 'ALTER TABLE '+QuoteField(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
                 aConnection := Connection;
                 GeneralQuery := TZQuery.Create(Self);
                 try
@@ -663,6 +666,12 @@ begin
   except
     Result := False;
   end;
+  if Result and Changed and (Self.FDefaultTableName<>'TABLEVERSIONS') then
+    begin
+      with BaseApplication as IBaseApplication do
+        Info('Table '+Self.FDefaultTableName+' was altered reconecting...');
+      Connection.Reconnect;
+    end;
   TBaseDBModule(Self.Owner).UpdateTableVersion(Self.FDefaultTableName);
 end;
 
