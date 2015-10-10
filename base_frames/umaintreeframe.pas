@@ -871,7 +871,9 @@ var
   Details: TThemedElementDetails;
   BKDrawn: Boolean;
   bgRect: TRect;
+  oldFontSize: Integer;
 begin
+  oldFontSize := Sender.Canvas.Font.Size;
   if Stage = cdPrePaint then
     begin
       NodeRect := Node.DisplayRect(True);
@@ -1100,6 +1102,7 @@ begin
     end;
   except
   end;
+  Sender.Canvas.Font.Size:=oldFontSize;
   Sender.Canvas.Brush.Style := Style;
   DefaultDraw := True;
 end;
