@@ -414,6 +414,31 @@ function TBaseDBModule.SetProperties(aProp: string; Connection: TComponent
   ): Boolean;
 begin
   FTables.Clear;
+  if not Assigned(Users) then
+    begin
+      Users := TUser.CreateEx(nil,Self);
+      Numbers := TNumberSets.CreateEx(nil,Self);
+      MandantDetails := TMandantDetails.CreateEx(nil,Self);
+      Tree := TTree.CreateEx(nil,Self);
+      Forms := TForms.CreateEx(nil,Self);
+      UserFieldDefs := TUserFieldDefs.CreateEx(nil,Self);
+      Filters := TFilters.CreateEx(nil,Self);
+      Reports := TReports.CreateEx(nil,Self);
+      ActiveUsers := TActiveUsers.CreateEx(nil,Self);
+      Permissions := TPermissions.CreateEx(nil,Self);
+      StorageTypes := TStorageTypes.CreateEx(nil,Self);
+      Currency := TCurrency.CreateEx(nil,Self);
+      PaymentTargets := TPaymentTargets.CreateEx(nil,Self);
+      StorageType := TStorageTyp.CreateEx(nil,Self);
+      StorageJournal := TStorageJournal.CreateEx(nil,Self);
+      Countries := TCountries.CreateEx(nil,Self);
+      Languages := TLanguages.CreateEx(nil,Self);
+      States := TStates.CreateEx(nil,Self);
+      Categories := TCategory.CreateEx(nil,Self);
+      DeletedItems := TDeletedItems.CreateEx(nil,Self);
+      ProcessClient := TProcessClient.CreateEx(nil,Self);
+      TableVersions := TTableVersions.CreateEx(nil,Self);
+    end;
 end;
 function TBaseDBModule.CreateDBFromProperties(aProp: string): Boolean;
 begin
@@ -452,28 +477,6 @@ begin
   FCheckedTables := TStringList.Create;
   FTables := TStringList.Create;
   FTriggers := TStringList.Create;
-  Users := TUser.CreateEx(nil,Self);
-  Numbers := TNumberSets.CreateEx(nil,Self);
-  MandantDetails := TMandantDetails.CreateEx(nil,Self);
-  Tree := TTree.CreateEx(nil,Self);
-  Forms := TForms.CreateEx(nil,Self);
-  UserFieldDefs := TUserFieldDefs.CreateEx(nil,Self);
-  Filters := TFilters.CreateEx(nil,Self);
-  Reports := TReports.CreateEx(nil,Self);
-  ActiveUsers := TActiveUsers.CreateEx(nil,Self);
-  Permissions := TPermissions.CreateEx(nil,Self);
-  StorageTypes := TStorageTypes.CreateEx(nil,Self);
-  Currency := TCurrency.CreateEx(nil,Self);
-  PaymentTargets := TPaymentTargets.CreateEx(nil,Self);
-  StorageType := TStorageTyp.CreateEx(nil,Self);
-  StorageJournal := TStorageJournal.CreateEx(nil,Self);
-  Countries := TCountries.CreateEx(nil,Self);
-  Languages := TLanguages.CreateEx(nil,Self);
-  States := TStates.CreateEx(nil,Self);
-  Categories := TCategory.CreateEx(nil,Self);
-  DeletedItems := TDeletedItems.CreateEx(nil,Self);
-  ProcessClient := TProcessClient.CreateEx(nil,Self);
-  TableVersions := TTableVersions.CreateEx(nil,Self);
 end;
 destructor TBaseDBModule.Destroy;
 begin
