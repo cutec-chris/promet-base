@@ -788,6 +788,7 @@ procedure TfSearch.LoadOptions(OptionSet : string);
 var
   Options: String;
   i: Integer;
+  SearchInClear: Boolean = True;
 begin
   Options := '';
   with Application as IBaseDbInterface do
@@ -799,10 +800,18 @@ begin
     begin
       cbSearchType.Tag:=1;
       if cbSearchType.Items.IndexOf(copy(Options,0,pos(';',Options)-1)) <> -1 then
-        cbSearchType.Checked[cbSearchType.Items.IndexOf(copy(Options,0,pos(';',Options)-1))] := True;
+        begin
+          cbSearchType.Checked[cbSearchType.Items.IndexOf(copy(Options,0,pos(';',Options)-1))] := True;
+          SearchInClear := False;
+        end;
       cbSearchType.Tag:=0;
       Options := copy(Options,pos(';',Options)+1,length(Options));
       inc(i);
+    end;
+  if SearchInClear then
+    begin
+      for i := 0 to cbSearchType.Items.Count-1 do
+        cbSearchType.Checked[i]:=True;
     end;
   Options := '';
   for i := 0 to cbSearchIn.Items.Count-1 do
@@ -817,7 +826,9 @@ begin
   while pos(';',Options) > 0 do
     begin
       if cbSearchin.Items.IndexOf(copy(Options,0,pos(';',Options)-1)) <> -1 then
-        cbSearchIn.Checked[cbSearchIn.Items.IndexOf(copy(Options,0,pos(';',Options)-1))] := True;
+        begin
+          cbSearchIn.Checked[cbSearchIn.Items.IndexOf(copy(Options,0,pos(';',Options)-1))] := True;
+        end;
       Options := copy(Options,pos(';',Options)+1,length(Options));
     end;
 end;
