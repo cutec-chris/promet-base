@@ -31,6 +31,8 @@ type
   { TZeosDBDM }
 
   TZeosDBDM = class(TBaseDBModule)
+    procedure FConnectionAfterConnect(Sender: TObject);
+    procedure FConnectionBeforeConnect(Sender: TObject);
     procedure MonitorTrace(Sender: TObject; Event: TZLoggingEvent;
       var LogTrace: Boolean);
   private
@@ -39,6 +41,7 @@ type
     FLimitSTMT : string;
     FDBTyp : string;
     FProperties : string;
+    FPassword : string;
     Monitor : TZSQLMonitor;
     function GetConnection: TComponent;override;
     function DBExists : Boolean;
@@ -68,6 +71,7 @@ type
     procedure DeleteExpiredSessions;override;
     function GetNewConnection: TComponent;override;
     function QuoteField(aField: string): string; override;
+    function QuoteValue(aField: string): string; override;
     procedure Disconnect(aConnection : TComponent);override;
     function StartTransaction(aConnection : TComponent;ForceTransaction : Boolean = False): Boolean;override;
     function CommitTransaction(aConnection : TComponent): Boolean;override;
@@ -670,7 +674,8 @@ begin
     begin
       with BaseApplication as IBaseApplication do
         Info('Table '+Self.FDefaultTableName+' was altered reconecting...');
-      Connection.Reconnect;
+      Connection.Disconnect;
+      Connection.Connect;
     end;
   TBaseDBModule(Self.Owner).UpdateTableVersion(Self.FDefaultTableName);
 end;
@@ -1352,6 +1357,16 @@ begin
   Result := RowsAffected;
 end;
 
+procedure TZeosDBDM.FConnectionAfterConnect(Sender: TObject);
+begin
+  TZConnection(Sender).Password:=Encrypt(TZConnection(Sender).Password,9997);
+end;
+
+procedure TZeosDBDM.FConnectionBeforeConnect(Sender: TObject);
+begin
+  TZConnection(Sender).Password:=Decrypt(TZConnection(Sender).Password,9997);
+end;
+
 procedure TZeosDBDM.MonitorTrace(Sender: TObject; Event: TZLoggingEvent;
   var LogTrace: Boolean);
 begin
@@ -1465,7 +1480,6 @@ var
   tmp: String;
   FConnection : TZConnection;
 begin
-  inherited;
   if Assigned(BaseApplication) then
     with BaseApplication as IBaseDBInterface do
       LastError := '';
@@ -1511,6 +1525,9 @@ begin
       FConnection.Password := Decrypt(copy(tmp,2,length(tmp)),99998)
     else
       FConnection.Password := tmp;
+    FConnection.Password:=Encrypt(FConnection.Password,9997);
+    FConnection.BeforeConnect:=@FConnectionBeforeConnect;
+    FConnection.AfterConnect:=@FConnectionAfterConnect;
     if (copy(FConnection.Protocol,0,6) = 'sqlite')
     or (copy(FConnection.Protocol,0,8) = 'postgres')
     then
@@ -1537,6 +1554,8 @@ begin
         FConnection.ClientCodepage:='utf8';
         FConnection.AutoEncodeStrings:=true;
       end;
+
+    inherited;
 
     //*********Connect***********
 
@@ -1983,6 +2002,13 @@ begin
   Result:=inherited QuoteField(aField);
   if (copy(TZConnection(MainConnection).Protocol,0,5) = 'mysql') then
     Result := '`'+aField+'`';
+end;
+
+function TZeosDBDM.QuoteValue(aField: string): string;
+begin
+  Result:=inherited QuoteValue(aField);
+  if (copy(TZConnection(MainConnection).Protocol,0,5) = 'mysql') then
+    Result := ''''+aField+'''';
 end;
 
 procedure TZeosDBDM.Disconnect(aConnection: TComponent);
