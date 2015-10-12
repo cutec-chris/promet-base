@@ -29,11 +29,17 @@ uses
   uPSDebugger, uPSComponent_DB, SynEditRegexSearch, SynEditSearch,
   SynEditMiscClasses, SynEditHighlighter, SynGutterBase, SynEditMarks,
   SynEditMarkupSpecialLine, SynHighlighterSQL, SynHighlighterPython,
-  SynHighlighterCpp, uPSCompiler, uprometscripts, LCLIntf, uBaseDbClasses,
-  variants;
+  SynHighlighterCpp, uPSCompiler, uprometscripts, LCLIntf, genscript,
+  uBaseDbClasses, variants;
 
 type
   TOpenUnitEvent = procedure(UnitName : string;X,Y : Integer) of object;
+
+  TBreakpoint = class
+  public
+    Module : string;
+    Line : Integer;
+  end;
 
   { TfScriptEditor }
 
@@ -60,7 +66,6 @@ type
     SelectData: TDatasource;
     gResults: TDBGrid;
     DBGrid1: TDBGrid;
-    Debugger: TPSScriptDebugger;
     FindDialog: TFindDialog;
     IFPS3DllPlugin1: TPSDllPlugin;
     ilImageList: TImageList;
@@ -132,6 +137,9 @@ type
     procedure acStepintoExecute(Sender: TObject);
     procedure acStepoverExecute(Sender: TObject);
     procedure acSyntaxcheckExecute(Sender: TObject);
+    procedure aScriptIdle(Sender: TObject);
+    procedure aScriptRunLine(Sender: TScript; Module: string; aPosition, Row,
+      Col: Integer);
     procedure cbSyntaxSelect(Sender: TObject);
     procedure DebuggerExecImport(Sender: TObject; se: TPSExec;
       x: TPSRuntimeClassImporter);
@@ -143,11 +151,7 @@ type
     procedure edShowHint(Sender: TObject; HintInfo: PHintInfo);
     procedure edSpecialLineColors(Sender: TObject; Line: Integer; var Special: Boolean; var FG, BG: TColor);
     procedure BreakPointMenuClick(Sender: TObject);
-    procedure DebuggerLineInfo(Sender: TObject; const FileName: String; aPosition, Row, Col: Cardinal);
     procedure Exit1Click(Sender: TObject);
-    procedure DebuggerIdle(Sender: TObject);
-    procedure DebuggerExecute(Sender: TPSScript);
-    procedure DebuggerAfterExecute(Sender: TPSScript);
     procedure DebuggerCompile(Sender: TPSScript);
     procedure FDataSetDataSetAfterScroll(DataSet: TDataSet);
     procedure FDataSetDataSetBeforeScroll(DataSet: TDataSet);
@@ -186,9 +190,15 @@ type
     FWasRunning: Boolean;
     Linemark : TSynEditMark;
     LastStepTime : Int64;
+    FBreakPoints : TList;
+    Fscript : TScript;
     ClassImporter: uPSRuntime.TPSRuntimeClassImporter;
+    procedure InitEvents;
+    procedure ButtonStatus(Status : TScriptStatus);
     function Compile: Boolean;
     function Execute: Boolean;
+    function GetBreak(Idx : Integer): TBreakpoint;
+    function GetBreakPointCount: Integer;
 
     function InternalParamStr(Param : Integer) : String;
     function InternalParamCount : Integer;
@@ -198,10 +208,16 @@ type
     procedure DoSearchReplaceText(AReplace: boolean; ABackwards: boolean);
     procedure SetDataSet(AValue: TBaseDBDataSet);
 
-    property aFile: string read FActiveFile write SetActiveFile;
+    property ActiveFile: string read FActiveFile write SetActiveFile;
   public
     constructor Create(TheOwner: TComponent); override;
+    destructor Destroy; override;
     property DataSet : TBaseDBDataSet read FDataSet write SetDataSet;
+    property BreakPointCount : Integer read GetBreakPointCount;
+    property BreakPoints[Idx : Integer] : TBreakpoint read GetBreak;
+    function HasBreakPoint(Module : string;Line : Integer) : Boolean;
+    procedure ClearBreakPoint(Module : string;Line : Integer);
+    procedure SetBreakPoint(Module : string;Line : Integer);
     function SaveCheck: Boolean;
     function Execute(aScript: string;aVersion:Variant; aConnection: TComponent = nil;DefScript : string=''): Boolean;
     property OnOpenUnit : TOpenUnitEvent read FOpenUnit write FOpenUnit;
@@ -318,6 +334,7 @@ end;
 constructor TfScriptEditor.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
+  FBreakPoints:=TList.Create;
   FSynCompletion := TSynCompletion.Create(Self);
   FSynCompletion.CaseSensitive := False;
   FSynCompletion.AddEditor(ed);
@@ -327,10 +344,56 @@ begin
   genpascalscript.DoSleep:=@DoSleep;
 end;
 
+destructor TfScriptEditor.Destroy;
+begin
+  FBreakPoints.Free;
+  FSynCompletion.Free;
+  inherited Destroy;
+end;
+
+function TfScriptEditor.HasBreakPoint(Module: string; Line: Integer): Boolean;
+var
+  i: Integer;
+begin
+  Result := False;
+  for i := 0 to BreakPointCount-1 do
+    if (BreakPoints[i].Module=Module)
+    and (BreakPoints[i].Line=Line) then
+      begin
+        Result:=True;
+        exit;
+      end;
+end;
+
+procedure TfScriptEditor.ClearBreakPoint(Module: string; Line: Integer);
+var
+  i: Integer;
+begin
+  if not HasBreakPoint(Module,Line) then exit;
+  for i := 0 to BreakPointCount-1 do
+    if (BreakPoints[i].Module=Module)
+    and (BreakPoints[i].Line=Line) then
+      begin
+        FBreakPoints.Delete(i);
+        exit;
+      end;
+end;
+
+procedure TfScriptEditor.SetBreakPoint(Module: string; Line: Integer);
+var
+  aBreak: TBreakpoint;
+begin
+  if HasBreakPoint(Module,Line) then exit;
+  aBreak := TBreakpoint.Create;
+  aBreak.Module:=Module;
+  aBreak.Line:=Line;
+  FBreakPoints.Add(aBreak);
+end;
+
 procedure TfScriptEditor.edSpecialLineColors(Sender: TObject; Line: Integer;
   var Special: Boolean; var FG, BG: TColor);
 begin
-  if Debugger.HasBreakPoint(Debugger.MainFileName, Line) then
+  if HasBreakPoint(ActiveFile, Line) then
   begin
     Special := True;
     if Line = FActiveLine then
@@ -359,9 +422,9 @@ var
 begin
   if ed.Highlighter=HigPascal then
     begin
-      if Debugger.HasBreakPoint(Debugger.MainFileName, Line) then
+      if HasBreakPoint(ActiveFile, Line) then
         begin
-          Debugger.ClearBreakPoint(Debugger.MainFileName, Line);
+          ClearBreakPoint(ActiveFile, Line);
           i := 0;
           while i<ed.Marks.Count do
             begin
@@ -372,7 +435,7 @@ begin
         end
       else
         begin
-          Debugger.SetBreakPoint(Debugger.MainFileName, Line);
+          SetBreakPoint(ActiveFile, Line);
           m := TSynEditMark.Create(ed);
           m.Line := Line;
           m.ImageList := GutterImages;
@@ -393,18 +456,19 @@ var
   i: Integer;
   aCont: TbtString;
 begin
- ASynEdit:=ed;
- EditPos:=HintInfo^.CursorPos;
- HintInfo^.HideTimeout:=30000;
- if not PtInRect(ASynEdit.ClientRect,EditPos) then exit;
- EditCaret:=ASynEdit.PhysicalToLogicalPos(ASynEdit.PixelsToRowColumn(EditPos));
- if (EditCaret.Y<1) then exit;
- aWord := ASynEdit.GetWordAtRowCol(EditCaret);
- for i := 0 to LoadedLibs.Count-1 do
-   if lowercase(TLoadedLib(LoadedLibs[i]).Name)=lowercase(aWord) then
-     begin
-       HintInfo^.HintStr:=TLoadedLib(LoadedLibs[i]).Code;
-     end;
+  ASynEdit:=ed;
+  EditPos:=HintInfo^.CursorPos;
+  HintInfo^.HideTimeout:=30000;
+  if not PtInRect(ASynEdit.ClientRect,EditPos) then exit;
+  EditCaret:=ASynEdit.PhysicalToLogicalPos(ASynEdit.PixelsToRowColumn(EditPos));
+  if (EditCaret.Y<1) then exit;
+  aWord := ASynEdit.GetWordAtRowCol(EditCaret);
+  for i := 0 to LoadedLibs.Count-1 do
+    if lowercase(TLoadedLib(LoadedLibs[i]).Name)=lowercase(aWord) then
+      begin
+        HintInfo^.HintStr:=TLoadedLib(LoadedLibs[i]).Code;
+      end;
+ {
  if Debugger.Running then
    begin
      aCont := Debugger.GetVarContents(aWord);
@@ -413,11 +477,76 @@ begin
          HintInfo^.HintStr:=aWord+':'+aCont;
        end;
    end;
+ }
 end;
 
 procedure TfScriptEditor.acSyntaxcheckExecute(Sender: TObject);
 begin
  Compile;
+end;
+
+procedure TfScriptEditor.aScriptIdle(Sender: TObject);
+begin
+  Application.ProcessMessages;
+  if FResume then
+    begin
+      FResume := False;
+      if Assigned(FScript) then
+        FScript.Resume;
+      FActiveLine := 0;
+      ed.Refresh;
+    end;
+end;
+
+procedure TfScriptEditor.aScriptRunLine(Sender: TScript; Module: string;
+  aPosition, Row, Col: Integer);
+begin
+ try
+   if Assigned(Data) and (not FDataSet.Active) then exit;
+   if ((Module=ActiveFile) or (Module='')) and (FScript.Status<>ssRunning) then
+     begin
+       //Set mark
+       if not Assigned(LineMark) then
+         begin
+           Linemark := TSynEditMark.Create(ed);
+           Linemark.ImageList:=GutterImages;
+           Linemark.ImageIndex:=8;
+           ed.Marks.Add(Linemark);
+           Linemark.Visible:=True;
+         end;
+       Linemark.Line:=Row;
+       if HasBreakPoint(Module, Row) then
+         begin
+           Linemark.ImageIndex:=9;
+           if Assigned(FScript) then
+             if not FScript.Pause then
+               FScript.Stop;
+         end
+       else Linemark.ImageIndex:=8;
+       with BaseApplication as IBaseApplication do
+         begin
+           Debug('Script:'+Module+':'+IntToStr(Row));
+         end;
+       //Mark active Line
+       FActiveLine := Row;
+       if (FActiveLine < ed.TopLine +2) or (FActiveLine > Ed.TopLine + Ed.LinesInWindow -2) then
+       begin
+         Ed.TopLine := FActiveLine - (Ed.LinesInWindow div 2);
+       end;
+       ed.CaretY := FActiveLine;
+       ed.CaretX := 1;
+       ed.Refresh;
+       Application.ProcessMessages;
+     end
+   else
+     begin
+       with BaseApplication as IBaseApplication do Debug('Script:'+Module+':'+IntToStr(Row));
+       if GetTickCount-LastStepTime > 10 then
+         Application.ProcessMessages;
+       LastStepTime:=GetTickCount;
+     end;
+ except
+ end;
 end;
 
 procedure TfScriptEditor.cbSyntaxSelect(Sender: TObject);
@@ -430,8 +559,8 @@ end;
 procedure TfScriptEditor.DebuggerExecImport(Sender: TObject; se: TPSExec;
   x: TPSRuntimeClassImporter);
 begin
-  if Assigned(Data) and (FDataSet is TBaseScript) and (TBaseScript(FDataSet).Script is TPascalScript) then
-    TPascalScript(TBaseScript(FDataSet).Script).ClassImporter:=x;
+  if Assigned(Data) and (FDataSet is TBaseScript) and (FScript is TPascalScript) then
+    TPascalScript(FScript).ClassImporter:=x;
 end;
 
 function TfScriptEditor.DebuggerGetNotificationVariant(Sender: TPSScript;
@@ -456,12 +585,14 @@ var
 begin
  if ed.Highlighter=HigPascal then
    begin
+     {
       if Compile then
         begin
           Debugger.GetCompiled(s);
           IFPS3DataToText(s, s);
           messages.AddItem(s,nil);
         end;
+        }
    end
  else if ed.Highlighter=HigSQL then
    begin
@@ -471,8 +602,8 @@ end;
 
 procedure TfScriptEditor.aButtonClick(Sender: TObject);
 begin
-  if (FDataSet is TBaseScript) and (TBaseScript(FDataSet).Script is TPascalScript) then
-    TPascalScript(TBaseScript(FDataSet).Script).OpenTool(TToolButton(Sender).Caption);
+  if (FDataSet is TBaseScript) and (FScript is TPascalScript) then
+    TPascalScript(FScript).OpenTool(TToolButton(Sender).Caption);
 end;
 
 procedure TfScriptEditor.acLogoutExecute(Sender: TObject);
@@ -491,12 +622,24 @@ procedure TfScriptEditor.acPauseExecute(Sender: TObject);
 begin
   if ed.Highlighter=HigPascal then
     begin
+      if (FDataSet is TBaseScript) and (FScript is TPascalScript) then
+        with TPascalScript(FScript) do
+          begin
+            if Runtime is TPSDebugExec then
+              begin
+                TPSDebugExec(Runtime).Pause;
+                TPSDebugExec(Runtime).StepInto;
+                acRun.Enabled:=True;
+              end;
+          end;
+      {
       if Debugger.Exec.Status = isRunning then
         begin
           Debugger.Pause;
           Debugger.StepInto;
           acRun.Enabled:=True;
         end;
+       }
       acStepinto.Enabled:=acPause.Enabled;
       acStepover.Enabled:=acPause.Enabled;
     end
@@ -511,16 +654,16 @@ procedure TfScriptEditor.acResetExecute(Sender: TObject);
 begin
   if ed.Highlighter=HigPascal then
     begin
-      if Debugger.Exec.Status in isRunningOrPaused then
-        begin
-          DoCleanUp;
-          Debugger.Stop;
-        end;
-      acRun.Enabled:=True;
-      acPause.Enabled:=false;
-      acReset.Enabled:=false;
-      acStepinto.Enabled:=acPause.Enabled or acRun.Enabled;
-      acStepover.Enabled:=acPause.Enabled or acRun.Enabled;
+      if Assigned(FScript) then
+        if FScript.Stop then
+          begin
+            DoCleanUp;
+            acRun.Enabled:=True;
+            acPause.Enabled:=false;
+            acReset.Enabled:=false;
+            acStepinto.Enabled:=acPause.Enabled or acRun.Enabled;
+            acStepover.Enabled:=acPause.Enabled or acRun.Enabled;
+          end;
     end
   else
     begin
@@ -552,54 +695,18 @@ begin
       SelectData.DataSet.Free;
       SelectData.DataSet := nil;
     end;
-  if ed.Highlighter=HigPascal then
+  InitEvents;
+  messages.Clear;
+  acStepinto.Enabled:=False;
+  acStepover.Enabled:=False;
+  if (FDataSet is TBaseScript) then
     begin
-      if Debugger.Running then
-      begin
-        FResume := True
-      end else
-      begin
-        if (FDataSet is TBaseScript) and (TBaseScript(FDataSet).Script is TPascalScript) then
-          TPascalScript(TBaseScript(FDataSet).Script).OnToolRegistering:=@TPascalScriptToolRegistering;
-        if Compile then
-          begin
-            SetCurrentDir(GetHomeDir);
-            if Assigned(Data) and (FDataSet is TBaseScript) and (TBaseScript(FDataSet).Script is TPascalScript) then
-              begin
-                TPascalScript(TBaseScript(FDataSet).Script).Runtime := Debugger.Exec;
-                TPascalScript(TBaseScript(FDataSet).Script).Compiler := Debugger.Comp;
-              end;
-            if Debugger.Execute then
-            begin
-              Messages.Items.Add(STR_SUCCESSFULLY_EXECUTED);
-            end else
-            begin
-              messages.Items.Add(Format(STR_RUNTIME_ERROR, [extractFileName(aFile), Debugger.ExecErrorRow,Debugger.ExecErrorCol,Debugger.ExecErrorProcNo,Debugger.ExecErrorByteCodePosition,Debugger.ExecErrorToString])); //Birb
-            end;
-          end;
-          acStepinto.Enabled:=acPause.Enabled or acRun.Enabled;
-          acStepover.Enabled:=acPause.Enabled or acRun.Enabled;
-      end;
-    end
-  else if (ed.Highlighter=HigSQL) and (copy(lowercase(sl.Text),0,7)='select ') then
-    begin
-      gResults.Visible := True;
-      messages.Visible := False;
-      SelectData.DataSet := Data.GetNewDataSet(FDataSet.FieldByName('SCRIPT').AsString);
-      SelectData.DataSet.Open;
-    end
-  else
-    begin
-      messages.Clear;
-      acStepinto.Enabled:=False;
-      acStepover.Enabled:=False;
-      if (FDataSet is TBaseScript) then
-        begin
-          TBaseScript(FDataSet).writeln := @FDataSetWriteln;
-          acSave.Execute;
-          if not TBaseScript(FDataSet).Execute(Null) then
-            messages.AddItem('failed to executing',nil);
-        end;
+      TBaseScript(FDataSet).writeln := @FDataSetWriteln;
+      acSave.Execute;
+      ButtonStatus(ssRunning);
+      if not TBaseScript(FDataSet).Execute(Null,True) then
+        messages.AddItem('failed to executing',nil);
+      ButtonStatus(FScript.Status);
     end;
   sl.Free;
 end;
@@ -634,42 +741,16 @@ end;
 
 procedure TfScriptEditor.acStepintoExecute(Sender: TObject);
 begin
-  if Debugger.Exec.Status in isRunningOrPaused then
-    begin
-      Debugger.StepInto;
-      acRun.Enabled:=True;
-      acPause.Enabled:=False;
-    end
-  else
-  begin
-    if Compile then
-      begin
-        Debugger.StepInto;
-        Debugger.Execute;
-      end;
-    Debugger.Comp.OnUses:=FOldUses;
-  end;
-  acStepinto.Enabled:=acPause.Enabled or acRun.Enabled;
-  acStepover.Enabled:=acPause.Enabled or acRun.Enabled;
+  if Assigned(FScript) then
+    FScript.StepInto;
+  ButtonStatus(FScript.Status);
 end;
 
 procedure TfScriptEditor.acStepoverExecute(Sender: TObject);
 begin
-  if Debugger.Exec.Status in isRunningOrPaused then
-    begin
-      Debugger.StepOver;
-      acRun.Enabled:=True;
-      acPause.Enabled:=False;
-    end
-  else
-  begin
-    if Compile then
-    begin
-      Debugger.StepInto;
-      Debugger.Execute;
-    end;
-    Debugger.Comp.OnUses:=FOldUses;
-  end;
+  if Assigned(FScript) then
+    FScript.StepOver;
+  ButtonStatus(FScript.Status);
 end;
 
 procedure TfScriptEditor.BreakPointMenuClick(Sender: TObject);
@@ -679,9 +760,9 @@ var
   i: Integer;
 begin
   Line := Ed.CaretY;
-  if Debugger.HasBreakPoint(Debugger.MainFileName, Line) then
+  if HasBreakPoint(ActiveFile, Line) then
     begin
-      Debugger.ClearBreakPoint(Debugger.MainFileName, Line);
+      ClearBreakPoint(ActiveFile, Line);
       i := 0;
       while i<ed.Marks.Count-1 do
         begin
@@ -692,7 +773,7 @@ begin
     end
   else
     begin
-      Debugger.SetBreakPoint(Debugger.MainFileName, Line);
+      SetBreakPoint(ActiveFile, Line);
       m := TSynEditMark.Create(ed);
       m.Line := Line;
       m.ImageList := GutterImages;
@@ -703,6 +784,7 @@ begin
   ed.Refresh;
 end;
 
+{
 procedure TfScriptEditor.DebuggerLineInfo(Sender: TObject; const FileName: String; aPosition, Row,
   Col: Cardinal);
 begin
@@ -763,6 +845,7 @@ begin
   except
   end;
 end;
+}
 
 procedure TfScriptEditor.Exit1Click(Sender: TObject);
 begin
@@ -777,16 +860,9 @@ var
   mo: TMessageObject;
   aMsg: TPSPascalCompilerMessage;
 begin
-  if Assigned(Data) and (FDataSet is TBaseScript) and (TBaseScript(FDataSet).Script is TPascalScript) then
-    begin
-      TPascalScript(TBaseScript(FDataSet).Script).Compiler:=Debugger.Comp;
-      TPascalScript(TBaseScript(FDataSet).Script).Runtime:=Debugger.Exec;
-    end;
-  Debugger.OnExecImport:=@DebuggerExecImport;
-  Debugger.Script.Assign(ed.Lines);
   Result := False;
   try
-    Result := Result or Debugger.Compile;
+    Result := Result or TBaseScript(FDataSet).Compile;
   except
     on e : Exception do
       Messages.Items.Add(e.Message);
@@ -794,6 +870,7 @@ begin
   messages.Clear;
   if not Result then
     begin
+      {
       for i := 0 to Debugger.CompilerMessageCount -1 do
         begin
           aMsg := Debugger.CompilerMessages[i];
@@ -806,23 +883,12 @@ begin
         end;
       if Debugger.CompilerMessageCount=0 then
         messages.Items.Add(Debugger.ExecErrorToString);
+      }
       Messages.Items.Add(STR_COMPILE_ERROR);
-      Debugger.Comp.OnUses:=FOldUses;
     end;
 end;
 
-procedure TfScriptEditor.DebuggerIdle(Sender: TObject);
-begin
-  Application.ProcessMessages;
-  if FResume then
-  begin
-    FResume := False;
-    Debugger.Resume;
-    FActiveLine := 0;
-    ed.Refresh;
-  end;
-end;
-
+{
 procedure TfScriptEditor.DebuggerExecute(Sender: TPSScript);
 begin
   Caption := STR_FORM_TITLE_RUNNING;
@@ -846,18 +912,29 @@ begin
   Debugger.Comp.OnUses:=FOldUses;
   FreeAndNil(Linemark);
 end;
+}
 
 function TfScriptEditor.Execute: Boolean;
 begin
-  if Debugger.Execute then
+  if TBaseScript(FDataSet).Execute(Null) then
   begin
     Messages.Items.Add(STR_SUCCESSFULLY_EXECUTED);
     Result := True; 
   end else
   begin
-    messages.Items.Add(Format(STR_RUNTIME_ERROR, [extractFileName(aFile), Debugger.ExecErrorRow,Debugger.ExecErrorCol,Debugger.ExecErrorProcNo,Debugger.ExecErrorByteCodePosition,Debugger.ExecErrorToString])); //Birb
+    //messages.Items.Add(Format(STR_RUNTIME_ERROR, [extractFileName(aFile), Debugger.ExecErrorRow,Debugger.ExecErrorCol,Debugger.ExecErrorProcNo,Debugger.ExecErrorByteCodePosition,Debugger.ExecErrorToString])); //Birb
     Result := False;
   end;
+end;
+
+function TfScriptEditor.GetBreak(Idx : Integer): TBreakpoint;
+begin
+  Result := TBreakpoint(FBreakPoints[Idx]);
+end;
+
+function TfScriptEditor.GetBreakPointCount: Integer;
+begin
+  Result := FBreakPoints.Count;
 end;
 
 procedure TfScriptEditor.DebuggerCompile(Sender: TPSScript);
@@ -874,7 +951,7 @@ begin
  try
    TBaseScript(FDataSet).ResetScript;
    ed.Lines.Text:=FDataSet.FieldByName('SCRIPT').AsString;
-   aFile := FDataSet.FieldByName('NAME').AsString;
+   ActiveFile := FDataSet.FieldByName('NAME').AsString;
    ed.FoldState := FDataSet.FieldByName('FOLDSTATE').AsString;
    cbSyntaxSelect(cbSyntax);
  except
@@ -929,7 +1006,7 @@ begin
         mrYes:
           begin
             acSave.Execute;
-            Result := aFile <> '';
+            Result := ActiveFile <> '';
           end;
         mrNo: Result := True;
         else
@@ -979,11 +1056,13 @@ begin
         end
       else
         FDataSetDataSetAfterScroll(FDataSet.DataSet);
+      FScript := TBaseScript(FDataSet).Script;
     end
   else //File Handling
     begin
       cbSyntax.Enabled:=False;
       ed.Highlighter:=HigPascal;
+      //TODO:load from file
     end;
   Result := Showmodal = mrOK;
   if Assigned(Data) then
@@ -1143,9 +1222,6 @@ end;
 procedure TfScriptEditor.SetActiveFile(const Value: string);
 begin
   FActiveFile := Value;
-  Debugger.MainFileName := ExtractFileName(FActiveFile);
-  if Debugger.MainFileName = '' then
-    Debugger.MainFileName := STR_UNNAMED;
 end;
 
 function GetErrorRowCol(const inStr: string): TPoint;
@@ -1181,7 +1257,7 @@ begin
    begin
      ed.CaretY:=TMessageObject(mo).Y;
      ed.CaretX:=TMessageObject(mo).X;
-     if TMessageObject(mo).ModuleName<>Debugger.MainFileName then
+     if TMessageObject(mo).ModuleName<>ActiveFile then
        if Assigned(OnOpenUnit) then
          begin
            OnOpenUnit(TMessageObject(mo).ModuleName,TMessageObject(mo).X,TMessageObject(mo).Y);
@@ -1240,7 +1316,7 @@ begin
       ed.ClearAll;
       ed.Lines.LoadFromFile(AFiles[0]);
       ed.Modified := True;
-      aFile := AFiles[0];
+      ActiveFile := AFiles[0];
     end;
 end;
 
@@ -1283,6 +1359,48 @@ begin
   aButton.ShowCaption:=True;
   aButton.Hint:=s;
   aButton.OnClick:=@aButtonClick;
+end;
+
+procedure TfScriptEditor.InitEvents;
+var
+  aScript: TScript;
+begin
+  aScript := FScript;
+  if Assigned(aScript) then
+    begin
+      aScript.OnIdle:=@aScriptIdle;
+      aScript.OnRunLine:=@aScriptRunLine;
+    end;
+end;
+
+procedure TfScriptEditor.ButtonStatus(Status: TScriptStatus);
+begin
+  case Status of
+  ssRunning:
+    begin
+      acPause.Enabled:=True;
+      acReset.Enabled:=True;
+      acRun.Enabled:=False;
+      acStepinto.Enabled:=False;
+      acStepover.Enabled:=False;
+    end;
+  ssPaused:
+    begin
+      acPause.Enabled:=False;
+      acReset.Enabled:=True;
+      acRun.Enabled:=True;
+      acStepinto.Enabled:=True;
+      acStepover.Enabled:=True;
+    end;
+  ssNone:
+    begin
+      acPause.Enabled:=False;
+      acReset.Enabled:=False;
+      acRun.Enabled:=True;
+      acStepinto.Enabled:=False;
+      acStepover.Enabled:=False;
+    end;
+  end;
 end;
 
 initialization

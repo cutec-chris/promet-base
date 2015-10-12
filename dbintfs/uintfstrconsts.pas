@@ -248,6 +248,8 @@ resourcestring
                                 +'http://www.freepascal.org, http://lazarus.freepascal.org'+lineending
                                 +'Iconset von:'+lineending
                                 +'http://www.famfamfam.com/lab/icons/silk/'+lineending
+                                +'Rem Objects PascalScript von:'+lineending
+                                +'https://github.com/remobjects/pascalscript'+lineending
                                 ;
 
 implementation

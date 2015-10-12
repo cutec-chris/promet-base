@@ -61,7 +61,7 @@ type
     function SelectByName(aName: string): Boolean;
     property Script : TScript read GetScript;
     procedure ResetScript;
-    function Execute(Parameters : Variant) : Boolean;virtual;
+    function Execute(Parameters : Variant;Debug : Boolean = False) : Boolean;virtual;
     property Write : TStrOutFunc read FWriFunc write SetWriFunc;
     property Writeln : TStrOutFunc read FWrFunc write SetWRFunc;
     property Readln : TStrInFunc read FRlFunc write SetRlFunc;
@@ -71,6 +71,7 @@ type
     function Copy(aNewVersion : Variant) : Boolean;
     procedure OpenItem(AccHistory: Boolean=True); override;
     function Versionate(aNewversion : Variant;aMakeActive : Boolean = True) : Boolean;
+    function Compile : Boolean;
     destructor Destroy;override;
   end;
 
@@ -79,11 +80,11 @@ type
     aDS: TDataSet;
     procedure SQLConn;
     procedure DoSetResults(aRes : string);
-    procedure DoSetStatus(s : string);
   protected
     function GetTyp: string; override;
+    function GetStatus: TScriptStatus; override;
   public
-    function Execute(aParameters: Variant): Boolean; override;
+    function Execute(aParameters: Variant;Debug : Boolean = false): Boolean; override;
   end;
 
   function ProcessScripts : Boolean;//process Scripts that must be runned cyclic
@@ -176,18 +177,17 @@ begin
   Results:=aRes;
 end;
 
-procedure TSQLScript.DoSetStatus(s: string);
-begin
-  if length(s)>0 then
-    Status:=s[1];
-end;
-
 function TSQLScript.GetTyp: string;
 begin
   Result := 'SQL';
 end;
 
-function TSQLScript.Execute(aParameters: Variant): Boolean;
+function TSQLScript.GetStatus: TScriptStatus;
+begin
+  Result:=inherited GetStatus;
+end;
+
+function TSQLScript.Execute(aParameters: Variant; Debug: Boolean): Boolean;
 begin
   try
     SQLConn;
@@ -272,13 +272,12 @@ var
   aType: String;
 begin
   aScript:=nil;
-  if not Assigned(FScript) then
+  if (not Assigned(FScript)) and (Assigned(FieldByName('SYNTAX'))) then
     begin
       for i := 0 to ScriptTypes.Count-1 do
         begin
           aScript := TScript(ScriptTypes[i].Create);
-          aType := Uppercase(FieldByName('SYNTAX').AsString);
-          if Uppercase(aScript.Typ)<>aType then
+          if Uppercase(aScript.Typ)<>Uppercase(FieldByName('SYNTAX').AsString) then
             FreeAndNil(aScript);
           if Assigned(aScript) then break;
         end;
@@ -385,13 +384,13 @@ begin
   FreeAndNil(FScript);
 end;
 
-function TBaseScript.Execute(Parameters: Variant): Boolean;
+function TBaseScript.Execute(Parameters: Variant; Debug: Boolean): Boolean;
 var
   aStartTime: TDateTime;
 begin
   Result := False;
   if Assigned(GetScript) then
-    Result := FScript.Execute(Parameters);
+    Result := FScript.Execute(Parameters,Debug);
 end;
 
 function TBaseScript.Copy(aNewVersion: Variant): Boolean;
@@ -557,6 +556,13 @@ begin
       FieldByName('ACTIVE').AsString:='N';
       Post;
     end;
+end;
+
+function TBaseScript.Compile: Boolean;
+begin
+  Result := True;
+  if Assigned(GetScript) and (FScript is TByteCodeScript) then
+    Result := TByteCodeScript(FScript).Compile;
 end;
 
 initialization

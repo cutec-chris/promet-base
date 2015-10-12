@@ -61,7 +61,6 @@ type
   public
     function InternalUses(Comp: TPSPascalCompiler; Name: string): Boolean; override;
     property Sleep : TSleepFunc read FSlFunc write FSlFunc;
-    function Execute(aParameters: Variant): Boolean; override;
     destructor Destroy;override;
   end;
 
@@ -761,12 +760,6 @@ begin
   Result := TPascalScriptUses(Self,Name,Result);
 end;
 
-function TPrometPascalScript.Execute(aParameters: Variant): Boolean;
-var
-  aStartTime: TDateTime;
-begin
-  inherited;
-end;
 
 destructor TPrometPascalScript.Destroy;
 begin

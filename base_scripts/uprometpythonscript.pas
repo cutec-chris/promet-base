@@ -28,7 +28,6 @@ uses
 
 type
   TPrometPythonscript = class(TPythonScript)
-
   end;
 
 implementation

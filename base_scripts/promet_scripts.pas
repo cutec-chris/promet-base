@@ -8,7 +8,7 @@ interface
 
 uses
   uprometpascalscript, uspeakinginterface, uprometpythonscript, 
-  LazarusPackageIntf;
+  uprometluascript, LazarusPackageIntf;
 
 implementation
 
