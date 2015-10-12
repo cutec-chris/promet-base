@@ -348,17 +348,13 @@ var
   saType: String;
   aField: TField;
 begin
-  if CanEdit and UpdateHistory and Supports(Self, IBaseHistory, Hist) then
+  if CanEdit then Post;
+  if UpdateHistory and Supports(Self, IBaseHistory, Hist) then
     begin
       if not Hist.History.DataSet.Active then Hist.History.Open;
       if (Hist.History.Count=0) or (DataSet.State = dsInsert) then
         begin
           sType := strCreated;
-          if (DataSet.State = dsInsert) then
-            begin
-              DataSet.Post;
-              DataSet.Edit;
-            end;
         end
       else
         begin
@@ -376,12 +372,9 @@ begin
               saType:=Stringreplace(saType,'()','',[rfReplaceAll]);
             end;
         end;
+      sType:=sType+saType;
+      Hist.History.AddItem(Self.DataSet,sType,'','',nil,0,'',True,True,False);
       Hist.History.ChangedDuringSession := False;
-      if not Hist.History.ChangedDuringSession then
-        begin
-          sType:=sType+saType;
-          Hist.History.AddItem(Self.DataSet,sType);
-        end;
     end;
   inherited CascadicPost;
 end;
