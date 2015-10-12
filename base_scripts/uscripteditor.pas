@@ -784,69 +784,6 @@ begin
   ed.Refresh;
 end;
 
-{
-procedure TfScriptEditor.DebuggerLineInfo(Sender: TObject; const FileName: String; aPosition, Row,
-  Col: Cardinal);
-begin
-  try
-    if Assigned(Data) and (not FDataSet.Active) then exit;
-    if ed.Highlighter=HigPascal then
-      begin
-        if (Debugger.Exec.DebugMode <> dmRun) and (FileName = Debugger.MainFileName) then
-          begin
-            //Set mark
-            if not Assigned(LineMark) then
-              begin
-                Linemark := TSynEditMark.Create(ed);
-                Linemark.ImageList:=GutterImages;
-                Linemark.ImageIndex:=8;
-                ed.Marks.Add(Linemark);
-                Linemark.Visible:=True;
-              end;
-            Linemark.Line:=Row;
-            if Debugger.HasBreakPoint(FileName, Row) then
-              Linemark.ImageIndex:=9
-            else Linemark.ImageIndex:=8;
-            with BaseApplication as IBaseApplication do
-              begin
-                Debug('Script:'+FileName+':'+IntToStr(Row));
-              end;
-            //Mark active Line
-            FActiveLine := Row;
-            if (FActiveLine < ed.TopLine +2) or (FActiveLine > Ed.TopLine + Ed.LinesInWindow -2) then
-            begin
-              Ed.TopLine := FActiveLine - (Ed.LinesInWindow div 2);
-            end;
-            ed.CaretY := FActiveLine;
-            ed.CaretX := 1;
-            ed.Refresh;
-          end
-        else
-          begin
-            if (Debugger.Exec.DebugMode <> dmRun) then
-              begin
-                with BaseApplication as IBaseApplication do Debug('Script:'+FileName+':'+IntToStr(Row));
-                {
-                Messages.AddItem('Debug Zeile:'+FileName+':'+IntToStr(Row),nil);
-                messages.ItemIndex:=messages.Items.Count-1;
-                messages.MakeCurrentVisible;
-                }
-              end;
-            if GetTickCount-LastStepTime > 10 then
-              Application.ProcessMessages;
-            LastStepTime:=GetTickCount;
-          end;
-      end
-    else
-      begin
-        acStepinto.Enabled:=False;
-        acStepover.Enabled:=False;
-      end;
-  except
-  end;
-end;
-}
-
 procedure TfScriptEditor.Exit1Click(Sender: TObject);
 begin
   acReset.Execute; //terminate any running script
@@ -887,32 +824,6 @@ begin
       Messages.Items.Add(STR_COMPILE_ERROR);
     end;
 end;
-
-{
-procedure TfScriptEditor.DebuggerExecute(Sender: TPSScript);
-begin
-  Caption := STR_FORM_TITLE_RUNNING;
-  acRun.Enabled:=False;
-  acReset.Enabled:=True;
-  acPause.Enabled:=True;
-  acStepinto.Enabled:=acPause.Enabled;
-  acStepover.Enabled:=acPause.Enabled;
-end;
-
-procedure TfScriptEditor.DebuggerAfterExecute(Sender: TPSScript);
-begin
-  DoCleanUp;
-  acRun.Enabled:=True;
-  acReset.Enabled:=False;
-  acPause.Enabled:=false;
-  Caption := STR_FORM_TITLE;
-  FActiveLine := 0;
-  ed.Refresh;
-  ClassImporter.Free;
-  Debugger.Comp.OnUses:=FOldUses;
-  FreeAndNil(Linemark);
-end;
-}
 
 function TfScriptEditor.Execute: Boolean;
 begin
@@ -1397,7 +1308,7 @@ begin
       acPause.Enabled:=False;
       acReset.Enabled:=False;
       acRun.Enabled:=True;
-      acStepinto.Enabled:=False;
+      acStepinto.Enabled:=True;
       acStepover.Enabled:=False;
     end;
   end;
