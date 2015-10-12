@@ -709,13 +709,13 @@ begin
     begin
       if IsSQLDB then
         begin
-          aTable := GetNewDataSet('select "SQL_ID","STATUS","CUSTNAME" from "ORDERS" where "ORDERNO"='+QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink)))+' OR "SQL_ID"='+QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
+          aTable := GetNewDataSet('select '+QuoteField('SQL_ID')+','+QuoteField('STATUS')+','+QuoteField('CUSTNAME')+' from '+QuoteField('ORDERS')+' where '+QuoteField('ORDERNO')+'='+QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink)))+' OR '+QuoteField('SQL_ID')+'='+QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
           aTable.Open;
           aTmp := aTable.FieldByName('SQL_ID').AsString;
           aTmp1 := aTable.FieldByName('STATUS').AsString;
           aTmp2 := trim(aTable.FieldByName('CUSTNAME').AsString);
           FreeAndNil(aTable);
-          aTable := GetNewDataSet('select "STATUSNAME" from "ORDERTYPE" where "STATUS"='+QuoteValue(aTmp1));
+          aTable := GetNewDataSet('select '+QuoteField('STATUSNAME')+' from '+QuoteField('ORDERTYPE')+' where '+QuoteField('STATUS')+'='+QuoteValue(aTmp1));
           aTable.Open;
           Result := aTable.FieldByName('STATUSNAME').AsString+' '+copy(aLink, pos('@', aLink) + 1, length(aLink));
           if aTmp2<>'' then
