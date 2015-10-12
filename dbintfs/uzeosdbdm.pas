@@ -677,7 +677,8 @@ begin
       Connection.Disconnect;
       Connection.Connect;
     end;
-  TBaseDBModule(Self.Owner).UpdateTableVersion(Self.FDefaultTableName);
+  if Changed then
+    TBaseDBModule(Self.Owner).UpdateTableVersion(Self.FDefaultTableName);
 end;
 
 function TZeosDBDataSet.GetRecord(Buffer: PChar; GetMode: TGetMode;
