@@ -398,7 +398,7 @@ object fGridView: TfGridView
       OnExecute = acResetFilterExecute
     end
   end
-  object FDataSource: TDataSource
+  object FDataSource: TDatasource
     OnStateChange = FDataSourceStateChange
     OnDataChange = FDataSourceDataChange
     left = 108

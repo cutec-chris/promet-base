@@ -1651,18 +1651,15 @@ begin
           TStringGrid(Sender).InvalidateCell(0,aRow);
         if Assigned(FDataSet) and (FDataSet.CanEdit) and (not FDataSet.DataSet.ControlsDisabled) then
           begin
-            if FDataSet.Changed then
-              begin
-                WasInsert := FDataSet.State=dsInsert;
-                if FDataSet.CanEdit then
-                  FDataSet.DataSet.Post;
-                aBm := DataSet.GetBookmark;
-                if (OldRow>-1) and Assigned(gList.Objects[0,OldRow]) and (TRowObject(gList.Objects[0,OldRow]).Rec<>aBm) and (TRowObject(gList.Objects[0,OldRow]).Rec=0) then
-                  TRowObject(gList.Objects[0,OldRow]).Rec:=aBm;
-                if WasInsert then
-                  gListColRowMoved(gList,False,OldRow,OldRow);
-                GotoRow(TRowObject(gList.Objects[0,aRow]).Rec);
-              end
+            WasInsert := FDataSet.State=dsInsert;
+            if FDataSet.CanEdit then
+              FDataSet.DataSet.Post;
+            aBm := DataSet.GetBookmark;
+            if (OldRow>-1) and Assigned(gList.Objects[0,OldRow]) and (TRowObject(gList.Objects[0,OldRow]).Rec<>aBm) and (TRowObject(gList.Objects[0,OldRow]).Rec=0) then
+              TRowObject(gList.Objects[0,OldRow]).Rec:=aBm;
+            if WasInsert then
+              gListColRowMoved(gList,False,OldRow,OldRow);
+            GotoRow(TRowObject(gList.Objects[0,aRow]).Rec);
           end;
         OldRow := aRow;
         if Assigned(DataSet) and (DataSet.State<>dsInsert) then
@@ -2515,7 +2512,11 @@ function TfGridView.GotoActiveRow: Boolean;
 begin
   Result := (gList.RowCount>gList.Row)
        and Assigned(gList.Objects[0,gList.Row])
-       and ((TRowObject(gList.Objects[0,gList.Row]).Rec = 0) or (DataSet.State = dsInsert) or ((DataSet.State = dsEdit) and (not DataSet.Changed)) or ((TRowObject(gList.Objects[0,gList.Row]).Rec <> 0) and (DataSet.GotoBookmark(TRowObject(gList.Objects[0,gList.Row]).Rec))))
+       and ((TRowObject(gList.Objects[0,gList.Row]).Rec = 0)
+            or (DataSet.State = dsInsert)
+            or ((DataSet.State = dsEdit) and (not DataSet.Changed))
+            or ((TRowObject(gList.Objects[0,gList.Row]).Rec <> 0) and (DataSet.GotoBookmark(TRowObject(gList.Objects[0,gList.Row]).Rec)))
+           )
 end;
 function TfGridView.GotoRow(aBookmark: LargeInt): Boolean;
 begin
