@@ -130,8 +130,8 @@ end;
 constructor TMessageHandler.Create(aData : TBaseDBModule);
 begin
   Data := aData;
-  //Connection := Data.GetNewConnection;
-  Connection := Data.MainConnection;
+  Connection := Data.GetNewConnection;
+  //Connection := Data.MainConnection;
   aSleepTime := 12000;
   SysCommands := TSystemCommands.CreateEx(nil,Data,Connection);
   SysCommands.CreateTable;
