@@ -392,9 +392,9 @@ begin
             Add('SENDDATE',ftDateTime,0,True);
             Add('ANSWERED',ftDateTime,0,False);
             Add('SUBJECT',ftString,220,false);
-            Add('RECEIVERS',ftString,440,False);
-            Add('CC',ftString,440,False);
-            Add('BCC',ftString,440,False);
+            Add('RECEIVERS',ftString,800,False);
+            Add('CC',ftString,800,False);
+            Add('BCC',ftString,800,False);
             Add('CONTENTTYP',ftString,50,False);
             Add('PRIORITY',ftInteger,0,False);
             Add('PARENT',ftLargeint,0,False);
