@@ -5,6 +5,7 @@
       - Automation:Produktionsabläufe können mit Scripten auomatisiert werden
       - Datenbank:Felder können nun automatisch vergrössert werden wenn sich die Definition ändert (ALTER COLUMN)
       - Suche:wenn kein Suchtyp selektiert ist werden alle selektiert
+      - Datenbanklayer:viele kleine MySQL Bugfixes
 Build 416
       - Projekte:Gantt Berechnung um kleinere Berechnungsfehler erleichtert
       - Feedreceiver:zu lange Feedtitel werden automatisch gekürzt

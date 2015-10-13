@@ -66,7 +66,6 @@ TfDocumentFrame = class(TPrometInplaceDBFrame{$IFDEF WINDOWS},IDropSource{$ENDIF
     acViewFile: TAction;
     bCheckout: TSpeedButton;
     bCheckout1: TSpeedButton;
-    bDocuAdd: TSpeedButton;
     bDocuAdd1: TSpeedButton;
     bDocuAdd2: TSpeedButton;
     bDocuAdd3: TSpeedButton;
