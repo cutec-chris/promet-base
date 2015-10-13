@@ -88,7 +88,6 @@ type
     destructor Destroy; override;
     procedure SetDisplayLabels(aDataSet: TDataSet); override;
     function CreateTable : Boolean;override;
-    procedure CascadicPost;override;
     procedure CascadicCancel;override;
     function GetTextFieldName: string;override;
     function GetNumberFieldName : string;override;
@@ -1744,12 +1743,6 @@ begin
   FSnapshots.CreateTable;
   FDependencies.CreateTable;
 end;
-procedure TTaskList.CascadicPost;
-begin
-  inherited CascadicPost;
-  FHistory.CascadicPost;
-end;
-
 procedure TTaskList.CascadicCancel;
 begin
   FHistory.CascadicCancel;

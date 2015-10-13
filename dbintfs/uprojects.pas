@@ -486,7 +486,8 @@ begin
   inherited CascadicPost;
   FImages.CascadicPost;
   FLinks.CascadicPost;
-  FTasks.CascadicPost;
+  if FTasks.CanEdit then
+    FTasks.Post;
   FHistory.CascadicPost;
   FPositions.CascadicPost;
 end;

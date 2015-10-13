@@ -1818,7 +1818,7 @@ begin
       then
         Delete;
     end;
-  Append;
+  DataSet.Append;
   if aLink <> '' then
     FieldByName('LINK').AsString      := aLink;
   if aObject<>'' then
