@@ -293,34 +293,34 @@ begin
                   if (Lists[i].GetMatchcodeFieldName <> '') then
                     aFilter += Data.QuoteField(Lists[i].GetMatchcodeFieldName)+' as '+Data.QuoteField('MATCHCODE')+','
                   else
-                    aFilter += 'NULL as '+Data.QuoteField('MATCHCODE')+',';
+                    aFilter += Data.QuoteValue('')+' as '+Data.QuoteField('MATCHCODE')+',';
                   aFilter += Data.QuoteField(Lists[i].GetNumberFieldName)+' as '+Data.QuoteField('ID')+',';
                   if Lists[i].GetBookNumberFieldName <> '' then
                     aFilter += Lists[i].GetBookNumberFieldName+' as '+Data.QuoteField('NUMBER')+','
                   else
-                    aFilter += 'NULL as '+Data.QuoteField('NUMBER')+',';
+                    aFilter += Data.QuoteValue('')+' as '+Data.QuoteField('NUMBER')+',';
                   if (Lists[i].GetBarcodeFieldName <> '') then
                     aFilter += Data.QuoteField(Lists[i].GetBarcodeFieldName)+' as '+Data.QuoteField('BARCODE')+','
                   else
-                    aFilter += 'NULL as '+Data.QuoteField('BARCODE')+',';
+                    aFilter += Data.QuoteValue('')+' as '+Data.QuoteField('BARCODE')+',';
                   if (Lists[i].GetCommissionFieldName <> '') then
                     aFilter += Data.QuoteField(Lists[i].GetCommissionFieldName)+' as '+Data.QuoteField('COMMISSION')+','
                   else
-                    aFilter += 'NULL as '+Data.QuoteField('COMMISSION')+',';
+                    aFilter += Data.QuoteValue('')+' as '+Data.QuoteField('COMMISSION')+',';
                   if (Lists[i].GetTextFieldName <> '') then
                     aFilter += Data.QuoteField(Lists[i].GetTextFieldName)+' as '+Data.QuoteField('SHORTTEXT')+','
                   else
-                    aFilter += 'NULL as '+Data.QuoteField('SHORTTEXT')+',';
+                    aFilter += Data.QuoteValue('')+' as '+Data.QuoteField('SHORTTEXT')+',';
                   if Lists[i].GetStatusFieldName<>'' then
                     aFilter += Data.QuoteField(Lists[i].GetStatusFieldName)+' as '+Data.QuoteField('STATUS')+','
                   else
-                    aFilter += 'NULL as '+Data.QuoteField('STATUS')+',';
+                    aFilter += Data.QuoteValue('')+' as '+Data.QuoteField('STATUS')+',';
                   if SearchUnsharp then
                     begin
                       if (aType = fsDescription) and (fsDescription in FSearchTypes)  then
                         aFilter += Data.QuoteField(Lists[i].GetDescriptionFieldName)+' as '+Data.QuoteField('SHORTTEXT')+','
                       else
-                        aFilter += 'NULL as '+Data.QuoteField('DESC')+',';
+                        aFilter += Data.QuoteValue('')+' as '+Data.QuoteField('DESC')+',';
                       //if Lists[i] is TBaseHistory then
                       //  aFilter += ' AND (('+Data.ProcessTerm(Data.QuoteField('OBJECT')+'='+Data.QuoteValue('PROJECTS@*'))+') OR ('+Data.ProcessTerm(Data.QuoteField('OBJECT')+'='+Data.QuoteValue('MASTERDATA@*'))+'))';
                     end;
