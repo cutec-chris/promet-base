@@ -160,7 +160,6 @@ type
     procedure FormCreate(Sender: TObject);
     procedure edStatusChange(Sender: TObject; Changes: TSynStatusChanges);
     function DebuggerNeedFile(Sender: TObject; const OrginFileName: String; var FileName, Output: String): Boolean;
-    procedure DebuggerBreakpoint(Sender: TObject; const FileName: String; bPosition, Row, Col: Cardinal);
     procedure FSynCompletionExecute(Sender: TObject);
     procedure FSynCompletionSearchPosition(var APosition: integer);
     procedure FSynCompletionUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char
@@ -488,6 +487,11 @@ end;
 procedure TfScriptEditor.aScriptIdle(Sender: TObject);
 begin
   Application.ProcessMessages;
+  if Assigned(Linemark) and (not Linemark.Visible) then
+    begin
+      Linemark.Visible:=True;
+      ButtonStatus(TBaseScript(FDataSet).Script.Status);
+    end;
   if FResume then
     begin
       FResume := False;
@@ -501,9 +505,10 @@ end;
 procedure TfScriptEditor.aScriptRunLine(Sender: TScript; Module: string;
   aPosition, Row, Col: Integer);
 begin
+ if Module='' then Module:=ActiveFile;
  try
    if Assigned(Data) and (not FDataSet.Active) then exit;
-   if ((Module=ActiveFile) or (Module='')) and (FScript.Status<>ssRunning) then
+   if (Module=ActiveFile) and ((FScript.Status<>ssRunning) or HasBreakPoint(Module, Row)) then
      begin
        //Set mark
        if not Assigned(LineMark) then
@@ -515,18 +520,19 @@ begin
            Linemark.Visible:=True;
          end;
        Linemark.Line:=Row;
+       with BaseApplication as IBaseApplication do
+         begin
+           Debug('Script:'+Module+':'+IntToStr(Row));
+         end;
        if HasBreakPoint(Module, Row) then
          begin
            Linemark.ImageIndex:=9;
            if Assigned(FScript) then
              if not FScript.Pause then
                FScript.Stop;
+           Linemark.Visible:=False;
          end
        else Linemark.ImageIndex:=8;
-       with BaseApplication as IBaseApplication do
-         begin
-           Debug('Script:'+Module+':'+IntToStr(Row));
-         end;
        //Mark active Line
        FActiveLine := Row;
        if (FActiveLine < ed.TopLine +2) or (FActiveLine > Ed.TopLine + Ed.LinesInWindow -2) then
@@ -536,6 +542,7 @@ begin
        ed.CaretY := FActiveLine;
        ed.CaretX := 1;
        ed.Refresh;
+       ButtonStatus(FScript.Status);
        Application.ProcessMessages;
      end
    else
@@ -620,56 +627,20 @@ end;
 
 procedure TfScriptEditor.acPauseExecute(Sender: TObject);
 begin
-  if ed.Highlighter=HigPascal then
-    begin
-      if (FDataSet is TBaseScript) and (FScript is TPascalScript) then
-        with TPascalScript(FScript) do
-          begin
-            if Runtime is TPSDebugExec then
-              begin
-                TPSDebugExec(Runtime).Pause;
-                TPSDebugExec(Runtime).StepInto;
-                acRun.Enabled:=True;
-              end;
-          end;
-      {
-      if Debugger.Exec.Status = isRunning then
-        begin
-          Debugger.Pause;
-          Debugger.StepInto;
-          acRun.Enabled:=True;
-        end;
-       }
-      acStepinto.Enabled:=acPause.Enabled;
-      acStepover.Enabled:=acPause.Enabled;
-    end
-  else
-    begin
-      acStepinto.Enabled:=False;
-      acStepover.Enabled:=False;
-    end;
+  if Assigned(Fscript) then
+    if Fscript.Pause then
+      ButtonStatus(ssPaused);
 end;
 
 procedure TfScriptEditor.acResetExecute(Sender: TObject);
 begin
-  if ed.Highlighter=HigPascal then
-    begin
-      if Assigned(FScript) then
-        if FScript.Stop then
-          begin
-            DoCleanUp;
-            acRun.Enabled:=True;
-            acPause.Enabled:=false;
-            acReset.Enabled:=false;
-            acStepinto.Enabled:=acPause.Enabled or acRun.Enabled;
-            acStepover.Enabled:=acPause.Enabled or acRun.Enabled;
-          end;
-    end
-  else
-    begin
-      acStepinto.Enabled:=False;
-      acStepover.Enabled:=False;
-    end;
+  if Assigned(FScript) then
+    if FScript.Stop then
+      begin
+        DoCleanUp;
+
+        ButtonStatus(ssNone);
+      end;
 end;
 
 procedure TfScriptEditor.acRunExecute(Sender: TObject);
@@ -677,38 +648,48 @@ var
   sl: TStringList;
   i: Integer;
 begin
-  LastStepTime := GetTickCount;
-  gResults.Visible := False;
-  messages.Visible := True;
-  fLastScriptEditor := Self;
-  sl := TStringList.Create;
-  sl.Text:=ed.Text;
-  i := 0;
-  while i<sl.Count do
+  if Assigned(Fscript) and (Fscript.Status<>ssNone) then
     begin
-      if copy(sl[i],0,2)='--' then
-        sl.Delete(i)
-      else inc(i);
-    end;
-  if Assigned(SelectData.DataSet) then
-    begin
-      SelectData.DataSet.Free;
-      SelectData.DataSet := nil;
-    end;
-  InitEvents;
-  messages.Clear;
-  acStepinto.Enabled:=False;
-  acStepover.Enabled:=False;
-  if (FDataSet is TBaseScript) then
-    begin
-      TBaseScript(FDataSet).writeln := @FDataSetWriteln;
-      acSave.Execute;
+      if Assigned(Linemark) then FreeAndNil(Linemark);
+      FActiveLine := 0;
+      Fscript.Resume;
       ButtonStatus(ssRunning);
-      if not TBaseScript(FDataSet).Execute(Null,True) then
-        messages.AddItem('failed to executing',nil);
-      ButtonStatus(FScript.Status);
+    end
+  else
+    begin
+      LastStepTime := GetTickCount;
+      gResults.Visible := False;
+      messages.Visible := True;
+      fLastScriptEditor := Self;
+      sl := TStringList.Create;
+      sl.Text:=ed.Text;
+      i := 0;
+      while i<sl.Count do
+        begin
+          if copy(sl[i],0,2)='--' then
+            sl.Delete(i)
+          else inc(i);
+        end;
+      if Assigned(SelectData.DataSet) then
+        begin
+          SelectData.DataSet.Free;
+          SelectData.DataSet := nil;
+        end;
+      InitEvents;
+      messages.Clear;
+      acStepinto.Enabled:=False;
+      acStepover.Enabled:=False;
+      if (FDataSet is TBaseScript) then
+        begin
+          TBaseScript(FDataSet).writeln := @FDataSetWriteln;
+          acSave.Execute;
+          ButtonStatus(ssRunning);
+          if not TBaseScript(FDataSet).Execute(Null,True) then
+            messages.AddItem('failed to executing',nil);
+          ButtonStatus(ssNone);
+        end;
+      sl.Free;
     end;
-  sl.Free;
 end;
 
 procedure TfScriptEditor.acRunRemoteExecute(Sender: TObject);
@@ -743,14 +724,12 @@ procedure TfScriptEditor.acStepintoExecute(Sender: TObject);
 begin
   if Assigned(FScript) then
     FScript.StepInto;
-  ButtonStatus(FScript.Status);
 end;
 
 procedure TfScriptEditor.acStepoverExecute(Sender: TObject);
 begin
   if Assigned(FScript) then
     FScript.StepOver;
-  ButtonStatus(FScript.Status);
 end;
 
 procedure TfScriptEditor.BreakPointMenuClick(Sender: TObject);
@@ -1012,24 +991,6 @@ begin
     begin
       //TODO:File Handling
     end;
-end;
-
-procedure TfScriptEditor.DebuggerBreakpoint(Sender: TObject; const FileName: String; bPosition, Row,
-  Col: Cardinal);
-begin
- acRun.Enabled:=True;
- acPause.Enabled:=False;
-  FActiveLine := Row;
-  if (FActiveLine < ed.TopLine +2) or (FActiveLine > Ed.TopLine + Ed.LinesInWindow -2) then
-  begin
-    Ed.TopLine := FActiveLine - (Ed.LinesInWindow div 2);
-  end;
-  ed.CaretY := FActiveLine;
-  ed.CaretX := 1;
-
-  ed.Refresh;
-  acStepinto.Enabled:=acPause.Enabled or acRun.Enabled;
-  acStepover.Enabled:=acPause.Enabled or acRun.Enabled;
 end;
 
 procedure TfScriptEditor.FSynCompletionExecute(Sender: TObject);
