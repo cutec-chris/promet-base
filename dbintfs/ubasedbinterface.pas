@@ -79,6 +79,9 @@ type
     FLinkHandlers : array of LinkHandler;
     FIgnoreOpenRequests : Boolean;
     FCS : TCriticalSection;
+    FUsers : TUser;
+    FLoggedInUser : Int64;
+    function GetUsers: TUser;
   protected
     FDataSetClass : TDataSetClass;
     function GetSyncOffset: Integer;virtual;abstract;
@@ -86,7 +89,6 @@ type
     function GetLimitAfterSelect: Boolean;virtual;
     function GetLimitSTMT: string;virtual;
   public
-    Users : TUser;
     ActiveUsers : TActiveUsers;
     Numbers : TNumberSets;
     MandantDetails : TMandantDetails;
@@ -114,6 +116,7 @@ type
     destructor Destroy;override;
     function GetConnection: TComponent;virtual;abstract;
     property SessionID : LargeInt read FSessionID write FSessionID;
+    property Users : TUser read GetUsers;
     property MainConnection : TComponent read GetConnection;
     property UsersFilter : string read FUsersFilter;
     function GetNewConnection: TComponent;virtual;abstract;
@@ -416,7 +419,7 @@ begin
   FTables.Clear;
   if not Assigned(Users) then
     begin
-      Users := TUser.CreateEx(nil,Self);
+      FUsers := TUser.CreateEx(nil,Self);
       Numbers := TNumberSets.CreateEx(nil,Self);
       MandantDetails := TMandantDetails.CreateEx(nil,Self);
       Tree := TTree.CreateEx(nil,Self);
@@ -460,6 +463,16 @@ begin
   Result := aFilter;
 end;
 
+function TBaseDBModule.GetUsers: TUser;
+begin
+  Result := FUsers;
+  if Assigned(FUsers) and (not Result.Active) then
+    begin
+      Result.Open;
+      Result.Locate('SQL_ID',FLoggedInUser,[]);
+    end;
+end;
+
 function TBaseDBModule.GetLimitAfterSelect: Boolean;
 begin
   Result := False;
@@ -472,6 +485,7 @@ end;
 
 constructor TBaseDBModule.Create(AOwner: TComponent);
 begin
+  FUsers := nil;
   FCS := TCriticalSection.Create;
   FIgnoreOpenrequests := False;
   FCheckedTables := TStringList.Create;
@@ -1214,7 +1228,8 @@ begin
       TableVersions.Filter('');
       with BaseApplication as IBaseApplication do
         begin
-          if TableVersions.DataSet.State=dsInsert then TableVersions.DataSet.Cancel;
+          if TableVersions.CanEdit then
+            TableVersions.DataSet.Cancel;
           if TableVersions.Locate('NAME',aTableName,[loCaseInsensitive]) then
             begin
               if (TableVersions.FieldByName('DBVERSION').AsInteger>=round((AppVersion*10000)+AppRevision)) and (not BaseApplication.HasOption('debug')) and (TableExists(aTableName)) then
@@ -1698,6 +1713,7 @@ begin
         except
         end;
       end;
+  FDB.FLoggedInUser := FDB.Users.Id.AsVariant;
   FDB.ActiveUsers.Open;
   with BaseApplication as IBaseApplication do
     if SingleInstance
