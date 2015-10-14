@@ -232,7 +232,7 @@ end;
 
 procedure TfMeetingFrame.acSaveExecute(Sender: TObject);
 begin
-  if Assigned(FConnection) then
+  if Assigned(FConnection) or (not UseTransactions) then
     begin
       FDataSet.CascadicPost;
       //Data.Commit(FConnection);
@@ -771,7 +771,7 @@ end;
 
 procedure TfMeetingFrame.acCancelExecute(Sender: TObject);
 begin
-  if Assigned(FConnection) then
+  if Assigned(FConnection) or (not UseTransactions) then
     begin
       FDataSet.CascadicCancel;
       //Data.Rollback(FConnection);

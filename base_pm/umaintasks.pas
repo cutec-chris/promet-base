@@ -69,7 +69,7 @@ begin
 end;
 destructor TfMainTaskFrame.Destroy;
 begin
-  if Assigned(FConnection) then
+  if Assigned(FConnection) or (not FTasks.UseTransactions) then
     begin
       if Assigned(DataSet) then
         begin
@@ -98,8 +98,9 @@ begin
             if FTasks.UseTransactions then
               Data.RollbackTransaction(FConnection);
         end;
-      with Application as IBaseDbInterface do
-        Data.Disconnect(FConnection);
+      if FTasks.UseTransactions then
+        with Application as IBaseDbInterface do
+          Data.Disconnect(FConnection);
       FreeAndNil(FConnection);
     end;
   FTasks.Free;

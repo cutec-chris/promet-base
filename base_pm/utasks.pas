@@ -1153,7 +1153,7 @@ end;
 
 procedure TfTaskFrame.acSaveExecute(Sender: TObject);
 begin
-  if Assigned(FConnection) then
+  if Assigned(FConnection) or (not UseTransactions) then
     begin
       FDataSet.CascadicPost;
       if UseTransactions then
@@ -1863,7 +1863,7 @@ end;
 
 procedure TfTaskFrame.acCancelExecute(Sender: TObject);
 begin
-  if Assigned(FConnection) then
+  if Assigned(FConnection) or (not UseTransactions) then
     begin
       FDataSet.CascadicCancel;
       if UseTransactions then

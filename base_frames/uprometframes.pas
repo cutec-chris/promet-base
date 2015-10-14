@@ -167,8 +167,9 @@ begin
       CloseConnection;
       FConnection.Free;
     end;
-  with Application as IBaseDbInterface do
-    FConnection := Data.GetNewConnection;
+  if FUseTransactions then
+    with Application as IBaseDbInterface do
+      FConnection := Data.GetNewConnection;
 end;
 
 function TPrometMainFrame.HasListFrame: Boolean;
@@ -179,7 +180,7 @@ end;
 procedure TPrometMainFrame.CloseConnection(Ask : Boolean = True);
 begin
   try
-  if not Assigned(FConnection) then exit;
+  if (not Assigned(FConnection)) and FUseTransactions then exit;
   if Assigned(DataSet) and DataSet.Changed and DataSet.Active then
     begin
       if Ask and (MessageDlg(strItem+' '+TBaseDBList(DataSet).Text.AsString+' ('+TBaseDbList(DataSet).Number.AsString+')',strItemnotSaved,mtInformation,[mbYes,mbNo],0) = mrYes) then
@@ -207,9 +208,9 @@ begin
         if FUseTransactions then
           Data.RollbackTransaction(FConnection);
     end;
-  with Application as IBaseDbInterface do
-    Data.Disconnect(FConnection);
-//  FreeAndNil(FConnection);
+  if FUseTransactions then
+    with Application as IBaseDbInterface do
+      Data.Disconnect(FConnection);
   except
   end;
 end;
