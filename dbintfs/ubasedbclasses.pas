@@ -2281,6 +2281,7 @@ procedure TOptions.SetOption(aSection, aIdent, Value: string);
 begin
   with BaseApplication as IBaseDBInterface do
     begin
+      if not Active then Open;
       if not Locate('OPTION',aIdent,[]) then
         Data.SetFilter(Self,'',0);
       if not Locate('OPTION',aIdent,[]) then
