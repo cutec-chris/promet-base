@@ -498,7 +498,7 @@ begin
   FCheckedTables.Free;
   FTables.Free;
   FTriggers.Free;
-  Users.Free;
+  FUsers.Free;
   Numbers.Free;
   MandantDetails.Free;
   Tree.Free;
@@ -1601,7 +1601,7 @@ begin
   FreeAndNil(FDB);
   for i := 0 to DatabaseLayers.Count-1 do
     begin
-      FDB := TBaseDBModuleClass(DatabaseLayers[i]).Create(BaseApplication{,trim(AValue)});
+      FDB := TBaseDBModuleClass(DatabaseLayers[i]).Create(nil{,trim(AValue)});
       tmp := FDB.GetDBLayerType;
       if copy(AValue,0,length(tmp))<>tmp then
         FreeAndNil(FDB)
