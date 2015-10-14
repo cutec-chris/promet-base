@@ -912,8 +912,6 @@ var
   aTimes: TTimes;
   aColTime: Extended;
   aUser: TUser;
-  Usage: Extended;
-  ResourceTimePerDay: Extended;
 begin
   if WorkTime=8 then
     begin
@@ -922,14 +920,9 @@ begin
       aUser.Open;
       if aUser.Count>0 then
         begin
-          Usage := aUser.FieldByName('USEWORKTIME').AsInteger/100;
-          if Usage = 0 then Usage := 1;
-          WorkTime:=aUser.WorkTime*Usage;
-          Usage := WorkTime/8;
-          ResourceTimePerDay:=Usage;
-        end
-      else
-        ResourceTimePerDay := 1;
+          if aUser.FieldByName('WORKTIME').AsInteger>0 then
+            WorkTime := aUser.FieldByName('WORKTIME').AsInteger;
+        end;
       aUser.Free;
     end;
   aTimes := TTimes.CreateEx(Self,DataModule,Connection);
