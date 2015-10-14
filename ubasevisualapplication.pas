@@ -822,8 +822,8 @@ end;
 
 procedure TBaseVisualApplication.StartProcessManager(DoCloseIt: Boolean);
 begin
-  FMessagehandler := TMessageHandler.Create(Data.Data);
-  FMessageHandler.RegisterCommandHandler(@HandleSystemCommand);
+  //FMessagehandler := TMessageHandler.Create(Data.Data);
+  //FMessageHandler.RegisterCommandHandler(@HandleSystemCommand);
   with Application as IBaseDBInterface do
     begin
       if Data.Users.DataSet.Active then
