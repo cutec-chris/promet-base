@@ -23,15 +23,38 @@ uses
   Classes, SysUtils, uBaseDBClasses, db, uBaseDBInterface,uBaseDatasetInterfaces;
 type
   TTimes = class(TBaseDBDataSet)
+    procedure FDSDataChange(Sender: TObject; Field: TField);
+  private
+    FDS: TDataSource;
   public
     constructor CreateEx(aOwner : TComponent;DM : TComponent=nil;aConnection : TComponent = nil;aMasterdata : TDataSet = nil);override;
+    destructor Destroy; override;
     procedure DefineFields(aDataSet : TDataSet);override;
     procedure FillDefaults(aDataSet : TDataSet);override;
     procedure SetDisplayLabels(aDataSet : TDataSet);override;
   end;
 implementation
+uses uProjects;
 resourcestring
   strEntry                              = 'Eintrag';
+
+procedure TTimes.FDSDataChange(Sender: TObject; Field: TField);
+var
+  aProject: TProject;
+begin
+  if Assigned(Field) and (Field.FieldName='PROJECT') then
+    begin
+      aProject := TProject.Create(nil);
+      aProject.SelectFromLink(Field.AsString);
+      aProject.Open;
+      if aProject.Count>0 then
+        DataSet.FieldByName('PROJECTID').AsVariant:=aProject.Id.AsVariant
+      else
+        DataSet.FieldByName('PROJECTID').Clear;
+      aProject.Free;
+    end;
+end;
+
 constructor TTimes.CreateEx(aOwner: TComponent;DM : TComponent; aConnection: TComponent;
   aMasterdata: TDataSet);
 begin
@@ -43,7 +66,17 @@ begin
       SortDirection := sdDescending;
       Limit := 500;
     end;
+  FDS := TDataSource.Create(nil);
+  FDS.DataSet := DataSet;
+  FDS.OnDataChange:=@FDSDataChange;
 end;
+
+destructor TTimes.Destroy;
+begin
+  FDS.Free;
+  inherited Destroy;
+end;
+
 procedure TTimes.DefineFields(aDataSet: TDataSet);
 begin
   with aDataSet as IBaseManageDB do
