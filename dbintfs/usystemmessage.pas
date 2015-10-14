@@ -130,9 +130,8 @@ end;
 constructor TMessageHandler.Create(aData : TBaseDBModule);
 begin
   Data := aData;
-  Connection := Data.GetNewConnection;
-  //Connection := Data.MainConnection;
-  aSleepTime := 12000;
+  Connection := Data.MainConnection;
+  aSleepTime := 120000;
   SysCommands := TSystemCommands.CreateEx(nil,Data,Connection);
   SysCommands.CreateTable;
   Data.SetFilter(SysCommands,Data.QuoteField('PROCESS_ID')+'='+Data.QuoteValue(IntToStr(Data.SessionID)),5);
@@ -147,8 +146,8 @@ procedure TMessageHandler.Execute;
 var
   ResSleepTime: LongInt;
 const
-  MinsleepTime = 1000;
-  MaxSleepTime = 60000;
+  MinsleepTime = 10000;
+  MaxSleepTime = 160000;
 begin
   while not Terminated do
     begin
