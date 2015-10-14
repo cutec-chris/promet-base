@@ -1770,8 +1770,18 @@ begin
   or (DataT.Typ = etCalendarDir)
   then
     begin
-      Data.SetFilter(Data.Tree,'',0,'','DESC',False,True,True);
-      Data.Tree.GotoBookmark(DataT.Rec);
+      if not Data.Tree.GotoBookmark(DataT.Rec) then
+        begin
+          Data.Tree.Filter('');
+          if not Data.Tree.GotoBookmark(DataT.Rec) then
+            begin
+              tvMain.EndUpdate;
+              Screen.Cursor:=crDefault;
+              Node.Collapse(True);
+              Node.HasChildren:=True;
+              exit;
+            end;
+        end;
       ID := IntToStr(Int64(Data.Tree.Id.AsVariant));
       Typ := Data.Tree.FieldByName('TYPE').AsString;
       Data.Tree.DataSet.Filter:=Data.QuoteField('PARENT')+'='+Data.QuoteValue(ID);
