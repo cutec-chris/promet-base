@@ -1422,7 +1422,7 @@ begin
   else
     begin
       Statement := TZConnection(MainConnection).DbcConnection.CreateStatement;
-      ResultSet := Statement.ExecuteQuery('SELECT "ID" FROM "GEN_SQL_ID"');
+      ResultSet := Statement.ExecuteQuery('SELECT '+QuoteField('ID')+' FROM '+QuoteField('GEN_SQL_ID'));
       if ResultSet.Next then
         Result := ResultSet.GetLong(1) shr 56
       else Result := 0;
@@ -1444,7 +1444,7 @@ begin
   else
     begin
       Statement := TZConnection(MainConnection).DbcConnection.CreateStatement;
-      Statement.Execute('update "GEN_SQL_ID" set "ID"='+IntToStr(aVal));
+      Statement.Execute('update '+QuoteField('GEN_SQL_ID')+' set '+QuoteField('ID')+'='+IntToStr(aVal));
       Statement.Close;
     end;
 end;
@@ -1895,7 +1895,7 @@ begin
         end;
       GeneralQuery := TZQuery.Create(Self);
       GeneralQuery.Connection := TZQuery(DataSet).Connection;
-      GeneralQuery.SQL.Text := 'select * from '+QuoteField(TZeosDBDataSet(DataSet).DefaultTableName)+' where "SQL_ID"='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
+      GeneralQuery.SQL.Text := 'select * from '+QuoteField(TZeosDBDataSet(DataSet).DefaultTableName)+' where '+QuoteField('SQL_ID')+'='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
       GeneralQuery.Open;
       GeneralQuery.Edit;
       dStream := GeneralQuery.CreateBlobStream(GeneralQuery.FieldByName(Fieldname),bmWrite);
@@ -1941,7 +1941,7 @@ begin
     begin
       GeneralQuery := TZQuery.Create(Self);
       GeneralQuery.Connection := TZQuery(DataSet).Connection;
-      aSql := 'select '+QuoteField(Fieldname)+' from '+QuoteField(TZeosDBDataSet(DataSet).DefaultTableName)+' where "SQL_ID"='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
+      aSql := 'select '+QuoteField(Fieldname)+' from '+QuoteField(TZeosDBDataSet(DataSet).DefaultTableName)+' where '+QuoteField('SQL_ID')+'='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
       GeneralQuery.SQL.Text := aSql;
       GeneralQuery.Open;
       Stream := GeneralQuery.CreateBlobStream(GeneralQuery.FieldByName(Fieldname),bmRead);
