@@ -19,6 +19,8 @@ Created 07.10.2015
 *******************************************************************************}
 unit uprometpythonscript;
 
+//TODO:Promet classes should be nice introduceable with RTTI
+
 {$mode objfpc}{$H+}
 
 interface
