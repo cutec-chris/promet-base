@@ -102,7 +102,7 @@ type
     N5: TMenuItem;
     Pause1: TMenuItem;
     ed: TSynEdit;
-    HigCJavaScript: TSynCppSyn;
+    HigC: TSynCppSyn;
     SynEditRegexSearch: TSynEditRegexSearch;
     Search1: TMenuItem;
     Find1: TMenuItem;
@@ -237,7 +237,7 @@ implementation
 
 uses
   uFrmGotoLine,uData,uBaseApplication,genpascalscript,Utils,uSystemMessage,uStatistic,
-  Clipbrd,uprometpascalscript,uprometpythonscript;
+  Clipbrd,uprometpascalscript,uprometpythonscript,uprometcscript;
 
 {$R *.lfm}
 
@@ -466,17 +466,16 @@ begin
     if lowercase(TLoadedLib(LoadedLibs[i]).Name)=lowercase(aWord) then
       begin
         HintInfo^.HintStr:=TLoadedLib(LoadedLibs[i]).Code;
+        exit;
       end;
- {
- if Debugger.Running then
-   begin
-     aCont := Debugger.GetVarContents(aWord);
-     if aCont<>'' then
-       begin
-         HintInfo^.HintStr:=aWord+':'+aCont;
-       end;
-   end;
- }
+  if Assigned(Fscript) then
+    begin
+      aCont := FScript.GetVarContents(aWord);
+      if aCont<>'' then
+        begin
+          HintInfo^.HintStr:=aWord+':'+aCont;
+        end;
+    end;
 end;
 
 procedure TfScriptEditor.acSyntaxcheckExecute(Sender: TObject);
@@ -682,6 +681,12 @@ begin
       if (FDataSet is TBaseScript) then
         begin
           TBaseScript(FDataSet).writeln := @FDataSetWriteln;
+          FScript := TBaseScript(FDataSet).Script;
+          if Assigned(Fscript) then
+            begin
+              Fscript.OnRunLine:=@aScriptRunLine;
+              Fscript.OnIdle:=@aScriptIdle;
+            end;
           acSave.Execute;
           ButtonStatus(ssRunning);
           if not TBaseScript(FDataSet).Execute(Null,True) then
