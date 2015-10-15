@@ -160,6 +160,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure edStatusChange(Sender: TObject; Changes: TSynStatusChanges);
     function DebuggerNeedFile(Sender: TObject; const OrginFileName: String; var FileName, Output: String): Boolean;
+    procedure FscriptCompileMessage(Sender: TScript; Module, Message: string;
+      aPosition, Row, Col: Integer);
     procedure FSynCompletionExecute(Sender: TObject);
     procedure FSynCompletionSearchPosition(var APosition: integer);
     procedure FSynCompletionUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char
@@ -637,8 +639,9 @@ begin
     if FScript.Stop then
       begin
         DoCleanUp;
-
         ButtonStatus(ssNone);
+        FreeAndNil(Linemark);
+        FActiveLine := 0;
       end;
 end;
 
@@ -686,6 +689,7 @@ begin
             begin
               Fscript.OnRunLine:=@aScriptRunLine;
               Fscript.OnIdle:=@aScriptIdle;
+              Fscript.OnCompileMessage:=@FscriptCompileMessage;
             end;
           acSave.Execute;
           ButtonStatus(ssRunning);
@@ -791,20 +795,6 @@ begin
   messages.Clear;
   if not Result then
     begin
-      {
-      for i := 0 to Debugger.CompilerMessageCount -1 do
-        begin
-          aMsg := Debugger.CompilerMessages[i];
-          mo := TMessageObject.Create;
-          mo.X:=aMsg.Col;
-          mo.Y:=aMsg.Row;
-          mo.ModuleName:=aMsg.ModuleName;
-          mo.ErrorType := aMsg.ErrorType;
-          Messages.Items.AddObject(aMsg.MessageToString,mo);
-        end;
-      if Debugger.CompilerMessageCount=0 then
-        messages.Items.Add(Debugger.ExecErrorToString);
-      }
       Messages.Items.Add(STR_COMPILE_ERROR);
     end;
 end;
@@ -996,6 +986,12 @@ begin
     begin
       //TODO:File Handling
     end;
+end;
+
+procedure TfScriptEditor.FscriptCompileMessage(Sender: TScript; Module,
+  Message: string; aPosition, Row, Col: Integer);
+begin
+  Messages.Items.AddObject(Message,nil);
 end;
 
 procedure TfScriptEditor.FSynCompletionExecute(Sender: TObject);
