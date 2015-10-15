@@ -195,6 +195,7 @@ type
     Fscript : TScript;
     ClassImporter: uPSRuntime.TPSRuntimeClassImporter;
     procedure InitEvents;
+    procedure UpdateStatus;
     procedure ButtonStatus(Status : TScriptStatus);
     function Compile: Boolean;
     function Execute: Boolean;
@@ -585,6 +586,7 @@ begin
      FDataSet.FieldByName('SCRIPT').AsString:=ed.Lines.Text;
      FDataSet.FieldByName('FOLDSTATE').AsString:=ed.FoldState;
    end;
+ UpdateStatus;
 end;
 
 procedure TfScriptEditor.acDecompileExecute(Sender: TObject);
@@ -961,7 +963,7 @@ end;
 procedure TfScriptEditor.edStatusChange(Sender: TObject;
   Changes: TSynStatusChanges);
 begin
-  StatusBar.Panels[0].Text := IntToStr(ed.CaretY)+':'+IntToStr(ed.CaretX);
+  UpdateStatus;
   acSave.Enabled := ed.Modified or (Assigned(FDataset) and (FDataSet.CanEdit));
 end;
 
@@ -1244,6 +1246,12 @@ begin
       aScript.OnIdle:=@aScriptIdle;
       aScript.OnRunLine:=@aScriptRunLine;
     end;
+end;
+
+procedure TfScriptEditor.UpdateStatus;
+begin
+  StatusBar.Panels[0].Text:=Format('%d:%d',[ed.CaretX, ed.CaretY]);
+  StatusBar.Panels[1].Text:=IntToStr(Length(ed.Lines.Text));
 end;
 
 procedure TfScriptEditor.ButtonStatus(Status: TScriptStatus);

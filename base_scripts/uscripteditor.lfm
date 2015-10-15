@@ -23,7 +23,11 @@ object fScriptEditor: TfScriptEditor
     Panels = <    
       item
         Width = 50
+      end    
+      item
+        Width = 50
       end>
+    SimplePanel = False
   end
   object pDetail: TPanel
     Left = 285
