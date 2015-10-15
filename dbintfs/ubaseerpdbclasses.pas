@@ -1198,6 +1198,14 @@ begin
             Add('QUANTITYC',ftFloat,0,False);               //Menge berechnet
             Add('QUANTITYO',ftFloat,0,False);               //Auftragsmenge
             Add('QUANTITYU',ftString,10,False);             //Mengeneinheit
+            Add('PLANTIME',ftFloat,0,False);                //geplante Zeit
+            Add('TIME',ftFloat,0,False);                    //benötigte Zeit
+            Add('BUFFERTIME',ftFloat,0,False);              //Wartezeit (wann darf nächste Aufgabe frühestens starten)
+            Add('STARTDATE',ftDateTime,0,False);
+            Add('DUEDATE',ftDateTime,0,False);
+            Add('EARLIEST',ftDateTime,0,False);
+            Add('LATEST',ftDateTime,0,False);
+
             Add('PURCHASE',ftFloat,0,False);                //Einkaufspreis
             Add('SELLPRICE',ftFloat,0,False);               //Verkaufspreis
             Add('COMPRICE',ftFloat,0,False);                //Common Price
