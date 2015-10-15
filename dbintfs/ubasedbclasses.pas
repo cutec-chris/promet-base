@@ -928,7 +928,7 @@ begin
     begin
       with DataSet as IBaseDBFilter do
         begin
-        if Assigned(FParent) then
+        if Assigned(FParent) and Assigned(FParent.Id) then
           begin
             if not FParent.Id.IsNull then
               BaseFilter := Data.QuoteField('RREF_ID')+'='+Data.QuoteValue(FParent.Id.AsString)
