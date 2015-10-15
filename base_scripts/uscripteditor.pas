@@ -266,7 +266,6 @@ resourcestring
   STR_UNNAMED = 'Unnamed';
   STR_COMPILE_ERROR = 'Fehler beim kompilieren !';
   STR_SUCCESSFULLY_EXECUTED = 'Erfolgreich ausgeführt';
-  STR_RUNTIME_ERROR='[Laufzeitfehler] %s(%d:%d), bytecode(%d:%d): %s'; //Birb
   STR_FORM_TITLE = 'Editor';
   STR_FORM_TITLE_RUNNING = 'Editor - Running';
   STR_INPUTBOX_TITLE = 'Script';
@@ -809,7 +808,6 @@ begin
     Result := True; 
   end else
   begin
-    //messages.Items.Add(Format(STR_RUNTIME_ERROR, [extractFileName(aFile), Debugger.ExecErrorRow,Debugger.ExecErrorCol,Debugger.ExecErrorProcNo,Debugger.ExecErrorByteCodePosition,Debugger.ExecErrorToString])); //Birb
     Result := False;
   end;
 end;
