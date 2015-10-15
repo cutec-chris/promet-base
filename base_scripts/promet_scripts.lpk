@@ -11,7 +11,7 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="4">
+    <Files Count="5">
       <Item1>
         <Filename Value="uprometpascalscript.pas"/>
         <UnitName Value="uprometpascalscript"/>
@@ -21,13 +21,17 @@
         <UnitName Value="uspeakinginterface"/>
       </Item2>
       <Item3>
-        <Filename Value="uprometpythonscript.pas"/>
-        <UnitName Value="uprometpythonscript"/>
+        <Filename Value="uprometcscript.pas"/>
+        <UnitName Value="uprometcscript"/>
       </Item3>
       <Item4>
         <Filename Value="uprometluascript.pas"/>
         <UnitName Value="uprometluascript"/>
       </Item4>
+      <Item5>
+        <Filename Value="uprometpythonscript.pas"/>
+        <UnitName Value="uprometpythonscript"/>
+      </Item5>
     </Files>
     <RequiredPkgs Count="5">
       <Item1>
