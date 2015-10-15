@@ -2552,6 +2552,7 @@ object fScriptEditor: TfScriptEditor
   object HigPython: TSynPythonSyn
     DefaultFilter = 'Python-Dateien (*.py)|*.py'
     Enabled = False
+    CommentAttri.Foreground = clBlue
     CommentAttri.FrameEdges = sfeAround
     IdentifierAttri.FrameEdges = sfeAround
     KeyAttri.FrameEdges = sfeAround
@@ -2569,10 +2570,11 @@ object fScriptEditor: TfScriptEditor
     left = 752
     top = 112
   end
-  object HigCJavaScript: TSynCppSyn
+  object HigC: TSynCppSyn
     DefaultFilter = 'C++-Quelltexte (*.c,*.cpp,*.h,*.hpp,*.hh)|*.c;*.cpp;*.h;*.hpp;*.hh'
     Enabled = False
     AsmAttri.FrameEdges = sfeAround
+    CommentAttri.Foreground = clBlue
     CommentAttri.FrameEdges = sfeAround
     DirecAttri.FrameEdges = sfeAround
     IdentifierAttri.FrameEdges = sfeAround
