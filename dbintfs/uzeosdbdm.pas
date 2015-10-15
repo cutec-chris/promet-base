@@ -672,10 +672,12 @@ begin
   end;
   if Result and Changed and (Self.FDefaultTableName<>'TABLEVERSIONS') then
     begin
+      {
       with BaseApplication as IBaseApplication do
         Info('Table '+Self.FDefaultTableName+' was altered reconecting...');
       Connection.Disconnect;
       Connection.Connect;
+      }
     end;
   if Changed then
     TBaseDBModule(Self.Owner).UpdateTableVersion(Self.FDefaultTableName);
