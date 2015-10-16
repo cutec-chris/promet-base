@@ -113,6 +113,10 @@ type
     procedure acViewTextsExecute(Sender: TObject);
     procedure AddCalcTab(Sender: TObject);
     procedure AddAutomationTab(Sender: TObject);
+    procedure FGridViewGetCellText(Sender: TObject; aCol: TColumn;
+      aRow: Integer; var NewText: string; aFont: TFont);
+    procedure FGridViewSetCellText(Sender: TObject; aCol: TColumn;
+      aRow: Integer; var NewText: string);
     function fSearchOpenProjectItem(aLink: string): Boolean;
     procedure PositionDataChange(Sender: TObject; Field: TField);
     procedure PositionStateChange(Sender: TObject);
@@ -174,7 +178,7 @@ type
 implementation
 uses uRowEditor, uSearch, uBaseDbInterface, uOrder, uDocumentFrame, uDocuments,
   uData,uMasterdata,uBaseVisualApplication,uMainTreeFrame,ucalcframe,uProjects,
-  uautomationframe;
+  uautomationframe,utask;
 {$R *.lfm}
 procedure TfPosition.FDataSourceStateChange(Sender: TObject);
 begin
@@ -658,6 +662,28 @@ begin
   TfAutomationframe(Sender).TabCaption:=strAutomation;
 end;
 
+procedure TfPosition.FGridViewGetCellText(Sender: TObject; aCol: TColumn;
+  aRow: Integer; var NewText: string; aFont: TFont);
+var
+  nF: Extended;
+begin
+  if (aCol.FieldName = 'PLANTIME') or (aCol.FieldName = 'BUFFERTIME') or (aCol.FieldName = 'TIME') or (aCol.FieldName = 'SETUPTIME') then
+    begin
+      if TryStrToFloat(NewText,nF) then
+        NewText := DayTimeToStr(nF);
+    end;
+end;
+
+procedure TfPosition.FGridViewSetCellText(Sender: TObject; aCol: TColumn;
+  aRow: Integer; var NewText: string);
+begin
+  if (aCol.FieldName = 'PLANTIME') or (aCol.FieldName = 'BUFFERTIME') or (aCol.FieldName = 'TIME') or (aCol.FieldName = 'SETUPTIME') then
+    begin
+      if trim(NewText) <> '' then
+        NewText:=FloatToStr(StrToDayTime(NewText));
+    end;
+end;
+
 procedure TfPosition.AddCalcTab(Sender: TObject);
 begin
   TfCalcPositionFrame(Sender).DataSet := FDataset;
@@ -999,6 +1025,8 @@ begin
   FGridView.OnSetupPosition:=@FGridViewSetupPosition;
   FGridView.OnDragOver:=@sgPositionsDragOver;
   FGridView.OnDragDrop:=@sgPositionsDragDrop;
+  FGridView.OnGetCellText:=@FGridViewGetCellText;
+  FGridView.OnSetCellText:=@FGridViewSetCellText;
   FGridView.DefaultRows:='GLOBALWIDTH:%;POSNO:32;TEXT:301;QUANTITY:40;QUANTITYU:62;SELLPRICE:68;VAT:49;GROSSPRICE:83;POSTYP:47;';
   FGridView.IdentField:='TEXT';
   FGridView.TextField:='TEXT';

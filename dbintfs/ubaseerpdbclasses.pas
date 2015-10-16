@@ -1198,6 +1198,7 @@ begin
             Add('QUANTITYC',ftFloat,0,False);               //Menge berechnet
             Add('QUANTITYO',ftFloat,0,False);               //Auftragsmenge
             Add('QUANTITYU',ftString,10,False);             //Mengeneinheit
+            Add('SETUPTIME',ftFloat,0,False);               //Rüstzeit
             Add('PLANTIME',ftFloat,0,False);                //geplante Zeit
             Add('TIME',ftFloat,0,False);                    //benötigte Zeit
             Add('BUFFERTIME',ftFloat,0,False);              //Wartezeit (wann darf nächste Aufgabe frühestens starten)

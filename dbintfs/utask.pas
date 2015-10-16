@@ -159,6 +159,9 @@ type
   end;
   TMoveTasksEvent = procedure(Sender: TObject;var Allowed : Boolean);
 
+  function DayTimeToStr(nf: Real): string;
+  function StrToDayTime(aStr: string): Real;
+
 var
   OnMoveTasks : TMoveTasksEvent;
 resourcestring
@@ -186,6 +189,33 @@ resourcestring
   strNeedsAction            = 'Aufgabe benötigt Hilfe';
 implementation
 uses uBaseApplication,uIntfStrConsts,uProjects,uData,uCalendar,uTimes;
+function GetHoursPerDay: Real;
+begin
+  Result := 8;
+end;
+function DayTimeToStr(nf: Real): string;
+begin
+  if nf < 1/GetHoursPerDay then
+    Result := IntToStr(round(nf*GetHoursPerDay*MinsPerHour))+'min'
+  else if nf < 1 then
+    Result := FormatFloat('0.0',nf*GetHoursPerDay)+'h'
+  else Result := FormatFloat('0.0',nf);
+end;
+function StrToDayTime(aStr: string): Real;
+begin
+  Result := 0;
+  if copy(trim(aStr),length(trim(aStr)),1)='h' then
+    begin
+      if TryStrToFloat(trim(copy(trim(aStr),0,length(trim(aStr))-1)),Result) then
+        Result := Result/GetHoursPerDay;
+    end
+  else if copy(trim(aStr),length(trim(aStr))-2,3)='min' then
+    begin
+      if TryStrToFloat(trim(copy(trim(aStr),0,length(trim(aStr))-3)),Result) then
+        Result := (Result/GetHoursPerDay)/MinsPerHour;
+    end
+  else TryStrToFloat(aStr,Result);
+end;
 
 function CompareStarts(Item1, Item2: Pointer): Integer;
 begin

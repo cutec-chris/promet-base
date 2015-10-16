@@ -308,9 +308,6 @@ type
   end;
 procedure AddToMainTree(aAction : TAction;var aNode : TTreeNode);
 procedure RefreshTasks(FNode :TTreeNode);
-function DayTimeToStr(nf : Real) : string;
-function GetHoursPerDay : Real;
-function StrToDayTime(aStr : string) : Real;
 resourcestring
   strRecordCount                           = 'Anzahl: %d';
   strSearchFromTasks                       = 'Mit Öffnen wird das gewählte Projekt in die Aufgabe übernommen';
@@ -416,33 +413,6 @@ procedure TfTaskFrame.SetUserID(AValue: Variant);
 begin
   if FUserID=AValue then Exit;
   FUserID:=AValue;
-end;
-function DayTimeToStr(nf: Real): string;
-begin
-  if nf < 1/GetHoursPerDay then
-    Result := IntToStr(round(nf*GetHoursPerDay*MinsPerHour))+'min'
-  else if nf < 1 then
-    Result := FormatFloat('0.0',nf*GetHoursPerDay)+'h'
-  else Result := FormatFloat('0.0',nf);
-end;
-function GetHoursPerDay: Real;
-begin
-  Result := 8;
-end;
-function StrToDayTime(aStr: string): Real;
-begin
-  Result := 0;
-  if copy(trim(aStr),length(trim(aStr)),1)='h' then
-    begin
-      if TryStrToFloat(trim(copy(trim(aStr),0,length(trim(aStr))-1)),Result) then
-        Result := Result/GetHoursPerDay;
-    end
-  else if copy(trim(aStr),length(trim(aStr))-2,3)='min' then
-    begin
-      if TryStrToFloat(trim(copy(trim(aStr),0,length(trim(aStr))-3)),Result) then
-        Result := (Result/GetHoursPerDay)/MinsPerHour;
-    end
-  else TryStrToFloat(aStr,Result);
 end;
 procedure TfTaskFrame.FGridViewSetupPosition(Sender: TObject;Columns : TGridColumns);
 var
@@ -1811,7 +1781,7 @@ end;
 procedure TfTaskFrame.FGridViewSetCellText(Sender: TObject; aCol: TColumn;
   aRow: Integer; var NewText: string);
 begin
-  if (aCol.FieldName = 'PLANTIME') or (aCol.FieldName = 'BUFFERTIME') then
+  if (aCol.FieldName = 'PLANTIME') or (aCol.FieldName = 'BUFFERTIME') or (aCol.FieldName = 'TIME') then
     begin
       if trim(NewText) <> '' then
         NewText:=FloatToStr(StrToDayTime(NewText));
