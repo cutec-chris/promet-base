@@ -80,7 +80,7 @@ type
     FIgnoreOpenRequests : Boolean;
     FCS : TCriticalSection;
     FUsers : TUser;
-    FLoggedInUser : Int64;
+    FLoggedInUser : Variant;
     function GetUsers: TUser;
   protected
     FDataSetClass : TDataSetClass;
@@ -1684,7 +1684,7 @@ begin
   FDB.TableVersions.CreateTable;
   FDB.MandantDetails.CreateTable;
   FDB.MandantDetails.Open;
-  FDB.Users.CreateTable;
+  FDB.FUsers.CreateTable;
   FDB.Numbers.CreateTable;
   FDB.ActiveUsers.CreateTable;
   if aUser <> '' then
