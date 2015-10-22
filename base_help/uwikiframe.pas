@@ -179,6 +179,8 @@ type
     property OnGetImageX;
     constructor Create;
   end;
+resourcestring
+  strWikiLoadingPage = 'Lade...';
 implementation
 uses uWiki,uData,WikiToHTML,uDocuments,Utils,LCLIntf,Variants,
   uBaseDbInterface,uscreenshotmain,uMessages,uDocumentFrame,sqlparser,
@@ -249,6 +251,9 @@ begin
   inherited Create;
 end;
 constructor TfWikiFrame.Create(AOwner: TComponent);
+var
+  aHTML: TSimpleIpHtml;
+  ss: TStringStream;
 begin
   inherited Create(AOwner);
   FCache := TFileCache.Create(30);
@@ -268,6 +273,16 @@ begin
   {$ifdef DARWIN}
   ipHTML.DefaultFontSize:=14;
   {$endif}
+  ss:=TStringStream.Create(UniToSys('<html><head><title></title></head><body>'+WikiText2HTML(strWikiLoadingPage,'','',True)+'<br><br><br></body></html>'));
+  ss.Position := 0;
+  try
+    aHTML:=TSimpleIPHtml.Create;
+    TSimpleIPHtml(aHTML).OnGetImageX:=@TSimpleIpHtmlGetImageX;
+    aHTML.LoadFromStream(ss);
+  finally
+    ss.Free;
+  end;
+  ipHTML.SetHtml(aHTML);
 end;
 destructor TfWikiFrame.Destroy;
 begin
@@ -393,8 +408,11 @@ end;
 procedure TfWikiFrame.RefreshTimerTimer(Sender: TObject);
 begin
   RefreshTimer.Enabled:=False;
-  Refresh;
-  lastRefresh := Now();
+  try
+    Refresh;
+    lastRefresh := Now();
+  except
+  end;
 end;
 
 procedure TfWikiFrame.SpeedButton2Click(Sender: TObject);
@@ -1458,6 +1476,7 @@ begin
   pEdit1.Visible:=Editable;
   pEdit2.Visible:=Editable;
 end;
+
 function TfWikiFrame.OpenWikiPage(PageName: string;CreateIfNotExists : Boolean = False) : Boolean;
 var
   aParent : Variant;
