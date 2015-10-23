@@ -469,10 +469,18 @@ var
                   DoLog(aprocess+':'+bProcess.Output[0],aLog,BaseApplication.HasOption('debug'));
                   bProcess.Output.Delete(0);
                 end;
-              if not Processes.CanEdit then Processes.DataSet.Edit;
-              Processes.DataSet.FieldByName('STATUS').AsString := 'R';
-              Processes.DataSet.FieldByName('STOPPED').Clear;
-              Processes.DataSet.Post;
+              if Processes.DataSet.FieldByName('STATUS').AsString='N' then
+                begin
+                  FreeAndNil(bProcess);
+                  ProcessData[i] := nil;
+                end
+              else
+                begin
+                  if not Processes.CanEdit then Processes.DataSet.Edit;
+                  Processes.DataSet.FieldByName('STATUS').AsString := 'R';
+                  Processes.DataSet.FieldByName('STOPPED').Clear;
+                  Processes.DataSet.Post;
+                end;
             end
           else
             begin
