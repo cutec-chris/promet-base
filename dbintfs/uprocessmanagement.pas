@@ -272,6 +272,7 @@ begin
             Add('STATUS',ftString,4,False);
             Add('STARTED',ftDateTime,0,False);
             Add('STOPPED',ftDateTime,0,False);
+            Add('CLIENT',ftString,100,False);
             Add('LOG',ftMemo,0,False);
           end;
     end;
@@ -502,7 +503,9 @@ var
                   bProcess.Informed := True;
                 end
               else if Assigned(Processes) then
-                if ((Processes.FieldByName('STATUS').AsString<>'R') and (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay)))) or DoAlwasyRun then
+                if ((Processes.FieldByName('STATUS').AsString<>'R')
+                and (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay))))
+                 or DoAlwasyRun then
                   begin
                     aLog.Clear;
                     DoLog(aprocess+':'+strStartingProcessTimeout+' '+DateTimeToStr((Processes.FieldByName('STOPPED').AsDateTime+(max(Processes.FieldByName('INTERVAL').AsInteger,2)/MinsPerDay)))+'>'+DateTimeToStr(aNow),aLog,BaseApplication.HasOption('debug'));
@@ -513,6 +516,7 @@ var
                     Processes.DataSet.FieldByName('STATUS').AsString := 'R';
                     Processes.DataSet.FieldByName('STARTED').AsDateTime:=Now();
                     Processes.DataSet.FieldByName('STOPPED').Clear;
+                    Processes.DataSet.FieldByName('CLIENT').AsString:=GetSystemName;
                     Processes.DataSet.Post;
                     bProcess.Informed := False;
                   end;
@@ -521,7 +525,13 @@ var
         end;
     if not Found then
       begin
-        if (((Processes.FieldByName('STATUS').AsString<>'R') or (Processes.TimeStamp.AsDateTime<(aNow-(1)))) and (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay)))) or DoAlwasyRun then
+        //Process is stopped and Timeout is overdune
+        if (((Processes.FieldByName('STATUS').AsString<>'R') or (Processes.TimeStamp.AsDateTime<(aNow-(1)))) and (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay))))
+         //Process should always run
+         or DoAlwasyRun
+         //Process should be running on our client but were dont run it
+         or ((Processes.FieldByName('STATUS').AsString='R') and (Processes.FieldByName('CLIENT').AsString=GetSystemName))
+         then
           begin
             aStartTime := Now();
             aLog.Clear;
@@ -540,6 +550,7 @@ var
             Processes.DataSet.FieldByName('STATUS').AsString := 'R';
             Processes.DataSet.FieldByName('STARTED').AsDateTime:=Now();
             Processes.DataSet.FieldByName('STOPPED').Clear;
+            Processes.DataSet.FieldByName('CLIENT').AsString:=GetSystemName;
             Processes.DataSet.Post;
           end;
       end;
