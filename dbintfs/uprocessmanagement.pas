@@ -471,8 +471,7 @@ var
                 end;
               if Processes.DataSet.FieldByName('STATUS').AsString='N' then
                 begin
-                  FreeAndNil(bProcess);
-                  ProcessData[i] := nil;
+                  bProcess.Stop;
                 end
               else
                 begin
