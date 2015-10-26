@@ -523,6 +523,8 @@ begin
     begin
       aMasterdata.Select(DataSet.FieldByName('IDENT').AsString);
       aMasterdata.Open;
+      if not aMasterdata.Locate('VERSION;LANGUAGE',VarArrayOf([DataSet.FieldByName('VERSION').AsVariant,DataSet.FieldByName('LANGUAGE').AsVariant]),[]) then
+        aMasterdata.Locate('VERSION',DataSet.FieldByName('VERSION').AsVariant,[]);
     end;
   if aMasterdata.Count > 0 then
     begin
