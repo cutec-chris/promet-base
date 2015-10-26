@@ -209,6 +209,7 @@ begin
             RegisterMethod('function SelectFromNumber(aNumber : string) : Boolean;');
             RegisterMethod('function  ExportToXML : string;');
             RegisterMethod('procedure ImportFromXML(XML : string;OverrideFields : Boolean);');
+            RegisterMethod('function ChangeStatus(aNewStatus : string) : Boolean;');
           end;
         with Sender.ClassImporter.Add(TBaseDbList) do
           begin
@@ -225,6 +226,7 @@ begin
             RegisterPropertyHelper(@TBaseDbListPropertyMatchCodeR,nil,'MATCHCODE');
             RegisterVirtualMethod(@TBaseDbList.ImportFromXML,'IMPORTFROMXML');
             RegisterVirtualMethod(@TBaseDbList.ExportToXML,'EXPORTTOXML');
+            RegisterVirtualMethod(@TBaseDbList.ChangeStatus,'CHANGESTATUS');
           end;
         //TBaseHistory
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBList'),TBaseHistory) do
