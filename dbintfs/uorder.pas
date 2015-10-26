@@ -200,7 +200,7 @@ type
     property Currency : TCurrency read FCurrency;
     function SelectCurrency : Boolean;
     procedure Recalculate;
-    function ChangeStatus(aNewStatus : string) : Boolean;
+    function ChangeStatus(aNewStatus : string) : Boolean;override;
     procedure ShippingOutput;
     function DoPost: TPostResult;
     function PostArticle(aTyp, aID, aVersion, aLanguage: variant; Quantity: real; QuantityUnit, PosNo: string; var aStorage: string; var OrderDelivered: boolean) : Boolean;
@@ -226,6 +226,23 @@ resourcestring
   strDispatchTypenotfound       = 'Die gewählte Versandart existiert nicht !';
 
 { TRepairImageLinks }
+
+procedure ReplaceParentFields(aField: TField; aOldValue: string;
+  var aNewValue: string);
+var
+  aRec: Variant;
+begin
+  if (aField.FieldName='PARENT') and (aOldValue<>'') then
+    begin
+      aField.DataSet.Post;
+      aRec := aField.DataSet.FieldByName('SQL_ID').AsVariant;
+      if aField.DataSet.Locate('OLD_ID',aOldValue,[]) then
+        aNewValue:=aField.DataSet.FieldByName('SQL_ID').AsString;
+      aField.DataSet.Locate('SQL_ID',aRec,[]);
+      if (aField.DataSet.State=dsBrowse) then
+        aField.DataSet.Edit;
+    end;
+end;
 
 procedure TRepairImageLinks.FillDefaults(aDataSet: TDataSet);
 begin
@@ -1128,6 +1145,7 @@ var
   OldRec: Variant;
 begin
   Result := False;
+  OrderType.Open;
   if not OrderType.DataSet.Locate('STATUS',aNewStatus,[loCaseInsensitive]) then
     Data.SetFilter(OrderType,'');
   if OrderType.DataSet.Locate('STATUS',aNewStatus,[loCaseInsensitive]) then
@@ -1180,7 +1198,7 @@ begin
           FieldByName('DISCOUNT').Clear;
           FieldByName('GROSSPRICE').Clear;
         end;
-      ImportFromXML(Copied);
+      ImportFromXML(Copied,False,@ReplaceParentFields);
       with DataSet do
         begin
           Edit;

@@ -1216,6 +1216,7 @@ begin
             Add('POSPRICE',ftFloat,0,False);                //Gesamtpreis
             Add('GROSSPRICE',ftFloat,0,False);              //Bruttoprice
             Add('PARENT',ftLargeInt,0,False);
+            Add('OLD_ID',ftLargeInt,0,False);
             Add('SCRIPT',ftString,60,False);
             Add('SCRIPTVER',ftString,8,False);
           end;

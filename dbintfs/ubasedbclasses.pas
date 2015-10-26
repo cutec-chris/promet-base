@@ -164,6 +164,7 @@ type
     property Matchcode: TField read GetMatchcode;
     function SelectFromLink(aLink : string) : Boolean;virtual;
     function SelectFromNumber(aNumber : string) : Boolean;virtual;
+    function ChangeStatus(aNewStatus : string) : Boolean;virtual;
   end;
   TBaseDBDatasetClass = class of TBaseDBDataset;
   TBaseDBListClass = class of TBaseDBList;
@@ -1258,11 +1259,10 @@ var
               inc(a);
               Row := Doc.CreateElement('ROW.'+IntToStr(a));
               DataNode.AppendChild(Row);
-              for i := 1 to aDataSet.Fields.Count-1 do
+              for i := 0 to aDataSet.Fields.Count-1 do
                 begin
                   tmp := aDataSet.Fields[i].FieldName;
                   if (tmp <> '')
-                  and (tmp <> 'SQL_ID')
                   and (tmp <> 'REF_ID')
                   then
                     begin
@@ -1317,6 +1317,7 @@ var
       c,d: Integer;
       b: Integer;
       aNewValue: String;
+      aFieldName: DOMString;
     begin
       Result := False;
       with ThisDataSet as IBaseManageDB do
@@ -1334,8 +1335,10 @@ var
                   if (ThisDataSet.State <> dsInsert) then
                     ThisDataSet.Append;
                   for d := 0 to bNode.Attributes.Length-1 do
-                    if ThisDataSet.FieldDefs.IndexOf(bNode.Attributes.Item[d].NodeName) <> -1 then
-                      if (ThisDataSet.FieldByName(bNode.Attributes.Item[d].NodeName).IsNull or (OverrideFields))
+                    begin
+                      aFieldName := bNode.Attributes.Item[d].NodeName;
+                    if ((ThisDataSet.FieldDefs.IndexOf(aFieldName) <> -1) or (aFieldName='SQL_ID')) then
+                      if (ThisDataSet.FieldByName(aFieldName).IsNull or (OverrideFields) or (aFieldName='SQL_ID'))
                       or (bNode.Attributes.Item[d].NodeName = 'QUANTITY')
                       or (bNode.Attributes.Item[d].NodeName = 'POSNO')
                       or (bNode.Attributes.Item[d].NodeName = 'VAT')
@@ -1351,12 +1354,18 @@ var
                         begin
                           aNewValue := bNode.Attributes.Item[d].NodeValue;
                           if Assigned(ReplaceFieldFunc) then
-                            ReplaceFieldFunc(ThisDataSet.FieldByName(bNode.Attributes.Item[d].NodeName),bNode.Attributes.Item[d].NodeValue,aNewValue);
-                          if ThisDataSet.FieldByName(bNode.Attributes.Item[d].NodeName).IsBlob then
-                            ThisDataSet.FieldByName(bNode.Attributes.Item[d].NodeName).AsString := DecodeStringBase64(aNewValue)
-                          else
-                            ThisDataSet.FieldByName(bNode.Attributes.Item[d].NodeName).AsString := aNewValue;
+                            ReplaceFieldFunc(ThisDataSet.FieldByName(aFieldName),bNode.Attributes.Item[d].NodeValue,aNewValue);
+                          if aFieldName='SQL_ID' then
+                            begin
+                              if ThisDataSet.FieldDefs.IndexOf('OLD_ID')>-1 then
+                                ThisDataSet.FieldByName('OLD_ID').AsString := aNewValue;
+                            end
+                          else if ThisDataSet.FieldByName(aFieldName).IsBlob then
+                            ThisDataSet.FieldByName(aFieldName).AsString := DecodeStringBase64(aNewValue)
+                          else if ThisDataSet.FieldDefs.IndexOf(aFieldName)>-1 then
+                            ThisDataSet.FieldByName(aFieldName).AsString := aNewValue;
                         end;
+                    end;
                   ThisDataSet.Post;
                   for b := 0 to bNode.ChildNodes.Count-1 do
                     if bNode.ChildNodes[b].NodeName = 'TABLE' then
@@ -1534,6 +1543,16 @@ begin
       begin
         Filter := Data.QuoteField(GetNumberFieldName)+'='+Data.QuoteValue(aNumber);
       end;
+end;
+
+function TBaseDbList.ChangeStatus(aNewStatus: string): Boolean;
+begin
+  if GetStatusFieldName<>'' then
+    begin
+      Edit;
+      Status.AsString:=aNewStatus;
+      Post;
+    end;
 end;
 
 function TBaseDBDataset.Delete: Boolean;
