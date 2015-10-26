@@ -522,6 +522,7 @@ begin
   FCS.Free;
   inherited Destroy;
 end;
+
 function TBaseDBModule.GetNewDataSet(aSQL: string; aConnection: TComponent;
   MasterData : TDataSet = nil;aOrigtable : TBaseDBDataSet = nil): TDataSet;
 begin

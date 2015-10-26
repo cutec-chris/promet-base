@@ -1772,7 +1772,9 @@ begin
     begin
       if not Data.Tree.GotoBookmark(DataT.Rec) then
         begin
-          Data.Tree.Filter('');
+          Data.Tree.DataSet.Filtered:=False;
+          Data.Tree.Close;
+          Data.Tree.FilterEx('',0,'','ASC',False,True,True);
           if not Data.Tree.GotoBookmark(DataT.Rec) then
             begin
               tvMain.EndUpdate;

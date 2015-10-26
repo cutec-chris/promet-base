@@ -1670,7 +1670,7 @@ end;
 
 procedure TBaseDBDataset.Filter(aFilter: string; aLimit: Integer);
 begin
-  if (not ((ActualFilter=aFilter) and (aLimit=ActualLimit))) then
+  if (not ((ActualFilter=aFilter) and (aLimit=ActualLimit))) or (not DataSet.Active) then
     FilterEx(aFilter,aLimit);
 end;
 
