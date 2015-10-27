@@ -493,12 +493,15 @@ begin
             RegisterProperty('History','TBaseHistory',iptR);
             RegisterProperty('Address','TOrderAddress',iptR);
             RegisterProperty('Positions','TOrderPos',iptR);
+            Sender.Compiler.AddTypeS('TPostResult', '(prSuccess,prAlreadyPosted,prFailed)');
+            RegisterMethod('function DoPost: TPostResult;')
           end;
         with Sender.ClassImporter.Add(TOrder) do
           begin
             RegisterPropertyHelper(@TBaseDbListPropertyHistoryR,nil,'HISTORY');
             RegisterPropertyHelper(@TOrderPropertyAddressR,nil,'ADDRESS');
             RegisterPropertyHelper(@TOrderPropertyPositionsR,nil,'POSITIONS');
+            RegisterMethod(@TOrder.DoPost,'DOPOST');
           end;
         //Small Gneral Datasets
         Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBDataSet'),TFollowers);
