@@ -1238,11 +1238,9 @@ begin
         end
       else
         begin
-          History.Open;
-          History.AddItem(Self.DataSet,Format(strStatusChanged,[Status.AsString,aNewStatus]),'','',nil,ACICON_STATUSCH);
           with DataSet do
             begin
-              FieldByName('ORDERNO').AsString := newnumber;
+              Edit;
               FieldByName('STATUS').AsString := aNewStatus;
               FieldByName('DOAFQ').Clear;
               FieldByName('DWISH').Clear;
@@ -1251,6 +1249,11 @@ begin
               FieldByName('NETPRICE').Clear;
               FieldByName('DISCOUNT').Clear;
               FieldByName('GROSSPRICE').Clear;
+              FieldByName('NUMBER').Clear;
+              FieldByName('DATE').Clear;
+              if aOrderType <> 3 then
+                FieldByName('ODATE').Clear;
+              Post;
             end;
         end;
       if not (OrderType.FieldByName('ISDERIVATE').AsString = 'Y') then
