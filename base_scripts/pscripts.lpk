@@ -46,7 +46,7 @@
       </Item2>
       <Item3>
         <PackageName Value="ppascalscriptlcl"/>
-        <DefaultFilename Value="..\..\components\pascalscript\ppascalscriptlcl.lpk"/>
+        <DefaultFilename Value="..\..\components\pascalscript\Source\ppascalscriptlcl.lpk"/>
       </Item3>
       <Item4>
         <PackageName Value="pPrometDBIntfs"/>

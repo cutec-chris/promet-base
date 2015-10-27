@@ -25,11 +25,10 @@ uses
   SysUtils, Classes, types, db, Graphics, Controls, Forms, Dialogs, Menus,
   ExtCtrls, StdCtrls, ComCtrls, ActnList, DbCtrls, DBGrids, SynEdit,
   SynEditTypes, SynHighlighterPas, SynCompletion, LCLType, uPSComponent_Default,
-  RegExpr, LResources, uPSRuntime, uPSDisassembly, uPSUtils, uPSComponent,
-  uPSDebugger, uPSComponent_DB, SynEditRegexSearch, SynEditSearch,
+  RegExpr, LResources,  SynEditRegexSearch, SynEditSearch,
   SynEditMiscClasses, SynEditHighlighter, SynGutterBase, SynEditMarks,
   SynEditMarkupSpecialLine, SynHighlighterSQL, SynHighlighterPython,
-  SynHighlighterCpp, uPSCompiler, uprometscripts, LCLIntf, genscript,
+  SynHighlighterCpp, uprometscripts, LCLIntf, genscript,
   uBaseDbClasses, variants;
 
 type
@@ -67,7 +66,6 @@ type
     gResults: TDBGrid;
     DBGrid1: TDBGrid;
     FindDialog: TFindDialog;
-    IFPS3DllPlugin1: TPSDllPlugin;
     ilImageList: TImageList;
     Label1: TLabel;
     MenuItem1: TMenuItem;
@@ -141,10 +139,6 @@ type
     procedure aScriptRunLine(Sender: TScript; Module: string; aPosition, Row,
       Col: Integer);
     procedure cbSyntaxSelect(Sender: TObject);
-    procedure DebuggerExecImport(Sender: TObject; se: TPSExec;
-      x: TPSRuntimeClassImporter);
-    function DebuggerGetNotificationVariant(Sender: TPSScript;
-      const aName: tbtstring): Variant;
     procedure edChange(Sender: TObject);
     procedure edGutterClick(Sender: TObject; X, Y, Line: integer;
       mark: TSynEditMark);
@@ -152,7 +146,6 @@ type
     procedure edSpecialLineColors(Sender: TObject; Line: Integer; var Special: Boolean; var FG, BG: TColor);
     procedure BreakPointMenuClick(Sender: TObject);
     procedure Exit1Click(Sender: TObject);
-    procedure DebuggerCompile(Sender: TPSScript);
     procedure FDataSetDataSetAfterScroll(DataSet: TDataSet);
     procedure FDataSetDataSetBeforeScroll(DataSet: TDataSet);
     procedure FDataSetWriteln(const s: string);
@@ -187,13 +180,11 @@ type
     FActiveFile: string;
     FDataSet : TBaseDBDataset;
     Fuses : TBaseScript;
-    FOldUses : TPSOnUses;
     FWasRunning: Boolean;
     Linemark : TSynEditMark;
     LastStepTime : Int64;
     FBreakPoints : TList;
     Fscript : TScript;
-    ClassImporter: uPSRuntime.TPSRuntimeClassImporter;
     procedure InitEvents;
     procedure UpdateStatus;
     procedure ButtonStatus(Status : TScriptStatus);
@@ -244,9 +235,6 @@ uses
 
 {$R *.lfm}
 
-const
-  isRunningOrPaused = [isRunning, isPaused];
-
 // options - to be saved to the registry
 var
   gbSearchBackwards: boolean;
@@ -271,14 +259,6 @@ resourcestring
   STR_INPUTBOX_TITLE = 'Script';
   STR_NOTSAVED = 'Script wurde noch nicht gespeichert, jetzt speichern?';
   strScriptRunning       = 'Das Script wurde gestartet';
-function OnUses(Sender: TPSPascalCompiler; const Name: tbtString): Boolean;
-begin
-  Result := False;
-  if (Assigned(flastScriptEditor) and Assigned(Data)) and (fLastScriptEditor.FDataSet is TBaseScript) and (TBaseScript(fLastScriptEditor.FDataSet).Script is TPascalScript) then
-    Result := TPascalScript(TBaseScript(flastScriptEditor.FDataSet).Script).InternalUses(Sender,Name);
-  if not Result and (Assigned(flastScriptEditor) and Assigned(Data)) and (fLastScriptEditor.FDataSet is TBaseScript) and (TBaseScript(fLastScriptEditor.FDataSet).Script is TPascalScript) then
-    Result := TPascalScript(TBaseScript(fLastScriptEditor.FDataSet).Script).InternalUses(Sender,Name)
-end;
 
 procedure DoSleep(aTime: LongInt); StdCall;
 var
@@ -455,7 +435,7 @@ var
   EditCaret: Classes.TPoint;
   aWord: String;
   i: Integer;
-  aCont: TbtString;
+  aCont: String;
 begin
   ASynEdit:=ed;
   EditPos:=HintInfo^.CursorPos;
@@ -564,19 +544,6 @@ begin
   acStepover.Enabled:=(ed.Highlighter=HigPascal) and (cbClient.Text='');
 end;
 
-procedure TfScriptEditor.DebuggerExecImport(Sender: TObject; se: TPSExec;
-  x: TPSRuntimeClassImporter);
-begin
-  if Assigned(Data) and (FDataSet is TBaseScript) and (FScript is TPascalScript) then
-    TPascalScript(FScript).ClassImporter:=x;
-end;
-
-function TfScriptEditor.DebuggerGetNotificationVariant(Sender: TPSScript;
-  const aName: tbtstring): Variant;
-begin
-  Showmessage(aName);
-end;
-
 procedure TfScriptEditor.edChange(Sender: TObject);
 begin
  if Assigned(Data) then
@@ -589,8 +556,6 @@ begin
 end;
 
 procedure TfScriptEditor.acDecompileExecute(Sender: TObject);
-var
-  s: tbtstring;
 begin
  if ed.Highlighter=HigPascal then
    begin
@@ -784,7 +749,6 @@ function TfScriptEditor.Compile: Boolean;
 var
   i: Longint;
   mo: TMessageObject;
-  aMsg: TPSPascalCompilerMessage;
 begin
   Result := False;
   try
@@ -820,15 +784,6 @@ end;
 function TfScriptEditor.GetBreakPointCount: Integer;
 begin
   Result := FBreakPoints.Count;
-end;
-
-procedure TfScriptEditor.DebuggerCompile(Sender: TPSScript);
-begin
-  FOldUses:=Sender.Comp.OnUses;
-  if Assigned(Data) and (FDataSet is TBaseScript) then
-    TBaseScript(FDataSet).Writeln:=@FDataSetWriteln;
-  Sender.Comp.OnUses:=@OnUses;
-  OnUses(Sender.Comp,'SYSTEM');
 end;
 
 procedure TfScriptEditor.FDataSetDataSetAfterScroll(DataSet: TDataSet);
@@ -1021,10 +976,7 @@ var
   s: String;
   aStrings: TStrings;
   ps : PChar;
-  aTp: TPSTypeRec;
-  aTyp: TPSType;
   a: Integer;
-  aVar: PIFVariant;
   sl: TStringList;
 begin
   with FSynCompletion.ItemList do
