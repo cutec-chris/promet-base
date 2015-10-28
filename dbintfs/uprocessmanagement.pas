@@ -143,7 +143,11 @@ end;
 
 procedure TProcProcess.Stop;
 begin
-  p.Terminate(255);
+  try
+    if Assigned(p) then
+      p.Terminate(255);
+  except
+  end;
 end;
 
 procedure TProcProcess.Execute;
@@ -494,19 +498,11 @@ var
               if not bProcess.Informed then
                 begin
                   DoLog(aprocess+'('+Processes.DataSet.FieldByName('NAME').AsString+'):'+strExitted,aLog,True);
-                  arec := Processes.GetBookmark;
-                  aProc := TProcesses.Create(nil);
-                  aProc.Select(arec);
-                  aProc.Open;
-                  if aProc.Count>0 then
-                    begin
-                      if not aProc.CanEdit then aProc.Edit;
-                      aProc.FieldByName('LOG').AsString:=aLog.Text;
-                      aProc.FieldByName('STOPPED').AsDateTime:=aStartTime;
-                      aProc.FieldByName('STATUS').AsString := 'N';
-                      aProc.Post;
-                    end;
-                  aProc.Free;
+                  if not Processes.CanEdit then Processes.Edit;
+                  Processes.FieldByName('LOG').AsString:=aLog.Text;
+                  Processes.FieldByName('STOPPED').AsDateTime:=aStartTime;
+                  Processes.FieldByName('STATUS').AsString := 'N';
+                  Processes.Post;
                   bProcess.Informed := True;
                 end
               else if Assigned(Processes) then
@@ -623,18 +619,19 @@ var
   end;
 
 begin
+  aLog := TStringList.Create;
+  try
   aNow := Now();
   if aNow>0 then
     begin
       Processes.Open;
       Processes.Parameters.Open;
-      aLog := TStringList.Create;
       //Check processes
       if OnlyActiveRow then
         ProcessRow
       else
         begin
-          Processes.DataSet.Refresh;
+          RefreshList;
           Processes.DataSet.First;
           while not Processes.DataSet.EOF do
             begin
@@ -642,8 +639,10 @@ begin
               Processes.DataSet.Next;
             end;
         end;
-      aLog.Free;
     end;
+  except
+  end;
+  aLog.Free;
 end;
 
 end.
