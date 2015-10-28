@@ -1163,7 +1163,7 @@ begin
           DataSet.FieldByName('DONE').AsString := 'Y';
           DataSet.Post;
         end;
-      if (not Assigned(OrderType.FieldByName('ISDERIVATE'))) or (OrderType.FieldByName('ISDERIVATE').AsString <> 'N') then
+      if (not Assigned(OrderType.FieldByName('DOCOPY'))) or (OrderType.FieldByName('DOCOPY').AsString <> 'N') then
         begin //Copy Order
           with DataSet as IBaseDBFilter do
             OldFilter := Filter;
