@@ -1223,6 +1223,7 @@ end;
 function TBaseDBModule.ShouldCheckTable(aTableName : string;SetChecked : Boolean = True): Boolean;
 begin
   Result := FCheckedTables.IndexOf(aTableName) = -1;
+  if aTableName='TABLEVERSIONS' then exit;
   try
   if Result then
     begin
