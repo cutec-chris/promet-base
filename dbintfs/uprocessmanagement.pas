@@ -473,7 +473,7 @@ var
                 begin
                   bProcess.Stop;
                 end
-              else
+              else if Processes.DataSet.FieldByName('STATUS').AsString<>'R' then
                 begin
                   if not Processes.CanEdit then Processes.DataSet.Edit;
                   Processes.DataSet.FieldByName('STATUS').AsString := 'R';
