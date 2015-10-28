@@ -1235,6 +1235,7 @@ begin
                   Next;
                 end;
             end;
+          Result:=True;
         end
       else
         begin
@@ -1255,6 +1256,7 @@ begin
                 FieldByName('ODATE').Clear;
               Post;
             end;
+          Result:=True;
         end;
       if not (OrderType.FieldByName('ISDERIVATE').AsString = 'Y') then
         begin //Auftrag geändert
