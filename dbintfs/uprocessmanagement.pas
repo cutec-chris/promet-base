@@ -135,7 +135,7 @@ end;
 constructor TProcProcess.Create;
 begin
   FOutput:=TStringList.Create;
-  inherited Create(False);
+  inherited Create(True);
 end;
 
 destructor TProcProcess.Destroy;
@@ -151,7 +151,7 @@ begin
   FActive:=True;
   with BaseApplication as IBaseApplication do
     Debug(FName+':resuming Process');
-  Execute;
+  Resume;
 end;
 
 procedure TProcProcess.Stop;
@@ -187,7 +187,7 @@ begin
           p.Active:=True;
           FStatus:='R';
           OutputLine:='';
-          DoOutputLine;
+          Synchronize(@DoOutputLine);
           with BaseApplication as IBaseApplication do
             Debug(FName+':running...');
 
@@ -208,7 +208,7 @@ begin
               if Buf[i] in [#10,#13] then
               begin
                 OutputLine:=OutputLine+Copy(Buf,LineStart,i-LineStart);
-                DoOutputLine;
+                Synchronize(@DoOutputLine);
                 OutputLine:='';
                 if (i<Count) and (Buf[i+1] in [#10,#13]) and (Buf[i]<>Buf[i+1]) then
                   inc(i);
@@ -219,13 +219,18 @@ begin
             OutputLine:=Copy(Buf,LineStart,Count-LineStart+1);
           until (Count=0) or Terminated;
           if OutputLine <> '' then
-            DoOutputLine;
+            Synchronize(@DoOutputLine);
           if not  Terminated then p.WaitOnExit;
           FStatus:='N';
+          OutputLine:='';
         except
-          FStatus:='E';
-          with BaseApplication as IBaseApplication do
-            Debug(FName+':Error');
+          on e : Exception do
+            begin
+              FStatus:='E';
+              OutputLine:=e.Message;
+              with BaseApplication as IBaseApplication do
+                Debug(FName+':Error '+e.Message);
+            end;
         end;
       finally
         FStopped := Now();
@@ -234,11 +239,10 @@ begin
       end;
       if FStatus='R' then
         FStatus:='N';
-      OutputLine:='';
-      DoOutputLine;
+      Synchronize(@DoOutputLine);
       with BaseApplication as IBaseApplication do
         Debug(FName+':Stopped '+DateTimeToStr(FStopped));
-      //Suspend;
+      Suspend;
     end;
 end;
 
@@ -317,26 +321,26 @@ begin
       if aProcesses.Count>0 then
         begin
           aLog := TStringList.Create;
-          aLog.Assign(aProc.Output);
           aProc.Output.Clear;
           if aProcesses.FieldByName('STATUS').AsString<>aProc.Status then
             begin
               aProcesses.Edit;
               aProcesses.FieldByName('STATUS').AsString:=aProc.Status;
-            end;
-          if aProcesses.DataSet.FieldByName('STARTED').AsDateTime<>aProc.Started then
-            begin
-              aProcesses.Edit;
               aProcesses.FieldByName('STARTED').AsDateTime:=aProc.Started;
               if (not aProc.Active) then
                 aProcesses.FieldByName('STOPPED').AsDateTime:=aProc.Stopped
               else
                 aProcesses.FieldByName('STOPPED').Clear;
-            end;
-          if aLog.Text<>'' then
-            begin
-              aProcesses.Edit;
-              aProcesses.FieldByName('LOG').AsString := Processes.FieldByName('LOG').AsString+LineEnding+aLog.Text;
+              if aProc.Status='R' then
+                aProcesses.FieldByName('LOG').Clear;
+              aProcesses.FieldByName('CLIENT').AsString:=GetSystemName;
+              aLog.Text:=aProcesses.FieldByName('LOG').AsString;
+              aLog.AddStrings(aProc.Output);
+              if aLog.Text<>'' then
+                begin
+                  aProcesses.Edit;
+                  Processes.FieldByName('LOG').AsString:=aLog.Text;
+                end;
             end;
           aLog.Free;
           aProcesses.Post;

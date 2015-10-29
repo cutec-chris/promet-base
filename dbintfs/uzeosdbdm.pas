@@ -1068,8 +1068,11 @@ begin
     end;
   for i := 0 to FParams.Count-1 do
     begin
-      aPar := ParamByName(FParams.Names[i]);
-      aPar.AsString:=FParams.ValueFromIndex[i];
+      if Assigned(Params.FindParam(FParams.Names[i])) then
+        begin
+          aPar := ParamByName(FParams.Names[i]);
+          aPar.AsString:=FParams.ValueFromIndex[i];
+        end;
     end;
   if (FLimit>0) and Assigned(Params.FindParam('Limit')) then
     ParamByName('Limit').AsInteger:=FLimit;
