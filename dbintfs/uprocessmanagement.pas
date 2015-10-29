@@ -32,7 +32,10 @@ type
     FId: Variant;
     FInformed: Boolean;
     FName: string;
+    FOnRefreshStatus: TNotifyEvent;
     FOutput: TStringList;
+    FStarted: TDateTime;
+    FStopped: TDateTime;
     FTimeout: TDateTime;
     FStatus : string;
     p: TProcess;
@@ -47,6 +50,8 @@ type
     property Informed : Boolean read FInformed write FInformed;
     property Name : string read FName write FName;
     property Id : Variant read FId write FId;
+    property Started : TDateTime read FStarted;
+    property Stopped : TDateTime read FStopped;
     procedure Start;
     procedure Stop;
     property Active : Boolean read FActive write SetActive;
@@ -54,6 +59,7 @@ type
     property Commandline : string read FCommandline write FCommandline;
     property Output : TStringList read FOutput;
     property Status : string read FStatus;
+    property OnRefreshStatus : TNotifyEvent read FOnRefreshStatus write FOnRefreshStatus;
   end;
   TProcessParameters = class(TBaseDBDataset)
   public
@@ -77,6 +83,7 @@ type
   { TProcessClient }
 
   TProcessClient = class(TBaseDBDataset)
+    procedure NewProcessRefreshStatus(Sender: TObject);
   private
     FLastRefresh: TDateTime;
     FProcesses: TProcesses;
@@ -115,15 +122,20 @@ end;
 
 procedure TProcProcess.DoOutputLine;
 begin
-  FOutput.Add(OutputLine);
-  with BaseApplication as IBaseApplication do
-    Debug(FName+':'+OutputLine);
+  if OutputLine<>'' then
+    begin
+      FOutput.Add(OutputLine);
+      with BaseApplication as IBaseApplication do
+        Debug(FName+':'+OutputLine);
+    end;
+  if Assigned(FOnRefreshStatus) then
+    FOnRefreshStatus(Self);
 end;
 
 constructor TProcProcess.Create;
 begin
   FOutput:=TStringList.Create;
-  inherited Create(True);
+  inherited Create(False);
 end;
 
 destructor TProcProcess.Destroy;
@@ -135,10 +147,11 @@ end;
 
 procedure TProcProcess.Start;
 begin
+  FStarted := Now();
   FActive:=True;
   with BaseApplication as IBaseApplication do
     Debug(FName+':resuming Process');
-  Resume;
+  Execute;
 end;
 
 procedure TProcProcess.Stop;
@@ -146,6 +159,7 @@ begin
   try
     if Assigned(p) then
       p.Terminate(255);
+    FActive:=False;
   except
   end;
 end;
@@ -171,6 +185,9 @@ begin
           with BaseApplication as IBaseApplication do
             Debug(FName+':starting...');
           p.Active:=True;
+          FStatus:='R';
+          OutputLine:='';
+          DoOutputLine;
           with BaseApplication as IBaseApplication do
             Debug(FName+':running...');
 
@@ -211,14 +228,17 @@ begin
             Debug(FName+':Error');
         end;
       finally
+        FStopped := Now();
         FreeAndNil(p);
         FActive:=False;
       end;
       if FStatus='R' then
         FStatus:='N';
+      OutputLine:='';
+      DoOutputLine;
       with BaseApplication as IBaseApplication do
-        Debug(FName+':Stopped');
-      Suspend;
+        Debug(FName+':Stopped '+DateTimeToStr(FStopped));
+      //Suspend;
     end;
 end;
 
@@ -279,6 +299,48 @@ begin
             Add('CLIENT',ftString,100,False);
             Add('LOG',ftMemo,0,False);
           end;
+    end;
+end;
+
+procedure TProcessClient.NewProcessRefreshStatus(Sender: TObject);
+var
+  aProc: TProcProcess;
+  aProcesses: TProcesses;
+  aLog: TStringList;
+begin
+  aProc := TProcProcess(Sender);
+  if Assigned(aProc) then
+    begin
+      aProcesses := TProcesses.Create(nil);
+      aProcesses.Select(aProc.Id);
+      aProcesses.Open;
+      if aProcesses.Count>0 then
+        begin
+          aLog := TStringList.Create;
+          aLog.Assign(aProc.Output);
+          aProc.Output.Clear;
+          if aProcesses.FieldByName('STATUS').AsString<>aProc.Status then
+            begin
+              aProcesses.Edit;
+              aProcesses.FieldByName('STATUS').AsString:=aProc.Status;
+            end;
+          if aProcesses.DataSet.FieldByName('STARTED').AsDateTime<>aProc.Started then
+            begin
+              aProcesses.Edit;
+              aProcesses.FieldByName('STARTED').AsDateTime:=aProc.Started;
+              if (not aProc.Active) then
+                aProcesses.FieldByName('STOPPED').AsDateTime:=aProc.Stopped
+              else
+                aProcesses.FieldByName('STOPPED').Clear;
+            end;
+          if aLog.Text<>'' then
+            begin
+              aProcesses.Edit;
+              aProcesses.FieldByName('LOG').AsString := Processes.FieldByName('LOG').AsString+LineEnding+aLog.Text;
+            end;
+          aLog.Free;
+          aProcesses.Post;
+        end;
     end;
 end;
 
@@ -425,6 +487,7 @@ var
   NewProcess: TProcProcess;
   aCount: DWord;
   tmp: String;
+  bId : Variant;
   procedure DoLog(aStr: string;bLog : TStringList;SysLog : Boolean);
   begin
     with BaseApplication as IBaseApplication do
@@ -452,19 +515,23 @@ var
     if BaseApplication.HasOption('c','config-path') then
       cmd := cmd+' "--config-path='+BaseApplication.GetOptionValue('c','config-path')+'"';
   end;
-  procedure ExecCommand;
+  function ExecCommand(aClient : string;aNewStatus : string;aLastStopped : TDateTime;aInterval : Integer) : TProcProcess;
   var
     i: Integer;
     a: Integer;
     aStartTime: TDateTime;
     arec: LargeInt;
     aProc : TProcesses;
+    aStatus: String;
   begin
+    Result := nil;
+    if aNewStatus='' then exit;
     Found := False;
     for i := 0 to length(ProcessData)-1 do
       if ProcessData[i].CommandLine = cmd then
         begin
           bProcess := ProcessData[i];
+          Result := bProcess;
           if bProcess.Active then
             begin
               Found := True;
@@ -473,20 +540,14 @@ var
                   DoLog(aprocess+':'+bProcess.Output[0],aLog,BaseApplication.HasOption('debug'));
                   bProcess.Output.Delete(0);
                 end;
-              if Processes.DataSet.FieldByName('STATUS').AsString='N' then
+              if aNewStatus='N' then
                 begin
                   bProcess.Stop;
                 end
-              else if Processes.DataSet.FieldByName('STATUS').AsString<>'R' then
-                begin
-                  if not Processes.CanEdit then Processes.DataSet.Edit;
-                  Processes.DataSet.FieldByName('STATUS').AsString := 'R';
-                  Processes.DataSet.FieldByName('STOPPED').Clear;
-                  Processes.DataSet.Post;
-                end;
             end
           else
             begin
+              aLog.Clear;
               aStartTime := Now();
               if aStartTime=0 then
                 aStartTime:=Now();
@@ -497,30 +558,18 @@ var
                 end;
               if not bProcess.Informed then
                 begin
-                  DoLog(aprocess+'('+Processes.DataSet.FieldByName('NAME').AsString+'):'+strExitted,aLog,True);
-                  if not Processes.CanEdit then Processes.Edit;
-                  Processes.FieldByName('LOG').AsString:=aLog.Text;
-                  Processes.FieldByName('STOPPED').AsDateTime:=aStartTime;
-                  Processes.FieldByName('STATUS').AsString := 'N';
-                  Processes.Post;
+                  DoLog(aprocess+':'+strExitted,aLog,True);
                   bProcess.Informed := True;
                 end
               else if Assigned(Processes) then
-                if ((Processes.FieldByName('STATUS').AsString<>'R')
-                and (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay))))
+                if ((aNewStatus<>'R')
+                and (aNow > (aLastStopped+(aInterval/MinsPerDay))))
                  or DoAlwasyRun then
                   begin
-                    aLog.Clear;
-                    DoLog(aprocess+':'+strStartingProcessTimeout+' '+DateTimeToStr((Processes.FieldByName('STOPPED').AsDateTime+(max(Processes.FieldByName('INTERVAL').AsInteger,2)/MinsPerDay)))+'>'+DateTimeToStr(aNow),aLog,BaseApplication.HasOption('debug'));
+                    DoLog(aprocess+':'+strStartingProcessTimeout+' '+DateTimeToStr((aLastStopped+(max(aInterval,2)/MinsPerDay)))+'>'+DateTimeToStr(aNow),aLog,BaseApplication.HasOption('debug'));
                     DoLog(aProcess+':'+strStartingProcess+' ('+bProcess.CommandLine+')',aLog,True);
                     bProcess.Informed:=False;
                     bProcess.Start;
-                    if not Processes.CanEdit then Processes.DataSet.Edit;
-                    Processes.DataSet.FieldByName('STATUS').AsString := 'R';
-                    Processes.DataSet.FieldByName('STARTED').AsDateTime:=Now();
-                    Processes.DataSet.FieldByName('STOPPED').Clear;
-                    Processes.DataSet.FieldByName('CLIENT').AsString:=GetSystemName;
-                    Processes.DataSet.Post;
                     bProcess.Informed := False;
                   end;
               Found := True;
@@ -529,11 +578,11 @@ var
     if not Found then
       begin
         //Process is stopped and Timeout is overdune
-        if (((Processes.FieldByName('STATUS').AsString<>'R') or (Processes.TimeStamp.AsDateTime<(aNow-(1)))) and (aNow > (Processes.FieldByName('STOPPED').AsDateTime+(Processes.FieldByName('INTERVAL').AsInteger/MinsPerDay))))
+        if (((aNewStatus<>'R') or (Processes.TimeStamp.AsDateTime<(aNow-(1)))) and (aNow > (aLastStopped+(aInterval/MinsPerDay))))
          //Process should always run
          or DoAlwasyRun
          //Process should be running on our client but were dont run it
-         or ((Processes.FieldByName('STATUS').AsString='R') and (Processes.FieldByName('CLIENT').AsString=GetSystemName))
+         or ((aNewStatus='R') and (aClient=GetSystemName))
          then
           begin
             aStartTime := Now();
@@ -544,52 +593,51 @@ var
             NewProcess.InheritHandles := false;
             {$endif}
             NewProcess.Id := Processes.Id.AsVariant;
+            NewProcess.OnRefreshStatus:=@NewProcessRefreshStatus;
             NewProcess.Informed:=False;
+            NewProcess.Name:=aProcess;
             Setlength(ProcessData,length(ProcessData)+1);
             ProcessData[length(ProcessData)-1] := NewProcess;
             NewProcess.CommandLine:=cmd;
             NewProcess.Start;
-            if not Processes.CanEdit then Processes.DataSet.Edit;
-            Processes.DataSet.FieldByName('STATUS').AsString := 'R';
-            Processes.DataSet.FieldByName('STARTED').AsDateTime:=Now();
-            Processes.DataSet.FieldByName('STOPPED').Clear;
-            Processes.DataSet.FieldByName('CLIENT').AsString:=GetSystemName;
-            Processes.DataSet.Post;
+            Result := NewProcess;
           end;
       end;
   end;
 
   procedure ProcessRow;
+  var
+    aProc: TProcProcess = nil;
   begin
-    aLog.Text := Processes.DataSet.FieldByName('LOG').AsString;
+    aLog.Clear;
     aProcess := Processes.FieldByName('NAME').AsString;
     if FileExists(ExpandFileName(AppendPathDelim(BaseApplication.Location)+aProcess+ExtractFileExt(BaseApplication.ExeName))) then
       begin
         Found := False;
         cmd := AppendPathDelim(BaseApplication.Location)+aProcess+ExtractFileExt(BaseApplication.ExeName);
         cmd := cmd+BuildCmdLine;
-        ExecCommand;
+        aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL').AsInteger);
       end
     else if FileExists(aProcess+ExtractFileExt(BaseApplication.ExeName)) then
       begin
         Found := False;
         cmd := aProcess+ExtractFileExt(BaseApplication.ExeName);
         cmd := cmd+BuildCmdLine;
-        ExecCommand;
+        aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL').AsInteger);
       end
     else if FileExists('/usr/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName)) then
       begin
         Found := False;
         cmd := '/usr/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName);
         cmd := cmd+BuildCmdLine;
-        ExecCommand;
+        aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL').AsInteger);
       end
     else if FileExists('/usr/local/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName)) then
       begin
         Found := False;
         cmd := '/usr/local/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName);
         cmd := cmd+BuildCmdLine;
-        ExecCommand;
+        aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL').AsInteger);
       end
     else if Processes.Scripts.Locate('NAME',aProcess,[loCaseInsensitive]) then
       begin
@@ -600,22 +648,30 @@ var
           begin
             cmd := cmd+BuildCmdLine;
             cmd := cmd+' '+aProcess;
-            ExecCommand;
+            aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL').AsInteger);
           end
         else
-          DoLog(cmd+':'+'File dosend exists',aLog,True);
+          begin
+            DoLog(cmd+':'+'PScript dosend exists',aLog,True);
+            Processes.DataSet.Edit;
+            Processes.DataSet.FieldByName('STATUS').AsString := 'E';
+            Processes.DataSet.FieldByName('STOPPED').AsDateTime:=Processes.DataSet.FieldByName('STARTED').AsDateTime;
+            if Processes.DataSet.FieldByName('LOG').AsString<>aLog.Text then
+              Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
+            Processes.DataSet.Post;
+          end;
       end
     else
       begin
-        aLog.Clear;
         DoLog(ExpandFileName(aProcess+ExtractFileExt(BaseApplication.ExeName))+':'+'File dosend exists',aLog,True);
+        Processes.DataSet.Edit;
+        Processes.DataSet.FieldByName('STATUS').AsString := 'E';
+        Processes.DataSet.FieldByName('STOPPED').AsDateTime:=Processes.DataSet.FieldByName('STARTED').AsDateTime;
+        if Processes.DataSet.FieldByName('LOG').AsString<>aLog.Text then
+          Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
+        Processes.DataSet.Post;
       end;
-    if Processes.DataSet.FieldByName('LOG').AsString<>aLog.Text then
-      begin
-        Processes.Edit;
-        Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
-        Processes.Post;
-      end;
+    //RefreshStatus
   end;
 
 begin
