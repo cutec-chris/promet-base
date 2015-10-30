@@ -41,7 +41,7 @@ type
     FCS : TCriticalSection;
     OutputLine: String;
     function GetActive: Boolean;
-    function GetOutput: TStringList;
+    function GetOutput: string;
     function GetStatus: string;
     procedure SetActive(AValue: Boolean);
     procedure SetTimeout(AValue: TDateTime);
@@ -62,7 +62,7 @@ type
     procedure Unlock;
     procedure Execute; override;
     property Commandline : string read FCommandline write FCommandline;
-    property Output : TStringList read GetOutput;
+    property Output : string read GetOutput;
     property Status : string read GetStatus;
   end;
   TProcessParameters = class(TBaseDBDataset)
@@ -103,7 +103,7 @@ type
     procedure Startup;
     procedure ShutDown;
     function ProcessAll(aSystem : string = '') : Boolean;
-    procedure RefreshStatus(aProc : TProcProcess);
+    procedure RefreshStatus(aProc: TProcProcess; aLog: TStringList);
     function Process(OnlyActiveRow : Boolean = False;DoAlwasyRun : Boolean = False) : Boolean;
   end;
 
@@ -125,10 +125,10 @@ begin
   UnLock;
 end;
 
-function TProcProcess.GetOutput: TStringList;
+function TProcProcess.GetOutput: string;
 begin
   Lock;
-  Result := FOutput;
+  Result := FOutput.Text;
   UnLock;
 end;
 
@@ -176,6 +176,7 @@ procedure TProcProcess.Start;
 begin
   FStarted := Now();
   FActive:=True;
+  FOutput.Clear;
   with BaseApplication as IBaseApplication do
     Debug(FName+':resuming Process');
   Resume;
@@ -474,12 +475,10 @@ begin
     end;
 end;
 
-procedure TProcessClient.RefreshStatus(aProc: TProcProcess);
+procedure TProcessClient.RefreshStatus(aProc: TProcProcess;aLog : TStringList);
 var
   aProcesses: TProcesses;
-  aLog: TStringList;
 begin
-  aProc.Output.Clear;
   aProcesses := TProcesses.Create(nil);
   aProcesses.Select(aproc.Id);
   aProcesses.Open;
@@ -498,17 +497,12 @@ begin
             aProcesses.FieldByName('LOG').Clear;
           aProcesses.FieldByName('CLIENT').AsString:=GetSystemName;
         end;
-      if aProc.Output.Count>0 then
+      if aProc.Output<>'' then
         begin
-          aLog := TStringList.Create;
           aLog.Text:=aProcesses.FieldByName('LOG').AsString;
-          aLog.AddStrings(aProc.Output);
-          if aLog.Text<>'' then
-            begin
-              aProcesses.Edit;
-              aProcesses.FieldByName('LOG').AsString:=aLog.Text;
-            end;
-          aLog.Free;
+          aLog.Text:=aLog.Text+aProc.Output;
+          aProcesses.Edit;
+          aProcesses.FieldByName('LOG').AsString:=aLog.Text;
         end;
       aProcesses.Post;
     end;
@@ -580,11 +574,14 @@ var
           if bProcess.Active then
             begin
               Found := True;
-              while bProcess.Output.Count>0 do
+              sl := TStringList.Create;
+              sl.Text:=bProcess.Output;
+              while sl.Count>0 do
                 begin
-                  DoLog(aprocess+':'+bProcess.Output[0],aLog,BaseApplication.HasOption('debug'));
-                  bProcess.Output.Delete(0);
+                  DoLog(aprocess+':'+sl[0],aLog,BaseApplication.HasOption('log'));
+                  sl.Delete(0);
                 end;
+              sl.Free;
               if aNewStatus='N' then
                 begin
                   bProcess.Stop;
@@ -596,11 +593,14 @@ var
               aStartTime := Now();
               if aStartTime=0 then
                 aStartTime:=Now();
-              while bProcess.Output.Count>0 do
+              sl := TStringList.Create;
+              sl.Text:=bProcess.Output;
+              while sl.Count>0 do
                 begin
-                  DoLog(aprocess+':'+bProcess.Output[0],aLog,BaseApplication.HasOption('debug'));
-                  bProcess.Output.Delete(0);
+                  DoLog(aprocess+':'+sl[0],aLog,BaseApplication.HasOption('log'));
+                  sl.Delete(0);
                 end;
+              sl.Free;
               if not bProcess.Informed then
                 begin
                   DoLog(aprocess+':'+strExitted,aLog,True);
@@ -716,7 +716,7 @@ var
       end;
     //RefreshStatus
     if Assigned(aProc) then
-      RefreshStatus(aProc);
+      RefreshStatus(aProc,aLog);
   end;
 
 begin
