@@ -292,7 +292,6 @@ begin
       with BaseApplication as IBaseApplication do
         Debug(FName+':Stopped '+DateTimeToStr(FStopped));
       Suspend;
-      sleep(1000);
     end;
 end;
 
@@ -652,8 +651,14 @@ var
             NewProcess.Id := Processes.Id.AsVariant;
             NewProcess.Informed:=False;
             NewProcess.Name:=aProcess;
-            Setlength(ProcessData,length(ProcessData)+1);
-            ProcessData[length(ProcessData)-1] := NewProcess;
+            for i := 0 to Length(ProcessData)-1 do
+              if ProcessData[i]=nil then break;
+            if not (ProcessData[i]=nil) then
+              begin
+                Setlength(ProcessData,length(ProcessData)+1);
+                i := length(ProcessData)-1;
+              end;
+            ProcessData[i] := NewProcess;
             NewProcess.CommandLine:=cmd;
             NewProcess.Start;
             Result := NewProcess;
@@ -664,6 +669,7 @@ var
   procedure ProcessRow;
   var
     aProc: TProcProcess = nil;
+    i: Integer;
   begin
     aLog.Clear;
     aProcess := Processes.FieldByName('NAME').AsString;
@@ -730,6 +736,15 @@ var
     //RefreshStatus
     if Assigned(aProc) then
       RefreshStatus(aProc,aLog);
+    if not aProc.Active then
+      begin
+        for i := 0 to length(ProcessData)-1 do
+          if ProcessData[i]=aProc then
+            begin
+              ProcessData[i]:=nil;
+              aProc.Free;
+            end;
+      end;
   end;
 
 begin
