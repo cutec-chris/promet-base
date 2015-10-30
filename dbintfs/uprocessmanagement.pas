@@ -260,6 +260,7 @@ begin
               inc(i);
             end;
             OutputLine:=Copy(Buf,LineStart,Count-LineStart+1);
+            sleep(100);
           until (Count=0) or Terminated;
           if OutputLine <> '' then
             DoOutputLine;
@@ -291,6 +292,7 @@ begin
       with BaseApplication as IBaseApplication do
         Debug(FName+':Stopped '+DateTimeToStr(FStopped));
       Suspend;
+      sleep(1000);
     end;
 end;
 
