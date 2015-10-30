@@ -69,6 +69,9 @@ type
   public
     procedure DefineFields(aDataSet: TDataSet); override;
   end;
+
+  { TProcesses }
+
   TProcesses = class(TBaseDBDataset)
   private
     FProcessParameters: TProcessParameters;
@@ -80,6 +83,7 @@ type
     destructor Destroy; override;
     function CreateTable : Boolean;override;
     procedure DefineFields(aDataSet: TDataSet); override;
+    procedure FillDefaults(aDataSet: TDataSet); override;
     property Parameters : TProcessParameters read FProcessParameters;
     property Scripts : TBaseDBDataset read FScripts;
   end;
@@ -350,6 +354,12 @@ begin
     end;
 end;
 
+procedure TProcesses.FillDefaults(aDataSet: TDataSet);
+begin
+  inherited FillDefaults(aDataSet);
+  aDataSet.FieldByName('STATUS').AsString := 'N';
+end;
+
 constructor TProcessClient.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
@@ -506,6 +516,7 @@ begin
         end;
       aProcesses.Post;
     end;
+  aProcesses.Free;
 end;
 
 function ExpandFileName(aDir : string) : string;
