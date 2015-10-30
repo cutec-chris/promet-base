@@ -76,6 +76,7 @@ type
   private
     FProcessParameters: TProcessParameters;
     FScripts: TBaseDBDataset;
+    function GetScripts: TBaseDBDataset;
   public
     constructor CreateEx(aOwner: TComponent; DM: TComponent;
       aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
@@ -85,7 +86,7 @@ type
     procedure DefineFields(aDataSet: TDataSet); override;
     procedure FillDefaults(aDataSet: TDataSet); override;
     property Parameters : TProcessParameters read FProcessParameters;
-    property Scripts : TBaseDBDataset read FScripts;
+    property Scripts : TBaseDBDataset read GetScripts;
   end;
 
   { TProcessClient }
@@ -309,6 +310,13 @@ begin
     end;
 end;
 
+function TProcesses.GetScripts: TBaseDBDataset;
+begin
+  if not FScripts.Active then
+    FScripts.Open;
+  Result := FScripts;
+end;
+
 constructor TProcesses.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
@@ -320,7 +328,6 @@ end;
 procedure TProcesses.Open;
 begin
   inherited Open;
-  FScripts.Open;
 end;
 
 destructor TProcesses.Destroy;
