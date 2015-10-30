@@ -20,7 +20,7 @@ unit uProcessManagement;
 {$mode objfpc}{$H+}
 interface
 uses
-  Classes, SysUtils,uBaseDbClasses,db,Process,uBaseDatasetInterfaces;
+  Classes, SysUtils,uBaseDbClasses,db,Process,uBaseDatasetInterfaces,syncobjs;
 type
 
   { TProcProcess }
@@ -32,14 +32,17 @@ type
     FId: Variant;
     FInformed: Boolean;
     FName: string;
-    FOnRefreshStatus: TNotifyEvent;
     FOutput: TStringList;
     FStarted: TDateTime;
     FStopped: TDateTime;
     FTimeout: TDateTime;
     FStatus : string;
     p: TProcess;
+    FCS : TCriticalSection;
     OutputLine: String;
+    function GetActive: Boolean;
+    function GetOutput: TStringList;
+    function GetStatus: string;
     procedure SetActive(AValue: Boolean);
     procedure SetTimeout(AValue: TDateTime);
     procedure DoOutputLine;
@@ -54,12 +57,13 @@ type
     property Stopped : TDateTime read FStopped;
     procedure Start;
     procedure Stop;
-    property Active : Boolean read FActive write SetActive;
+    property Active : Boolean read GetActive write SetActive;
+    procedure Lock;
+    procedure Unlock;
     procedure Execute; override;
     property Commandline : string read FCommandline write FCommandline;
-    property Output : TStringList read FOutput;
-    property Status : string read FStatus;
-    property OnRefreshStatus : TNotifyEvent read FOnRefreshStatus write FOnRefreshStatus;
+    property Output : TStringList read GetOutput;
+    property Status : string read GetStatus;
   end;
   TProcessParameters = class(TBaseDBDataset)
   public
@@ -83,7 +87,6 @@ type
   { TProcessClient }
 
   TProcessClient = class(TBaseDBDataset)
-    procedure NewProcessRefreshStatus(Sender: TObject);
   private
     FLastRefresh: TDateTime;
     FProcesses: TProcesses;
@@ -100,6 +103,7 @@ type
     procedure Startup;
     procedure ShutDown;
     function ProcessAll(aSystem : string = '') : Boolean;
+    procedure RefreshStatus(aProc : TProcProcess);
     function Process(OnlyActiveRow : Boolean = False;DoAlwasyRun : Boolean = False) : Boolean;
   end;
 
@@ -114,6 +118,27 @@ begin
   if FActive then Resume;
 end;
 
+function TProcProcess.GetActive: Boolean;
+begin
+  Lock;
+  Result := FActive;
+  UnLock;
+end;
+
+function TProcProcess.GetOutput: TStringList;
+begin
+  Lock;
+  Result := FOutput;
+  UnLock;
+end;
+
+function TProcProcess.GetStatus: string;
+begin
+  Lock;
+  Result := FStatus;
+  Unlock;
+end;
+
 procedure TProcProcess.SetTimeout(AValue: TDateTime);
 begin
   if FTimeout=AValue then Exit;
@@ -122,25 +147,27 @@ end;
 
 procedure TProcProcess.DoOutputLine;
 begin
+  Lock;
   if OutputLine<>'' then
     begin
       FOutput.Add(OutputLine);
       with BaseApplication as IBaseApplication do
         Debug(FName+':'+OutputLine);
     end;
-  if Assigned(FOnRefreshStatus) then
-    FOnRefreshStatus(Self);
+  Unlock;
 end;
 
 constructor TProcProcess.Create;
 begin
   FOutput:=TStringList.Create;
+  FCS := TCriticalSection.Create;
   inherited Create(True);
 end;
 
 destructor TProcProcess.Destroy;
 begin
   Stop;
+  FCS.Free;
   inherited Destroy;
   FOutput.Free;
 end;
@@ -164,6 +191,16 @@ begin
   end;
 end;
 
+procedure TProcProcess.Lock;
+begin
+  FCS.Enter;
+end;
+
+procedure TProcProcess.Unlock;
+begin
+  FCS.Leave;
+end;
+
 procedure TProcProcess.Execute;
 var
   Buf: string;
@@ -185,9 +222,10 @@ begin
           with BaseApplication as IBaseApplication do
             Debug(FName+':starting...');
           p.Active:=True;
+          Lock;
           FStatus:='R';
+          Unlock;
           OutputLine:='';
-          Synchronize(@DoOutputLine);
           with BaseApplication as IBaseApplication do
             Debug(FName+':running...');
 
@@ -208,7 +246,7 @@ begin
               if Buf[i] in [#10,#13] then
               begin
                 OutputLine:=OutputLine+Copy(Buf,LineStart,i-LineStart);
-                Synchronize(@DoOutputLine);
+                DoOutputLine;
                 OutputLine:='';
                 if (i<Count) and (Buf[i+1] in [#10,#13]) and (Buf[i]<>Buf[i+1]) then
                   inc(i);
@@ -219,15 +257,18 @@ begin
             OutputLine:=Copy(Buf,LineStart,Count-LineStart+1);
           until (Count=0) or Terminated;
           if OutputLine <> '' then
-            Synchronize(@DoOutputLine);
+            DoOutputLine;
           if not  Terminated then p.WaitOnExit;
+          Lock;
           FStatus:='N';
-          OutputLine:='';
+          Unlock;
         except
           on e : Exception do
             begin
+              Lock;
               FStatus:='E';
               OutputLine:=e.Message;
+              Unlock;
               with BaseApplication as IBaseApplication do
                 Debug(FName+':Error '+e.Message);
             end;
@@ -237,9 +278,11 @@ begin
         FreeAndNil(p);
         FActive:=False;
       end;
+      Lock;
       if FStatus='R' then
         FStatus:='N';
-      Synchronize(@DoOutputLine);
+      Unlock;
+      DoOutputLine;
       with BaseApplication as IBaseApplication do
         Debug(FName+':Stopped '+DateTimeToStr(FStopped));
       Suspend;
@@ -303,48 +346,6 @@ begin
             Add('CLIENT',ftString,100,False);
             Add('LOG',ftMemo,0,False);
           end;
-    end;
-end;
-
-procedure TProcessClient.NewProcessRefreshStatus(Sender: TObject);
-var
-  aProc: TProcProcess;
-  aProcesses: TProcesses;
-  aLog: TStringList;
-begin
-  aProc := TProcProcess(Sender);
-  if Assigned(aProc) then
-    begin
-      aProcesses := TProcesses.Create(nil);
-      aProcesses.Select(aProc.Id);
-      aProcesses.Open;
-      if aProcesses.Count>0 then
-        begin
-          aLog := TStringList.Create;
-          aProc.Output.Clear;
-          if aProcesses.FieldByName('STATUS').AsString<>aProc.Status then
-            begin
-              aProcesses.Edit;
-              aProcesses.FieldByName('STATUS').AsString:=aProc.Status;
-              aProcesses.FieldByName('STARTED').AsDateTime:=aProc.Started;
-              if (not aProc.Active) then
-                aProcesses.FieldByName('STOPPED').AsDateTime:=aProc.Stopped
-              else
-                aProcesses.FieldByName('STOPPED').Clear;
-              if aProc.Status='R' then
-                aProcesses.FieldByName('LOG').Clear;
-              aProcesses.FieldByName('CLIENT').AsString:=GetSystemName;
-              aLog.Text:=aProcesses.FieldByName('LOG').AsString;
-              aLog.AddStrings(aProc.Output);
-              if aLog.Text<>'' then
-                begin
-                  aProcesses.Edit;
-                  Processes.FieldByName('LOG').AsString:=aLog.Text;
-                end;
-            end;
-          aLog.Free;
-          aProcesses.Post;
-        end;
     end;
 end;
 
@@ -473,6 +474,46 @@ begin
     end;
 end;
 
+procedure TProcessClient.RefreshStatus(aProc: TProcProcess);
+var
+  aProcesses: TProcesses;
+  aLog: TStringList;
+begin
+  aProc.Output.Clear;
+  aProcesses := TProcesses.Create(nil);
+  aProcesses.Select(aproc.Id);
+  aProcesses.Open;
+  if aProcesses.Count>0 then
+    begin
+      if aProcesses.FieldByName('STATUS').AsString<>aProc.Status then
+        begin
+          aProcesses.Edit;
+          aProcesses.FieldByName('STATUS').AsString:=aProc.Status;
+          aProcesses.FieldByName('STARTED').AsDateTime:=aProc.Started;
+          if (not aProc.Active) then
+            aProcesses.FieldByName('STOPPED').AsDateTime:=aProc.Stopped
+          else
+            aProcesses.FieldByName('STOPPED').Clear;
+          if aProc.Status='R' then
+            aProcesses.FieldByName('LOG').Clear;
+          aProcesses.FieldByName('CLIENT').AsString:=GetSystemName;
+        end;
+      if aProc.Output.Count>0 then
+        begin
+          aLog := TStringList.Create;
+          aLog.Text:=aProcesses.FieldByName('LOG').AsString;
+          aLog.AddStrings(aProc.Output);
+          if aLog.Text<>'' then
+            begin
+              aProcesses.Edit;
+              aProcesses.FieldByName('LOG').AsString:=aLog.Text;
+            end;
+          aLog.Free;
+        end;
+      aProcesses.Post;
+    end;
+end;
+
 function ExpandFileName(aDir : string) : string;
 begin
   Result := aDir;
@@ -597,7 +638,6 @@ var
             NewProcess.InheritHandles := false;
             {$endif}
             NewProcess.Id := Processes.Id.AsVariant;
-            NewProcess.OnRefreshStatus:=@NewProcessRefreshStatus;
             NewProcess.Informed:=False;
             NewProcess.Name:=aProcess;
             Setlength(ProcessData,length(ProcessData)+1);
@@ -613,7 +653,6 @@ var
   var
     aProc: TProcProcess = nil;
   begin
-    aLog.Clear;
     aProcess := Processes.FieldByName('NAME').AsString;
     if FileExists(ExpandFileName(AppendPathDelim(BaseApplication.Location)+aProcess+ExtractFileExt(BaseApplication.ExeName))) then
       begin
@@ -676,33 +715,35 @@ var
         Processes.DataSet.Post;
       end;
     //RefreshStatus
+    if Assigned(aProc) then
+      RefreshStatus(aProc);
   end;
 
 begin
-  aLog := TStringList.Create;
   try
-  aNow := Now();
-  if aNow>0 then
-    begin
-      Processes.Open;
-      Processes.Parameters.Open;
-      //Check processes
-      if OnlyActiveRow then
-        ProcessRow
-      else
-        begin
-          RefreshList;
-          Processes.DataSet.First;
-          while not Processes.DataSet.EOF do
-            begin
-              ProcessRow;
-              Processes.DataSet.Next;
-            end;
-        end;
-    end;
+    aLog := TStringList.Create;
+    aNow := Now();
+    if aNow>0 then
+      begin
+        Processes.Open;
+        Processes.Parameters.Open;
+        //Check processes
+        if OnlyActiveRow then
+          ProcessRow
+        else
+          begin
+            RefreshList;
+            Processes.DataSet.First;
+            while not Processes.DataSet.EOF do
+              begin
+                ProcessRow;
+                Processes.DataSet.Next;
+              end;
+          end;
+      end;
+    aLog.Free;
   except
   end;
-  aLog.Free;
 end;
 
 end.
