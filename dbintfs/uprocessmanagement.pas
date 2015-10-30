@@ -573,7 +573,6 @@ var
     a: Integer;
     aStartTime: TDateTime;
     arec: LargeInt;
-    aProc : TProcesses;
     aStatus: String;
   begin
     Result := nil;
@@ -666,6 +665,7 @@ var
   var
     aProc: TProcProcess = nil;
   begin
+    aLog.Clear;
     aProcess := Processes.FieldByName('NAME').AsString;
     if FileExists(ExpandFileName(AppendPathDelim(BaseApplication.Location)+aProcess+ExtractFileExt(BaseApplication.ExeName))) then
       begin
