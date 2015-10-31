@@ -1477,6 +1477,10 @@ begin
         Sequence.Connection := nil;
         FreeAndNil(Sequence);
       end;
+    try
+      FMainConnection.Destroy;
+    except
+    end;
     inherited Destroy;
   except
   end;
