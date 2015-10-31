@@ -620,10 +620,6 @@ var
                 end;
               sl.Free;
               if not bProcess.Informed then
-                begin
-                  DoLog(aprocess+':'+strExitted,aLog,True);
-                  bProcess.Informed := True;
-                end
               else if Assigned(Processes) then
                 if ((aNewStatus<>'R')
                 and (aNow > (aLastStopped+(aInterval/MinsPerDay))))
@@ -660,7 +656,7 @@ var
             NewProcess.Name:=aProcess;
             for i := 0 to Length(ProcessData)-1 do
               if ProcessData[i]=nil then break;
-            if not (ProcessData[i]=nil) then
+            if (length(ProcessData)<=i) or (not (ProcessData[i]=nil)) then
               begin
                 Setlength(ProcessData,length(ProcessData)+1);
                 i := length(ProcessData)-1;
@@ -741,17 +737,21 @@ var
         Processes.DataSet.Post;
       end;
     //RefreshStatus
+    if not aProc.Informed then
+      DoLog(aprocess+':'+strExitted,aLog,True);
     if Assigned(aProc) then
       RefreshStatus(aProc,aLog);
-    if not aProc.Active then
+    if (not aProc.Active) and (aProc.Informed) then
       begin
         for i := 0 to length(ProcessData)-1 do
           if ProcessData[i]=aProc then
             begin
               ProcessData[i]:=nil;
-              aProc.Free;
+              FreeAndNil(aProc);
             end;
       end;
+    if Assigned(aProc) and (not aProc.Informed) then
+      aProc.Informed := True;
   end;
 
 begin
