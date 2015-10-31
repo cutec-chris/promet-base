@@ -173,6 +173,9 @@ destructor TProcProcess.Destroy;
 begin
   Stop;
   FCS.Free;
+  Terminate;
+  Resume;
+  WaitFor;
   inherited Destroy;
   FOutput.Free;
 end;
@@ -585,7 +588,7 @@ var
     if aNewStatus='' then exit;
     Found := False;
     for i := 0 to length(ProcessData)-1 do
-      if ProcessData[i].CommandLine = cmd then
+      if Assigned(ProcessData[i]) and (ProcessData[i].CommandLine = cmd) then
         begin
           bProcess := ProcessData[i];
           Result := bProcess;
@@ -737,21 +740,23 @@ var
         Processes.DataSet.Post;
       end;
     //RefreshStatus
-    if not aProc.Informed then
-      DoLog(aprocess+':'+strExitted,aLog,True);
     if Assigned(aProc) then
-      RefreshStatus(aProc,aLog);
-    if (not aProc.Active) and (aProc.Informed) then
       begin
-        for i := 0 to length(ProcessData)-1 do
-          if ProcessData[i]=aProc then
-            begin
-              ProcessData[i]:=nil;
-              FreeAndNil(aProc);
-            end;
+        if not aProc.Informed then
+          DoLog(aprocess+':'+strExitted,aLog,True);
+        RefreshStatus(aProc,aLog);
+        if (not aProc.Active) and (aProc.Informed) then
+          begin
+            for i := 0 to length(ProcessData)-1 do
+              if ProcessData[i]=aProc then
+                begin
+                  ProcessData[i]:=nil;
+                  FreeAndNil(aProc);
+                end;
+          end;
+        if Assigned(aProc) and (not aProc.Informed) then
+          aProc.Informed := True;
       end;
-    if Assigned(aProc) and (not aProc.Informed) then
-      aProc.Informed := True;
   end;
 
 begin
