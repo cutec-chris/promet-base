@@ -165,14 +165,14 @@ end;
 constructor TProcProcess.Create;
 begin
   FOutput:=TStringList.Create;
-  FCS := TCriticalSection.Create;
+  //FCS := TCriticalSection.Create;
   inherited Create(True);
 end;
 
 destructor TProcProcess.Destroy;
 begin
   Stop;
-  FCS.Free;
+  //FCS.Free;
   Terminate;
   Resume;
   WaitFor;
@@ -202,12 +202,12 @@ end;
 
 procedure TProcProcess.Lock;
 begin
-  FCS.Enter;
+  //FCS.Enter;
 end;
 
 procedure TProcProcess.Unlock;
 begin
-  FCS.Leave;
+  //FCS.Leave;
 end;
 
 procedure TProcProcess.Execute;
