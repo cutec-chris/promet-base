@@ -521,9 +521,12 @@ begin
       if aProc.Output<>'' then
         begin
           aLog.Text:=aProcesses.FieldByName('LOG').AsString;
+          aLog.Add(TimeToStr(Now()));
           aLog.Text:=aLog.Text+aProc.Output;
+          while aLog.Count>100 do aLog.Delete(0);
           aProcesses.Edit;
           aProcesses.FieldByName('LOG').AsString:=aLog.Text;
+          aLog.Clear;
         end;
       aProcesses.Post;
     end;
