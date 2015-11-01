@@ -3406,6 +3406,7 @@ begin
         with ManagedIndexDefs do
           begin
             Add('ID','ID',[]);
+            Add('NAME','NAME',[]);
           end;
     end;
 end;
@@ -3423,7 +3424,7 @@ begin
         with ManagedFieldDefs do
           begin
             Add('DATA',ftFloat,0,True);
-            Add('DATE',ftDate,0,True);
+            Add('DATE',ftDateTime,0,True);
           end;
       if Assigned(ManagedIndexdefs) then
         with ManagedIndexDefs do
