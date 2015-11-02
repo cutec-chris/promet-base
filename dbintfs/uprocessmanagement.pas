@@ -354,6 +354,7 @@ begin
       if Assigned(ManagedFieldDefs) then
         with ManagedFieldDefs do
           begin
+            Add('ACTIVE',ftString,1,False);
             Add('NAME',ftString,250,True);
             Add('INTERVAL',ftInteger,0,False);
             Add('STATUS',ftString,4,False);
@@ -369,6 +370,7 @@ procedure TProcesses.FillDefaults(aDataSet: TDataSet);
 begin
   inherited FillDefaults(aDataSet);
   aDataSet.FieldByName('STATUS').AsString := 'N';
+  aDataSet.FieldByName('ACTIVE').AsString := 'Y';
 end;
 
 constructor TProcessClient.CreateEx(aOwner: TComponent; DM: TComponent;
@@ -682,48 +684,61 @@ var
   begin
     aLog.Clear;
     aProcess := Processes.FieldByName('NAME').AsString;
-    if FileExists(ExpandFileName(AppendPathDelim(BaseApplication.Location)+aProcess+ExtractFileExt(BaseApplication.ExeName))) then
+    if Processes.FieldByName('ACTIVE').AsString<>'N' then
       begin
-        Found := False;
-        cmd := AppendPathDelim(BaseApplication.Location)+aProcess+ExtractFileExt(BaseApplication.ExeName);
-        cmd := cmd+BuildCmdLine;
-        aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL').AsInteger);
-      end
-    else if FileExists(aProcess+ExtractFileExt(BaseApplication.ExeName)) then
-      begin
-        Found := False;
-        cmd := aProcess+ExtractFileExt(BaseApplication.ExeName);
-        cmd := cmd+BuildCmdLine;
-        aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL').AsInteger);
-      end
-    else if FileExists('/usr/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName)) then
-      begin
-        Found := False;
-        cmd := '/usr/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName);
-        cmd := cmd+BuildCmdLine;
-        aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL').AsInteger);
-      end
-    else if FileExists('/usr/local/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName)) then
-      begin
-        Found := False;
-        cmd := '/usr/local/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName);
-        cmd := cmd+BuildCmdLine;
-        aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL').AsInteger);
-      end
-    else if Processes.Scripts.Locate('NAME',aProcess,[loCaseInsensitive]) then
-      begin
-        cmd := AppendPathDelim(BaseApplication.Location)+'pscript'+ExtractFileExt(BaseApplication.ExeName);
-        if not FileExists(UniToSys(cmd)) then
-          cmd := AppendPathDelim(BaseApplication.Location)+'tools'+DirectorySeparator+'pscript'+ExtractFileExt(BaseApplication.ExeName);
-        if FileExists(UniToSys(cmd)) then
+        if FileExists(ExpandFileName(AppendPathDelim(BaseApplication.Location)+aProcess+ExtractFileExt(BaseApplication.ExeName))) then
           begin
+            Found := False;
+            cmd := AppendPathDelim(BaseApplication.Location)+aProcess+ExtractFileExt(BaseApplication.ExeName);
             cmd := cmd+BuildCmdLine;
-            cmd := cmd+' '+aProcess;
             aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL').AsInteger);
+          end
+        else if FileExists(aProcess+ExtractFileExt(BaseApplication.ExeName)) then
+          begin
+            Found := False;
+            cmd := aProcess+ExtractFileExt(BaseApplication.ExeName);
+            cmd := cmd+BuildCmdLine;
+            aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL').AsInteger);
+          end
+        else if FileExists('/usr/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName)) then
+          begin
+            Found := False;
+            cmd := '/usr/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName);
+            cmd := cmd+BuildCmdLine;
+            aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL').AsInteger);
+          end
+        else if FileExists('/usr/local/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName)) then
+          begin
+            Found := False;
+            cmd := '/usr/local/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName);
+            cmd := cmd+BuildCmdLine;
+            aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL').AsInteger);
+          end
+        else if Processes.Scripts.Locate('NAME',aProcess,[loCaseInsensitive]) then
+          begin
+            cmd := AppendPathDelim(BaseApplication.Location)+'pscript'+ExtractFileExt(BaseApplication.ExeName);
+            if not FileExists(UniToSys(cmd)) then
+              cmd := AppendPathDelim(BaseApplication.Location)+'tools'+DirectorySeparator+'pscript'+ExtractFileExt(BaseApplication.ExeName);
+            if FileExists(UniToSys(cmd)) then
+              begin
+                cmd := cmd+BuildCmdLine;
+                cmd := cmd+' '+aProcess;
+                aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL').AsInteger);
+              end
+            else
+              begin
+                DoLog(cmd+':'+'PScript dosend exists',aLog,True);
+                Processes.DataSet.Edit;
+                Processes.DataSet.FieldByName('STATUS').AsString := 'E';
+                Processes.DataSet.FieldByName('STOPPED').AsDateTime:=Processes.DataSet.FieldByName('STARTED').AsDateTime;
+                if Processes.DataSet.FieldByName('LOG').AsString<>aLog.Text then
+                  Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
+                Processes.DataSet.Post;
+              end;
           end
         else
           begin
-            DoLog(cmd+':'+'PScript dosend exists',aLog,True);
+            DoLog(ExpandFileName(aProcess+ExtractFileExt(BaseApplication.ExeName))+':'+'File dosend exists',aLog,True);
             Processes.DataSet.Edit;
             Processes.DataSet.FieldByName('STATUS').AsString := 'E';
             Processes.DataSet.FieldByName('STOPPED').AsDateTime:=Processes.DataSet.FieldByName('STARTED').AsDateTime;
@@ -731,34 +746,24 @@ var
               Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
             Processes.DataSet.Post;
           end;
-      end
-    else
-      begin
-        DoLog(ExpandFileName(aProcess+ExtractFileExt(BaseApplication.ExeName))+':'+'File dosend exists',aLog,True);
-        Processes.DataSet.Edit;
-        Processes.DataSet.FieldByName('STATUS').AsString := 'E';
-        Processes.DataSet.FieldByName('STOPPED').AsDateTime:=Processes.DataSet.FieldByName('STARTED').AsDateTime;
-        if Processes.DataSet.FieldByName('LOG').AsString<>aLog.Text then
-          Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
-        Processes.DataSet.Post;
-      end;
-    //RefreshStatus
-    if Assigned(aProc) then
-      begin
-        if not aProc.Informed then
-          DoLog(aprocess+':'+strExitted,aLog,True);
-        RefreshStatus(aProc,aLog);
-        if (not aProc.Active) and (aProc.Informed) then
+        //RefreshStatus
+        if Assigned(aProc) then
           begin
-            for i := 0 to length(ProcessData)-1 do
-              if ProcessData[i]=aProc then
-                begin
-                  ProcessData[i]:=nil;
-                  FreeAndNil(aProc);
-                end;
+            if not aProc.Informed then
+              DoLog(aprocess+':'+strExitted,aLog,True);
+            RefreshStatus(aProc,aLog);
+            if (not aProc.Active) and (aProc.Informed) then
+              begin
+                for i := 0 to length(ProcessData)-1 do
+                  if ProcessData[i]=aProc then
+                    begin
+                      ProcessData[i]:=nil;
+                      FreeAndNil(aProc);
+                    end;
+              end;
+            if Assigned(aProc) and (not aProc.Informed) then
+              aProc.Informed := True;
           end;
-        if Assigned(aProc) and (not aProc.Informed) then
-          aProc.Informed := True;
       end;
   end;
 
