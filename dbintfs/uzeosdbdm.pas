@@ -672,6 +672,7 @@ begin
   end;
   if Result and Changed and (Self.FDefaultTableName<>'TABLEVERSIONS') then
     begin
+      Connection.DbcConnection.GetMetadata.ClearCache;
       {
       with BaseApplication as IBaseApplication do
         Info('Table '+Self.FDefaultTableName+' was altered reconecting...');

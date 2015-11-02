@@ -777,7 +777,7 @@ begin
       if rpos('{',aNumber) > 0 then
         aNumber := copy(aNumber,0,rpos('{',aNumber)-1)
       else if rpos('(',aNumber) > 0 then aNumber := copy(aNumber,0,rpos('(',aNumber)-1);
-      Self.SelectByNumber(StrToInt(aNumber))
+      Self.SelectByNumber(StrToInt64(aNumber))
     end
   else if copy(aLink,0,pos('@',aLink)) = 'DOCUMENTS@' then
     begin
