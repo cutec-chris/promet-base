@@ -96,6 +96,7 @@ type
     pmAction: TPopupMenu;
     pNav2: TPanel;
     sbMenue1: TSpeedButton;
+    RefreshTimer: TTimer;
     Users: TDatasource;
     ExtRotatedLabel1: TExtRotatedLabel;
     ExtRotatedLabel3: TExtRotatedLabel;
@@ -170,6 +171,7 @@ type
     procedure lbResultsDblClick(Sender: TObject);
     procedure mShorttextChange(Sender: TObject);
     procedure DoInsertInplaceSearch(Data : PtrInt);
+    procedure RefreshTimerTimer(Sender: TObject);
     procedure ReportGetValue(const ParName: String; var ParValue: Variant);
     procedure sbMenueClick(Sender: TObject);
   private
@@ -743,6 +745,12 @@ begin
   lbResultsDblClick(nil);
 end;
 
+procedure TfMeetingFrame.RefreshTimerTimer(Sender: TObject);
+begin
+  if not FGridView.gList.EditorMode then
+    FGridView.Refresh;
+end;
+
 procedure TfMeetingFrame.ReportGetValue(const ParName: String;
   var ParValue: Variant);
 var
@@ -1108,6 +1116,7 @@ begin
       DoOpen;
       Result := True;
     end;
+  RefreshTimer.Enabled:=True;
 end;
 
 procedure TfMeetingFrame.New;

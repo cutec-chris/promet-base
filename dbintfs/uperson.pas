@@ -430,6 +430,7 @@ var
 begin
   if Source is TBaseDBAddress then
     begin
+      if not TBaseDBAddress(Source).Active then TBaseDBAddress(Source).Open;
       if (DataSet.State <> dsInsert) and (DataSet.State <> dsEdit) then
         DataSet.Edit;
       aAddress := Source as TBaseDbAddress;

@@ -933,7 +933,6 @@ inherited fMeetingFrame: TfMeetingFrame
     top = 288
   end
   object pmAction: TPopupMenu[11]
-    Images = fVisualControls.Images
     left = 120
     top = 120
     object MenuItem1: TMenuItem
@@ -1025,5 +1024,12 @@ inherited fMeetingFrame: TfMeetingFrame
     CancelCaption = 'Abbrechen'
     left = 117
     top = 232
+  end
+  object RefreshTimer: TTimer[14]
+    Enabled = False
+    Interval = 3000
+    OnTimer = RefreshTimerTimer
+    left = 120
+    top = 176
   end
 end

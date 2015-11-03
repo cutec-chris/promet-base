@@ -445,6 +445,7 @@ var
   aAddress: TBaseDbAddress;
   Person: TPerson;
 begin
+  if not Active then Open;
   if not Order.CanEdit then
     Order.DataSet.Edit;
   inherited Assign(Source);
