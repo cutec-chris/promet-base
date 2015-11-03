@@ -165,14 +165,14 @@ end;
 constructor TProcProcess.Create;
 begin
   FOutput:=TStringList.Create;
-  //FCS := TCriticalSection.Create;
+  FCS := TCriticalSection.Create;
   inherited Create(True);
 end;
 
 destructor TProcProcess.Destroy;
 begin
   Stop;
-  //FCS.Free;
+  FCS.Free;
   Terminate;
   Resume;
   WaitFor;
@@ -202,12 +202,12 @@ end;
 
 procedure TProcProcess.Lock;
 begin
-  //FCS.Enter;
+  FCS.Enter;
 end;
 
 procedure TProcProcess.Unlock;
 begin
-  //FCS.Leave;
+  FCS.Leave;
 end;
 
 procedure TProcProcess.Execute;
@@ -469,6 +469,7 @@ begin
   if aSystem='' then
     aSystem:=GetSystemName;
   Open;
+  Processes.Open;
   if not Active then exit;
   if Locate('NAME','*',[]) then
     Process
@@ -496,6 +497,7 @@ begin
         end;
       Process;
     end;
+  Processes.Close;
 end;
 
 procedure TProcessClient.RefreshStatus(aProc: TProcProcess;aLog : TStringList);
@@ -525,7 +527,7 @@ begin
           aLog.Text:=aProcesses.FieldByName('LOG').AsString;
           aLog.Add(TimeToStr(Now()));
           aLog.Text:=aLog.Text+aProc.Output;
-          while aLog.Count>100 do aLog.Delete(0);
+          while aLog.Count>30 do aLog.Delete(0);
           aProcesses.Edit;
           aProcesses.FieldByName('LOG').AsString:=aLog.Text;
           aLog.Clear;
@@ -749,8 +751,8 @@ var
         //RefreshStatus
         if Assigned(aProc) then
           begin
-            if not aProc.Informed then
-              DoLog(aprocess+':'+strExitted,aLog,True);
+            //if not aProc.Informed then
+            //  DoLog(aprocess+':'+strExitted,aLog,True);
             RefreshStatus(aProc,aLog);
             if (not aProc.Active) and (aProc.Informed) then
               begin
