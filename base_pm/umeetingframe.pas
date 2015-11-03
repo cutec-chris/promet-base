@@ -1037,6 +1037,8 @@ begin
   bpermanenetEditor.Down:=acPermanentEditormode.Checked;
   acPermanentEditormodeExecute(nil);
   inherited DoOpen;
+  if FEditable then
+    RefreshTimer.Enabled:=True;
 end;
 
 function TfMeetingFrame.SetRights: Boolean;
@@ -1116,7 +1118,6 @@ begin
       DoOpen;
       Result := True;
     end;
-  RefreshTimer.Enabled:=True;
 end;
 
 procedure TfMeetingFrame.New;
