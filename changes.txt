@@ -7,6 +7,9 @@
       - Suche:wenn kein Suchtyp selektiert ist werden alle selektiert
       - Datenbanklayer:viele kleine MySQL Bugfixes
       - Start:Aktualisierungen in Thread ausgelagert, viel schnellerer Start auf langsamen Datenbanken/Datenbankverbindungen
+      - Projektübersicht:Hinweistexte repariert
+      - Texte:Option zur definition eigener Texttypen in System hinterlegt
+      - Processmanagement:weniger Speicherverbrauch, stabilere ausführung von Prozessen
 Build 416
       - Projekte:Gantt Berechnung um kleinere Berechnungsfehler erleichtert
       - Feedreceiver:zu lange Feedtitel werden automatisch gekürzt

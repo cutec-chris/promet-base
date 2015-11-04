@@ -460,6 +460,7 @@ begin
         with ManagedFieldDefs do
           begin
             Add('NAME',ftString,20,True);
+            Add('TYP',ftInteger,0,False);
           end;
     end;
 end;
