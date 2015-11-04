@@ -864,14 +864,14 @@ begin
       else if copy(aLink, 0, pos('@', aLink) - 1) = 'MESSAGEIDX' then
       else if copy(aLink, 0, pos('@', aLink) - 1) = 'CALENDAR' then
       else if copy(aLink, 0, pos('@', aLink) - 1) = 'ACCOUNTEXCHANGE' then
-      else if copy(aLink, 0, pos('@', aLink) - 1) = 'PROJECTS' then
+      else if copy(aLink, 0, pos('@', aLink) - 1) = 'PROJECTS.ID' then
         begin
           aTable := Data.GetNewDataSet('select "NAME","DESCRIPTION" from "'+copy(aLink, 0, pos('@', aLink) - 1)+'" where "SQL_ID"='+Data.QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
           aTable.Open;
           Result := aTable.FieldByName('NAME').AsString+LineEnding+LineEnding+aTable.FieldByName('DESCRIPTION').AsString;
           FreeAndNil(aTable);
         end
-      else if copy(aLink, 0, pos('@', aLink) - 1) = 'PROJECTS.ID' then
+      else if copy(aLink, 0, pos('@', aLink) - 1) = 'PROJECTS' then
         begin
           aTable := Data.GetNewDataSet('select "NAME","DESCRIPTION" from "PROJECTS" where "ID"='+Data.QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
           aTable.Open;

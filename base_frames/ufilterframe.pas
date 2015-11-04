@@ -367,7 +367,7 @@ end;
 procedure TfFilter.gListGetCellHint(Sender: TObject; Column: TColumn;
   var AText: String);
 begin
-  AText:=' ';
+  AText:='';
 end;
 procedure TfFilter.gListKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
