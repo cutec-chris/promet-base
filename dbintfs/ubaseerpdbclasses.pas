@@ -1331,6 +1331,7 @@ begin
       end;
       InsertData(aMasterdata,aQuantity,Null);
       tParent := FieldByName('SQL_ID').AsVariant;
+      //TODO:tParent funktioniert nicht
       if (((aMasterdata.FieldByName('PTYPE').AsString = 'P') and (GetOrderTyp = 7))
       or  ((aMasterdata.FieldByName('PTYPE').AsString = 'O'))) then
         begin
@@ -1353,7 +1354,12 @@ begin
                     begin
                       DataSet.Append;
                       if Self.GetOrderTyp = 7 then
-                        InsertData(bMasterdata,(-FieldByName('QUANTITY').AsFloat)*aQuantity,tParent,FieldByName('ACTIVE').AsString)
+                        begin
+                          //Bei produktionsauftrag Positionsnummer in Ausschreibungsposition kopieren
+                          FieldByName('TPOSNO').AsVariant:=aMasterdata.Positions.DataSet.FieldByName('POSNO').AsVariant;
+                          //Artikeldaten einfügen
+                          InsertData(bMasterdata,(-FieldByName('QUANTITY').AsFloat)*aQuantity,tParent,FieldByName('ACTIVE').AsString);
+                        end
                       else
                         InsertData(bMasterdata,  FieldByName('QUANTITY').AsFloat *aQuantity,tParent,FieldByName('ACTIVE').AsString);
                     end;
