@@ -64,11 +64,12 @@ resourcestring
   strAutomation        = 'Automation';
 implementation
 {$R *.lfm}
-uses uPositionFrame,uBaseERPDBClasses,uMasterdata,uprometpascalscript;
+uses uPositionFrame,uBaseERPDBClasses,uMasterdata,uprometpascalscript,uData,
+  uprometscripts,variants;
 
 procedure TfAutomationframe.acNewScriptExecute(Sender: TObject);
 var
-  aScript: TPrometPascalScript;
+  aScript: TBaseScript;
 begin
   SetFocus;
   if eScript.Text='' then
@@ -77,15 +78,35 @@ begin
       if FDataSet is TMasterdataList then
         FDataSet.FieldByName('SCRIPT').AsString:= TMasterdataList(FDataSet).Number.AsString
       else FDataSet.FieldByName('SCRIPT').AsString:=FDataSet.Id.AsString;
-      fScriptEditor.Execute(FDataSet.FieldByName('SCRIPT').AsString,FDataSet.FieldByName('SCRIPTVER').AsVariant);
+      data.GotoLink(Data.BuildLink(FDataSet.DataSet));
+      aScript := TBaseScript.Create(nil);
+      aScript.SelectByName(FDataSet.FieldByName('SCRIPT').AsString);
+      aScript.Open;
+      if (not FDataSet.Locate('NAME;VERSION',VarArrayOf([FDataSet.FieldByName('SCRIPT').AsString,FDataSet.FieldByName('SCRIPTVER').AsVariant]),[loCaseInsensitive]))  then
+        begin
+          aScript.Append;
+          aScript.FieldByName('NAME').AsString:=FDataSet.FieldByName('SCRIPT').AsString;
+          aScript.FieldByName('VERSION').AsString:=FDataSet.FieldByName('SCRIPTVER').AsVariant;
+          aScript.Post;
+        end;
+      data.GotoLink(data.BuildLink(aScript.DataSet));
+      aScript.Free;
     end
   else acEditScript.Execute;
 end;
 
 procedure TfAutomationframe.acEditScriptExecute(Sender: TObject);
+var
+  aScript: TBaseScript;
 begin
   SetFocus;
-  fScriptEditor.Execute(FDataSet.FieldByName('SCRIPT').AsString,FDataSet.FieldByName('SCRIPTVER').AsVariant);
+  aScript := TBaseScript.Create(nil);
+  aScript.SelectByName(FDataSet.FieldByName('SCRIPT').AsString);
+  aScript.Open;
+  aScript.Locate('NAME;VERSION',VarArrayOf([FDataSet.FieldByName('SCRIPT').AsString,FDataSet.FieldByName('SCRIPTVER').AsVariant]),[loCaseInsensitive]);
+  if aScript.Count>0 then
+    data.GotoLink(data.BuildLink(aScript.DataSet));
+  aScript.Free;
 end;
 
 procedure TfAutomationframe.SetDataSet(AValue: TBaseDBDataset);

@@ -747,8 +747,8 @@ end;
 
 procedure TfMeetingFrame.RefreshTimerTimer(Sender: TObject);
 begin
-  if not FGridView.gList.EditorMode then
-    FGridView.Refresh;
+  //if not FGridView.gList.EditorMode then
+  //  FGridView.Refresh;
 end;
 
 procedure TfMeetingFrame.ReportGetValue(const ParName: String;
