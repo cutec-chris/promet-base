@@ -1370,6 +1370,28 @@ begin
                         end
                       else
                         InsertData(bMasterdata,  FieldByName('QUANTITY').AsFloat *aQuantity,tParent,0,FieldByName('ACTIVE').AsString);
+                    end
+                  else //No Article
+                    begin
+                      DataSet.Append;
+                      DisableCalculation;
+                      DataSet.FieldByName('SHORTTEXT').AsString:=aMasterdata.Positions.FieldByName('SHORTTEXT').AsString;
+                      if Self.GetOrderTyp <> 7 then //Dont copy Text in Production order so the production system is getting it live from Doku
+                        DataSet.FieldByName('TEXT').AsString:=aMasterdata.Positions.FieldByName('TEXT').AsString;
+                      DataSet.FieldByName('POSTYP').AsString:=aMasterdata.Positions.FieldByName('POSTYP').AsString;
+                      DataSet.FieldByName('PARENT').AsVariant := tParent;
+                      DataSet.FieldByName('TPOSNO').AsVariant:=aMasterdata.Positions.DataSet.FieldByName('POSNO').AsVariant;
+                      DataSet.FieldByName('QUANTITY').AsString:=aMasterdata.Positions.FieldByName('QUANTITY').AsString;
+                      DataSet.FieldByName('WEIGHT').AsString:=aMasterdata.Positions.FieldByName('WEIGHT').AsString;
+                      DataSet.FieldByName('QUANTITYU').AsString:=aMasterdata.Positions.FieldByName('QUANTITYU').AsString;
+                      DataSet.FieldByName('ACTIVE').AsString:=aMasterdata.Positions.FieldByName('ACTIVE').AsString;
+                      if Self.GetOrderTyp = 7 then
+                        DataSet.FieldByName('QUANTITY').AsFloat := (-FieldByName('QUANTITY').AsFloat)*aQuantity
+                      else
+                        DataSet.FieldByName('QUANTITY').AsFloat := FieldByName('QUANTITY').AsFloat*aQuantity;
+                      DataSet.FieldByName('PARENT').AsVariant := tParent;
+                      EnableCalculation;
+                      DataSet.Post;
                     end;
                   bMasterdata.Destroy;
                   Next;
