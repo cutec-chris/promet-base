@@ -1252,7 +1252,7 @@ var
   bMasterdata: TMasterdata;
   tParent : Variant;
 
-  procedure InsertData(Masterdata : TMasterdata;Quantity : float;aParent : Variant;Active : string = 'Y');
+  procedure InsertData(Masterdata : TMasterdata;Quantity : float;aParent : Variant;Texttype : Integer = 0;Active : string = 'Y');
   var
     aVat: String;
   begin
@@ -1274,7 +1274,7 @@ var
     if pos(' ',aVat)>0 then aVat := copy(aVat,0,pos(' ',aVat)-1);
     DataSet.FieldByName('VAT').AsString := aVat;
     Masterdata.Texts.Open;
-    if Masterdata.Texts.DataSet.Locate('TEXTTYPE',VarArrayOf([0]),[loCaseInsensitive]) then
+    if Masterdata.Texts.DataSet.Locate('TEXTTYPE',VarArrayOf([TextType]),[loCaseInsensitive]) then
       begin
         if CanHandleRTF then
           DataSet.FieldByName('TEXT').AsString := Masterdata.Texts.FieldByName('TEXT').AsString
@@ -1330,6 +1330,7 @@ begin
         aQuantity := 1;
       end;
       InsertData(aMasterdata,aQuantity,Null);
+      Post;
       tParent := FieldByName('SQL_ID').AsVariant;
       //TODO:tParent funktioniert nicht
       if (((aMasterdata.FieldByName('PTYPE').AsString = 'P') and (GetOrderTyp = 7))
@@ -1356,12 +1357,41 @@ begin
                       if Self.GetOrderTyp = 7 then
                         begin
                           //Bei produktionsauftrag Positionsnummer in Ausschreibungsposition kopieren
+                          Edit;
                           FieldByName('TPOSNO').AsVariant:=aMasterdata.Positions.DataSet.FieldByName('POSNO').AsVariant;
+                          if not Assigned(uBaseERPDBClasses.TextTyp) then
+                            uBaseERPDBClasses.TextTyp := TTextTypes.Create(nil);
+                          Texttyp.Open;
                           //Artikeldaten einfügen
-                          InsertData(bMasterdata,(-FieldByName('QUANTITY').AsFloat)*aQuantity,tParent,FieldByName('ACTIVE').AsString);
+                          if TextTyp.Locate('TYP','7',[]) then
+                            InsertData(bMasterdata,(-FieldByName('QUANTITY').AsFloat)*aQuantity,tParent,TextTyp.DataSet.RecNo,FieldByName('ACTIVE').AsString)
+                          else
+                            InsertData(bMasterdata,(-FieldByName('QUANTITY').AsFloat)*aQuantity,tParent,0,FieldByName('ACTIVE').AsString);
                         end
                       else
-                        InsertData(bMasterdata,  FieldByName('QUANTITY').AsFloat *aQuantity,tParent,FieldByName('ACTIVE').AsString);
+                        InsertData(bMasterdata,  FieldByName('QUANTITY').AsFloat *aQuantity,tParent,0,FieldByName('ACTIVE').AsString);
+                    end
+                  else //No Article
+                    begin
+                      DataSet.Append;
+                      DisableCalculation;
+                      DataSet.FieldByName('SHORTTEXT').AsString:=aMasterdata.Positions.FieldByName('SHORTTEXT').AsString;
+                      if Self.GetOrderTyp <> 7 then //Dont copy Text in Production order so the production system is getting it live from Doku
+                        DataSet.FieldByName('TEXT').AsString:=aMasterdata.Positions.FieldByName('TEXT').AsString;
+                      DataSet.FieldByName('POSTYP').AsString:=aMasterdata.Positions.FieldByName('POSTYP').AsString;
+                      DataSet.FieldByName('PARENT').AsVariant := tParent;
+                      DataSet.FieldByName('TPOSNO').AsVariant:=aMasterdata.Positions.DataSet.FieldByName('POSNO').AsVariant;
+                      DataSet.FieldByName('QUANTITY').AsString:=aMasterdata.Positions.FieldByName('QUANTITY').AsString;
+                      DataSet.FieldByName('WEIGHT').AsString:=aMasterdata.Positions.FieldByName('WEIGHT').AsString;
+                      DataSet.FieldByName('QUANTITYU').AsString:=aMasterdata.Positions.FieldByName('QUANTITYU').AsString;
+                      DataSet.FieldByName('ACTIVE').AsString:=aMasterdata.Positions.FieldByName('ACTIVE').AsString;
+                      if Self.GetOrderTyp = 7 then
+                        DataSet.FieldByName('QUANTITY').AsFloat := (-FieldByName('QUANTITY').AsFloat)*aQuantity
+                      else
+                        DataSet.FieldByName('QUANTITY').AsFloat := FieldByName('QUANTITY').AsFloat*aQuantity;
+                      DataSet.FieldByName('PARENT').AsVariant := tParent;
+                      EnableCalculation;
+                      DataSet.Post;
                     end;
                   bMasterdata.Destroy;
                   Next;
