@@ -10,6 +10,9 @@
       - Projektübersicht:Hinweistexte repariert
       - Texte:Option zur definition eigener Texttypen in System hinterlegt
       - Processmanagement:weniger Speicherverbrauch, stabilere ausführung von Prozessen
+      - Produktionsaufträge:Unterpositionen werden korrekt zugeordnet
+           Positionsnummer aus Stückliste wird in Auschreibungsnummer abgelegt
+           Montageanweisung werden benutzt statt Artikeltext
 Build 416
       - Projekte:Gantt Berechnung um kleinere Berechnungsfehler erleichtert
       - Feedreceiver:zu lange Feedtitel werden automatisch gekürzt
