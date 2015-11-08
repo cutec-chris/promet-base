@@ -1751,6 +1751,7 @@ begin
             Add('PARENT','PARENT',[]);
             Add('SUMMARY','SUMMARY',[]);
             Add('REFERENCE','REFERENCE',[]);
+            Add('REFOBJECT','REFOBJECT',[]);
             Add('COMMISSION','COMMISSION',[]);
             Add('READ','READ',[]);
             Add('SOURCE','SOURCE',[]);
