@@ -111,11 +111,67 @@ inherited fAutomationframe: TfAutomationframe
       end
     end
   end
-  object Position: TDataSource[5]
+  object Label3: TLabel[5]
+    Left = 56
+    Height = 13
+    Top = 96
+    Width = 87
+    Caption = 'Vorbereitungstext'
+    ParentColor = False
+  end
+  object eScript1: TDBEdit[6]
+    Left = 56
+    Height = 21
+    Top = 112
+    Width = 224
+    DataField = 'PREPTEXT'
+    DataSource = Position
+    CharCase = ecNormal
+    MaxLength = 0
+    TabOrder = 3
+  end
+  object Button1: TButton[7]
+    Left = 280
+    Height = 22
+    Top = 112
+    Width = 40
+    Caption = '...'
+    OnClick = Button1Click
+    TabOrder = 4
+  end
+  object Label4: TLabel[8]
+    Left = 56
+    Height = 13
+    Top = 160
+    Width = 299
+    Caption = 'Arbeitstextbaustein (falls nicht gesetzt wird Langtext genutzt)'
+    ParentColor = False
+  end
+  object eScript2: TDBEdit[9]
+    Left = 56
+    Height = 21
+    Top = 176
+    Width = 224
+    DataField = 'WORKTEXT'
+    DataSource = Position
+    CharCase = ecNormal
+    MaxLength = 0
+    TabOrder = 5
+  end
+  object Button2: TButton[10]
+    Left = 280
+    Height = 22
+    Top = 176
+    Width = 40
+    Caption = '...'
+    OnClick = Button2Click
+    TabOrder = 6
+  end
+  object Position: TDataSource[11]
     left = 408
     top = 59
   end
-  object ActionList1: TActionList[6]
+  object ActionList1: TActionList[12]
     Images = fVisualControls.Images
     left = 408
     top = 8

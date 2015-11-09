@@ -34,11 +34,17 @@ type
     acEditScript: TAction;
     ActionList1: TActionList;
     Bevel1: TBevel;
+    Button1: TButton;
+    Button2: TButton;
+    eScript1: TDBEdit;
+    eScript2: TDBEdit;
     eVersion: TDBEdit;
     eScript: TDBEdit;
     ExtRotatedLabel1: TExtRotatedLabel;
     Label1: TLabel;
     Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     Panel2: TPanel;
@@ -48,6 +54,8 @@ type
     SpeedButton2: TSpeedButton;
     procedure acEditScriptExecute(Sender: TObject);
     procedure acNewScriptExecute(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
   private
     FDataSet: TBaseDBDataset;
     procedure SetDataSet(AValue: TBaseDBDataset);
@@ -65,7 +73,7 @@ resourcestring
 implementation
 {$R *.lfm}
 uses uPositionFrame,uBaseERPDBClasses,uMasterdata,uprometpascalscript,uData,
-  uprometscripts,variants;
+  uprometscripts,variants,uBoilerplate;
 
 procedure TfAutomationframe.acNewScriptExecute(Sender: TObject);
 var
@@ -93,6 +101,24 @@ begin
       aScript.Free;
     end
   else acEditScript.Execute;
+end;
+
+procedure TfAutomationframe.Button1Click(Sender: TObject);
+begin
+  if fBoilerplate.Execute(FDataSet.FieldByName('PREPTEXT').AsString) then
+    begin
+      FDataSet.Edit;
+      FDataSet.FieldByName('PREPTEXT').AsString:=fBoilerplate.DataSet.FieldByName('NAME').AsString;
+    end;
+end;
+
+procedure TfAutomationframe.Button2Click(Sender: TObject);
+begin
+  if fBoilerplate.Execute(FDataSet.FieldByName('WORKTEXT').AsString) then
+    begin
+      FDataSet.Edit;
+      FDataSet.FieldByName('WORKTEXT').AsString:=fBoilerplate.DataSet.FieldByName('NAME').AsString;
+    end;
 end;
 
 procedure TfAutomationframe.acEditScriptExecute(Sender: TObject);

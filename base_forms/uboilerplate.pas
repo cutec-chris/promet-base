@@ -22,7 +22,7 @@ type
     FBoilerpl : TBoilerplate;
   public
     { public declarations }
-    function Execute : Boolean;
+    function Execute(aText : string = '') : Boolean;
     property DataSet : TBoilerplate read FBoilerpl;
   end;
 
@@ -44,7 +44,7 @@ begin
   FBoilerpl.Free;
 end;
 
-function TfBoilerplate.Execute: Boolean;
+function TfBoilerplate.Execute(aText: string): Boolean;
 begin
   if not Assigned(Self) then
     begin
