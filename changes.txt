@@ -10,7 +10,7 @@
       - Projektübersicht:Hinweistexte repariert
       - Texte:Option zur definition eigener Texttypen in System hinterlegt
       - Processmanagement:weniger Speicherverbrauch, stabilere ausführung von Prozessen
-      - Feedreceiver:Es werden zuerst Header der Feeds abgerufen wenn keine Änderung vorliegt wird der Feed nicht abgerufen. So kann man die Feeds wesentlich häufiger aktualisieren
+      - Feedreceiver:Feeds werden mit If-modified-since abgerufen so kann der Server nur neuere Inhalte ausliefern (falls unterstützt)
 Build 416
       - Projekte:Gantt Berechnung um kleinere Berechnungsfehler erleichtert
       - Feedreceiver:zu lange Feedtitel werden automatisch gekürzt

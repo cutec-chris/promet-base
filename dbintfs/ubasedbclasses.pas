@@ -409,6 +409,10 @@ type
     function GetNumberFieldName : string;override;
     property Entrys : TListEntrys read FEntrys;
   end;
+  TBoilerplate = class(TBaseDBDataSet)
+  public
+    procedure DefineFields(aDataSet : TDataSet);override;
+  end;
   TImages = class(TBaseDBDataSet)
   public
     procedure DefineFields(aDataSet : TDataSet);override;
@@ -443,9 +447,6 @@ type
     property Data : TMeasurementData read FMesdata;
     property Current : TField read GetCurrent;
   end;
-
-  { TNumberHelper }
-
   TNumberHelper = class(TBaseDBDataSet)
   public
     procedure DefineFields(aDataSet : TDataSet);override;
@@ -555,6 +556,25 @@ resourcestring
   strAvalible                   = 'Verfügbar';
   strNeedsAction                = 'benötigt Hilfe';
   strCostCentre                 = 'Kostenstelle';
+
+procedure TBoilerplate.DefineFields(aDataSet: TDataSet);
+begin
+  with aDataSet as IBaseManageDB do
+    begin
+      TableName := 'BOILERPLATE';
+      if Assigned(ManagedFieldDefs) then
+        with ManagedFieldDefs do
+          begin
+            Add('NAME',ftString,100,True);
+            Add('TEXT',ftMemo,0,False);
+          end;
+      if Assigned(ManagedIndexdefs) then
+        with ManagedIndexDefs do
+          begin
+            Add('NAME','NAME',[ixUnique]);
+          end;
+    end;
+end;
 
 { TNumberHelper }
 

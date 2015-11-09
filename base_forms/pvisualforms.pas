@@ -8,7 +8,7 @@ interface
 
 uses
   uSelectReport, uLogWait, uSendMail, uSearch, uEditText, uwait, uNRights, 
-  uTimeLine, uRowEditor, ugridview, uscreenshotmain;
+  uTimeLine, uRowEditor, ugridview, uscreenshotmain, uBoilerplate;
 
 implementation
 
