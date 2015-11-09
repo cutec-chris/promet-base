@@ -12,9 +12,11 @@ type
   TfBoilerplate = class(TForm)
     ButtonPanel1: TButtonPanel;
     DBMemo1: TDBMemo;
+    DBNavigator1: TDBNavigator;
     dsBoilerplate: TDataSource;
     eFilter: TEdit;
     gList: TDBGrid;
+    procedure eFilterChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
@@ -30,13 +32,17 @@ var
   fBoilerplate: TfBoilerplate;
 
 implementation
-
 {$R *.lfm}
-
+uses uData;
 procedure TfBoilerplate.FormCreate(Sender: TObject);
 begin
   FBoilerpl := TBoilerplate.Create(nil);
   dsBoilerplate.DataSet:=FBoilerpl.DataSet;
+end;
+
+procedure TfBoilerplate.eFilterChange(Sender: TObject);
+begin
+  DataSet.Filter(Data.ProcessTerm('UPPER('+Data.QuoteField('NAME')+')=UPPER('+Data.QuoteValue('*'+eFilter.Text+'*'))+')');
 end;
 
 procedure TfBoilerplate.FormDestroy(Sender: TObject);
@@ -51,6 +57,10 @@ begin
       Application.CreateForm(TfBoilerplate,FBoilerplate);
       Self := FBoilerplate;
     end;
+  if trim(aText)='' then
+    DataSet.Filter('')
+  else
+    DataSet.Filter(Data.ProcessTerm('UPPER('+Data.QuoteField('NAME')+')=UPPER('+Data.QuoteValue('*'+eFilter.Text+'*'))+')');
   FBoilerpl.Open;
   Result := ShowModal=mrOK;
 end;
