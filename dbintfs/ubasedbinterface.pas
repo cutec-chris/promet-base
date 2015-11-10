@@ -795,7 +795,7 @@ begin
           FreeAndNil(aTable);
           if aTmp <> '' then
             begin
-              aTable := Data.GetNewDataSet('select "TEXT" from "TEXTS" where "REF_ID"='+Data.QuoteValue(aTmp));
+              aTable := Data.GetNewDataSet('select '+Data.QuoteField('TEXT')+' from '+Data.QuoteField('TEXTS')+' where '+Data.QuoteField('REF_ID')+'='+Data.QuoteValue(aTmp));
               aTable.Open;
               if aTable.RecordCount > 0 then
                 begin
@@ -809,13 +809,13 @@ begin
         begin
           if (copy(aLink, 0, pos('@', aLink) - 1) = 'CUSTOMERS') then
             begin
-              aTable := Data.GetNewDataSet('select "SQL_ID" from "CUSTOMERS" where "ACCOUNTNO"='+Data.QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
+              aTable := Data.GetNewDataSet('select '+Data.QuoteField('SQL_ID')+' from '+Data.QuoteField('CUSTOMERS')+' where '+Data.QuoteField('ACCOUNTNO')+'='+Data.QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
               aTable.Open;
               aTmp := aTable.FieldByName('SQL_ID').AsString;
               FreeAndNil(aTable);
             end
           else aTmp := copy(aLink, pos('@', aLink) + 1, length(aLink));
-          aTable := Data.GetNewDataSet('select "NAME","ADDRESS","ZIP","CITY" from "ADDRESSES" where "REF_ID"='+Data.QuoteValue(aTmp));
+          aTable := Data.GetNewDataSet('select '+Data.QuoteField('NAME')+','+Data.QuoteField('ADDRESS')+','+Data.QuoteField('ZIP')+','+Data.QuoteField('CITY')+' from '+Data.QuoteField('ADDRESSES')+' where '+Data.QuoteField('REF_ID')+'='+Data.QuoteValue(aTmp));
           aTable.Open;
           if aTable.RecordCount > 0 then
             begin
@@ -826,19 +826,19 @@ begin
       else if copy(aLink, 0, pos('@', aLink) - 1) = 'DOCUMENTS' then
       else if copy(aLink, 0, pos('@', aLink) - 1) = 'ORDERS' then
         begin
-          aTable := Data.GetNewDataSet('select "SQL_ID","STATUS" from "ORDERS" where "ORDERNO"='+Data.QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
+          aTable := Data.GetNewDataSet('select '+Data.QuoteField('SQL_ID')+','+Data.QuoteField('STATUS')+' from '+Data.QuoteField('ORDERS')+' where '+Data.QuoteField('ORDERNO')+'='+Data.QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
           aTable.Open;
           aTmp := aTable.FieldByName('SQL_ID').AsString;
           aTmp1 := aTable.FieldByName('STATUS').AsString;
           FreeAndNil(aTable);
-          aTable := Data.GetNewDataSet('select "NAME","ADDRESS","ZIP","CITY" from "ORDERADDR" where "REF_ID"='+Data.QuoteValue(aTmp));
+          aTable := Data.GetNewDataSet('select '+Data.QuoteField('NAME')+','+Data.QuoteField('ADDRESS')+','+Data.QuoteField('ZIP')+','+Data.QuoteField('CITY')+' from '+Data.QuoteField('ORDERADDR')+' where '+Data.QuoteField('REF_ID')+'='+Data.QuoteValue(aTmp));
           aTable.Open;
           if aTable.RecordCount > 0 then
             begin
               Result := lineending+aTable.FieldByName('NAME').AsString+','+aTable.FieldByName('ADDRESS').AsString+','+aTable.FieldByName('ZIP').AsString+' '+aTable.FieldByName('CITY').AsString;
             end;
           FreeAndNil(aTable);
-          aTable := Data.GetNewDataSet('select "POSNO","IDENT","SHORTTEXT","QUANTITY","QUANTITYU" from "ORDERPOS" where "REF_ID"='+Data.QuoteValue(aTmp));
+          aTable := Data.GetNewDataSet('select '+Data.QuoteField('POSNO')+','+Data.QuoteField('IDENT')+','+Data.QuoteField('SHORTTEXT')+','+Data.QuoteField('QUANTITY')+','+Data.QuoteField('QUANTITYU')+' from '+Data.QuoteField('ORDERPOS')+' where '+Data.QuoteField('REF_ID')+'='+Data.QuoteValue(aTmp));
           aTable.Open;
           i := 0;
           aTable.First;
@@ -866,21 +866,21 @@ begin
       else if copy(aLink, 0, pos('@', aLink) - 1) = 'ACCOUNTEXCHANGE' then
       else if copy(aLink, 0, pos('@', aLink) - 1) = 'PROJECTS.ID' then
         begin
-          aTable := Data.GetNewDataSet('select "NAME","DESCRIPTION" from "'+copy(aLink, 0, pos('@', aLink) - 1)+'" where "SQL_ID"='+Data.QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
+          aTable := Data.GetNewDataSet('select '+Data.QuoteField('NAME')+','+Data.QuoteField('DESCRIPTION')+' from '+Data.QuoteField(StringReplace(copy(aLink, 0, pos('@', aLink) - 1),'.ID','',[rfReplaceAll]))+' where '+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
           aTable.Open;
           Result := aTable.FieldByName('NAME').AsString+LineEnding+LineEnding+aTable.FieldByName('DESCRIPTION').AsString;
           FreeAndNil(aTable);
         end
       else if copy(aLink, 0, pos('@', aLink) - 1) = 'PROJECTS' then
         begin
-          aTable := Data.GetNewDataSet('select "NAME","DESCRIPTION" from "PROJECTS" where "ID"='+Data.QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
+          aTable := Data.GetNewDataSet('select '+Data.QuoteField('NAME')+','+Data.QuoteField('DESCRIPTION')+' from '+Data.QuoteField('PROJECTS')+' where '+Data.QuoteField('ID')+'='+Data.QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
           aTable.Open;
           Result := aTable.FieldByName('NAME').AsString+LineEnding+LineEnding+aTable.FieldByName('DESCRIPTION').AsString;
           FreeAndNil(aTable);
         end
       else if copy(aLink, 0, pos('@', aLink) - 1) = 'TASKS' then
         begin
-          aTable := Data.GetNewDataSet('select "DESC" from "'+copy(aLink, 0, pos('@', aLink) - 1)+'" where "SQL_ID"='+Data.QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
+          aTable := Data.GetNewDataSet('select '+Data.QuoteField('DESC')+' from '+Data.QuoteField(copy(aLink, 0, pos('@', aLink) - 1)+'')+' where '+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
           aTable.Open;
           Result := aTable.FieldByName('DESC').AsString;
           FreeAndNil(aTable);
@@ -889,7 +889,7 @@ begin
         begin
           if IsNumeric(copy(aLink, pos('@', aLink) + 1, length(aLink))) then
             begin
-              aTable := Data.GetNewDataSet('select "DATA" from "'+copy(aLink, 0, pos('@', aLink) - 1)+'" where "SQL_ID"='+Data.QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
+              aTable := Data.GetNewDataSet('select '+Data.QuoteField('DATA')+' from '+Data.QuoteField(copy(aLink, 0, pos('@', aLink) - 1)+'')+' where '+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
               aTable.Open;
               Result := aTable.FieldByName('DATA').AsString;
             end
@@ -996,7 +996,7 @@ begin
       Result := 'CUSTOMERS.ID@'+ aDataSet.FieldByName('REF_ID').AsString;
       if IsSQLDb then
         begin
-          aTable := GetNewDataSet('select "NAME" from "CUSTOMERS" where "SQL_ID"='+QuoteValue(aDataSet.FieldByName('REF_ID').AsString));
+          aTable := GetNewDataSet('select '+QuoteField('NAME')+' from '+QuoteField('CUSTOMERS')+' where '+QuoteField('SQL_ID')+'='+QuoteValue(aDataSet.FieldByName('REF_ID').AsString));
           aTable.Open;
           if aTable.RecordCount > 0 then
             Result := result+'{'+aTable.FieldByName('NAME').AsString+'}';
@@ -1008,7 +1008,7 @@ begin
       Result := 'CUSTOMERS.ID@'+ aDataSet.FieldByName('REF_ID').AsString;
       if IsSQLDb then
         begin
-          aTable := GetNewDataSet('select "NAME" from "CUSTOMERS" where "SQL_ID"='+QuoteValue(aDataSet.FieldByName('REF_ID').AsString));
+          aTable := GetNewDataSet('select '+QuoteField('NAME')+' from '+QuoteField('CUSTOMERS')+' where '+QuoteField('SQL_ID')+'='+QuoteValue(aDataSet.FieldByName('REF_ID').AsString));
           aTable.Open;
           if aTable.RecordCount > 0 then
             Result := result+'{'+aTable.FieldByName('NAME').AsString+'}';
