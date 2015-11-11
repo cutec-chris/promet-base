@@ -98,6 +98,11 @@ inherited fPosition: TfPosition
             Top = 44
             Action = acDelPos
           end
+          object ToolButton11: TToolButton
+            Left = 24
+            Top = 44
+            Action = acSavePos
+          end
         end
       end
     end
@@ -427,6 +432,12 @@ inherited fPosition: TfPosition
       Caption = 'acViewTexts'
       ImageIndex = 120
       OnExecute = acViewTextsExecute
+    end
+    object acSavePos: TAction
+      Caption = 'Speichern'
+      Hint = 'Änderungen der Position speichern'
+      ImageIndex = 74
+      OnExecute = acSavePosExecute
     end
   end
   object TabTimer: TIdleTimer[5]

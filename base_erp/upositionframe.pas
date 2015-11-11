@@ -44,6 +44,7 @@ type
     acPermanentEditorMode: TAction;
     acSum: TAction;
     acDiscount: TAction;
+    acSavePos: TAction;
     acViewTexts: TAction;
     acViewDetails: TAction;
     acUnMakeSebPos: TAction;
@@ -86,6 +87,7 @@ type
     tbAnsicht: TToolBar;
     ToolButton1: TToolButton;
     ToolButton10: TToolButton;
+    ToolButton11: TToolButton;
     ToolButton2: TToolButton;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
@@ -103,6 +105,7 @@ type
     procedure acPermanentEditorModeExecute(Sender: TObject);
     procedure acRefreshExecute(Sender: TObject);
     procedure acRenumberExecute(Sender: TObject);
+    procedure acSavePosExecute(Sender: TObject);
     procedure acSearchArticleExecute(Sender: TObject);
     procedure acSumExecute(Sender: TObject);
     procedure ActiveSearchEndItemSearch(Sender: TObject);
@@ -565,6 +568,11 @@ begin
   FGridView.Refresh(False);
 end;
 
+procedure TfPosition.acSavePosExecute(Sender: TObject);
+begin
+  FGridView.Post;
+end;
+
 procedure TfPosition.acSearchArticleExecute(Sender: TObject);
 var
   i: Integer;
@@ -720,6 +728,7 @@ procedure TfPosition.PositionStateChange(Sender: TObject);
 begin
   if (acViewDetails.Checked) and Assigned(FDataSet) and (not DataSet.DataSet.ControlsDisabled) and (FDataset.State=dsInsert) then
     TabTimer.Enabled:=True;
+  acSavePos.Enabled := FDataset.CanEdit;
 end;
 
 procedure TfPosition.DoAsyncInit(Data: PtrInt);
