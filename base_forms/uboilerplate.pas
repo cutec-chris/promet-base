@@ -57,7 +57,8 @@ begin
       Application.CreateForm(TfBoilerplate,FBoilerplate);
       Self := FBoilerplate;
     end;
-  if trim(aText)='' then
+  eFilter.Text:=trim(aText);
+  if trim(eFilter.Text)='' then
     DataSet.Filter('')
   else
     DataSet.Filter(Data.ProcessTerm('UPPER('+Data.QuoteField('NAME')+')=UPPER('+Data.QuoteValue('*'+eFilter.Text+'*'))+')');
