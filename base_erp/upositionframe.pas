@@ -728,7 +728,7 @@ procedure TfPosition.PositionStateChange(Sender: TObject);
 begin
   if (acViewDetails.Checked) and Assigned(FDataSet) and (not DataSet.DataSet.ControlsDisabled) and (FDataset.State=dsInsert) then
     TabTimer.Enabled:=True;
-  acSavePos.Enabled := FDataset.CanEdit;
+  acSavePos.Enabled := Assigned(FDataSet) and (not DataSet.DataSet.ControlsDisabled) and FDataset.CanEdit;
 end;
 
 procedure TfPosition.DoAsyncInit(Data: PtrInt);
