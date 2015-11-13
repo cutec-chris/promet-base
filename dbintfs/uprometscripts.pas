@@ -34,6 +34,7 @@ type
     procedure DataSetAfterScroll(aDataSet: TDataSet);
     procedure FDataSourceDataChange(Sender: TObject; Field: TField);
   private
+    FActObject: TBaseDBDataset;
     FHistory: TBaseHistory;
     FLinks: TLinks;
     FDataSource: TDataSource;
@@ -70,6 +71,7 @@ type
     property Version : TField read GetVersion;
     function Copy(aNewVersion : Variant) : Boolean;
     procedure OpenItem(AccHistory: Boolean=True); override;
+    property ActualObject : TBaseDBDataset read FActObject write FActObject;
     function Versionate(aNewversion : Variant;aMakeActive : Boolean = True) : Boolean;
     function Compile : Boolean;
     destructor Destroy;override;
