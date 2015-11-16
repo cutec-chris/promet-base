@@ -1775,6 +1775,7 @@ begin
       FOrigTable := aOrigtable;
       Connection := TZConnection(aConnection);
       SQL.Text := aSQL;
+      FSQL:=aSQL;
       if Assigned(Masterdata) then
         begin
           if not Assigned(TZeosDBDataSet(MasterData).MasterDataSource) then
