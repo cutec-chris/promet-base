@@ -195,7 +195,6 @@ type
 
     function InternalParamStr(Param : Integer) : String;
     function InternalParamCount : Integer;
-    procedure InternalSleep(MiliSecValue: LongInt);
     procedure SetActiveFile(const Value: string);
 
     procedure DoSearchReplaceText(AReplace: boolean; ABackwards: boolean);
@@ -264,9 +263,9 @@ procedure DoSleep(aTime: LongInt); StdCall;
 var
   bTime: QWord;
 begin
- bTime := GetTickCount64;
- while GetTickCount64-bTime < aTime do
-   Application.ProcessMessages;
+  bTime := GetTickCount64;
+  while GetTickCount64-bTime < aTime do
+    Application.ProcessMessages;
 end;
 
 procedure TfScriptEditor.DoSearchReplaceText(AReplace: boolean; ABackwards: boolean);
@@ -830,11 +829,6 @@ end;
 function TfScriptEditor.InternalParamCount: Integer;
 begin
   Result := 0;
-end;
-
-procedure TfScriptEditor.InternalSleep(MiliSecValue: LongInt);
-begin
-  genpascalscript.DoSleep(MiliSecValue);
 end;
 
 //check if script changed and not yet saved//

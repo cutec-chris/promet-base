@@ -11,6 +11,7 @@
       - Texte:Option zur definition eigener Texttypen in System hinterlegt
       - Processmanagement:weniger Speicherverbrauch, stabilere ausführung von Prozessen
       - Feedreceiver:Feeds werden mit If-modified-since abgerufen so kann der Server nur neuere Inhalte ausliefern (falls unterstützt)
+      - SyncDB:synchronisiert nun in 500 Datensatz "Brocken", so wird vermieden das die Sync öfter unterbrochen wird wenn Sie sehr große Datenmengen synchronisieren muss
 Build 416
       - Projekte:Gantt Berechnung um kleinere Berechnungsfehler erleichtert
       - Feedreceiver:zu lange Feedtitel werden automatisch gekürzt
