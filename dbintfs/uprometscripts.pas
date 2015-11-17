@@ -35,6 +35,7 @@ type
     procedure FDataSourceDataChange(Sender: TObject; Field: TField);
   private
     FActObject: TBaseDBDataset;
+    FDWrFunc: TStrOutFunc;
     FHistory: TBaseHistory;
     FLinks: TLinks;
     FDataSource: TDataSource;
@@ -45,6 +46,7 @@ type
     FSelectedName : variant;
     function GetScript: TScript;
     function GetVersion: TField;
+    procedure SetDWRFunc(AValue: TStrOutFunc);
     procedure SetRlFunc(AValue: TStrInFunc);
     procedure SetWRFunc(AValue: TStrOutFunc);
     procedure SetWriFunc(AValue: TStrOutFunc);
@@ -65,6 +67,7 @@ type
     function Execute(Parameters : Variant;Debug : Boolean = False) : Boolean;virtual;
     property Write : TStrOutFunc read FWriFunc write SetWriFunc;
     property Writeln : TStrOutFunc read FWrFunc write SetWRFunc;
+    property Debugln : TStrOutFunc read FDWrFunc write SetDWRFunc;
     property Readln : TStrInFunc read FRlFunc write SetRlFunc;
     property History : TBaseHistory read FHistory;
     property Links : TLinks read FLinks;
@@ -216,6 +219,7 @@ begin
       GetScript.Write:=Write;
       GetScript.Readln:=Readln;
       GetScript.Writeln:=Writeln;
+      GetScript.Debugln:=Debugln;
     end;
 end;
 
@@ -229,6 +233,13 @@ end;
 function TBaseScript.GetVersion: TField;
 begin
   Result := FieldByName('VERSION');
+end;
+
+procedure TBaseScript.SetDWRFunc(AValue: TStrOutFunc);
+begin
+  if FDWrFunc=AValue then Exit;
+  FDWrFunc:=AValue;
+  ConnectEvents;
 end;
 
 procedure TBaseScript.SetRlFunc(AValue: TStrInFunc);

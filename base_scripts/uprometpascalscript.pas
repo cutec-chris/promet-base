@@ -118,6 +118,7 @@ begin
       Result := True;
       try
         Sender.AddMethod(Self,@TPrometPascalScript.InternalWriteln,'procedure Writeln(P1: string);');
+        Sender.AddMethod(Self,@TPrometPascalScript.InternalDebugln,'procedure Debugln(P1: string);');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalWrite,'procedure Write(P1: string);');
         Sender.AddMethod(Self, @TPrometPascalScript.InternalParamStr,'function ParamStr(Param : Integer) : String;');
         Sender.AddMethod(Self, @TPrometPascalScript.InternalParamCount,'function ParamCount : Integer;');

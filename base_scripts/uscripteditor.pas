@@ -649,6 +649,7 @@ begin
       if (FDataSet is TBaseScript) then
         begin
           TBaseScript(FDataSet).writeln := @FDataSetWriteln;
+          TBaseScript(FDataSet).debugln := @FDataSetWriteln;
           FScript := TBaseScript(FDataSet).Script;
           if Assigned(Fscript) then
             begin
@@ -658,6 +659,8 @@ begin
             end;
           acSave.Execute;
           ButtonStatus(ssRunning);
+          if Fscript is TByteCodeScript then
+            TByteCodeScript(Fscript).ByteCode:='';
           if not TBaseScript(FDataSet).Execute(Null,True) then
             messages.AddItem('failed to executing',nil);
           ButtonStatus(ssNone);
