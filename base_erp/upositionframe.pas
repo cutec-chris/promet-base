@@ -123,6 +123,7 @@ type
     function fSearchOpenProjectItem(aLink: string): Boolean;
     procedure PositionDataChange(Sender: TObject; Field: TField);
     procedure PositionStateChange(Sender: TObject);
+    procedure DoAsyncRefresh(Data: PtrInt);
     procedure DoAsyncInit(Data: PtrInt);
     procedure FDataSourceStateChange(Sender: TObject);
     procedure FGridViewAutoFilterChanged(Sender: TObject);
@@ -177,6 +178,7 @@ type
     procedure SetFocus;override;
     procedure SetLanguage;
     property GridView : TfGridView read FGridView;
+    procedure DoRefresh(ForceRefresh: Boolean=False); override;
   end;
 implementation
 uses uRowEditor, uSearch, uBaseDbInterface, uOrder, uDocumentFrame, uDocuments,
@@ -731,6 +733,11 @@ begin
   acSavePos.Enabled := Assigned(FDataSet) and (not DataSet.DataSet.ControlsDisabled) and FDataset.CanEdit;
 end;
 
+procedure TfPosition.DoAsyncRefresh(Data: PtrInt);
+begin
+  acRefresh.Execute;
+end;
+
 procedure TfPosition.DoAsyncInit(Data: PtrInt);
 begin
   Application.ProcessMessages;
@@ -1018,6 +1025,12 @@ begin
   if Assigned(DataSet) then
     DataSet.SetDisplayLabels(DataSet.DataSet);
 end;
+
+procedure TfPosition.DoRefresh(ForceRefresh: Boolean);
+begin
+  Application.QueueAsyncCall(@DoAsyncRefresh,0);
+end;
+
 constructor TfPosition.Create(TheOwner: TComponent);
 var
   i: Integer;
