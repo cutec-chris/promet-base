@@ -30,7 +30,6 @@ type
   { TfAutomationframe }
 
   TfAutomationframe = class(TPrometInplaceFrame)
-    acNewScript: TAction;
     acEditScript: TAction;
     ActionList1: TActionList;
     Bevel1: TBevel;
@@ -50,10 +49,8 @@ type
     Panel2: TPanel;
     Position: TDatasource;
     pToolbar: TPanel;
-    SpeedButton1: TSpeedButton;
     SpeedButton2: TSpeedButton;
     procedure acEditScriptExecute(Sender: TObject);
-    procedure acNewScriptExecute(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
   private
@@ -74,34 +71,6 @@ implementation
 {$R *.lfm}
 uses uPositionFrame,uBaseERPDBClasses,uMasterdata,uprometpascalscript,uData,
   uprometscripts,variants,uBoilerplate;
-
-procedure TfAutomationframe.acNewScriptExecute(Sender: TObject);
-var
-  aScript: TBaseScript;
-begin
-  SetFocus;
-  if eScript.Text='' then
-    begin
-      FDataSet.Edit;
-      if FDataSet is TMasterdataList then
-        FDataSet.FieldByName('SCRIPT').AsString:= TMasterdataList(FDataSet).Number.AsString
-      else FDataSet.FieldByName('SCRIPT').AsString:=FDataSet.Id.AsString;
-      data.GotoLink(Data.BuildLink(FDataSet.DataSet));
-      aScript := TBaseScript.Create(nil);
-      aScript.SelectByName(FDataSet.FieldByName('SCRIPT').AsString);
-      aScript.Open;
-      if (not FDataSet.Locate('NAME;VERSION',VarArrayOf([FDataSet.FieldByName('SCRIPT').AsString,FDataSet.FieldByName('SCRIPTVER').AsVariant]),[loCaseInsensitive]))  then
-        begin
-          aScript.Append;
-          aScript.FieldByName('NAME').AsString:=FDataSet.FieldByName('SCRIPT').AsString;
-          aScript.FieldByName('VERSION').AsString:=FDataSet.FieldByName('SCRIPTVER').AsVariant;
-          aScript.Post;
-        end;
-      data.GotoLink(data.BuildLink(aScript.DataSet));
-      aScript.Free;
-    end
-  else acEditScript.Execute;
-end;
 
 procedure TfAutomationframe.Button1Click(Sender: TObject);
 begin
@@ -125,10 +94,24 @@ procedure TfAutomationframe.acEditScriptExecute(Sender: TObject);
 var
   aScript: TBaseScript;
 begin
+  if eScript.Text='' then
+    begin
+      FDataSet.Edit;
+      if FDataSet is TMasterdataList then
+        FDataSet.FieldByName('SCRIPT').AsString:= TMasterdataList(FDataSet).Number.AsString
+      else FDataSet.FieldByName('SCRIPT').AsString:=FDataSet.Id.AsString;
+    end;
   SetFocus;
   aScript := TBaseScript.Create(nil);
   aScript.SelectByName(FDataSet.FieldByName('SCRIPT').AsString);
   aScript.Open;
+  if (not aScript.Locate('NAME;VERSION',VarArrayOf([FDataSet.FieldByName('SCRIPT').AsString,FDataSet.FieldByName('SCRIPTVER').AsVariant]),[loCaseInsensitive]))  then
+    begin
+      aScript.Append;
+      aScript.FieldByName('NAME').AsString:=FDataSet.FieldByName('SCRIPT').AsString;
+      aScript.FieldByName('VERSION').AsVariant:=FDataSet.FieldByName('SCRIPTVER').AsVariant;
+      aScript.Post;
+    end;
   aScript.Locate('NAME;VERSION',VarArrayOf([FDataSet.FieldByName('SCRIPT').AsString,FDataSet.FieldByName('SCRIPTVER').AsVariant]),[loCaseInsensitive]);
   if aScript.Count>0 then
     data.GotoLink(data.BuildLink(aScript.DataSet));

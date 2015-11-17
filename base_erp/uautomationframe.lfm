@@ -91,19 +91,10 @@ inherited fAutomationframe: TfAutomationframe
         ParentColor = False
         ParentFont = False
       end
-      object SpeedButton1: TSpeedButton
-        Left = 17
-        Height = 22
-        Top = 4
-        Width = 23
-        Action = acNewScript
-        Flat = True
-        ShowCaption = False
-      end
       object SpeedButton2: TSpeedButton
         Left = 17
         Height = 22
-        Top = 29
+        Top = 4
         Width = 23
         Action = acEditScript
         Flat = True
@@ -175,12 +166,6 @@ inherited fAutomationframe: TfAutomationframe
     Images = fVisualControls.Images
     left = 408
     top = 8
-    object acNewScript: TAction
-      Caption = 'Neues Script'
-      Hint = 'erstellt ein neues Script'
-      ImageIndex = 62
-      OnExecute = acNewScriptExecute
-    end
     object acEditScript: TAction
       Caption = 'Script editieren'
       Hint = 'Editiert das vorhandene Script'
