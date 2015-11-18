@@ -731,7 +731,7 @@ end;
 
 procedure TfTaskFrame.acExportExecute(Sender: TObject);
 begin
-  fScriptImport.Execute(icExport,FilterType,FGridView.DataSet.DataSet);
+  fScriptImport.Execute(icExport,FilterType,FDataSet);
 end;
 
 procedure TfTaskFrame.acFilterExecute(Sender: TObject);

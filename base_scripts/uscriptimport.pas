@@ -26,7 +26,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
   ButtonPanel, ExtCtrls, Buttons, EditBtn, ActnList, db,uprometpascalscript,
-  DBGrids,uprometscripts;
+  DBGrids,uprometscripts,uBaseDbClasses;
 
 type
   TImporterCapability = (icImport,icExport);
@@ -58,7 +58,7 @@ type
     { private declarations }
   public
     { public declarations }
-    function Execute(Typ : TImporterCapability;DefaultFormat : string = '';DataSet : TDataSet=nil;BookMarks : TBookmarkList = nil) : Boolean;
+    function Execute(Typ : TImporterCapability;DefaultFormat : string = '';DataSet : TBaseDBDataset=nil;BookMarks : TBookmarkList = nil) : Boolean;
   end;
 
 var
@@ -156,7 +156,8 @@ begin
 end;
 
 function TfScriptImport.Execute(Typ: TImporterCapability;
-  DefaultFormat: string; DataSet: TDataSet = nil; BookMarks: TBookmarkList=nil): Boolean;
+  DefaultFormat: string; DataSet: TBaseDBDataset; BookMarks: TBookmarkList
+  ): Boolean;
 var
   tmp: String;
   Records: String;
@@ -193,7 +194,7 @@ begin
         Result := aScripts.Locate('NAME','Export.'+FFormat+'.'+cbFormat.Text,[loCaseInsensitive]);
       if Result then
         begin
-          uprometpascalscript.FContextDataSet := DataSet;
+          aScripts.ActualObject := DataSet;
           Records := '';
           if Assigned(Bookmarks) then
             begin

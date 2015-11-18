@@ -787,7 +787,7 @@ end;
 procedure TfFilter.acExportExecute(Sender: TObject);
 begin
   uprometpascalscript.FContextDataSet:=DataSet.DataSet;
-  fScriptImport.Execute(icExport,FilterType,glist.DataSource.DataSet,gList.SelectedRows);
+  fScriptImport.Execute(icExport,FilterType,FDataSet,gList.SelectedRows);
 end;
 procedure TfFilter.acCopyLinkExecute(Sender: TObject);
 var
@@ -998,8 +998,7 @@ begin
 end;
 procedure TfFilter.acImportExecute(Sender: TObject);
 begin
-  uprometpascalscript.FContextDataSet:=DataSet.DataSet;
-  if fScriptImport.Execute(icImport,FilterType) then
+  if fScriptImport.Execute(icImport,FilterType,FDataSet) then
     DataSet.DataSet.Refresh;
 end;
 
