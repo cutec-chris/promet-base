@@ -506,34 +506,39 @@ var
 begin
   aProcesses := TProcesses.Create(nil);
   aProcesses.Select(aproc.Id);
-  aProcesses.Open;
-  if aProcesses.Count>0 then
-    begin
-      if aProcesses.FieldByName('STATUS').AsString<>aProc.Status then
-        begin
-          aProcesses.Edit;
-          aProcesses.FieldByName('STATUS').AsString:=aProc.Status;
-          aProcesses.FieldByName('STARTED').AsDateTime:=aProc.Started;
-          if (not aProc.Active) then
-            aProcesses.FieldByName('STOPPED').AsDateTime:=aProc.Stopped
-          else
-            aProcesses.FieldByName('STOPPED').Clear;
-          if aProc.Status='R' then
-            aProcesses.FieldByName('LOG').Clear;
-          aProcesses.FieldByName('CLIENT').AsString:=GetSystemName;
-        end;
-      if aProc.Output<>'' then
-        begin
-          aLog.Text:=aProcesses.FieldByName('LOG').AsString;
-          aLog.Add(TimeToStr(Now()));
-          aLog.Text:=aLog.Text+aProc.Output;
-          while aLog.Count>30 do aLog.Delete(0);
-          aProcesses.Edit;
-          aProcesses.FieldByName('LOG').AsString:=aLog.Text;
-          aLog.Clear;
-        end;
-      aProcesses.Post;
-    end;
+  Data.StartTransaction(Data.MainConnection,True);
+  try
+    aProcesses.Open;
+    if aProcesses.Count>0 then
+      begin
+        if aProcesses.FieldByName('STATUS').AsString<>aProc.Status then
+          begin
+            aProcesses.Edit;
+            aProcesses.FieldByName('STATUS').AsString:=aProc.Status;
+            aProcesses.FieldByName('STARTED').AsDateTime:=aProc.Started;
+            if (not aProc.Active) then
+              aProcesses.FieldByName('STOPPED').AsDateTime:=aProc.Stopped
+            else
+              aProcesses.FieldByName('STOPPED').Clear;
+            if aProc.Status='R' then
+              aProcesses.FieldByName('LOG').Clear;
+            aProcesses.FieldByName('CLIENT').AsString:=GetSystemName;
+          end;
+        if aProc.Output<>'' then
+          begin
+            aLog.Text:=aProcesses.FieldByName('LOG').AsString;
+            aLog.Add(TimeToStr(Now()));
+            aLog.Text:=aLog.Text+aProc.Output;
+            while aLog.Count>30 do aLog.Delete(0);
+            aProcesses.Edit;
+            aProcesses.FieldByName('LOG').AsString:=aLog.Text;
+            aLog.Clear;
+          end;
+        aProcesses.Post;
+      end;
+  finally
+    Data.CommitTransaction(Data.MainConnection);
+  end;
   aProcesses.Free;
 end;
 
@@ -730,23 +735,33 @@ var
             else
               begin
                 DoLog(cmd+':'+'PScript dosend exists',aLog,True);
-                Processes.DataSet.Edit;
-                Processes.DataSet.FieldByName('STATUS').AsString := 'E';
-                Processes.DataSet.FieldByName('STOPPED').AsDateTime:=Processes.DataSet.FieldByName('STARTED').AsDateTime;
-                if Processes.DataSet.FieldByName('LOG').AsString<>aLog.Text then
-                  Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
-                Processes.DataSet.Post;
+                Data.StartTransaction(Data.MainConnection,True);
+                try
+                  Processes.DataSet.Edit;
+                  Processes.DataSet.FieldByName('STATUS').AsString := 'E';
+                  Processes.DataSet.FieldByName('STOPPED').AsDateTime:=Processes.DataSet.FieldByName('STARTED').AsDateTime;
+                  if Processes.DataSet.FieldByName('LOG').AsString<>aLog.Text then
+                    Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
+                  Processes.DataSet.Post;
+                finally
+                  Data.CommitTransaction(Data.MainConnection);
+                end;
               end;
           end
         else
           begin
             DoLog(ExpandFileName(aProcess+ExtractFileExt(BaseApplication.ExeName))+':'+'File dosend exists',aLog,True);
-            Processes.DataSet.Edit;
-            Processes.DataSet.FieldByName('STATUS').AsString := 'E';
-            Processes.DataSet.FieldByName('STOPPED').AsDateTime:=Processes.DataSet.FieldByName('STARTED').AsDateTime;
-            if Processes.DataSet.FieldByName('LOG').AsString<>aLog.Text then
-              Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
-            Processes.DataSet.Post;
+            Data.StartTransaction(Data.MainConnection,True);
+            try
+              Processes.DataSet.Edit;
+              Processes.DataSet.FieldByName('STATUS').AsString := 'E';
+              Processes.DataSet.FieldByName('STOPPED').AsDateTime:=Processes.DataSet.FieldByName('STARTED').AsDateTime;
+              if Processes.DataSet.FieldByName('LOG').AsString<>aLog.Text then
+                Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
+              Processes.DataSet.Post;
+            finally
+              Data.CommitTransaction(Data.MainConnection);
+            end;
           end;
         //RefreshStatus
         if Assigned(aProc) then
