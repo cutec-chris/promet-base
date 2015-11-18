@@ -299,6 +299,7 @@ begin
           aScript.Init;
           aScript.Source:=FieldByName('SCRIPT').AsString;
           FScript:=aScript;
+          FScript.Parent:=Self;
           ConnectEvents;
         end;
     end;

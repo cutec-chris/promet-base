@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, genpascalscript, uprometscripts,uPSRuntime,uPSCompiler,uPSUtils,
-  Utils,db,uBaseDBInterface,genscript;
+  Utils,db,uBaseDBInterface,genscript,uBaseDbClasses;
 
 type
 
@@ -46,7 +46,7 @@ type
 
     function InternalDataSet(SQL : string) : TDataSet;
     function InternalData : TBaseDBModule;
-    function ContextDataSet : TDataSet;
+    function ActualObject : TBaseDBDataset;
     function InternalHistory(Action: string; ParentLink: string; Icon: Integer=0;
       ObjectLink: string=''; Reference: string='';aCommission: string='';aSource : string='';Date:TDateTime = 0) : Boolean;
     function InternalUserHistory(Action: string; UserName: string; Icon: Integer;
@@ -69,7 +69,7 @@ var
 
 implementation
 
-uses uBaseDbClasses,uPerson,uMasterdata,uBaseERPDBClasses,uProjects,uMessages,
+uses uPerson,uMasterdata,uBaseERPDBClasses,uProjects,uMessages,
   uDocuments,utask,uOrder,uData,variants,uBaseApplication,uStatistic;
 
 procedure TBaseDbListPropertyTextR(Self: TBaseDbList; var T: TField); begin T := Self.Text; end;
@@ -141,7 +141,7 @@ begin
       try
         Sender.InternalUses(Sender.Compiler,'DB');
         Sender.InternalUses(Sender.Compiler,'DATEUTILS');
-        Sender.AddMethod(Self,@TPrometPascalScript.ContextDataSet,'function ContextDataSet : TDataSet;');
+        Sender.AddMethod(Self,@TPrometPascalScript.ActualObject,'function ActualObject : TBaseDBDataSet;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalDataSet,'function DataSet(SQL : string) : TDataSet;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalHistory,'function History(Action : string;ParentLink : string;Icon : Integer;ObjectLink : string;Reference : string;Commission: string;Source : string;Date:TDateTime) : Boolean;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalUserHistory,'function UserHistory(Action : string;User   : string;Icon : Integer;ObjectLink : string;Reference : string;Commission: string;Source : string;Date:TDateTime) : Boolean;');
@@ -634,9 +634,9 @@ begin
   Result := uData.Data;
 end;
 
-function TPrometPascalScript.ContextDataSet: TDataSet;
+function TPrometPascalScript.ActualObject: TBaseDBDataset;
 begin
-  Result := FContextDataSet;
+
 end;
 
 function TPrometPascalScript.InternalHistory(Action: string; ParentLink: string;
