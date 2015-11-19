@@ -50,6 +50,8 @@ type
     procedure cbFormatSelect(Sender: TObject);
     procedure eDataSourceButtonClick(Sender: TObject);
     procedure lInfoResize(Sender: TObject);
+    procedure TBaseScriptScriptTPascalScriptTBaseScriptScriptWriteln(
+      const s: string);
   private
     FTyp : TImporterCapability;
     FFormat : string;
@@ -150,6 +152,12 @@ begin
   Height := eDataSource.Top+eDataSource.Height+bpButtons.Height+30;
 end;
 
+procedure TfScriptImport.TBaseScriptScriptTPascalScriptTBaseScriptScriptWriteln(
+  const s: string);
+begin
+
+end;
+
 procedure TfScriptImport.CheckAll;
 begin
 
@@ -203,23 +211,34 @@ begin
           with TBaseScript(aScripts).Script as TPascalScript do
             begin
               Screen.Cursor:=crHourGlass;
-              if FTyp = icImport then
-                Result := Runtime.RunProcPN([eDataSource.Text],'DOIMPORT')
-              else
-                Result := Runtime.RunProcPN([eDataSource.Text,Records],'DOEXPORT');
-              try
-                if not Result then
-                  begin
-                    tmp := Runtime.RunProcPN([],'LASTERROR');
+              TBaseScript(aScripts).Script.Writeln:=@TBaseScriptScriptTPascalScriptTBaseScriptScriptWriteln;
+              if Compile then
+                begin
+                  if FTyp = icImport then
+                    Result := Runtime.RunProcPN([eDataSource.Text],'DOIMPORT')
+                  else
+                    Result := Runtime.RunProcPN([eDataSource.Text,Records],'DOEXPORT');
+                  try
+                    if not Result then
+                      begin
+                        tmp := Runtime.RunProcPN([],'LASTERROR');
+                      end;
+                  except
+                    tmp := 'unknown error';
                   end;
-              except
-                tmp := 'unknown error';
-              end;
+                end
+              else
+                begin
+                  tmp := 'compilation failed '+Results;
+                  Result := False;
+                end;
               Screen.Cursor:=crDefault;
               if not Result then
-                fError.ShowError(tmp);
+                begin
+                  fError.SetLanguage;
+                  fError.ShowError(tmp);
+                end;
             end;
-          uprometpascalscript.FContextDataSet := nil;
         end
     end;
   aScripts.Free;

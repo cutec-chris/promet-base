@@ -7,8 +7,8 @@ unit pvisualforms;
 interface
 
 uses
-  uSelectReport, uLogWait, uSendMail, uSearch, uEditText, uwait, uNRights, 
-  uTimeLine, uRowEditor, ugridview, uscreenshotmain, uBoilerplate;
+  uSelectReport, uSendMail, uSearch, uEditText, uNRights, uTimeLine, 
+  uRowEditor, ugridview, uscreenshotmain, uBoilerplate;
 
 implementation
 

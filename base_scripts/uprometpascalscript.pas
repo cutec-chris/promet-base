@@ -141,7 +141,6 @@ begin
       try
         Sender.InternalUses(Sender.Compiler,'DB');
         Sender.InternalUses(Sender.Compiler,'DATEUTILS');
-        Sender.AddMethod(Self,@TPrometPascalScript.ActualObject,'function ActualObject : TBaseDBDataSet;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalDataSet,'function DataSet(SQL : string) : TDataSet;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalHistory,'function History(Action : string;ParentLink : string;Icon : Integer;ObjectLink : string;Reference : string;Commission: string;Source : string;Date:TDateTime) : Boolean;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalUserHistory,'function UserHistory(Action : string;User   : string;Icon : Integer;ObjectLink : string;Reference : string;Commission: string;Source : string;Date:TDateTime) : Boolean;');
@@ -195,6 +194,7 @@ begin
             RegisterPropertyHelper(@TBaseDBDatasetPropertyCountR,nil,'COUNT');
             RegisterPropertyHelper(@TBaseDBDatasetPropertyCanEditR,nil,'CANEDIT');
           end;
+        Sender.AddMethod(Self,@TPrometPascalScript.ActualObject,'function ActualObject : TBaseDBDataSet;');
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBDataSet'),TBaseDbList) do
           begin
             RegisterProperty('Text','TField',iptR);
@@ -636,7 +636,9 @@ end;
 
 function TPrometPascalScript.ActualObject: TBaseDBDataset;
 begin
-
+  Result := nil;
+  if Assigned(Parent) and (Parent is TBaseScript) then
+    Result := TBaseScript(Parent).ActualObject;
 end;
 
 function TPrometPascalScript.InternalHistory(Action: string; ParentLink: string;
