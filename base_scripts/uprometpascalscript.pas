@@ -90,6 +90,8 @@ procedure TBaseDBDatasetPropertyDataSetR(Self: TBaseDBDataset; var T: TDataSet);
 procedure TBaseDBModulePropertyUsersR(Self: TBaseDBModule; var T: TUser); begin T := Self.Users; end;
 procedure TBaseDBDatasetPropertyCountR(Self: TBaseDBDataSet; var T: Integer); begin T := Self.Count; end;
 procedure TBaseDBDatasetPropertyCanEditR(Self: TBaseDBDataSet; var T: Boolean); begin T := Self.CanEdit; end;
+procedure TBaseDBDatasetPropertyActiveR(Self: TBaseDBDataSet; var T: Boolean); begin T := Self.Active; end;
+procedure TBaseDBDatasetPropertyActiveW(Self: TBaseDBDataSet; var T: Boolean); begin Self.Active := T; end;
 procedure TStoragePropertyJournalR(Self: TStorage; var T: TStorageJournal); begin T := Self.Journal; end;
 procedure TMasterdataPropertyStorageR(Self: TMasterdata; var T: TStorage); begin T := Self.Storage; end;
 procedure TProjectsTasksR(Self: TProject; var T: TProjectTasks); begin T := Self.Tasks; end;
@@ -170,6 +172,7 @@ begin
             RegisterProperty('DataSet','TDataSet',iptRW);
             RegisterProperty('Count','Integer',iptRW);
             RegisterProperty('CanEdit','Boolean',iptRW);
+            RegisterProperty('Active','Boolean',iptRW);
           end;
         with Sender.ClassImporter.Add(TBaseDBDataset) do
           begin
@@ -193,6 +196,7 @@ begin
             RegisterPropertyHelper(@TBaseDBDatasetPropertyDataSetR,nil,'DATASET');
             RegisterPropertyHelper(@TBaseDBDatasetPropertyCountR,nil,'COUNT');
             RegisterPropertyHelper(@TBaseDBDatasetPropertyCanEditR,nil,'CANEDIT');
+            RegisterPropertyHelper(@TBaseDBDatasetPropertyActiveR,@TBaseDBDatasetPropertyActiveW,'ACTIVE');
           end;
         Sender.AddMethod(Self,@TPrometPascalScript.ActualObject,'function ActualObject : TBaseDBDataSet;');
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBDataSet'),TBaseDbList) do
