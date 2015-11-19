@@ -617,7 +617,11 @@ var
 begin
   if Assigned(Fscript) and (Fscript.Status<>ssNone) then
     begin
-      if Assigned(Linemark) then FreeAndNil(Linemark);
+      try
+        if Assigned(Linemark) then FreeAndNil(Linemark);
+      except
+        Linemark:=nil;
+      end;
       FActiveLine := 0;
       Fscript.Resume;
       ButtonStatus(ssRunning);
