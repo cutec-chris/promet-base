@@ -26,7 +26,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
   ButtonPanel, ExtCtrls, Buttons, EditBtn, ActnList, db,uprometpascalscript,
-  DBGrids,uprometscripts,uBaseDbClasses;
+  DBGrids,uprometscripts,uBaseDbClasses,genscript;
 
 type
   TImporterCapability = (icImport,icExport);
@@ -50,6 +50,8 @@ type
     procedure cbFormatSelect(Sender: TObject);
     procedure eDataSourceButtonClick(Sender: TObject);
     procedure lInfoResize(Sender: TObject);
+    procedure TBaseScriptScriptTPascalScriptTBaseScriptScriptRunLine(
+      Sender: TScript; Module: string; aPosition, aRow, aCol: Integer);
     procedure TBaseScriptScriptTPascalScriptTBaseScriptScriptWriteln(
       const s: string);
   private
@@ -82,7 +84,7 @@ resourcestring
 
 implementation
 
-uses uScriptEditor,uData,genpascalscript,variants,uError;
+uses uScriptEditor,uData,genpascalscript,variants,uError,uLogWait,uIntfStrConsts;
 
 {$R *.lfm}
 
@@ -152,10 +154,22 @@ begin
   Height := eDataSource.Top+eDataSource.Height+bpButtons.Height+30;
 end;
 
+procedure TfScriptImport.TBaseScriptScriptTPascalScriptTBaseScriptScriptRunLine(
+  Sender: TScript; Module: string; aPosition, aRow, aCol: Integer);
+begin
+  if Assigned(fLogWaitForm) and fLogWaitForm.Visible then
+    if fLogWaitForm.Abort then
+      begin
+        fLogWaitForm.ShowInfo(strClosingPleaseWait);
+        Sender.Stop;
+      end;
+end;
+
 procedure TfScriptImport.TBaseScriptScriptTPascalScriptTBaseScriptScriptWriteln(
   const s: string);
 begin
-
+  if Assigned(fLogWaitForm) and fLogWaitForm.Visible then
+    fLogWaitForm.ShowInfo(s);
 end;
 
 procedure TfScriptImport.CheckAll;
@@ -212,8 +226,11 @@ begin
             begin
               Screen.Cursor:=crHourGlass;
               TBaseScript(aScripts).Script.Writeln:=@TBaseScriptScriptTPascalScriptTBaseScriptScriptWriteln;
+              TBaseScript(aScripts).Script.OnRunLine:=@TBaseScriptScriptTPascalScriptTBaseScriptScriptRunLine;
               if Compile then
                 begin
+                  fLogWaitForm.SetLanguage;
+                  fLogWaitForm.Show;
                   if FTyp = icImport then
                     Result := Runtime.RunProcPN([eDataSource.Text],'DOIMPORT')
                   else
@@ -233,11 +250,11 @@ begin
                   Result := False;
                 end;
               Screen.Cursor:=crDefault;
+              fLogWaitForm.AbortKind:=bkClose;
               if not Result then
-                begin
-                  fError.SetLanguage;
-                  fError.ShowError(tmp);
-                end;
+                fLogWaitForm.ShowInfo(tmp)
+              else
+                fLogWaitForm.Hide;
             end;
         end
     end;
