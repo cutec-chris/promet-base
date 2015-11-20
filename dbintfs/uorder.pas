@@ -211,6 +211,7 @@ type
     function CalcDispatchType : Boolean;
     function GetOrderTyp: Integer;
     function SelectFromLink(aLink: string): Boolean; override;
+    function Duplicate : Boolean;override;
   end;
 implementation
 uses uBaseDBInterface, uBaseSearch, uData, Process,uRTFtoTXT,
@@ -1585,6 +1586,22 @@ begin
         end
       else
         Result:=inherited SelectFromLink(aLink);
+    end;
+end;
+
+function TOrder.Duplicate: Boolean;
+var
+  Copied: String;
+begin
+  Copied := ExportToXML;
+  ImportFromXML(Copied,True,@ReplaceParentFields);
+  with DataSet do
+    begin
+      Edit;
+      FieldByName('NUMBER').Clear;
+      FieldByName('DATE').Clear;
+      FieldByName('ODATE').Clear;
+      Post;
     end;
 end;
 

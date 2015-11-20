@@ -81,7 +81,7 @@ type
     function GotoBookmark(aRec : Variant) : Boolean;
     function GetLink : string;
     procedure FreeBookmark(aRec : Variant);
-    procedure DuplicateRecord(DoPost : Boolean = False);
+    procedure DuplicateRecord(DoPost : Boolean = False);virtual;
     property Connection : TComponent read GetConnection;
     property State : TDataSetState read GetState;
     property Caption : string read GetCaption;
@@ -165,6 +165,7 @@ type
     function SelectFromLink(aLink : string) : Boolean;virtual;
     function SelectFromNumber(aNumber : string) : Boolean;virtual;
     function ChangeStatus(aNewStatus : string) : Boolean;virtual;
+    function Duplicate : Boolean;virtual;
   end;
   TBaseDBDatasetClass = class of TBaseDBDataset;
   TBaseDBListClass = class of TBaseDBList;
@@ -1259,6 +1260,7 @@ var
     if Assigned(aDataSet) then
       begin
         try
+          if not Supports(aDataset,IBaseManageDB) then exit;
           with aDataSet as IBaseManageDB do
             begin
               if pos('HISTORY',uppercase(TableName)) > 0 then exit;
@@ -1571,6 +1573,21 @@ begin
     begin
       Edit;
       Status.AsString:=aNewStatus;
+      Post;
+    end;
+end;
+
+function TBaseDbList.Duplicate: Boolean;
+var
+  Copied: String;
+begin
+  Copied := ExportToXML;
+  ImportFromXML(Copied,False);
+  with DataSet do
+    begin
+      Edit;
+      if Assigned(Number) and (Number <> Id) then
+        Number.Clear;
       Post;
     end;
 end;

@@ -16,6 +16,7 @@
                       ActiveObject für Import/Export funktioniert nun (Auf aktuelles Element per Script zugreifen)
                       In Kontakten,Artikeln,Aufträgen und Projektformularen Scriptimport hinzugefügt
                       VCard Import/export auf Scripte umgehoben
+      - Dublizieren:Icon geändert und vereinheitlicht
 Build 416
       - Projekte:Gantt Berechnung um kleinere Berechnungsfehler erleichtert
       - Feedreceiver:zu lange Feedtitel werden automatisch gekürzt
