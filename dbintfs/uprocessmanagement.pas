@@ -25,45 +25,28 @@ type
 
   { TProcProcess }
 
-  TProcProcess = class(TThread)
+  TProcProcess = class(TProcess)
   private
-    FActive: Boolean;
-    FCommandline: string;
     FId: Variant;
     FInformed: Boolean;
     FName: string;
-    FOutput: TStringList;
+    FOutput: string;
     FStarted: TDateTime;
+    FStatus: string;
     FStopped: TDateTime;
     FTimeout: TDateTime;
-    FStatus : string;
-    p: TProcess;
-    FCS : TCriticalSection;
-    OutputLine: String;
-    function GetActive: Boolean;
-    function GetOutput: string;
-    function GetStatus: string;
-    procedure SetActive(AValue: Boolean);
     procedure SetTimeout(AValue: TDateTime);
-    procedure DoOutputLine;
   public
     aOutput,aBuffer,aLogOutput : string;
-    constructor Create;
-    destructor Destroy; override;
     property Informed : Boolean read FInformed write FInformed;
     property Name : string read FName write FName;
     property Id : Variant read FId write FId;
+    procedure Execute; override;
+    procedure CheckStatus;
+    property Status : string read FStatus;
     property Started : TDateTime read FStarted;
     property Stopped : TDateTime read FStopped;
-    procedure Start;
-    procedure Stop;
-    property Active : Boolean read GetActive write SetActive;
-    procedure Lock;
-    procedure Unlock;
-    procedure Execute; override;
-    property Commandline : string read FCommandline write FCommandline;
-    property Output : string read GetOutput;
-    property Status : string read GetStatus;
+    property Output : string read FOutput;
   end;
   TProcessParameters = class(TBaseDBDataset)
   public
@@ -116,186 +99,31 @@ implementation
 uses uBaseDBInterface,uData,Utils,uBaseApplication,uIntfStrConsts,math,
   uprometscripts;
 
-procedure TProcProcess.SetActive(AValue: Boolean);
-begin
-  if FActive=AValue then Exit;
-  FActive:=AValue;
-  if FActive then Resume;
-end;
-
-function TProcProcess.GetActive: Boolean;
-begin
-  Lock;
-  Result := FActive;
-  UnLock;
-end;
-
-function TProcProcess.GetOutput: string;
-begin
-  Lock;
-  Result := FOutput.Text;
-  UnLock;
-end;
-
-function TProcProcess.GetStatus: string;
-begin
-  Lock;
-  Result := FStatus;
-  Unlock;
-end;
-
 procedure TProcProcess.SetTimeout(AValue: TDateTime);
 begin
   if FTimeout=AValue then Exit;
   FTimeout:=AValue;
 end;
-
-procedure TProcProcess.DoOutputLine;
+procedure TProcProcess.Execute;
 begin
-  Lock;
-  if OutputLine<>'' then
-    begin
-      FOutput.Add(OutputLine);
-      with BaseApplication as IBaseApplication do
-        Debug(FName+':'+OutputLine);
-    end;
-  Unlock;
-end;
-
-constructor TProcProcess.Create;
-begin
-  FOutput:=TStringList.Create;
-  FCS := TCriticalSection.Create;
-  inherited Create(True);
-end;
-
-destructor TProcProcess.Destroy;
-begin
-  Stop;
-  FCS.Free;
-  Terminate;
-  Resume;
-  WaitFor;
-  inherited Destroy;
-  FOutput.Free;
-end;
-
-procedure TProcProcess.Start;
-begin
-  FStarted := Now();
-  FActive:=True;
-  FOutput.Clear;
-  with BaseApplication as IBaseApplication do
-    Debug(FName+':resuming Process');
-  Resume;
-end;
-
-procedure TProcProcess.Stop;
-begin
+  FStopped:=0;
+  FStatus:='R';
+  FStarted:=Now();
   try
-    if Assigned(p) then
-      p.Terminate(255);
-    FActive:=False;
+    inherited Execute;
   except
+    FStatus := 'E';
   end;
 end;
 
-procedure TProcProcess.Lock;
+procedure TProcProcess.CheckStatus;
 begin
-  FCS.Enter;
-end;
-
-procedure TProcProcess.Unlock;
-begin
-  FCS.Leave;
-end;
-
-procedure TProcProcess.Execute;
-var
-  Buf: string;
-  Count,LineStart: LongInt;
-  i: Integer;
-const
-  BufSize = 1024; //4096;
-begin
-  while not Terminated do
+  if not Active then
     begin
-      p := TProcess.Create(nil);
-      p.Options := [poUsePipes, poStdErrToOutPut, poNoConsole];
-      //p.ShowWindow := swoHIDE;
-    //  AddMessage('Compile command: ' + c);
-      p.CommandLine := FCommandline;
-      p.CurrentDirectory:= copy(BaseApplication.Location,0,rpos(DirectorySeparator,BaseApplication.Location)-1);
-      try
-        try
-          with BaseApplication as IBaseApplication do
-            Debug(FName+':starting...');
-          p.Active:=True;
-          Lock;
-          FStatus:='R';
-          Unlock;
-          OutputLine:='';
-          with BaseApplication as IBaseApplication do
-            Debug(FName+':running...');
-
-          { Now process the output }
-          OutputLine:='';
-          SetLength(Buf,BufSize);
-          repeat
-            if (p.Output<>nil) then
-            begin
-              Count:=p.Output.Read(Buf[1],Length(Buf));
-            end
-            else
-              Count:=0;
-            LineStart:=1;
-            i:=1;
-            while i<=Count do
-            begin
-              if Buf[i] in [#10,#13] then
-              begin
-                OutputLine:=OutputLine+Copy(Buf,LineStart,i-LineStart);
-                DoOutputLine;
-                OutputLine:='';
-                if (i<Count) and (Buf[i+1] in [#10,#13]) and (Buf[i]<>Buf[i+1]) then
-                  inc(i);
-                LineStart:=i+1;
-              end;
-              inc(i);
-            end;
-            OutputLine:=Copy(Buf,LineStart,Count-LineStart+1);
-            sleep(100);
-          until (Count=0) or Terminated;
-          if OutputLine <> '' then
-            DoOutputLine;
-          if not  Terminated then p.WaitOnExit;
-          Lock;
-          FStatus:='N';
-          Unlock;
-        except
-          on e : Exception do
-            begin
-              Lock;
-              FStatus:='E';
-              OutputLine:=e.Message;
-              Unlock;
-              with BaseApplication as IBaseApplication do
-                Debug(FName+':Error '+e.Message);
-            end;
-        end;
-      finally
-        FStopped := Now();
-        FreeAndNil(p);
-        FActive:=False;
-      end;
-      Lock;
-      if FStatus='R' then
-        FStatus:='N';
-      Unlock;
-      DoOutputLine;
-      with BaseApplication as IBaseApplication do
-        Debug(FName+':Stopped '+DateTimeToStr(FStopped));
-      Suspend;
+      if ExitCode<>0 then
+        FStatus:='E'
+      else FStatus:='N';
+      FStopped:=Now();
     end;
 end;
 
@@ -617,7 +445,7 @@ var
               sl.Free;
               if aNewStatus='N' then
                 begin
-                  bProcess.Stop;
+                  FreeAndNil(bProcess);
                 end
             end
           else
@@ -643,7 +471,7 @@ var
                     DoLog(aprocess+':'+strStartingProcessTimeout+' '+DateTimeToStr((aLastStopped+(max(aInterval,2)/MinsPerDay)))+'>'+DateTimeToStr(aNow),aLog,BaseApplication.HasOption('debug'));
                     DoLog(aProcess+':'+strStartingProcess+' ('+bProcess.CommandLine+')',aLog,True);
                     bProcess.Informed:=False;
-                    bProcess.Start;
+                    bProcess.Execute;
                     bProcess.Informed := False;
                   end;
               Found := True;
@@ -662,7 +490,7 @@ var
             aStartTime := Now();
             aLog.Clear;
             DoLog(aProcess+':'+strStartingProcess+' ('+cmd+')',aLog,True);
-            NewProcess := TProcProcess.Create;
+            NewProcess := TProcProcess.Create(nil);
             {$if FPC_FULLVERSION<20400}
             NewProcess.InheritHandles := false;
             {$endif}
@@ -678,7 +506,7 @@ var
               end;
             ProcessData[i] := NewProcess;
             NewProcess.CommandLine:=cmd;
-            NewProcess.Start;
+            NewProcess.Execute;
             Result := NewProcess;
           end;
       end;
@@ -768,6 +596,7 @@ var
           begin
             //if not aProc.Informed then
             //  DoLog(aprocess+':'+strExitted,aLog,True);
+            aProc.CheckStatus;
             RefreshStatus(aProc,aLog);
             if (not aProc.Active) and (aProc.Informed) then
               begin
