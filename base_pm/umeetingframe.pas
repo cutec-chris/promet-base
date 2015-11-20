@@ -70,6 +70,7 @@ type
     bDeletePos: TSpeedButton;
     bDeletePos2: TSpeedButton;
     bDeletePos5: TSpeedButton;
+    bExecute1: TSpeedButton;
     bRenumber: TSpeedButton;
     Bevel1: TBevel;
     Bevel3: TBevel;
@@ -79,7 +80,6 @@ type
     Bevel7: TBevel;
     Bevel9: TBevel;
     bExecute: TSpeedButton;
-    bExecute1: TSpeedButton;
     bRefresh1: TSpeedButton;
     bpermanenetEditor: TSpeedButton;
     bRenumber1: TSpeedButton;
