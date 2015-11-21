@@ -11,7 +11,7 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="5">
+    <Files Count="4">
       <Item1>
         <Filename Value="uprometpascalscript.pas"/>
         <UnitName Value="uprometpascalscript"/>
@@ -25,34 +25,26 @@
         <UnitName Value="uprometcscript"/>
       </Item3>
       <Item4>
-        <Filename Value="uprometluascript.pas"/>
-        <UnitName Value="uprometluascript"/>
-      </Item4>
-      <Item5>
         <Filename Value="uprometpythonscript.pas"/>
         <UnitName Value="uprometpythonscript"/>
-      </Item5>
+      </Item4>
     </Files>
-    <RequiredPkgs Count="5">
+    <RequiredPkgs Count="4">
       <Item1>
-        <PackageName Value="general_lua_script"/>
-        <DefaultFilename Value="..\..\..\..\general\lua_script\general_lua_script.lpk"/>
-      </Item1>
-      <Item2>
         <PackageName Value="general_python_script"/>
         <DefaultFilename Value="..\..\..\..\general\python_script\general_python_script.lpk"/>
-      </Item2>
-      <Item3>
+      </Item1>
+      <Item2>
         <PackageName Value="general_pascal_script"/>
         <DefaultFilename Value="..\..\..\..\general\pascal_script\general_pascal_script.lpk"/>
-      </Item3>
-      <Item4>
+      </Item2>
+      <Item3>
         <PackageName Value="pPrometDBIntfs"/>
         <DefaultFilename Value="..\dbintfs\pprometdbintfs.lpk"/>
-      </Item4>
-      <Item5>
+      </Item3>
+      <Item4>
         <PackageName Value="FCL"/>
-      </Item5>
+      </Item4>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>
