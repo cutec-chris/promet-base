@@ -35,9 +35,11 @@ type
     FStatus: string;
     FStopped: TDateTime;
     FTimeout: TDateTime;
+    function GetOutput: string;
     procedure SetTimeout(AValue: TDateTime);
   public
     aOutput,aBuffer,aLogOutput : string;
+    constructor Create(AOwner: TComponent); override;
     property Informed : Boolean read FInformed write FInformed;
     property Name : string read FName write FName;
     property Id : Variant read FId write FId;
@@ -46,7 +48,7 @@ type
     property Status : string read FStatus;
     property Started : TDateTime read FStarted;
     property Stopped : TDateTime read FStopped;
-    property Output : string read FOutput;
+    property ProcOutput : string read GetOutput;
   end;
   TProcessParameters = class(TBaseDBDataset)
   public
@@ -104,10 +106,39 @@ begin
   if FTimeout=AValue then Exit;
   FTimeout:=AValue;
 end;
+
+constructor TProcProcess.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  Options := [poUsePipes, poStdErrToOutPut, poNoConsole];
+end;
+
+function TProcProcess.GetOutput: string;
+var
+  OutputLine: String;
+  Buf: string;
+  Count,LineStart: LongInt;
+const
+  BufSize = 1024; //4096;
+begin
+  OutputLine:='';
+  SetLength(Buf,BufSize);
+  repeat
+    if (Output<>nil) then
+      begin
+        Count:=Output.Read(Buf[1],Length(Buf));
+      end
+    else Count:=0;
+    FOutput:=FOutput+copy(Buf,0,Count);
+  until (Count=0);
+  Result := FOutput;
+end;
+
 procedure TProcProcess.Execute;
 begin
   FStopped:=0;
   FStatus:='R';
+  FOutput:='';
   FStarted:=Now();
   try
     inherited Execute;
@@ -352,11 +383,11 @@ begin
               aProcesses.FieldByName('LOG').Clear;
             aProcesses.FieldByName('CLIENT').AsString:=GetSystemName;
           end;
-        if aProc.Output<>'' then
+        if aProc.ProcOutput<>'' then
           begin
             aLog.Text:=aProcesses.FieldByName('LOG').AsString;
             aLog.Add(TimeToStr(Now()));
-            aLog.Text:=aLog.Text+aProc.Output;
+            aLog.Text:=aLog.Text+aProc.ProcOutput;
             while aLog.Count>30 do aLog.Delete(0);
             aProcesses.Edit;
             aProcesses.FieldByName('LOG').AsString:=aLog.Text;
@@ -436,7 +467,7 @@ var
             begin
               Found := True;
               sl := TStringList.Create;
-              sl.Text:=bProcess.Output;
+              sl.Text:=bProcess.ProcOutput;
               while sl.Count>0 do
                 begin
                   DoLog(aprocess+':'+sl[0],aLog,BaseApplication.HasOption('log'));
@@ -455,7 +486,7 @@ var
               if aStartTime=0 then
                 aStartTime:=Now();
               sl := TStringList.Create;
-              sl.Text:=bProcess.Output;
+              sl.Text:=bProcess.ProcOutput;
               while sl.Count>0 do
                 begin
                   DoLog(aprocess+':'+sl[0],aLog,BaseApplication.HasOption('log'));

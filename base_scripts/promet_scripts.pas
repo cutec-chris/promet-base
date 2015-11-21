@@ -7,7 +7,7 @@ unit promet_scripts;
 interface
 
 uses
-  uprometpascalscript, uspeakinginterface, uprometcscript, uprometluascript, 
+  uprometpascalscript, uspeakinginterface, uprometcscript, 
   uprometpythonscript, LazarusPackageIntf;
 
 implementation
