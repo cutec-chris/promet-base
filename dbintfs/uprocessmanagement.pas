@@ -122,15 +122,18 @@ const
   BufSize = 1024; //4096;
 begin
   OutputLine:='';
-  SetLength(Buf,BufSize);
-  repeat
-    if (Output<>nil) then
-      begin
-        Count:=Output.Read(Buf[1],Length(Buf));
-      end
-    else Count:=0;
-    FOutput:=FOutput+copy(Buf,0,Count);
-  until (Count=0);
+  if not Active then
+    begin
+      SetLength(Buf,BufSize);
+      repeat
+        if (Output<>nil) then
+          begin
+            Count:=Output.Read(Buf[1],Length(Buf));
+          end
+        else Count:=0;
+        FOutput:=FOutput+copy(Buf,0,Count);
+      until (Count=0);
+    end;
   Result := FOutput;
 end;
 
@@ -329,6 +332,7 @@ begin
     aSystem:=GetSystemName;
   Open;
   Processes.Open;
+  Processes.Parameters.Open;
   if not Active then exit;
   if Locate('NAME','*',[]) then
     Process
@@ -356,49 +360,42 @@ begin
         end;
       Process;
     end;
-  Processes.Close;
 end;
 
 procedure TProcessClient.RefreshStatus(aProc: TProcProcess;aLog : TStringList);
-var
-  aProcesses: TProcesses;
 begin
-  aProcesses := TProcesses.Create(nil);
-  aProcesses.Select(aproc.Id);
   Data.StartTransaction(Data.MainConnection,True);
-  try
-    aProcesses.Open;
-    if aProcesses.Count>0 then
-      begin
-        if aProcesses.FieldByName('STATUS').AsString<>aProc.Status then
+  if Processes.Locate('SQL_ID',aProc.Id,[]) then
+    begin
+      try
+        if Processes.FieldByName('STATUS').AsString<>aProc.Status then
           begin
-            aProcesses.Edit;
-            aProcesses.FieldByName('STATUS').AsString:=aProc.Status;
-            aProcesses.FieldByName('STARTED').AsDateTime:=aProc.Started;
+            Processes.Edit;
+            Processes.FieldByName('STATUS').AsString:=aProc.Status;
+            Processes.FieldByName('STARTED').AsDateTime:=aProc.Started;
             if (not aProc.Active) then
-              aProcesses.FieldByName('STOPPED').AsDateTime:=aProc.Stopped
+              Processes.FieldByName('STOPPED').AsDateTime:=aProc.Stopped
             else
-              aProcesses.FieldByName('STOPPED').Clear;
+              Processes.FieldByName('STOPPED').Clear;
             if aProc.Status='R' then
-              aProcesses.FieldByName('LOG').Clear;
-            aProcesses.FieldByName('CLIENT').AsString:=GetSystemName;
+              Processes.FieldByName('LOG').Clear;
+            Processes.FieldByName('CLIENT').AsString:=GetSystemName;
           end;
         if aProc.ProcOutput<>'' then
           begin
-            aLog.Text:=aProcesses.FieldByName('LOG').AsString;
+            aLog.Text:=Processes.FieldByName('LOG').AsString;
             aLog.Add(TimeToStr(Now()));
             aLog.Text:=aLog.Text+aProc.ProcOutput;
             while aLog.Count>30 do aLog.Delete(0);
-            aProcesses.Edit;
-            aProcesses.FieldByName('LOG').AsString:=aLog.Text;
+            Processes.Edit;
+            Processes.FieldByName('LOG').AsString:=aLog.Text;
             aLog.Clear;
           end;
-        aProcesses.Post;
+        Processes.Post;
+      finally
+        Data.CommitTransaction(Data.MainConnection);
       end;
-  finally
-    Data.CommitTransaction(Data.MainConnection);
-  end;
-  aProcesses.Free;
+    end;
 end;
 
 function ExpandFileName(aDir : string) : string;
@@ -476,6 +473,8 @@ var
               sl.Free;
               if aNewStatus='N' then
                 begin
+                  bProcess.Terminate(1);
+                  RefreshStatus(bProcess,aLog);
                   FreeAndNil(bProcess);
                 end
             end
@@ -645,13 +644,11 @@ var
   end;
 
 begin
+  aLog := TStringList.Create;
   try
-    aLog := TStringList.Create;
     aNow := Now();
     if aNow>0 then
       begin
-        Processes.Open;
-        Processes.Parameters.Open;
         //Check processes
         if OnlyActiveRow then
           ProcessRow
@@ -666,8 +663,8 @@ begin
               end;
           end;
       end;
+  finally
     aLog.Free;
-  except
   end;
 end;
 
