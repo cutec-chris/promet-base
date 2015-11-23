@@ -364,7 +364,6 @@ end;
 
 procedure TProcessClient.RefreshStatus(aProc: TProcProcess;aLog : TStringList);
 begin
-  Data.StartTransaction(Data.MainConnection,True);
   if Processes.Locate('SQL_ID',aProc.Id,[]) then
     begin
       try
@@ -393,7 +392,6 @@ begin
           end;
         Processes.Post;
       finally
-        Data.CommitTransaction(Data.MainConnection);
       end;
     end;
 end;
@@ -593,7 +591,6 @@ var
             else
               begin
                 DoLog(cmd+':'+'PScript dosend exists',aLog,True);
-                Data.StartTransaction(Data.MainConnection,True);
                 try
                   Processes.DataSet.Edit;
                   Processes.DataSet.FieldByName('STATUS').AsString := 'E';
@@ -602,14 +599,12 @@ var
                     Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
                   Processes.DataSet.Post;
                 finally
-                  Data.CommitTransaction(Data.MainConnection);
                 end;
               end;
           end
         else
           begin
             DoLog(ExpandFileName(aProcess+ExtractFileExt(BaseApplication.ExeName))+':'+'File dosend exists',aLog,True);
-            Data.StartTransaction(Data.MainConnection,True);
             try
               Processes.DataSet.Edit;
               Processes.DataSet.FieldByName('STATUS').AsString := 'E';
@@ -618,7 +613,6 @@ var
                 Processes.DataSet.FieldByName('LOG').AsString := aLog.Text;
               Processes.DataSet.Post;
             finally
-              Data.CommitTransaction(Data.MainConnection);
             end;
           end;
         //RefreshStatus
