@@ -800,7 +800,7 @@ function TBaseDBPosition.GetPosTyp: TPositionTyp;
 begin
   Result := nil;
   FPosTyp.Open;
-  FPosTyp.DataSet.Locate('NAME',Self.FieldByName('POSTYP').AsVariant,[]);
+  FPosTyp.DataSet.Locate('NAME',Self.FieldByName('POSTYP').AsVariant,[loCaseInsensitive]);
   Result := FPosTyp;
 end;
 function TBaseDBPosition.GetPosTypDec: Integer;
@@ -1372,6 +1372,10 @@ begin
                         end
                       else
                         InsertData(bMasterdata,  FieldByName('QUANTITY').AsFloat *aQuantity,tParent,0,FieldByName('ACTIVE').AsString);
+                      DataSet.FieldByName('POSTYP').AsString:=aMasterdata.Positions.FieldByName('POSTYP').AsString;
+                      DataSet.FieldByName('ACTIVE').AsString:=aMasterdata.Positions.FieldByName('ACTIVE').AsString;
+                      DataSet.FieldByName('PARENT').AsVariant := tParent;
+                      DataSet.FieldByName('TPOSNO').AsVariant:=aMasterdata.Positions.DataSet.FieldByName('POSNO').AsVariant;
                     end
                   else //No Article
                     begin
