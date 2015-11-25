@@ -24,12 +24,12 @@ object fScriptImport: TfScriptImport
       AnchorSideTop.Control = Label2
       AnchorSideTop.Side = asrBottom
       Left = 6
-      Height = 21
-      Top = 44
+      Height = 27
+      Top = 48
       Width = 322
       Anchors = [akTop, akLeft, akRight]
       BorderSpacing.Top = 2
-      ItemHeight = 13
+      ItemHeight = 0
       OnSelect = cbFormatSelect
       TabOrder = 0
     end
@@ -37,15 +37,15 @@ object fScriptImport: TfScriptImport
       AnchorSideTop.Control = lInfo
       AnchorSideTop.Side = asrBottom
       Left = 6
-      Height = 13
-      Top = 29
-      Width = 61
+      Height = 15
+      Top = 31
+      Width = 76
       Caption = 'Datenformat'
       ParentColor = False
     end
     object lInfo: TLabel
       Left = 8
-      Height = 13
+      Height = 15
       Top = 8
       Width = 341
       Align = alTop
@@ -61,8 +61,8 @@ object fScriptImport: TfScriptImport
     end
     object bpButtons: TButtonPanel
       Left = 6
-      Height = 34
-      Top = 196
+      Height = 42
+      Top = 188
       Width = 345
       OKButton.Name = 'OKButton'
       OKButton.DefaultCaption = True
@@ -81,9 +81,9 @@ object fScriptImport: TfScriptImport
       AnchorSideTop.Control = cbFormat
       AnchorSideTop.Side = asrBottom
       Left = 8
-      Height = 13
-      Top = 68
-      Width = 57
+      Height = 15
+      Top = 78
+      Width = 72
       BorderSpacing.Top = 3
       Caption = 'Datenquelle'
       ParentColor = False
@@ -93,7 +93,7 @@ object fScriptImport: TfScriptImport
       AnchorSideTop.Side = asrBottom
       Left = 328
       Height = 27
-      Top = 44
+      Top = 48
       Width = 23
       Action = acConfig
       BorderSpacing.Top = 2
@@ -104,8 +104,8 @@ object fScriptImport: TfScriptImport
       AnchorSideTop.Control = Label1
       AnchorSideTop.Side = asrBottom
       Left = 8
-      Height = 21
-      Top = 83
+      Height = 25
+      Top = 95
       Width = 341
       BorderSpacing.Top = 2
       ButtonCaption = '...'

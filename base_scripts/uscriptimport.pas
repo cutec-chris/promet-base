@@ -119,7 +119,7 @@ begin
       if (TBaseScript(aScripts).Script is TPascalScript) then
         with TBaseScript(aScripts).Script as TPascalScript do
           begin
-            if not Compile then
+            if not TPascalScript(TBaseScript(aScripts).Script).Compile then
               begin
                 for i:= 0 to Compiler.MsgCount - 1 do
                   if Length(aResults) = 0 then
@@ -231,17 +231,21 @@ begin
                 begin
                   fLogWaitForm.SetLanguage;
                   fLogWaitForm.Show;
-                  if FTyp = icImport then
-                    Result := Runtime.RunProcPN([eDataSource.Text],'DOIMPORT')
-                  else
-                    Result := Runtime.RunProcPN([eDataSource.Text,Records],'DOEXPORT');
                   try
+                    if FTyp = icImport then
+                      Result := Runtime.RunProcPN([eDataSource.Text],'DOIMPORT')
+                    else
+                      Result := Runtime.RunProcPN([eDataSource.Text,Records],'DOEXPORT');
                     if not Result then
                       begin
                         tmp := Runtime.RunProcPN([],'LASTERROR');
                       end;
                   except
-                    tmp := 'unknown error';
+                    on e : Exception do
+                      begin
+                        tmp := 'unknown error: '+e.Message;
+                        Result := False;
+                      end;
                   end;
                 end
               else
@@ -254,7 +258,7 @@ begin
               if not Result then
                 fLogWaitForm.ShowInfo(tmp)
               else
-                fLogWaitForm.Hide;
+                fLogWaitForm.ShowInfo('OK');
             end;
         end
     end;
