@@ -1,5 +1,5 @@
 ﻿Build 418
-      -
+      - Thumbnails: werden nun auch erzeugt wenn DLL ungültige Thumbnails zurück gibt (und es ein Standard Bildformat oder PDF ist)
 Build 417
       - Aufgabeneditor:Berechnung der erfassten zeit auf Aufgaben korrigiert
       - Artikelstückliste:Inplace Editoren werden angezeigt
