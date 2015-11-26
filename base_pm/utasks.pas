@@ -886,7 +886,7 @@ end;
 
 procedure TfTaskFrame.acImportExecute(Sender: TObject);
 begin
-  fScriptImport.Execute(icImport,FilterType);
+  fScriptImport.Execute(icImport,FilterType,FDataSet);
   DataSet.DataSet.Refresh;
 end;
 

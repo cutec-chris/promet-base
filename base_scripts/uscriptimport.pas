@@ -218,10 +218,6 @@ begin
         begin
           aScripts.ActualObject := DataSet;
           Records := '';
-          if Assigned(Bookmarks) then
-            begin
-
-            end;
           with TBaseScript(aScripts).Script as TPascalScript do
             begin
               Screen.Cursor:=crHourGlass;

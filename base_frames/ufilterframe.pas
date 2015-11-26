@@ -787,7 +787,7 @@ end;
 procedure TfFilter.acExportExecute(Sender: TObject);
 begin
   uprometpascalscript.FContextDataSet:=DataSet.DataSet;
-  fScriptImport.Execute(icExport,FilterType,FDataSet,gList.SelectedRows);
+  fScriptImport.Execute(icExport,FilterType,FDataSet);
 end;
 procedure TfFilter.acCopyLinkExecute(Sender: TObject);
 var
