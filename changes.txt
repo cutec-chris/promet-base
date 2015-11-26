@@ -1,4 +1,6 @@
-﻿Build 417
+﻿Build 418
+      -
+Build 417
       - Aufgabeneditor:Berechnung der erfassten zeit auf Aufgaben korrigiert
       - Artikelstückliste:Inplace Editoren werden angezeigt
       - Dokumente:Vorschau wird nun von den Plugins erstellt (mehr Dateiformate unterstützt)

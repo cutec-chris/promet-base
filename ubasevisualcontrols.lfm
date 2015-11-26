@@ -1,8 +1,8 @@
 object fVisualControls: TfVisualControls
   OldCreateOrder = False
   Height = 196
-  HorizontalOffset = 377
-  VerticalOffset = 177
+  HorizontalOffset = 192
+  VerticalOffset = 115
   Width = 230
   object Images: TImageList
     left = 32

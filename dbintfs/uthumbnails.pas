@@ -181,9 +181,12 @@ var
   aMod: TWlxModule;
   Found: Boolean;
   aBit: HBITMAP;
+  aOrigName: String='';
+  DoRedo: Boolean=False;
   {$ifdef LINUX}
   AFont: TFreeTypeFont;
   {$endif}
+  label Redo;
   function ConvertExec(aCmd,aExt : string) : Boolean;
   begin
     aProcess := TProcess.Create(nil);
@@ -225,10 +228,15 @@ begin
   if Assigned(OnGenerateThumb) then
     Result := OnGenerateThumb(aName,aFileName,aThumbFile,aWidth,aHeight);
   if Result and FileExists(UniToSys(aThumbFile)) then
-    aFileName:=aThumbFile;
+    begin
+      aOrigName:=aFileName;
+      aFileName:=aThumbFile;
+    end;
   with BaseApplication as IBaseApplication do
     Debug('Generate Thumbnail:Enter');
     Found := False;
+Redo:
+    DoRedo:=False;
     e := lowercase (ExtractFileExt(aFileName));
     if (e <> '') and (e[1] = '.') then
       System.delete (e,1,1);
@@ -261,10 +269,19 @@ begin
                 begin
                 end;
             except
+              begin
+                if aOrigName<>'' then
+                  begin
+                    aFileName:=aOrigName;
+                    aOrigName:='';
+                    DoRedo := True;
+                  end;
+              end;
             end;
             finally
               FreeAndNil(Img);
             end;
+            if DoRedo then goto Redo;
             Reader.Free;
           end
         else if (s = 'pdf;') then
