@@ -276,10 +276,10 @@ Redo:
                     aOrigName:='';
                     DoRedo := True;
                   end;
+                FreeAndNil(Img);
               end;
             end;
             finally
-              FreeAndNil(Img);
             end;
             if DoRedo then goto Redo;
             Reader.Free;
