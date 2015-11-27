@@ -116,27 +116,22 @@ begin
   if aRes then
     begin
       lInfo.Caption:=strConfigureDataSource;
-      if (TBaseScript(aScripts).Script is TPascalScript) then
-        with TBaseScript(aScripts).Script as TPascalScript do
+      if Assigned(TBaseScript(aScripts).Script) then
+        if (not(TBaseScript(aScripts).Script is TByteCodeScript)) or TByteCodeScript(TBaseScript(aScripts).Script).Compile then
           begin
-            if not TPascalScript(TBaseScript(aScripts).Script).Compile then
-              begin
-                for i:= 0 to Compiler.MsgCount - 1 do
-                  if Length(aResults) = 0 then
-                    aResults:= Compiler.Msg[i].MessageToString
-                  else
-                    aResults:= aResults + #13#10 + Compiler.Msg[i].MessageToString;
-                lInfo.Caption:=strErrorCompiling+' ('+aResults+')';
-              end;
             try
-              lInfo.Caption:=Runtime.RunProcPN([],'SOURCEDESCRIPTION');
+              lInfo.Caption:=TBaseScript(aScripts).Script.RunScriptFunction([],'SOURCEDESCRIPTION');
             except
             end;
             OpenDialog.Filter:='';
             try
-              OpenDialog.Filter:=Runtime.RunProcPN([],'FILEEXTENSION');
+              OpenDialog.Filter:=TBaseScript(aScripts).Script.RunScriptFunction([],'FILEEXTENSION');
             except
             end;
+          end
+        else
+          begin
+            lInfo.Caption:='compilation failed '+TBaseScript(aScripts).Script.Results;
           end;
     end
   else lInfo.Caption:=strSelectAnFormat;
@@ -218,45 +213,43 @@ begin
         begin
           aScripts.ActualObject := DataSet;
           Records := '';
-          with TBaseScript(aScripts).Script as TPascalScript do
+          if (not(TBaseScript(aScripts).Script is TByteCodeScript)) or TByteCodeScript(TBaseScript(aScripts).Script).Compile then
             begin
               Screen.Cursor:=crHourGlass;
               TBaseScript(aScripts).Script.Writeln:=@TBaseScriptScriptTPascalScriptTBaseScriptScriptWriteln;
               TBaseScript(aScripts).Script.OnRunLine:=@TBaseScriptScriptTPascalScriptTBaseScriptScriptRunLine;
-              if Compile then
-                begin
-                  fLogWaitForm.SetLanguage;
-                  fLogWaitForm.Show;
-                  try
-                    if FTyp = icImport then
-                      Result := Runtime.RunProcPN([eDataSource.Text],'DOIMPORT')
-                    else
-                      Result := Runtime.RunProcPN([eDataSource.Text,Records],'DOEXPORT');
-                    if not Result then
-                      begin
-                        tmp := Runtime.RunProcPN([],'LASTERROR');
-                      end;
-                  except
-                    on e : Exception do
-                      begin
-                        tmp := 'unknown error: '+e.Message;
-                        Result := False;
-                      end;
+              fLogWaitForm.SetLanguage;
+              fLogWaitForm.Show;
+              try
+                if FTyp = icImport then
+                  Result := TBaseScript(aScripts).Script.RunScriptFunction([eDataSource.Text],'DOIMPORT')
+                else
+                  Result := TBaseScript(aScripts).Script.RunScriptFunction([eDataSource.Text],'DOEXPORT');
+                if not Result then
+                  begin
+                    tmp := TBaseScript(aScripts).Script.RunScriptFunction([],'LASTERROR');
                   end;
-                end
-              else
-                begin
-                  tmp := 'compilation failed '+Results;
-                  Result := False;
-                end;
-              Screen.Cursor:=crDefault;
+              except
+                on e : Exception do
+                  begin
+                    tmp := 'unknown error: '+e.Message;
+                    Result := False;
+                  end;
+              end;
               fLogWaitForm.AbortKind:=bkClose;
               if not Result then
                 fLogWaitForm.ShowInfo(tmp)
               else
                 fLogWaitForm.ShowInfo('OK');
+            end
+          else
+            begin
+              tmp := 'compilation failed '+TBaseScript(aScripts).Script.Results;
+              lInfo.Caption:=tmp;
+              Result := False;
             end;
-        end
+          Screen.Cursor:=crDefault;
+        end;
     end;
   aScripts.Free;
 end;

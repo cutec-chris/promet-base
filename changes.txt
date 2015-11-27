@@ -1,5 +1,6 @@
 ﻿Build 418
       - Thumbnails: werden nun auch erzeugt wenn DLL ungültige Thumbnails zurück gibt (und es ein Standard Bildformat oder PDF ist)
+      -
 Build 417
       - Aufgabeneditor:Berechnung der erfassten zeit auf Aufgaben korrigiert
       - Artikelstückliste:Inplace Editoren werden angezeigt
@@ -15,7 +16,7 @@ Build 417
       - Feedreceiver:Feeds werden mit If-modified-since abgerufen so kann der Server nur neuere Inhalte ausliefern (falls unterstützt)
       - SyncDB:synchronisiert nun in 500 Datensatz "Brocken", so wird vermieden das die Sync öfter unterbrochen wird wenn Sie sehr große Datenmengen synchronisieren muss
       - Import/Export:Ausgabe für Scriptimport hinzugefügt
-                      ActiveObject für Import/Export funktioniert nun (Auf aktuelles Element per Script zugreifen)
+                      ActualObject für Import/Export funktioniert nun (Auf aktuelles Element per Script zugreifen)
                       In Kontakten,Artikeln,Aufträgen und Projektformularen Scriptimport hinzugefügt
                       VCard Import/export auf Scripte umgehoben
       - Dublizieren:Icon geändert und vereinheitlicht
