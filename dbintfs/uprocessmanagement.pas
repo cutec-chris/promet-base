@@ -111,6 +111,7 @@ constructor TProcProcess.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   Options := [poUsePipes, poStdErrToOutPut, poNoConsole];
+  ShowWindow:=swoHIDE;
 end;
 
 function TProcProcess.GetOutput: string;

@@ -85,9 +85,6 @@ type
     property Data : TField read GetData;
     property Description : TField read Getcomment;
   end;
-
-  { TPersonBanking }
-
   TPersonBanking = class(TBaseDBDataSet)
   public
     procedure DefineFields(aDataSet : TDataSet);override;
