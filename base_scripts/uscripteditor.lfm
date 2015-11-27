@@ -548,139 +548,6 @@ object fScriptEditor: TfScriptEditor
         end
       end
     end
-    object ToolBar1: TToolBar
-      Left = 0
-      Top = 0
-      Width = 754
-      ButtonHeight = 30
-      Caption = 'ToolBar1'
-      Images = ilImageList
-      TabOrder = 1
-      object ToolButton2: TToolButton
-        Left = 34
-        Top = 2
-        Action = acRun
-      end
-      object ToolButton3: TToolButton
-        Left = 57
-        Top = 2
-        Action = acPause
-      end
-      object ToolButton4: TToolButton
-        Left = 126
-        Top = 2
-        Action = acReset
-      end
-      object ToolButton5: TToolButton
-        Left = 24
-        Height = 30
-        Top = 2
-        Width = 10
-        Caption = 'ToolButton5'
-        Style = tbsSeparator
-      end
-      object ToolButton6: TToolButton
-        Left = 1
-        Top = 2
-        Action = acSave
-      end
-      object ToolButton7: TToolButton
-        Left = 80
-        Top = 2
-        Action = acStepinto
-      end
-      object ToolButton8: TToolButton
-        Left = 103
-        Top = 2
-        Action = acStepover
-      end
-      object Panel2: TPanel
-        Left = 149
-        Height = 30
-        Top = 2
-        Width = 180
-        BevelOuter = bvNone
-        ClientHeight = 30
-        ClientWidth = 180
-        TabOrder = 0
-        object Label1: TLabel
-          Left = 3
-          Height = 27
-          Top = 3
-          Width = 48
-          Align = alLeft
-          BorderSpacing.Left = 3
-          BorderSpacing.Top = 3
-          BorderSpacing.Right = 5
-          Caption = 'Syntax'
-          ParentColor = False
-        end
-        object cbSyntax: TDBComboBox
-          Left = 56
-          Height = 29
-          Top = 0
-          Width = 122
-          Anchors = [akTop, akLeft, akRight]
-          DataField = 'SYNTAX'
-          DataSource = DataSource
-          ItemHeight = 0
-          Items.Strings = (
-            'Pascal'
-            'SQL'
-            'Python'
-            'Lua'
-          )
-          MaxLength = 0
-          OnSelect = cbSyntaxSelect
-          TabOrder = 0
-        end
-      end
-      object Panel3: TPanel
-        Left = 329
-        Height = 30
-        Top = 2
-        Width = 375
-        BevelOuter = bvNone
-        ClientHeight = 30
-        ClientWidth = 375
-        TabOrder = 1
-        object cbClient: TComboBox
-          Left = 264
-          Height = 29
-          Top = 0
-          Width = 100
-          ItemHeight = 0
-          TabOrder = 0
-          Text = 'cbClient'
-          Visible = False
-        end
-        object tbTools: TToolBar
-          Left = 46
-          Height = 30
-          Top = 0
-          Width = 329
-          Align = alClient
-          Caption = 'tbTools'
-          EdgeBorders = []
-          ParentShowHint = False
-          ShowCaptions = True
-          ShowHint = True
-          TabOrder = 1
-        end
-        object Label2: TLabel
-          Left = 5
-          Height = 27
-          Top = 3
-          Width = 36
-          Align = alLeft
-          BorderSpacing.Left = 5
-          BorderSpacing.Top = 3
-          BorderSpacing.Right = 5
-          Caption = 'Tools'
-          ParentColor = False
-        end
-      end
-    end
     object Splitter1: TSplitter
       Cursor = crVSplit
       Left = 0
@@ -699,7 +566,7 @@ object fScriptEditor: TfScriptEditor
       BevelOuter = bvNone
       ClientHeight = 84
       ClientWidth = 754
-      TabOrder = 3
+      TabOrder = 2
       object messages: TListBox
         Left = 0
         Height = 84
@@ -728,6 +595,197 @@ object fScriptEditor: TfScriptEditor
         TitleFont.Name = 'MS Sans Serif'
         TitleStyle = tsNative
         Visible = False
+      end
+    end
+    object Panel4: TPanel
+      Left = 0
+      Height = 32
+      Top = 0
+      Width = 754
+      Align = alTop
+      BevelOuter = bvNone
+      ClientHeight = 32
+      ClientWidth = 754
+      TabOrder = 3
+      object ToolBar1: TToolBar
+        Left = 0
+        Top = 0
+        Width = 512
+        Align = alClient
+        ButtonHeight = 30
+        Caption = 'ToolBar1'
+        Images = ilImageList
+        TabOrder = 0
+        object ToolButton2: TToolButton
+          Left = 34
+          Top = 2
+          Action = acRun
+        end
+        object ToolButton3: TToolButton
+          Left = 57
+          Top = 2
+          Action = acPause
+        end
+        object ToolButton4: TToolButton
+          Left = 126
+          Top = 2
+          Action = acReset
+        end
+        object ToolButton5: TToolButton
+          Left = 24
+          Height = 30
+          Top = 2
+          Width = 10
+          Caption = 'ToolButton5'
+          Style = tbsSeparator
+        end
+        object ToolButton6: TToolButton
+          Left = 1
+          Top = 2
+          Action = acSave
+        end
+        object ToolButton7: TToolButton
+          Left = 80
+          Top = 2
+          Action = acStepinto
+        end
+        object ToolButton8: TToolButton
+          Left = 103
+          Top = 2
+          Action = acStepover
+        end
+        object Panel2: TPanel
+          Left = 149
+          Height = 30
+          Top = 2
+          Width = 180
+          BevelOuter = bvNone
+          ClientHeight = 30
+          ClientWidth = 180
+          TabOrder = 0
+          object Label1: TLabel
+            Left = 3
+            Height = 27
+            Top = 3
+            Width = 48
+            Align = alLeft
+            BorderSpacing.Left = 3
+            BorderSpacing.Top = 3
+            BorderSpacing.Right = 5
+            Caption = 'Syntax'
+            ParentColor = False
+          end
+          object cbSyntax: TDBComboBox
+            Left = 56
+            Height = 29
+            Top = 0
+            Width = 122
+            Anchors = [akTop, akLeft, akRight]
+            DataField = 'SYNTAX'
+            DataSource = DataSource
+            ItemHeight = 0
+            Items.Strings = (
+              'Pascal'
+              'SQL'
+              'Python'
+              'Lua'
+            )
+            MaxLength = 0
+            OnSelect = cbSyntaxSelect
+            TabOrder = 0
+          end
+        end
+        object Panel3: TPanel
+          Left = 329
+          Height = 30
+          Top = 2
+          Width = 183
+          BevelOuter = bvNone
+          ClientHeight = 30
+          ClientWidth = 183
+          TabOrder = 1
+          object cbClient: TComboBox
+            Left = 264
+            Height = 29
+            Top = 0
+            Width = 100
+            ItemHeight = 0
+            TabOrder = 0
+            Text = 'cbClient'
+            Visible = False
+          end
+          object tbTools: TToolBar
+            Left = 46
+            Height = 30
+            Top = 0
+            Width = 137
+            Align = alClient
+            Caption = 'tbTools'
+            EdgeBorders = []
+            ParentShowHint = False
+            ShowCaptions = True
+            ShowHint = True
+            TabOrder = 1
+          end
+          object Label2: TLabel
+            Left = 5
+            Height = 27
+            Top = 3
+            Width = 36
+            Align = alLeft
+            BorderSpacing.Left = 5
+            BorderSpacing.Top = 3
+            BorderSpacing.Right = 5
+            Caption = 'Tools'
+            ParentColor = False
+          end
+        end
+      end
+      object Panel5: TPanel
+        Left = 512
+        Height = 32
+        Top = 0
+        Width = 242
+        Align = alRight
+        BevelOuter = bvNone
+        ClientHeight = 32
+        ClientWidth = 242
+        TabOrder = 1
+        object bSearchNext: TSpeedButton
+          Left = 218
+          Height = 24
+          Hint = 'weitersuchen'
+          Top = 8
+          Width = 24
+          Anchors = [akTop, akRight]
+          Caption = '>'
+          OnClick = bSearchNextClick
+        end
+        object SpeedButton2: TSpeedButton
+          Left = 195
+          Height = 24
+          Hint = 'weitersuchen'
+          Top = 8
+          Width = 24
+          Anchors = [akTop, akRight]
+          Caption = '<'
+          OnClick = SpeedButton2Click
+        end
+        object eSearchC: TEdit
+          Left = 2
+          Height = 25
+          Top = 7
+          Width = 192
+          Anchors = [akTop, akRight]
+          Font.Color = clSilver
+          OnEnter = eSearchCEnter
+          OnExit = eSearchCExit
+          OnKeyPress = eSearchCKeyPress
+          ParentFont = False
+          TabStop = False
+          TabOrder = 0
+          Text = '<Suche>'
+        end
       end
     end
   end

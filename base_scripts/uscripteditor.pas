@@ -28,8 +28,8 @@ uses
   RegExpr, LResources,  SynEditRegexSearch, SynEditSearch,
   SynEditMiscClasses, SynEditHighlighter, SynGutterBase, SynEditMarks,
   SynEditMarkupSpecialLine, SynHighlighterSQL, SynHighlighterPython,
-  SynHighlighterCpp, uprometscripts, LCLIntf, genscript,
-  uBaseDbClasses, variants;
+  SynHighlighterCpp, uprometscripts, LCLIntf, Buttons, genscript,
+  uBaseDbClasses, variants, uIntfStrConsts;
 
 type
   TOpenUnitEvent = procedure(UnitName : string;X,Y : Integer) of object;
@@ -58,9 +58,12 @@ type
     cbSyntax: TDBComboBox;
     cbClient: TComboBox;
     DataSource: TDataSource;
+    eSearchC: TEdit;
     GutterImages: TImageList;
     Label2: TLabel;
     MenuItem6: TMenuItem;
+    Panel4: TPanel;
+    Panel5: TPanel;
     PopupMenu2: TPopupMenu;
     SelectData: TDatasource;
     gResults: TDBGrid;
@@ -85,6 +88,8 @@ type
     File1: TMenuItem;
     ReplaceDialog1: TReplaceDialog;
     Run1: TMenuItem;
+    bSearchNext: TSpeedButton;
+    SpeedButton2: TSpeedButton;
     Splitter2: TSplitter;
     StepOver1: TMenuItem;
     StepInto1: TMenuItem;
@@ -145,6 +150,9 @@ type
     procedure edShowHint(Sender: TObject; HintInfo: PHintInfo);
     procedure edSpecialLineColors(Sender: TObject; Line: Integer; var Special: Boolean; var FG, BG: TColor);
     procedure BreakPointMenuClick(Sender: TObject);
+    procedure eSearchCEnter(Sender: TObject);
+    procedure eSearchCExit(Sender: TObject);
+    procedure eSearchCKeyPress(Sender: TObject; var Key: char);
     procedure Exit1Click(Sender: TObject);
     procedure FDataSetDataSetAfterScroll(DataSet: TDataSet);
     procedure FDataSetDataSetBeforeScroll(DataSet: TDataSet);
@@ -168,6 +176,8 @@ type
     procedure Replace1Click(Sender: TObject);
     procedure edDropFiles(Sender: TObject; X, Y: Integer;
       AFiles: TStrings);
+    procedure bSearchNextClick(Sender: TObject);
+    procedure SpeedButton2Click(Sender: TObject);
     procedure tmDebugTimer(Sender: TObject);
     procedure TPascalScriptToolRegistering(const s: string);
   private
@@ -744,6 +754,24 @@ begin
   ed.Refresh;
 end;
 
+procedure TfScriptEditor.eSearchCEnter(Sender: TObject);
+begin
+ eSearchC.Clear;
+ eSearchC.Font.Color:=clDefault;
+end;
+
+procedure TfScriptEditor.eSearchCExit(Sender: TObject);
+begin
+ eSearchC.Text:=strSearch;
+ eSearchC.Font.Color:=clSilver;
+end;
+
+procedure TfScriptEditor.eSearchCKeyPress(Sender: TObject; var Key: char);
+begin
+  if Key=#13 then
+    bSearchNext.Click;
+end;
+
 procedure TfScriptEditor.Exit1Click(Sender: TObject);
 begin
   acReset.Execute; //terminate any running script
@@ -1144,6 +1172,16 @@ begin
       ed.Modified := True;
       ActiveFile := AFiles[0];
     end;
+end;
+
+procedure TfScriptEditor.bSearchNextClick(Sender: TObject);
+begin
+  ed.SearchReplace(eSearchC.Text,'',[ssoFindContinue]);
+end;
+
+procedure TfScriptEditor.SpeedButton2Click(Sender: TObject);
+begin
+  ed.SearchReplace(eSearchC.Text,'',[ssoFindContinue]);
 end;
 
 procedure TfScriptEditor.tmDebugTimer(Sender: TObject);
