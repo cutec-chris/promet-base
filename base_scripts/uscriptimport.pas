@@ -231,7 +231,7 @@ begin
                     if FTyp = icImport then
                       Result := Runtime.RunProcPN([eDataSource.Text],'DOIMPORT')
                     else
-                      Result := Runtime.RunProcPN([eDataSource.Text,Records],'DOEXPORT');
+                      Result := Runtime.RunProcPN([eDataSource.Text],'DOEXPORT');
                     if not Result then
                       begin
                         tmp := Runtime.RunProcPN([],'LASTERROR');
