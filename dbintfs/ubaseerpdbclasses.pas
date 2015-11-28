@@ -190,6 +190,9 @@ type
     procedure DefineFields(aDataSet : TDataSet);override;
     property Inventory : TBaseDbList read FInv;
   end;
+
+  { TInventorys }
+
   TInventorys = class(TBaseDbList)
   private
     FPos: TInventoryPos;
@@ -197,6 +200,7 @@ type
     constructor CreateEx(aOwner : TComponent;DM : TComponent=nil;aConnection : TComponent = nil;aMasterdata : TDataSet = nil);override;
     destructor Destroy; override;
     function CreateTable : Boolean;override;
+    procedure FillDefaults(aDataSet: TDataSet); override;
     procedure DefineFields(aDataSet : TDataSet);override;
     property Positions : TInventoryPos read FPos;
   end;
@@ -313,6 +317,16 @@ begin
   Result := inherited CreateTable;
   FPos.CreateTable;
 end;
+
+procedure TInventorys.FillDefaults(aDataSet: TDataSet);
+begin
+  inherited FillDefaults(aDataSet);
+  with aDataSet,BaseApplication as IBaseDbInterface do
+    begin
+      FieldByName('INVNO').AsInteger := RecordCount+1;
+    end;
+end;
+
 procedure TInventorys.DefineFields(aDataSet: TDataSet);
 begin
   with aDataSet as IBaseManageDB do
