@@ -1046,6 +1046,7 @@ begin
             Add('UNIT',ftInteger,0,False);     //Verpackungseinheit
             Add('WARRENTY',ftString,10,False);
             Add('MANUFACNR',ftString,40,False);
+            Add('DISPOTYPE',ftString,1,False);   //Planart 0=nicht Disponieren 1=Volldispo 2=disponieren 3=Mindestbestand
             Add('VALIDFROM',ftDate,0,False);   //Ein/Auslaufsteuerung
             Add('VALIDTO',ftDate,0,False);     //gültig bis Datum
             Add('VALIDTOME',ftInteger,0,False);//gültig bis Menge
