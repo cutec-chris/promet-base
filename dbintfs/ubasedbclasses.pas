@@ -2118,7 +2118,7 @@ begin
           begin
             Add('TYPE',ftString,1,True);
             Add('NAME',ftString,60,True);
-            Add('FILTER',ftString,150,True);
+            Add('FILTER',ftMemo,0,True);
             Add('FILTERIN',ftString,100,False);
             Add('STANDART',ftString,1,True);
             Add('SORTDIR',ftString,4,False);
@@ -3028,7 +3028,7 @@ begin
             else if (not Data.IsTransactionActive(Connection)) then
               begin
                 with BaseApplication as IBaseApplication do
-                  Info('Table "'+TableName+'" altering failed');
+                  Info('Table "'+TableName+'" altering failed ');
               end;
           end;
       end;
