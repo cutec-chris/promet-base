@@ -45,6 +45,7 @@ type
     lInfo: TLabel;
     OpenDialog: TOpenDialog;
     Panel1: TPanel;
+    SaveDialog1: TSaveDialog;
     SpeedButton1: TSpeedButton;
     procedure acConfigExecute(Sender: TObject);
     procedure cbFormatSelect(Sender: TObject);
@@ -139,9 +140,21 @@ end;
 
 procedure TfScriptImport.eDataSourceButtonClick(Sender: TObject);
 begin
-  if OpenDialog.Filter<>'' then
-    if OpenDialog.Execute then
-      eDataSource.Text:=OpenDialog.FileName;
+  if FTyp = icImport then
+    begin
+      if OpenDialog.Filter<>'' then
+        if OpenDialog.Execute then
+          eDataSource.Text:=OpenDialog.FileName;
+    end
+  else
+    begin
+      if OpenDialog.Filter<>'' then
+        begin
+          SaveDialog1.Filter:=OpenDialog.Filter;
+          if SaveDialog1.Execute then
+            eDataSource.Text:=SaveDialog1.FileName;
+        end;
+    end;
 end;
 
 procedure TfScriptImport.lInfoResize(Sender: TObject);

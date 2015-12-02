@@ -110,7 +110,7 @@ end;
 constructor TProcProcess.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Options := [poUsePipes, poStdErrToOutPut, poNoConsole];
+  Options := [poUsePipes, poStdErrToOutPut, poNoConsole,poNewProcessGroup];
   ShowWindow:=swoHIDE;
 end;
 
