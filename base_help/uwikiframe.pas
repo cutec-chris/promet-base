@@ -649,7 +649,7 @@ begin
       if aDocument.DataSet.RecordCount > 0 then
         begin
           ms := TMemoryStream.Create;
-          Data.BlobFieldToStream(aDocument.DataSet,'DOCUMENT',ms);
+          aDocument.CheckoutToStream(ms);
           ms.Position:=0;
           if TIpHtmlNodeIMG(FActNode).Width.LengthType = hlAbsolute then
             begin
