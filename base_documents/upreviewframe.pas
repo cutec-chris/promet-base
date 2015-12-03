@@ -197,7 +197,7 @@ begin
           aDocument.DataSet.First;
           repeat
             begin
-              FFrame.cbRevision.Items.Insert(0,Format('%d %s',[FieldByName('REVISION').AsInteger,FieldByName('TIMESTAMPD').AsString]));
+              FFrame.cbRevision.Items.Insert(0,Format('%s %d',[FieldByName('TIMESTAMPD').AsString,FieldByName('REVISION').AsInteger]));
               aDocument.DataSet.Next;
             end
           until aDocument.DataSet.EOF;

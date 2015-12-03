@@ -64,6 +64,7 @@ type
     function OpenPath(aPath : string;aPathDelim : string = PathDelim) : Boolean;
     property IsDir : Boolean read GetIsDir;
     property IsLink : Boolean read GetIsLink;
+    function GotoLink : Boolean;
     function SelectFile(aFilename : string) : Boolean;
     function Delete : Boolean;override;
     property Size : Int64 read GetFileSize;
@@ -1012,6 +1013,26 @@ begin
     end;
   tmpDocs.Free;
 end;
+
+function TDocuments.GotoLink: Boolean;
+var
+  aRes: Boolean;
+  ss: TStringStream;
+begin
+  aRes := IsLink;
+  Result := aRes;
+  while aRes do
+    begin
+      ss := TStringStream.Create('');
+      with BaseApplication as IBaseDbInterface do
+        Data.BlobFieldToStream(DataSet,'DOCUMENT',ss);
+      SelectByLink(ss.DataString);
+      Open;
+      ss.Free;
+      aRes := IsLink;
+    end;
+end;
+
 function TDocuments.SelectFile(aFilename: string): Boolean;
 var
   aNamePart: String = '';

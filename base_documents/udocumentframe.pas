@@ -519,6 +519,8 @@ begin
       aID := DataSet.FieldByName('NUMBER').AsVariant;
       aDocument.SelectByNumber(aId);
       aDocument.Open;
+      if aDocument.IsLink then
+        aDocument.GotoLink;
       with aDocument.DataSet do
         begin
           aDocument.DataSet.First;
@@ -526,7 +528,10 @@ begin
             begin
               miNew := TMenuItem.Create(pmDocumentAction);
               miCheckoutToRevision.Insert(0,miNew);
-              miNew.Caption:=Format('%d %s',[FieldByName('REVISION').AsInteger,FieldByName('TIMESTAMPD').AsString]);
+              if FieldByName('REVISION').AsInteger=0 then
+                miNew.Caption:=Format('%s [%d]',[FieldByName('DATE').AsString,FieldByName('REVISION').AsInteger])
+              else
+                miNew.Caption:=Format('%s [%d]',[FieldByName('TIMESTAMPD').AsString,FieldByName('REVISION').AsInteger]);
               miNew.OnClick:=@acCheckoutToRevisionExecute;
               miNew.Tag:=FieldByName('REVISION').AsInteger;
               aDocument.DataSet.Next;
