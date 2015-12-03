@@ -1057,6 +1057,7 @@ var
   aDocument: TDocument;
   aName: String;
   ss: TStringStream;
+  aFile: TFileStream;
 begin
   if IsDir then
     begin
@@ -1137,8 +1138,9 @@ begin
                 FOnCheckCheckOutFile(aName);
               if (Directory <> '') then
                 ForceDirectories(UniToSys(AppendPathDelim(Directory)));
-              with BaseApplication as IBaseDbInterface do
-                Data.BlobFieldToFile(DataSet,'DOCUMENT',aName);
+              aFile := TFileStream.Create(aName,fmCreate);
+              CheckoutToStream(aFile,aRevision);
+              aFile.Free;
               //generate original Checksum if not there
               if DataSet.FieldByName('CHECKSUM').AsString = '' then
                 begin

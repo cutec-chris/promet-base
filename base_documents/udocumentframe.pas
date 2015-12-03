@@ -199,7 +199,7 @@ TfDocumentFrame = class(TPrometInplaceDBFrame{$IFDEF WINDOWS},IDropSource{$ENDIF
     FRefID: Variant;
     FTyp: string;
     FVersion: Variant;
-    aDirectoryID : Integer;
+    aDirectoryID : Int64;
     DirectoryIDs : array of integer;
     PreviewFrame: TfPreview;
     FEditable : Boolean;
@@ -388,7 +388,7 @@ begin
         begin
           Setlength(DirectoryIDs,length(DirectoryIDs)+1);
           DirectoryIDs[length(DirectoryIDs)-1] := aDirectoryID;
-          aDirectoryID := FDataSet.FieldByName('NUMBER').AsInteger;
+          aDirectoryID := FDataSet.FieldByName('NUMBER').AsVariant;
           Refresh(FRefID,FTyp,FID,FVersion,FLanguage,aDirectoryID);
         end
       else
@@ -417,7 +417,7 @@ var
   f : TextFile;
   fl: TStringList;
   aDocument: TDocument;
-  aID: Integer;
+  aID: Int64;
   {$ENDIF}
 begin
   {$IFDEF WINDOWS}
@@ -438,7 +438,7 @@ begin
             begin
               DragDropFile := AppendPathDelim(TempPath)+TDocuments(DataSet).FileName;
               aDocument := TDocument.CreateEx(Self,Data);
-              aID := DataSet.FieldByName('NUMBER').AsInteger;
+              aID := DataSet.FieldByName('NUMBER').AsVariant;
               aDocument.SelectByNumber(aId);
               aDocument.Open;
               aDocument.DoCheckout(AppendPathDelim(TempPath));
@@ -450,7 +450,7 @@ begin
           else
             begin
               DragDropFile := AppendPathDelim(TempPath)+UniToSys(TDocuments(DataSet).FileName);
-              aID := DataSet.FieldByName('NUMBER').AsInteger;
+              aID := DataSet.FieldByName('NUMBER').AsVariant;
               aDocument := TDocument.CreateEx(Self,Data);
               aDocument.SelectByNumber(aId);
               aDocument.Open;
@@ -495,6 +495,9 @@ end;
 procedure TfDocumentFrame.pmDocumentActionPopup(Sender: TObject);
 var
   Stream: TStringStream;
+  miNew: TMenuItem;
+  aDocument: TDocument;
+  aID: Int64;
 begin
   acPasteAsLink.Enabled:=False;
   acMoveLink.Enabled:=False;
@@ -508,6 +511,30 @@ begin
             acMoveLink.Enabled:=True;
           end;
       Stream.Free;
+    end;
+  miCheckoutToRevision.Clear;
+  if GotoSelected then
+    begin
+      aDocument := TDocument.CreateEx(Self,Data);
+      aID := DataSet.FieldByName('NUMBER').AsVariant;
+      aDocument.SelectByNumber(aId);
+      aDocument.Open;
+      with aDocument.DataSet do
+        begin
+          aDocument.DataSet.First;
+          repeat
+            begin
+              miNew := TMenuItem.Create(pmDocumentAction);
+              miCheckoutToRevision.Insert(0,miNew);
+              miNew.Caption:=Format('%d %s',[FieldByName('REVISION').AsInteger,FieldByName('TIMESTAMPD').AsString]);
+              miNew.OnClick:=@acCheckoutToRevisionExecute;
+              miNew.Tag:=FieldByName('REVISION').AsInteger;
+              aDocument.DataSet.Next;
+            end
+          until aDocument.DataSet.EOF;
+          if miCheckoutToRevision.Count>2 then
+            miCheckoutToRevision.Items[0].Free;
+        end;
     end;
 end;
 procedure TfDocumentFrame.spPreviewMoved(Sender: TObject);
@@ -538,7 +565,7 @@ begin
         begin
           //Dropped File to Desktop/Explorer
           aDocument := TDocument.CreateEx(Self,Data);
-          aID := DataSet.FieldByName('NUMBER').AsInteger;
+          aID := DataSet.FieldByName('NUMBER').AsVariant;
           aDocument.SelectByNumber(aId);
           aDocument.Open;
           aDocument.DoCheckout(copy(DragDropFile,0,rpos(DirectorySeparator,DragDropFile)-1));
@@ -832,7 +859,7 @@ begin
         begin
           Screen.Cursor := crHourglass;
           aDocument := TDocument.CreateEx(Self,Data);
-          aID := DataSet.FieldByName('NUMBER').AsInteger;
+          aID := DataSet.FieldByName('NUMBER').AsVariant;
           aDocument.SelectByNumber(aID);
           aDocument.Open;
           aDocument.Ref_ID:=FRefID;
@@ -868,7 +895,7 @@ procedure TfDocumentFrame.acCheckinFromFileExecute(Sender: TObject);
 var
   FileList: TStringList;
   aDocument: TDocument;
-  aID: Integer;
+  aID: Int64;
   Result: Boolean;
 begin
   if DocumentDialog.Execute then
@@ -877,7 +904,7 @@ begin
         begin
           Screen.Cursor := crHourglass;
           aDocument := TDocument.CreateEx(Self,Data);
-          aID := DataSet.FieldByName('NUMBER').AsInteger;
+          aID := DataSet.FieldByName('NUMBER').AsVariant;
           aDocument.SelectByNumber(aID);
           aDocument.Open;
           aDocument.Ref_ID:=FRefID;
@@ -906,36 +933,37 @@ var
   aRev: Integer;
 begin
   if not GotoSelected then exit;
-  if InputQuery(strRevision,strRevision,asRev) then
+  if Sender is TMenuItem then
+    aRev := TMenuItem(Sender).Tag
+  else if InputQuery(strRevision,strRevision,asRev) then
+    aRev := StrToInt(asRev)
+  else exit;
+  if DataSet.FieldByName('ISDIR').AsString = 'Y' then
     begin
-      aRev := StrToInt(asRev);
-      if DataSet.FieldByName('ISDIR').AsString = 'Y' then
+      if FolderDialog.Execute then
         begin
-          if FolderDialog.Execute then
-            begin
-              aDocument := TDocument.CreateEx(Self,Data);
-              aID := DataSet.FieldByName('NUMBER').AsInteger;
-              aDocument.SelectByNumber(aId);
-              aDocument.Open;
-              aDocument.DoCheckout(FolderDialog.FileName,arev);
-              aDocument.Free;
-            end;
-        end
+          aDocument := TDocument.CreateEx(Self,Data);
+          aID := DataSet.FieldByName('NUMBER').AsVariant;
+          aDocument.SelectByNumber(aId);
+          aDocument.Open;
+          aDocument.DoCheckout(FolderDialog.FileName,arev);
+          aDocument.Free;
+        end;
+    end
+  else
+    begin
+      if DataSet.FieldByName('EXTENSION').AsString <> '' then
+        DocumentSaveDialog.FileName := UniToSys(DataSet.FieldByName('NAME').AsString+'.'+DataSet.FieldByName('EXTENSION').AsString)
       else
+        DocumentSaveDialog.FileName := UniToSys(DataSet.FieldByName('NAME').AsString);
+      if DocumentSaveDialog.Execute then
         begin
-          if DataSet.FieldByName('EXTENSION').AsString <> '' then
-            DocumentSaveDialog.FileName := UniToSys(DataSet.FieldByName('NAME').AsString+'.'+DataSet.FieldByName('EXTENSION').AsString)
-          else
-            DocumentSaveDialog.FileName := UniToSys(DataSet.FieldByName('NAME').AsString);
-          if DocumentSaveDialog.Execute then
-            begin
-              aID := DataSet.FieldByName('NUMBER').AsInteger;
-              aDocument := TDocument.CreateEx(Self,Data);
-              aDocument.SelectByNumber(aId);
-              aDocument.Open;
-              aDocument.DoCheckout(ExtractFileDir(DocumentSaveDialog.Filename),arev);
-              aDocument.Free;
-            end;
+          aID := DataSet.FieldByName('NUMBER').AsVariant;
+          aDocument := TDocument.CreateEx(Self,Data);
+          aDocument.SelectByNumber(aId);
+          aDocument.Open;
+          aDocument.DoCheckout(ExtractFileDir(DocumentSaveDialog.Filename),arev);
+          aDocument.Free;
         end;
     end;
 end;
@@ -1060,11 +1088,11 @@ end;
 procedure TfDocumentFrame.acDocumentPropertiesExecute(Sender: TObject);
 var
   aDocument: TDocument;
-  aID: Integer;
+  aID: Int64;
 begin
   if GotoSelected then
     begin
-      aID := DataSet.FieldByName('NUMBER').AsInteger;
+      aID := DataSet.FieldByName('NUMBER').AsVariant;
       aDocument := TDocument.CreateEx(Self,Data);
       aDocument.SelectByNumber(aId);
       aDocument.Open;
@@ -1171,7 +1199,7 @@ begin
       if FolderDialog.Execute then
         begin
           aDocument := TDocument.CreateEx(Self,Data);
-          aID := DataSet.FieldByName('NUMBER').AsInteger;
+          aID := DataSet.FieldByName('NUMBER').AsVariant;
           aDocument.SelectByNumber(aId);
           aDocument.Open;
           aDocument.OnCheckCheckOutFile:=@aDocumentCheckCheckOutFile;
@@ -1336,7 +1364,7 @@ var
   FExit: LongInt;
   aDocument: TDocument;
   bDocument: TDocument;
-  aID: Integer;
+  aID: Int64;
   aCommand: String;
 begin
   if not GotoSelected then exit;
@@ -1344,7 +1372,7 @@ begin
   TempID := ValidateFileName(Data.BuildLink(DataSet.DataSet)+IntToStr(Random(99999)));
   TempID := StringReplace(TempID,'{','_',[rfReplaceAll]);
   TempID := StringReplace(TempID,'}','_',[rfReplaceAll]);
-  aID := DataSet.FieldByName('NUMBER').AsInteger;
+  aID := DataSet.FieldByName('NUMBER').AsVariant;
   bDocument := TDocument.CreateEx(Self,Data);
   bDocument.SelectByNumber(aId);
   bDocument.Open;
@@ -1364,7 +1392,7 @@ begin
               fWaitForm.Show;
               Application.ProcessMessages;
               aDocument := TDocument.Create(nil);
-              aDocument.SelectByNumber(DataSet.FieldByName('NUMBER').AsInteger);
+              aDocument.SelectByNumber(DataSet.FieldByName('NUMBER').AsVariant);
               aDocument.Open;
               aDocument.DoCheckout(copy(aDocument.GetCheckOutPath('',TempID),0,rpos(DirectorySeparator,aDocument.GetCheckOutPath('',TempID))-1));
               fWaitForm.Hide;
@@ -1372,7 +1400,7 @@ begin
           else
             begin
               aDocument := TDocument.Create(nil);
-              aDocument.SelectByNumber(DataSet.FieldByName('NUMBER').AsInteger);
+              aDocument.SelectByNumber(DataSet.FieldByName('NUMBER').AsVariant);
               aDocument.Open;
               aDocument.DoCheckout(copy(aDocument.GetCheckOutPath('',TempID),0,rpos(DirectorySeparator,aDocument.GetCheckOutPath('',TempID))-1));
 //              aDocument.DoCheckout(aDocument.GetCheckOutPath('',TempID));
@@ -1530,11 +1558,11 @@ end;
 
 function TfDocumentFrame.SaveFileToDir(aDir: string): Boolean;
 var
-  aID: Integer;
+  aID: Int64;
   aDocument: TDocument;
 begin
   if not GotoSelected then exit;
-  aID := DataSet.FieldByName('NUMBER').AsInteger;
+  aID := DataSet.FieldByName('NUMBER').AsVariant;
   aDocument := TDocument.CreateEx(Self,Data);
   aDocument.SelectByNumber(aId);
   aDocument.Open;

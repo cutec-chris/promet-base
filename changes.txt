@@ -1,5 +1,6 @@
 ﻿Build 420
       - SyncDB:100 Datensatz Blöcke funktionieren nicht wenn mehr als 100 Datensätze zwischen 2 Syncs geändert wurden. Das wird nun abgefangen und dann die Tabelle voll synchronisiert
+      - Dateien:einige Fehler in Dateiverwaltung behoben (treten nur bei sehr großen SQL_ID´s auf dort konnten Dateien nicht geöffnet werden)
 Build 419
       - Production:kleine Fixes für das automatische generieren von Aufträgen
 Build 418
