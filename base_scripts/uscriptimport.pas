@@ -201,9 +201,9 @@ begin
   fFormat := DefaultFormat;
   aScripts := TBaseScript.Create(nil);
   if FTyp=icImport then
-    aScripts.Filter(Data.ProcessTerm(Data.QuoteField('NAME')+'='+Data.QuoteValue('Import.'+FFormat+'.*')))
+    aScripts.Filter(Data.ProcessTerm(Data.QuoteField('NAME')+'='+Data.QuoteValue('Import.'+FFormat+'.*'))+' AND '+Data.QuoteField('ACTIVE')+'='+Data.QuoteValue('Y'))
   else
-    aScripts.Filter(Data.ProcessTerm(Data.QuoteField('NAME')+'='+Data.QuoteValue('Export.'+FFormat+'.*')));
+    aScripts.Filter(Data.ProcessTerm(Data.QuoteField('NAME')+'='+Data.QuoteValue('Export.'+FFormat+'.*'))+' AND '+Data.QuoteField('ACTIVE')+'='+Data.QuoteValue('Y'));
   aScripts.First;
   cbFormat.Items.Clear;
   cbFormat.Text:='';

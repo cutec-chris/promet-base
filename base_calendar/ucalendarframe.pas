@@ -648,6 +648,7 @@ constructor TCustomPrometheusDataStore.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   Self.FConnected:=True;
+  EnableEventTimer:=False;
 end;
 destructor TCustomPrometheusDataStore.Destroy;
 begin

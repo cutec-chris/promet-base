@@ -1216,7 +1216,7 @@ inherited FCalendarFrame: TFCalendarFrame
           end        
           item
             Command = ecCopy
-          end
+          end        
           item
             Command = ecBlockIndent
             ShortCut = 24649
@@ -1469,7 +1469,6 @@ inherited FCalendarFrame: TFCalendarFrame
         MouseTextActions = <>
         MouseSelActions = <>
         VisibleSpecialChars = [vscSpace, vscTabAtLast]
-        SelectedColor.FrameEdges = sfeAround
         SelectedColor.BackPriority = 50
         SelectedColor.ForePriority = 50
         SelectedColor.FramePriority = 50
@@ -1488,7 +1487,6 @@ inherited FCalendarFrame: TFCalendarFrame
             MouseActions = <>
             MarkupInfo.Background = clBtnFace
             MarkupInfo.Foreground = clNone
-            MarkupInfo.FrameEdges = sfeAround
             DigitCount = 2
             ShowOnlyLineNumbersMultiplesOf = 1
             ZeroStart = False
@@ -1505,13 +1503,11 @@ inherited FCalendarFrame: TFCalendarFrame
             MouseActions = <>
             MarkupInfo.Background = clWhite
             MarkupInfo.Foreground = clGray
-            MarkupInfo.FrameEdges = sfeAround
           end
           object SynGutterCodeFolding1: TSynGutterCodeFolding
             MouseActions = <>
             MarkupInfo.Background = clNone
             MarkupInfo.Foreground = clGray
-            MarkupInfo.FrameEdges = sfeAround
             MouseActionsExpanded = <>
             MouseActionsCollapsed = <>
           end
