@@ -301,7 +301,7 @@ begin
                   if Documents.DataSet.FieldByName('ISDIR').AsString <> 'Y' then
                     begin
                       aDocument := TDocument.CreateEx(Self,Data);
-                      aDocument.SelectByNumber(Documents.DataSet.FieldByName('NUMBER').AsInteger);
+                      aDocument.SelectByNumber(Documents.DataSet.FieldByName('NUMBER').AsVariant);
                       aDocument.Open;
                       if aDocument.Count>0 then
                         begin

@@ -1388,6 +1388,7 @@ var aClose: TCloseAction;
 begin
   try
     if Assigned(DataSet) and Assigned(DataSet.DataSet) then DataSet.DataSet.AfterScroll:=@DatasetAfterScroll;
+    FreeAndNil(FDataSet);
   except
   end;
   if Assigned(FOnClose) then

@@ -2998,6 +2998,8 @@ begin
         if Assigned(FDataSet) then
           TBaseDBModule(DataModule).DestroyDataSet(FDataSet);
       except
+        with BaseApplication as IBaseApplication do
+          debug('Error Freeing: '+ClassName);
       end;
       inherited Destroy;
     end;
