@@ -147,7 +147,7 @@ type
     function EscapeString(aValue : string) : string;virtual;
     function DateToFilter(aValue : TDateTime) : string;virtual;
     function DateTimeToFilter(aValue : TDateTime) : string;virtual;
-    function GetLinkDesc(aLink : string) : string;virtual;
+    function GetLinkDesc(aLink: string; Fast: Boolean=false): string; virtual;
     function GetLinkLongDesc(aLink : string) : string;virtual;
     function GetLinkIcon(aLink: string; GetRealIcon: Boolean=False): Integer;
       virtual;
@@ -653,7 +653,7 @@ begin
     aValue:=MaxDateTime;
   Result := QuoteValue(FormatDateTime('YYYY-MM-DD HH:MM:SS',aValue));
 end;
-function TBaseDBModule.GetLinkDesc(aLink: string): string;
+function TBaseDBModule.GetLinkDesc(aLink: string;Fast : Boolean = false): string;
 var
   tmp1: String;
   tmp2: String;
@@ -722,7 +722,7 @@ begin
     end
   else if copy(aLink, 0, 6) = 'ORDERS' then
     begin
-      if IsSQLDB then
+      if IsSQLDB and (not Fast) then
         begin
           aTable := GetNewDataSet('select '+QuoteField('SQL_ID')+','+QuoteField('STATUS')+','+QuoteField('CUSTNAME')+' from '+QuoteField('ORDERS')+' where '+QuoteField('ORDERNO')+'='+QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink)))+' OR '+QuoteField('SQL_ID')+'='+QuoteValue(copy(aLink, pos('@', aLink) + 1, length(aLink))));
           aTable.Open;

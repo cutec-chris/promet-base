@@ -613,6 +613,8 @@ end;
 procedure TfPosition.ActiveSearchItemFound(aIdent: string; aName: string;
   aStatus: string; aActive: Boolean; aLink: string; aPrio: Integer;
   aItem: TBaseDBList);
+var
+  aMasterdata: TMasterdata;
 begin
   with pSearch do
     begin
@@ -620,8 +622,15 @@ begin
         Visible := True;
     end;
   if aActive then
-    if lbResults.Items.IndexOf(Data.GetLinkDesc(aLink))=-1 then
-      lbResults.Items.AddObject(Data.GetLinkDesc(aLink) ,TLinkObject.Create(aLink));
+    begin
+      aMasterdata := TMasterdata.Create(nil);
+      aMasterdata.SelectFromLink(aLink);
+      aMasterdata.Open;
+      aLink := Data.BuildLink(aMasterdata.DataSet);
+      if lbResults.Items.IndexOf(Data.GetLinkDesc(aLink))=-1 then
+        lbResults.Items.AddObject(Data.GetLinkDesc(aLink) ,TLinkObject.Create(aLink));
+      aMasterdata.Free;
+    end;
 end;
 
 procedure TfPosition.acUnMakeSebPosExecute(Sender: TObject);

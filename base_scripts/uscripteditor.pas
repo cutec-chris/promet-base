@@ -29,7 +29,8 @@ uses
   SynEditMiscClasses, SynEditHighlighter, SynGutterBase, SynEditMarks,
   SynEditMarkupSpecialLine, SynHighlighterSQL, SynHighlighterPython,
   SynHighlighterCpp, uprometscripts, LCLIntf, Buttons, genscript,
-  uBaseDbClasses, variants,uIntfStrConsts;
+  uBaseDbClasses, variants,uIntfStrConsts
+  ;
 
 type
   TOpenUnitEvent = procedure(UnitName : string;X,Y : Integer) of object;
