@@ -2016,6 +2016,16 @@ begin
             begin
               bMasterdata.Select(aMasterdata.Positions.FieldByName('IDENT').AsString,aMasterdata.Positions.FieldByName('VERSION').AsString,aMasterdata.Positions.FieldByName('LANGUAGE').AsString);
               bMasterdata.Open;
+              if bMasterdata.Count=0 then
+                begin
+                  bMasterdata.Select(aMasterdata.Positions.FieldByName('IDENT').AsString,aMasterdata.Positions.FieldByName('VERSION').AsString);
+                  bMasterdata.Open;
+                end;
+              if bMasterdata.Count=0 then
+                begin
+                  bMasterdata.SelectFromNumber(aMasterdata.Positions.FieldByName('IDENT').AsString);
+                  bMasterdata.Open;
+                end;
               if bMasterdata.Count>0 then
                 begin
                   aList := bMasterdata;

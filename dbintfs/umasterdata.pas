@@ -41,6 +41,7 @@ type
     procedure OpenItem(AccHistory: Boolean=True); override;
     procedure Select(aID : string);overload;
     procedure Select(aID : string;aVersion : Variant;aLanguage : Variant);overload;
+    procedure Select(aID : string;aVersion : Variant);overload;
     function SelectFromLink(aLink: string): Boolean; override;
   end;
   TMasterdataHistory = class(TBaseHistory)
@@ -1206,6 +1207,20 @@ begin
         end;
     end;
 end;
+
+procedure TMasterdataList.Select(aID: string; aVersion: Variant);
+begin
+  with BaseApplication as IBaseDbInterface do
+    begin
+      with DataSet as IBaseDBFilter do
+        begin
+          Filter := '('
+                   +Data.ProcessTerm(Data.QuoteField('ID')+'='+Data.QuoteValue(aID))+' and '
+                   +Data.ProcessTerm(Data.QuoteField('VERSION')+'='+VarToStr(aVersion))+')';
+        end;
+    end;
+end;
+
 function TMasterdataList.SelectFromLink(aLink: string) : Boolean;
 var
   tmp1: String;
