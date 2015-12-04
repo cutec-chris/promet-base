@@ -2,6 +2,7 @@
       - SyncDB:100 Datensatz Blöcke funktionieren nicht wenn mehr als 100 Datensätze zwischen 2 Syncs geändert wurden. Das wird nun abgefangen und dann die Tabelle voll synchronisiert
       - Dateien:einige Fehler in Dateiverwaltung behoben (treten nur bei sehr großen SQL_ID´s auf dort konnten Dateien nicht geöffnet werden)
       - Dateien:zu Revision auschecken bietet jetzt direkt einen Auswahldropdown der alten Versionen an
+      - Dateien:Dokumente in Zwischenablage "merken", einfügen, verschieben ist nun für mehrere Dateien gleichzeitig möglich
 Build 419
       - Production:kleine Fixes für das automatische generieren von Aufträgen
 Build 418

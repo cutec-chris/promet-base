@@ -978,11 +978,16 @@ var
   Stream: TStringStream;
   i: Integer;
 begin
-  if not GotoSelected then exit;
-  aLinks := Data.BuildLink(DataSet.DataSet)+';';
-  Stream := TStringStream.Create(aLinks);
-  Clipboard.AddFormat(LinkClipboardFormat,Stream);
-  Stream.Free;
+  aLinks := '';
+  for i := 0 to lvDocuments.Items.Count-1 do
+    if lvDocuments.Items[i].Selected and GotoEntry(lvDocuments.Items[i]) then
+      aLinks := aLinks+Data.BuildLink(DataSet.DataSet)+';';
+  if aLinks <> '' then
+    begin
+      Stream := TStringStream.Create(aLinks);
+      Clipboard.AddFormat(LinkClipboardFormat,Stream);
+      Stream.Free;
+    end;
 end;
 procedure TfDocumentFrame.acCopyTextLinkExecute(Sender: TObject);
 begin
@@ -1118,20 +1123,27 @@ procedure TfDocumentFrame.acMoveLinkExecute(Sender: TObject);
 var
   Stream: TStringStream;
   aDocument: TDocument;
+  tmp: String;
 begin
   if Clipboard.HasFormat(LinkClipboardFormat) then
     begin
       Stream := TStringstream.Create('');
       if Clipboard.GetFormat(LinkClipboardFormat,Stream) then
         begin
-          aDocument := TDocument.CreateEx(Self,Data);
-          aDocument.SelectByLink(Stream.DataString);
-          aDocument.Open;
-          aDocument.MoveTo(FRefID,FTyp,FID,FVersion,FLanguage,aDirectoryID);
-          DataSet.DataSet.Refresh;
-          DataSet.GotoBookmark(aDocument.GetBookmark);
-          AddActualItem;
-          aDocument.Free;
+          tmp := Stream.DataString;
+          while pos(';',tmp)>0 do
+            begin
+              aDocument := TDocument.CreateEx(Self,Data);
+              aDocument.SelectByLink(copy(tmp,0,pos(';',tmp)-1));
+              tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
+              aDocument.Open;
+              if aDocument.Count>0 then
+                aDocument.MoveTo(FRefID,FTyp,FID,FVersion,FLanguage,aDirectoryID);
+              DataSet.DataSet.Refresh;
+              DataSet.GotoBookmark(aDocument.GetBookmark);
+              AddActualItem;
+              aDocument.Free;
+            end;
         end;
     end;
 end;
@@ -1139,26 +1151,32 @@ procedure TfDocumentFrame.acPasteAsLinkExecute(Sender: TObject);
 var
   Stream: TStringStream;
   aDocument: TDocument;
+  tmp: String;
 begin
   if Clipboard.HasFormat(LinkClipboardFormat) then
     begin
       Stream := TStringstream.Create('');
       if Clipboard.GetFormat(LinkClipboardFormat,Stream) then
         begin
-          aDocument := TDocument.CreateEx(Self,Data);
-          aDocument.Select(0);
-          aDocument.Open;
-          aDocument.Ref_ID:=FRefID;
-          aDocument.BaseID:=FID;
-          aDocument.BaseTyp:=FTyp;
-          aDocument.BaseLanguage:=FLanguage;
-          aDocument.BaseVersion:=FVersion;
-          aDocument.ParentID:=aDirectoryID;
-          aDocument.AddFromLink(Stream.DataString);
-          DataSet.DataSet.Refresh;
-          DataSet.GotoBookmark(aDocument.GetBookmark);
-          AddActualItem;
-          aDocument.Free;
+          tmp := Stream.DataString;
+          while pos(';',tmp)>0 do
+            begin
+              aDocument := TDocument.CreateEx(Self,Data);
+              aDocument.Select(0);
+              aDocument.Open;
+              aDocument.Ref_ID:=FRefID;
+              aDocument.BaseID:=FID;
+              aDocument.BaseTyp:=FTyp;
+              aDocument.BaseLanguage:=FLanguage;
+              aDocument.BaseVersion:=FVersion;
+              aDocument.ParentID:=aDirectoryID;
+              aDocument.AddFromLink(copy(tmp,0,pos(';',tmp)-1));
+              tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
+              DataSet.DataSet.Refresh;
+              DataSet.GotoBookmark(aDocument.GetBookmark);
+              AddActualItem;
+              aDocument.Free;
+            end;
         end;
     end;
 end;
