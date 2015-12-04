@@ -194,6 +194,8 @@ begin
     begin
       with aDocument.DataSet do
         begin
+          if aDocument.IsLink then
+            aDocument.GotoLink;
           aDocument.DataSet.First;
           repeat
             begin
@@ -374,7 +376,7 @@ end;
 procedure TfPreview.cbRevisionSelect(Sender: TObject);
 begin
   if aLoading then exit;
-  aThread := TLoadThread.Create(Self,FID,StrToIntDef(copy(cbRevision.Text,0,pos(' ',cbRevision.Text)-1),0));
+  aThread := TLoadThread.Create(Self,FID,StrToIntDef(copy(cbRevision.Text,rpos(' ',cbRevision.Text)+1,length(cbRevision.Text)),0));
   Clear;
 end;
 procedure TfPreview.frPreviewMouseDown(Sender: TObject; Button: TMouseButton;
