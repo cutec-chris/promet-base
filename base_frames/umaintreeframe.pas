@@ -1722,6 +1722,8 @@ var
   aListL: TLinks;
   aProject: TProject;
   bTree: TTree;
+  aMasterdata: TMasterdata;
+  bMasterdata: TMasterdata;
   function GetHasChildren(aNode : TTreeNode) : Boolean;
   begin
     Result := False;
@@ -1997,6 +1999,34 @@ begin
           aList.DataSet.Next;
         end;
       aList.Free;
+    end
+  else if (DataT.Typ=etArticle) then
+    begin
+      aTyp := etArticle;
+      Node.DeleteChildren;
+      aMasterdata := TMasterdata.Create(nil);
+      aMasterdata.Select(DataT.Rec);
+      aMasterdata.Open;
+      aMasterdata.Positions.Open;
+      if aMasterdata.Positions.Count>0 then
+        begin
+          bMasterdata := TMasterdata.Create(nil);
+          aMasterdata.Positions.First;
+          while not aMasterdata.Positions.EOF do
+            begin
+              bMasterdata.Select(aMasterdata.Positions.FieldByName('IDENT').AsString,aMasterdata.Positions.FieldByName('VERSION').AsString,aMasterdata.Positions.FieldByName('LANGUAGE').AsString);
+              bMasterdata.Open;
+              if bMasterdata.Count>0 then
+                begin
+                  aList := bMasterdata;
+                  AddEntry;
+                  Node1.HasChildren:=True;
+                end;
+              aMasterdata.Positions.Next;
+            end;
+          bMasterdata.Free;
+        end;
+      aMasterdata.Free;
     end;
   Screen.Cursor:=crDefault;
   tvMain.EndUpdate;

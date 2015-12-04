@@ -1241,6 +1241,7 @@ begin
         with ManagedIndexDefs do
           begin
             Add('IDENT','IDENT',[]);
+            Add('POSNO','POSNO',[]);
           end;
       UpdateChangedBy:=False;
     end;
