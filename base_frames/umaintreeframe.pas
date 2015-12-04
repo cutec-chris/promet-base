@@ -1727,13 +1727,25 @@ var
   function GetHasChildren(aNode : TTreeNode) : Boolean;
   begin
     Result := False;
-    if (TTreeEntry(Node1.Data).Typ=etProject) or (TTreeEntry(Node1.Data).Typ=etProcess) then
+    if (TTreeEntry(Node1.Data).Typ=etProject) or (TTreeEntry(Node1.Data).Typ=etProcess) or (TTreeEntry(Node1.Data).Typ=etProcess) then
       begin
         aProject := TProject.Create(nil);
         aProject.SelectFromParent(aList.Id.AsVariant);
         aProject.Open;
         Result := aProject.Count>0;
         aProject.Free;
+      end
+    else if (TTreeEntry(Node1.Data).Typ=etArticle) then
+      begin
+        if aList is TMasterdata then
+          begin
+            aMasterdata.Positions.Open;
+            result := aMasterdata.Positions.Count>0;
+          end
+        else
+          begin
+            result := True;
+          end;
       end;
   end;
   procedure AddEntry;
@@ -2014,23 +2026,21 @@ begin
           aMasterdata.Positions.First;
           while not aMasterdata.Positions.EOF do
             begin
-              bMasterdata.Select(aMasterdata.Positions.FieldByName('IDENT').AsString,aMasterdata.Positions.FieldByName('VERSION').AsString,aMasterdata.Positions.FieldByName('LANGUAGE').AsString);
-              bMasterdata.Open;
-              if bMasterdata.Count=0 then
+              if aMasterdata.Positions.FieldByName('IDENT').AsString <> '' then
                 begin
-                  bMasterdata.Select(aMasterdata.Positions.FieldByName('IDENT').AsString,aMasterdata.Positions.FieldByName('VERSION').AsString);
+                  bMasterdata.Select(aMasterdata.Positions.FieldByName('IDENT').AsString,aMasterdata.Positions.FieldByName('VERSION').AsString,aMasterdata.Positions.FieldByName('LANGUAGE').AsString);
                   bMasterdata.Open;
-                end;
-              if bMasterdata.Count=0 then
-                begin
-                  bMasterdata.SelectFromNumber(aMasterdata.Positions.FieldByName('IDENT').AsString);
-                  bMasterdata.Open;
-                end;
-              if bMasterdata.Count>0 then
-                begin
-                  aList := bMasterdata;
-                  AddEntry;
-                  Node1.HasChildren:=True;
+                  if bMasterdata.Count=0 then
+                    begin
+                      bMasterdata.Select(aMasterdata.Positions.FieldByName('IDENT').AsString,aMasterdata.Positions.FieldByName('VERSION').AsString);
+                      bMasterdata.Open;
+                    end;
+                  if bMasterdata.Count>0 then
+                    begin
+                      aList := bMasterdata;
+                      AddEntry;
+                      Node1.HasChildren:=True;
+                    end;
                 end;
               aMasterdata.Positions.Next;
             end;
