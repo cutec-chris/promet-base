@@ -1242,6 +1242,7 @@ begin
           begin
             Add('IDENT','IDENT',[]);
             Add('POSNO','POSNO',[]);
+            Add('SHORTTEXT','SHORTTEXT',[]);
           end;
       UpdateChangedBy:=False;
     end;
