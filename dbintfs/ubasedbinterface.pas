@@ -272,6 +272,7 @@ const
   IMAGE_MASTERDATA         = 0;
   IMAGE_DOCUMENTS          = 25;
   IMAGE_ORDERS             = 7;
+  IMAGE_PRODUCTION         = 18;
   IMAGE_CALLS              = 51;
   IMAGE_CALENDAR           = 4;
   IMAGE_FINANCIAL          = 9;

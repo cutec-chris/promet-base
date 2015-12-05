@@ -148,6 +148,8 @@ resourcestring
   strCustomerCont               = 'Kontaktdaten';
   strTimeList                   = 'Time List';
   strOrders                     = 'Aufträge';
+  strProduction                 = 'Fertigung';
+  strProductionOrders           = 'Fertigungsaufträge';
   strTasks                      = 'Aufgaben';
   strRealDelete                 = 'möchten Sie diesen Eintrag wirklich löschen ?';
   strRename                     = 'Umbenennen';

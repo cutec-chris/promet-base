@@ -1,5 +1,5 @@
 object fGanttView: TfGanttView
-  Left = 361
+  Left = 358
   Height = 582
   Top = 201
   Width = 1076
@@ -487,8 +487,8 @@ object fGanttView: TfGanttView
       TabOrder = 2
       object Label6: TLabel
         Left = 4
-        Height = 11
-        Top = 0
+        Height = 14
+        Top = -3
         Width = 52
         Alignment = taCenter
         Anchors = [akLeft, akRight, akBottom]
@@ -618,10 +618,10 @@ object fGanttView: TfGanttView
       end
       object cbSnapshot: TComboBox
         Left = 32
-        Height = 21
+        Height = 29
         Top = 14
         Width = 140
-        ItemHeight = 13
+        ItemHeight = 0
         OnSelect = cbSnapshotSelect
         Style = csDropDownList
         TabOrder = 0

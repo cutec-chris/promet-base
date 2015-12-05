@@ -28,7 +28,7 @@ type
                etMasterdata,
                etCustomer,etSupplier,etCustomers,etCustomerList,etEmployee,etDepartment,
                etArticle,
-                 etArticleList,
+                 etArticleList,etFile,etFileDir,
                etProjects,
                  etProject,etProcess,
                etTasks,
@@ -47,6 +47,8 @@ type
                etOrders,
                  etOrderList,
                  etNewOrder,
+               etProduction,
+                 etProductionList,
                etSearch,
                etFinancial,
                  etBanking,
@@ -961,6 +963,11 @@ begin
       aImageIndex := IMAGE_ORDERS;
       aImageList := fVisualControls.ImageListBig;
     end;
+  etProduction:
+    begin
+      aImageIndex := IMAGE_PRODUCTION;
+      aImageList := fVisualControls.ImageListBig;
+    end;
   etWiki:
     begin
       aImageIndex := IMAGE_WIKI;
@@ -1016,7 +1023,7 @@ begin
     etNewAccount:aImageIndex := IMAGE_NEWACCOUNT;
     etNewTransfer:aImageIndex := IMAGE_NEWTRANSFER;
     etAccountingQue:aImageIndex := IMAGE_ACCOUNTINGQUE;
-    etOrderList,etArticleList,etCustomerList,etMeetingList:aImageIndex := IMAGE_ORDERLIST;
+    etOrderList,etArticleList,etCustomerList,etMeetingList,etProductionList:aImageIndex := IMAGE_ORDERLIST;
     etNewOrder:aImageIndex := IMAGE_ORDERPAGE;
     etWikiPage:aImageIndex := 40;
     etSalesList:aImageIndex := 9;
@@ -2073,6 +2080,7 @@ begin
   Result := Result+GetEntryText(etTasks)+';';
   Result := Result+GetEntryText(etCalendar)+';';
   Result := Result+GetEntryText(etOrders)+';';
+  Result := Result+GetEntryText(etProduction)+';';
   Result := Result+GetEntryText(etCustomers)+';';
   Result := Result+GetEntryText(etMasterdata)+';';
   Result := Result+GetEntryText(etProjects)+';';
@@ -2152,6 +2160,8 @@ begin
     etMasterdata:Celltext := strMasterdata;
     etTimeRegistering:Celltext := strTimetools;
     etOrders:Celltext := strOrders;
+    etProduction:Celltext := strProduction;
+    etProductionList:Celltext := strProductionOrders;
     etOrderList:Celltext := strOrderList;
     etTasks:Celltext := strTasks;
     etArticleList:Celltext := strArticleList;

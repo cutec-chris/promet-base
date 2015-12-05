@@ -3,6 +3,9 @@
       - Dateien:einige Fehler in Dateiverwaltung behoben (treten nur bei sehr großen SQL_ID´s auf dort konnten Dateien nicht geöffnet werden)
       - Dateien:zu Revision auschecken bietet jetzt direkt einen Auswahldropdown der alten Versionen an
       - Dateien:Dokumente in Zwischenablage "merken", einfügen, verschieben ist nun für mehrere Dateien gleichzeitig möglich
+      - Artikel:Struktur Tab das Stücklistenzusammenhänge anzeigt
+      - Baum:Stücklisten werden unter Artikeln angezeigt
+      - Baum:separater Eintrag für Fertigung
 Build 419
       - Production:kleine Fixes für das automatische generieren von Aufträgen
 Build 418
