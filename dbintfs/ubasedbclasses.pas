@@ -45,6 +45,7 @@ type
     function GetFRows: Integer;
     function GetFullCount: Integer;
     function GetID: TField;
+    function GetIsReadOnly: Boolean;
     function GetLimit: Integer;
     function GetSortDirection: TSortDirection;
     function GetSortFields: string;
@@ -55,6 +56,7 @@ type
     procedure SetFilter(AValue: string);
     procedure SetFRows(AValue: Integer);
     procedure SetLimit(AValue: Integer);
+    procedure SetIsReadOnly(AValue: Boolean);
     procedure SetSortDirection(AValue: TSortDirection);
     procedure SetSortFields(AValue: string);
   public
@@ -112,6 +114,7 @@ type
     property FetchRows : Integer read GetFRows write SetFRows;
     property Parent : TBaseDBDataSet read FParent;
     property CanEdit : Boolean read GetCanEdit;
+    property IsReadOnly : Boolean read GetIsReadOnly write SetIsReadOnly;
     property Active : Boolean read GetActive write SetActive;
   end;
 
@@ -339,8 +342,12 @@ type
     procedure ResetCache;
     function Right(Element: string;Recursive : Boolean = True;UseCache : Boolean = True) : Integer;
   end;
+
+  { TPermissions }
+
   TPermissions = class(TBaseDBDataSet)
   public
+    constructor Create(aOwner: TComponent); override;
     procedure DefineFields(aDataSet : TDataSet);override;
   end;
   TTree = class(TBaseDBDataSet)
@@ -362,8 +369,12 @@ type
   public
     procedure DefineFields(aDataSet : TDataSet);override;
   end;
+
+  { TOptions }
+
   TOptions = class(TBaseDBDataSet)
   public
+    constructor Create(aOwner: TComponent); override;
     procedure DefineFields(aDataSet : TDataSet);override;
     procedure Open; override;
     function GetOption(aSection, aIdent, DefaultValue: string): string;
@@ -377,8 +388,12 @@ type
     procedure Open; override;
     property Link : TField read GetLink;
   end;
+
+  { TFilters }
+
   TFilters = class(TBaseDBDataSet)
   public
+    constructor Create(aOwner: TComponent); override;
     procedure DefineFields(aDataSet : TDataSet);override;
     procedure FillDefaults(aDataSet : TDataSet);override;
   end;
@@ -2072,6 +2087,12 @@ begin
     UpdateStdFields := True;
 end;
 
+constructor TPermissions.Create(aOwner: TComponent);
+begin
+  inherited Create(aOwner);
+  IsReadOnly:=True;
+end;
+
 procedure TPermissions.DefineFields(aDataSet: TDataSet);
 begin
   with aDataSet as IBaseManageDB do
@@ -2108,6 +2129,13 @@ begin
           end;
     end;
 end;
+
+constructor TFilters.Create(aOwner: TComponent);
+begin
+  inherited Create(aOwner);
+  IsReadOnly:=True;
+end;
+
 procedure TFilters.DefineFields(aDataSet: TDataSet);
 begin
   with aDataSet as IBaseManageDB do
@@ -2295,6 +2323,13 @@ begin
           end;
     end;
 end;
+
+constructor TOptions.Create(aOwner: TComponent);
+begin
+  inherited Create(aOwner);
+  IsReadOnly:=True;
+end;
+
 procedure TOptions.DefineFields(aDataSet : TDataSet);
 begin
   with aDataSet as IBaseManageDB do
@@ -2337,6 +2372,11 @@ end;
 
 procedure TOptions.SetOption(aSection, aIdent, Value: string);
 begin
+  if IsReadOnly then
+    begin
+      Close;
+      IsReadOnly:=False;
+    end;
   with BaseApplication as IBaseDBInterface do
     begin
       if not Active then Open;
@@ -2367,6 +2407,7 @@ constructor TRights.CreateEx(aOwner: TComponent; DM: TComponent;
 begin
   inherited CreateEx(aOwner,DM, aConnection, aMasterdata);
   FCachedRights := TStringList.Create;
+  IsReadOnly:=True;
 end;
 destructor TRights.Destroy;
 begin
@@ -2821,6 +2862,12 @@ begin
     Result := Limit;
 end;
 
+function TBaseDBDataset.GetIsReadOnly: Boolean;
+begin
+  with DataSet as IBaseManageDB do
+    Result := AsReadonly;
+end;
+
 function TBaseDBDataset.GetSortDirection: TSortDirection;
 begin
   if not Assigned(DataSet) then exit;
@@ -2932,23 +2979,30 @@ begin
   with DataSet as IBaseDbFilter do
     FetchRows := aValue;
 end;
+
 procedure TBaseDBDataset.SetLimit(AValue: Integer);
 begin
   with DataSet as IBaseDbFilter do
     Limit := aValue;
 end;
 
+procedure TBaseDBDataset.SetIsReadOnly(AValue: Boolean);
+begin
+  with DataSet as IBaseManageDB do
+    AsReadonly := AValue;
+end;
+
 procedure TBaseDBDataset.SetSortDirection(AValue: TSortDirection);
 begin
   if not Assigned(DataSet) then exit;
-  with DataSet as IBaseDbFilter do
+  with DataSet as IBaseManageDB do
     SetSortDirection(AValue);
 end;
 
 procedure TBaseDBDataset.SetSortFields(AValue: string);
 begin
   if not Assigned(DataSet) then exit;
-  with DataSet as IBaseDbFilter do
+  with DataSet as IBaseManageDB do
     SetSortFields(AValue);
 end;
 

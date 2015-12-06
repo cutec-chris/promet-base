@@ -200,6 +200,8 @@ type
     procedure SetUpChangedBy(AValue: Boolean);
     function GetUseIntegrity: Boolean;
     procedure SetUseIntegrity(AValue: Boolean);
+    function GetAsReadonly: Boolean;
+    procedure SetAsReadonly(AValue: Boolean);
     //IBaseSubDataSets
     function GetSubDataSet(aName : string): TComponent;
     procedure RegisterSubDataSet(aDataSet : TComponent);
@@ -1282,6 +1284,17 @@ procedure TZeosDBDataSet.SetUseIntegrity(AValue: Boolean);
 begin
   FUseIntegrity:=AValue;
 end;
+
+function TZeosDBDataSet.GetAsReadonly: Boolean;
+begin
+  result := Self.ReadOnly;
+end;
+
+procedure TZeosDBDataSet.SetAsReadonly(AValue: Boolean);
+begin
+  Self.ReadOnly:=AValue;
+end;
+
 procedure TZeosDBDataSet.SetFieldData(Field: TField; Buffer: Pointer);
 var
   tmp: String;
