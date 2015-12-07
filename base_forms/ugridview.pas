@@ -144,7 +144,6 @@ type
     procedure gHeaderDrawCell(Sender: TObject; aCol, aRow: Integer;
       aRect: TRect; aState: TGridDrawState);
     procedure gHeaderEditingDone(Sender: TObject);
-    procedure gHeaderEnter(Sender: TObject);
     procedure gHeaderGetCellWidth(aCol: Integer; var aNewWidth: Integer);
     procedure gHeaderHeaderClick(Sender: TObject; IsColumn: Boolean;
       Index: Integer);
@@ -571,11 +570,6 @@ begin
     FAutoFilterChanged(Self);
   acFilter.Execute;
   gHeader.Options:=gHeader.Options-[goAlwaysShowEditor];
-end;
-
-procedure TfGridView.gHeaderEnter(Sender: TObject);
-begin
-  gHeader.Options:=gHeader.Options+[goAlwaysShowEditor];
 end;
 
 procedure TfGridView.gHeaderGetCellWidth(aCol: Integer; var aNewWidth: Integer);
@@ -2706,6 +2700,7 @@ begin
   SearchKeyTimer.Interval:=200;
   SearchKeyTimer.OnTimer:=@SearchKeyTimerTimer;
   gHeader.Visible:=False;
+  gHeader.Options:=gHeader.Options+[goAlwaysShowEditor];
   //gList.ScrollSyncControl := gHeader;
 end;
 destructor TfGridView.Destroy;

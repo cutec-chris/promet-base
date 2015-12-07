@@ -161,7 +161,6 @@ object fGridView: TfGridView
     OnColRowMoved = gHeaderColRowMoved
     OnDrawCell = gHeaderDrawCell
     OnEditingDone = gHeaderEditingDone
-    OnEnter = gHeaderEnter
     OnExit = gHeaderEditingDone
     OnHeaderClick = gHeaderHeaderClick
     OnHeaderSized = gListHeaderSized
@@ -398,7 +397,7 @@ object fGridView: TfGridView
       OnExecute = acResetFilterExecute
     end
   end
-  object FDataSource: TDatasource
+  object FDataSource: TDataSource
     OnStateChange = FDataSourceStateChange
     OnDataChange = FDataSourceDataChange
     left = 108
