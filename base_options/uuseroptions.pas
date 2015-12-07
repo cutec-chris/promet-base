@@ -213,6 +213,7 @@ begin
     begin
       if (aNode.MultiSelected) or (aNode.Selected) then
         begin
+          aUsers.Rights.IsReadOnly:=False;
           Data.SetFilter(aUsers.Rights,'"RIGHTNAME"='+Data.QuoteValue(Uppercase(aNode.Text)),0,'','ASC',False,False);
           if not aUsers.Rights.DataSet.Locate('RIGHTNAME',VarArrayOf([Uppercase(aNode.Text)]),[loCaseInsensitive]) then
             begin
