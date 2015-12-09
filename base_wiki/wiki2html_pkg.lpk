@@ -16,7 +16,7 @@
         </SyntaxOptions>
       </Parsing>
     </CompilerOptions>
-    <Files Count="2">
+    <Files Count="3">
       <Item1>
         <Filename Value="wikitohtml.pas"/>
         <UnitName Value="wikitohtml"/>
@@ -25,6 +25,10 @@
         <Filename Value="htmltowiki.pas"/>
         <UnitName Value="htmltowiki"/>
       </Item2>
+      <Item3>
+        <Filename Value="rtf2html.pas"/>
+        <UnitName Value="rtf2html"/>
+      </Item3>
     </Files>
     <RequiredPkgs Count="1">
       <Item1>

@@ -26,7 +26,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, SynEdit, SynHighlighterHTML, IpHtml, Forms,
   Controls, ComCtrls, ExtCtrls, DbCtrls, Buttons, DBGrids, StdCtrls, ActnList,
-  uExtControls,uImageCache,uDocuments,Graphics;
+  uExtControls,uImageCache,uDocuments,Graphics,Dialogs;
 
 type
   TSimpleIpHtml = class(TIpHtml)
@@ -35,7 +35,7 @@ type
     property OnGetImageX;
     constructor Create;
   end;
-  TfWikiEditor = class(TFrame)
+  TfWikiEditor = class(TForm)
     acPaste: TAction;
     acScreenshot: TAction;
     acItalic: TAction;
@@ -72,6 +72,7 @@ type
     procedure acItalicExecute(Sender: TObject);
     procedure acLinkExecute(Sender: TObject);
     procedure acLinkFromLinkExecute(Sender: TObject);
+    procedure acPasteExecute(Sender: TObject);
     procedure acScreenshotExecute(Sender: TObject);
     procedure acSpellcheckExecute(Sender: TObject);
     function FCacheGetFile(Path: string; var NewPath: string): TStream;
@@ -81,25 +82,32 @@ type
     FActNode: TIpHtmlNode;
     FCache: TFileCache;
     FDocuments: TDocuments;
+    FDocTyp: String;
+    FDocId : Variant;
+    FDocName: String;
+    function GetChanged: Boolean;
     function GetText: string;
     procedure SetDocuments(AValue: TDocuments);
     procedure Settext(AValue: string);
-    procedure DoOpen;
     { private declarations }
   public
     { public declarations }
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
     function GetHTML(aHTML: String): TSimpleIpHtml;
-    property Text : string read GetText write SetText;
+    procedure Open(aText : string;aId : Variant;aTyp,aName : string);
+    property Text : string read GetText;
     property Documents : TDocuments read FDocuments write SetDocuments;
+    property Changed : Boolean read GetChanged;
   end;
 
 resourcestring
   strWikiLoadingPage = 'Lade...';
+  strYoumustSaveFirst= 'Sie müssen Speichern bevor Sie Dokumente Anhängen dürfen';
 implementation
 uses Clipbrd,uBaseVisualApplication,uData,uspelling,uDocumentFrame,Utils,
-  wikitohtml,uBaseVisualControls;
+  wikitohtml,uBaseVisualControls,uBaseDBInterface,uscreenshotmain,uBaseApplication,
+  uIntfStrConsts,uGeneralStrConsts,LCLType,rtf2html;
 {$R *.lfm}
 
 constructor TSimpleIpHtml.Create;
@@ -276,71 +284,102 @@ begin
     end;
 end;
 
-procedure TfWikiEditor.acScreenshotExecute(Sender: TObject);
+procedure TfWikiEditor.acPasteExecute(Sender: TObject);
+var
+  Fid: TClipboardFormat;
+  aStr: WideString;
+  Stream: TMemoryStream;
+  ToInsert: UTF8String;
 begin
-  {
-  var
-    aDocuments: TDocuments;
-    aDocument: TDocument;
-    aDocPage: TTabSheet;
-    aName : string = 'screenshot.jpg';
-    aDocFrame: TfDocumentFrame;
-    aPageIndex: Integer;
-  begin
-    if Data.Users.Rights.Right('WIKI')<=RIGHT_READ then exit;
-    Application.ProcessMessages;
-    Application.MainForm.Hide;
-    Application.ProcessMessages;
-    aName := InputBox(strScreenshotName, strEnterAnName, aName);
-    Application.ProcessMessages;
-    Application.CreateForm(TfScreenshot,fScreenshot);
-    with BaseApplication as IBaseApplication do
-      fScreenshot.SaveTo:=AppendPathDelim(GetInternalTempDir)+aName;
-    fScreenshot.Show;
-    while fScreenshot.Visible do Application.ProcessMessages;
-    fScreenshot.Destroy;
-    fScreenshot := nil;
-    if DataSet.State=dsInsert then
-      begin
-        DataSet.Post;
-        DataSet.Edit;
+  Fid := Clipboard.FindFormatID('text/html');
+  if Fid <> 0 then
+    begin
+      try
+        Stream := TMemoryStream.Create;
+        if Clipboard.GetFormat(Fid, Stream) then
+        begin
+          Stream.Write(#0#0, Length(#0#0));
+          Stream.Position := 0;
+          aStr := PWideChar(Stream.Memory);
+          ToInsert := UTF8Encode(aStr);
+        end;
+      finally
+        Stream.Free;
       end;
-    aDocument := TDocument.CreateEx(Self,Data);
-    aDocument.Select(DataSet.Id.AsVariant ,'W',DataSet.FieldByName('NAME').AsString,Null,Null);
-    with BaseApplication as IBaseApplication do
-      aDocument.AddFromFile(AppendPathDelim(GetInternalTempDir)+aName);
-    aDocument.Free;
-    aDocuments := TDocuments.CreateEx(Self,Data);
-    aDocuments.CreateTable;
-    aDocuments.Select(DataSet.Id.AsVariant ,'W',DataSet.FieldByName('NAME').AsString,Null,Null);
-    aDocuments.Open;
-    if aDocuments.Count = 0 then
-      aDocuments.Free
-    else
-      begin
-        aDocPage := pcPages.GetTab(TfDocumentFrame);
-        if Assigned(aDocPage) then
-          begin
-            aDocFrame := TfDocumentFrame(aDocPage.Controls[0]);
-            aDocFrame.DataSet := aDocuments;
-          end
-        else
-          begin
-            aDocFrame := TfDocumentFrame.Create(Self);
-            aDocFrame.DataSet := aDocuments;
-            aPageIndex := pcPages.AddTab(aDocFrame,False);
-            DoView;
+    end
+  else
+    begin
+      Fid := Clipboard.FindFormatID('Rich Text Format');
+      if Fid <> 0 then
+        begin
+          try
+            Stream := TMemoryStream.Create;
+            if Clipboard.GetFormat(Fid, Stream) then
+              begin
+                ToInsert := RtfToHtml(PWideChar(Stream.Memory));
+              end;
+          finally
+            Stream.Free;
           end;
-      end;
-    if (DataSet.DataSet.State <> dsEdit)
-    and (DataSet.DataSet.State <> dsInsert) then
-      DataSet.DataSet.Edit;
-    eWikiPage.SelText := '[[Bild:'+aName+']]';
-    eWikiPage.SelStart:=eWikiPage.SelStart+length(eWikiPage.SelText);
+        end
+      else ToInsert := Clipboard.AsText;
+    end;
+  mEdit.SelText:=ToInsert;
+end;
 
-    Application.MainForm.Show;
-  end;
-  }
+procedure TfWikiEditor.acScreenshotExecute(Sender: TObject);
+var
+  aDocuments: TDocuments;
+  aDocument: TDocument;
+  aDocPage: TTabSheet;
+  aName : string = 'screenshot.jpg';
+  aDocFrame: TfDocumentFrame;
+  aPageIndex: Integer;
+begin
+  if FDocId = Null then
+    begin
+      ShowMessage(strYoumustSaveFirst);
+    end;
+  Application.ProcessMessages;
+  Application.MainForm.Hide;
+  Application.ProcessMessages;
+  aName := InputBox(strScreenshotName, strEnterAnName, aName);
+  Application.ProcessMessages;
+  Application.CreateForm(TfScreenshot,fScreenshot);
+  with BaseApplication as IBaseApplication do
+    fScreenshot.SaveTo:=AppendPathDelim(GetInternalTempDir)+aName;
+  fScreenshot.Show;
+  while fScreenshot.Visible do Application.ProcessMessages;
+  fScreenshot.Destroy;
+  fScreenshot := nil;
+  aDocument := TDocument.CreateEx(Self,Data);
+  aDocument.Select(FDocId ,FDocTyp,FDocName,Null,Null);
+  with BaseApplication as IBaseApplication do
+    aDocument.AddFromFile(AppendPathDelim(GetInternalTempDir)+aName);
+  aDocument.Free;
+  aDocuments := TDocuments.CreateEx(Self,Data);
+  aDocuments.CreateTable;
+  aDocuments.Select(FDocId ,FDocTyp,FDocName,Null,Null);
+  aDocuments.Open;
+  if aDocuments.Count = 0 then
+    aDocuments.Free
+  else
+    begin
+      aDocPage := pcPages.GetTab(TfDocumentFrame);
+      if Assigned(aDocPage) then
+        begin
+          aDocFrame := TfDocumentFrame(aDocPage.Controls[0]);
+          aDocFrame.DataSet := aDocuments;
+        end
+      else
+        begin
+          aDocFrame := TfDocumentFrame.Create(Self);
+          aDocFrame.DataSet := aDocuments;
+          aPageIndex := pcPages.AddTab(aDocFrame,False,strDocumentsOnly);
+        end;
+    end;
+  mEdit.SelText := '[[Bild:'+aName+']]';
+  Application.MainForm.Show;
 end;
 
 procedure TfWikiEditor.acSpellcheckExecute(Sender: TObject);
@@ -353,11 +392,15 @@ begin
   Result := mEdit.Text;
 end;
 
+function TfWikiEditor.GetChanged: Boolean;
+begin
+  Result := mEdit.Modified;
+end;
+
 procedure TfWikiEditor.SetDocuments(AValue: TDocuments);
 begin
   if FDocuments=AValue then Exit;
   FDocuments:=AValue;
-  DoOpen;
 end;
 
 procedure TfWikiEditor.Settext(AValue: string);
@@ -365,7 +408,7 @@ begin
   mEdit.Text := AValue;
 end;
 
-procedure TfWikiEditor.DoOpen;
+procedure TfWikiEditor.Open(aText: string; aId: Variant; aTyp, aName: string);
 var
   aDocPage: TTabSheet;
   aDocFrame: TfDocumentFrame;
@@ -374,10 +417,14 @@ var
 begin
   while pcPages.PageCount > 3 do
     pcPages.Pages[2].Destroy;
+  if not Assigned(FDocuments) then
+    FDocuments := TDocuments.Create(nil);
+  FDocuments.Select(aId,aTyp,aName,Null,Null);
+  FDocTyp := aTyp;
+  FDocId := aId;
+  FDocName := aName;
   FDocuments.Open;
-  if FDocuments.Count = 0 then
-    FDocuments.Free
-  else
+  if FDocuments.Count > 0 then
     begin
       aDocPage := pcPages.GetTab(TfDocumentFrame);
       if Assigned(aDocPage) then
@@ -389,9 +436,10 @@ begin
         begin
           aDocFrame := TfDocumentFrame.Create(Self);
           aDocFrame.DataSet := FDocuments;
-          aPageIndex := pcPages.AddTab(aDocFrame,False);
+          aPageIndex := pcPages.AddTab(aDocFrame,False,strDocumentsOnly);
         end;
     end;
+  mEdit.Text:=aText;
 end;
 
 constructor TfWikiEditor.Create(TheOwner: TComponent);

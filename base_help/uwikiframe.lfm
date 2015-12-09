@@ -1,19 +1,19 @@
 inherited fWikiFrame: TfWikiFrame
   Height = 529
-  Width = 685
+  Width = 690
   ClientHeight = 529
-  ClientWidth = 685
+  ClientWidth = 690
   DesignLeft = 328
   DesignTop = 212
   object pTop: TPanel[0]
     Left = 0
     Height = 42
     Top = 0
-    Width = 685
+    Width = 690
     Align = alTop
     BevelOuter = bvNone
     ClientHeight = 42
-    ClientWidth = 685
+    ClientWidth = 690
     TabOrder = 0
     object pToolbar: TPanel
       Left = 5
@@ -222,14 +222,16 @@ inherited fWikiFrame: TfWikiFrame
         BorderSpacing.Bottom = 4
         Shape = bsLeftLine
       end
-      object eArticleNumber: TDBEdit
+      object eName: TDBEdit
         Left = 4
         Height = 21
         Top = 13
         Width = 316
-        DataField = 'ID'
+        DataField = 'NAME'
+        DataSource = Wiki
         ReadOnly = True
         CharCase = ecNormal
+        Enabled = False
         MaxLength = 0
         TabOrder = 0
         TabStop = False
@@ -237,7 +239,7 @@ inherited fWikiFrame: TfWikiFrame
     end
   end
   object pLeft: TPanel[1]
-    Left = 641
+    Left = 646
     Height = 487
     Top = 42
     Width = 44
@@ -373,18 +375,18 @@ inherited fWikiFrame: TfWikiFrame
     Left = 0
     Height = 487
     Top = 42
-    Width = 641
+    Width = 646
     Align = alClient
     BevelOuter = bvNone
     ClientHeight = 487
-    ClientWidth = 641
+    ClientWidth = 646
     TabOrder = 2
     object ipHTML: TIpHtmlPanel
       Left = 0
-      Height = 487
-      Top = 0
-      Width = 641
-      Align = alClient
+      Height = 479
+      Top = 8
+      Width = 646
+      Anchors = [akTop, akLeft, akRight, akBottom]
       FixedTypeface = 'Courier New'
       DefaultTypeFace = 'arial'
       DefaultFontSize = 10

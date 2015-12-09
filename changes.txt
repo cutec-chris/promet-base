@@ -6,6 +6,7 @@
       - Artikel:Struktur Tab das Stücklistenzusammenhänge anzeigt
       - Baum:Stücklisten werden unter Artikeln angezeigt
       - Baum:separater Eintrag für Fertigung
+      - Wiki:neuer Editor (der auch für die Textbausteine zuständig sein wird)
 Build 419
       - Production:kleine Fixes für das automatische generieren von Aufträgen
 Build 418

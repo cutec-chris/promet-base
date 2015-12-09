@@ -1,34 +1,32 @@
 object fWikiEditor: TfWikiEditor
-  Left = 0
-  Height = 456
-  Top = 0
-  Width = 564
-  ClientHeight = 456
-  ClientWidth = 564
-  TabOrder = 0
-  DesignLeft = 437
-  DesignTop = 313
+  Left = 488
+  Height = 530
+  Top = 272
+  Width = 653
+  ClientHeight = 530
+  ClientWidth = 653
+  LCLVersion = '1.5'
   object pcPages: TExtMenuPageControl
     Left = 0
-    Height = 456
+    Height = 530
     Top = 0
-    Width = 564
+    Width = 653
     ActivePage = tsEdit
     Align = alClient
     Images = fVisualControls.Images
     TabIndex = 1
     TabOrder = 0
-    Visible = False
     NewTabImageIndex = 59
     object tsPreview: TTabSheet
       Caption = 'Vorschau'
-      ClientHeight = 429
-      ClientWidth = 556
+      ClientHeight = 503
+      ClientWidth = 645
+      TabVisible = False
       object ipHTML: TIpHtmlPanel
         Left = 0
-        Height = 429
+        Height = 503
         Top = 0
-        Width = 556
+        Width = 645
         Align = alClient
         FixedTypeface = 'Courier New'
         DefaultTypeFace = 'arial'
@@ -45,24 +43,24 @@ object fWikiEditor: TfWikiEditor
     object tsEdit: TTabSheet
       Tag = 1
       Caption = 'bearbeiten'
-      ClientHeight = 429
-      ClientWidth = 556
+      ClientHeight = 503
+      ClientWidth = 645
       ImageIndex = 67
       object Panel1: TPanel
         Left = 0
-        Height = 429
+        Height = 503
         Top = 0
-        Width = 556
+        Width = 645
         Align = alClient
         BevelOuter = bvNone
-        ClientHeight = 429
-        ClientWidth = 556
+        ClientHeight = 503
+        ClientWidth = 645
         TabOrder = 0
         inline mEdit: TSynEdit
           Left = 0
-          Height = 401
+          Height = 475
           Top = 28
-          Width = 556
+          Width = 645
           Align = alClient
           Font.Height = -13
           Font.Name = 'Courier New'
@@ -71,8 +69,7 @@ object fWikiEditor: TfWikiEditor
           ParentColor = False
           ParentFont = False
           TabOrder = 0
-          Gutter.Visible = False
-          Gutter.Width = 57
+          Gutter.Width = 16
           Gutter.MouseActions = <>
           RightGutter.Width = 0
           RightGutter.MouseActions = <>
@@ -530,21 +527,6 @@ object fWikiEditor: TfWikiEditor
           LineHighlightColor.Foreground = clNone
           LineHighlightColor.FrameEdges = sfeAround
           inline SynLeftGutterPartList1: TSynGutterPartList
-            object SynGutterMarks1: TSynGutterMarks
-              Width = 24
-              MouseActions = <>
-            end
-            object SynGutterLineNumber1: TSynGutterLineNumber
-              Width = 17
-              MouseActions = <>
-              MarkupInfo.Background = clBtnFace
-              MarkupInfo.Foreground = clNone
-              MarkupInfo.FrameEdges = sfeAround
-              DigitCount = 2
-              ShowOnlyLineNumbersMultiplesOf = 1
-              ZeroStart = False
-              LeadingZeros = False
-            end
             object SynGutterChanges1: TSynGutterChanges
               Width = 4
               MouseActions = <>
@@ -572,7 +554,7 @@ object fWikiEditor: TfWikiEditor
           Left = 0
           Height = 28
           Top = 0
-          Width = 556
+          Width = 645
           AutoSize = True
           ButtonHeight = 28
           ButtonWidth = 28
@@ -775,6 +757,7 @@ object fWikiEditor: TfWikiEditor
       Caption = 'aus Zwischenablage einfügen'
       Hint = 'aus Zwischenablage einfügen'#13#10'kopieren Sie z.b. direkt aus Textverarbeitungssystemen Text samt Formatierungen'
       ImageIndex = 2
+      OnExecute = acPasteExecute
     end
     object acScreenshot: TAction
       Caption = 'acScreenshot'

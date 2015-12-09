@@ -61,7 +61,7 @@ type
     Bevel2: TBevel;
     Bevel4: TBevel;
     bTransfer: TSpeedButton;
-    eArticleNumber: TDBEdit;
+    eName: TDBEdit;
     ExtRotatedLabel1: TExtRotatedLabel;
     ExtRotatedLabel2: TExtRotatedLabel;
     Keywords: TDatasource;
@@ -221,6 +221,7 @@ begin
   FEditor := TfWikiEditor.Create(Self);
   FEditor.Parent:=pMiddle;
   FEditor.Align:=alClient;
+  FEditor.BorderStyle:=bsNone;
   FVariables := TStringList.Create;
   FVariables.Values['USER'] := Data.Users.Id.AsString;
   FVariables.Values['ACCOUNTNO'] := Data.Users.FieldByName('ACCOUNTNO').AsString;
@@ -1117,9 +1118,16 @@ end;
 
 procedure TfWikiFrame.DoView;
 begin
+  eName.Enabled:=False;
+  if FEditor.Changed then
+    begin
+      DataSet.Edit;
+      DataSet.FieldByName('DATA').AsString:=FEditor.Text;
+      DataSet.Post;
+    end;
+  acEdit.Checked:=False;
   ipHTML.Visible:= True;
   FEditor.Visible := False;
-  acEdit.Checked:=False;
   Refresh;
 end;
 
@@ -1127,16 +1135,12 @@ procedure TfWikiFrame.DoEdit;
 begin
   ipHTML.Visible:= False;
   FEditor.Visible := True;
-  FEditor.Show;
+  eName.Enabled:=True;
+  FEditor.Open(DataSet.FieldByName('DATA').AsString,DataSet.Id.AsVariant,'W',DataSet.FieldByName('NAME').AsString);
   acEdit.Checked:=True;
 end;
 
 procedure TfWikiFrame.DoOpen;
-var
-  aDocuments: TDocuments;
-  aDocPage: TTabSheet;
-  aDocFrame: TfDocumentFrame;
-  aPageIndex: Integer;
 begin
   ipHTML.SetHtml(Wiki2HTML(DataSet.FieldByName('DATA').AsString));
 end;

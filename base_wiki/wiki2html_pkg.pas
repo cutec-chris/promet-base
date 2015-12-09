@@ -7,7 +7,7 @@ unit wiki2html_pkg;
 interface
 
 uses
-  wikitohtml, htmltowiki;
+  wikitohtml, htmltowiki, rtf2html;
 
 implementation
 
