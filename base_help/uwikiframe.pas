@@ -56,6 +56,7 @@ type
     acExport: TAction;
     acEdit: TAction;
     acRefresh: TAction;
+    acCopy: TAction;
     ActionList: TActionList;
     Bevel1: TBevel;
     Bevel2: TBevel;
@@ -70,12 +71,14 @@ type
     Label5: TLabel;
     Label6: TLabel;
     MenuItem1: TMenuItem;
+    MenuItem2: TMenuItem;
     Panel7: TPanel;
     pEdit2: TPanel;
     pMiddle: TPanel;
     pLeft: TPanel;
     Panel3: TPanel;
     pmHistory: TPopupMenu;
+    pmContext: TPopupMenu;
     pToolbar1: TPanel;
     pEdit1: TPanel;
     SaveDialog1: TSaveDialog;
@@ -97,6 +100,7 @@ type
     ToolButton1: TToolButton;
     ToolButton2: TToolButton;
     procedure acBackExecute(Sender: TObject);
+    procedure acCopyExecute(Sender: TObject);
     procedure acEditExecute(Sender: TObject);
     procedure acExportExecute(Sender: TObject);
     procedure acForwardExecute(Sender: TObject);
@@ -151,7 +155,9 @@ implementation
 uses uWiki,uData,WikiToHTML,uDocuments,Utils,LCLIntf,Variants,
   uBaseDbInterface,uscreenshotmain,uMessages,uDocumentFrame,sqlparser,
   sqlscanner, sqltree,uBaseVisualApplication,uStatistic,uspelling,uBaseApplication,
-  uBaseVisualControls,uRTFtoTXT,uIntfStrConsts,uprometpascalscript;
+  uBaseVisualControls,uRTFtoTXT,uIntfStrConsts,uprometpascalscript,LCLType;
+var
+  ClipbrdFmtHTML:TClipboardFormat;
 procedure THistory.SetIndex(const AValue: Integer);
 begin
   Move(AValue,Count-1);
@@ -352,6 +358,15 @@ end;
 procedure TfWikiFrame.acBackExecute(Sender: TObject);
 begin
   FHistory.GoBack;
+end;
+
+procedure TfWikiFrame.acCopyExecute(Sender: TObject);
+var
+  HTMLSource: String;
+begin
+  ipHTML.CopyToClipboard;
+  //HTMLSource := '<b>Formatted</b> text'; // text with formatrings
+  //Clipboard.AddFormat(ClipbrdFmtHTML, HTMLSource[1], Length(HTMLSource));
 end;
 
 procedure TfWikiFrame.acEditExecute(Sender: TObject);
@@ -1220,6 +1235,8 @@ end;
 
 initialization
 //  TBaseVisualApplication(Application).RegisterForm(TfWikiFrame);
+  ClipbrdFmtHTML := RegisterClipboardFormat('text/html');
+
 {$R *.lfm}
 end.
 

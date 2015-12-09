@@ -1,4 +1,3 @@
-{$D-,L-,Y-}
 unit rtf2html;
 
 (*
@@ -87,8 +86,6 @@ Troels S Eriksen, Denmark
 --------------------------------------------------------------------------------
 
 *)
-{$LONGSTRINGS ON}
-
 interface
 
  function RtfToHtml(const rtf:string):string;
@@ -197,8 +194,12 @@ var
       With TXTFMT do if not written then begin
         // If font has changed - write it
         If changeF then begin
+          {
           s:=s+'<FONT FACE="'+state.fntlst.strings[Font]+
                '" COLOR="'+state.collst.strings[Color]+
+               '" SIZE="'+IntToStr(FontSize)+'">';
+          }
+          s:=s+'<FONT COLOR="'+state.collst.strings[Color]+
                '" SIZE="'+IntToStr(FontSize)+'">';
           ChangeF:=FALSE;
         end;
@@ -451,6 +452,7 @@ var
   crsr : integer;
 
 begin
+  FillChar(TxtFmt,sizeof(TxtFmt),0);
   try
     State.FntLst:=TstringList.Create;    // Create fontlist
     State.ColLst:=TstringList.Create;    // Create colorlist

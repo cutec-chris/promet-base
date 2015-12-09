@@ -391,6 +391,7 @@ inherited fWikiFrame: TfWikiFrame
       DefaultTypeFace = 'arial'
       DefaultFontSize = 10
       FlagErrors = False
+      PopupMenu = pmContext
       PrintSettings.MarginLeft = 0.5
       PrintSettings.MarginTop = 0.5
       PrintSettings.MarginRight = 0.5
@@ -450,6 +451,10 @@ inherited fWikiFrame: TfWikiFrame
       ImageIndex = 69
       OnExecute = acRefreshExecute
     end
+    object acCopy: TAction
+      Caption = 'Kopieren'
+      OnExecute = acCopyExecute
+    end
   end
   object Wiki: TDataSource[4]
     OnStateChange = WikiStateChange
@@ -480,5 +485,12 @@ inherited fWikiFrame: TfWikiFrame
     Filter = 'HTML File (*.html)|*.html'
     left = 240
     top = 152
+  end
+  object pmContext: TPopupMenu[9]
+    left = 320
+    top = 152
+    object MenuItem2: TMenuItem
+      Action = acCopy
+    end
   end
 end

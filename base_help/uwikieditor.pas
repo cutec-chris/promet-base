@@ -85,6 +85,7 @@ type
     FDocTyp: String;
     FDocId : Variant;
     FDocName: String;
+    FOnChange: TNotifyEvent;
     function GetChanged: Boolean;
     function GetText: string;
     procedure SetDocuments(AValue: TDocuments);
@@ -99,6 +100,7 @@ type
     property Text : string read GetText;
     property Documents : TDocuments read FDocuments write SetDocuments;
     property Changed : Boolean read GetChanged;
+    property OnChange : TNotifyEvent read FOnChange write FOnChange;
   end;
 
 resourcestring
@@ -288,7 +290,7 @@ procedure TfWikiEditor.acPasteExecute(Sender: TObject);
 var
   Fid: TClipboardFormat;
   aStr: WideString;
-  Stream: TMemoryStream;
+  Stream: TStream;
   ToInsert: UTF8String;
 begin
   Fid := Clipboard.FindFormatID('text/html');
@@ -300,7 +302,7 @@ begin
         begin
           Stream.Write(#0#0, Length(#0#0));
           Stream.Position := 0;
-          aStr := PWideChar(Stream.Memory);
+          aStr := PWideChar(TMemorystream(Stream).Memory);
           ToInsert := UTF8Encode(aStr);
         end;
       finally
@@ -313,11 +315,12 @@ begin
       if Fid <> 0 then
         begin
           try
-            Stream := TMemoryStream.Create;
+            Stream := TStringStream.Create('');
             if Clipboard.GetFormat(Fid, Stream) then
               begin
-                ToInsert := RtfToHtml(PWideChar(Stream.Memory));
-              end;
+                ToInsert := RtfToHtml(TStringStream(Stream).DataString);
+              end
+            else ToInsert := Clipboard.AsText;
           finally
             Stream.Free;
           end;
