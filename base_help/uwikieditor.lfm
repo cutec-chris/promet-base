@@ -19,8 +19,8 @@ object fWikiEditor: TfWikiEditor
     NewTabImageIndex = 59
     object tsPreview: TTabSheet
       Caption = 'Vorschau'
-      ClientHeight = 503
-      ClientWidth = 645
+      ClientHeight = 496
+      ClientWidth = 647
       TabVisible = False
       object ipHTML: TIpHtmlPanel
         Left = 0
@@ -43,24 +43,24 @@ object fWikiEditor: TfWikiEditor
     object tsEdit: TTabSheet
       Tag = 1
       Caption = 'bearbeiten'
-      ClientHeight = 503
-      ClientWidth = 645
+      ClientHeight = 496
+      ClientWidth = 647
       ImageIndex = 67
       object Panel1: TPanel
         Left = 0
-        Height = 503
+        Height = 496
         Top = 0
-        Width = 645
+        Width = 647
         Align = alClient
         BevelOuter = bvNone
-        ClientHeight = 503
-        ClientWidth = 645
+        ClientHeight = 496
+        ClientWidth = 647
         TabOrder = 0
         inline mEdit: TSynEdit
           Left = 0
-          Height = 475
+          Height = 468
           Top = 28
-          Width = 645
+          Width = 647
           Align = alClient
           Font.Height = -13
           Font.Name = 'Courier New'
@@ -501,7 +501,6 @@ object fWikiEditor: TfWikiEditor
             'mEdit'
           )
           VisibleSpecialChars = [vscSpace, vscTabAtLast]
-          SelectedColor.FrameEdges = sfeAround
           SelectedColor.BackPriority = 50
           SelectedColor.ForePriority = 50
           SelectedColor.FramePriority = 50
@@ -509,23 +508,17 @@ object fWikiEditor: TfWikiEditor
           SelectedColor.ItalicPriority = 50
           SelectedColor.UnderlinePriority = 50
           SelectedColor.StrikeOutPriority = 50
-          IncrementColor.FrameEdges = sfeAround
-          HighlightAllColor.FrameEdges = sfeAround
           BracketHighlightStyle = sbhsBoth
           BracketMatchColor.Background = clNone
           BracketMatchColor.Foreground = clNone
-          BracketMatchColor.FrameEdges = sfeAround
           BracketMatchColor.Style = [fsBold]
           FoldedCodeColor.Background = clNone
           FoldedCodeColor.Foreground = clGray
           FoldedCodeColor.FrameColor = clGray
-          FoldedCodeColor.FrameEdges = sfeAround
           MouseLinkColor.Background = clNone
           MouseLinkColor.Foreground = clBlue
-          MouseLinkColor.FrameEdges = sfeAround
           LineHighlightColor.Background = clNone
           LineHighlightColor.Foreground = clNone
-          LineHighlightColor.FrameEdges = sfeAround
           inline SynLeftGutterPartList1: TSynGutterPartList
             object SynGutterChanges1: TSynGutterChanges
               Width = 4
@@ -538,13 +531,11 @@ object fWikiEditor: TfWikiEditor
               MouseActions = <>
               MarkupInfo.Background = clWhite
               MarkupInfo.Foreground = clGray
-              MarkupInfo.FrameEdges = sfeAround
             end
             object SynGutterCodeFolding1: TSynGutterCodeFolding
               MouseActions = <>
               MarkupInfo.Background = clNone
               MarkupInfo.Foreground = clGray
-              MarkupInfo.FrameEdges = sfeAround
               MouseActionsExpanded = <>
               MouseActionsCollapsed = <>
             end
@@ -554,7 +545,7 @@ object fWikiEditor: TfWikiEditor
           Left = 0
           Height = 28
           Top = 0
-          Width = 645
+          Width = 647
           AutoSize = True
           ButtonHeight = 28
           ButtonWidth = 28
@@ -734,18 +725,6 @@ object fWikiEditor: TfWikiEditor
   object SynHTMLSyn1: TSynHTMLSyn
     DefaultFilter = 'HTML-Dokumente (*.htm,*.html)|*.htm;*.html'
     Enabled = False
-    AndAttri.FrameEdges = sfeAround
-    ASPAttri.FrameEdges = sfeAround
-    CDATAAttri.FrameEdges = sfeAround
-    DOCTYPEAttri.FrameEdges = sfeAround
-    CommentAttri.FrameEdges = sfeAround
-    IdentifierAttri.FrameEdges = sfeAround
-    KeyAttri.FrameEdges = sfeAround
-    SpaceAttri.FrameEdges = sfeAround
-    SymbolAttri.FrameEdges = sfeAround
-    TextAttri.FrameEdges = sfeAround
-    UndefKeyAttri.FrameEdges = sfeAround
-    ValueAttri.FrameEdges = sfeAround
     left = 243
     top = 72
   end

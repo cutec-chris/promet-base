@@ -233,6 +233,7 @@ var
 begin
   inherited Create(AOwner);
   FEditor := TfWikiEditor.Create(Self);
+  ipHTML.SetHtml(FEditor.GetHTML(strWikiLoadingPage));
   FEditor.Parent:=pMiddle;
   FEditor.Align:=alClient;
   FEditor.BorderStyle:=bsNone;
@@ -251,7 +252,6 @@ begin
   {$ifdef DARWIN}
   ipHTML.DefaultFontSize:=14;
   {$endif}
-  ipHTML.SetHtml(FEditor.GetHTML(strWikiLoadingPage));
 end;
 destructor TfWikiFrame.Destroy;
 begin
@@ -1140,7 +1140,7 @@ var
 begin
   aDataThere:=False;
   WikiToHTML.OnWikiInclude:=@fWikiFrameWikiInclude;
-  Result := FEditor.GetHTML(UniToSys('<html><head><title>'+DataSet.FieldByName('CAPTION').AsString+'</title></head><body>'+WikiText2HTML(input,'','',True)+'<br><br><br></body></html>'));
+  Result := FEditor.GetHTML(WikiText2HTML(input,'','',True));
 end;
 
 procedure TfWikiFrame.SetLeftBar(AValue: Boolean);

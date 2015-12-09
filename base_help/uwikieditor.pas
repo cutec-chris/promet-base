@@ -35,6 +35,9 @@ type
     property OnGetImageX;
     constructor Create;
   end;
+
+  { TfWikiEditor }
+
   TfWikiEditor = class(TForm)
     acPaste: TAction;
     acScreenshot: TAction;
@@ -82,6 +85,7 @@ type
   private
     FActNode: TIpHtmlNode;
     FCache: TFileCache;
+    FCaption: string;
     FDocuments: TDocuments;
     FDocTyp: String;
     FDocId : Variant;
@@ -99,6 +103,7 @@ type
     function GetHTML(aHTML: String): TSimpleIpHtml;
     procedure Open(aText : string;aId : Variant;aTyp,aName : string);
     property Text : string read GetText;
+    property Caption : string read FCaption write FCaption;
     property Documents : TDocuments read FDocuments write SetDocuments;
     property Changed : Boolean read GetChanged;
     property OnChange : TNotifyEvent read FOnChange write FOnChange;
@@ -227,7 +232,7 @@ function TfWikiEditor.GetHTML(aHTML : String): TSimpleIpHtml;
 var
   ss: TStringStream;
 begin
-  ss:=TStringStream.Create(aHTML);
+  ss:=TStringStream.Create(UniToSys('<html><head><title>'+FCaption+'</title></head><body>'+aHTML+'<br><br><br></body></html>'));
   ss.Position := 0;
   try
     Result:=TSimpleIPHtml.Create;
