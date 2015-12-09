@@ -7,7 +7,7 @@ unit phelp;
 interface
 
 uses
-  uWikiFrame, uHelpContainer, uWikiMessage, uspelling;
+  uWikiFrame, uHelpContainer, uWikiMessage, uspelling, uWikiEditor;
 
 implementation
 

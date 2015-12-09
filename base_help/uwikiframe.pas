@@ -24,7 +24,7 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, ComCtrls, DbCtrls, Buttons,
   StdCtrls, ExtCtrls, IpHtml, db, uPrometFrames, uExtControls, Graphics,
   DBGrids, ActnList, Dialogs, Menus, uImageCache, uBaseDbClasses, LCLProc,
-  Clipbrd, contnrs,Aspell,uprometscripts;
+  Clipbrd, contnrs,Aspell,uprometscripts,uWikiEditor;
 type
   THistory = class(TStringList)
   private
@@ -59,23 +59,18 @@ type
     ActionList: TActionList;
     Bevel1: TBevel;
     Bevel2: TBevel;
-    bItalic: TSpeedButton;
+    Bevel4: TBevel;
     bTransfer: TSpeedButton;
+    eArticleNumber: TDBEdit;
     ExtRotatedLabel1: TExtRotatedLabel;
     ExtRotatedLabel2: TExtRotatedLabel;
     Keywords: TDatasource;
-    DBGrid1: TDBGrid;
-    DBText1: TDBText;
-    dnEdit: TDBNavigator;
-    eTitle: TDBEdit;
-    eWikiPage: TDBMemo;
-    Label1: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
-    lTitle: TLabel;
+    Label6: TLabel;
     MenuItem1: TMenuItem;
-    Panel1: TPanel;
+    Panel7: TPanel;
     pEdit2: TPanel;
     pMiddle: TPanel;
     pLeft: TPanel;
@@ -84,13 +79,6 @@ type
     pToolbar1: TPanel;
     pEdit1: TPanel;
     SaveDialog1: TSaveDialog;
-    SpeedButton2: TSpeedButton;
-    SpeedButton3: TSpeedButton;
-    SpeedButton4: TSpeedButton;
-    SpeedButton6: TSpeedButton;
-    sbSpellcheck: TSpeedButton;
-    SpeedButton8: TSpeedButton;
-    SpeedButton9: TSpeedButton;
     RefreshTimer: TTimer;
     tbMenue1: TToolButton;
     tbToolBar1: TToolBar;
@@ -103,38 +91,25 @@ type
     Wiki: TDatasource;
     ipHTML: TIpHtmlPanel;
     pTop: TPanel;
-    pcPages: TExtMenuPageControl;
     pToolbar: TPanel;
     tbMenue: TToolButton;
     tbToolBar: TToolBar;
     ToolButton1: TToolButton;
     ToolButton2: TToolButton;
-    tsEdit: TTabSheet;
     procedure acBackExecute(Sender: TObject);
     procedure acEditExecute(Sender: TObject);
     procedure acExportExecute(Sender: TObject);
     procedure acForwardExecute(Sender: TObject);
-    procedure acImageExecute(Sender: TObject);
     procedure acIndexExecute(Sender: TObject);
     procedure acRefreshExecute(Sender: TObject);
-    procedure acScreenshotExecute(Sender: TObject);
-    procedure acSpellCheckExecute(Sender: TObject);
     procedure aScriptWrite(const s: string);
     procedure aScriptWriteln(const s: string);
-    procedure bItalicClick(Sender: TObject);
-    function FCacheGetFile(Path: string;var NewPath : string): TStream;
     procedure fWikiFrameWikiInclude(Inp: string; var Outp: string; aLevel: Integer=0
       );
     procedure ipHTMLHotClick(Sender: TObject);
     procedure OpenHistoryItemClick(Sender: TObject);
     procedure pmHistoryPopup(Sender: TObject);
     procedure RefreshTimerTimer(Sender: TObject);
-    procedure SpeedButton2Click(Sender: TObject);
-    procedure SpeedButton3Click(Sender: TObject);
-    procedure SpeedButton4Click(Sender: TObject);
-    procedure SpeedButton9Click(Sender: TObject);
-    procedure TSimpleIpHtmlGetImageX(Sender: TIpHtmlNode; const URL: string;
-      var Picture: TPicture);
     procedure tsViewShow(Sender: TObject);
     procedure WikiDataChange(Sender: TObject; Field: TField);
     procedure WikiStateChange(Sender: TObject);
@@ -142,12 +117,11 @@ type
     { private declarations }
     FHistory : THistory;
     lastRefresh: TDateTime;
-    FCache: TFileCache;
-    FActNode: TIpHtmlNode;
     FEditable: Boolean;
     FVariables: TStrings;
     aDataThere : Boolean;
     FScriptContent : string;
+    FEditor : TfWikiEditor;
     function GetLeftBar: Boolean;
     procedure SetLeftBar(AValue: Boolean);
     function Wiki2HTML(input: string): TIPHtml;
@@ -173,14 +147,6 @@ type
     property Variables : TStrings read FVariables;
     property LeftBar : Boolean read GetLeftBar write SetLeftBar;
   end;
-  TSimpleIpHtml = class(TIpHtml)
-  protected
-  public
-    property OnGetImageX;
-    constructor Create;
-  end;
-resourcestring
-  strWikiLoadingPage = 'Lade...';
 implementation
 uses uWiki,uData,WikiToHTML,uDocuments,Utils,LCLIntf,Variants,
   uBaseDbInterface,uscreenshotmain,uMessages,uDocumentFrame,sqlparser,
@@ -246,18 +212,15 @@ begin
   Data.GotoLink(Strings[FHIndex]);
   DontAdd := False;
 end;
-constructor TSimpleIpHtml.Create;
-begin
-  inherited Create;
-end;
 constructor TfWikiFrame.Create(AOwner: TComponent);
 var
   aHTML: TSimpleIpHtml;
   ss: TStringStream;
 begin
   inherited Create(AOwner);
-  FCache := TFileCache.Create(30);
-  FCache.OnGetFile:=@FCacheGetFile;
+  FEditor := TfWikiEditor.Create(Self);
+  FEditor.Parent:=pMiddle;
+  FEditor.Align:=alClient;
   FVariables := TStringList.Create;
   FVariables.Values['USER'] := Data.Users.Id.AsString;
   FVariables.Values['ACCOUNTNO'] := Data.Users.FieldByName('ACCOUNTNO').AsString;
@@ -273,20 +236,10 @@ begin
   {$ifdef DARWIN}
   ipHTML.DefaultFontSize:=14;
   {$endif}
-  ss:=TStringStream.Create(UniToSys('<html><head><title></title></head><body>'+WikiText2HTML(strWikiLoadingPage,'','',True)+'<br><br><br></body></html>'));
-  ss.Position := 0;
-  try
-    aHTML:=TSimpleIPHtml.Create;
-    TSimpleIPHtml(aHTML).OnGetImageX:=@TSimpleIpHtmlGetImageX;
-    aHTML.LoadFromStream(ss);
-  finally
-    ss.Free;
-  end;
-  ipHTML.SetHtml(aHTML);
+  ipHTML.SetHtml(FEditor.GetHTML(strWikiLoadingPage));
 end;
 destructor TfWikiFrame.Destroy;
 begin
-  FCache.Destroy;
   FHistory.Destroy;
   FVariables.Free;
   try
@@ -321,26 +274,6 @@ begin
     end
   else
     Result := OpenWikiPage(copy(aLink, pos('@', aLink) + 1, length(aLink)),Data.Users.Rights.Right('WIKI')>RIGHT_READ);
-end;
-procedure TfWikiFrame.TSimpleIpHtmlGetImageX(Sender: TIpHtmlNode;
-  const URL: string; var Picture: TPicture);
-var
-  aPicture: TPicture = nil;
-  aFile: TMemoryStream = nil;
-  NewURL : string = '';
-begin
-  FActNode := Sender;
-  aFile := FCache.GetFile(URL,NewURL);
-  if Assigned(aFile) then
-    begin
-      Picture := TPicture.Create;
-      aFile.Position := 0;
-      try
-        Picture.LoadFromStreamWithFileExt(aFile,ExtractFileExt(NewURL));
-      except
-        FreeAndNil(Picture);
-      end;
-    end;
 end;
 procedure TfWikiFrame.tsViewShow(Sender: TObject);
 begin
@@ -415,56 +348,6 @@ begin
   end;
 end;
 
-procedure TfWikiFrame.SpeedButton2Click(Sender: TObject);
-begin
-  if (DataSet.DataSet.State <> dsEdit)
-  and (DataSet.DataSet.State <> dsInsert) then
-    DataSet.DataSet.Edit;
-  eWikiPage.SelText:=''''''''+eWikiPage.SelText+'''''''';
-  eWikiPage.SelStart:=eWikiPage.SelStart+eWikiPage.SelLength;
-end;
-procedure TfWikiFrame.SpeedButton3Click(Sender: TObject);
-begin
-  if Data.Users.Rights.Right('WIKI')<=RIGHT_READ then exit;
-  if (DataSet.DataSet.State <> dsEdit)
-  and (DataSet.DataSet.State <> dsInsert) then
-    DataSet.DataSet.Edit;
-  eWikiPage.SelText := '[http://]';
-  eWikiPage.SelStart:=eWikiPage.SelStart+length(eWikiPage.SelText)-1;
-end;
-procedure TfWikiFrame.SpeedButton4Click(Sender: TObject);
-begin
-  if Data.Users.Rights.Right('WIKI')<=RIGHT_READ then exit;
-  if (DataSet.DataSet.State <> dsEdit)
-  and (DataSet.DataSet.State <> dsInsert) then
-    DataSet.DataSet.Edit;
-  eWikiPage.SelText := '[[]]';
-  eWikiPage.SelStart:=eWikiPage.SelStart+2;
-end;
-
-procedure TfWikiFrame.SpeedButton9Click(Sender: TObject);
-var
-  Stream: TStringStream;
-begin
-  if Data.Users.Rights.Right('WIKI')<=RIGHT_READ then exit;
-  if Clipboard.HasFormat(LinkClipboardFormat) then
-    begin
-      Stream := TStringstream.Create('');
-      if Clipboard.GetFormat(LinkClipboardFormat,Stream) then
-        begin
-          if (DataSet.DataSet.State <> dsEdit)
-          and (DataSet.DataSet.State <> dsInsert) then
-            DataSet.DataSet.Edit;
-          if pos('{',Stream.DataString)>0 then
-            eWikiPage.SelText := '[['+copy(Stream.DataString,0,pos('{',Stream.DataString)-1)+'|'+Data.GetLinkDesc(Stream.DataString)+']]'
-          else
-            eWikiPage.SelText := '[['+Stream.DataString+']]';
-          eWikiPage.SelStart:=eWikiPage.SelStart+2;
-        end;
-      Stream.Free;
-    end;
-end;
-
 procedure TfWikiFrame.acBackExecute(Sender: TObject);
 begin
   FHistory.GoBack;
@@ -494,15 +377,6 @@ procedure TfWikiFrame.acForwardExecute(Sender: TObject);
 begin
   FHistory.GoFwd;
 end;
-procedure TfWikiFrame.acImageExecute(Sender: TObject);
-begin
-  if Data.Users.Rights.Right('WIKI')<=RIGHT_READ then exit;
-  if (DataSet.DataSet.State <> dsEdit)
-  and (DataSet.DataSet.State <> dsInsert) then
-    DataSet.DataSet.Edit;
-  eWikiPage.SelText := '[[Bild:]]';
-  eWikiPage.SelStart:=eWikiPage.SelStart+length(eWikiPage.SelText)-2;
-end;
 procedure TfWikiFrame.acIndexExecute(Sender: TObject);
 begin
   OpenWikiPage('INDEX');
@@ -511,76 +385,6 @@ end;
 procedure TfWikiFrame.acRefreshExecute(Sender: TObject);
 begin
   Refresh;
-end;
-
-procedure TfWikiFrame.acScreenshotExecute(Sender: TObject);
-var
-  aDocuments: TDocuments;
-  aDocument: TDocument;
-  aDocPage: TTabSheet;
-  aName : string = 'screenshot.jpg';
-  aDocFrame: TfDocumentFrame;
-  aPageIndex: Integer;
-begin
-  if Data.Users.Rights.Right('WIKI')<=RIGHT_READ then exit;
-  Application.ProcessMessages;
-  Application.MainForm.Hide;
-  Application.ProcessMessages;
-  aName := InputBox(strScreenshotName, strEnterAnName, aName);
-  Application.ProcessMessages;
-  Application.CreateForm(TfScreenshot,fScreenshot);
-  with BaseApplication as IBaseApplication do
-    fScreenshot.SaveTo:=AppendPathDelim(GetInternalTempDir)+aName;
-  fScreenshot.Show;
-  while fScreenshot.Visible do Application.ProcessMessages;
-  fScreenshot.Destroy;
-  fScreenshot := nil;
-  if DataSet.State=dsInsert then
-    begin
-      DataSet.Post;
-      DataSet.Edit;
-    end;
-  aDocument := TDocument.CreateEx(Self,Data);
-  aDocument.Select(DataSet.Id.AsVariant ,'W',DataSet.FieldByName('NAME').AsString,Null,Null);
-  with BaseApplication as IBaseApplication do
-    aDocument.AddFromFile(AppendPathDelim(GetInternalTempDir)+aName);
-  aDocument.Free;
-  aDocuments := TDocuments.CreateEx(Self,Data);
-  aDocuments.CreateTable;
-  aDocuments.Select(DataSet.Id.AsVariant ,'W',DataSet.FieldByName('NAME').AsString,Null,Null);
-  aDocuments.Open;
-  if aDocuments.Count = 0 then
-    aDocuments.Free
-  else
-    begin
-      aDocPage := pcPages.GetTab(TfDocumentFrame);
-      if Assigned(aDocPage) then
-        begin
-          aDocFrame := TfDocumentFrame(aDocPage.Controls[0]);
-          aDocFrame.DataSet := aDocuments;
-        end
-      else
-        begin
-          aDocFrame := TfDocumentFrame.Create(Self);
-          aDocFrame.DataSet := aDocuments;
-          aPageIndex := pcPages.AddTab(aDocFrame,False);
-          DoView;
-        end;
-    end;
-  if (DataSet.DataSet.State <> dsEdit)
-  and (DataSet.DataSet.State <> dsInsert) then
-    DataSet.DataSet.Edit;
-  eWikiPage.SelText := '[[Bild:'+aName+']]';
-  eWikiPage.SelStart:=eWikiPage.SelStart+length(eWikiPage.SelText);
-
-  Application.MainForm.Show;
-end;
-
-procedure TfWikiFrame.acSpellCheckExecute(Sender: TObject);
-begin
-  SetFocus;
-  eWikiPage.SetFocus;
-  fSpellCheck.Execute(eWikiPage,eWikiPage.SelStart);
 end;
 
 procedure TfWikiFrame.aScriptWrite(const s: string);
@@ -593,97 +397,6 @@ begin
   FScriptContent+=s+LineEnding;
 end;
 
-procedure TfWikiFrame.bItalicClick(Sender: TObject);
-begin
-  if (DataSet.DataSet.State <> dsEdit)
-  and (DataSet.DataSet.State <> dsInsert) then
-    DataSet.DataSet.Edit;
-  eWikiPage.SelText:=''''''+eWikiPage.SelText+'''''';
-  eWikiPage.SelStart:=eWikiPage.SelStart+eWikiPage.SelLength;
-end;
-function TfWikiFrame.FCacheGetFile(Path: string;var NewPath : string): TStream;
-var
-  aPicture: TPicture;
-  ms: TMemoryStream;
-  Picture: TPicture;
-  aDocument: TDocument;
-  Aspect: real;
-  aNumber: integer;
-  tmp: String;
-begin
-  Result := nil;
-  NewPath := Path;
-  if copy(uppercase(Path),0,5)='ICON(' then
-    begin
-      if TryStrToInt(copy(Path,6,length(Path)-6),aNumber) then
-        begin
-          ms := TMemoryStream.Create;
-          Picture := TPicture.Create;
-          fVisualControls.Images.GetBitmap(aNumber,Picture.Bitmap);
-          Picture.SaveToStreamWithFileExt(ms,'png');
-          NewPath := Copy(Path,0,length(path)-length(ExtractFileExt(Path)))+'.png';
-          ms.Position:=0;
-          Result := ms;
-          Picture.Free;
-        end;
-    end
-  else if copy(uppercase(Path),0,12)='HISTORYICON(' then
-    begin
-      tmp := copy(Path,13,length(Path)-13);
-      if TryStrToInt(tmp,aNumber) then
-        begin
-          ms := TMemoryStream.Create;
-          Picture := TPicture.Create;
-          fVisualControls.HistoryImages.GetBitmap(aNumber,Picture.Bitmap);
-          Picture.SaveToStreamWithFileExt(ms,'png');
-          NewPath := Copy(Path,0,length(path)-length(ExtractFileExt(Path)))+'.png';
-          ms.Position:=0;
-          Result := ms;
-          Picture.Free;
-        end;
-    end
-  else
-    begin
-      aDocument := TDocument.CreateEx(Self,Data);
-      Data.SetFilter(aDocument,Data.QuoteField('TYPE')+'=''W'' and '+Data.QuoteField('NAME')+'='+Data.QuoteValue(copy(ExtractFileName(Path),0,rpos('.',ExtractFileName(Path))-1)),1);
-      if aDocument.DataSet.RecordCount > 0 then
-        begin
-          ms := TMemoryStream.Create;
-          aDocument.CheckoutToStream(ms);
-          ms.Position:=0;
-          if TIpHtmlNodeIMG(FActNode).Width.LengthType = hlAbsolute then
-            begin
-              try
-                aPicture := TPicture.Create;
-                aPicture.LoadFromStreamWithFileExt(ms,aDocument.FieldByName('EXTENSION').AsString);
-                Picture := TPicture.Create;
-                Picture.Bitmap.Width := TIpHtmlNodeIMG(FActNode).Width.LengthValue;
-                Aspect := aPicture.Height/aPicture.Width;
-                Picture.Bitmap.Height := round(TIpHtmlNodeIMG(FActNode).Width.LengthValue*Aspect);
-                Picture.Bitmap.Canvas.AntialiasingMode:= amOn;
-                Picture.Bitmap.Canvas.StretchDraw(Rect(0,0,Picture.Width,Picture.Height),aPicture.Graphic);
-                aPicture.Free;
-                ms.Free;
-                ms := TMemoryStream.Create;
-                Picture.SaveToStreamWithFileExt(ms,'png');
-                NewPath := Copy(Path,0,length(path)-length(ExtractFileExt(Path)))+'.png';
-                ms.Position:=0;
-                Picture.Free;
-              except
-                on e : exception do
-                  begin
-                    ms.Free;
-                    ms := TMemoryStream.Create;
-                    Data.BlobFieldToStream(aDocument.DataSet,'DOCUMENT',ms);
-                    ms.Position:=0;
-                  end;
-              end;
-            end;
-          Result := ms;
-        end;
-      aDocument.Free;
-    end;
-end;
 type
   TPlainProcedure = procedure;
 procedure TfWikiFrame.fWikiFrameWikiInclude(Inp: string; var Outp: string;aLevel : Integer = 0);
@@ -1375,15 +1088,7 @@ var
 begin
   aDataThere:=False;
   WikiToHTML.OnWikiInclude:=@fWikiFrameWikiInclude;
-  ss:=TStringStream.Create(UniToSys('<html><head><title>'+DataSet.FieldByName('CAPTION').AsString+'</title></head><body>'+WikiText2HTML(input,'','',True)+'<br><br><br></body></html>'));
-  ss.Position := 0;
-  try
-    Result:=TSimpleIPHtml.Create;
-    TSimpleIPHtml(Result).OnGetImageX:=@TSimpleIpHtmlGetImageX;
-    Result.LoadFromStream(ss);
-  finally
-    ss.Free;
-  end;
+  Result := FEditor.GetHTML(UniToSys('<html><head><title>'+DataSet.FieldByName('CAPTION').AsString+'</title></head><body>'+WikiText2HTML(input,'','',True)+'<br><br><br></body></html>'));
 end;
 
 procedure TfWikiFrame.SetLeftBar(AValue: Boolean);
@@ -1413,7 +1118,7 @@ end;
 procedure TfWikiFrame.DoView;
 begin
   ipHTML.Visible:= True;
-  pcPages.Visible := False;
+  FEditor.Visible := False;
   acEdit.Checked:=False;
   Refresh;
 end;
@@ -1421,7 +1126,8 @@ end;
 procedure TfWikiFrame.DoEdit;
 begin
   ipHTML.Visible:= False;
-  pcPages.Visible := True;
+  FEditor.Visible := True;
+  FEditor.Show;
   acEdit.Checked:=True;
 end;
 
@@ -1433,35 +1139,6 @@ var
   aPageIndex: Integer;
 begin
   ipHTML.SetHtml(Wiki2HTML(DataSet.FieldByName('DATA').AsString));
-  while pcPages.PageCount > 3 do
-    pcPages.Pages[2].Destroy;
-  if (FDataSet.State <> dsInsert) and (fDataSet.Count > 0) then
-    begin
-      aDocuments := TDocuments.CreateEx(Self,Data);
-      aDocuments.Select(DataSet.Id.AsVariant,'W',DataSet.FieldByName('NAME').AsString,Null,Null);
-      aDocuments.Open;
-      if aDocuments.Count = 0 then
-        aDocuments.Free
-      else
-        begin
-          aDocPage := pcPages.GetTab(TfDocumentFrame);
-          if FEditAble then
-            begin
-              if Assigned(aDocPage) then
-                begin
-                  aDocFrame := TfDocumentFrame(aDocPage.Controls[0]);
-                  aDocFrame.DataSet := aDocuments;
-                end
-              else
-                begin
-                  aDocFrame := TfDocumentFrame.Create(Self);
-                  aDocFrame.DataSet := aDocuments;
-                  aPageIndex := pcPages.AddTab(aDocFrame,False);
-                  DoView
-                end;
-            end;
-        end;
-    end;
 end;
 
 procedure TfWikiFrame.New;
@@ -1494,10 +1171,6 @@ begin
     begin
       TWikiList(DataSet).FindWikiPage(PageName);
       aParent := TWikiList(DataSet).ActiveTreeID;
-      pcPages.ClearTabClasses;
-      if FEditable then
-        pcPages.AddTabClass(TfDocumentFrame,strFiles,@AddDocuments);
-      //tsView.Show;
       Screen.Cursor := crHourglass;
       DoOpen;
       Screen.Cursor := crDefault;
@@ -1505,7 +1178,6 @@ begin
     end
   else if CreateIfNotExists then
     begin
-      pcPages.ClearTabClasses;
       TWikiList(DataSet).FindWikiPage(PageName);
       aParent := TWikiList(DataSet).ActiveTreeID;
       DataSet.Insert;

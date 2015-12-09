@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  Buttons, ActnList,uBaseVisualControls,Aspell,contnrs;
+  Buttons, ActnList,uBaseVisualControls,Aspell,contnrs,SynEdit;
 
 type
 
@@ -43,10 +43,10 @@ type
     procedure acUseExecute(Sender: TObject);
   private
     { private declarations }
-    FMemo: TCustomMemo;
+    FMemo: TSynedit;
   public
     { public declarations }
-    function Execute(aMemo : TCustomMemo;aStart : Integer) : Boolean;
+    function Execute(aMemo : Tsynedit;aStart : Integer) : Boolean;
   end;
 
 var
@@ -69,7 +69,7 @@ begin
   ModalResult:=mrAbort;
 end;
 
-function TfSpellCheck.Execute(aMemo: TCustomMemo; aStart: Integer): Boolean;
+function TfSpellCheck.Execute(aMemo: Tsynedit; aStart: Integer): Boolean;
 var
   aProc: TAspellProcess;
   aList: TObjectList;
@@ -91,7 +91,7 @@ begin
       cbWords.Items.Delimiter:=',';
       cbWords.Items.DelimitedText := aEntry.Suggestions;
       aMemo.SelStart:=aEntry.Offset;
-      aMemo.SelLength:=length(aEntry.Word);
+      aMemo.SelEnd:=amemo.SelStart+length(aEntry.Word);
       cbWords.Text:=aEntry.Word;
       FMemo.SetFocus;
       if ShowModal = mrAbort then break;
