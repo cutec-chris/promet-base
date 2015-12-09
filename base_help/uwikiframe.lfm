@@ -189,7 +189,7 @@ inherited fWikiFrame: TfWikiFrame
       end
     end
     object Panel7: TPanel
-      Left = 248
+      Left = 312
       Height = 42
       Top = 0
       Width = 324
@@ -201,12 +201,12 @@ inherited fWikiFrame: TfWikiFrame
       object Label6: TLabel
         Left = 4
         Height = 15
-        Top = -2
+        Top = 0
         Width = 316
         Anchors = [akLeft, akRight, akBottom]
         AutoSize = False
         BorderSpacing.Left = 5
-        Caption = 'Name'
+        Caption = 'Titel'
         Font.Color = clMedGray
         Font.Height = 11
         ParentColor = False
@@ -227,7 +227,7 @@ inherited fWikiFrame: TfWikiFrame
         Height = 21
         Top = 13
         Width = 316
-        DataField = 'NAME'
+        DataField = 'CAPTION'
         DataSource = Wiki
         ReadOnly = True
         CharCase = ecNormal
@@ -235,6 +235,50 @@ inherited fWikiFrame: TfWikiFrame
         MaxLength = 0
         TabOrder = 0
         TabStop = False
+      end
+    end
+    object pEntry: TPanel
+      Left = 248
+      Height = 42
+      Top = 0
+      Width = 64
+      Align = alLeft
+      BevelOuter = bvNone
+      ClientHeight = 42
+      ClientWidth = 64
+      TabOrder = 4
+      Visible = False
+      object Label2: TLabel
+        Left = 4
+        Height = 15
+        Top = 0
+        Width = 56
+        Alignment = taCenter
+        Anchors = [akLeft, akRight, akBottom]
+        AutoSize = False
+        BorderSpacing.Left = 5
+        Caption = 'Eintrag'
+        Font.Color = clMedGray
+        Font.Height = 11
+        ParentColor = False
+        ParentFont = False
+      end
+      object ToolButton9: TSpeedButton
+        Left = 4
+        Height = 28
+        Top = 12
+        Width = 28
+        Action = acSave
+        ShowCaption = False
+      end
+      object ToolButton10: TSpeedButton
+        Left = 32
+        Height = 28
+        Top = 12
+        Width = 32
+        Action = acCancel
+        Flat = True
+        ShowCaption = False
       end
     end
   end
@@ -403,8 +447,8 @@ inherited fWikiFrame: TfWikiFrame
   end
   object ActionList: TActionList[3]
     Images = fVisualControls.Images
-    left = 296
-    top = 8
+    left = 368
+    top = 56
     object acBack: TAction
       Caption = 'acBack'
       Hint = 'zur letzten Seite wechseln'
@@ -455,6 +499,16 @@ inherited fWikiFrame: TfWikiFrame
       Caption = 'Kopieren'
       OnExecute = acCopyExecute
     end
+    object acSave: TAction
+      Caption = 'acSave'
+      ImageIndex = 74
+      OnExecute = acSaveExecute
+    end
+    object acCancel: TAction
+      Caption = 'acCancel'
+      ImageIndex = 75
+      OnExecute = acCancelExecute
+    end
   end
   object Wiki: TDataSource[4]
     OnStateChange = WikiStateChange
@@ -464,8 +518,8 @@ inherited fWikiFrame: TfWikiFrame
   end
   object pmHistory: TPopupMenu[5]
     OnPopup = pmHistoryPopup
-    left = 240
-    top = 8
+    left = 328
+    top = 56
     object MenuItem1: TMenuItem
       Caption = 'New Item1'
     end

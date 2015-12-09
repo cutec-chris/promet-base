@@ -57,6 +57,8 @@ type
     acEdit: TAction;
     acRefresh: TAction;
     acCopy: TAction;
+    acSave: TAction;
+    acCancel: TAction;
     ActionList: TActionList;
     Bevel1: TBevel;
     Bevel2: TBevel;
@@ -66,12 +68,14 @@ type
     ExtRotatedLabel1: TExtRotatedLabel;
     ExtRotatedLabel2: TExtRotatedLabel;
     Keywords: TDatasource;
+    Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
+    pEntry: TPanel;
     Panel7: TPanel;
     pEdit2: TPanel;
     pMiddle: TPanel;
@@ -85,12 +89,14 @@ type
     RefreshTimer: TTimer;
     tbMenue1: TToolButton;
     tbToolBar1: TToolBar;
+    ToolButton10: TSpeedButton;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
     ToolButton5: TSpeedButton;
     ToolButton6: TSpeedButton;
     ToolButton7: TToolButton;
     ToolButton8: TToolButton;
+    ToolButton9: TSpeedButton;
     Wiki: TDatasource;
     ipHTML: TIpHtmlPanel;
     pTop: TPanel;
@@ -100,12 +106,14 @@ type
     ToolButton1: TToolButton;
     ToolButton2: TToolButton;
     procedure acBackExecute(Sender: TObject);
+    procedure acCancelExecute(Sender: TObject);
     procedure acCopyExecute(Sender: TObject);
     procedure acEditExecute(Sender: TObject);
     procedure acExportExecute(Sender: TObject);
     procedure acForwardExecute(Sender: TObject);
     procedure acIndexExecute(Sender: TObject);
     procedure acRefreshExecute(Sender: TObject);
+    procedure acSaveExecute(Sender: TObject);
     procedure aScriptWrite(const s: string);
     procedure aScriptWriteln(const s: string);
     procedure fWikiFrameWikiInclude(Inp: string; var Outp: string; aLevel: Integer=0
@@ -296,6 +304,8 @@ procedure TfWikiFrame.WikiStateChange(Sender: TObject);
 begin
   if DataSet.DataSet.State = dsEdit then
     DoEdit;
+  acSave.Enabled := DataSet.CanEdit or DataSet.Changed;
+  acCancel.Enabled:= DataSet.CanEdit or DataSet.Changed;
 end;
 procedure TfWikiFrame.ipHTMLHotClick(Sender: TObject);
 var
@@ -360,6 +370,19 @@ begin
   FHistory.GoBack;
 end;
 
+procedure TfWikiFrame.acCancelExecute(Sender: TObject);
+begin
+  if Assigned(FConnection) then
+    begin
+      FDataSet.CascadicCancel;
+      if UseTransactions then
+        begin
+          Data.RollbackTransaction(FConnection);
+          Data.StartTransaction(FConnection);
+        end;
+    end;
+end;
+
 procedure TfWikiFrame.acCopyExecute(Sender: TObject);
 var
   HTMLSource: String;
@@ -401,6 +424,19 @@ end;
 procedure TfWikiFrame.acRefreshExecute(Sender: TObject);
 begin
   Refresh;
+end;
+
+procedure TfWikiFrame.acSaveExecute(Sender: TObject);
+begin
+  if Assigned(FConnection) then
+    begin
+      FDataSet.CascadicPost;
+      if UseTransactions then
+        begin
+          Data.CommitTransaction(FConnection);
+          Data.StartTransaction(FConnection);
+        end;
+    end;
 end;
 
 procedure TfWikiFrame.aScriptWrite(const s: string);
@@ -1138,7 +1174,6 @@ begin
     begin
       DataSet.Edit;
       DataSet.FieldByName('DATA').AsString:=FEditor.Text;
-      DataSet.Post;
     end;
   acEdit.Checked:=False;
   ipHTML.Visible:= True;
@@ -1153,6 +1188,7 @@ begin
   eName.Enabled:=True;
   FEditor.Open(DataSet.FieldByName('DATA').AsString,DataSet.Id.AsVariant,'W',DataSet.FieldByName('NAME').AsString);
   acEdit.Checked:=True;
+  pEntry.Visible:=True;
 end;
 
 procedure TfWikiFrame.DoOpen;
