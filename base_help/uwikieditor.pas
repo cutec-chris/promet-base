@@ -451,6 +451,7 @@ begin
         end;
     end;
   mEdit.Text:=aText;
+  pcPages.ActivePage:=tsEdit;
 end;
 
 constructor TfWikiEditor.Create(TheOwner: TComponent);
