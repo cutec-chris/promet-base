@@ -75,6 +75,7 @@ type
     procedure acPasteExecute(Sender: TObject);
     procedure acScreenshotExecute(Sender: TObject);
     procedure acSpellcheckExecute(Sender: TObject);
+    procedure AddDocuments(Sender: TObject);
     function FCacheGetFile(Path: string; var NewPath: string): TStream;
     procedure TSimpleIpHtmlGetImageX(Sender: TIpHtmlNode; const URL: string;
       var Picture: TPicture);
@@ -378,7 +379,7 @@ begin
         begin
           aDocFrame := TfDocumentFrame.Create(Self);
           aDocFrame.DataSet := aDocuments;
-          aPageIndex := pcPages.AddTab(aDocFrame,False,strDocumentsOnly);
+          aPageIndex := pcPages.AddTab(aDocFrame,False,strFiles);
         end;
     end;
   mEdit.SelText := '[[Bild:'+aName+']]';
@@ -388,6 +389,11 @@ end;
 procedure TfWikiEditor.acSpellcheckExecute(Sender: TObject);
 begin
   fSpellCheck.Execute(mEdit,mEdit.SelStart);
+end;
+
+procedure TfWikiEditor.AddDocuments(Sender: TObject);
+begin
+
 end;
 
 function TfWikiEditor.GetText: string;
@@ -420,6 +426,8 @@ var
 begin
   while pcPages.PageCount > 3 do
     pcPages.Pages[2].Destroy;
+  pcPages.ClearTabClasses;
+  pcPages.AddTabClass(TfDocumentFrame,strFiles,@AddDocuments);
   if not Assigned(FDocuments) then
     FDocuments := TDocuments.Create(nil);
   FDocuments.Select(aId,aTyp,aName,Null,Null);
@@ -439,7 +447,7 @@ begin
         begin
           aDocFrame := TfDocumentFrame.Create(Self);
           aDocFrame.DataSet := FDocuments;
-          aPageIndex := pcPages.AddTab(aDocFrame,False,strDocumentsOnly);
+          aPageIndex := pcPages.AddTab(aDocFrame,False,strFiles);
         end;
     end;
   mEdit.Text:=aText;
