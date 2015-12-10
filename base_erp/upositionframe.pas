@@ -45,6 +45,8 @@ type
     acSum: TAction;
     acDiscount: TAction;
     acSavePos: TAction;
+    acPrepare: TAction;
+    acWork: TAction;
     acViewTexts: TAction;
     acViewDetails: TAction;
     acUnMakeSebPos: TAction;
@@ -88,6 +90,8 @@ type
     ToolButton1: TToolButton;
     ToolButton10: TToolButton;
     ToolButton11: TToolButton;
+    ToolButton12: TToolButton;
+    ToolButton13: TToolButton;
     ToolButton2: TToolButton;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;

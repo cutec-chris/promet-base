@@ -153,7 +153,7 @@ inherited fPosition: TfPosition
         TabOrder = 0
         object tbAnsicht1: TToolBar
           Left = 0
-          Height = 22
+          Height = 44
           Top = 0
           Width = 47
           AutoSize = True
@@ -170,6 +170,16 @@ inherited fPosition: TfPosition
             Left = 24
             Top = 0
             Action = acGotoArticle
+          end
+          object ToolButton12: TToolButton
+            Left = 1
+            Top = 22
+            Caption = 'ToolButton12'
+          end
+          object ToolButton13: TToolButton
+            Left = 24
+            Top = 22
+            Caption = 'ToolButton13'
           end
         end
       end
@@ -438,6 +448,16 @@ inherited fPosition: TfPosition
       Hint = 'Änderungen der Position speichern'
       ImageIndex = 74
       OnExecute = acSavePosExecute
+    end
+    object acPrepare: TAction
+      Caption = 'Vorbereiten'
+      Hint = 'Vorbereitung durchführen (Automation)'
+      ImageIndex = 126
+    end
+    object acWork: TAction
+      Caption = 'Durchführen'
+      Hint = 'Durchrühren (Automation)'
+      ImageIndex = 128
     end
   end
   object TabTimer: TIdleTimer[5]

@@ -743,7 +743,6 @@ begin
   try
       try
         inherited InternalOpen;
-        if ReadOnly then raise Exception.Create('Table readonly');
       except
         InternalClose;
         if TZeosDBDM(Owner).Ping(Connection) then
