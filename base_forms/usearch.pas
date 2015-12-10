@@ -163,6 +163,7 @@ resourcestring
   strDoSearch                   = 'suchen';
 procedure TfSearch.bCloseClick(Sender: TObject);
 begin
+  Hide;
   Close;
 end;
 procedure TfSearch.bEditFilterClick(Sender: TObject);
@@ -509,6 +510,7 @@ var
   Options: String;
   i: Integer;
 begin
+  Hide;
   FreeAndNil(ActiveSearch);
   Options := '';
   for i := 0 to cbSearchType.Items.Count-1 do
