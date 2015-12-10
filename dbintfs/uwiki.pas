@@ -135,7 +135,7 @@ begin
 end;
 function TWikiList.GetTextFieldName: string;
 begin
-  Result:='NAME';
+  Result:='CAPTION';
 end;
 function TWikiList.GetNumberFieldName: string;
 begin

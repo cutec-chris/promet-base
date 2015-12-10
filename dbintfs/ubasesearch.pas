@@ -294,17 +294,17 @@ begin
                     aFilter += Data.QuoteField(Lists[i].GetMatchcodeFieldName)+' as '+Data.QuoteField('MATCHCODE')+','
                   else
                     aFilter += Data.QuoteValue('')+' as '+Data.QuoteField('MATCHCODE')+',';
-                  aFilter += Data.QuoteField(Lists[i].GetNumberFieldName)+' as '+Data.QuoteField('ID')+',';
+                  aFilter += CastText(Data,Lists[i].GetNumberFieldName,50)+' as '+Data.QuoteField('ID')+',';
                   if Lists[i].GetBookNumberFieldName <> '' then
-                    aFilter += Lists[i].GetBookNumberFieldName+' as '+Data.QuoteField('NUMBER')+','
+                    aFilter += CastText(Data,Lists[i].GetBookNumberFieldName,50)+' as '+Data.QuoteField('NUMBER')+','
                   else
                     aFilter += Data.QuoteValue('')+' as '+Data.QuoteField('NUMBER')+',';
                   if (Lists[i].GetBarcodeFieldName <> '') then
-                    aFilter += Data.QuoteField(Lists[i].GetBarcodeFieldName)+' as '+Data.QuoteField('BARCODE')+','
+                    aFilter += CastText(Data,Lists[i].GetBarcodeFieldName,50)+' as '+Data.QuoteField('BARCODE')+','
                   else
                     aFilter += Data.QuoteValue('')+' as '+Data.QuoteField('BARCODE')+',';
                   if (Lists[i].GetCommissionFieldName <> '') then
-                    aFilter += Data.QuoteField(Lists[i].GetCommissionFieldName)+' as '+Data.QuoteField('COMMISSION')+','
+                    aFilter += CastText(Data,Lists[i].GetCommissionFieldName,100)+' as '+Data.QuoteField('COMMISSION')+','
                   else
                     aFilter += Data.QuoteValue('')+' as '+Data.QuoteField('COMMISSION')+',';
                   if (Lists[i].GetTextFieldName <> '') then
