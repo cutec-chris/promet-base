@@ -1249,7 +1249,7 @@ begin
     end;
   except
   end;
-  if (not Result) and SetChecked and TableExists(aTableName) then
+  if SetChecked and TableExists(aTableName) then
     FCheckedTables.Add(aTableName);
 end;
 

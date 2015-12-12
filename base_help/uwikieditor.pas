@@ -435,6 +435,11 @@ begin
   pcPages.AddTabClass(TfDocumentFrame,strFiles,@AddDocuments);
   if not Assigned(FDocuments) then
     FDocuments := TDocuments.Create(nil);
+  if aId = Null then
+    begin
+      FreeAndNil(FDocuments);
+      exit;
+    end;
   FDocuments.Select(aId,aTyp,aName,Null,Null);
   FDocTyp := aTyp;
   FDocId := aId;
