@@ -109,10 +109,12 @@ begin
       try
         Randomize;
         Result := GetTempDir+'promet_thumbs'+IntToStr(Random(10000));
+        {
         if Assigned(BaseApplication) and (not BaseApplication.ConsoleApplication) then
           if Supports(BaseApplication,IBaseApplication) then
             with BaseApplication as IBaseApplication do
               Result := GetInternalTempDir+'promet_thumbs';
+        }
         ForceDirectories(UniToSys(Result));
         ThumbDir:=Result;
       except
