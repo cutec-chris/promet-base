@@ -93,6 +93,7 @@ end;
 procedure TfAutomationframe.acEditScriptExecute(Sender: TObject);
 var
   aScript: TBaseScript;
+  aVer : Variant;
 begin
   if eScript.Text='' then
     begin
@@ -105,14 +106,16 @@ begin
   aScript := TBaseScript.Create(nil);
   aScript.SelectByName(FDataSet.FieldByName('SCRIPT').AsString);
   aScript.Open;
-  if (not aScript.Locate('NAME;VERSION',VarArrayOf([FDataSet.FieldByName('SCRIPT').AsString,FDataSet.FieldByName('SCRIPTVER').AsVariant]),[loCaseInsensitive]))  then
+  aVer := FDataSet.FieldByName('SCRIPTVER').AsVariant;
+  if aVer = '' then aver := Null;
+  if (not aScript.Locate('NAME;VERSION',VarArrayOf([FDataSet.FieldByName('SCRIPT').AsString,aVer]),[loCaseInsensitive]))
+  then
     begin
       aScript.Append;
       aScript.FieldByName('NAME').AsString:=FDataSet.FieldByName('SCRIPT').AsString;
-      aScript.FieldByName('VERSION').AsVariant:=FDataSet.FieldByName('SCRIPTVER').AsVariant;
+      aScript.FieldByName('VERSION').AsVariant:=aVer;
       aScript.Post;
     end;
-  aScript.Locate('NAME;VERSION',VarArrayOf([FDataSet.FieldByName('SCRIPT').AsString,FDataSet.FieldByName('SCRIPTVER').AsVariant]),[loCaseInsensitive]);
   if aScript.Count>0 then
     data.GotoLink(data.BuildLink(aScript.DataSet));
   aScript.Free;
