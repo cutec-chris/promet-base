@@ -63,6 +63,7 @@ begin
   FEditor.Parent:=pMiddle;
   FEditor.Align:=alClient;
   FEditor.BorderStyle:=bsNone;
+  FEditor.Show;
 end;
 
 procedure TfBoilerplate.eFilterChange(Sender: TObject);
@@ -98,7 +99,6 @@ begin
   FBoilerpl := TBoilerplate.Create(nil);
   dsBoilerplate.DataSet:=FBoilerpl.DataSet;
   eFilter.Text:=trim(aText);
-  FEditor.Show;
   if trim(eFilter.Text)='' then
     DataSet.Filter('')
   else

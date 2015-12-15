@@ -70,13 +70,13 @@ object fBoilerplate: TfBoilerplate
     TabOrder = 3
     VisibleButtons = [nbInsert, nbDelete, nbPost, nbCancel]
   end
-  object Panel1: TPanel
+  object pMiddle: TPanel
     Left = 192
     Height = 405
     Top = 40
     Width = 520
+    Anchors = [akTop, akLeft, akRight, akBottom]
     BevelOuter = bvNone
-    Caption = 'pBoiler'
     TabOrder = 4
   end
   object dsBoilerplate: TDataSource

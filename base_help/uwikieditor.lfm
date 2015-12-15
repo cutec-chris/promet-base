@@ -526,6 +526,7 @@ object fWikiEditor: TfWikiEditor
           LineHighlightColor.Background = clNone
           LineHighlightColor.Foreground = clNone
           LineHighlightColor.FrameEdges = sfeAround
+          OnChange = mEditChange
           inline SynLeftGutterPartList1: TSynGutterPartList
             object SynGutterChanges1: TSynGutterChanges
               Width = 4
