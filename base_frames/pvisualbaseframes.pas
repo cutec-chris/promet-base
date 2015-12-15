@@ -8,7 +8,7 @@ interface
 
 uses
   uPrometFrames, uprometframesinplace, uPrometFramesInplaceDB, 
-  uQuickHelpFrame, uImageCache, uFilterFrame, LazarusPackageIntf;
+  uQuickHelpFrame, uFilterFrame, LazarusPackageIntf;
 
 implementation
 

@@ -51,16 +51,6 @@ object fBoilerplate: TfBoilerplate
     TabOrder = 2
     ShowButtons = [pbOK, pbCancel]
   end
-  object DBMemo1: TDBMemo
-    Left = 200
-    Height = 405
-    Top = 40
-    Width = 515
-    Anchors = [akTop, akLeft, akRight, akBottom]
-    DataField = 'TEXT'
-    DataSource = dsBoilerplate
-    TabOrder = 3
-  end
   object DBNavigator1: TDBNavigator
     Left = 200
     Height = 25
@@ -77,8 +67,17 @@ object fBoilerplate: TfBoilerplate
     ClientWidth = 97
     DataSource = dsBoilerplate
     Options = []
-    TabOrder = 4
+    TabOrder = 3
     VisibleButtons = [nbInsert, nbDelete, nbPost, nbCancel]
+  end
+  object Panel1: TPanel
+    Left = 192
+    Height = 405
+    Top = 40
+    Width = 520
+    BevelOuter = bvNone
+    Caption = 'pBoiler'
+    TabOrder = 4
   end
   object dsBoilerplate: TDataSource
     left = 123
