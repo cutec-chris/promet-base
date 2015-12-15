@@ -210,7 +210,8 @@ end;
 
 procedure TfWikiEditor.mEditChange(Sender: TObject);
 begin
-  if Assigned(FOnChange) then FOnChange(Self);
+  if Assigned(FOnChange) then
+    FOnChange(Self);
 end;
 
 procedure TfWikiEditor.TSimpleIpHtmlGetImageX(Sender: TIpHtmlNode;
