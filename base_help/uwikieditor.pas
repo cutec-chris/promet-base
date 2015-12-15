@@ -80,6 +80,7 @@ type
     procedure acSpellcheckExecute(Sender: TObject);
     procedure AddDocuments(Sender: TObject);
     function FCacheGetFile(Path: string; var NewPath: string): TStream;
+    procedure mEditChange(Sender: TObject);
     procedure TSimpleIpHtmlGetImageX(Sender: TIpHtmlNode; const URL: string;
       var Picture: TPicture);
   private
@@ -205,6 +206,11 @@ begin
         end;
       aDocument.Free;
     end;
+end;
+
+procedure TfWikiEditor.mEditChange(Sender: TObject);
+begin
+  if Assigned(FOnChange) then FOnChange(Self);
 end;
 
 procedure TfWikiEditor.TSimpleIpHtmlGetImageX(Sender: TIpHtmlNode;

@@ -10,7 +10,7 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="22">
+    <Files Count="23">
       <Item1>
         <Filename Value="uhistoryframe.lfm"/>
         <Type Value="LFM"/>
@@ -99,6 +99,10 @@
         <Filename Value="umeasurementoptions.pas"/>
         <UnitName Value="uMeasurementOptions"/>
       </Item22>
+      <Item23>
+        <Filename Value="uboilerplate.pas"/>
+        <UnitName Value="uBoilerplate"/>
+      </Item23>
     </Files>
     <RequiredPkgs Count="3">
       <Item1>

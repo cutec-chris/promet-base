@@ -9,7 +9,7 @@ interface
 uses
   uHistoryFrame, uFilterFrame, uhistoryadditem, uListFrame, uclipp, 
   uLinkFrame, uImageFrame, uMainTreeFrame, uPrometFrames, umeasurements, 
-  uMeasurementOptions;
+  uMeasurementOptions, uBoilerplate;
 
 implementation
 
