@@ -11,7 +11,7 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="13">
+    <Files Count="12">
       <Item1>
         <Filename Value="uprometframes.lfm"/>
         <Type Value="LFM"/>
@@ -49,21 +49,17 @@
         <UnitName Value="uQuickHelpFrame"/>
       </Item9>
       <Item10>
-        <Filename Value="uimagecache.pas"/>
-        <UnitName Value="uImageCache"/>
-      </Item10>
-      <Item11>
         <Filename Value="ufilterframe.lfm"/>
         <Type Value="LFM"/>
-      </Item11>
-      <Item12>
+      </Item10>
+      <Item11>
         <Filename Value="ufilterframe.lrs"/>
         <Type Value="LRS"/>
-      </Item12>
-      <Item13>
+      </Item11>
+      <Item12>
         <Filename Value="ufilterframe.pas"/>
         <UnitName Value="uFilterFrame"/>
-      </Item13>
+      </Item12>
     </Files>
     <RequiredPkgs Count="6">
       <Item1>

@@ -15,7 +15,7 @@
   at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by writing
   to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
   MA 02111-1307, USA.
-Created 01.07.2006
+Created 01.12.2015
 *******************************************************************************}
 unit uWikiEditor;
 
@@ -80,6 +80,7 @@ type
     procedure acSpellcheckExecute(Sender: TObject);
     procedure AddDocuments(Sender: TObject);
     function FCacheGetFile(Path: string; var NewPath: string): TStream;
+    procedure mEditChange(Sender: TObject);
     procedure TSimpleIpHtmlGetImageX(Sender: TIpHtmlNode; const URL: string;
       var Picture: TPicture);
   private
@@ -205,6 +206,12 @@ begin
         end;
       aDocument.Free;
     end;
+end;
+
+procedure TfWikiEditor.mEditChange(Sender: TObject);
+begin
+  if Assigned(FOnChange) then
+    FOnChange(Self);
 end;
 
 procedure TfWikiEditor.TSimpleIpHtmlGetImageX(Sender: TIpHtmlNode;

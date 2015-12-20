@@ -8,7 +8,7 @@
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="22">
+    <Files Count="23">
       <Item1>
         <Filename Value="uselectreport.lfm"/>
         <Type Value="LFM"/>
@@ -94,9 +94,13 @@
         <UnitName Value="uscreenshotmain"/>
       </Item21>
       <Item22>
-        <Filename Value="uboilerplate.pas"/>
-        <UnitName Value="uBoilerplate"/>
+        <Filename Value="uspelling.pas"/>
+        <UnitName Value="uspelling"/>
       </Item22>
+      <Item23>
+        <Filename Value="uimagecache.pas"/>
+        <UnitName Value="uImageCache"/>
+      </Item23>
     </Files>
     <RequiredPkgs Count="5">
       <Item1>

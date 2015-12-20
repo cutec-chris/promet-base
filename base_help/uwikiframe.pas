@@ -302,7 +302,7 @@ end;
 
 procedure TfWikiFrame.WikiStateChange(Sender: TObject);
 begin
-  if DataSet.DataSet.State = dsEdit then
+  if DataSet.DataSet.State = dsInsert then
     DoEdit;
   acSave.Enabled := DataSet.CanEdit or DataSet.Changed;
   acCancel.Enabled:= DataSet.CanEdit or DataSet.Changed;
