@@ -2995,14 +2995,14 @@ end;
 procedure TBaseDBDataset.SetSortDirection(AValue: TSortDirection);
 begin
   if not Assigned(DataSet) then exit;
-  with DataSet as IBaseManageDB do
+  with DataSet as IBaseDbFilter do
     SetSortDirection(AValue);
 end;
 
 procedure TBaseDBDataset.SetSortFields(AValue: string);
 begin
   if not Assigned(DataSet) then exit;
-  with DataSet as IBaseManageDB do
+  with DataSet as IBaseDbFilter do
     SetSortFields(AValue);
 end;
 
