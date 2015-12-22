@@ -176,6 +176,7 @@ type
     procedure SetFilter(DataSet : TbaseDBDataSet;aFilter : string;aLimit : Integer = 0;aOrderBy : string = '';aSortDirection : string = 'ASC';aLocalSorting : Boolean = False;aGlobalFilter : Boolean = True;aUsePermissions : Boolean = False;aFilterIn : string = '');
     procedure AppendUserToActiveList;
     procedure RefreshUsersFilter;
+    procedure ModifyUsersFilter(aNewFilter : string);
     procedure RemoveUserFromActiveList;
     procedure RegisterLinkHandlers;
     property IgnoreOpenRequests : Boolean read FIgnoreOpenrequests write FIgnoreOpenrequests;
@@ -1433,6 +1434,11 @@ begin
       FUsersFilter:=copy(aUsers,4,length(aUsers));
       Users.GotoBookmark(aUser);
     end;
+end;
+
+procedure TBaseDBModule.ModifyUsersFilter(aNewFilter: string);
+begin
+  FUsersFilter:=aNewFilter;
 end;
 
 procedure TBaseDBModule.RemoveUserFromActiveList;
