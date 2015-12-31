@@ -1,4 +1,9 @@
-﻿Build 420
+﻿Build 421
+      - DAVServer:komplett auf Synapse portiert (SSL Support,Threading)
+      - DAVServer:gegen davfs2 getestet/und angepasst
+      - DAVServer:CalDAV Support um User Principal Support ergänzt die meissten CalDAV Clients sollten nun Calender allein finden können
+      - DAVServer:CalDAV Kalender/Aufgabenunterstützung komplettiert (gegen Thunderbird getestet)
+Build 420
       - SyncDB:100 Datensatz Blöcke funktionieren nicht wenn mehr als 100 Datensätze zwischen 2 Syncs geändert wurden. Das wird nun abgefangen und dann die Tabelle voll synchronisiert
       - Dateien:einige Fehler in Dateiverwaltung behoben (treten nur bei sehr großen SQL_ID´s auf dort konnten Dateien nicht geöffnet werden)
       - Dateien:zu Revision auschecken bietet jetzt direkt einen Auswahldropdown der alten Versionen an

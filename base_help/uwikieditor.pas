@@ -239,7 +239,7 @@ function TfWikiEditor.GetHTML(aHTML : String): TSimpleIpHtml;
 var
   ss: TStringStream;
 begin
-  ss:=TStringStream.Create(UniToSys('<html><head><title>'+FCaption+'</title></head><body>'+aHTML+'<br><br><br></body></html>'));
+  ss:=TStringStream.Create(UniToSys('<html><head><title>'+FCaption+'</title></head><body>'+aHTML+'<br><br><br><p>.</p></body></html>'));
   ss.Position := 0;
   try
     Result:=TSimpleIPHtml.Create;
@@ -443,32 +443,35 @@ begin
   if not Assigned(FDocuments) then
     FDocuments := TDocuments.Create(nil);
   if aId = Null then
+    FreeAndNil(FDocuments)
+  else
     begin
-      FreeAndNil(FDocuments);
-      exit;
-    end;
-  FDocuments.Select(aId,aTyp,aName,Null,Null);
-  FDocTyp := aTyp;
-  FDocId := aId;
-  FDocName := aName;
-  FDocuments.Open;
-  if FDocuments.Count > 0 then
-    begin
-      aDocPage := pcPages.GetTab(TfDocumentFrame);
-      if Assigned(aDocPage) then
+      FDocuments.Select(aId,aTyp,aName,Null,Null);
+      FDocTyp := aTyp;
+      FDocId := aId;
+      FDocName := aName;
+      FDocuments.Open;
+      if FDocuments.Count > 0 then
         begin
-          aDocFrame := TfDocumentFrame(aDocPage.Controls[0]);
-          aDocFrame.DataSet := FDocuments;
-        end
-      else
-        begin
-          aDocFrame := TfDocumentFrame.Create(Self);
-          aDocFrame.DataSet := FDocuments;
-          aPageIndex := pcPages.AddTab(aDocFrame,False,strFiles);
+          aDocPage := pcPages.GetTab(TfDocumentFrame);
+          if Assigned(aDocPage) then
+            begin
+              aDocFrame := TfDocumentFrame(aDocPage.Controls[0]);
+              aDocFrame.DataSet := FDocuments;
+            end
+          else
+            begin
+              aDocFrame := TfDocumentFrame.Create(Self);
+              aDocFrame.DataSet := FDocuments;
+              aPageIndex := pcPages.AddTab(aDocFrame,False,strFiles);
+            end;
         end;
     end;
   mEdit.Text:=aText;
+  tsEdit.TabVisible:=True;
+  tsEdit.PageIndex:=0;
   pcPages.ActivePage:=tsEdit;
+  pcPages.PageIndex:=0;
 end;
 
 constructor TfWikiEditor.Create(TheOwner: TComponent);

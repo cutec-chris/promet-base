@@ -59,6 +59,7 @@ type
     acCopy: TAction;
     acSave: TAction;
     acCancel: TAction;
+    acDelete: TAction;
     ActionList: TActionList;
     Bevel1: TBevel;
     Bevel2: TBevel;
@@ -75,9 +76,13 @@ type
     Label6: TLabel;
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
+    MenuItem6: TMenuItem;
+    MenuItem8: TMenuItem;
+    miDelete: TMenuItem;
     pEntry: TPanel;
     Panel7: TPanel;
     pEdit2: TPanel;
+    pmAction: TPopupMenu;
     pMiddle: TPanel;
     pLeft: TPanel;
     Panel3: TPanel;
@@ -87,6 +92,7 @@ type
     pEdit1: TPanel;
     SaveDialog1: TSaveDialog;
     RefreshTimer: TTimer;
+    sbMenue: TSpeedButton;
     tbMenue1: TToolButton;
     tbToolBar1: TToolBar;
     ToolButton10: TSpeedButton;
@@ -108,6 +114,7 @@ type
     procedure acBackExecute(Sender: TObject);
     procedure acCancelExecute(Sender: TObject);
     procedure acCopyExecute(Sender: TObject);
+    procedure acDeleteExecute(Sender: TObject);
     procedure acEditExecute(Sender: TObject);
     procedure acExportExecute(Sender: TObject);
     procedure acForwardExecute(Sender: TObject);
@@ -122,6 +129,7 @@ type
     procedure OpenHistoryItemClick(Sender: TObject);
     procedure pmHistoryPopup(Sender: TObject);
     procedure RefreshTimerTimer(Sender: TObject);
+    procedure sbMenueClick(Sender: TObject);
     procedure tsViewShow(Sender: TObject);
     procedure WikiDataChange(Sender: TObject; Field: TField);
     procedure WikiStateChange(Sender: TObject);
@@ -134,6 +142,7 @@ type
     aDataThere : Boolean;
     FScriptContent : string;
     FEditor : TfWikiEditor;
+    procedure FEditorChange(Sender: TObject);
     function GetLeftBar: Boolean;
     procedure SetLeftBar(AValue: Boolean);
     function Wiki2HTML(input: string): TIPHtml;
@@ -237,6 +246,7 @@ begin
   FEditor.Parent:=pMiddle;
   FEditor.Align:=alClient;
   FEditor.BorderStyle:=bsNone;
+  FEditor.OnChange:=@FEditorChange;
   FVariables := TStringList.Create;
   FVariables.Values['USER'] := Data.Users.Id.AsString;
   FVariables.Values['ACCOUNTNO'] := Data.Users.FieldByName('ACCOUNTNO').AsString;
@@ -304,8 +314,8 @@ procedure TfWikiFrame.WikiStateChange(Sender: TObject);
 begin
   if DataSet.DataSet.State = dsInsert then
     DoEdit;
-  acSave.Enabled := DataSet.CanEdit or DataSet.Changed;
-  acCancel.Enabled:= DataSet.CanEdit or DataSet.Changed;
+  acSave.Enabled := DataSet.CanEdit;
+  acCancel.Enabled:= DataSet.CanEdit;
 end;
 procedure TfWikiFrame.ipHTMLHotClick(Sender: TObject);
 var
@@ -365,6 +375,11 @@ begin
   end;
 end;
 
+procedure TfWikiFrame.sbMenueClick(Sender: TObject);
+begin
+  TSpeedButton(Sender).PopupMenu.PopUp(TSpeedButton(Sender).ClientOrigin.x,TSpeedButton(Sender).ClientOrigin.y+TSpeedButton(Sender).Height);
+end;
+
 procedure TfWikiFrame.acBackExecute(Sender: TObject);
 begin
   FHistory.GoBack;
@@ -372,9 +387,9 @@ end;
 
 procedure TfWikiFrame.acCancelExecute(Sender: TObject);
 begin
+  FDataSet.CascadicCancel;
   if Assigned(FConnection) then
     begin
-      FDataSet.CascadicCancel;
       if UseTransactions then
         begin
           Data.RollbackTransaction(FConnection);
@@ -390,6 +405,11 @@ begin
   ipHTML.CopyToClipboard;
   //HTMLSource := '<b>Formatted</b> text'; // text with formatrings
   //Clipboard.AddFormat(ClipbrdFmtHTML, HTMLSource[1], Length(HTMLSource));
+end;
+
+procedure TfWikiFrame.acDeleteExecute(Sender: TObject);
+begin
+  DataSet.Delete;
 end;
 
 procedure TfWikiFrame.acEditExecute(Sender: TObject);
@@ -428,9 +448,9 @@ end;
 
 procedure TfWikiFrame.acSaveExecute(Sender: TObject);
 begin
+  FDataSet.CascadicPost;
   if Assigned(FConnection) then
     begin
-      FDataSet.CascadicPost;
       if UseTransactions then
         begin
           Data.CommitTransaction(FConnection);
@@ -1155,6 +1175,15 @@ begin
   Result := pLeft.Visible;
 end;
 
+procedure TfWikiFrame.FEditorChange(Sender: TObject);
+begin
+  if FEditor.Changed then
+    begin
+      DataSet.Edit;
+      DataSet.FieldByName('DATA').AsString:=FEditor.Text;
+    end;
+end;
+
 procedure TfWikiFrame.AddDocuments(Sender: TObject);
 var
   aDocuments: TDocuments;
@@ -1182,11 +1211,14 @@ begin
 end;
 
 procedure TfWikiFrame.DoEdit;
+var
+  tmp: String;
 begin
   ipHTML.Visible:= False;
   FEditor.Visible := True;
   eName.Enabled:=True;
-  FEditor.Open(DataSet.FieldByName('DATA').AsString,DataSet.Id.AsVariant,'W',DataSet.FieldByName('NAME').AsString);
+  tmp := DataSet.FieldByName('DATA').AsString;
+  FEditor.Open(tmp,DataSet.Id.AsVariant,'W',DataSet.FieldByName('NAME').AsString);
   acEdit.Checked:=True;
   pEntry.Visible:=True;
 end;
@@ -1237,22 +1269,25 @@ begin
       aParent := TWikiList(DataSet).ActiveTreeID;
       DataSet.Insert;
       DataSet.FieldByName('NAME').AsString := copy(PageName,rpos('/',PageName)+1,length(PageName));
-      if aParent = 0 then
-        aParent := TREE_ID_WIKI_UNSORTED;
-      DataSet.FieldByName('TREEENTRY').AsVariant:= aParent;
-      try
-        DoEdit;
-      except
-      end;
+      DoEdit;
    end;
   with BaseApplication as IBaseApplication do
     Debug('OpenWikiPage:'+PageName+' -> done');
 end;
 
 procedure TfWikiFrame.Refresh;
+var
+  aHTML: TIpHtml;
+  aCanvas: TBitmap;
 begin
   if (not Assigned(DataSet)) or (not DataSet.DataSet.Active) then exit;
-  ipHTML.SetHtml(Wiki2HTML(DataSet.FieldByName('DATA').AsString));
+  aHTML := Wiki2HTML(DataSet.FieldByName('DATA').AsString);
+  ipHTML.SetHtml(aHTML);
+  aCanvas := TBitmap.Create;
+  acanvas.Width:=200;
+  acanvas.Height:=200;
+  aHTML.Render(aCanvas.Canvas,Rect(0,0,200,200),false,Point(0,0));
+  aCanvas.Free;
 end;
 
 procedure TfWikiFrame.ShowFrame;

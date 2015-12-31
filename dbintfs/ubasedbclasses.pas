@@ -380,12 +380,16 @@ type
     function GetOption(aSection, aIdent, DefaultValue: string): string;
     procedure SetOption(aSection,aIdent, Value : string);
   end;
+
+  { TFollowers }
+
   TFollowers = class(TBaseDBDataSet)
   private
     function GetLink: TField;
   public
     procedure DefineFields(aDataSet : TDataSet);override;
     procedure Open; override;
+    function BuildFilter : string;
     property Link : TField read GetLink;
   end;
 
@@ -811,6 +815,30 @@ end;
 procedure TFollowers.Open;
 begin
   inherited Open;
+end;
+
+function TFollowers.BuildFilter: string;
+var
+  i: Integer;
+  nLink, FFilter2: String;
+begin
+  First;
+  i := 0;
+  FFilter2:='';
+  while not EOF do
+    begin
+      nLink := FieldByName('LINK').AsString;
+      if pos('{',nLink)>0 then
+        begin
+          nLink := copy(nLink,0,pos('{',nLink)-1);
+          FFilter2:=FFilter2+' OR ('+Data.ProcessTerm(Data.QuoteField('OBJECT')+'='+Data.QuoteValue(nLink+'*'))+')';
+        end
+      else
+        FFilter2:=FFilter2+' OR ('+Data.QuoteField('OBJECT')+'='+Data.QuoteValue(nLink)+')';
+      inc(i);
+      Next;
+    end;
+  Result:=FFilter2;
 end;
 
 procedure TPayGroups.DefineFields(aDataSet: TDataSet);
