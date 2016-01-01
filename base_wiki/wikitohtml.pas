@@ -237,7 +237,9 @@ var
         else
           begin
             ostr := ostr+'<a href="'+StringReplace(copy(istr,2,pos(']',lowercase(istr))-2),LinkTagName+'./','',[rfReplaceAll])+'" target="_BLANK">'+StringReplace(copy(istr,2,pos(']',lowercase(istr))-2),LinkTagName+'./','',[rfReplaceAll])+'</a>';
-            istr := copy(istr,pos(']',lowercase(istr))+1,length(istr));
+            if pos(']',lowercase(istr))>0 then
+              istr := copy(istr,pos(']',lowercase(istr))+1,length(istr))
+            else istr := '';
           end;
       end;
   end;

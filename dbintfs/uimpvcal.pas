@@ -312,8 +312,9 @@ var
   i: Integer;
   tmp: String;
   InBody: Boolean = false;
-  StartTimed: Boolean;
+  StartTimed, aStatusThere: Boolean;
 begin
+  aStatusThere:=False;
   Result := False;
   i := 0;
   while i < vIn.Count do
@@ -330,6 +331,13 @@ begin
             end
           else if IsField('END',tmp) and InBody then
             begin
+              if not aStatusThere then
+                begin
+                  Edit;
+                  if FieldByName('COMPLETED').AsString='Y' then
+                    FieldByName('COMPLETED').AsString:='N';
+                  FieldByName('PERCENT').AsInteger := 0;
+                end;
               Post;
               InBody := False
             end
@@ -362,6 +370,7 @@ begin
                 end
               else if IsField('STATUS',tmp) then
                 begin
+                  aStatusThere := True;
                   case GetValue(tmp,IsUTF8) of
                   'IN-PROCESS':
                     begin
@@ -448,27 +457,28 @@ begin
             vOut.Add('DESCRIPTION:'+SetValue(FieldByName('DESC').AsString));
           if FieldByName('CATEGORY').AsString <> '' then
             vOut.Add('CATEGORIES:'+SetValue(FieldByName('CATEGORY').AsString));
-          if (FieldByName('COMPLETED').AsString<>'Y') and FieldByName('STARTEDAT').IsNull then
-            begin
-              if FieldByName('NEEDSACTION').AsString='Y' then
-                vOut.Add('STATUS:'+SetValue('NEEDS-ACTION'));
-              vOut.Add('PERCENT-COMPLETE:'+SetValue(FieldByName('PERCENT').AsString));
-            end
-          else if FieldByName('COMPLETED').AsString<>'Y' then
-            begin
-              if FieldByName('NEEDSACTION').AsString='Y' then
-                vOut.Add('STATUS:'+SetValue('NEEDS-ACTION'))
-              else
-                vOut.Add('STATUS:'+SetValue('IN-PROCESS'));
-              vOut.Add('PERCENT-COMPLETE:'+SetValue(FieldByName('PERCENT').AsString));
-            end
-          else if FieldByName('COMPLETED').AsString='Y' then
+          if FieldByName('COMPLETED').AsString='Y' then
             begin
               vOut.Add('STATUS:'+SetValue('COMPLETED'));
               vOut.Add('PERCENT-COMPLETE:'+SetValue('100'));
             end
-          else if FieldByName('NEEDSACTION').AsString='Y' then
-            vOut.Add('STATUS:'+SetValue('NEEDS-ACTION'));
+          else
+            begin
+              if FieldByName('STARTEDAT').IsNull then
+                begin
+                  if FieldByName('NEEDSACTION').AsString='Y' then
+                    vOut.Add('STATUS:'+SetValue('NEEDS-ACTION'));
+                  vOut.Add('PERCENT-COMPLETE:'+SetValue(FieldByName('PERCENT').AsString));
+                end
+              else
+                begin
+                  if FieldByName('NEEDSACTION').AsString='Y' then
+                    vOut.Add('STATUS:'+SetValue('NEEDS-ACTION'))
+                  else
+                    vOut.Add('STATUS:'+SetValue('IN-PROCESS'));
+                  vOut.Add('PERCENT-COMPLETE:'+SetValue(FieldByName('PERCENT').AsString));
+                end;
+            end;
           vOut.Add('END:VTODO');
           Next;
         end;
