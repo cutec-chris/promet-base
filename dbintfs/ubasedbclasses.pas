@@ -2057,6 +2057,8 @@ end;
 procedure TBaseHistory.AddMessageItem(aObject: TDataSet; aMessage, aSubject,
   aSource, aLink: string; aParent: LargeInt);
 begin
+  if copy(aMessage,0,length(aSubject)) = aSubject then
+    aMessage:=copy(aMessage,length(aSubject),length(aMessage));
   if aParent=0 then
     AddItem(aObject,aSubject+LineEnding+aMessage,aLink,'',nil,ACICON_MAILNEW,'',True,False)
   else
@@ -2068,6 +2070,8 @@ end;
 procedure TBaseHistory.AddAnsweredMessageItem(aObject: TDataSet; aMessage,
   aSubject, aSource, aLink: string; aParent: LargeInt);
 begin
+  if copy(aMessage,0,length(aSubject)) = aSubject then
+    aMessage:=copy(aMessage,length(aSubject),length(aMessage));
   if aParent=0 then
     AddItem(aObject,aSubject+LineEnding+aMessage,aLink,'',nil,ACICON_MAILANSWERED,'',True,False)
   else
