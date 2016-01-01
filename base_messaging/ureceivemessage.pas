@@ -226,19 +226,12 @@ begin
       fullmsg.Lines.Text:=aMSG.Text;
       fullmsg.DecodeMessage;
       aMessage.DecodeMessage(fullmsg);
-      atmp:=SysToUni(getemailaddr(fullmsg.Header.From));
-      try
-        atmp := StringReplace(atmp,'''','',[rfReplaceAll]);
-        CustomerCont := TPersonContactData.Create(nil);
-        if Data.IsSQLDb then
-          Data.SetFilter(CustomerCont,Data.ProcessTerm('UPPER("DATA")=UPPER('''+atmp+''')'))
-        else
-          Data.SetFilter(CustomerCont,Data.ProcessTerm('"DATA"='''+atmp+''''));
-      except
-      end;
       Customers := TPerson.Create(nil);
-      Data.SetFilter(Customers,'"ACCOUNTNO"='+Data.QuoteValue(CustomerCont.DataSet.FieldByName('ACCOUNTNO').AsString));
-      CustomerCont.Free;
+      atmp:=SysToUni(getemailaddr(fullmsg.Header.From));
+      atmp := StringReplace(atmp,'''','',[rfReplaceAll]);
+      if Customers.SelectFromContactData(atmp) then
+        aTreeEntry:=TREE_ID_MESSAGES;
+      Customers.Open;
       fullmsg.Free;
       FieldByName('TREEENTRY').AsInteger := aTreeEntry;
       if (aTreeEntry = TREE_ID_MESSAGES)

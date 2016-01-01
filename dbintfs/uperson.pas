@@ -133,6 +133,7 @@ type
     property AccountNo : TField read GetAccountNo;
     property Info : TField read GetInfo;
     function SelectFromLink(aLink : string) : Boolean;override;
+    function SelectFromContactData(aCont : string) : Boolean;
     property OnStateChange : TNotifyEvent read FStateChange write FStateChange;
     procedure GenerateThumbnail; override;
   end;
@@ -797,6 +798,23 @@ begin
     end;
   if not Result then
     Result := inherited SelectFromLink(aLink);
+end;
+
+function TPerson.SelectFromContactData(aCont: string): Boolean;
+var
+  CustomerCont: TPersonContactData;
+begin
+  try
+    CustomerCont := TPersonContactData.Create(nil);
+    if Data.IsSQLDb then
+      Data.SetFilter(CustomerCont,Data.ProcessTerm('UPPER("DATA")=UPPER('''+aCont+''')',True))
+    else
+      Data.SetFilter(CustomerCont,Data.ProcessTerm('"DATA"='''+aCont+''''));
+    Self.Filter('"ACCOUNTNO"='+Data.QuoteValue(CustomerCont.DataSet.FieldByName('ACCOUNTNO').AsString));
+  except
+  end;
+  Result:=CustomerCont.Count>0;
+  CustomerCont.Free;
 end;
 
 procedure TPerson.GenerateThumbnail;

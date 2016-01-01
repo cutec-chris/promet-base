@@ -1491,7 +1491,7 @@ begin
         FreeAndNil(Sequence);
       end;
     try
-      FMainConnection.Destroy;
+      //FMainConnection.Destroy;
     except
     end;
     inherited Destroy;

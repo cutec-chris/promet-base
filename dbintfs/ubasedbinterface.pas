@@ -131,7 +131,7 @@ type
     property LastStatement : string read FLastStmt write FLastStmt;
     property LastTime : Int64 read FLastTime write FLastTime;
     function IsSQLDB : Boolean;virtual;abstract;
-    function ProcessTerm(aTerm : string) : string;virtual;
+    function ProcessTerm(aTerm : string;ForceLike : Boolean = False) : string;virtual;
     function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';AutoInc : Boolean = True) : Variant;virtual;abstract;
     function GetNewDataSet(aTable : TBaseDBDataSet;aConnection : TComponent = nil;MasterData : TDataSet = nil;aTables : string = '') : TDataSet;virtual;abstract;
     function GetNewDataSet(aSQL : string;aConnection : TComponent = nil;MasterData : TDataSet = nil;aOrigtable : TBaseDBDataSet = nil) : TDataSet;virtual;
@@ -449,7 +449,7 @@ function TBaseDBModule.CreateDBFromProperties(aProp: string): Boolean;
 begin
   Result := False;
 end;
-function TBaseDBModule.ProcessTerm(aTerm: string): string;
+function TBaseDBModule.ProcessTerm(aTerm: string; ForceLike: Boolean): string;
 var
   UseLike: Boolean;
   aFilter: String;
@@ -460,7 +460,7 @@ begin
   aFilter := StringReplace(aFilter,'?','_',[rfReplaceAll]);
   aFilter := StringReplace(aFilter,'= ''''','=''''',[rfReplaceAll]);
   aFilter := StringReplace(aFilter,'=''''',' is NULL',[rfReplaceAll]);
-  if UseLike then
+  if UseLike or ForceLike then
     aFilter := StringReplace(aFilter,'=',' like ',[rfReplaceAll]);
   Result := aFilter;
 end;
