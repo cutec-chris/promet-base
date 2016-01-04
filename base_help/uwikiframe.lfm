@@ -300,7 +300,7 @@ inherited fWikiFrame: TfWikiFrame
       end
       object Bevel4: TBevel
         Left = 0
-        Height = 34
+        Height = 23
         Top = 4
         Width = 8
         Align = alLeft
@@ -310,17 +310,30 @@ inherited fWikiFrame: TfWikiFrame
       end
       object eName: TDBEdit
         Left = 4
-        Height = 25
+        Height = 21
         Top = 13
         Width = 316
         DataField = 'CAPTION'
         DataSource = Wiki
-        ReadOnly = True
         CharCase = ecNormal
         Enabled = False
         MaxLength = 0
         TabOrder = 0
         TabStop = False
+      end
+      object Label1: TDBText
+        Left = 4
+        Height = 11
+        Top = 31
+        Width = 320
+        Align = alBottom
+        BorderSpacing.Left = 4
+        DataField = 'NAME'
+        DataSource = Wiki
+        Font.Color = clGrayText
+        Font.Height = -9
+        ParentColor = False
+        ParentFont = False
       end
     end
     object pEntry: TPanel

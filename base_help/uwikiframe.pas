@@ -69,6 +69,7 @@ type
     ExtRotatedLabel1: TExtRotatedLabel;
     ExtRotatedLabel2: TExtRotatedLabel;
     Keywords: TDatasource;
+    Label1: TDBText;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
