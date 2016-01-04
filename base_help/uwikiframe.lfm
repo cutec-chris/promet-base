@@ -410,7 +410,8 @@ inherited fWikiFrame: TfWikiFrame
         Caption = 'Navigation'
         Font.Color = clMedGray
         Font.Height = 11
-        Font.Orientation = -900
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
@@ -482,7 +483,8 @@ inherited fWikiFrame: TfWikiFrame
         Caption = 'bearbeiten'
         Font.Color = clMedGray
         Font.Height = 11
-        Font.Orientation = -900
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
@@ -599,7 +601,7 @@ inherited fWikiFrame: TfWikiFrame
       OnExecute = acDeleteExecute
     end
   end
-  object Wiki: TDatasource[4]
+  object Wiki: TDataSource[4]
     OnStateChange = WikiStateChange
     OnDataChange = WikiDataChange
     left = 56
@@ -613,7 +615,7 @@ inherited fWikiFrame: TfWikiFrame
       Caption = 'New Item1'
     end
   end
-  object Keywords: TDatasource[6]
+  object Keywords: TDataSource[6]
     left = 96
     top = 152
   end

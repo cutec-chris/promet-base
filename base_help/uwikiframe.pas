@@ -1199,7 +1199,7 @@ end;
 procedure TfWikiFrame.DoView;
 begin
   eName.Enabled:=False;
-  if FEditor.Changed then
+  if FEditor.Changed and (FEditor.Id=DataSet.Id.AsVariant) then
     begin
       DataSet.Edit;
       DataSet.FieldByName('DATA').AsString:=FEditor.Text;

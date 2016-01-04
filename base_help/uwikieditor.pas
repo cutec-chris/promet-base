@@ -91,6 +91,7 @@ type
     FDocTyp: String;
     FDocId : Variant;
     FDocName: String;
+    FIdent: Variant;
     FOnChange: TNotifyEvent;
     function GetChanged: Boolean;
     function GetText: string;
@@ -103,6 +104,7 @@ type
     destructor Destroy; override;
     function GetHTML(aHTML: String): TSimpleIpHtml;
     procedure Open(aText : string;aId : Variant;aTyp,aName : string);
+    property Id : Variant read FIdent;
     property Text : string read GetText;
     property Caption : string read FCaption write FCaption;
     property Documents : TDocuments read FDocuments write SetDocuments;
@@ -439,6 +441,7 @@ begin
   while pcPages.PageCount > 3 do
     pcPages.Pages[2].Destroy;
   pcPages.ClearTabClasses;
+  FIdent := aID;
   pcPages.AddTabClass(TfDocumentFrame,strFiles,@AddDocuments);
   if not Assigned(FDocuments) then
     FDocuments := TDocuments.Create(nil);

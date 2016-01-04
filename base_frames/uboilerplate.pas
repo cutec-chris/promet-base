@@ -73,8 +73,11 @@ end;
 
 procedure TfBoilerplate.FEditorChange(Sender: TObject);
 begin
-  DataSet.Edit;
-  DataSet.FieldByName('TEXT').AsString:=FEditor.Text;
+  if FEditor.Id = dataSet.Id.AsVariant then
+    begin
+      DataSet.Edit;
+      DataSet.FieldByName('TEXT').AsString:=FEditor.Text;
+    end;
 end;
 
 procedure TfBoilerplate.DataSetDataSetAfterScroll(DataSet: TDataSet);
