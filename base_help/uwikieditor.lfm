@@ -73,6 +73,7 @@ object fWikiEditor: TfWikiEditor
           Gutter.MouseActions = <>
           RightGutter.Width = 0
           RightGutter.MouseActions = <>
+          Highlighter = SynHTMLSyn1
           Keystrokes = <          
             item
               Command = ecUp
