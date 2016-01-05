@@ -118,7 +118,6 @@ type
     { private declarations }
     SearchText: String;
     HintY: LongInt;
-    ActiveSearch : TSearch;
     FModal : Boolean;
     FLastSearch : string;
     FOptionSet : string;
@@ -127,10 +126,15 @@ type
     procedure WMCloseQuery(var message: TLMessage); message LM_CLOSEQUERY;
   public
     { public declarations }
+    ActiveSearch : TSearch;
+    SearchTypes : TFullTextSearchTypes;
+    SearchLocations : TSearchLocations;
     function Execute(Modal : Boolean;OptionSet : string;aHint : string) : Boolean;
+    procedure SetUpSearch;
     function ShowHint(var HintStr: string;var CanShow: Boolean; var HintInfo: THintInfo) : Boolean;
     procedure SetLanguage;
     procedure LoadOptions(OptionSet : string);
+    procedure SaveOptions;
     function GetLink(Multi : Boolean = False) : string;
     property OnOpenItem : TOpenItemEvent read FOpenItem write FOpenItem;
     property OnValidateItem : TOpenItemEvent read FValidItem write FValidItem;
@@ -332,12 +336,6 @@ begin
 end;
 
 procedure TfSearch.DoSearch(Sender: TObject);
-var
-  SearchTypes : TFullTextSearchTypes = [];
-  SearchLocations : TSearchLocations;
-  i: Integer;
-  aItems: TSearchLocations;
-  a: Integer;
 begin
   if (bSearch.Caption = strAbort) then
     begin
@@ -359,34 +357,7 @@ begin
   bSearch.Caption := strAbort;
   bSearchFurther.Visible:=bSearch.Caption=strContinueSearch;
   Application.ProcessMessages;
-  for i := low(uBaseSearch.SearchLocations) to High(uBaseSearch.SearchLocations) do
-    if cbSearchIn.Items.IndexOf(uBaseSearch.SearchLocations[i]) >= 0 then
-      if cbSearchIn.Checked[cbSearchIn.Items.IndexOf(uBaseSearch.SearchLocations[i])] then
-        SearchTypes := SearchTypes+[TFullTextSearchType(i)];
-  aItems := GetSearchAbleItems;
-  for i := 0 to length(aItems)-1 do
-    for a := 0 to cbSearchtype.Items.Count-1 do
-      if (aItems[i]=cbSearchtype.Items[a]) and (cbSearchtype.Checked[a]) then
-        begin
-          SetLength(SearchLocations,length(SearchLocations)+1);
-          SearchLocations[length(SearchLocations)-1] := aItems[i];
-        end;
-  if SearchLevel=0 then
-    sgResults.RowCount := sgResults.FixedRows;
-  ActCount := sgResults.RowCount;
-  SearchText := eContains.Text;
-  if not Assigned(ActiveSearch) then
-    begin
-      SearchLevel:=0;
-      if cbMaxResults.Checked then
-        ActiveSearch := TSearch.Create(SearchTypes,SearchLocations,cbContains.Checked,seMaxResults.Value)
-      else
-        ActiveSearch := TSearch.Create(SearchTypes,SearchLocations,cbContains.Checked,0);
-      ActiveSearch.OnItemFound:=@DataSearchresultItem;
-      ActiveSearch.OnBeginItemSearch:=@ActiveSearchBeginItemSearch;
-      ActiveSearch.OnEndItemSearch:=@ActiveSearchEndItemSearch;
-      ActiveSearch.OnEndSearch:=@FastSearchEnd;
-    end;
+  SetUpSearch;
   if not ActiveSearch.Start(eContains.Text,SearchLevel) then
     begin
       bSearch.Caption:=strDoSearch;
@@ -512,22 +483,7 @@ var
 begin
   Hide;
   FreeAndNil(ActiveSearch);
-  Options := '';
-  for i := 0 to cbSearchType.Items.Count-1 do
-    begin
-      if cbSearchType.Checked[i] then
-        Options := Options+cbSearchType.Items[i]+';';
-    end;
-  with Application as IBaseDbInterface do
-    DBConfig.WriteString('SEARCHTP:'+FOptionSet,Options);
-  Options := '';
-  for i := 0 to cbSearchIn.Items.Count-1 do
-    begin
-      if cbSearchIn.Checked[i] then
-        Options := Options+cbSearchIn.Items[i]+';';
-    end;
-  with Application as IBaseDbInterface do
-    DBConfig.WriteString('SEARCHIN:'+FOptionSet,Options);
+  SaveOptions;
   CloseAction:=caHide;
 end;
 
@@ -723,6 +679,44 @@ begin
       Result := Showmodal = mrOK;
     end;
 end;
+
+procedure TfSearch.SetUpSearch;
+var
+  i: Integer;
+  aItems: TSearchLocations;
+  a: Integer;
+begin
+  SearchTypes:= [];
+  for i := low(uBaseSearch.SearchLocations) to High(uBaseSearch.SearchLocations) do
+    if cbSearchIn.Items.IndexOf(uBaseSearch.SearchLocations[i]) >= 0 then
+      if cbSearchIn.Checked[cbSearchIn.Items.IndexOf(uBaseSearch.SearchLocations[i])] then
+        SearchTypes := SearchTypes+[TFullTextSearchType(i)];
+  aItems := GetSearchAbleItems;
+  for i := 0 to length(aItems)-1 do
+    for a := 0 to cbSearchtype.Items.Count-1 do
+      if (aItems[i]=cbSearchtype.Items[a]) and (cbSearchtype.Checked[a]) then
+        begin
+          SetLength(SearchLocations,length(SearchLocations)+1);
+          SearchLocations[length(SearchLocations)-1] := aItems[i];
+        end;
+  if SearchLevel=0 then
+    sgResults.RowCount := sgResults.FixedRows;
+  ActCount := sgResults.RowCount;
+  SearchText := eContains.Text;
+  if not Assigned(ActiveSearch) then
+    begin
+      SearchLevel:=0;
+      if cbMaxResults.Checked then
+        ActiveSearch := TSearch.Create(SearchTypes,SearchLocations,cbContains.Checked,seMaxResults.Value)
+      else
+        ActiveSearch := TSearch.Create(SearchTypes,SearchLocations,cbContains.Checked,0);
+      ActiveSearch.OnItemFound:=@DataSearchresultItem;
+      ActiveSearch.OnBeginItemSearch:=@ActiveSearchBeginItemSearch;
+      ActiveSearch.OnEndItemSearch:=@ActiveSearchEndItemSearch;
+      ActiveSearch.OnEndSearch:=@FastSearchEnd;
+    end;
+end;
+
 function TfSearch.ShowHint(var HintStr: string; var CanShow: Boolean;
   var HintInfo: THintInfo) : Boolean;
 var
@@ -834,6 +828,30 @@ begin
       Options := copy(Options,pos(';',Options)+1,length(Options));
     end;
 end;
+
+procedure TfSearch.SaveOptions;
+var
+  Options: String;
+  i: Integer;
+begin
+  Options := '';
+  for i := 0 to cbSearchType.Items.Count-1 do
+    begin
+      if cbSearchType.Checked[i] then
+        Options := Options+cbSearchType.Items[i]+';';
+    end;
+  with Application as IBaseDbInterface do
+    DBConfig.WriteString('SEARCHTP:'+FOptionSet,Options);
+  Options := '';
+  for i := 0 to cbSearchIn.Items.Count-1 do
+    begin
+      if cbSearchIn.Checked[i] then
+        Options := Options+cbSearchIn.Items[i]+';';
+    end;
+  with Application as IBaseDbInterface do
+    DBConfig.WriteString('SEARCHIN:'+FOptionSet,Options);
+end;
+
 function TfSearch.GetLink(Multi: Boolean): string;
 var
   i: LongInt;
