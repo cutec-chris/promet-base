@@ -610,13 +610,12 @@ begin
 end;
 destructor TfCalendarFrame.Destroy;
 begin
-  FList.
-  DataSet.Free;
+  FList.Free;
+  //DataSet.Free;
   DataSet := nil;
   if Assigned(DataStore.Resource) then
     DataStore.Resource.Free;
   DataStore.Free;
-  FList.Free;
   inherited Destroy;
 end;
 function TfCalendarFrame.OpenFromLink(aLink: string) : Boolean;
