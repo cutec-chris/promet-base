@@ -112,6 +112,7 @@ type
       Y: Integer);
     procedure sgResultsResize(Sender: TObject);
   private
+    FItemFound: TSearchResultItem;
     FSearcheMail : string;
     FOpenItem: TOpenItemEvent;
     FValidItem: TOpenItemEvent;
@@ -131,9 +132,11 @@ type
     function ShowHint(var HintStr: string;var CanShow: Boolean; var HintInfo: THintInfo) : Boolean;
     procedure SetLanguage;
     procedure LoadOptions(OptionSet : string);
+    procedure SaveOptions;
     function GetLink(Multi : Boolean = False) : string;
     property OnOpenItem : TOpenItemEvent read FOpenItem write FOpenItem;
     property OnValidateItem : TOpenItemEvent read FValidItem write FValidItem;
+    property OnItemFound : TSearchResultItem read FItemFound write FItemFound;
     procedure AllowSearchTypes(aTypes : string);
   end;
 
@@ -456,6 +459,8 @@ begin
   else
     sgResults.Cells[5,i] := 'N';
   sgResults.Cells[6,i] := IntToStr(aPrio);
+  if Assigned(FItemFound) then
+    FItemFound(aIdent,aName,aStatus,aActive,aLink,aPrio,aItem);
 end;
 procedure TfSearch.eContainsChange(Sender: TObject);
 begin
@@ -506,28 +511,10 @@ begin
 end;
 
 procedure TfSearch.FormClose(Sender: TObject; var CloseAction: TCloseAction);
-var
-  Options: String;
-  i: Integer;
 begin
   Hide;
   FreeAndNil(ActiveSearch);
-  Options := '';
-  for i := 0 to cbSearchType.Items.Count-1 do
-    begin
-      if cbSearchType.Checked[i] then
-        Options := Options+cbSearchType.Items[i]+';';
-    end;
-  with Application as IBaseDbInterface do
-    DBConfig.WriteString('SEARCHTP:'+FOptionSet,Options);
-  Options := '';
-  for i := 0 to cbSearchIn.Items.Count-1 do
-    begin
-      if cbSearchIn.Checked[i] then
-        Options := Options+cbSearchIn.Items[i]+';';
-    end;
-  with Application as IBaseDbInterface do
-    DBConfig.WriteString('SEARCHIN:'+FOptionSet,Options);
+  SaveOptions;
   CloseAction:=caHide;
 end;
 
@@ -834,6 +821,30 @@ begin
       Options := copy(Options,pos(';',Options)+1,length(Options));
     end;
 end;
+
+procedure TfSearch.SaveOptions;
+var
+  Options: String;
+  i: Integer;
+begin
+  Options := '';
+  for i := 0 to cbSearchType.Items.Count-1 do
+    begin
+      if cbSearchType.Checked[i] then
+        Options := Options+cbSearchType.Items[i]+';';
+    end;
+  with Application as IBaseDbInterface do
+    DBConfig.WriteString('SEARCHTP:'+FOptionSet,Options);
+  Options := '';
+  for i := 0 to cbSearchIn.Items.Count-1 do
+    begin
+      if cbSearchIn.Checked[i] then
+        Options := Options+cbSearchIn.Items[i]+';';
+    end;
+  with Application as IBaseDbInterface do
+    DBConfig.WriteString('SEARCHIN:'+FOptionSet,Options);
+end;
+
 function TfSearch.GetLink(Multi: Boolean): string;
 var
   i: LongInt;
