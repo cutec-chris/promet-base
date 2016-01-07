@@ -112,6 +112,7 @@ type
       Y: Integer);
     procedure sgResultsResize(Sender: TObject);
   private
+    FItemFound: TSearchResultItem;
     FSearcheMail : string;
     FOpenItem: TOpenItemEvent;
     FValidItem: TOpenItemEvent;
@@ -138,6 +139,7 @@ type
     function GetLink(Multi : Boolean = False) : string;
     property OnOpenItem : TOpenItemEvent read FOpenItem write FOpenItem;
     property OnValidateItem : TOpenItemEvent read FValidItem write FValidItem;
+    property OnItemFound : TSearchResultItem read FItemFound write FItemFound;
     procedure AllowSearchTypes(aTypes : string);
   end;
 
@@ -427,6 +429,8 @@ begin
   else
     sgResults.Cells[5,i] := 'N';
   sgResults.Cells[6,i] := IntToStr(aPrio);
+  if Assigned(FItemFound) then
+    FItemFound(aIdent,aName,aStatus,aActive,aLink,aPrio,aItem);
 end;
 procedure TfSearch.eContainsChange(Sender: TObject);
 begin
@@ -477,9 +481,6 @@ begin
 end;
 
 procedure TfSearch.FormClose(Sender: TObject; var CloseAction: TCloseAction);
-var
-  Options: String;
-  i: Integer;
 begin
   Hide;
   FreeAndNil(ActiveSearch);
