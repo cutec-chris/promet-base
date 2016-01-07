@@ -532,8 +532,8 @@ object fSelectReport: TfSelectReport
     top = 224
   end
   object frShapeObject1: TfrShapeObject
-    left = 120
-    top = 88
+    left = 112
+    top = 96
   end
   object PrinterSetupDialog1: TPrinterSetupDialog
     left = 393
@@ -541,7 +541,7 @@ object fSelectReport: TfSelectReport
   end
   object frTextExport1: TfrTextExport
     ShowExportParamsDlg = False
-    left = 72
+    left = 32
     top = 264
   end
   object frHTMExport1: TfrHTMExport
@@ -557,7 +557,7 @@ object fSelectReport: TfSelectReport
     top = 224
   end
   object lrZeosData1: TlrZeosData
-    left = 122
-    top = 280
+    left = 112
+    top = 264
   end
 end

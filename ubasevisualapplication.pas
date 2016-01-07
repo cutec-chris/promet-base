@@ -429,7 +429,7 @@ begin
       with Self as IBaseDbInterface do
         DBLogout;
       try
-        FDBInterface.Data.Free;
+        //FDBInterface.Data.Free;
         FDBInterface.Data := nil;
       except
       end;

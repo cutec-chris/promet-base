@@ -24,14 +24,15 @@ unit uprometpascalscript;
 interface
 
 uses
-  Classes, SysUtils, genpascalscript, uprometscripts,uPSRuntime,uPSCompiler,uPSUtils,
-  Utils,db,uBaseDBInterface,genscript,uBaseDbClasses;
+  Forms, Classes, SysUtils, genpascalscript, uprometscripts,uPSRuntime,uPSCompiler,uPSUtils,
+  Utils,db,uBaseDBInterface,genscript,uBaseDbClasses,LR_Class;
 
 type
 
   { TPrometPascalScript }
 
   TPrometPascalScript = class(TPascalScript)
+    procedure FReportGetValue(const ParName: String; var ParValue: Variant);
     function TPascalScriptUses(Sender: TPascalScript; const aName: tbtString;
       OnlyAdditional : Boolean): Boolean;
   private
@@ -40,6 +41,8 @@ type
     FSlFunc: TSleepFunc;
     FWrFunc: TStrOutFunc;
     FWriFunc: TStrOutFunc;
+    FReport: TfrReport;
+    FReportVariables : TStringList;
 
     function InternalParamStr(Param : Integer) : String;
     function InternalParamCount : Integer;
@@ -58,9 +61,13 @@ type
     procedure InternalExecuteScriptFuncionPS(aScript, aFunc, aParam: string);
     function InternalExecuteScriptFuncionPSRS(aScript, aFunc, aParam: string) : string;
     function InternalExecuteScriptFuncionRS(aScript, aFunc : string) : string;
+
+    function InternalPrint(aType,Reportname,Printer : string;Copies : Integer) : Boolean;
+    procedure InternalSetReportVariable(Name,Value : string);
   public
     function InternalUses(Comp: TPSPascalCompiler; Name: string): Boolean; override;
     property Sleep : TSleepFunc read FSlFunc write FSlFunc;
+    constructor Create; override;
     destructor Destroy;override;
   end;
 
@@ -70,7 +77,8 @@ var
 implementation
 
 uses uPerson,uMasterdata,uBaseERPDBClasses,uProjects,uMessages,
-  uDocuments,utask,uOrder,uData,variants,uBaseApplication,uStatistic;
+  uDocuments,utask,uOrder,uData,variants,uBaseApplication,uStatistic,
+  uBaseDatasetInterfaces;
 
 procedure TBaseDbListPropertyTextR(Self: TBaseDbList; var T: TField); begin T := Self.Text; end;
 procedure TBaseDbListPropertyNumberR(Self: TBaseDbList; var T: TField); begin T := Self.Number; end;
@@ -106,6 +114,12 @@ procedure TMasterdataPropertyMeasurementsR(Self : TMasterdata;var T : TMeasureme
 procedure TProjectPropertyMeasurementsR(Self : TProject;var T : TMeasurement);begin T := Self.Measurements; end;
 procedure TBaseDbListPropertyDependenciesR(Self : TTaskList;var T : TDependencies);begin T := Self.Dependencies; end;
 
+procedure TPrometPascalScript.FReportGetValue(const ParName: String;
+  var ParValue: Variant);
+begin
+  if Assigned(FReportVariables) then
+    ParValue:=FReportVariables.Values[ParName];
+end;
 
 function TPrometPascalScript.TPascalScriptUses(Sender: TPascalScript;
   const aName: tbtString; OnlyAdditional: Boolean): Boolean;
@@ -148,6 +162,8 @@ begin
         Sender.AddMethod(Self,@TPrometPascalScript.InternalUserHistory,'function UserHistory(Action : string;User   : string;Icon : Integer;ObjectLink : string;Reference : string;Commission: string;Source : string;Date:TDateTime) : Boolean;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalStorValue,'procedure StorValue(Name,Id : string;Value : Double);');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalExecuteScript,'procedure ExecuteScript(Name,Client : string);');
+        Sender.AddMethod(Self,@TPrometPascalScript.InternalPrint,'function PrintReport(aType : string;aReportname : string;aPrinter : string;Copies : Integer) : Boolean;');
+        Sender.AddMethod(Self,@TPrometPascalScript.InternalSetReportVariable,'procedure SetReportVariable(Name : string;Value : string);');
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TComponent'),TBaseDBDataset) do
           begin
             RegisterMethod('procedure Open;');
@@ -765,6 +781,50 @@ begin
   bScript.Free;
 end;
 
+function TPrometPascalScript.InternalPrint(aType, Reportname, Printer: string;
+  Copies: Integer): Boolean;
+var
+  NotPrintable: Boolean;
+begin
+  if not Assigned(FReport) then
+    FReport := TfrReport.Create(nil);
+  FReport.ShowProgress:=False;
+  Data.Reports.Filter(Data.QuoteField('TYPE')+'='+Data.QuoteValue(aType));
+  Result := Data.Reports.DataSet.Locate('NAME',Reportname,[loCaseInsensitive]);
+  if Result then
+    begin
+      FReport.OnGetValue:=@FReportGetValue;
+      with Data.Reports.FieldByName('REPORT') as TBlobField do
+        if not Data.Reports.FieldByName('REPORT').IsNull then
+          begin
+            NotPrintable := False;
+            try
+              with BaseApplication as IBaseApplication do
+                begin
+                  Data.BlobFieldToFile(Data.Reports.DataSet,'REPORT',GetInternalTempDir+'preport.lrf');
+                  FReport.LoadFromFile(GetInternalTempDir+'preport.lrf');
+                end;
+            except
+              NotPrintable := True;
+            end;
+          end;
+      if NotPrintable then result := False
+      else
+        begin
+          Result := FReport.PrepareReport;
+          if Result then
+            FReport.PrintPreparedReport('',Copies);
+        end;
+    end;
+end;
+
+procedure TPrometPascalScript.InternalSetReportVariable(Name, Value: string);
+begin
+  if not Assigned(FReportVariables) then
+    FReportVariables := TStringList.Create;
+  FReportVariables.Values[name] := Value;
+end;
+
 function TPrometPascalScript.InternalUses(Comp: TPSPascalCompiler; Name: string
   ): Boolean;
 begin
@@ -772,9 +832,18 @@ begin
   Result := TPascalScriptUses(Self,Name,Result);
 end;
 
+constructor TPrometPascalScript.Create;
+begin
+  inherited Create;
+  FReport := nil;
+  FReportVariables := nil
+end;
+
 
 destructor TPrometPascalScript.Destroy;
 begin
+  FReportVariables.Free;
+  FReport.Free;
   inherited Destroy;
 end;
 

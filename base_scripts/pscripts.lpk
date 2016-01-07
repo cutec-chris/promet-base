@@ -36,31 +36,34 @@
         <UnitName Value="uscriptimport"/>
       </Item6>
     </Files>
-    <RequiredPkgs Count="7">
+    <RequiredPkgs Count="8">
       <Item1>
-        <PackageName Value="promet_scripts"/>
-        <DefaultFilename Value="promet_scripts.lpk"/>
+        <PackageName Value="lazreport"/>
       </Item1>
       <Item2>
-        <PackageName Value="general"/>
+        <PackageName Value="promet_scripts"/>
+        <DefaultFilename Value="promet_scripts.lpk"/>
       </Item2>
       <Item3>
-        <PackageName Value="ppascalscriptlcl"/>
-        <DefaultFilename Value="..\..\components\pascalscript\Source\ppascalscriptlcl.lpk"/>
+        <PackageName Value="general"/>
       </Item3>
       <Item4>
-        <PackageName Value="pPrometDBIntfs"/>
-        <DefaultFilename Value="..\dbintfs\pprometdbintfs.lpk"/>
+        <PackageName Value="ppascalscriptlcl"/>
+        <DefaultFilename Value="..\..\components\pascalscript\Source\ppascalscriptlcl.lpk"/>
       </Item4>
       <Item5>
-        <PackageName Value="SynEdit"/>
+        <PackageName Value="pPrometDBIntfs"/>
+        <DefaultFilename Value="..\dbintfs\pprometdbintfs.lpk"/>
       </Item5>
       <Item6>
-        <PackageName Value="LCL"/>
+        <PackageName Value="SynEdit"/>
       </Item6>
       <Item7>
-        <PackageName Value="FCL"/>
+        <PackageName Value="LCL"/>
       </Item7>
+      <Item8>
+        <PackageName Value="FCL"/>
+      </Item8>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

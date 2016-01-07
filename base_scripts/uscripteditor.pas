@@ -240,7 +240,7 @@ implementation
 
 uses
   uFrmGotoLine,uData,uBaseApplication,genpascalscript,Utils,uSystemMessage,uStatistic,
-  Clipbrd,uprometpascalscript,uprometpythonscript,uprometcscript;
+  Clipbrd,uprometpascalscript,uprometpythonscript,uprometcscript,uprometvispascalscript;
 
 {$R *.lfm}
 
