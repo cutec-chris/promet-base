@@ -1061,6 +1061,8 @@ begin
             Add('CURRENCY',ftString,5,False);
             Add('SCRIPT',ftString,60,False);
             Add('SCRIPTVER',ftString,8,False);
+            Add('PRSCRIPT',ftString,60,False);
+            Add('PRSCRIPTVER',ftString,8,False);
             Add('PREPTEXT',ftString,100,False);
             Add('WORKTEXT',ftString,100,False);
             Add('CRDATE',ftDate,0,False);

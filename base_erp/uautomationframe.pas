@@ -31,25 +31,36 @@ type
 
   TfAutomationframe = class(TPrometInplaceFrame)
     acEditScript: TAction;
+    acEditPrepareScript: TAction;
     ActionList1: TActionList;
     Bevel1: TBevel;
     Button1: TButton;
     Button2: TButton;
+    eScript: TDBEdit;
     eScript1: TDBEdit;
     eScript2: TDBEdit;
+    eScript3: TDBEdit;
     eVersion: TDBEdit;
-    eScript: TDBEdit;
+    eVersion1: TDBEdit;
     ExtRotatedLabel1: TExtRotatedLabel;
+    GroupBox1: TPanel;
+    GroupBox2: TPanel;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     Panel2: TPanel;
     Position: TDatasource;
     pToolbar: TPanel;
-    SpeedButton2: TSpeedButton;
+    SpeedButton2: TBitBtn;
+    SpeedButton3: TBitBtn;
+    procedure acEditPrepareScriptExecute(Sender: TObject);
     procedure acEditScriptExecute(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -113,6 +124,37 @@ begin
     begin
       aScript.Append;
       aScript.FieldByName('NAME').AsString:=FDataSet.FieldByName('SCRIPT').AsString;
+      aScript.FieldByName('VERSION').AsVariant:=aVer;
+      aScript.Post;
+    end;
+  if aScript.Count>0 then
+    data.GotoLink(data.BuildLink(aScript.DataSet));
+  aScript.Free;
+end;
+
+procedure TfAutomationframe.acEditPrepareScriptExecute(Sender: TObject);
+var
+  aScript: TBaseScript;
+  aVer : Variant;
+begin
+  if eScript.Text='' then
+    begin
+      FDataSet.Edit;
+      if FDataSet is TMasterdataList then
+        FDataSet.FieldByName('PRSCRIPT').AsString:= TMasterdataList(FDataSet).Number.AsString
+      else FDataSet.FieldByName('PRSCRIPT').AsString:=FDataSet.Id.AsString;
+    end;
+  SetFocus;
+  aScript := TBaseScript.Create(nil);
+  aScript.SelectByName(FDataSet.FieldByName('PRSCRIPT').AsString);
+  aScript.Open;
+  aVer := FDataSet.FieldByName('PRSCRIPTVER').AsVariant;
+  if aVer = '' then aver := Null;
+  if (not aScript.Locate('NAME;VERSION',VarArrayOf([FDataSet.FieldByName('PRSCRIPT').AsString,aVer]),[loCaseInsensitive]))
+  then
+    begin
+      aScript.Append;
+      aScript.FieldByName('NAME').AsString:=FDataSet.FieldByName('PRSCRIPT').AsString;
       aScript.FieldByName('VERSION').AsVariant:=aVer;
       aScript.Post;
     end;

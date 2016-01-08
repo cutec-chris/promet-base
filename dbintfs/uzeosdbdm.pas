@@ -604,6 +604,8 @@ var
   aConnection : TZAbstractConnection;
 begin
   Result := True;
+  with BaseApplication as IBaseApplication do
+    Debug('AlterTable:'+FDefaultTableName);
   try
     if FFields <> '' then exit;
     with TBaseDBModule(Owner) do

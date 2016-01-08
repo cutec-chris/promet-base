@@ -1,60 +1,22 @@
 inherited fAutomationframe: TfAutomationframe
-  Height = 283
-  Width = 620
-  ClientHeight = 283
-  ClientWidth = 620
+  Height = 498
+  Width = 830
+  ClientHeight = 498
+  ClientWidth = 830
   Color = clWindow
   ParentColor = False
   DesignLeft = 405
   DesignTop = 322
-  object eScript: TDBEdit[0]
-    Left = 56
-    Height = 21
-    Top = 40
-    Width = 224
-    DataField = 'SCRIPT'
-    DataSource = Position
-    CharCase = ecNormal
-    MaxLength = 0
-    TabOrder = 0
-  end
-  object Label1: TLabel[1]
-    Left = 56
-    Height = 13
-    Top = 24
-    Width = 27
-    Caption = 'Script'
-    ParentColor = False
-  end
-  object Label2: TLabel[2]
-    Left = 288
-    Height = 13
-    Top = 26
-    Width = 35
-    Caption = 'Version'
-    ParentColor = False
-  end
-  object eVersion: TDBEdit[3]
-    Left = 288
-    Height = 21
-    Top = 40
-    Width = 80
-    DataField = 'SCRIPTVER'
-    DataSource = Position
-    CharCase = ecNormal
-    MaxLength = 0
-    TabOrder = 1
-  end
-  object pToolbar: TPanel[4]
+  object pToolbar: TPanel[0]
     Left = 0
-    Height = 283
+    Height = 498
     Top = 0
     Width = 44
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 283
+    ClientHeight = 498
     ClientWidth = 44
-    TabOrder = 2
+    TabOrder = 0
     object Panel2: TPanel
       Left = 0
       Height = 76
@@ -91,86 +53,212 @@ inherited fAutomationframe: TfAutomationframe
         ParentColor = False
         ParentFont = False
       end
-      object SpeedButton2: TSpeedButton
-        Left = 17
-        Height = 22
-        Top = 4
-        Width = 23
-        Action = acEditScript
-        Flat = True
-        ShowCaption = False
-      end
     end
   end
-  object Label3: TLabel[5]
+  object GroupBox1: TPanel[1]
+    Left = 56
+    Height = 120
+    Top = 24
+    Width = 386
+    BevelOuter = bvLowered
+    ClientHeight = 120
+    ClientWidth = 386
+    Color = clNone
+    ParentColor = False
+    TabOrder = 1
+    object Label3: TLabel
+      Left = 8
+      Height = 13
+      Top = 8
+      Width = 87
+      Caption = 'Vorbereitungstext'
+      ParentColor = False
+    end
+    object eScript1: TDBEdit
+      Left = 8
+      Height = 21
+      Top = 22
+      Width = 296
+      DataField = 'PREPTEXT'
+      DataSource = Position
+      CharCase = ecNormal
+      MaxLength = 0
+      TabOrder = 0
+    end
+    object Button1: TButton
+      Left = 309
+      Height = 22
+      Top = 22
+      Width = 39
+      Caption = '...'
+      OnClick = Button1Click
+      TabOrder = 1
+    end
+    object eScript3: TDBEdit
+      Left = 8
+      Height = 21
+      Top = 64
+      Width = 224
+      DataField = 'PRSCRIPT'
+      DataSource = Position
+      CharCase = ecNormal
+      MaxLength = 0
+      TabOrder = 2
+    end
+    object Label5: TLabel
+      Left = 8
+      Height = 13
+      Top = 48
+      Width = 27
+      Caption = 'Script'
+      ParentColor = False
+    end
+    object Label6: TLabel
+      Left = 240
+      Height = 13
+      Top = 50
+      Width = 35
+      Caption = 'Version'
+      ParentColor = False
+    end
+    object eVersion1: TDBEdit
+      Left = 240
+      Height = 21
+      Top = 64
+      Width = 80
+      DataField = 'PRSCRIPTVER'
+      DataSource = Position
+      CharCase = ecNormal
+      MaxLength = 0
+      TabOrder = 3
+    end
+    object SpeedButton2: TBitBtn
+      Left = 325
+      Height = 22
+      Top = 63
+      Width = 23
+      Action = acEditScript
+      TabOrder = 4
+    end
+  end
+  object GroupBox2: TPanel[2]
+    Left = 56
+    Height = 128
+    Top = 168
+    Width = 386
+    BevelOuter = bvLowered
+    ClientHeight = 128
+    ClientWidth = 386
+    Color = clNone
+    ParentColor = False
+    TabOrder = 2
+    object eScript: TDBEdit
+      Left = 8
+      Height = 21
+      Top = 64
+      Width = 224
+      DataField = 'SCRIPT'
+      DataSource = Position
+      CharCase = ecNormal
+      MaxLength = 0
+      TabOrder = 0
+    end
+    object Label2: TLabel
+      Left = 240
+      Height = 13
+      Top = 50
+      Width = 35
+      Caption = 'Version'
+      ParentColor = False
+    end
+    object eVersion: TDBEdit
+      Left = 240
+      Height = 21
+      Top = 64
+      Width = 80
+      DataField = 'SCRIPTVER'
+      DataSource = Position
+      CharCase = ecNormal
+      MaxLength = 0
+      TabOrder = 1
+    end
+    object Label4: TLabel
+      Left = 8
+      Height = 13
+      Top = 8
+      Width = 299
+      Caption = 'Arbeitstextbaustein (falls nicht gesetzt wird Langtext genutzt)'
+      ParentColor = False
+    end
+    object eScript2: TDBEdit
+      Left = 8
+      Height = 21
+      Top = 24
+      Width = 296
+      DataField = 'WORKTEXT'
+      DataSource = Position
+      CharCase = ecNormal
+      MaxLength = 0
+      TabOrder = 2
+    end
+    object Button2: TButton
+      Left = 308
+      Height = 22
+      Top = 24
+      Width = 40
+      Caption = '...'
+      OnClick = Button2Click
+      TabOrder = 3
+    end
+    object Label1: TLabel
+      Left = 8
+      Height = 13
+      Top = 48
+      Width = 27
+      Caption = 'Script'
+      ParentColor = False
+    end
+    object SpeedButton3: TBitBtn
+      Left = 325
+      Height = 22
+      Top = 63
+      Width = 23
+      Action = acEditScript
+      TabOrder = 4
+    end
+  end
+  object Label7: TLabel[3]
     Left = 56
     Height = 13
-    Top = 96
-    Width = 87
-    Caption = 'Vorbereitungstext'
+    Top = 8
+    Width = 62
+    Caption = 'Vorbereitung'
     ParentColor = False
   end
-  object eScript1: TDBEdit[6]
-    Left = 56
-    Height = 21
-    Top = 112
-    Width = 224
-    DataField = 'PREPTEXT'
-    DataSource = Position
-    CharCase = ecNormal
-    MaxLength = 0
-    TabOrder = 3
-  end
-  object Button1: TButton[7]
-    Left = 280
-    Height = 22
-    Top = 112
-    Width = 40
-    Caption = '...'
-    OnClick = Button1Click
-    TabOrder = 4
-  end
-  object Label4: TLabel[8]
+  object Label8: TLabel[4]
     Left = 56
     Height = 13
-    Top = 160
-    Width = 299
-    Caption = 'Arbeitstextbaustein (falls nicht gesetzt wird Langtext genutzt)'
+    Top = 157
+    Width = 60
+    Caption = 'Druchführen'
     ParentColor = False
   end
-  object eScript2: TDBEdit[9]
-    Left = 56
-    Height = 21
-    Top = 176
-    Width = 224
-    DataField = 'WORKTEXT'
-    DataSource = Position
-    CharCase = ecNormal
-    MaxLength = 0
-    TabOrder = 5
-  end
-  object Button2: TButton[10]
-    Left = 280
-    Height = 22
-    Top = 176
-    Width = 40
-    Caption = '...'
-    OnClick = Button2Click
-    TabOrder = 6
-  end
-  object Position: TDataSource[11]
+  object Position: TDataSource[5]
     left = 408
     top = 59
   end
-  object ActionList1: TActionList[12]
+  object ActionList1: TActionList[6]
     Images = fVisualControls.Images
     left = 408
     top = 8
     object acEditScript: TAction
-      Caption = 'Script editieren'
       Hint = 'Editiert das vorhandene Script'
       ImageIndex = 67
       OnExecute = acEditScriptExecute
+    end
+    object acEditPrepareScript: TAction
+      ImageIndex = 67
+      OnExecute = acEditPrepareScriptExecute
     end
   end
 end

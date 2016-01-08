@@ -1226,6 +1226,7 @@ function TBaseDBModule.ShouldCheckTable(aTableName : string;SetChecked : Boolean
 begin
   Result := FCheckedTables.IndexOf(aTableName) = -1;
   if aTableName='TABLEVERSIONS' then exit;
+  if BaseApplication.HasOption('debug') then exit;
   try
   if Result then
     begin
@@ -1240,7 +1241,7 @@ begin
                 begin
                   Result := False;
                 end
-              else if (not BaseApplication.HasOption('debug')) then
+              else if (BaseApplication.HasOption('debug')) then
                 begin
                   with BaseApplication as IBaseApplication do
                     Debug('Table "'+aTableName+'" DBVersion '+TableVersions.FieldByName('DBVERSION').AsString+'<'+IntToStr(round((AppVersion*10000)+AppRevision)));

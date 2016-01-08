@@ -196,7 +196,7 @@ end;
 
 procedure TfSearch.cbSearchInClickCheck(Sender: TObject);
 begin
-  FreeAndNil(ActiveSearch);
+  SetUpSearch;
   sgResults.RowCount:=sgResults.FixedRows;
   if (eContains.Text<>'') and (cbSearchType.Tag=0) then
     DoSearch(nil);
@@ -790,6 +790,7 @@ var
   i: Integer;
   SearchInClear: Boolean = True;
 begin
+  FreeAndNil(ActiveSearch);
   SetLanguage;
   Options := '';
   with Application as IBaseDbInterface do

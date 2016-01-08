@@ -1,4 +1,6 @@
-﻿Build 421
+﻿Build 422
+      - Automation:separate Prepare Script added
+Build 421
       - DAVServer:komplett auf Synapse portiert (SSL Support,Threading)
       - DAVServer:gegen davfs2 getestet/und angepasst
       - DAVServer:CalDAV Support um User Principal Support ergänzt die meissten CalDAV Clients sollten nun Calender allein finden können
