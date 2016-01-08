@@ -1226,7 +1226,7 @@ function TBaseDBModule.ShouldCheckTable(aTableName : string;SetChecked : Boolean
 begin
   Result := FCheckedTables.IndexOf(aTableName) = -1;
   if aTableName='TABLEVERSIONS' then exit;
-  if BaseApplication.HasOption('debug') then exit;
+  {
   try
   if Result then
     begin
@@ -1251,6 +1251,7 @@ begin
     end;
   except
   end;
+  }
   if SetChecked and TableExists(aTableName) then
     FCheckedTables.Add(aTableName);
 end;

@@ -33,7 +33,6 @@ type
     acEditScript: TAction;
     acEditPrepareScript: TAction;
     ActionList1: TActionList;
-    Bevel1: TBevel;
     Button1: TButton;
     Button2: TButton;
     eScript: TDBEdit;
@@ -42,7 +41,6 @@ type
     eScript3: TDBEdit;
     eVersion: TDBEdit;
     eVersion1: TDBEdit;
-    ExtRotatedLabel1: TExtRotatedLabel;
     GroupBox1: TPanel;
     GroupBox2: TPanel;
     Label1: TLabel;
@@ -55,7 +53,6 @@ type
     Label8: TLabel;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
-    Panel2: TPanel;
     Position: TDatasource;
     pToolbar: TPanel;
     SpeedButton2: TBitBtn;

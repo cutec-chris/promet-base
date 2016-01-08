@@ -14,46 +14,7 @@ inherited fAutomationframe: TfAutomationframe
     Width = 44
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 498
-    ClientWidth = 44
     TabOrder = 0
-    object Panel2: TPanel
-      Left = 0
-      Height = 76
-      Top = 20
-      Width = 44
-      Align = alTop
-      BorderSpacing.Top = 20
-      BevelOuter = bvNone
-      ClientHeight = 76
-      ClientWidth = 44
-      TabOrder = 0
-      object Bevel1: TBevel
-        Left = 4
-        Height = 4
-        Top = 0
-        Width = 36
-        Align = alTop
-        BorderSpacing.Left = 4
-        BorderSpacing.Right = 4
-        Shape = bsTopLine
-      end
-      object ExtRotatedLabel1: TExtRotatedLabel
-        Left = 0
-        Height = 72
-        Top = 4
-        Width = 14
-        Align = alLeft
-        AutoSize = False
-        Caption = 'Script'
-        Font.Color = clMedGray
-        Font.Height = 11
-        Font.Orientation = 900
-        Layout = tlBottom
-        ParentColor = False
-        ParentFont = False
-      end
-    end
   end
   object GroupBox1: TPanel[1]
     Left = 56
@@ -238,7 +199,7 @@ inherited fAutomationframe: TfAutomationframe
   object Label8: TLabel[4]
     Left = 56
     Height = 13
-    Top = 157
+    Top = 152
     Width = 60
     Caption = 'Druchführen'
     ParentColor = False

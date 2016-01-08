@@ -132,11 +132,6 @@ type
   protected
     //Internal DataSet Methods that needs to be changed
     procedure InternalOpen; override;
-    function GetRecord(Buffer: PChar; GetMode: TGetMode; aDoCheck: Boolean
-      ): TGetResult; override;
-    procedure FetchAll; override;
-    procedure InternalLast; override;
-    function GetRecordCount: Integer; override;
     procedure InternalRefresh; override;
     procedure InternalPost; override;
     procedure DoAfterInsert; override;
@@ -686,43 +681,6 @@ begin
     end;
   if Changed then
     TBaseDBModule(Self.Owner).UpdateTableVersion(Self.FDefaultTableName);
-end;
-
-function TZeosDBDataSet.GetRecord(Buffer: PChar; GetMode: TGetMode;
-  aDoCheck: Boolean): TGetResult;
-begin
-  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
-    TBaseDBModule(ForigTable.DataModule).CriticalSection.Enter;
-  Result:=inherited GetRecord(Buffer, GetMode, aDoCheck);
-  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
-    TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
-end;
-
-procedure TZeosDBDataSet.FetchAll;
-begin
-  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
-    TBaseDBModule(ForigTable.DataModule).CriticalSection.Enter;
-  inherited FetchAll;
-  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
-    TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
-end;
-
-procedure TZeosDBDataSet.InternalLast;
-begin
-  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
-    TBaseDBModule(ForigTable.DataModule).CriticalSection.Enter;
-  inherited InternalLast;
-  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
-    TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
-end;
-
-function TZeosDBDataSet.GetRecordCount: Integer;
-begin
-  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
-    TBaseDBModule(ForigTable.DataModule).CriticalSection.Enter;
-  Result:=inherited GetRecordCount;
-  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
-    TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
 end;
 
 procedure TZeosDBDataSet.InternalOpen;
