@@ -112,6 +112,7 @@ type
       Y: Integer);
     procedure sgResultsResize(Sender: TObject);
   private
+    Fdone: TNotifyEvent;
     FItemFound: TSearchResultItem;
     FSearcheMail : string;
     FOpenItem: TOpenItemEvent;
@@ -140,6 +141,7 @@ type
     property OnOpenItem : TOpenItemEvent read FOpenItem write FOpenItem;
     property OnValidateItem : TOpenItemEvent read FValidItem write FValidItem;
     property OnItemFound : TSearchResultItem read FItemFound write FItemFound;
+    property OnSearchDone : TNotifyEvent read Fdone write Fdone;
     procedure AllowSearchTypes(aTypes : string);
   end;
 
@@ -478,6 +480,8 @@ begin
       bOpen.Default:=True;
     end
   else DoSearch(bSearch);
+  if Assigned(Fdone) then
+    Fdone(Self);
 end;
 
 procedure TfSearch.FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -821,10 +825,9 @@ begin
       cbSearchIn.Checked[i] := False;
     end;
   with Application as IBaseDbInterface do
-    Options := DBConfig.ReadString('SEARCHIN:'+OptionSet,'');
+    Options := DBConfig.ReadString('SEARCHIN:'+OptionSet,Options);
   with BaseApplication as IBaseApplication do
     Debug('Search:Loading Searchin for '+OptionSet+':'+Options);
-  if Options = '' then Options := strMasterdata+';'+strCustomers+';'+strProjects+';';
   while pos(';',Options) > 0 do
     begin
       if cbSearchin.Items.IndexOf(copy(Options,0,pos(';',Options)-1)) <> -1 then
@@ -834,6 +837,7 @@ begin
       Options := copy(Options,pos(';',Options)+1,length(Options));
     end;
   FoptionSet := OptionSet;
+  SetUpSearch;
 end;
 
 procedure TfSearch.SaveOptions;
