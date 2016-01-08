@@ -438,9 +438,15 @@ var
   aDocFrame: TfDocumentFrame;
   aPageIndex: Integer;
   ss: TStringStream;
+  i: Integer;
 begin
-  while pcPages.PageCount > 3 do
-    pcPages.Pages[2].Destroy;
+  i := 0;
+  while i<pcPages.PageCount-1 do
+    begin
+      if (pcPages.Pages[i].ControlCount > 0) and (pcPages.Pages[i].Controls[0] is TfDocumentFrame) then
+        pcPages.Pages[i].Destroy
+      else inc(i);
+    end;
   pcPages.ClearTabClasses;
   FIdent := aID;
   pcPages.AddTabClass(TfDocumentFrame,strFiles,@AddDocuments);
