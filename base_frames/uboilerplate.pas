@@ -98,8 +98,8 @@ begin
     begin
       Application.CreateForm(TfBoilerplate,FBoilerplate);
       Self := FBoilerplate;
+      FBoilerpl := TBoilerplate.Create(nil);
     end;
-  FBoilerpl := TBoilerplate.Create(nil);
   dsBoilerplate.DataSet:=FBoilerpl.DataSet;
   eFilter.Text:=trim(aText);
   if trim(eFilter.Text)='' then
@@ -109,7 +109,8 @@ begin
   DataSet.DataSet.AfterScroll:=@DataSetDataSetAfterScroll;
   FBoilerpl.Open;
   Result := ShowModal=mrOK;
-  FreeAndNil(FBoilerpl);
+  if result and DataSet.CanEdit then
+    dataSet.Post;
 end;
 
 end.

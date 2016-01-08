@@ -196,7 +196,7 @@ TfDocumentFrame = class(TPrometInplaceDBFrame{$IFDEF WINDOWS},IDropSource{$ENDIF
     FHasPreview: Boolean;
     FID: string;
     FLanguage: Variant;
-    FRefID: Variant;
+    FFRefID: Variant;
     FTyp: string;
     FVersion: Variant;
     aDirectoryID : Int64;
@@ -207,6 +207,7 @@ TfDocumentFrame = class(TPrometInplaceDBFrame{$IFDEF WINDOWS},IDropSource{$ENDIF
     {$IFDEF WINDOWS}
     FDragStartPos: TPoint;
     DragDropFile : string;
+    function GetFrefID: Variant;
     function QueryContinueDrag(fEscapePressed: BOOL; grfKeyState: DWORD): HResult; stdcall;
     function GiveFeedback(dwEffect: DWORD): HResult; stdcall;
     {$ENDIF}
@@ -214,10 +215,12 @@ TfDocumentFrame = class(TPrometInplaceDBFrame{$IFDEF WINDOWS},IDropSource{$ENDIF
     procedure AddActualItem(aInsert: Boolean=False);
     function GotoSelected : Boolean;
     procedure DoEditDocument(Method : string = 'EDIT';ShowEditor : Boolean = False);
+    procedure SetFRefID(AValue: Variant);
     procedure SetHasPreview(AValue: Boolean);
   protected
     procedure SetParent(AParent: TWinControl); override;
     procedure SetDataSet(const AValue: TBaseDBDataset);override;
+    property FRefID : Variant read GetFrefID write SetFRefID;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy;override;
@@ -226,7 +229,7 @@ TfDocumentFrame = class(TPrometInplaceDBFrame{$IFDEF WINDOWS},IDropSource{$ENDIF
     function SaveFileToDir(aDir : string) : Boolean;
     procedure Refresh(RefID: Variant;Typ,ID : string;Version : Variant;Language : Variant;aParent : Integer = 0);overload;
     procedure Refresh(RefID : Variant;Typ : string;aParent : Integer = 0);overload;
-    property RefID : Variant read FRefID;
+    property RefID : Variant read GetFrefID;
     property Typ : string read FTyp;
     property ID : string read FID;
     property Version : Variant read FVersion;
@@ -582,6 +585,12 @@ begin
       Result := S_OK;
     end;
 end;
+
+function TfDocumentFrame.GetFrefID: Variant;
+begin
+  Result := FFRefID;
+end;
+
 function TfDocumentFrame.GiveFeedback(dwEffect: DWORD): HResult; stdcall;
 begin
   Result := DRAGDROP_S_USEDEFAULTCURSORS;
@@ -1172,8 +1181,8 @@ begin
               aDocument.ParentID:=aDirectoryID;
               aDocument.AddFromLink(copy(tmp,0,pos(';',tmp)-1));
               tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
-              DataSet.DataSet.Refresh;
-              DataSet.GotoBookmark(aDocument.GetBookmark);
+              Self.DataSet.DataSet.Refresh;
+              Self.DataSet.GotoBookmark(aDocument.GetBookmark);
               AddActualItem;
               aDocument.Free;
             end;
@@ -1519,6 +1528,12 @@ begin
   aDocument.OnCheckCheckinFiles:=@aDocumentCheckCheckinFiles;
   TDocExecuteThread.Create(aDocument,'exec:'+StringReplace(aCommand,'%s',Utf8ToSys(filename),[rfReplaceAll])+lineending+StringReplace('waitfor:%s','%s',filename,[rfReplaceAll]),DoDelete,UseStarter and (bDocument.MimeTypes.FieldByName('USESTARTER').AsString<>'N'),TempID,Null,bDocument.MimeTypes.Id.AsVariant);
   bDocument.Free;
+end;
+
+procedure TfDocumentFrame.SetFRefID(AValue: Variant);
+begin
+  if FFRefID=AValue then Exit;
+  FFRefID:=AValue;
 end;
 
 procedure TfDocumentFrame.SetHasPreview(AValue: Boolean);

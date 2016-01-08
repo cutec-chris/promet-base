@@ -8,7 +8,7 @@
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="6">
+    <Files Count="7">
       <Item1>
         <Filename Value="uwikiframe.lfm"/>
         <Type Value="LFM"/>
@@ -33,6 +33,10 @@
         <Filename Value="uwikimessage.pas"/>
         <UnitName Value="uWikiMessage"/>
       </Item6>
+      <Item7>
+        <Filename Value="uwikieditor.pas"/>
+        <UnitName Value="uWikiEditor"/>
+      </Item7>
     </Files>
     <RequiredPkgs Count="5">
       <Item1>

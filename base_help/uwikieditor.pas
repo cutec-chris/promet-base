@@ -407,7 +407,8 @@ end;
 
 procedure TfWikiEditor.AddDocuments(Sender: TObject);
 begin
-
+  TfDocumentFrame(Sender).DataSet := FDocuments;
+  TfDocumentFrame(Sender).Refresh(FDocId,FDocTyp,FDocName,Null,Null);
 end;
 
 function TfWikiEditor.GetText: string;
@@ -461,12 +462,14 @@ begin
             begin
               aDocFrame := TfDocumentFrame(aDocPage.Controls[0]);
               aDocFrame.DataSet := FDocuments;
+              aDocFrame.Refresh(FDocId,FDocTyp,FDocName,Null,Null);
             end
           else
             begin
               aDocFrame := TfDocumentFrame.Create(Self);
               aDocFrame.DataSet := FDocuments;
               aPageIndex := pcPages.AddTab(aDocFrame,False,strFiles);
+              aDocFrame.Refresh(FDocId,FDocTyp,FDocName,Null,Null);
             end;
         end;
     end;
