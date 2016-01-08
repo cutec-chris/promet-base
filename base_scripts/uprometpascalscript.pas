@@ -55,7 +55,10 @@ type
     function InternalUserHistory(Action: string; UserName: string; Icon: Integer;
       ObjectLink: string; Reference: string; aCommission: string;
   aSource: string; Date: TDateTime): Boolean;
-    procedure InternalStorValue(aName,aId : string;aValue : Double);
+    procedure InternalStorValue(aName, Value: string);
+    function InternalGetValue(aName : string) : string;
+    procedure InternalMemoryStorValue(aName, Value: string);
+    function InternalMemoryGetValue(aName : string) : string;
     procedure InternalExecuteScript(aCommand, aClient: string);
 
     procedure InternalExecuteScriptFuncionPS(aScript, aFunc, aParam: string);
@@ -73,6 +76,7 @@ type
 
 var
   FContextDataSet : TDataSet;
+  FVariables : TStringList;
 
 implementation
 
@@ -160,7 +164,10 @@ begin
         Sender.AddMethod(Self,@TPrometPascalScript.InternalDataSet,'function DataSet(SQL : string) : TDataSet;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalHistory,'function History(Action : string;ParentLink : string;Icon : Integer;ObjectLink : string;Reference : string;Commission: string;Source : string;Date:TDateTime) : Boolean;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalUserHistory,'function UserHistory(Action : string;User   : string;Icon : Integer;ObjectLink : string;Reference : string;Commission: string;Source : string;Date:TDateTime) : Boolean;');
-        Sender.AddMethod(Self,@TPrometPascalScript.InternalStorValue,'procedure StorValue(Name,Id : string;Value : Double);');
+        Sender.AddMethod(Self,@TPrometPascalScript.InternalStorValue,'procedure StorDBValue(Name,Value : string);');
+        Sender.AddMethod(Self,@TPrometPascalScript.InternalGetValue,'function GetDBValue(Name : string) : string;');
+        Sender.AddMethod(Self,@TPrometPascalScript.InternalMemoryStorValue,'procedure StorMemoryValue(Name,Value : string);');
+        Sender.AddMethod(Self,@TPrometPascalScript.InternalMemoryGetValue,'function GetMemoryValue(Name : string) : string;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalExecuteScript,'procedure ExecuteScript(Name,Client : string);');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalPrint,'function PrintReport(aType : string;aReportname : string;aPrinter : string;Copies : Integer) : Boolean;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalSetReportVariable,'procedure SetReportVariable(Name : string;Value : string);');
@@ -706,14 +713,32 @@ begin
   aUsers.Free;
 end;
 
-procedure TPrometPascalScript.InternalStorValue(aName, aId: string; aValue: Double);
+procedure TPrometPascalScript.InternalStorValue(aName, Value : string);
 var
   aVariable: TVariables;
 begin
   aVariable := TVariables.Create(nil);
-  aVariable.CreateTable;
-  aVariable.Add(aName,aId,aValue);
+  aVariable.StringValue[aName] := Value;
   aVariable.Free;
+end;
+
+function TPrometPascalScript.InternalGetValue(aName: string): string;
+var
+  aVariable: TVariables;
+begin
+  aVariable := TVariables.Create(nil);
+  result := aVariable.StringValue[aName];
+  aVariable.Free;
+end;
+
+procedure TPrometPascalScript.InternalMemoryStorValue(aName, Value: string);
+begin
+  fVariables.Values[aName] := Value;
+end;
+
+function TPrometPascalScript.InternalMemoryGetValue(aName: string): string;
+begin
+  result := fVariables.Values[aName];
 end;
 
 procedure TPrometPascalScript.InternalExecuteScript(aCommand, aClient: string);
@@ -844,10 +869,12 @@ destructor TPrometPascalScript.Destroy;
 begin
   FReportVariables.Free;
   FReport.Free;
+  FVariables.Free;
   inherited Destroy;
 end;
 
 initialization
   RegisterScriptType(TPrometPascalScript);
+  FVariables := TStringList.Create;
 end.
 

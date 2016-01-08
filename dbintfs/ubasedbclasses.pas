@@ -251,10 +251,14 @@ type
   { TVariables }
 
   TVariables = class(TBaseDBDataset)
+  private
+    function GetString(aName : string): string;
+    procedure SetString(aName : string; AValue: string);
   protected
   public
     procedure DefineFields(aDataSet : TDataSet);override;
     procedure Add(aName,aId : string;aValue : Double);
+    property StringValue[aName : string] : string read GetString write SetString;
   end;
   TOptions = class;
   TFollowers = class;
@@ -635,6 +639,25 @@ end;
 
 { TVariables }
 
+function TVariables.GetString(aName : string): string;
+begin
+  Filter(TBaseDBModule(DataModule).QuoteField('NAME')+'='+TBaseDBModule(DataModule).QuoteValue(aName));
+  if Count>0 then
+    Result := FieldByName('VALUES').AsString
+  else Result := '';
+end;
+
+procedure TVariables.SetString(aName : string; AValue: string);
+begin
+  Filter(TBaseDBModule(DataModule).QuoteField('NAME')+'='+TBaseDBModule(DataModule).QuoteValue(aName));
+  if Count>0 then
+    Edit
+  else Append;
+  FieldByName('NAME').AsString:=aName;
+  FieldByName('VALUES').AsString:=AValue;
+  Post;
+end;
+
 procedure TVariables.DefineFields(aDataSet: TDataSet);
 begin
   with aDataSet as IBaseManageDB do
@@ -646,6 +669,7 @@ begin
             Add('NAME',ftString,100,True);
             Add('ID',ftString,100,False);
             Add('VALUE',ftFloat,0,True);
+            Add('VALUES',ftString,100,True);
           end;
       if Assigned(ManagedIndexdefs) then
         with ManagedIndexDefs do
