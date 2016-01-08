@@ -360,7 +360,6 @@ begin
   bOpen.Enabled:=False;
   bSearch.Caption := strAbort;
   bSearchFurther.Visible:=bSearch.Caption=strContinueSearch;
-  Application.ProcessMessages;
   SetUpSearch;
   if not ActiveSearch.Start(eContains.Text,SearchLevel) then
     begin
@@ -512,15 +511,6 @@ begin
     begin
       cbAutomaticSearch.Checked:=DBConfig.ReadString('SEARCHWHILETYPING','YES') <> 'NO';
       cbAutomaticSearch.OnChange(Self);
-      if DBConfig.ReadString('SEARCHMAXRESULTS','ON') = 'OFF' then
-        cbMaxresults.Checked := False
-      else
-        begin
-          seMaxresults.Tag:=1;
-          cbMaxresults.Checked := true;
-          seMaxResults.Value:=DBConfig.ReadInteger('SEARCHMAXRESULTS',10);
-          seMaxresults.Tag:=0;
-        end;
       cbWildgards.Checked:=DBConfig.ReadString('WILDGARDSEARCH','NO') = 'YES';
       eContains.SetFocus;
       eContains.SelectAll;
@@ -794,7 +784,18 @@ begin
   SetLanguage;
   Options := '';
   with Application as IBaseDbInterface do
-    Options := DBConfig.ReadString('SEARCHTP:'+OptionSet,Options);
+    begin
+      if DBConfig.ReadString('SEARCHMAXRESULTS','ON') = 'OFF' then
+        cbMaxresults.Checked := False
+      else
+        begin
+          seMaxresults.Tag:=1;
+          cbMaxresults.Checked := true;
+          seMaxResults.Value:=DBConfig.ReadInteger('SEARCHMAXRESULTS',10);
+          seMaxresults.Tag:=0;
+        end;
+      Options := DBConfig.ReadString('SEARCHTP:'+OptionSet,Options);
+    end;
   with BaseApplication as IBaseApplication do
     Debug('Search:Loading Options for '+OptionSet+':'+Options);
   i := 0;

@@ -469,7 +469,10 @@ begin
         if trim(aSQL) <> '' then
           begin
             aSQL := aSQL+' order by '+Data.QuoteField('TIMESTAMPD')+' desc';
-            aSQL := uStatistic.AddSQLLimit(aSQL,FMaxResults*length(Lists))+LineEnding;
+            if FMaxResults>0 then
+              aSQL := uStatistic.AddSQLLimit(aSQL,FMaxResults*length(Lists))+LineEnding;
+            with BaseApplication as IBaseApplication do
+              Debug(aSQL);
             aDataSet := Data.GetNewDataSet(aSQL);
             aDataSet.Open;
             i := 0;
