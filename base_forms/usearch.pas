@@ -660,7 +660,6 @@ begin
       bSearch.Default:=True;
       bOpen.Default:=False;
     end;
-  FoptionSet := OptionSet;
   FModal := Modal;
   bEditFilterClick(nil);
   lHint.Visible := False;
@@ -762,9 +761,9 @@ begin
   sgResults.Columns[2].Title.Caption := strShortname;
 
   cbSearchIn.Items.Clear;
-  for i := low(SearchLocations) to high(SearchLocations) do
+  for i := low(uBaseSearch.SearchLocations) to High(uBaseSearch.SearchLocations) do
     begin
-      cbSearchIn.Items.Add(SearchLocations[i]);
+      cbSearchIn.Items.Add(uBaseSearch.SearchLocations[i]);
       if SearchLocDefault[i] then
         cbSearchIn.Checked[cbSearchIn.Items.Count-1] := True;
     end;
@@ -787,9 +786,12 @@ var
   i: Integer;
   SearchInClear: Boolean = True;
 begin
+  SetLanguage;
   Options := '';
   with Application as IBaseDbInterface do
     Options := DBConfig.ReadString('SEARCHTP:'+OptionSet,Options);
+  with BaseApplication as IBaseApplication do
+    Debug('Search:Loading Options for '+OptionSet+':'+Options);
   i := 0;
   for i := 0 to cbSearchType.Items.Count-1 do
     cbSearchType.Checked[i]:=False;
@@ -808,7 +810,8 @@ begin
   if SearchInClear then
     begin
       for i := 0 to cbSearchType.Items.Count-1 do
-        cbSearchType.Checked[i]:=True;
+        if cbSearchType.Items[i]<>strHistory then
+          cbSearchType.Checked[i]:=True;
     end;
   Options := '';
   for i := 0 to cbSearchIn.Items.Count-1 do
@@ -818,7 +821,9 @@ begin
       cbSearchIn.Checked[i] := False;
     end;
   with Application as IBaseDbInterface do
-    Options := DBConfig.ReadString('SEARCHIN:'+OptionSet,Options);
+    Options := DBConfig.ReadString('SEARCHIN:'+OptionSet,'');
+  with BaseApplication as IBaseApplication do
+    Debug('Search:Loading Searchin for '+OptionSet+':'+Options);
   if Options = '' then Options := strMasterdata+';'+strCustomers+';'+strProjects+';';
   while pos(';',Options) > 0 do
     begin
@@ -828,6 +833,7 @@ begin
         end;
       Options := copy(Options,pos(';',Options)+1,length(Options));
     end;
+  FoptionSet := OptionSet;
 end;
 
 procedure TfSearch.SaveOptions;

@@ -261,6 +261,7 @@ var
       Result := 'UPPER(CAST('+Data.QuoteField(Val)+' as CHAR('+IntToStr(size)+')))';
   end;
 begin
+  if FSearchTypes=[] then exit;
   if SearchUnsharp then
     begin
       with BaseApplication as IBaseApplication do
