@@ -1529,13 +1529,17 @@ begin
     then
       begin
         FConnection.TransactIsolationLevel:=tiReadCommitted;
-        FConnection.Properties.Add('MYSQL_OPT_RECONNECT=TRUE');
       end
     else if (copy(FConnection.Protocol,0,5) = 'mssql') then
       begin
         FConnection.TransactIsolationLevel:=tiReadUnCommitted;
         FConnection.ClientCodepage:='utf8';
         FConnection.AutoEncodeStrings:=true;
+      end;
+    if (copy(FConnection.Protocol,0,5) = 'mysql') then
+      begin
+        FConnection.Properties.Add('ValidateUpdateCount=-1');
+        FConnection.Properties.Add('MYSQL_OPT_RECONNECT=TRUE');
       end;
 
     inherited;
