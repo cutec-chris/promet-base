@@ -204,10 +204,10 @@ TfDocumentFrame = class(TPrometInplaceDBFrame{$IFDEF WINDOWS},IDropSource{$ENDIF
     PreviewFrame: TfPreview;
     FEditable : Boolean;
     FDropForm : TForm;
+    function GetFrefID: Variant;
     {$IFDEF WINDOWS}
     FDragStartPos: TPoint;
     DragDropFile : string;
-    function GetFrefID: Variant;
     function QueryContinueDrag(fEscapePressed: BOOL; grfKeyState: DWORD): HResult; stdcall;
     function GiveFeedback(dwEffect: DWORD): HResult; stdcall;
     {$ENDIF}
@@ -586,16 +586,15 @@ begin
     end;
 end;
 
-function TfDocumentFrame.GetFrefID: Variant;
-begin
-  Result := FFRefID;
-end;
-
 function TfDocumentFrame.GiveFeedback(dwEffect: DWORD): HResult; stdcall;
 begin
   Result := DRAGDROP_S_USEDEFAULTCURSORS;
 end;
 {$ENDIF}
+function TfDocumentFrame.GetFrefID: Variant;
+begin
+  Result := FFRefID;
+end;
 procedure TfDocumentFrame.acAddDocumentExecute(Sender: TObject);
 var
   i: Integer;
