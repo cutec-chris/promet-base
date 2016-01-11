@@ -59,8 +59,8 @@
         <UnitName Value="ucalcframe"/>
       </Item12>
       <Item13>
-        <Filename Value="fautomation.pas"/>
-        <UnitName Value="fautomation"/>
+        <Filename Value="fautomationform.pas"/>
+        <UnitName Value="fautomationform"/>
       </Item13>
     </Files>
     <RequiredPkgs Count="5">
