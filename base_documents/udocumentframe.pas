@@ -204,13 +204,13 @@ TfDocumentFrame = class(TPrometInplaceDBFrame{$IFDEF WINDOWS},IDropSource{$ENDIF
     PreviewFrame: TfPreview;
     FEditable : Boolean;
     FDropForm : TForm;
-    function GetFrefID: Variant;
     {$IFDEF WINDOWS}
     FDragStartPos: TPoint;
     DragDropFile : string;
     function QueryContinueDrag(fEscapePressed: BOOL; grfKeyState: DWORD): HResult; stdcall;
     function GiveFeedback(dwEffect: DWORD): HResult; stdcall;
     {$ENDIF}
+    function GetFrefID: Variant;
     procedure DoRefresh;
     procedure AddActualItem(aInsert: Boolean=False);
     function GotoSelected : Boolean;

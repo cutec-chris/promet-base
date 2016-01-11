@@ -2176,7 +2176,7 @@ begin
       if Assigned(ManagedFieldDefs) then
         with ManagedFieldDefs do
           begin
-            Add('TYPE',ftString,4,True);
+            Add('TYPE',ftString,6,True);
             Add('NAME',ftString,60,True);
             Add('CHANGEDBY',ftString,4,False);
             Add('LANGUAGE',ftString,3,True);
