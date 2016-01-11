@@ -174,12 +174,12 @@ inherited fPosition: TfPosition
           object ToolButton12: TToolButton
             Left = 1
             Top = 22
-            Caption = 'ToolButton12'
+            Action = acPrepare
           end
           object ToolButton13: TToolButton
             Left = 24
             Top = 22
-            Caption = 'ToolButton13'
+            Action = acWork
           end
         end
       end

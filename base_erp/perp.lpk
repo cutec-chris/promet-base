@@ -9,7 +9,7 @@
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="12">
+    <Files Count="13">
       <Item1>
         <Filename Value="udetailpositionframe.lfm"/>
         <Type Value="LFM"/>
@@ -58,6 +58,10 @@
         <Filename Value="ucalcframe.pas"/>
         <UnitName Value="ucalcframe"/>
       </Item12>
+      <Item13>
+        <Filename Value="fautomation.pas"/>
+        <UnitName Value="fautomation"/>
+      </Item13>
     </Files>
     <RequiredPkgs Count="5">
       <Item1>

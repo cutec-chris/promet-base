@@ -8,7 +8,8 @@ interface
 
 uses
   utextpositionframe, uPositionFrame, ufinance, uautomationframe, 
-  uDetailPositionFrame, ubookfibuaccount, ucalcframe, LazarusPackageIntf;
+  uDetailPositionFrame, ubookfibuaccount, ucalcframe, fAutomation, 
+  LazarusPackageIntf;
 
 implementation
 

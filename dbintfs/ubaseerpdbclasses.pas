@@ -1359,8 +1359,8 @@ begin
           aMasterdata.Positions.Open;
           with aMasterdata.Positions.DataSet do
             begin
-              First;
-              while not EOF do
+              Last;
+              while not BOF do
                 begin
                   with BaseApplication as IBaseDbInterface do
                     bMasterdata := TMasterdata.CreateEx(Self,Data);
@@ -1419,7 +1419,7 @@ begin
                       DataSet.Post;
                     end;
                   bMasterdata.Destroy;
-                  Next;
+                  Prior;
                 end;
             end;
           aQuantity:=-aQuantity;

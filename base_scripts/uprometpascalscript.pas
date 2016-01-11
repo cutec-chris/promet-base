@@ -82,7 +82,7 @@ implementation
 
 uses uPerson,uMasterdata,uBaseERPDBClasses,uProjects,uMessages,
   uDocuments,utask,uOrder,uData,variants,uBaseApplication,uStatistic,
-  uBaseDatasetInterfaces;
+  uBaseDatasetInterfaces,LR_BarC;
 
 procedure TBaseDbListPropertyTextR(Self: TBaseDbList; var T: TField); begin T := Self.Text; end;
 procedure TBaseDbListPropertyNumberR(Self: TBaseDbList; var T: TField); begin T := Self.Number; end;
@@ -869,12 +869,18 @@ destructor TPrometPascalScript.Destroy;
 begin
   FReportVariables.Free;
   FReport.Free;
-  FVariables.Free;
   inherited Destroy;
 end;
+
+var
+  FBarc : TfrBarCodeObject;
 
 initialization
   RegisterScriptType(TPrometPascalScript);
   FVariables := TStringList.Create;
+  FBarc := TfrBarCodeObject.Create(nil);
+finalization
+  fBarc.Free;
+  FVariables.Free;
 end.
 
