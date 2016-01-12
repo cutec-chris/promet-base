@@ -67,12 +67,15 @@ type
     ToolButton2: TSpeedButton;
     tvStep: TTreeView;
     procedure acExecuteStepExecute(Sender: TObject);
+    procedure acPrepareExecute(Sender: TObject);
+    procedure acProduceExecute(Sender: TObject);
     procedure acReadyExecute(Sender: TObject);
     procedure TreeDataScriptScriptRunLine(Sender: TScript; Module: string;
       aPosition, aRow, aCol: Integer);
     procedure tvStepSelectionChanged(Sender: TObject);
   private
     FDataSet: TBaseDBPosition;
+    FSelStep: TNotifyEvent;
     procedure SetDataSet(AValue: TBaseDBPosition);
     function FindNextStep: Boolean;
     function LoadStep : Boolean;
@@ -82,6 +85,7 @@ type
     property DataSet : TBaseDBPosition read FDataSet write SetDataSet;
     procedure Clear;
     procedure DoOpen;
+    property OnSelectStep : TNotifyEvent read FSelStep write FSelStep;
   end;
 
   TProdTreeData = class
@@ -131,7 +135,7 @@ var
 begin
   if Assigned(tvStep.Selected) then
     begin
-      TreeData := TProdTreeData(fautomation.tvStep.Selected.Data);
+      TreeData := TProdTreeData(tvStep.Selected.Data);
       if not acExecuteStep.Checked then
         begin
           Application.ProcessMessages;
@@ -159,6 +163,30 @@ begin
     end;
 end;
 
+procedure TFAutomation.acPrepareExecute(Sender: TObject);
+var
+  TreeData: TProdTreeData;
+begin
+  if Assigned(tvStep.Selected) then
+    begin
+      TreeData := TProdTreeData(tvStep.Selected.Data);
+      TreeData.Prepared:=False;
+      TreeData.ShowData;
+    end;
+end;
+
+procedure TFAutomation.acProduceExecute(Sender: TObject);
+var
+  TreeData: TProdTreeData;
+begin
+  if Assigned(tvStep.Selected) then
+    begin
+      TreeData := TProdTreeData(tvStep.Selected.Data);
+      TreeData.Prepared:=True;
+      TreeData.ShowData;
+    end;
+end;
+
 procedure TFAutomation.acReadyExecute(Sender: TObject);
 begin
   FindNextStep;
@@ -174,6 +202,7 @@ procedure TFAutomation.tvStepSelectionChanged(Sender: TObject);
 var
   Res: Boolean;
 begin
+  if Assigned(FSelStep) then FSelStep(tvStep);
   if Assigned(tvStep.Selected) then
     begin
       acExecuteStep.Enabled:=False;
@@ -182,7 +211,7 @@ begin
       else Res := False;
       if not Res then
         begin
-          FAutomation.lStep.Caption:=FAutomation.tvStep.Selected.Text;
+          lStep.Caption:=tvStep.Selected.Text;
           ipWorkHTML.SetHtml(nil);
           rbNoData.Checked:=True;
           acProduce.Enabled:=False;
@@ -223,8 +252,10 @@ begin
       ss := TStringStream.Create('<body>'+UniToSys(strNotmoreSteps)+'</body>');
       aHTML.LoadFromStream(ss);
       ss.Free;
-      FAutomation.ipWorkHTML.SetHtml(aHTML);
+      ipWorkHTML.SetHtml(aHTML);
     end;
+  if Result then
+    if Assigned(FSelStep) then FSelStep(tvStep);
 end;
 
 function TFAutomation.LoadStep: Boolean;
@@ -584,7 +615,7 @@ begin
   Documents.Select(aID,aType,aTID,aVersion,aLanguage);
 end;
 
-procedure TfAutomation.DoOpen;
+procedure TFAutomation.DoOpen;
 var
   nNode: TTreeNode;
   nComm : TTreeNode = nil;

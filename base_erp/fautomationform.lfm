@@ -410,6 +410,7 @@ object FAutomation: TFAutomation
       Enabled = False
       GroupIndex = 112
       ImageIndex = 126
+      OnExecute = acPrepareExecute
     end
     object acSave: TAction
       Caption = 'Speichern'
@@ -435,6 +436,7 @@ object FAutomation: TFAutomation
       Enabled = False
       GroupIndex = 112
       ImageIndex = 128
+      OnExecute = acProduceExecute
     end
   end
 end

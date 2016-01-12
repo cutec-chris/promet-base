@@ -197,12 +197,13 @@ LazarusResources.Add('TFAutomation','FORMDATA',[
   +#7'Enabled'#8#10'GroupIndex'#2't'#10'ImageIndex'#3#128#0#9'OnExecute'#7#20'a'
   +'cExecuteStepExecute'#0#0#7'TAction'#9'acPrepare'#9'AutoCheck'#9#7'Caption'#6
   +#25'Arbeitschritt Vorbereiten'#18'DisableIfNoHandler'#8#7'Enabled'#8#10'Grou'
-  +'pIndex'#2'p'#10'ImageIndex'#2'~'#0#0#7'TAction'#6'acSave'#7'Caption'#6#9'Sp'
-  +'eichern'#4'Hint'#6#9'Speichern'#10'ImageIndex'#2'J'#0#0#7'TAction'#7'acAbor'
-  +'t'#7'Caption'#6#9'Abbrechen'#4'Hint'#6#9'Abbrechen'#10'ImageIndex'#2'K'#0#0
-  +#7'TAction'#7'acReady'#9'AutoCheck'#9#7'Caption'#6#27'zum n'#195#164'chsten '
-  +'Arbeitschritt'#7'Enabled'#8#10'GroupIndex'#2'p'#10'ImageIndex'#2'J'#9'OnExe'
-  +'cute'#7#14'acReadyExecute'#0#0#7'TAction'#9'acProduce'#9'AutoCheck'#9#7'Cap'
-  +'tion'#6#26'Arbeitschritt durchf'#195#188'hren'#7'Enabled'#8#10'GroupIndex'#2
-  +'p'#10'ImageIndex'#3#128#0#0#0#0#0
+  +'pIndex'#2'p'#10'ImageIndex'#2'~'#9'OnExecute'#7#16'acPrepareExecute'#0#0#7
+  +'TAction'#6'acSave'#7'Caption'#6#9'Speichern'#4'Hint'#6#9'Speichern'#10'Imag'
+  +'eIndex'#2'J'#0#0#7'TAction'#7'acAbort'#7'Caption'#6#9'Abbrechen'#4'Hint'#6#9
+  +'Abbrechen'#10'ImageIndex'#2'K'#0#0#7'TAction'#7'acReady'#9'AutoCheck'#9#7'C'
+  +'aption'#6#27'zum n'#195#164'chsten Arbeitschritt'#7'Enabled'#8#10'GroupInde'
+  +'x'#2'p'#10'ImageIndex'#2'J'#9'OnExecute'#7#14'acReadyExecute'#0#0#7'TAction'
+  +#9'acProduce'#9'AutoCheck'#9#7'Caption'#6#26'Arbeitschritt durchf'#195#188'h'
+  +'ren'#7'Enabled'#8#10'GroupIndex'#2'p'#10'ImageIndex'#3#128#0#9'OnExecute'#7
+  +#16'acProduceExecute'#0#0#0#0
 ]);
