@@ -6,6 +6,7 @@ object FAutomation: TFAutomation
   Caption = 'FAutomation'
   ClientHeight = 640
   ClientWidth = 804
+  Color = clWindow
   LCLVersion = '1.5'
   object ToolBar1: TPanel
     Left = 15
@@ -272,16 +273,16 @@ object FAutomation: TFAutomation
       end
     end
     object tvStep: TTreeView
-      Left = 524
+      Left = 488
       Height = 40
       Top = 8
-      Width = 257
+      Width = 293
       Anchors = [akTop, akRight, akBottom]
       BorderStyle = bsNone
       DefaultItemHeight = 16
       Images = fVisualControls.Images
       ReadOnly = True
-      ScrollBars = ssAutoBoth
+      ScrollBars = ssAutoVertical
       TabOrder = 4
       OnSelectionChanged = tvStepSelectionChanged
       Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]

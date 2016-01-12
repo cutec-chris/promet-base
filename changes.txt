@@ -1,5 +1,7 @@
 ﻿Build 422
-      - Automation:separate Prepare Script added
+      - Automation:separates Vorbereitungsscript Script hinzugefügt
+      - Scripte: Druckfunktionalität und nicht flüchtige Speicherfunktionalität (Variablen in ahuptspeicher oder Datenbank über die Laufzeit des Scriptes hinaus "retten")
+      - Automation:Formular auch in Auftrag oder Stückliste nutzbar (Vorbereitungs und Durchführen Button)
 Build 421
       - DAVServer:komplett auf Synapse portiert (SSL Support,Threading)
       - DAVServer:gegen davfs2 getestet/und angepasst

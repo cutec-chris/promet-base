@@ -81,6 +81,7 @@ type
     { public declarations }
     property DataSet : TBaseDBPosition read FDataSet write SetDataSet;
     procedure Clear;
+    procedure DoOpen;
   end;
 
   TProdTreeData = class
@@ -123,15 +124,6 @@ uses Utils,uBaseVisualControls,uMasterdata,uData,uOrder,variants;
 resourcestring
   strDoPick                             = 'kommissionieren';
   strNotmoreSteps                       = 'Es sind keine (weiteren) Arbeitschritte vorhanden.<br><br>Um einen neuen Auftrag auswählen zu können müssen Sie den Auftrag (ab)schließen';
-
-procedure InternalSleep(MiliSecValue: LongInt); StdCall;
-var
-  aTime: Int64;
-begin
-  aTime := GetTicks;
-  while (GetTicks-aTime) < MiliSecValue do
-    Application.ProcessMessages;
-end;
 
 procedure TFAutomation.acExecuteStepExecute(Sender: TObject);
 var
@@ -474,6 +466,7 @@ begin
   inherited;
   OnGetImageX:=@SimpleIpHtmlGetImageX;
 end;
+
 procedure TProdTreeData.ScriptWriteln(const s: string);
 var
   aTxt: String;
@@ -589,6 +582,66 @@ begin
   if not Assigned(Documents) then
     Documents := TDocument.Create(nil);
   Documents.Select(aID,aType,aTID,aVersion,aLanguage);
+end;
+
+procedure TfAutomation.DoOpen;
+var
+  nNode: TTreeNode;
+  nComm : TTreeNode = nil;
+
+  function GetParentNode : TTreeNode;
+  var
+    aNode: TTreeNode;
+  begin
+    result := nil;
+    aNode := nil;
+    if tvStep.Items.Count>0 then
+      aNode := tvStep.Items[0];
+    while Assigned(aNode) do
+      begin
+        if TProdTreeData(aNode.Data).Position=DataSet.FieldByName('PARENT').AsVariant then
+          begin
+            Result := aNode;
+            break;
+          end;
+        aNode := aNode.GetNext;
+      end;
+    if tvStep.Items.Count>0 then
+      begin
+        case DataSet.PosTyp.FieldByName('TYPE').AsInteger of
+        0,1,2:
+          begin
+            if not Assigned(nComm) then
+              begin
+                nComm := tvStep.Items.AddChildObject(GetParentNode,strDoPick,TProdTreeData.Create);
+                nComm.ImageIndex:=43;
+                nComm.SelectedIndex:=nComm.ImageIndex;
+              end;
+            Result := nComm
+          end;
+        else nComm := nil;
+        end;
+      end;
+  end;
+begin
+  while not DataSet.EOF do
+    begin
+      nNode := tvStep.Items.AddChildObject(GetParentNode,DataSet.FieldByName('SHORTTEXT').AsString,TProdTreeData.Create);
+      case DataSet.PosTyp.FieldByName('TYPE').AsInteger of
+      0,1,2:nNode.ImageIndex:=14;//Artikel
+      3:nNode.ImageIndex:=49;//Text
+      9:nNode.ImageIndex:=22;//Montage/Argeitsgang
+      end;
+      nNode.SelectedIndex:=nNode.ImageIndex;
+      TProdTreeData(nNode.Data).Position:=DataSet.Id.AsVariant;
+      DataSet.Next;
+    end;
+  if tvStep.Items.Count>0 then
+    begin
+      tvStep.Selected:=tvStep.Items[0];
+      tvStep.Items[0].Expanded:=True;
+      FindNextStep;
+    end;
 end;
 
 

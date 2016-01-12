@@ -98,7 +98,7 @@ inherited fAutomationframe: TfAutomationframe
       Height = 22
       Top = 63
       Width = 23
-      Action = acEditScript
+      Action = acEditPrepareScript
       TabOrder = 4
     end
   end
