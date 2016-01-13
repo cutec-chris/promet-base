@@ -3,7 +3,7 @@ object FAutomation: TFAutomation
   Height = 640
   Top = 177
   Width = 804
-  Caption = 'FAutomation'
+  Caption = 'Automation'
   ClientHeight = 640
   ClientWidth = 804
   Color = clWindow

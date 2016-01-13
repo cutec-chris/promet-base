@@ -45,7 +45,6 @@ type
     acSum: TAction;
     acDiscount: TAction;
     acSavePos: TAction;
-    acPrepare: TAction;
     acWork: TAction;
     acViewTexts: TAction;
     acViewDetails: TAction;
@@ -91,7 +90,6 @@ type
     ToolButton10: TToolButton;
     ToolButton11: TToolButton;
     ToolButton12: TToolButton;
-    ToolButton13: TToolButton;
     ToolButton2: TToolButton;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
@@ -107,6 +105,7 @@ type
     procedure acGotoArticleExecute(Sender: TObject);
     procedure acMakeSubPosExecute(Sender: TObject);
     procedure acPermanentEditorModeExecute(Sender: TObject);
+    procedure acWorkExecute(Sender: TObject);
     procedure acRefreshExecute(Sender: TObject);
     procedure acRenumberExecute(Sender: TObject);
     procedure acSavePosExecute(Sender: TObject);
@@ -187,7 +186,7 @@ type
 implementation
 uses uRowEditor, uSearch, uBaseDbInterface, uOrder, uDocumentFrame, uDocuments,
   uData,uMasterdata,uBaseVisualApplication,uMainTreeFrame,ucalcframe,uProjects,
-  uautomationframe,utask;
+  uautomationframe,utask,fautomationform;
 {$R *.lfm}
 procedure TfPosition.FDataSourceStateChange(Sender: TObject);
 begin
@@ -561,6 +560,17 @@ begin
       else
         DBConfig.WriteString('EPOSVIS','');
     end;
+end;
+
+procedure TfPosition.acWorkExecute(Sender: TObject);
+begin
+  if not Assigned(FAutomation) then
+    FAutomation := TFAutomation.Create(nil);
+  FAutomation.DataSet := TBaseDBPosition(Dataset);
+  FAutomation.Clear;
+  FAutomation.DoAddPosition;
+  FAutomation.SelectFirstStep;
+  FAutomation.ShowModal;
 end;
 
 procedure TfPosition.acRefreshExecute(Sender: TObject);

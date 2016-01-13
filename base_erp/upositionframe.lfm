@@ -174,11 +174,6 @@ inherited fPosition: TfPosition
           object ToolButton12: TToolButton
             Left = 1
             Top = 22
-            Action = acPrepare
-          end
-          object ToolButton13: TToolButton
-            Left = 24
-            Top = 22
             Action = acWork
           end
         end
@@ -449,15 +444,11 @@ inherited fPosition: TfPosition
       ImageIndex = 74
       OnExecute = acSavePosExecute
     end
-    object acPrepare: TAction
-      Caption = 'Vorbereiten'
-      Hint = 'Vorbereitung durchführen (Automation)'
-      ImageIndex = 126
-    end
     object acWork: TAction
-      Caption = 'Durchführen'
-      Hint = 'Durchrühren (Automation)'
+      Caption = 'Automation'
+      Hint = 'Automation starten'
       ImageIndex = 128
+      OnExecute = acWorkExecute
     end
   end
   object TabTimer: TIdleTimer[5]

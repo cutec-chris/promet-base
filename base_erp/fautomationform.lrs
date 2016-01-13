@@ -2,7 +2,7 @@
 
 LazarusResources.Add('TFAutomation','FORMDATA',[
   'TPF0'#12'TFAutomation'#11'FAutomation'#4'Left'#3#165#1#6'Height'#3#128#2#3'T'
-  +'op'#3#177#0#5'Width'#3'$'#3#7'Caption'#6#11'FAutomation'#12'ClientHeight'#3
+  +'op'#3#177#0#5'Width'#3'$'#3#7'Caption'#6#10'Automation'#12'ClientHeight'#3
   +#128#2#11'ClientWidth'#3'$'#3#5'Color'#7#8'clWindow'#10'LCLVersion'#6#3'1.5'
   +#0#6'TPanel'#8'ToolBar1'#4'Left'#2#15#6'Height'#2'4'#3'Top'#2#0#5'Width'#3#21
   +#3#5'Align'#7#5'alTop'#18'BorderSpacing.Left'#2#15#10'BevelOuter'#7#6'bvNone'

@@ -87,6 +87,8 @@ type
     property DataSet : TBaseDBPosition read FDataSet write SetDataSet;
     procedure Clear;
     procedure DoOpen;
+    procedure DoAddPosition;
+    procedure SelectFirstStep;
     property OnSelectStep : TNotifyEvent read FSelStep write FSelStep;
   end;
 
@@ -678,8 +680,7 @@ begin
     end;
   if Assigned(Script) and (Script.Count>0) then
     FAutomation.acExecuteStep.Enabled:=(Prepared or ((PreText.Text=''))) and (Assigned(Script));
-  if Assigned(Preparescript) and (Preparescript.Count>0) then
-    FAutomation.acExecutePrepareStep.Enabled:=(Assigned(Preparescript));
+  FAutomation.acExecutePrepareStep.Enabled:=Assigned(Preparescript) and (Preparescript.Count>0);
 end;
 procedure TProdTreeData.LoadScript(aScript: string; aVersion: Variant);
 begin
@@ -714,10 +715,52 @@ begin
 end;
 
 procedure TFAutomation.DoOpen;
+begin
+  while not DataSet.EOF do
+    begin
+      DoAddPosition;
+      DataSet.Next;
+    end;
+  SelectFirstStep;
+end;
+
+procedure TFAutomation.SelectFirstStep;
+var
+  Result: Boolean = False;
+  aHTML: TSimpleIpHtml;
+  ss: TStringStream;
+begin
+  if tvStep.Items.Count>1 then
+    begin
+      tvStep.Selected:=tvStep.Items[0];
+      tvStep.Items[0].Expanded:=True;
+      FindNextStep;
+    end
+  else if tvStep.Items.Count=1 then
+    begin
+      tvStep.Selected:=tvStep.Items[0];
+      if Assigned(tvStep.Selected) then
+        begin
+          Result := LoadStep;// or (tvStep.Selected.ImageIndex=49);
+          if Result then acReady.Enabled:=True;
+        end;
+      if not Result then
+        begin
+          aHTML := TSimpleIPHtml.Create;
+          ss := TStringStream.Create('<body>'+UniToSys(strNotmoreSteps)+'</body>');
+          aHTML.LoadFromStream(ss);
+          ss.Free;
+          ipWorkHTML.SetHtml(aHTML);
+        end;
+      if Result then
+        if Assigned(FSelStep) then FSelStep(tvStep);
+    end;
+end;
+
+procedure TFAutomation.DoAddPosition;
 var
   nNode: TTreeNode;
   nComm : TTreeNode = nil;
-
   function GetParentNode : TTreeNode;
   var
     aNode: TTreeNode;
@@ -753,24 +796,14 @@ var
       end;
   end;
 begin
-  while not DataSet.EOF do
-    begin
-      nNode := tvStep.Items.AddChildObject(GetParentNode,DataSet.FieldByName('SHORTTEXT').AsString,TProdTreeData.Create);
-      case DataSet.PosTyp.FieldByName('TYPE').AsInteger of
-      0,1,2:nNode.ImageIndex:=14;//Artikel
-      3:nNode.ImageIndex:=49;//Text
-      9:nNode.ImageIndex:=22;//Montage/Argeitsgang
-      end;
-      nNode.SelectedIndex:=nNode.ImageIndex;
-      TProdTreeData(nNode.Data).Position:=DataSet.Id.AsVariant;
-      DataSet.Next;
-    end;
-  if tvStep.Items.Count>0 then
-    begin
-      tvStep.Selected:=tvStep.Items[0];
-      tvStep.Items[0].Expanded:=True;
-      FindNextStep;
-    end;
+  nNode := tvStep.Items.AddChildObject(GetParentNode,DataSet.FieldByName('SHORTTEXT').AsString,TProdTreeData.Create);
+  case DataSet.PosTyp.FieldByName('TYPE').AsInteger of
+  0,1,2:nNode.ImageIndex:=14;//Artikel
+  3:nNode.ImageIndex:=49;//Text
+  9:nNode.ImageIndex:=22;//Montage/Argeitsgang
+  end;
+  nNode.SelectedIndex:=nNode.ImageIndex;
+  TProdTreeData(nNode.Data).Position:=DataSet.Id.AsVariant;
 end;
 
 
