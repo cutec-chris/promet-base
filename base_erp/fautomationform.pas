@@ -37,12 +37,13 @@ type
     acProduce: TAction;
     acReady: TAction;
     acSave: TAction;
+    acExecutePrepareStep: TAction;
     ActionList1: TActionList;
     Bevel3: TBevel;
     Bevel4: TBevel;
     Bevel7: TBevel;
     BitBtn1: TBitBtn;
-    BitBtn2: TSpeedButton;
+    bExecute: TSpeedButton;
     BitBtn3: TSpeedButton;
     BitBtn5: TSpeedButton;
     ipWorkHTML: TIpHtmlPanel;
@@ -66,6 +67,7 @@ type
     ToolButton1: TSpeedButton;
     ToolButton2: TSpeedButton;
     tvStep: TTreeView;
+    procedure acExecutePrepareStepExecute(Sender: TObject);
     procedure acExecuteStepExecute(Sender: TObject);
     procedure acPrepareExecute(Sender: TObject);
     procedure acProduceExecute(Sender: TObject);
@@ -89,23 +91,24 @@ type
   end;
 
   TProdTreeData = class
+    procedure ScriptDebugln(const s: string);
+    procedure ScriptPrepareWriteln(const s: string);
     procedure ScriptWriteln(const s: string);
-    function TPrometPascalScriptUses(Sender: TPascalScript;
-      const Name: String; OnlyAdditional: Boolean): Boolean;
   public
     Position : Int64;
-    Script : TBaseScript;
+    Script,Preparescript : TBaseScript;
     Documents : TDocument;
 
     PreText : TStringList;
     WorkText : TStringList;
-    ScriptOutput : TStringList;
+    ScriptOutput,PrepareOutput : TStringList;
     Prepared : Boolean;
     constructor Create;
     destructor Destroy; override;
     function CheckContent : Boolean;
     procedure ShowData;
     procedure LoadScript(aScript : string;aVersion : Variant);
+    procedure LoadPrepareScript(aScript : string;aVersion : Variant);
     procedure LoadDocuments(aID : largeInt;aType : string;aTID : string;aVersion : Variant;aLanguage : Variant);
   end;
   TSimpleIpHtml = class(TIpHtml)
@@ -116,7 +119,6 @@ type
     property OnGetImageX;
     constructor Create;
   end;
-
 
 var
   FAutomation: TFAutomation;
@@ -152,13 +154,52 @@ begin
                 else
                   TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:'+TreeData.Script.Script.Results+'</b>');
                 TreeData.ShowData;
+                FAutomation.ipWorkHTML.Repaint;
+                FAutomation.ipWorkHTML.Scroll(hsaEnd);
+                Application.ProcessMessages;
               end;
           acExecuteStep.Checked:=False;
-          Application.ProcessMessages;
         end
       else
         begin
           TreeData.Script.Script.Stop;
+        end;
+    end;
+end;
+
+procedure TFAutomation.acExecutePrepareStepExecute(Sender: TObject);
+var
+  TreeData: TProdTreeData;
+begin
+  if Assigned(tvStep.Selected) then
+    begin
+      TreeData := TProdTreeData(tvStep.Selected.Data);
+      if not acExecutePrepareStep.Checked then
+        begin
+          Application.ProcessMessages;
+          acExecutePrepareStep.Checked:=True;
+          Application.ProcessMessages;
+          TreeData.ScriptOutput.Clear;
+          TreeData.Preparescript.ActualObject := DataSet.Parent;
+          TreeData.Preparescript.Script.OnRunLine:=@TreeDataScriptScriptRunLine;
+          TreeData.PrepareOutput.Clear;
+          if Assigned(TreeData.Preparescript) then
+            if not TreeData.Preparescript.Execute(Null) then
+              begin
+                if not Assigned(TreeData.Preparescript.Script) then
+                  TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:Scripttyp unbekannt</b>')
+                else
+                  TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:'+TreeData.Preparescript.Script.Results+'</b>');
+                TreeData.ShowData;
+                FAutomation.ipWorkHTML.Repaint;
+                FAutomation.ipWorkHTML.Scroll(hsaEnd);
+                Application.ProcessMessages;
+              end;
+          acExecutePrepareStep.Checked:=False;
+        end
+      else
+        begin
+          TreeData.Preparescript.Script.Stop;
         end;
     end;
 end;
@@ -275,9 +316,11 @@ begin
   FreeAndNil(TreeData.Script);
   FreeAndNil(TreeData.Documents);
   //Information in Order
-  if (DataSet.FieldByName('SCRIPT').AsString<>'') or (DataSet.FieldByName('TEXT').AsString<>'') then
+  if (Assigned(DataSet.FieldByName('PRSCRIPT')) and (DataSet.FieldByName('PRSCRIPT').AsString<>'')) or (DataSet.FieldByName('SCRIPT').AsString<>'') or (DataSet.FieldByName('TEXT').AsString<>'') then
     begin
       TreeData.LoadScript(DataSet.FieldByName('SCRIPT').AsString,DataSet.FieldByName('SCRIPTVER').AsVariant);
+      if Assigned(DataSet.FieldByName('PRSCRIPT')) then
+        TreeData.LoadPrepareScript(DataSet.FieldByName('PRSCRIPT').AsString,DataSet.FieldByName('PRSCRIPTVER').AsVariant);
       if DataSet.DataSet.FieldDefs.IndexOf('ORDERNO') <> -1 then
         aPosID := DataSet.FieldByName('ORDERNO').AsString+DataSet.FieldByName('POSNO').AsString
       else
@@ -330,6 +373,8 @@ begin
               if aMasterdata.Positions.Locate('POSNO',DataSet.FieldByName('TPOSNO').AsString,[]) then
                 begin
                   TreeData.LoadScript(aMasterdata.Positions.FieldByName('SCRIPT').AsString,aMasterdata.Positions.FieldByName('SCRIPTVER').AsVariant);
+                  if Assigned(aMasterdata.Positions.FieldByName('PRSCRIPT')) then
+                    TreeData.LoadPrepareScript(aMasterdata.Positions.FieldByName('PRSCRIPT').AsString,aMasterdata.Positions.FieldByName('PRSCRIPTVER').AsVariant);
                   TreeData.WorkText.Text:=aMasterdata.Positions.FieldByName('TEXT').AsString;
                   if aMasterdata.Positions.DataSet.FieldDefs.IndexOf('ORDERNO') <> -1 then
                     aPosID := aMasterdata.Positions.FieldByName('ORDERNO').AsString+aMasterdata.Positions.FieldByName('POSNO').AsString
@@ -374,6 +419,8 @@ begin
       if aMasterdata.Active then
         begin
           TreeData.LoadScript(aMasterdata.FieldByName('SCRIPT').AsString,aMasterdata.FieldByName('SCRIPTVER').AsVariant);
+          if Assigned(aMasterdata.FieldByName('PRSCRIPT')) then
+            TreeData.LoadPrepareScript(aMasterdata.FieldByName('PRSCRIPT').AsString,aMasterdata.FieldByName('PRSCRIPTVER').AsVariant);
           if not Assigned(uBaseERPDBClasses.TextTyp) then
             uBaseERPDBClasses.TextTyp := TTextTypes.Create(nil);
           Texttyp.Open;
@@ -498,6 +545,40 @@ begin
   OnGetImageX:=@SimpleIpHtmlGetImageX;
 end;
 
+procedure TProdTreeData.ScriptDebugln(const s: string);
+begin
+
+end;
+
+procedure TProdTreeData.ScriptPrepareWriteln(const s: string);
+var
+  aTxt: String;
+begin
+  if copy(s,0,7)='**STEP ' then
+    PrepareOutput.Add('<img src="ICON(22)"></img><i>'+copy(s,8,length(s))+'</i><br>')
+  else if copy(s,0,10)='**STEPEND ' then
+    begin
+      aTxt := PrepareOutput[PrepareOutput.Count-1];
+      aTxt := copy(aTxt,30,length(aTxt)-29-8);
+      PrepareOutput.Delete(PrepareOutput.Count-1);
+      PrepareOutput.Add('<img src="ICON(74)"></img><span>'+aTxt+' -> '+copy(s,11,length(s))+'</span><br>')
+    end
+  else if copy(s,0,8)='**ERROR ' then
+    begin
+      aTxt := PrepareOutput[PrepareOutput.Count-1];
+      aTxt := copy(aTxt,30,length(aTxt)-29-8);
+      PrepareOutput.Delete(PrepareOutput.Count-1);
+      PrepareOutput.Add('<img src="ICON(75)"></img><b>'+aTxt+' -> '+copy(s,9,length(s))+'</b><br>')
+    end
+  else PrepareOutput.Add(s);
+  FAutomation.ipWorkHTML.Visible:=False;
+  ShowData;
+  FAutomation.ipWorkHTML.Visible:=True;
+  FAutomation.ipWorkHTML.Repaint;
+  FAutomation.ipWorkHTML.Scroll(hsaEnd);
+  Application.ProcessMessages;
+end;
+
 procedure TProdTreeData.ScriptWriteln(const s: string);
 var
   aTxt: String;
@@ -524,21 +605,12 @@ begin
   FAutomation.ipWorkHTML.Scroll(hsaEnd);
   Application.ProcessMessages;
 end;
-function TProdTreeData.TPrometPascalScriptUses(Sender: TPascalScript;
-  const Name: String; OnlyAdditional: Boolean): Boolean;
-begin
-  if lowercase(Name) = 'production' then
-    begin
-      //HideWorkText
-      //ClearScriptOutput
-      Result := True;
-    end;
-end;
 constructor TProdTreeData.Create;
 begin
   PreText := TStringList.Create;
   WorkText := TStringList.Create;
   ScriptOutput := TStringList.Create;
+  PrepareOutput := TStringList.Create;
   Prepared:=False;
 end;
 destructor TProdTreeData.Destroy;
@@ -546,6 +618,9 @@ begin
   PreText.Free;
   WorkText.Free;
   ScriptOutput.Free;
+  PrepareOutput.Free;
+  if Assigned(Script) then Script.Free;
+  if Assigned(Preparescript) then Preparescript.Free;
   inherited Destroy;
 end;
 function TProdTreeData.CheckContent: Boolean;
@@ -570,27 +645,41 @@ begin
   if FAutomation.acPrepare.Checked then
     begin
       aHTML := TSimpleIPHtml.Create;
-      if pos('<body',lowercase(PreText.Text))=0 then
-        ss := TStringStream.Create('<body>'+UniToSys(PreText.Text)+'</body>')
+      if FAutomation.acExecutePrepareStep.Checked then
+        ss := TStringStream.Create(UniToSys(PrepareOutput.Text))
       else
-        ss := TStringStream.Create(UniToSys(PreText.Text));
+        ss := TStringStream.Create('<body>'+UniToSys(PreText.Text+'<br><br>'+PrepareOutput.Text)+'</body>');
       aHTML.LoadFromStream(ss);
       ss.Free;
       FAutomation.ipWorkHTML.SetHtml(aHTML);
+      FAutomation.bExecute.Action:=FAutomation.acExecutePrepareStep;
     end
   else
     begin
       aHTML := TSimpleIPHtml.Create;
-      if pos('<body',lowercase(WorkText.Text))=0 then
-        ss := TStringStream.Create('<body>'+UniToSys(WorkText.Text+'<br><br>'+ScriptOutput.Text)+'</body>')
+      if FAutomation.acExecuteStep.Checked then
+        begin
+          if pos('<body',lowercase(WorkText.Text))=0 then
+            ss := TStringStream.Create('<body>'+UniToSys(ScriptOutput.Text)+'</body>')
+          else
+            ss := TStringStream.Create(UniToSys(ScriptOutput.Text));
+        end
       else
-        ss := TStringStream.Create(UniToSys(WorkText.Text+ScriptOutput.Text));
+        begin
+          if pos('<body',lowercase(WorkText.Text))=0 then
+            ss := TStringStream.Create('<body>'+UniToSys(WorkText.Text+'<br><br>'+ScriptOutput.Text)+'</body>')
+          else
+            ss := TStringStream.Create(UniToSys(WorkText.Text+ScriptOutput.Text));
+        end;
       aHTML.LoadFromStream(ss);
       ss.Free;
       FAutomation.ipWorkHTML.SetHtml(aHTML);
+      FAutomation.bExecute.Action:=FAutomation.acExecuteStep;
     end;
   if Assigned(Script) and (Script.Count>0) then
     FAutomation.acExecuteStep.Enabled:=(Prepared or ((PreText.Text=''))) and (Assigned(Script));
+  if Assigned(Preparescript) and (Preparescript.Count>0) then
+    FAutomation.acExecutePrepareStep.Enabled:=(Assigned(Preparescript));
 end;
 procedure TProdTreeData.LoadScript(aScript: string; aVersion: Variant);
 begin
@@ -599,14 +688,23 @@ begin
   Script.SelectByName(aScript);
   Script.Open;
   Script.Writeln:=@ScriptWriteln;
-  if Assigned(Script.Script) then
-    if Script.Script is TPrometPascalScript then
-      begin
-        TPrometPascalScript(Script.Script).OnUses:=@TPrometPascalScriptUses;
-      end;
+  Script.Debugln:=@ScriptDebugln;
   if not Script.Locate('VERSION',aVersion,[]) then
     Script.Close;
 end;
+
+procedure TProdTreeData.LoadPrepareScript(aScript: string; aVersion: Variant);
+begin
+  if not Assigned(PrepareScript) then
+    PrepareScript := TBaseScript.Create(nil);
+  PrepareScript.SelectByName(aScript);
+  PrepareScript.Open;
+  PrepareScript.Writeln:=@ScriptPrepareWriteln;
+  PrepareScript.Debugln:=@ScriptDebugln;
+  if not PrepareScript.Locate('VERSION',aVersion,[]) then
+    PrepareScript.Close;
+end;
+
 procedure TProdTreeData.LoadDocuments(aID: largeInt; aType: string;
   aTID: string; aVersion: Variant; aLanguage: Variant);
 begin

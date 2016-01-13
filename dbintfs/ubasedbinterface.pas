@@ -161,7 +161,7 @@ type
     function GetErrorNum(e : EDatabaseError) : Integer;virtual;
     function RecordCount(aDataSet : TBaseDbDataSet) : Integer;
     function DeleteItem(aDataSet : TBaseDBDataSet) : Boolean;
-    function ShouldCheckTable(aTableName : string;SetChecked : Boolean = True) : Boolean;
+    function ShouldCheckTable(aTableName : string;SetChecked : Boolean = False) : Boolean;
     procedure UpdateTableVersion(aTableName: string);
     function RemoveCheckTable(aTableName : string) : Boolean;
     function TableExists(aTableName : string;aConnection : TComponent = nil;AllowLowercase: Boolean = False) : Boolean;virtual;abstract;
@@ -1222,37 +1222,11 @@ begin
       DeletedItems.DataSet.Close;
     end;
 end;
-function TBaseDBModule.ShouldCheckTable(aTableName : string;SetChecked : Boolean = True): Boolean;
+function TBaseDBModule.ShouldCheckTable(aTableName : string;SetChecked : Boolean): Boolean;
 begin
   Result := FCheckedTables.IndexOf(aTableName) = -1;
-  if aTableName='TABLEVERSIONS' then exit;
-  {
-  try
-  if Result then
-    begin
-      TableVersions.Filter('');
-      with BaseApplication as IBaseApplication do
-        begin
-          if TableVersions.CanEdit then
-            TableVersions.DataSet.Cancel;
-          if TableVersions.Locate('NAME',aTableName,[loCaseInsensitive]) then
-            begin
-              if (TableVersions.FieldByName('DBVERSION').AsInteger>=round((AppVersion*10000)+AppRevision)) and (not BaseApplication.HasOption('debug')) and (TableExists(aTableName)) then
-                begin
-                  Result := False;
-                end
-              else if (BaseApplication.HasOption('debug')) then
-                begin
-                  with BaseApplication as IBaseApplication do
-                    Debug('Table "'+aTableName+'" DBVersion '+TableVersions.FieldByName('DBVERSION').AsString+'<'+IntToStr(round((AppVersion*10000)+AppRevision)));
-                end;
-            end;
-        end;
-    end;
-  except
-  end;
-  }
-  if SetChecked and TableExists(aTableName) then
+  if (aTableName='TABLEVERSIONS') or (not Result) then exit;
+  if SetChecked and TableExists(aTableName) and (FCheckedTables.IndexOf(aTableName) = -1) then
     FCheckedTables.Add(aTableName);
 end;
 

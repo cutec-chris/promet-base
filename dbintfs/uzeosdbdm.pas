@@ -609,6 +609,8 @@ begin
           if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name) = -1) and (FManagedFieldDefs[i].Name <> 'AUTO_ID') then
             begin
               aSQL := 'ALTER TABLE '+QuoteField(FDefaultTableName)+' ADD '+TZeosDBDM(Self.Owner).FieldToSQL(FManagedFieldDefs[i].Name,FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
+              with BaseApplication as IBaseApplication do
+                Debug(aSQL);
               aConnection := Connection;
               GeneralQuery := TZQuery.Create(Self);
               try
@@ -629,6 +631,8 @@ begin
                   aSQL := 'ALTER TABLE '+QuoteField(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' TYPE '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';'
                 else
                   aSQL := 'ALTER TABLE '+QuoteField(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
+                with BaseApplication as IBaseApplication do
+                  Debug(aSQL);
                 aConnection := Connection;
                 GeneralQuery := TZQuery.Create(Self);
                 try
@@ -651,6 +655,8 @@ begin
                 if ixUnique in FManagedIndexDefs.Items[i].Options then
                   aSQL := aSQL+'UNIQUE ';
                 aSQL := aSQL+'INDEX '+QuoteField(Uppercase(Self.DefaultTableName+'_'+FManagedIndexDefs.Items[i].Name))+' ON '+QuoteField(Self.DefaultTableName)+' ('+QuoteField(StringReplace(FManagedIndexDefs.Items[i].Fields,';',QuoteField(','),[rfReplaceAll]))+');'+lineending;
+                with BaseApplication as IBaseApplication do
+                  Debug(aSQL);
                 if aSQL <> '' then
                   begin
                     try

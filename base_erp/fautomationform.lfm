@@ -273,11 +273,11 @@ object FAutomation: TFAutomation
       end
     end
     object tvStep: TTreeView
-      Left = 488
-      Height = 40
-      Top = 8
-      Width = 293
-      Anchors = [akTop, akRight, akBottom]
+      Left = 528
+      Height = 52
+      Top = 0
+      Width = 261
+      Align = alRight
       BorderStyle = bsNone
       DefaultItemHeight = 16
       Images = fVisualControls.Images
@@ -308,7 +308,7 @@ object FAutomation: TFAutomation
       Align = alClient
       FixedTypeface = 'Courier New'
       DefaultTypeFace = 'arial'
-      DefaultFontSize = 10
+      DefaultFontSize = 11
       FlagErrors = False
       PrintSettings.MarginLeft = 0.5
       PrintSettings.MarginTop = 0.5
@@ -380,7 +380,7 @@ object FAutomation: TFAutomation
       ClientHeight = 50
       ClientWidth = 788
       TabOrder = 2
-      object BitBtn2: TSpeedButton
+      object bExecute: TSpeedButton
         Left = 258
         Height = 38
         Top = 8
@@ -437,6 +437,11 @@ object FAutomation: TFAutomation
       GroupIndex = 112
       ImageIndex = 128
       OnExecute = acProduceExecute
+    end
+    object acExecutePrepareStep: TAction
+      Caption = 'Ausführen'
+      ImageIndex = 128
+      OnExecute = acExecutePrepareStepExecute
     end
   end
 end
