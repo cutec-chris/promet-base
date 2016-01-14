@@ -67,6 +67,10 @@ type
 
     function InternalPrint(aType,Reportname,Printer : string;Copies : Integer) : Boolean;
     procedure InternalSetReportVariable(Name,Value : string);
+
+    function InternalGetNumberFromNumberset(Numberset : string) : string;
+
+    function InternalSaveFilefromDocuments(Filename,OutPath : string) : Boolean;
   public
     function InternalUses(Comp: TPSPascalCompiler; Name: string): Boolean; override;
     property Sleep : TSleepFunc read FSlFunc write FSlFunc;
@@ -171,6 +175,8 @@ begin
         Sender.AddMethod(Self,@TPrometPascalScript.InternalExecuteScript,'procedure ExecuteScript(Name,Client : string);');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalPrint,'function PrintReport(aType : string;aReportname : string;aPrinter : string;Copies : Integer) : Boolean;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalSetReportVariable,'procedure SetReportVariable(Name : string;Value : string);');
+        Sender.AddMethod(Self,@TPrometPascalScript.InternalGetNumberFromNumberset,'function GetNumberFromNumberset(Numberset : string) : string;');
+        Sender.AddMethod(Self,@TPrometPascalScript.InternalSaveFilefromDocuments,'function SaveFilefromDocuments(Filename,OutPath : string) : Boolean;');
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TComponent'),TBaseDBDataset) do
           begin
             RegisterMethod('procedure Open;');
@@ -848,6 +854,32 @@ begin
   if not Assigned(FReportVariables) then
     FReportVariables := TStringList.Create;
   FReportVariables.Values[name] := Value;
+end;
+
+function TPrometPascalScript.InternalGetNumberFromNumberset(Numberset: string
+  ): string;
+begin
+  Result := Data.Numbers.GetNewNumber(Numberset);
+end;
+
+function TPrometPascalScript.InternalSaveFilefromDocuments(Filename,
+  OutPath: string): Boolean;
+var
+  aDocuments: TDocument;
+  aStream: TFileStream;
+begin
+  Result := False;
+  aDocuments := TDocument.Create(nil);
+  aDocuments.Select(Id,'S',Id,Version,Null);
+  aDocuments.Open;
+  if aDocuments.Locate('NAME;EXTENSION',VarArrayOf([ExtractFileName(Filename),ExtractFileExt(Filename)]),[loCaseInsensitive]) then
+    begin
+      aStream := TFileStream.Create(AppendPathDelim(OutPath)+ExtractFileName(Filename),fmCreate);
+      aDocuments.CheckoutToStream(aStream);
+      aStream.Free;
+      Result := True;
+    end;
+  aDocuments.Free;
 end;
 
 function TPrometPascalScript.InternalUses(Comp: TPSPascalCompiler; Name: string

@@ -38,6 +38,7 @@ type
     acReady: TAction;
     acSave: TAction;
     acExecutePrepareStep: TAction;
+    acDebugLog: TAction;
     ActionList1: TActionList;
     Bevel3: TBevel;
     Bevel4: TBevel;
@@ -63,21 +64,25 @@ type
     rbNoData: TRadioButton;
     rbOrder: TRadioButton;
     sbMenue: TSpeedButton;
+    sbMenue1: TSpeedButton;
     ToolBar1: TPanel;
     ToolButton1: TSpeedButton;
     ToolButton2: TSpeedButton;
     tvStep: TTreeView;
+    procedure acDebugLogExecute(Sender: TObject);
     procedure acExecutePrepareStepExecute(Sender: TObject);
     procedure acExecuteStepExecute(Sender: TObject);
     procedure acPrepareExecute(Sender: TObject);
     procedure acProduceExecute(Sender: TObject);
     procedure acReadyExecute(Sender: TObject);
+    procedure fLogWaitFormbAbortClick(Sender: TObject);
     procedure TreeDataScriptScriptRunLine(Sender: TScript; Module: string;
       aPosition, aRow, aCol: Integer);
     procedure tvStepSelectionChanged(Sender: TObject);
   private
     FDataSet: TBaseDBPosition;
     FSelStep: TNotifyEvent;
+    nComm : TTreeNode;
     procedure SetDataSet(AValue: TBaseDBPosition);
     function FindNextStep: Boolean;
     function LoadStep : Boolean;
@@ -99,7 +104,7 @@ type
   public
     Position : Int64;
     Script,Preparescript : TBaseScript;
-    Documents : TDocument;
+    Documents,PrepDocuments : TDocument;
 
     PreText : TStringList;
     WorkText : TStringList;
@@ -112,6 +117,7 @@ type
     procedure LoadScript(aScript : string;aVersion : Variant);
     procedure LoadPrepareScript(aScript : string;aVersion : Variant);
     procedure LoadDocuments(aID : largeInt;aType : string;aTID : string;aVersion : Variant;aLanguage : Variant);
+    procedure LoadPrepDocuments(aID : largeInt;aType : string;aTID : string;aVersion : Variant;aLanguage : Variant);
   end;
   TSimpleIpHtml = class(TIpHtml)
     procedure SimpleIpHtmlGetImageX(Sender: TIpHtmlNode; const URL: string;
@@ -127,7 +133,7 @@ var
 
 implementation
 
-uses Utils,uBaseVisualControls,uMasterdata,uData,uOrder,variants;
+uses Utils,uBaseVisualControls,uMasterdata,uData,uOrder,variants,uLogWait;
 
 resourcestring
   strDoPick                             = 'kommissionieren';
@@ -137,6 +143,7 @@ procedure TFAutomation.acExecuteStepExecute(Sender: TObject);
 var
   TreeData: TProdTreeData;
 begin
+  fLogWaitForm.Clear;
   if Assigned(tvStep.Selected) then
     begin
       TreeData := TProdTreeData(tvStep.Selected.Data);
@@ -173,6 +180,7 @@ procedure TFAutomation.acExecutePrepareStepExecute(Sender: TObject);
 var
   TreeData: TProdTreeData;
 begin
+  fLogWaitForm.Clear;
   if Assigned(tvStep.Selected) then
     begin
       TreeData := TProdTreeData(tvStep.Selected.Data);
@@ -206,6 +214,11 @@ begin
     end;
 end;
 
+procedure TFAutomation.acDebugLogExecute(Sender: TObject);
+begin
+  fLogWaitForm.Show;
+end;
+
 procedure TFAutomation.acPrepareExecute(Sender: TObject);
 var
   TreeData: TProdTreeData;
@@ -233,6 +246,11 @@ end;
 procedure TFAutomation.acReadyExecute(Sender: TObject);
 begin
   FindNextStep;
+end;
+
+procedure TFAutomation.fLogWaitFormbAbortClick(Sender: TObject);
+begin
+  fLogWaitForm.Close;
 end;
 
 procedure TFAutomation.TreeDataScriptScriptRunLine(Sender: TScript;
@@ -327,7 +345,6 @@ begin
         aPosID := DataSet.FieldByName('ORDERNO').AsString+DataSet.FieldByName('POSNO').AsString
       else
         aPosID := DataSet.FieldByName('SQL_ID').AsString+DataSet.FieldByName('POSNO').AsString;
-      TreeData.LoadDocuments(DataSet.Id.AsVariant,'P',aPosId,Null,Null);
       TreeData.WorkText.Text:=DataSet.FieldByName('TEXT').AsString;
       if DataSet.FieldByName('PREPTEXT').AsString<>'' then
         begin
@@ -335,6 +352,7 @@ begin
           aTexts.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(DataSet.FieldByName('PREPTEXT').AsString));
           if aTexts.Count>0 then
             TreeData.PreText.Text:=aTexts.FieldByName('TEXT').AsString;
+          TreeData.LoadPrepDocuments(aTexts.Id.AsVariant,'B',aTexts.FieldByName('NAME').AsString,Null,Null);
           aTexts.Free;
         end;
       if DataSet.FieldByName('WORKTEXT').AsString<>'' then
@@ -343,8 +361,11 @@ begin
           aTexts.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(DataSet.FieldByName('WORKTEXT').AsString));
           if aTexts.Count>0 then
             TreeData.WorkText.Text:=aTexts.FieldByName('TEXT').AsString;
+          TreeData.LoadDocuments(aTexts.Id.AsVariant,'B',aTexts.FieldByName('NAME').AsString,Null,Null);
           aTexts.Free;
-        end;
+        end
+      else
+        TreeData.LoadDocuments(DataSet.Id.AsVariant,'P',aPosId,Null,Null);
       Result := TreeData.CheckContent;
       rbOrder.Checked:=True;
     end;
@@ -382,13 +403,13 @@ begin
                     aPosID := aMasterdata.Positions.FieldByName('ORDERNO').AsString+aMasterdata.Positions.FieldByName('POSNO').AsString
                   else
                     aPosID := aMasterdata.Positions.FieldByName('SQL_ID').AsString+aMasterdata.Positions.FieldByName('POSNO').AsString;
-                  TreeData.LoadDocuments(aMasterdata.Positions.Id.AsVariant,'P',aPosId,Null,Null);
                   if aMasterdata.Positions.FieldByName('PREPTEXT').AsString<>'' then
                     begin
                       aTexts := TBoilerplate.Create(nil);
                       aTexts.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(aMasterdata.Positions.FieldByName('PREPTEXT').AsString));
                       if aTexts.Count>0 then
                         TreeData.PreText.Text:=aTexts.FieldByName('TEXT').AsString;
+                      TreeData.LoadPrepDocuments(aTexts.Id.AsVariant,'B',aTexts.FieldByName('NAME').AsString,Null,Null);
                       aTexts.Free;
                     end;
                   if aMasterdata.Positions.FieldByName('WORKTEXT').AsString<>'' then
@@ -397,8 +418,11 @@ begin
                       aTexts.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(aMasterdata.Positions.FieldByName('WORKTEXT').AsString));
                       if aTexts.Count>0 then
                         TreeData.WorkText.Text:=aTexts.FieldByName('TEXT').AsString;
+                      TreeData.LoadDocuments(aTexts.Id.AsVariant,'B',aTexts.FieldByName('NAME').AsString,Null,Null);
                       aTexts.Free;
-                    end;
+                    end
+                  else
+                    TreeData.LoadDocuments(aMasterdata.Positions.Id.AsVariant,'P',aPosId,Null,Null);
                   Result := TreeData.CheckContent;
                   rbList.Checked:=Result;
                 end;
@@ -432,13 +456,13 @@ begin
               if aMasterdata.Texts.Locate('TEXTTYPE',TextTyp.DataSet.RecNo,[]) then
                 TreeData.WorkText.Text:=aMasterdata.Texts.FieldByName('TEXT').AsString;
             end;
-          TreeData.LoadDocuments(aMasterdata.Id.AsVariant,aMasterdata.GetTyp,aMasterdata.FieldByName('ID').AsString,aMasterdata.FieldByName('VERSION').AsVariant,aMasterdata.FieldByName('LANGUAGE').AsVariant);
           if aMasterdata.FieldByName('PREPTEXT').AsString<>'' then
             begin
               aTexts := TBoilerplate.Create(nil);
               aTexts.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(aMasterdata.FieldByName('PREPTEXT').AsString));
               if aTexts.Count>0 then
                 TreeData.PreText.Text:=aTexts.FieldByName('TEXT').AsString;
+              TreeData.LoadPrepDocuments(aTexts.Id.AsVariant,'B',aTexts.FieldByName('NAME').AsString,Null,Null);
               aTexts.Free;
             end;
           if aMasterdata.FieldByName('WORKTEXT').AsString<>'' then
@@ -447,8 +471,11 @@ begin
               aTexts.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(aMasterdata.FieldByName('WORKTEXT').AsString));
               if aTexts.Count>0 then
                 TreeData.WorkText.Text:=aTexts.FieldByName('TEXT').AsString;
+              TreeData.LoadDocuments(aTexts.Id.AsVariant,'B',aTexts.FieldByName('NAME').AsString,Null,Null);
               aTexts.Free;
-            end;
+            end
+          else
+            TreeData.LoadDocuments(aMasterdata.Id.AsVariant,aMasterdata.GetTyp,aMasterdata.FieldByName('ID').AsString,aMasterdata.FieldByName('VERSION').AsVariant,aMasterdata.FieldByName('LANGUAGE').AsVariant);
           Result := TreeData.CheckContent;
           rbArticle.Checked:=Result;
         end;
@@ -462,8 +489,13 @@ end;
 
 procedure TFAutomation.Clear;
 begin
+  fLogWaitForm.SetLanguage;
+  fLogWaitForm.Caption:='Debug';
+  fLogWaitForm.bAbort.Kind:=bkClose;
+  fLogWaitForm.bAbort.OnClick:=@fLogWaitFormbAbortClick;
   tvStep.Items.Clear;
   ipWorkHTML.SetHtml(nil);
+  nComm := nil;
 end;
 
 procedure TSimpleIpHtml.SimpleIpHtmlGetImageX(Sender: TIpHtmlNode;
@@ -549,13 +581,14 @@ end;
 
 procedure TProdTreeData.ScriptDebugln(const s: string);
 begin
-
+  fLogWaitForm.ShowInfo(s);
 end;
 
 procedure TProdTreeData.ScriptPrepareWriteln(const s: string);
 var
   aTxt: String;
 begin
+  fLogWaitForm.ShowInfo(s);
   if copy(s,0,7)='**STEP ' then
     PrepareOutput.Add('<img src="ICON(22)"></img><i>'+copy(s,8,length(s))+'</i><br>')
   else if copy(s,0,10)='**STEPEND ' then
@@ -585,6 +618,7 @@ procedure TProdTreeData.ScriptWriteln(const s: string);
 var
   aTxt: String;
 begin
+  fLogWaitForm.ShowInfo(s);
   if copy(s,0,7)='**STEP ' then
     ScriptOutput.Add('<img src="ICON(22)"></img><i>'+copy(s,8,length(s))+'</i><br>')
   else if copy(s,0,10)='**STEPEND ' then
@@ -623,6 +657,8 @@ begin
   PrepareOutput.Free;
   if Assigned(Script) then Script.Free;
   if Assigned(Preparescript) then Preparescript.Free;
+  if Assigned(Documents) then Documents.Free;
+  if Assigned(PrepDocuments) then PrepDocuments.Free;
   inherited Destroy;
 end;
 function TProdTreeData.CheckContent: Boolean;
@@ -714,8 +750,17 @@ begin
   Documents.Select(aID,aType,aTID,aVersion,aLanguage);
 end;
 
+procedure TProdTreeData.LoadPrepDocuments(aID: largeInt; aType: string;
+  aTID: string; aVersion: Variant; aLanguage: Variant);
+begin
+  if not Assigned(PrepDocuments) then
+    PrepDocuments := TDocument.Create(nil);
+  PrepDocuments.Select(aID,aType,aTID,aVersion,aLanguage);
+end;
+
 procedure TFAutomation.DoOpen;
 begin
+  nComm := nil;
   while not DataSet.EOF do
     begin
       DoAddPosition;
@@ -760,7 +805,6 @@ end;
 procedure TFAutomation.DoAddPosition;
 var
   nNode: TTreeNode;
-  nComm : TTreeNode = nil;
   function GetParentNode : TTreeNode;
   var
     aNode: TTreeNode;

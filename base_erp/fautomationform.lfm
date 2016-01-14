@@ -185,11 +185,11 @@ object FAutomation: TFAutomation
       Left = 312
       Height = 52
       Top = 0
-      Width = 43
+      Width = 80
       Align = alLeft
       BevelOuter = bvNone
       ClientHeight = 52
-      ClientWidth = 43
+      ClientWidth = 80
       TabOrder = 2
       object Bevel7: TBevel
         Left = 0
@@ -199,6 +199,15 @@ object FAutomation: TFAutomation
         BorderSpacing.Top = 4
         BorderSpacing.Bottom = 4
         Shape = bsLeftLine
+      end
+      object sbMenue1: TSpeedButton
+        Left = 4
+        Height = 28
+        Top = 12
+        Width = 32
+        Action = acDebugLog
+        Flat = True
+        ShowCaption = False
       end
     end
     object Panel7: TPanel
@@ -442,6 +451,12 @@ object FAutomation: TFAutomation
       Caption = 'Ausführen'
       ImageIndex = 128
       OnExecute = acExecutePrepareStepExecute
+    end
+    object acDebugLog: TAction
+      Caption = 'Debug Nachrichten'
+      Hint = 'Debug Nachrichten'
+      ImageIndex = 49
+      OnExecute = acDebugLogExecute
     end
   end
 end

@@ -300,6 +300,8 @@ begin
           aScript.Source:=FieldByName('SCRIPT').AsString;
           FScript:=aScript;
           FScript.Parent:=Self;
+          FScript.Id:=Id.AsVariant;
+          FScript.Version:=Version.AsVariant;
           ConnectEvents;
         end;
     end;

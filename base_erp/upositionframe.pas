@@ -571,6 +571,7 @@ begin
   FAutomation.DoAddPosition;
   FAutomation.SelectFirstStep;
   FAutomation.ShowModal;
+  FreeAndNil(FAutomation);
 end;
 
 procedure TfPosition.acRefreshExecute(Sender: TObject);
