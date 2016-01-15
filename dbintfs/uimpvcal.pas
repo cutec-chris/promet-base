@@ -233,6 +233,12 @@ begin
     Result := FormatDateTime('yyyy-mm-dd',aDate);
 end;
 function VCalExport(Calendar: TCalendar; vOut: TStrings): Boolean;
+function FixDate(aDate : string) : string;
+begin
+  Result := StringReplace(aDate,'-','',[rfReplaceAll]);
+  Result := StringReplace(Result,':','',[rfReplaceAll]);
+end;
+
 begin
   with Calendar.DataSet do
     begin
@@ -266,16 +272,16 @@ begin
             vOut.Add('UID:'+FieldByName('SQL_ID').AsString)
           else
             vOut.Add('UID:'+FieldByName('ORIGID').AsString);
-          vOut.Add('DTSTAMP:'+BuildISODate(FieldByName('TIMESTAMPD').AsDateTime));
+          vOut.Add('DTSTAMP:'+FixDate(BuildISODate(FieldByName('TIMESTAMPD').AsDateTime)));
           if FieldByName('ALLDAY').AsString='Y' then
             begin
-              vOut.Add('DTSTART;VALUE=DATE:'+BuildISODate(FieldByName('STARTDATE').AsDateTime,True));
-              vOut.Add('DTEND;VALUE=DATE:'+BuildISODate(FieldByName('ENDDATE').AsDateTime,True));
+              vOut.Add('DTSTART;VALUE=DATE:'+FixDate(BuildISODate(FieldByName('STARTDATE').AsDateTime,True)));
+              vOut.Add('DTEND;VALUE=DATE:'+FixDate(BuildISODate(FieldByName('ENDDATE').AsDateTime,True)));
             end
           else
             begin
-              vOut.Add('DTSTART:'+BuildISODate(LocalTimeToGMT(FieldByName('STARTDATE').AsDateTime)));
-              vOut.Add('DTEND:'+BuildISODate(LocalTimeToGMT(FieldByName('ENDDATE').AsDateTime)));
+              vOut.Add('DTSTART:'+FixDate(BuildISODate(LocalTimeToGMT(FieldByName('STARTDATE').AsDateTime))));
+              vOut.Add('DTEND:'+FixDate(BuildISODate(LocalTimeToGMT(FieldByName('ENDDATE').AsDateTime))));
             end;
           vOut.Add('SUMMARY:'+SetValue(FieldByName('SUMMARY').AsString));
           if FieldByName('LOCATION').AsString <> '' then
