@@ -2626,7 +2626,8 @@ begin
                     DataSet.FieldByName('ACTUAL').AsInteger + DataSet.FieldByName('INCR').AsInteger;
                   Result := IntToStr(DataSet.FieldByName('ACTUAL').AsInteger);
                   DataSet.Post;
-                end;
+                end
+              else raise Exception.Create(Format(strNumbersetDontExists,[Numberset+' incr']));
             end
           else if DataSet.FieldByName('TYPE').AsString = 'A' then
             begin
