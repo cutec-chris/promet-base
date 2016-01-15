@@ -556,6 +556,7 @@ begin
       else
         begin
           TreeData.Documents.Open;
+          TreeData.PrepDocuments.Open;
           aURL := copy(URL,0,rpos('.',URL)-1);
           if TreeData.Documents.Locate('NAME',aURL,[loCaseInsensitive]) then
             begin
@@ -568,6 +569,19 @@ begin
               ms.Position:=0;
               aPicture := TPicture.Create;
               aPicture.LoadFromStreamWithFileExt(ms,TreeData.Documents.FieldByName('EXTENSION').AsString);
+              Picture := aPicture;
+            end
+          else if TreeData.PrepDocuments.Locate('NAME',aURL,[loCaseInsensitive]) then
+            begin
+              ms := TMemoryStream.Create;
+              aDoc := TDocument.Create(nil);
+              aDoc.SelectByNumber(TreeData.PrepDocuments.FieldByName('NUMBER').AsVariant);
+              aDoc.Open;
+              aDoc.CheckoutToStream(ms);
+              aDoc.Free;
+              ms.Position:=0;
+              aPicture := TPicture.Create;
+              aPicture.LoadFromStreamWithFileExt(ms,TreeData.PrepDocuments.FieldByName('EXTENSION').AsString);
               Picture := aPicture;
             end;
         end;
@@ -760,13 +774,17 @@ end;
 
 procedure TFAutomation.DoOpen;
 begin
+  Screen.Cursor:=crHourGlass;
+  Application.ProcessMessages;
   nComm := nil;
   while not DataSet.EOF do
     begin
       DoAddPosition;
       DataSet.Next;
     end;
+  Application.ProcessMessages;
   SelectFirstStep;
+  Screen.Cursor:=crDefault;
 end;
 
 procedure TFAutomation.SelectFirstStep;

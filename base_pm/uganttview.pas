@@ -1571,6 +1571,7 @@ begin
   Screen.Cursor:=crHourGlass;
   FGantt.BeginUpdate;
   fLogWaitForm.SetLanguage;
+  fLogWaitForm.Clear;
   fLogWaitForm.Show;
   fLogWaitForm.ShowInfo(strCollectingTasks);
   try

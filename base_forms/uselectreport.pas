@@ -510,6 +510,7 @@ begin
   Res := false;
   if not Assigned(fLogWaitForm) then
     Application.CreateForm(TfLogWaitForm,fLogWaitForm);
+  fLogWaitForm.Clear;
   fLogWaitForm.Show;
   fLogWaitform.ShowInfo(strPreparingReport);
   NotPrintable := True;

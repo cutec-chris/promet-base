@@ -867,14 +867,22 @@ function TPrometPascalScript.InternalSaveFilefromDocuments(Filename,
 var
   aDocuments: TDocument;
   aStream: TFileStream;
+  aName: String;
+  aExt: String;
 begin
   Result := False;
   aDocuments := TDocument.Create(nil);
   aDocuments.Select(Id,'S',Id,Version,Null);
   aDocuments.Open;
-  if aDocuments.Locate('NAME;EXTENSION',VarArrayOf([ExtractFileName(Filename),ExtractFileExt(Filename)]),[loCaseInsensitive]) then
+  aName := ExtractFileName(Filename);
+  if rpos('.',aName)>0 then
+    aName := copy(aName,0,rpos('.',aName)-1);
+  aExt := ExtractFileExt(Filename);
+  if pos('.',aExt)>0 then
+    aExt := copy(aExt,pos('.',aExt)+1,length(aExt));
+  if aDocuments.Locate('NAME;EXTENSION',VarArrayOf([aName,aExt]),[loCaseInsensitive]) then
     begin
-      aStream := TFileStream.Create(AppendPathDelim(OutPath)+ExtractFileName(Filename),fmCreate);
+      aStream := TFileStream.Create(OutPath,fmCreate);
       aDocuments.CheckoutToStream(aStream);
       aStream.Free;
       Result := True;

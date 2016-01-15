@@ -1,13 +1,17 @@
 ﻿Build 422
       - Automation:separates Vorbereitungsscript Script hinzugefügt
       - Scripte: Druckfunktionalität und nicht flüchtige Speicherfunktionalität (Variablen in ahuptspeicher oder Datenbank über die Laufzeit des Scriptes hinaus "retten")
-      - Automation:Formular auch in Auftrag oder Stückliste nutzbar (Vorbereitungs und Durchführen Button)
+      - Automation:Formular auch in Auftrag oder Stückliste nutzbar
+      - Scripte: Dateien aus Dateiverwaltung können aus Scripten gespeichert werden
+      - Scripte: Nummern aus Nummernkreisen können aus Scripten geholt werden
+      - DAVServer: viele kleine Fehlerkorrekturen
+      - IMAPServer: einige kleine Fehlerkorrekturen
 Build 421
       - DAVServer:komplett auf Synapse portiert (SSL Support,Threading)
       - DAVServer:gegen davfs2 getestet/und angepasst
       - DAVServer:CalDAV Support um User Principal Support ergänzt die meissten CalDAV Clients sollten nun Calender allein finden können
       - DAVServer:CalDAV Kalender/Aufgabenunterstützung komplettiert (gegen Thunderbird getestet)
-      - POP3receiver:Wildcards in Contatdaten funktionieren nun endgültig. So kann man z.b. mit *@heise.de als e-Mail Adresse alle Mails dem Kontalt Heise zuordnen
+      - POP3receiver:Wildcards in Contaktdaten funktionieren nun endgültig. So kann man z.b. mit *@heise.de als e-Mail Adresse alle Mails dem Kontalt Heise zuordnen
       - SMTPSender:für einen weitern Fall werdne Verlaufseinträge bei Felern beim Versenden erzeugt
       - Scripte:Möglichkeit Reports zu laden, zu drucken und Variablen zu setzen
 Build 420
