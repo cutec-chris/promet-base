@@ -123,12 +123,12 @@ type
     FModal : Boolean;
     FLastSearch : string;
     FOptionSet : string;
-    SearchLevel: Integer;
     ActCount: Integer;
     procedure WMCloseQuery(var message: TLMessage); message LM_CLOSEQUERY;
   public
     { public declarations }
     ActiveSearch : TSearch;
+    SearchLevel: Integer;
     SearchTypes : TFullTextSearchTypes;
     SearchLocations : TSearchLocations;
     function Execute(Modal : Boolean;OptionSet : string;aHint : string) : Boolean;
@@ -196,6 +196,7 @@ end;
 
 procedure TfSearch.cbSearchInClickCheck(Sender: TObject);
 begin
+  SearchLevel:=0;
   SetUpSearch;
   sgResults.RowCount:=sgResults.FixedRows;
   if (eContains.Text<>'') and (cbSearchType.Tag=0) then
@@ -366,6 +367,7 @@ begin
       bSearch.Caption:=strDoSearch;
       bSearchFurther.Visible:=bSearch.Caption=strContinueSearch;
       SearchLevel := 0;
+      FreeAndNil(ActiveSearch);
     end;
 end;
 procedure TfSearch.cbAutomaticsearchChange(Sender: TObject);
@@ -554,6 +556,7 @@ procedure TfSearch.IdleTimerTimer(Sender: TObject);
 begin
   if eContains.Text = '' then exit;
   SearchLevel:=0;
+  FreeAndNil(ActiveSearch);
   if FLastSearch = eContains.Text then IdleTimer.Enabled:=False;
   if cbAutomaticSearch.Checked then
     begin
@@ -686,6 +689,7 @@ begin
       if cbSearchIn.Checked[cbSearchIn.Items.IndexOf(uBaseSearch.SearchLocations[i])] then
         SearchTypes := SearchTypes+[TFullTextSearchType(i)];
   aItems := GetSearchAbleItems;
+  SetLength(SearchLocations,0);
   for i := 0 to length(aItems)-1 do
     for a := 0 to cbSearchtype.Items.Count-1 do
       if (aItems[i]=cbSearchtype.Items[a]) and (cbSearchtype.Checked[a]) then
@@ -694,7 +698,10 @@ begin
           SearchLocations[length(SearchLocations)-1] := aItems[i];
         end;
   if SearchLevel=0 then
-    sgResults.RowCount := sgResults.FixedRows;
+    begin
+      sgResults.RowCount := sgResults.FixedRows;
+      FreeAndNil(ActiveSearch);
+    end;
   ActCount := sgResults.RowCount;
   SearchText := eContains.Text;
   if not Assigned(ActiveSearch) then
