@@ -869,6 +869,7 @@ var
   aStream: TFileStream;
   aName: String;
   aExt: String;
+  aDocument: TDocument;
 begin
   Result := False;
   aDocuments := TDocument.Create(nil);
@@ -882,9 +883,13 @@ begin
     aExt := copy(aExt,pos('.',aExt)+1,length(aExt));
   if aDocuments.Locate('NAME;EXTENSION',VarArrayOf([aName,aExt]),[loCaseInsensitive]) then
     begin
+      aDocument := TDocument.Create(nil);
+      aDocument.SelectByNumber(aDocuments.FieldByName('NUMBER').AsVariant);
+      aDocument.Open;
       aStream := TFileStream.Create(OutPath,fmCreate);
-      aDocuments.CheckoutToStream(aStream);
+      aDocument.CheckoutToStream(aStream);
       aStream.Free;
+      aDocument.Free;
       Result := True;
     end;
   aDocuments.Free;
