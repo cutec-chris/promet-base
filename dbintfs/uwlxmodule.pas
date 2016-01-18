@@ -401,6 +401,7 @@ end;
 
 procedure TWlxModule.SetFocus;
 begin
+  {
   {$IF DEFINED(LCLWIN32)}
   Windows.SetFocus(FPluginWindow);
   {$ELSEIF DEFINED(LCLQT)}
@@ -408,6 +409,7 @@ begin
   {$ELSEIF DEFINED(LCLGTK2)}
   gtk_widget_grab_focus(PGtkWidget(FPluginWindow));
   {$ENDIF}
+  }
 end;
 
 procedure TWlxModule.ResizeWindow(aRect: TRect);
@@ -415,6 +417,7 @@ begin
   //ToDo: Implement for other widgetsets
   with aRect do
   begin
+    {
     {$IF DEFINED(LCLWIN32)}
     MoveWindow(FPluginWindow, Left, Top, Right - Left, Bottom - Top, True);
     {$ELSEIF DEFINED(LCLQT)}
@@ -424,6 +427,7 @@ begin
     gtk_widget_set_uposition(PGtkWidget(FPluginWindow), Left, -1);
     gtk_widget_set_usize(PGtkWidget(FPluginWindow), Right - Left, Bottom - Top);
     {$ENDIF}
+    }
   end;
 end;
 

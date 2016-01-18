@@ -232,6 +232,7 @@ begin
               TBaseScript(aScripts).Script.Writeln:=@TBaseScriptScriptTPascalScriptTBaseScriptScriptWriteln;
               TBaseScript(aScripts).Script.OnRunLine:=@TBaseScriptScriptTPascalScriptTBaseScriptScriptRunLine;
               fLogWaitForm.SetLanguage;
+              fLogWaitForm.Clear;
               fLogWaitForm.Show;
               try
                 if FTyp = icImport then

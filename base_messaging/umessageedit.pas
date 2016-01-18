@@ -377,6 +377,7 @@ begin
         begin
           fLogWaitForm.SetLanguage;
           fLogWaitForm.lbLog.Clear;
+          fLogWaitForm.Clear;
           fLogWaitForm.Show;
           while not aLists.Entrys.DataSet.EOF do
             begin
