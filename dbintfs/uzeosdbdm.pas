@@ -693,6 +693,8 @@ procedure TZeosDBDataSet.InternalOpen;
 var
   a: Integer;
 begin
+  if Connection.Protocol='mysql' then
+    Properties.Values['ValidateUpdateCount'] := 'False';
   if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
     TBaseDBModule(ForigTable.DataModule).LastTime := GetTicks;
   if TZeosDBDM(Owner).IgnoreOpenRequests then exit;
