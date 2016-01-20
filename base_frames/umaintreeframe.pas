@@ -368,7 +368,7 @@ procedure TfMainTree.tvMainStartDrag(Sender: TObject;
 var
   aSel: TTreeNode;
 begin
-  aSel := tvMain.GetNodeAt(tvSearch.ScreenToClient(Mouse.CursorPos).x,tvSearch.ScreenToClient(Mouse.CursorPos).y);
+  aSel := tvMain.GetNodeAt(tvMain.ScreenToClient(Mouse.CursorPos).x,tvMain.ScreenToClient(Mouse.CursorPos).y);
   if Assigned(aSel) and Assigned(aSel) then
     begin
       if TTreeEntry(aSel.Data).Link<>'' then
