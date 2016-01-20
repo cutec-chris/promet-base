@@ -149,6 +149,13 @@ type
     property OnAddToTree : TTreeAddCallback read FAddToTree write FAddToTree;
   end;
 
+  TDragEntry = class(TDragObject)
+  private
+    FLink: string;
+  public
+    property Links : string read FLink write FLink;
+  end;
+
 var
   ObjectTypes : TList;
   MainFrames : TClassList;

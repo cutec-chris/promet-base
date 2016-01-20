@@ -15,7 +15,7 @@ object fMainTree: TfMainTree
     Width = 320
     Align = alClient
     BorderStyle = bsNone
-    DefaultItemHeight = 18
+    DefaultItemHeight = 16
     DragMode = dmAutomatic
     PopupMenu = pmTree
     ReadOnly = True
@@ -34,6 +34,7 @@ object fMainTree: TfMainTree
     OnExpanding = tvMainExpanding
     OnKeyDown = tvMainKeyDown
     OnSelectionChanged = tvMainSelectionChanged
+    OnStartDrag = tvMainStartDrag
     Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoRightClickSelect, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
   end
   object pmTree: TPopupMenu

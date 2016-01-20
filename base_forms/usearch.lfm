@@ -487,6 +487,7 @@ object fSearch: TfSearch
       OnMouseLeave = sgResultsMouseLeave
       OnMouseMove = sgResultsMouseMove
       OnResize = sgResultsResize
+      OnStartDrag = sgResultsStartDrag
       ColWidths = (
         35
         100

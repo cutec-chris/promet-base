@@ -76,6 +76,7 @@ type
                  etClipboardItem,
                etAllObjects
                );
+
   TTreeEntry = class
   public
     Rec : Int64;
@@ -148,6 +149,7 @@ type
       var AllowExpansion: Boolean);
     procedure tvMainKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure tvMainSelectionChanged(Sender: TObject);
+    procedure tvMainStartDrag(Sender: TObject; var DragObject: TDragObject);
   private
     FDragDrop: TDragDropEvent;
     FNode : TTreeNode;
@@ -360,6 +362,24 @@ begin
       }
     end;
 end;
+
+procedure TfMainTree.tvMainStartDrag(Sender: TObject;
+  var DragObject: TDragObject);
+var
+  aSel: TTreeNode;
+begin
+  aSel := tvMain.GetNodeAt(tvSearch.ScreenToClient(Mouse.CursorPos).x,tvSearch.ScreenToClient(Mouse.CursorPos).y);
+  if Assigned(aSel) and Assigned(aSel) then
+    begin
+      if TTreeEntry(aSel.Data).Link<>'' then
+        begin
+          DragObject := TDragEntry.Create(Self);
+          with DragObject as TDragEntry do
+            Links := TTreeEntry(aSel.Data).Link;
+        end;
+    end;
+end;
+
 constructor TfMainTree.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -1766,6 +1786,7 @@ var
         if TTreeEntry(Node.Items[i].Data).Rec = arec then exit;
     Node1 := tvMain.Items.AddChildObject(Node,'',TTreeEntry.Create);
     TTreeEntry(Node1.Data).Rec := aList.GetBookmark;
+    TTreeEntry(Node1.Data).Link := Data.BuildLink(aList.DataSet);
     with aList.DataSet as IBaseManageDB do
       TTreeEntry(Node1.Data).Filter:=Data.QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(IntToStr(aList.GetBookmark));
     TTreeEntry(Node1.Data).DataSourceType := TBaseDBDataSetClass(aList.ClassType);

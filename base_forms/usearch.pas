@@ -111,6 +111,7 @@ type
     procedure sgResultsMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure sgResultsResize(Sender: TObject);
+    procedure sgResultsStartDrag(Sender: TObject; var DragObject: TDragObject);
   private
     Fdone: TNotifyEvent;
     FItemFound: TSearchResultItem;
@@ -635,6 +636,15 @@ procedure TfSearch.sgResultsResize(Sender: TObject);
 begin
   sgResults.Columns[2].Width := sgResults.Width-(sgResults.Columns[0].Width+sgResults.Columns[1].Width+sgResults.Columns[3].Width)-25;
 end;
+
+procedure TfSearch.sgResultsStartDrag(Sender: TObject;
+  var DragObject: TDragObject);
+begin
+  DragObject := TDragEntry.Create(Self);
+  with DragObject as TDragEntry do
+    Links := GetLink(True);
+end;
+
 procedure TfSearch.WMCloseQuery(var message: TLMessage);
 begin //Workaround for #0012552
   Close;

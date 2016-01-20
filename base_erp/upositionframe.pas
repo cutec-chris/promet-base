@@ -774,12 +774,32 @@ procedure TfPosition.sgPositionsDragDrop(Sender, Source: TObject; X, Y: Integer
 var
   nData : TTreeEntry;
   aMasterdata: TMasterdata;
+  aLinks: String;
+  procedure AddPosition(aLink : string);
+  begin
+    aMasterdata.SelectFromLink(aLink);
+    aMasterdata.Open;
+    if aMasterdata.Count > 0 then
+      begin
+        if  (FDataSet.State <> dsInsert)
+        and (FDataSet.State <> dsEdit)
+        then
+          acAddPos.Execute;
+        TBaseDbPosition(DataSet).Assign(aMasterdata);
+        if (GetPostyp <> -1) and Assigned(InplaceFrames[GetPosTyp]) then
+          begin
+            InplaceFrames[GetPosTyp].SetArticle(aMasterdata);
+          end;
+        FGridView.SyncActiveRow(DataSet.GetBookmark,False,True,True);
+      end;
+  end;
+
 begin
+  aMasterdata := TMasterdata.CreateEx(Self,Data);
+  aMasterdata.CreateTable;
   if Source = uMainTreeFrame.fMainTreeFrame.tvMain then
     begin
       nData := TTreeEntry(uMainTreeFrame.fMainTreeFrame.tvMain.Selected.Data);
-      aMasterdata := TMasterdata.CreateEx(Self,Data);
-      aMasterdata.CreateTable;
       Data.SetFilter(aMasterdata,nData.Filter);
       Data.GotoBookmark(aMasterdata,nData.Rec);
       if  (FDataSet.State <> dsInsert)
@@ -792,35 +812,39 @@ begin
           InplaceFrames[GetPosTyp].SetArticle(aMasterdata);
         end;
       FGridView.SyncActiveRow(DataSet.GetBookmark,False,True,True);
-      aMasterdata.Free;
     end
   else
   if (Source = fSearch.sgResults) then
     begin
-      aMasterdata := TMasterdata.CreateEx(Self,Data);
-      aMasterdata.CreateTable;
-      aMasterdata.SelectFromLink(fSearch.GetLink);
-      aMasterdata.Open;
-      if aMasterdata.Count > 0 then
+      aLinks := fSearch.GetLink(False);
+      while pos(';',aLinks)>0 do
         begin
-          if  (FDataSet.State <> dsInsert)
-          and (FDataSet.State <> dsEdit)
-          then
-            acAddPos.Execute;
-          TBaseDbPosition(DataSet).Assign(aMasterdata);
-          if (GetPostyp <> -1) and Assigned(InplaceFrames[GetPosTyp]) then
-            begin
-              InplaceFrames[GetPosTyp].SetArticle(aMasterdata);
-            end;
-          FGridView.SyncActiveRow(DataSet.GetBookmark,False,True,True);
+          AddPosition(copy(aLinks,0,pos(';',aLinks)-1));
+          aLinks := copy(aLinks,pos(';',aLinks)+1,length(aLinks));
         end;
-      aMasterdata.Free;
+      AddPosition(aLinks);
+    end
+  else if Source is TDragEntry then
+    begin
+      aLinks := TDragEntry(Source).Links;
+      while pos(';',aLinks)>0 do
+        begin
+          AddPosition(copy(aLinks,0,pos(';',aLinks)-1));
+          aLinks := copy(aLinks,pos(';',aLinks)+1,length(aLinks));
+        end;
+      AddPosition(aLinks);
     end;
+  aMasterdata.Free;
 end;
 procedure TfPosition.sgPositionsDragOver(Sender, Source: TObject; X,
   Y: Integer; State: TDragState; var Accept: Boolean);
 begin
   Accept := False;
+  if Source is TDragEntry then
+    begin
+      Accept := pos('MASTERDATA' ,TDragEntry(Source).Links)>0;
+      exit;
+    end;
   if Assigned(uMainTreeFrame.fMainTreeFrame)
   and (Source = uMainTreeFrame.fMainTreeFrame.tvMain)
   and ((TTreeEntry(uMainTreeFrame.fMainTreeFrame.tvMain.Selected.Data).Typ = etArticle)) then
@@ -830,6 +854,7 @@ begin
       with fSearch.sgResults do
         if copy(fSearch.GetLink,0,10) = 'MASTERDATA' then
           Accept := True;
+      exit;
     end;
 end;
 procedure TfPosition.spDetailsMoved(Sender: TObject);
