@@ -70,8 +70,10 @@ type
     NeedsAction : string;
     RefreshHeight : Boolean;
     Extends : TPoint;
+    Obj : TObject;
     property StringRec : string read GetStringRec;
     constructor Create;
+    destructor Destroy; override;
   end;
   TColumnWidthHelper = record
     Index : integer;
@@ -261,8 +263,10 @@ type
     FSearchKeyRect: TRect;
     SearchKeyTimer : TTimer;
     FDisableEdit : Boolean;
+    FInitialized : Boolean;
     procedure ClearFilters;
     function GetFilterRow: Boolean;
+    function GetRowObject(Row : Integer): TObject;
     procedure SetExpField(AValue: string);
     procedure SetFilterRow(AValue: Boolean);
     procedure SetHasChilds(aCol,aRow : Integer;Expanded : char);
@@ -285,6 +289,7 @@ type
     procedure SetIdentField(AValue: string);
     procedure SetNumberField(AValue: string);
     procedure SetReadOnly(AValue: Boolean);
+    procedure SetRowObject(Row : Integer; AValue: TObject);
     procedure SetShortTextField(AValue: string);
     procedure SetSortDirecion(AValue: TSortDirection);
     procedure SetSortField(AValue: string);
@@ -344,6 +349,7 @@ type
     property SortDirection : TSortDirection read FSortDirection write SetSortDirecion;
     property WordWrap : Boolean read FWordwrap write FWordwrap;
     property InvertedDrawing : Boolean read FInvertedDrawing write FInvertedDrawing;
+    property RowObject[Row : Integer] : TObject read GetRowObject write SetRowObject;
 
     property SortField : string read FSortField write SetSortField;
     property NumberField : string read FNumberField write SetNumberField;
@@ -401,6 +407,12 @@ begin
   RefreshHeight := True;
   Dependencies:=False;
   NeedsAction:='na';
+end;
+
+destructor TRowObject.Destroy;
+begin
+  if Assigned(Obj) then Obj.Free;
+  inherited Destroy;
 end;
 
 procedure TfGridView.deDateAcceptDate(Sender: TObject; var ADate: TDateTime;
@@ -1090,6 +1102,7 @@ begin
             TStringGrid(Sender).Canvas.DrawFocusRect(arect);
           exit;
         end;
+      if not FInitialized then exit;
       if Assigned(gList.Objects[0,aRow]) and TRowObject(gList.Objects[0,aRow]).RefreshHeight and (not gList.EditorMode) and gList.Canvas.HandleAllocated then
         begin
           gList.BeginUpdate;
@@ -1897,6 +1910,13 @@ function TfGridView.GetFilterRow: Boolean;
 begin
   Result := gHeader.Visible;
 end;
+
+function TfGridView.GetRowObject(Row : Integer): TObject;
+begin
+  if Assigned(gList.Objects[0,Row]) and (gList.Objects[0,Row] is TRowObject) then
+    result := TRowObject(gList.Objects[0,Row]).Obj;
+end;
+
 procedure TfGridView.SetFilterRow(AValue: Boolean);
 begin
   gHeader.Visible:=AValue;
@@ -2147,8 +2167,8 @@ begin
   except
   end;
   FDatasource.DataSet := FDataset.DataSet;
-//  fRowEditor.GetGridSizes(FBaseName,FDataSource,dgFake,FDefaultRows);
-  SyncDataSource;
+  //SyncDataSource;
+  FEntered := False;
 end;
 procedure TfGridView.SetDefaultRowHeight(AValue: Boolean);
 begin
@@ -2194,6 +2214,13 @@ begin
     gList.Options := gList.Options-[goEditing]
   else gList.Options := gList.Options-[goEditing];
 end;
+
+procedure TfGridView.SetRowObject(Row : Integer; AValue: TObject);
+begin
+  if Assigned(gList.Objects[0,Row]) and (gList.Objects[0,Row] is TRowObject) then
+    TRowObject(gList.Objects[0,Row]).Obj := AValue;
+end;
+
 procedure TfGridView.SetShortTextField(AValue: string);
 begin
   if FSTextField=AValue then Exit;
@@ -2668,6 +2695,7 @@ var
   Details: TThemedElementDetails;
 begin
   inherited Create(AOwner);
+  FInitialized := False;
   InEdit := False;
   FDisableEdit:=False;
   FApplyAutoFilter := True;
@@ -2699,6 +2727,7 @@ begin
   SearchKeyTimer := TTimer.Create(Self);
   SearchKeyTimer.Interval:=200;
   SearchKeyTimer.OnTimer:=@SearchKeyTimerTimer;
+  SearchKeyTimer.Enabled:=False;
   gHeader.Visible:=False;
   gHeader.Options:=gHeader.Options+[goAlwaysShowEditor];
   //gList.ScrollSyncControl := gHeader;
@@ -3019,6 +3048,7 @@ begin
   {$else}
   debugln('SyncDataSourceEnd='+IntToStr(GetTickCount-aTime));
   {$endif}
+  FInitialized := True;
 end;
 procedure TfGridView.SetupHeader;
 var

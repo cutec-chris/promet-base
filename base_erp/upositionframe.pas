@@ -29,8 +29,18 @@ uses
 type
   TUnprotectedFrame = class(TCustomFrame);
   THackCustomGrid = class(TCustomGrid);
-  { TfPosition }
+  TCheckAsyncRecord = record
+    Ident : string;
+    Checked : Boolean;
+    Row : Integer;
+    Font : TFont;
+    Quantity,QuantityD : Integer;
+    Storage : string;
+    Avalible : Variant;
+    Version : Variant;
+  end;
 
+  { TfPosition }
   TfPosition = class(TPrometInplaceFrame)
     acAddPos: TAction;
     acDelPos: TAction;
@@ -119,6 +129,7 @@ type
     procedure acViewTextsExecute(Sender: TObject);
     procedure AddCalcTab(Sender: TObject);
     procedure AddAutomationTab(Sender: TObject);
+    procedure DoCheckIdent(aData: PtrInt);
     function FGridViewDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState): Boolean;
     procedure FGridViewGetCellText(Sender: TObject; aCol: TColumn;
@@ -159,6 +170,9 @@ type
     FEditAble : Boolean;
     ActiveSearch : TSearch;
     FFirstShow : Boolean;
+    FChecks : array of TCheckAsyncRecord;
+    procedure AddAsyncCheck(Ident: string; Version: Variant; Index: Integer;
+      aFont: TFont; Quantity, QuantityD: Integer;Avalible : Variant; Storage: string);
     procedure SetBaseName(AValue: string);
     procedure SetDataSet(const AValue: TBaseDBDataset);
     function  GetPosTyp : Integer;
@@ -185,8 +199,12 @@ type
     property GridView : TfGridView read FGridView;
     procedure DoRefresh(ForceRefresh: Boolean=False); override;
   end;
+  TPositionrowObject = class(TObject)
+    QuantityColor : TColor;
+  end;
+
 implementation
-uses uRowEditor, uSearch, uBaseDbInterface, uOrder, uDocumentFrame, uDocuments,
+uses uSearch, uBaseDbInterface, uOrder, uDocumentFrame, uDocuments,
   uData,uMasterdata,uBaseVisualApplication,uMainTreeFrame,ucalcframe,uProjects,
   uautomationframe,utask,fautomationform;
 {$R *.lfm}
@@ -700,12 +718,96 @@ begin
   TfAutomationframe(Sender).TabCaption:=strAutomation;
 end;
 
+procedure TfPosition.DoCheckIdent(aData: PtrInt);
+var
+  dSel: Boolean;
+  aMasterdata: TMasterdata;
+  i: Integer;
+  aRowObject: TPositionrowObject;
+  aStorQ: Real;
+begin
+  if FChecks[aData].Checked then exit;
+  if not FGridView.GotoRowNumber(FChecks[aData].Row) then exit;
+  aMasterdata := TMasterdata.CreateEx(Self,Data);
+  //Check if masterdata exists
+  aMasterdata.Select(FChecks[aData].Ident,FChecks[aData].Version);
+  aMasterdata.Open;
+  if aMasterdata.Count = 0 then
+    begin
+      dSel := True;
+      aMasterdata.Select(FChecks[aData].Ident);
+      aMasterdata.Open;
+    end;
+  if aMasterdata.Count > 0 then
+    begin
+      if dSel then
+        FChecks[aData].Font.Color:=$007000
+      else
+        FChecks[aData].Font.Color:=$00A000;
+    end
+  else
+    begin
+      FChecks[aData].Font.Color:=clRed;
+      FChecks[aData].Font.Style:=[fsItalic];
+    end;
+  //Check Storage when Field is displayed
+  aRowObject := TPositionrowObject.Create;
+  FGridView.RowObject[FChecks[aData].Row] := aRowObject;
+  aRowObject.QuantityColor:=clDefault;
+  if FChecks[aData].Avalible=Null then
+    begin
+      aMasterdata.Storage.Open;
+      aStorQ := -100009;
+      if aMasterdata.Storage.Locate('STORAGEID',FChecks[aData].Storage,[]) then
+        aStorQ := aMasterdata.Storage.FieldByName('QUANTITY').AsFloat
+      else
+        begin
+          aMasterdata.Storage.First;
+          if not aMasterdata.Storage.EOF then
+            aStorQ:=0;
+          while not aMasterdata.Storage.EOF do
+            begin
+              aStorQ += aMasterdata.Storage.FieldByName('QUANTITY').AsFloat;
+              aMasterdata.Storage.Next;
+            end;
+        end;
+      if aStorQ<>-100009 then
+        begin
+          if FChecks[aData].Avalible=Null then
+            begin
+              if aStorQ>(FChecks[aData].Quantity-FChecks[aData].QuantityD) then
+                aRowObject.QuantityColor:=clGreen
+              else
+                aRowObject.QuantityColor:=clRed;
+            end
+        end;
+    end
+  else
+    begin
+      if (FChecks[aData].Avalible>FChecks[aData].Quantity-FChecks[aData].QuantityD) then
+        aRowObject.QuantityColor:=clGreen
+      else
+        aRowObject.QuantityColor:=clRed;
+    end;
+  FChecks[aData].Checked := True;
+  aMasterdata.Free;
+  for i := 0 to length(FChecks)-1 do
+    if not FChecks[i].Checked then
+      begin
+        Application.ProcessMessages;
+        exit;
+      end;
+  Setlength(FChecks,0);
+  FGridView.Invalidate;
+end;
+
 function TfPosition.FGridViewDrawColumnCell(Sender: TObject; const Rect: TRect;
   DataCol: Integer; Column: TColumn; State: TGridDrawState): Boolean;
 var
   aMasterdata: TMasterdata;
   aFont: TFont;
   aRect: TRect;
+  dSel: Boolean = False;
 begin
   Result := False;
   TExtStringGrid(Sender).Canvas.Font.Style:=[];
@@ -715,36 +817,21 @@ begin
         begin
           aFont := TFont.Create;
           TExtStringGrid(Sender).Objects[Column.Index,DataCol] := aFont;
-          aRect := Rect;
-          if not FGridView.GotoRowNumber(dataCol) then exit;
-          aMasterdata := TMasterdata.CreateEx(Self,Data);
-          aMasterdata.CreateTable;
-          aMasterdata.Select(DataSet.FieldByName('IDENT').AsString,DataSet.FieldByName('VERSION').AsVariant,DataSet.FieldByName('LANGUAGE').AsVariant);
-          aMasterdata.Open;
-          if aMasterdata.Count = 0 then
-            begin
-              aMasterdata.Select(DataSet.FieldByName('IDENT').AsString);
-              aMasterdata.Open;
-              if not aMasterdata.Locate('VERSION;LANGUAGE',VarArrayOf([DataSet.FieldByName('VERSION').AsVariant,DataSet.FieldByName('LANGUAGE').AsVariant]),[]) then
-                aMasterdata.Locate('VERSION',DataSet.FieldByName('VERSION').AsVariant,[]);
-            end;
-          if aMasterdata.Count > 0 then
-            begin
-              aFont.Color:=clGreen;
-            end
-          else
-            begin
-              aFont.Color:=clRed;
-              aFont.Style:=[fsItalic];
-            end;
+          if not FGridView.GotoRowNumber(DataCol) then exit;
+          AddAsyncCheck(DataSet.FieldByName('IDENT').AsString,DataSet.FieldByName('VERSION').AsVariant,DataCol,aFont,DataSet.FieldByName('QUANTITY').AsInteger,DataSet.FieldByName('QUANTITYD').AsInteger,DataSet.FieldByName('AVALIBLE').AsVariant,DataSet.FieldByName('STORAGE').AsString);
         end;
       if Assigned(TExtStringGrid(Sender).Objects[Column.Index,DataCol]) and (TExtStringGrid(Sender).Objects[Column.Index,DataCol] is TFont) then
         begin
           aFont := TFont(TExtStringGrid(Sender).Objects[Column.Index,DataCol]);
           TExtStringGrid(Sender).Canvas.Font.assign(aFont);
         end;
+    end
+  else if Column.FieldName = 'QUANTITY' then
+    begin
+      if Assigned(FGridView.RowObject[DataCol]) then
+        if TPositionrowObject(FGridView.RowObject[DataCol]).QuantityColor<>clDefault then
+          TExtStringGrid(Sender).Canvas.Font.Color:=TPositionrowObject(FGridView.RowObject[DataCol]).QuantityColor;
     end;
-
 end;
 
 procedure TfPosition.FGridViewGetCellText(Sender: TObject; aCol: TColumn;
@@ -952,6 +1039,27 @@ begin
       RefreshTabs;
     end;
 end;
+
+procedure TfPosition.AddAsyncCheck(Ident: string; Version: Variant;
+  Index: Integer; aFont: TFont; Quantity, QuantityD: Integer;
+  Avalible: Variant; Storage: string);
+var
+  idx: Integer;
+begin
+  Setlength(FChecks,length(FChecks)+1);
+  idx := length(FChecks)-1;
+  FChecks[idx].Checked:=False;
+  FChecks[idx].Ident:=Ident;
+  FChecks[idx].Version:=Version;
+  FChecks[idx].Font:=aFont;
+  FChecks[idx].Row:=Index;
+  FChecks[idx].Quantity:=Quantity;
+  FChecks[idx].QuantityD:=QuantityD;
+  FChecks[idx].Storage:=Storage;
+  FChecks[idx].Avalible:=Avalible;
+  Application.QueueAsyncCall(@DoCheckIdent,length(FChecks)-1);
+end;
+
 procedure TfPosition.SetDataSet(const AValue: TBaseDBDataset);
 var
   SetLabels: Boolean;
