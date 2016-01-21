@@ -119,6 +119,8 @@ type
     procedure acViewTextsExecute(Sender: TObject);
     procedure AddCalcTab(Sender: TObject);
     procedure AddAutomationTab(Sender: TObject);
+    function FGridViewDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState): Boolean;
     procedure FGridViewGetCellText(Sender: TObject; aCol: TColumn;
       aRow: Integer; var NewText: string; aFont: TFont);
     procedure FGridViewSetCellText(Sender: TObject; aCol: TColumn;
@@ -698,6 +700,53 @@ begin
   TfAutomationframe(Sender).TabCaption:=strAutomation;
 end;
 
+function TfPosition.FGridViewDrawColumnCell(Sender: TObject; const Rect: TRect;
+  DataCol: Integer; Column: TColumn; State: TGridDrawState): Boolean;
+var
+  aMasterdata: TMasterdata;
+  aFont: TFont;
+  aRect: TRect;
+begin
+  Result := False;
+  TExtStringGrid(Sender).Canvas.Font.Style:=[];
+  if Column.FieldName = 'IDENT' then
+    begin
+      if not Assigned(TExtStringGrid(Sender).Objects[Column.Index,DataCol]) then
+        begin
+          aFont := TFont.Create;
+          TExtStringGrid(Sender).Objects[Column.Index,DataCol] := aFont;
+          aRect := Rect;
+          if not FGridView.GotoRowNumber(dataCol) then exit;
+          aMasterdata := TMasterdata.CreateEx(Self,Data);
+          aMasterdata.CreateTable;
+          aMasterdata.Select(DataSet.FieldByName('IDENT').AsString,DataSet.FieldByName('VERSION').AsVariant,DataSet.FieldByName('LANGUAGE').AsVariant);
+          aMasterdata.Open;
+          if aMasterdata.Count = 0 then
+            begin
+              aMasterdata.Select(DataSet.FieldByName('IDENT').AsString);
+              aMasterdata.Open;
+              if not aMasterdata.Locate('VERSION;LANGUAGE',VarArrayOf([DataSet.FieldByName('VERSION').AsVariant,DataSet.FieldByName('LANGUAGE').AsVariant]),[]) then
+                aMasterdata.Locate('VERSION',DataSet.FieldByName('VERSION').AsVariant,[]);
+            end;
+          if aMasterdata.Count > 0 then
+            begin
+              aFont.Color:=clGreen;
+            end
+          else
+            begin
+              aFont.Color:=clRed;
+              aFont.Style:=[fsItalic];
+            end;
+        end;
+      if Assigned(TExtStringGrid(Sender).Objects[Column.Index,DataCol]) and (TExtStringGrid(Sender).Objects[Column.Index,DataCol] is TFont) then
+        begin
+          aFont := TFont(TExtStringGrid(Sender).Objects[Column.Index,DataCol]);
+          TExtStringGrid(Sender).Canvas.Font.assign(aFont);
+        end;
+    end;
+
+end;
+
 procedure TfPosition.FGridViewGetCellText(Sender: TObject; aCol: TColumn;
   aRow: Integer; var NewText: string; aFont: TFont);
 var
@@ -717,6 +766,14 @@ begin
     begin
       if trim(NewText) <> '' then
         NewText:=FloatToStr(StrToDayTime(NewText));
+    end;
+  if (aCol.FieldName = 'IDENT') then
+    begin
+      if Assigned(TExtStringGrid(Sender).Objects[aCol.Index,aRow]) and (TExtStringGrid(Sender).Objects[aCol.Index,aRow] is TFont) then
+        begin
+          TExtStringGrid(Sender).Objects[aCol.Index,aRow].Free;
+          TExtStringGrid(Sender).Objects[aCol.Index,aRow] := nil;
+        end;
     end;
 end;
 
@@ -1115,6 +1172,8 @@ begin
   FGridView.OnAutoFilterChanged:=@FGridViewAutoFilterChanged;
   FGridView.UseDefaultRowHeight := False;
   FGridView.gList.PopupMenu:=pmPosition;
+  FGridView.OnDrawColumnCell:=@FGridViewDrawColumnCell;
+  FGridView.OnSetCellText:=@FGridViewSetCellText;
 end;
 destructor TfPosition.Destroy;
 var
