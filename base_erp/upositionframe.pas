@@ -727,7 +727,7 @@ var
   aStorQ: Real;
 begin
   if FChecks[aData].Checked then exit;
-  if not FGridView.GotoRowNumber(FChecks[aData].Row) then exit;
+  //if not FGridView.GotoRowNumber(FChecks[aData].Row) then exit;
   aMasterdata := TMasterdata.CreateEx(Self,Data);
   //Check if masterdata exists
   aMasterdata.Select(FChecks[aData].Ident,FChecks[aData].Version);
