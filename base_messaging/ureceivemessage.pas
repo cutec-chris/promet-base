@@ -54,7 +54,6 @@ end;
 function CheckHeader(mID: string; msg: TMimeMess; aUser: string): Boolean;
 var
   atmp: String;
-  CustomerCont: TPersonContactData;
   Customers: TPerson;
   b: Integer;
   a: Integer;
@@ -70,16 +69,9 @@ begin
   aSender :=  SysToUni(msg.Header.From);
   aSubject := SysToUni(msg.Header.Subject);
   atmp:=SysToUni(getemailaddr(msg.Header.From));
-  CustomerCont := TPersonContactData.Create(nil);
   atmp := StringReplace(atmp,'''','',[rfReplaceAll]);
-  if Data.IsSQLDb then
-    Data.SetFilter(CustomerCont,Data.ProcessTerm('UPPER("DATA")=UPPER('''+atmp+''')'))
-  else
-    Data.SetFilter(CustomerCont,Data.ProcessTerm('"DATA"='''+atmp+''''));
   Customers := TPerson.Create(nil);
-  Data.SetFilter(Customers,'"ACCOUNTNO"='+Data.QuoteValue(CustomerCont.DataSet.FieldByName('ACCOUNTNO').AsString));
-  CustomerCont.Free;
-  if Customers.Count > 0 then
+  if Customers.SelectFromContactData(atmp) then
     begin
       Customers.History.Open;
       try
@@ -146,6 +138,8 @@ begin
                              //und pber den List-Unsubscribe nen Button einzublenden "zum abbestellen"
               SpamPoints+=lSP;
             end;
+          if b=1 then
+            SpamPoints+=2;//Spammer versenden direkt die meissten anderen Dienste über 3-4 Server
           aTransmitTime := trunc((aReceivedDate-aSendDate)*MinsPerDay);
           if aTransmitTime < 3 then aTransmitTime:=0;
           SpamPoints+=aTransmitTime;
@@ -206,7 +200,6 @@ var
   BMID: LargeInt;
   fullmsg: TMimeMess;
   Customers: TPerson;
-  CustomerCont: TPersonContactData;
   atmp: String;
   aMessageL: TMessageList;
   aHist: TBaseHistory;
