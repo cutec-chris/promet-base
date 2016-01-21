@@ -6,6 +6,7 @@
       - Scripte: Nummern aus Nummernkreisen können aus Scripten geholt werden
       - DAVServer: viele kleine Fehlerkorrekturen
       - IMAPServer: einige kleine Fehlerkorrekturen
+      - Positionseditor:Farbliche hervorhebung von Artikelnummern (Artikel vorhanden/nicht vorhanden), Mengen (Am Lager verfügbar/nicht verfügbar)
 Build 421
       - DAVServer:komplett auf Synapse portiert (SSL Support,Threading)
       - DAVServer:gegen davfs2 getestet/und angepasst
