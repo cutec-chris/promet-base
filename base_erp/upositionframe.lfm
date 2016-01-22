@@ -450,6 +450,9 @@ inherited fPosition: TfPosition
       ImageIndex = 128
       OnExecute = acWorkExecute
     end
+    object Action1: TAction
+      Caption = 'Action1'
+    end
   end
   object TabTimer: TIdleTimer[5]
     Enabled = False
@@ -700,6 +703,15 @@ inherited fPosition: TfPosition
       }
     end
     object MenuItem3: TMenuItem
+      Caption = '-'
+    end
+    object miCopy: TMenuItem
+      Caption = 'New Item12'
+    end
+    object miPaste: TMenuItem
+      Caption = 'New Item13'
+    end
+    object MenuItem11: TMenuItem
       Caption = '-'
     end
     object MenuItem8: TMenuItem

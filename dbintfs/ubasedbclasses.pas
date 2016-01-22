@@ -27,6 +27,8 @@ uses
 type
   { TBaseDBDataset }
 
+  TReplaceFieldFunc = procedure(aField : TField;aOldValue : string;var aNewValue : string);
+
   TBaseDBDataset = class(TAbstractDBDataset)
   private
     FDataSet: TDataSet;
@@ -83,6 +85,8 @@ type
     function GotoBookmark(aRec : Variant) : Boolean;
     function GetLink : string;
     procedure FreeBookmark(aRec : Variant);
+    function ExportToXML: string;
+    procedure ImportFromXML(XML : string;OverrideFields : Boolean = False;ReplaceFieldFunc : TReplaceFieldFunc = nil);virtual;
     procedure DuplicateRecord(DoPost : Boolean = False);virtual;
     property Connection : TComponent read GetConnection;
     property State : TDataSetState read GetState;
@@ -118,8 +122,6 @@ type
     property Active : Boolean read GetActive write SetActive;
   end;
 
-  TReplaceFieldFunc = procedure(aField : TField;aOldValue : string;var aNewValue : string);
-
   { TBaseDbList }
 
   TBaseDbList = class(TBaseDBDataSet)
@@ -149,8 +151,6 @@ type
     function GetBookNumberFieldName : string;virtual;
     function Delete : Boolean; override;
     function Find(aIdent : string;Unsharp : Boolean = False) : Boolean;virtual;
-    function  ExportToXML : string;virtual;
-    procedure ImportFromXML(XML : string;OverrideFields : Boolean = False;ReplaceFieldFunc : TReplaceFieldFunc = nil);virtual;
     procedure OpenItem(AccHistory: Boolean=True);virtual;
     procedure BuildSearchIndexes;virtual;
     procedure CascadicPost; override;
@@ -1308,7 +1308,7 @@ function TBaseDbList.Find(aIdent: string;Unsharp : Boolean = False): Boolean;
 begin
   Result := False;
 end;
-function TBaseDbList.ExportToXML : string;
+function TBaseDBDataset.ExportToXML : string;
 var
   Stream: TStringStream;
   Doc: TXMLDocument;
@@ -1387,7 +1387,7 @@ begin
   Doc.Free;
   Stream.Free;
 end;
-procedure TBaseDbList.ImportFromXML(XML: string;OverrideFields : Boolean = False;ReplaceFieldFunc : TReplaceFieldFunc = nil);
+procedure TBaseDBDataset.ImportFromXML(XML: string;OverrideFields : Boolean = False;ReplaceFieldFunc : TReplaceFieldFunc = nil);
 var
   Doc : TXMLDocument;
   Stream : TStringStream;

@@ -101,6 +101,8 @@ type
     acCopyToClipboard: TAction;
     acChangeRows: TAction;
     acResetFilter: TAction;
+    acCopyPosition: TAction;
+    acPastePosition: TAction;
     ActionList: TActionList;
     ActionList1: TActionList;
     bRowEditor: TSpeedButton;
@@ -115,6 +117,7 @@ type
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     MenuItem6: TMenuItem;
+    MenuItem7: TMenuItem;
     miExport: TMenuItem;
     miImport: TMenuItem;
     miOpen: TMenuItem;
@@ -128,6 +131,7 @@ type
     gList: TExtStringgrid;
     procedure acChangeRowsExecute(Sender: TObject);
     procedure acCopyLinkExecute(Sender: TObject);
+    procedure acCopyPositionExecute(Sender: TObject);
     procedure acCopyToClipboardExecute(Sender: TObject);
     procedure acFilterExecute(Sender: TObject);
     procedure acOpenExecute(Sender: TObject);
@@ -488,6 +492,16 @@ begin
       Stream := TStringStream.Create(aLinks);
       Clipboard.AddFormat(LinkClipboardFormat,Stream);
       Stream.Free;
+    end;
+end;
+
+procedure TfGridView.acCopyPositionExecute(Sender: TObject);
+var
+  aXML: String;
+begin
+  if GotoActiveRow then
+    begin
+      aXML := TBaseDBList(FDataSet).ExportToXML;
     end;
 end;
 

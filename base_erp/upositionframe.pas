@@ -55,6 +55,7 @@ type
     acSum: TAction;
     acDiscount: TAction;
     acSavePos: TAction;
+    Action1: TAction;
     acWork: TAction;
     acViewTexts: TAction;
     acViewDetails: TAction;
@@ -63,6 +64,9 @@ type
     Bevel1: TBevel;
     Bevel2: TBevel;
     Bevel4: TBevel;
+    MenuItem11: TMenuItem;
+    miCopy: TMenuItem;
+    miPaste: TMenuItem;
     Position: TDatasource;
     ExtRotatedLabel1: TExtRotatedLabel;
     ExtRotatedLabel2: TExtRotatedLabel;
@@ -1282,6 +1286,8 @@ begin
   FGridView.gList.PopupMenu:=pmPosition;
   FGridView.OnDrawColumnCell:=@FGridViewDrawColumnCell;
   FGridView.OnSetCellText:=@FGridViewSetCellText;
+  miCopy.Action := FGridView.acCopyPosition;
+  miPaste.Action := FGridView.acPastePosition;
 end;
 destructor TfPosition.Destroy;
 var

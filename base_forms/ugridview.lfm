@@ -6,7 +6,6 @@ object fGridView: TfGridView
   ClientHeight = 354
   ClientWidth = 581
   Color = clBtnFace
-  LCLVersion = '1.4.4.0'
   OnResize = FrameResize
   ParentColor = False
   ParentShowHint = False
@@ -353,6 +352,15 @@ object fGridView: TfGridView
     object MenuItem2: TMenuItem
       Action = acCopyToClipboard
     end
+    object MenuItem5: TMenuItem
+      Caption = '-'
+    end
+    object MenuItem6: TMenuItem
+      Action = acCopyPosition
+    end
+    object MenuItem7: TMenuItem
+      Action = acPastePosition
+    end
   end
   object ActionList: TActionList
     Images = fVisualControls.Images
@@ -396,6 +404,15 @@ object fGridView: TfGridView
       Caption = 'Filter zurücksetzen'
       ImageIndex = 75
       OnExecute = acResetFilterExecute
+    end
+    object acCopyPosition: TAction
+      Caption = 'Zeile(n) kopieren'
+      ImageIndex = 23
+      OnExecute = acCopyPositionExecute
+    end
+    object acPastePosition: TAction
+      Caption = 'Zeile(n) einfügen'
+      ImageIndex = 80
     end
   end
   object FDataSource: TDataSource
