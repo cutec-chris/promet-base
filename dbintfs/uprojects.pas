@@ -59,9 +59,6 @@ type
     procedure Open;override;
     property Project : TProjectList read FProject;
   end;
-
-  { TProjectPositions }
-
   TProjectPositions = class(TBaseDBPosition)
   private
     FProject: TProjectList;

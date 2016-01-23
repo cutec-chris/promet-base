@@ -1187,13 +1187,7 @@ end;
 
 procedure TMasterdataList.Select(aID: string);
 begin
-  with BaseApplication as IBaseDbInterface do
-    begin
-      with DataSet as IBaseDBFilter do
-        begin
-          Filter := Data.ProcessTerm(Data.QuoteField('ID')+'='+Data.QuoteValue(aID));
-        end;
-    end;
+  SelectFromNumber(aID);
 end;
 procedure TMasterdataList.Select(aID: string; aVersion: Variant; aLanguage: Variant
   );

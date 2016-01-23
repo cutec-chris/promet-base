@@ -125,6 +125,7 @@ type
     function Execute : Boolean;
     property OnSendMessage : TSendMessage read FOnSendMessage write FOnSendMessage;
     constructor Create(TheOwner: TComponent); override;
+    function GetThumbnail(PageNo : Integer;aWidth,aHeight : Integer) : TBitmap;
   end;
 
 var
@@ -984,6 +985,20 @@ begin
   FSavePossible:=False;
   frChartObject1 := TfrChartObject.Create(Self);
   frRichViewObject1 := TfrRichViewObject.Create(Self);
+end;
+
+function TfSelectReport.GetThumbnail(PageNo: Integer; aWidth, aHeight: Integer
+  ): TBitmap;
+begin
+  {
+  if frReport1.PrepareReport then
+    begin
+      aPage := frReport1.EMFPages.Pages[0];
+      aPage^.Visible:=True;
+      frReport1.EMFPages.Draw(0,Image1.Picture.Bitmap.Canvas,Rect(0,0,Image1.Picture.Bitmap.Width,Image1.Picture.Bitmap.Width));
+
+    end;
+  }
 end;
 
 initialization
