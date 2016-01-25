@@ -730,68 +730,71 @@ var
   aRowObject: TPositionrowObject;
   aStorQ: Real;
 begin
+  try
   if FChecks[aData].Checked then exit;
-  //if not FGridView.GotoRowNumber(FChecks[aData].Row) then exit;
-  aMasterdata := TMasterdata.CreateEx(Self,Data);
-  //Check if masterdata exists
-  aMasterdata.Select(FChecks[aData].Ident,FChecks[aData].Version);
-  aMasterdata.Open;
-  if aMasterdata.Count = 0 then
+  if FChecks[aData].Row<FGridView.gList.RowCount then
     begin
-      dSel := True;
-      aMasterdata.Select(FChecks[aData].Ident);
+      aMasterdata := TMasterdata.CreateEx(Self,Data);
+      //Check if masterdata exists
+      aMasterdata.Select(FChecks[aData].Ident,FChecks[aData].Version);
       aMasterdata.Open;
-    end;
-  if aMasterdata.Count > 0 then
-    begin
-      if dSel then
-        FChecks[aData].Font.Color:=$007000
-      else
-        FChecks[aData].Font.Color:=$00A000;
-    end
-  else
-    begin
-      FChecks[aData].Font.Color:=clRed;
-      FChecks[aData].Font.Style:=[fsItalic];
-    end;
-  //Check Storage when Field is displayed
-  aRowObject := TPositionrowObject.Create;
-  FGridView.RowObject[FChecks[aData].Row] := aRowObject;
-  aRowObject.QuantityColor:=clDefault;
-  if FChecks[aData].Avalible=Null then
-    begin
-      aMasterdata.Storage.Open;
-      aStorQ := -100009;
-      if aMasterdata.Storage.Locate('STORAGEID',FChecks[aData].Storage,[]) then
-        aStorQ := aMasterdata.Storage.FieldByName('QUANTITY').AsFloat
+      if aMasterdata.Count = 0 then
+        begin
+          dSel := True;
+          aMasterdata.Select(FChecks[aData].Ident);
+          aMasterdata.Open;
+        end;
+      if aMasterdata.Count > 0 then
+        begin
+          if dSel then
+            FChecks[aData].Font.Color:=$007000
+          else
+            FChecks[aData].Font.Color:=$00A000;
+        end
       else
         begin
-          aMasterdata.Storage.First;
-          if not aMasterdata.Storage.EOF then
-            aStorQ:=0;
-          while not aMasterdata.Storage.EOF do
+          FChecks[aData].Font.Color:=clRed;
+          FChecks[aData].Font.Style:=[fsItalic];
+        end;
+      //Check Storage when Field is displayed
+      aRowObject := TPositionrowObject.Create;
+      FGridView.RowObject[FChecks[aData].Row] := aRowObject;
+      aRowObject.QuantityColor:=clDefault;
+      if FChecks[aData].Avalible=Null then
+        begin
+          aMasterdata.Storage.Open;
+          aStorQ := -100009;
+          if aMasterdata.Storage.Locate('STORAGEID',FChecks[aData].Storage,[]) then
+            aStorQ := aMasterdata.Storage.FieldByName('QUANTITY').AsFloat
+          else
             begin
-              aStorQ += aMasterdata.Storage.FieldByName('QUANTITY').AsFloat;
-              aMasterdata.Storage.Next;
+              aMasterdata.Storage.First;
+              if not aMasterdata.Storage.EOF then
+                aStorQ:=0;
+              while not aMasterdata.Storage.EOF do
+                begin
+                  aStorQ += aMasterdata.Storage.FieldByName('QUANTITY').AsFloat;
+                  aMasterdata.Storage.Next;
+                end;
             end;
-        end;
-      if aStorQ<>-100009 then
-        begin
-          if FChecks[aData].Avalible=Null then
+          if aStorQ<>-100009 then
             begin
-              if aStorQ>(FChecks[aData].Quantity-FChecks[aData].QuantityD) then
-                aRowObject.QuantityColor:=clGreen
-              else
-                aRowObject.QuantityColor:=clRed;
-            end
-        end;
-    end
-  else
-    begin
-      if (FChecks[aData].Avalible>FChecks[aData].Quantity-FChecks[aData].QuantityD) then
-        aRowObject.QuantityColor:=clGreen
+              if FChecks[aData].Avalible=Null then
+                begin
+                  if aStorQ>(FChecks[aData].Quantity-FChecks[aData].QuantityD) then
+                    aRowObject.QuantityColor:=clGreen
+                  else
+                    aRowObject.QuantityColor:=clRed;
+                end
+            end;
+        end
       else
-        aRowObject.QuantityColor:=clRed;
+        begin
+          if (FChecks[aData].Avalible>FChecks[aData].Quantity-FChecks[aData].QuantityD) then
+            aRowObject.QuantityColor:=clGreen
+          else
+            aRowObject.QuantityColor:=clRed;
+        end;
     end;
   FChecks[aData].Checked := True;
   aMasterdata.Free;
@@ -803,6 +806,9 @@ begin
       end;
   Setlength(FChecks,0);
   FGridView.Invalidate;
+  except
+    Setlength(FChecks,0);
+  end;
 end;
 
 function TfPosition.FGridViewDrawColumnCell(Sender: TObject; const Rect: TRect;

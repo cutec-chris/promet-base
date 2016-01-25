@@ -7,7 +7,7 @@ object FAutomation: TFAutomation
   ClientHeight = 640
   ClientWidth = 804
   Color = clWindow
-  LCLVersion = '1.5'
+  LCLVersion = '1.4.4.0'
   object ToolBar1: TPanel
     Left = 15
     Height = 52
