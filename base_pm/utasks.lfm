@@ -1782,7 +1782,8 @@ inherited fTaskFrame: TfTaskFrame
             Command = ecColSelEditorBottom
             ShortCut = 57379
           end>
-        SelectedColor.FrameEdges = sfeAround
+        MouseActions = <>
+        MouseSelActions = <>
         SelectedColor.BackPriority = 50
         SelectedColor.ForePriority = 50
         SelectedColor.FramePriority = 50
@@ -2109,21 +2110,6 @@ inherited fTaskFrame: TfTaskFrame
   object SynSQLSyn2: TSynSQLSyn[13]
     DefaultFilter = 'SQL-Dateien (*.sql)|*.sql'
     Enabled = False
-    CommentAttri.FrameEdges = sfeAround
-    DataTypeAttri.FrameEdges = sfeAround
-    DefaultPackageAttri.FrameEdges = sfeAround
-    ExceptionAttri.FrameEdges = sfeAround
-    FunctionAttri.FrameEdges = sfeAround
-    IdentifierAttri.FrameEdges = sfeAround
-    KeyAttri.FrameEdges = sfeAround
-    NumberAttri.FrameEdges = sfeAround
-    PLSQLAttri.FrameEdges = sfeAround
-    SpaceAttri.FrameEdges = sfeAround
-    SQLPlusAttri.FrameEdges = sfeAround
-    StringAttri.FrameEdges = sfeAround
-    SymbolAttri.FrameEdges = sfeAround
-    TableNameAttri.FrameEdges = sfeAround
-    VariableAttri.FrameEdges = sfeAround
     SQLDialect = sqlSybase
     left = 368
     top = 128
@@ -2578,6 +2564,15 @@ inherited fTaskFrame: TfTaskFrame
       }
     end
     object MenuItem14: TMenuItem
+      Caption = '-'
+    end
+    object miCopy: TMenuItem
+      Caption = 'New Item19'
+    end
+    object miPaste: TMenuItem
+      Caption = 'New Item20'
+    end
+    object MenuItem17: TMenuItem
       Caption = '-'
     end
     object MenuItem8: TMenuItem

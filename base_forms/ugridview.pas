@@ -135,6 +135,7 @@ type
     procedure acCopyToClipboardExecute(Sender: TObject);
     procedure acFilterExecute(Sender: TObject);
     procedure acOpenExecute(Sender: TObject);
+    procedure acPastePositionExecute(Sender: TObject);
     procedure acResetFilterExecute(Sender: TObject);
     procedure acSearchExecute(Sender: TObject);
     procedure deDateAcceptDate(Sender: TObject; var ADate: TDateTime;
@@ -464,12 +465,33 @@ procedure TfGridView.acFilterExecute(Sender: TObject);
 begin
   SetBaseFilter(FbaseFilter);
 end;
-
 procedure TfGridView.acOpenExecute(Sender: TObject);
 begin
-
 end;
+procedure TfGridView.acPastePositionExecute(Sender: TObject);
+var
+  Found: Boolean = False;
+  Stream: TStringStream;
+  Plain: String;
+begin
+  //Try to import our own clipboard format
+  if Clipboard.HasFormat(RowClipboardFormat) then
+    begin
+      Stream := TStringstream.Create('');
+      if Clipboard.GetFormat(RowClipboardFormat,Stream) then
+        begin
+          Found := True;
+          FDataSet.ImportFromXML(Stream.DataString);
+        end;
+    end;
+  //TODO:If not there use Text
+  Plain := Clipboard.AsText;
+  if not Found then
+    begin
 
+    end;
+  Refresh;
+end;
 procedure TfGridView.acResetFilterExecute(Sender: TObject);
 begin
   ClearFilters;
@@ -495,14 +517,98 @@ begin
     end;
 end;
 
+procedure AddHTMLToClipboard(AHTML: String);
+const
+  HTML_MIME = 'HTML Format';
+  NATIVEHEADER = 'Version:0.9' + #13#10 +
+                 'StartHTML:%.10d' + #13#10+
+                 'EndHTML:%.10d' + #13#10+
+                 'StartFragment:%.10d' + #13#10+
+                 'EndFragment:%.10d' + #13#10;
+  HEADER = '<html><head></head><body><!--StartFragment-->';
+  FOOTER1 = '<!--EndFragment-->';
+  FOOTER2 = '</body></html>';
+var
+  cfHTMLFormat: TClipboardFormat;
+  HTMLSource : String;
+  iStartHTML: Integer;
+  iStartFragment: Integer;
+  iEndFragment: Integer;
+  iEndHTML: Integer;
+
+begin
+  // Ensure the 'HTML Format' mime type is registered
+  cfHTMLFormat := Clipboard.FindFormatID(HTML_MIME);
+  If cfHTMLFormat = 0 Then
+    cfHTMLFormat := RegisterClipboardFormat(HTML_MIME);
+
+  iStartHTML := 105;
+  iStartFragment := iStartHTML + Length(HEADER);
+  iEndFragment := iStartFragment + Length(AHTML) + Length(FOOTER1);
+  iEndHTML := iEndFragment + LENGTH(FOOTER2);
+
+  // insert the native header and opening html tags at the start of the string
+  HTMLSource := Format(NATIVEHEADER, [iStartHTML, iEndHTML, iStartFragment,
+    iEndFragment]) + HEADER + AHTML + FOOTER1 + FOOTER2;
+
+  Clipboard.AddFormat(cfHTMLFormat, HTMLSource[1], Length(HTMLSource));
+end;
+
 procedure TfGridView.acCopyPositionExecute(Sender: TObject);
 var
   aXML: String;
+  aFilter : string = '';
+  aRow: LongInt;
+  Stream: TStringStream;
+  GRect: TGridRect;
+  S: String;
+  Plain: String;
+  HTML: String;
+  cfHTMLFormat: TClipboardFormat;
+  R: LongInt;
+  C: LongInt;
 begin
-  if GotoActiveRow then
+  //Filter Dataset
+  for aRow := gList.Selection.Top to gList.Selection.Bottom do
     begin
-      aXML := TBaseDBList(FDataSet).ExportToXML;
+      if GotoRowNumber(aRow) then
+      aFilter += ' or SQL_ID='+FDataSet.Id.AsString;
     end;
+  aFilter := copy(aFilter,5,length(aFilter));
+  FDataSet.DataSet.Filter:=aFilter;
+  FDataSet.DataSet.Filtered:=True;
+  Clipboard.Clear;
+  //Copy in HTML and Text
+  GRect := gList.Selection;
+  Plain  := '';
+  HTML := '<table>';
+  for R := GRect.Top to GRect.Bottom do
+    begin
+      HTML := HTML+'<tr>';
+      for C := GRect.Left to GRect.Right do
+        begin
+          if C = GRect.Right then
+            Plain += (gList.Cells[C, R])
+          else
+            Plain += gList.Cells[C, R] + #9;
+          HTML += '<td>'+(gList.Cells[C, R])+'</td>';
+        end;
+      HTML := HTML+'</tr>';
+      Plain := Plain + #13#10;
+    end;
+  HTML += '</table>';
+  ClipBoard.AsText := Plain;
+  Stream := TStringStream.Create(HTML);
+  Clipboard.AddFormat(ClipbrdFmtHTML,Stream);
+  Stream.Free;
+  AddHTMLToClipboard(HTML);
+  //Copy in own XML Format (with all Subdatasets)
+  aXML := TBaseDBList(FDataSet).ExportToXML;
+  Stream := TStringStream.Create(aXML);
+  Clipboard.AddFormat(RowClipboardFormat,Stream);
+  Stream.Free;
+  FDataSet.DataSet.Filtered:=false;
+  GotoActiveRow;
 end;
 
 procedure TfGridView.acChangeRowsExecute(Sender: TObject);

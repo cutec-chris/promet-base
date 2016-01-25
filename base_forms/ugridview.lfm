@@ -413,6 +413,7 @@ object fGridView: TfGridView
     object acPastePosition: TAction
       Caption = 'Zeile(n) einfügen'
       ImageIndex = 80
+      OnExecute = acPastePositionExecute
     end
   end
   object FDataSource: TDataSource

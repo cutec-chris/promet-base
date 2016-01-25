@@ -119,6 +119,9 @@ type
     MenuItem14: TMenuItem;
     MenuItem15: TMenuItem;
     MenuItem16: TMenuItem;
+    MenuItem17: TMenuItem;
+    miCopy: TMenuItem;
+    miPaste: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem20: TMenuItem;
     MenuItem21: TMenuItem;
@@ -1917,6 +1920,8 @@ begin
   miCopyLink.Action := FGridView.acCopyLink;
   pFilterOptions.Height:=0;
   CalendarDialog1.Date:=Now();
+  miCopy.Action := FGridView.acCopyPosition;
+  miPaste.Action := FGridView.acPastePosition;
 end;
 destructor TfTaskFrame.Destroy;
 var

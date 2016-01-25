@@ -161,6 +161,8 @@ var
   MainFrames : TClassList;
   PrometheusClipboardFormat : TClipboardFormat;
   LinkClipboardFormat : TClipboardFormat;
+  RowClipboardFormat : TClipboardFormat;
+  ClipbrdFmtHTML : TClipboardFormat;
 
 implementation
 uses uPassword,uMashineID,uError,StdCtrls,ExtCtrls,
@@ -1204,6 +1206,8 @@ end;
 initialization
   PrometheusClipboardFormat := RegisterClipboardFormat('PrometERP XML');
   LinkClipboardFormat := RegisterClipboardFormat('PrometERP Link');
+  RowClipboardFormat := RegisterClipboardFormat('PrometERP Row XML');
+  ClipbrdFmtHTML:=RegisterClipboardFormat('text/html');
   MainFrames := TClassList.Create;
   ObjectTypes := nil;
   RegisterClass(TSpeedButton);
