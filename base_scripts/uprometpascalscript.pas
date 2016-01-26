@@ -502,6 +502,27 @@ begin
             RegisterPropertyHelper(@TProjectPropertyMeasurementsR,nil,'MEASUREMENTS');
           end;
         //Orders
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBDataSet'),TOrderQMTestDetails) do
+          begin
+          end;
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBDataSet'),TOrderQMTest) do
+          begin
+            RegisterProperty('Details','TOrderQMTestDetail',iptR);
+          end;
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbDataSet'),TOrderRepairDetail) do
+          begin
+          end;
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbDataSet'),TOrderRepair) do
+          begin
+            RegisterProperty('Details','TOrderRepairDetail',iptR);
+          end;
+        with Sender.ClassImporter.Add(TOrderRepair) do
+          begin
+            RegisterPropertyHelper(@TOrderRepairDetailsR,nil,'DETAILS');
+          end;
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbDataSet'),TOrderRepairImages) do
+          begin
+          end;
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbPosition'),TOrderPos) do
           begin
           end;
