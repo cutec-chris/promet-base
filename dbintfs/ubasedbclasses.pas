@@ -1092,6 +1092,7 @@ function TBaseDbList.GetBookNumber: TField;
 var
   aField: String;
 begin
+  Result := nil;
   aField := GetBookNumberFieldName;
   if aField <> '' then
     Result := DataSet.FieldByName(aField);
@@ -1101,6 +1102,7 @@ function TBaseDbList.GetMatchcode: TField;
 var
   aField: String;
 begin
+  Result := nil;
   aField := GetMatchcodeFieldName;
   if aField <> '' then
     Result := DataSet.FieldByName(aField);
@@ -1109,6 +1111,7 @@ function TBaseDbList.GetBarcode: TField;
 var
   aField: String;
 begin
+  Result := nil;
   aField := GetBarcodeFieldName;
   if aField <> '' then
     Result := DataSet.FieldByName(aField);
@@ -1117,6 +1120,7 @@ function TBaseDbList.GetCommission: TField;
 var
   aField: String;
 begin
+  Result := nil;
   aField := GetCommissionFieldName;
   if aField <> '' then
     Result := DataSet.FieldByName(aField);
