@@ -58,6 +58,7 @@ type
     function GetTextFieldName: string;override;
     function GetNumberFieldName : string;override;
     function GetHistory: TBaseHistory;
+    function GetStatusFieldName: string;override;
   public
     constructor CreateEx(aOwner: TComponent; DM: TComponent;
       aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
@@ -344,6 +345,11 @@ end;
 function TBaseScript.GetHistory: TBaseHistory;
 begin
   Result := FHistory;
+end;
+
+function TBaseScript.GetStatusFieldName: string;
+begin
+  Result:='STATUS';
 end;
 
 constructor TBaseScript.CreateEx(aOwner: TComponent; DM: TComponent;

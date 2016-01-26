@@ -181,6 +181,8 @@ type
     ActiveSearch : TSearch;
     FEditable : Boolean;
     procedure DoOpen;override;
+    procedure ReplaceField(aField: TField; aOldValue: string;
+      var aNewValue: string);
     function SetRights : Boolean;
     procedure AddDocuments(Sender: TObject);
     procedure AddLinks(Sender: TObject);
@@ -221,7 +223,7 @@ begin
   TTreeEntry(Node1.Data).Typ := etMeetingList;
 end;
 
-procedure ReplaceField(aField: TField; aOldValue: string; var aNewValue: string
+procedure TfMeetingFrame.ReplaceField(aField: TField; aOldValue: string; var aNewValue: string
   );
 begin
   if aField.FieldName='NAME' then

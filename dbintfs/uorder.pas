@@ -182,6 +182,8 @@ type
     FOrderAddress: TOrderAddress;
     FOrderPos: TOrderPos;
     function GetCommission: TField;
+    procedure ReplaceParentFields(aField: TField; aOldValue: string;
+      var aNewValue: string);
     function Round(Value: Extended): Extended;
   public
     constructor CreateEx(aOwner : TComponent;DM : TComponent=nil;aConnection : TComponent = nil;aMasterdata : TDataSet = nil);override;
@@ -229,7 +231,7 @@ resourcestring
 
 { TRepairImageLinks }
 
-procedure ReplaceParentFields(aField: TField; aOldValue: string;
+procedure Torder.ReplaceParentFields(aField: TField; aOldValue: string;
   var aNewValue: string);
 var
   aRec: Variant;

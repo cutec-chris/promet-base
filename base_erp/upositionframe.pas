@@ -55,7 +55,6 @@ type
     acSum: TAction;
     acDiscount: TAction;
     acSavePos: TAction;
-    Action1: TAction;
     acWork: TAction;
     acViewTexts: TAction;
     acViewDetails: TAction;
@@ -590,12 +589,15 @@ procedure TfPosition.acWorkExecute(Sender: TObject);
 begin
   if not Assigned(FAutomation) then
     FAutomation := TFAutomation.Create(nil);
-  FAutomation.DataSet := TBaseDBPosition(Dataset);
-  FAutomation.Clear;
-  FAutomation.DoAddPosition;
-  FAutomation.SelectFirstStep;
-  FAutomation.ShowModal;
-  FreeAndNil(FAutomation);
+  if FGridView.GotoActiveRow then
+    begin
+      FAutomation.DataSet := TBaseDBPosition(Dataset);
+      FAutomation.Clear;
+      FAutomation.DoAddPosition;
+      FAutomation.SelectFirstStep;
+      FAutomation.ShowModal;
+      FreeAndNil(FAutomation);
+    end;
 end;
 
 procedure TfPosition.acRefreshExecute(Sender: TObject);

@@ -450,9 +450,6 @@ inherited fPosition: TfPosition
       ImageIndex = 128
       OnExecute = acWorkExecute
     end
-    object Action1: TAction
-      Caption = 'Action1'
-    end
   end
   object TabTimer: TIdleTimer[5]
     Enabled = False

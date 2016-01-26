@@ -27,7 +27,7 @@ uses
 type
   { TBaseDBDataset }
 
-  TReplaceFieldFunc = procedure(aField : TField;aOldValue : string;var aNewValue : string);
+  TReplaceFieldFunc = procedure(aField : TField;aOldValue : string;var aNewValue : string) of object;
 
   TBaseDBDataset = class(TAbstractDBDataset)
   private

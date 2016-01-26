@@ -198,6 +198,8 @@ type
     procedure SearchKeyTimerTimer(Sender: TObject);
   private
     FFEditPrefix: string;
+    procedure ReplacePasteFields(aField: TField; aOldValue: string;
+      var aNewValue: string);
     procedure SetEditPrefix(AValue: string);
   private
     ColumnWidthHelper : TColumnWidthHelper;
@@ -208,6 +210,7 @@ type
     FbaseFilter: string;
     FBeforeInsert: TNotifyEvent;
     FBeforInsert: TNotifyEvent;
+    FPasteParent: String;
     FCBToggle: TFieldEvent;
     fDefaultRows: string;
     FDelete: TNotifyEvent;
@@ -399,6 +402,14 @@ uses uRowEditor,LCLType,LCLProc,LCLIntf,Themes,uIntfStrConsts,
   uData,uBaseVisualApplication,Math;
 { TRowObject }
 
+procedure TfGridView.ReplacePasteFields(aField: TField; aOldValue: string;
+  var aNewValue: string);
+begin
+  if TreeField<>'' then
+    if aField.FieldName=TreeField then
+      aNewValue := FPasteParent;
+end;
+
 function TRowObject.GetStringRec: string;
 begin
   if Assigned(Self) then
@@ -474,6 +485,8 @@ var
   Stream: TStringStream;
   Plain: String;
 begin
+  if (TreeField<>'') and GotoActiveRow then
+    FPasteParent := DataSet.FieldByName(TreeField).AsString;
   //Try to import our own clipboard format
   if Clipboard.HasFormat(RowClipboardFormat) then
     begin
@@ -481,7 +494,7 @@ begin
       if Clipboard.GetFormat(RowClipboardFormat,Stream) then
         begin
           Found := True;
-          FDataSet.ImportFromXML(Stream.DataString);
+          FDataSet.ImportFromXML(Stream.DataString,False,@ReplacePasteFields);
         end;
     end;
   //TODO:If not there use Text
