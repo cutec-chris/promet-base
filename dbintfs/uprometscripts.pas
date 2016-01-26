@@ -44,6 +44,8 @@ type
     FWriFunc: TStrOutFunc;
     FScript : TScript;
     FSelectedName : variant;
+    FStatus : string;
+    FStateChange: TNotifyEvent;
     function GetScript: TScript;
     function GetVersion: TField;
     procedure SetDWRFunc(AValue: TStrOutFunc);
@@ -62,6 +64,7 @@ type
     procedure DefineFields(aDataSet: TDataSet); override;
     procedure FillDefaults(aDataSet: TDataSet); override;
     function SelectByName(aName: string): Boolean;
+    procedure Open; override;
     property Script : TScript read GetScript;
     procedure ResetScript;
     function Execute(Parameters : Variant;Debug : Boolean = False) : Boolean;virtual;
@@ -78,6 +81,7 @@ type
     function Versionate(aNewversion : Variant;aMakeActive : Boolean = True) : Boolean;
     function Compile : Boolean;
     destructor Destroy;override;
+    property OnStateChange : TNotifyEvent read FStateChange write FStateChange;
   end;
 
   TSQLScript = class(TScript)
@@ -270,11 +274,21 @@ end;
 
 procedure TBaseScript.FDataSourceDataChange(Sender: TObject; Field: TField);
 begin
-  if Assigned(Field) then
+  if not Assigned(Field) then exit;
+  if DataSet.ControlsDisabled then exit;
+  if Field.FieldName='SCRIPT' then
+    if Assigned(GetScript) then
+      FScript.Source:=Field.AsString;
+  if (Dataset.State <> dsInsert) and (Field.FieldName = 'STATUS') then
     begin
-      if Field.FieldName='SCRIPT' then
-        if Assigned(GetScript) then
-          FScript.Source:=Field.AsString;
+      if not History.DataSet.Active then
+        History.Open;
+      if FStatus=Field.AsString then exit;
+      History.AddItem(Self.DataSet,Format(strStatusChanged,[FStatus,Field.AsString]),'','',DataSet,ACICON_STATUSCH);
+      FStatus := Field.AsString;
+      if Assigned(FStateChange) then
+        FStateChange(Self);
+      OpenItem(False);
     end;
 end;
 
@@ -393,6 +407,12 @@ begin
         Filter := Data.QuoteField('NAME')+'='+Data.QuoteValue(aName);
         FSelectedName := aName;
       end;
+end;
+
+procedure TBaseScript.Open;
+begin
+  inherited Open;
+  FStatus := Status.AsString;
 end;
 
 procedure TBaseScript.ResetScript;
