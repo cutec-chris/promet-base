@@ -459,14 +459,17 @@ begin
         HintInfo^.HintStr:=TLoadedLib(LoadedLibs[i]).Code;
         exit;
       end;
-  if Assigned(Fscript) then
-    begin
-      aCont := FScript.GetVarContents(aWord);
-      if aCont<>'' then
-        begin
-          HintInfo^.HintStr:=aWord+':'+aCont;
-        end;
-    end;
+  try
+    if Assigned(Fscript) then
+      begin
+        aCont := FScript.GetVarContents(aWord);
+        if aCont<>'' then
+          begin
+            HintInfo^.HintStr:=aWord+':'+aCont;
+          end;
+      end;
+  except
+  end;
 end;
 
 procedure TfScriptEditor.acSyntaxcheckExecute(Sender: TObject);

@@ -121,6 +121,10 @@ procedure TObjectPropertyMeasurementsR(Self : TObjects;var T : TMeasurement);beg
 procedure TMasterdataPropertyMeasurementsR(Self : TMasterdata;var T : TMeasurement);begin T := Self.Measurements; end;
 procedure TProjectPropertyMeasurementsR(Self : TProject;var T : TMeasurement);begin T := Self.Measurements; end;
 procedure TBaseDbListPropertyDependenciesR(Self : TTaskList;var T : TDependencies);begin T := Self.Dependencies; end;
+procedure TOrderQMTestDetailsR(Self : TOrderQMTest;var T : TOrderQMTestDetails);begin T := Self.Details; end;
+procedure TOrderRepairDetailsR(Self : TOrderRepair;var T : TOrderRepairDetail);begin T := Self.Details; end;
+procedure TOrderPosRepairR(Self : TOrderPos;var T : TOrderRepair);begin T := Self.Repair; end;
+procedure TOrderPosQMTestR(Self : TOrderPos;var T : TOrderQMTest);begin T := Self.QMTest; end;
 
 procedure TPrometPascalScript.FReportGetValue(const ParName: String;
   var ParValue: Variant);
@@ -507,7 +511,11 @@ begin
           end;
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBDataSet'),TOrderQMTest) do
           begin
-            RegisterProperty('Details','TOrderQMTestDetail',iptR);
+            RegisterProperty('Details','TOrderQMTestDetails',iptR);
+          end;
+        with Sender.ClassImporter.Add(TOrderQMTest) do
+          begin
+            RegisterPropertyHelper(@TOrderQMTestDetailsR,nil,'DETAILS');
           end;
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbDataSet'),TOrderRepairDetail) do
           begin
@@ -525,9 +533,13 @@ begin
           end;
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbPosition'),TOrderPos) do
           begin
+            RegisterProperty('QMTest','TOrderQMTest',iptR);
+            RegisterProperty('Repair','TOrderRepair',iptR);
           end;
         with Sender.ClassImporter.Add(TOrderPos) do
           begin
+            RegisterPropertyHelper(@TOrderPosRepairR,nil,'REPAIR');
+            RegisterPropertyHelper(@TOrderPosQMTestR,nil,'QMTEST');
           end;
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbAddress'),TOrderAddress) do
           begin
@@ -640,7 +652,7 @@ begin
           with BaseApplication as IBaseApplication do
             Debug('Uses get Unit from Database:'+aName);
           aScript := TBaseScript.CreateEx(nil,Data);
-          aScript.Filter(Data.ProcessTerm('UPPER('+Data.QuoteField('NAME')+')=UPPER('+Data.QuoteValue(aName)+')'));
+          aScript.Filter(Data.ProcessTerm('UPPER('+Data.QuoteField('NAME')+')=UPPER('+Data.QuoteValue(aName)+') AND '+Data.QuoteField('ACTIVE')+'='+Data.QuoteValue('Y')));
           if aScript.Count>0 then
             if aScript.Locate('NAME',aName,[loCaseInsensitive]) then
               Result := Sender.Compiler.Compile(aScript.FieldByName('SCRIPT').AsString);

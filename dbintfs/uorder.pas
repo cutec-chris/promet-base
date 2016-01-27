@@ -613,6 +613,7 @@ begin
             Add('ID',ftLargeint,0,False);
             Add('NAME',ftString,20,False);
             Add('RESULT',ftString,1,False);
+            Add('SERIAL',ftString,30,False);
             Add('NOTES',ftMemo,0,False);
             Add('RAWDATA',ftMemo,0,False);
             Add('TESTTIME',ftDateTime,0,False);
