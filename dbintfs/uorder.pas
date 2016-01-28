@@ -579,7 +579,11 @@ begin
       if Assigned(ManagedFieldDefs) then
         with ManagedFieldDefs do
           begin
+            Add('MODUL',ftString,60,False);
             Add('STEP',ftInteger,0,False);
+            Add('NAME',ftString,60,False);
+            Add('TYPE',ftString,10,False);
+            Add('UNIT',ftString,20,False);
             Add('EXPECTED',ftMemo,0,False);
             Add('RESULT',ftMemo,0,False);
             Add('RESULTSHORT',ftString,1,False);
