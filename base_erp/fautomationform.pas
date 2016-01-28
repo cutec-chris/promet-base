@@ -445,7 +445,11 @@ begin
         begin
           //nach Artikel/Version suchen (Sprache ignorieren)
           if not aMasterdata.Locate('ID;VERSION',VarArrayOf([DataSet.FieldByName('IDENT').AsString,DataSet.FieldByName('VERSION').AsString]),[]) then
-            aMasterdata.Close;
+            if not aMasterdata.Locate('ID;VERSION',VarArrayOf([DataSet.FieldByName('IDENT').AsString,DataSet.FieldByName('VERSION').AsString]),[]) then
+              if (DataSet.FieldByName('VERSION').AsString='') and (not aMasterdata.Locate('ID;VERSION',VarArrayOf([DataSet.FieldByName('IDENT').AsString,Null]),[])) then
+                aMasterdata.Close
+              else if (DataSet.FieldByName('VERSION').AsString<>'') then
+                aMasterdata.Close;
         end;
       if aMasterdata.Active then
         begin
