@@ -3177,10 +3177,11 @@ begin
             Result := CreateTable;
             TBaseDBModule(DataModule).Tables.Clear;
           end;
+      {
       if not Result then
         begin
           aTableName:=TableName;
-          if (not Assigned(Data)) or (Data.ShouldCheckTable(aTableName,True)) then
+          if (not Assigned(Data)) or (Data.ShouldCheckTable(aTableName)) then
             begin
               with DataSet as IBaseDbFilter do
                 begin
@@ -3200,7 +3201,7 @@ begin
                   Filter := aOldFilter;
                 end;
             end;
-        end;
+        end;}
     end;
 end;
 procedure TBaseDBDataset.DefineDefaultFields(aDataSet: TDataSet;
