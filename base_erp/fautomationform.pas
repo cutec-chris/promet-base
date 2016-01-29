@@ -82,6 +82,7 @@ type
   private
     FDataSet: TBaseDBPosition;
     FSelStep: TNotifyEvent;
+    fScript : TBaseScript;
     nComm : TTreeNode;
     procedure SetDataSet(AValue: TBaseDBPosition);
     function FindNextStep: Boolean;
@@ -94,6 +95,7 @@ type
     procedure DoOpen;
     procedure DoAddPosition;
     procedure SelectFirstStep;
+    property Script : TBaseScript read fScript;
     property OnSelectStep : TNotifyEvent read FSelStep write FSelStep;
   end;
 
@@ -159,17 +161,20 @@ begin
           TreeData.Script.ActualObject := DataSet.Parent;
           TreeData.Script.Script.OnRunLine:=@TreeDataScriptScriptRunLine;
           if Assigned(TreeData.Script) then
-            if not TreeData.Script.Execute(Null) then
-              begin
-                if not Assigned(TreeData.Script.Script) then
-                  TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:Scripttyp unbekannt</b>')
-                else
-                  TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:'+TreeData.Script.Script.Results+'</b>');
-                TreeData.ShowData;
-                FAutomation.ipWorkHTML.Repaint;
-                FAutomation.ipWorkHTML.Scroll(hsaEnd);
-                Application.ProcessMessages;
-              end;
+            begin
+              FScript := TreeData.Script;
+              if not TreeData.Script.Execute(Null) then
+                begin
+                  if not Assigned(TreeData.Script.Script) then
+                    TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:Scripttyp unbekannt</b>')
+                  else
+                    TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:'+TreeData.Script.Script.Results+'</b>');
+                  TreeData.ShowData;
+                  FAutomation.ipWorkHTML.Repaint;
+                  FAutomation.ipWorkHTML.Scroll(hsaEnd);
+                  Application.ProcessMessages;
+                end;
+            end;
           acExecuteStep.Checked:=False;
           acExecuteStep.Caption:=strRun;
         end
@@ -702,6 +707,7 @@ var
   aHTML: TSimpleIpHtml;
   ss: TStringStream;
 begin
+  FAutomation.FScript := nil;
   FAutomation.acPrepare.Enabled:=PreText.Text<>'';
   FAutomation.acProduce.Enabled:=True;
   FAutomation.acReady.Enabled:=True;
@@ -746,7 +752,10 @@ begin
       FAutomation.bExecute.Action:=FAutomation.acExecuteStep;
     end;
   if Assigned(Script) and (Script.Count>0) then
-    FAutomation.acExecuteStep.Enabled:=(Prepared or ((PreText.Text=''))) and (Assigned(Script));
+    begin
+      FAutomation.acExecuteStep.Enabled:=(Prepared or ((PreText.Text=''))) and (Assigned(Script));
+      FAutomation.FScript := Script;
+    end;
   FAutomation.acExecutePrepareStep.Enabled:=Assigned(Preparescript) and (Preparescript.Count>0);
 end;
 procedure TProdTreeData.LoadScript(aScript: string; aVersion: Variant);
