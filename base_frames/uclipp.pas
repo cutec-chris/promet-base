@@ -64,6 +64,7 @@ begin
   //Clipboard
   aClip := fMainTreeFrame.tvMain.Items.AddChildObject(MainNode,strClipboard,TTreeEntry.Create);
   TTreeEntry(aClip.Data).Typ := etClipboard;
+  Data.Tree.Open;
   Data.Tree.DataSet.Filter:='(('+Data.QuoteField('PARENT')+'='+Data.QuoteValue('0')+') and ('+Data.QuoteField('TYPE')+'='+Data.QuoteValue('Z')+'))';
   Data.Tree.DataSet.Filtered:=True;
   Data.Tree.DataSet.First;

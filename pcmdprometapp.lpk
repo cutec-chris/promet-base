@@ -10,7 +10,7 @@
         <UnitOutputDirectory Value="lib/cmd/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="2">
+    <Files Count="3">
       <Item1>
         <Filename Value="ubasecustomapplication.pas"/>
         <UnitName Value="uBaseCustomApplication"/>
@@ -19,6 +19,10 @@
         <Filename Value="upowerstate.pas"/>
         <UnitName Value="uPowerState"/>
       </Item2>
+      <Item3>
+        <Filename Value="heaptrc_big.pp"/>
+        <UnitName Value="heaptrc_big"/>
+      </Item3>
     </Files>
     <RequiredPkgs Count="2">
       <Item1>

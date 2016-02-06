@@ -84,6 +84,7 @@ type
     procedure cbToExit(Sender: TObject);
     procedure cbToKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure cbToKeyPress(Sender: TObject; var Key: char);
+    procedure cbToKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure dbMandantmsgWalkPart(const Sender: TMimePart);
     procedure eSubjectChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -474,7 +475,14 @@ begin
     end;
   end;
 end;
+
 procedure TfMessageEdit.cbToKeyPress(Sender: TObject; var Key: char);
+begin
+
+end;
+
+procedure TfMessageEdit.cbToKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
 var
   SearchTypes : TFullTextSearchTypes = [];
   SearchLocations : TSearchLocations;
@@ -502,6 +510,7 @@ begin
       while ActiveSearch.Active do Application.ProcessMessages;
     end;
 end;
+
 procedure TfMessageEdit.acCloseExecute(Sender: TObject);
 begin
   Close;
