@@ -470,12 +470,12 @@ begin
       if Assigned(MainForm) then
         begin
           aWS := TWindowState(Config.ReadInteger('MainFormState',Integer(wsNormal)));
+          Config.ReadRect('MainFormPos',NewRect,MainForm.BoundsRect);
+          MainForm.BoundsRect := NewRect;
           if (aWs <> wsMinimized)
           and (aWs <> Mainform.WindowState)
           then
             begin
-              Config.ReadRect('MainFormPos',NewRect,MainForm.BoundsRect);
-              MainForm.BoundsRect := NewRect;
               Mainform.WindowState:=aWS;
             end;
         end;

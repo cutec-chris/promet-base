@@ -7,6 +7,8 @@ object FAutomation: TFAutomation
   ClientHeight = 640
   ClientWidth = 804
   Color = clWindow
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   LCLVersion = '1.4.4.0'
   object ToolBar1: TPanel
     Left = 15

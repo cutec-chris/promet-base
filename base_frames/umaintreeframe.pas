@@ -132,6 +132,7 @@ type
     procedure acSearchExecute(Sender: TObject);
     procedure DblClickTimerTimer(Sender: TObject);
     procedure DeleteNodeCall(Data: PtrInt);
+    procedure GetTreeChildren(Data: PtrInt);
     procedure tvMainAdvancedCustomDrawItem(Sender: TCustomTreeView;
       Node: TTreeNode; State: TCustomDrawState; Stage: TCustomDrawStage;
       var PaintImages, DefaultDraw: Boolean);
@@ -161,6 +162,7 @@ type
     FSelChanged: TSelectionChangedEvent;
     FSerachOptions: string;
     FLastSelected: TTreeEntry;
+    FAsyncTime: TDateTime;
     { private declarations }
   public
     { public declarations }
@@ -867,6 +869,48 @@ begin
   except
   end;
 end;
+
+procedure TfMainTree.GetTreeChildren(Data: PtrInt);
+var
+  Node1: TTreeNode;
+  aProject: TProject;
+  aMasterdata: TMasterdata;
+begin
+  try
+  Node1 := TTreeNode(Pointer(Data));
+  if Assigned(Node1.Data) then
+    begin
+      if (TTreeEntry(Node1.Data).Typ=etProject) or (TTreeEntry(Node1.Data).Typ=etProcess) or (TTreeEntry(Node1.Data).Typ=etProcess) then
+        begin
+          aProject := TProject.Create(nil);
+          aProject.SelectFromLink(TTreeEntry(Node1.Data).Link);
+          aProject.Open;
+          aProject.SelectFromParent(aProject.Id.AsVariant);
+          aProject.Open;
+          Node1.HasChildren := aProject.Count>0;
+          aProject.Free;
+        end
+      else if (TTreeEntry(Node1.Data).Typ=etArticle) then
+        begin
+          aMasterdata := TMasterdata.Create(nil);
+          aMasterdata.SelectFromLink(TTreeEntry(Node1.Data).Link);
+          aMasterdata.Open;
+          aMasterdata.Positions.Open;
+          Node1.HasChildren := aMasterdata.Positions.Count>0;
+          aMasterdata.Free;
+        end
+      else if Assigned(Node1) and Assigned(Node1.TreeView) then
+        Node1.HasChildren := False;
+      if Now()-FAsyncTime>300 then
+        begin
+          Application.ProcessMessages;
+          FAsyncTime := Now();
+        end;
+    end;
+  except
+  end;
+end;
+
 resourcestring
   strMyTasks                    = 'meine Aufgaben';
   strFinancial                  = 'Finanzen';
@@ -1156,8 +1200,12 @@ begin
 end;
 procedure TfMainTree.tvMainDeletion(Sender: TObject; Node: TTreeNode);
 begin
+  Application.RemoveAsyncCalls(Node);
   if Assigned(Node.Data) then
-    TTreeEntry(Node.Data).Free;
+    begin
+      TTreeEntry(Node.Data).Free;
+      Node.Data := nil;
+    end;
 end;
 procedure TfMainTree.tvMainDragDrop(Sender, Source: TObject; X, Y: Integer);
 var
@@ -1753,27 +1801,8 @@ var
   bMasterdata: TMasterdata;
   function GetHasChildren(aNode : TTreeNode) : Boolean;
   begin
-    Result := False;
-    if (TTreeEntry(Node1.Data).Typ=etProject) or (TTreeEntry(Node1.Data).Typ=etProcess) or (TTreeEntry(Node1.Data).Typ=etProcess) then
-      begin
-        aProject := TProject.Create(nil);
-        aProject.SelectFromParent(aList.Id.AsVariant);
-        aProject.Open;
-        Result := aProject.Count>0;
-        aProject.Free;
-      end
-    else if (TTreeEntry(Node1.Data).Typ=etArticle) then
-      begin
-        if aList is TMasterdata then
-          begin
-            aMasterdata.Positions.Open;
-            result := aMasterdata.Positions.Count>0;
-          end
-        else
-          begin
-            result := True;
-          end;
-      end;
+    Result := True;
+    Application.QueueAsyncCall(@GetTreeChildren,PtrInt(aNode));
   end;
   procedure AddEntry;
   var
@@ -2045,7 +2074,10 @@ begin
       aTyp := etArticle;
       Node.DeleteChildren;
       aMasterdata := TMasterdata.Create(nil);
-      aMasterdata.Select(DataT.Rec);
+      if DataT.Rec<>0 then
+        aMasterdata.Select(DataT.Rec)
+      else
+        aMasterdata.SelectFromLink(DataT.Link);
       aMasterdata.Open;
       aMasterdata.Positions.Open;
       if aMasterdata.Positions.Count>0 then
@@ -2056,6 +2088,13 @@ begin
             begin
               if aMasterdata.Positions.FieldByName('IDENT').AsString <> '' then
                 begin
+                  Node1 := tvMain.Items.AddChildObject(Node,'',TTreeEntry.Create);
+                  TTreeEntry(Node1.Data).Link := 'MASTERDATA@'+aMasterdata.Positions.FieldByName('IDENT').AsString+'&&'+aMasterdata.Positions.FieldByName('VERSION').AsString+'&&'+aMasterdata.Positions.FieldByName('LANGUAGE').AsString;
+                  TTreeEntry(Node1.Data).Text[0] := aMasterdata.Positions.FieldByName('SHORTTEXT').AsString+' ('+aMasterdata.Positions.FieldByName('IDENT').AsString+')';
+                  TTreeEntry(Node1.Data).Typ := etArticle;
+                  TTreeEntry(Node1.Data).Rec:=0;
+                  Node1.HasChildren:=GetHasChildren(Node1);
+                 {
                   bMasterdata.Select(aMasterdata.Positions.FieldByName('IDENT').AsString,aMasterdata.Positions.FieldByName('VERSION').AsString,aMasterdata.Positions.FieldByName('LANGUAGE').AsString);
                   bMasterdata.Open;
                   if bMasterdata.Count=0 then
@@ -2069,6 +2108,7 @@ begin
                       AddEntry;
                       Node1.HasChildren:=True;
                     end;
+                  }
                 end;
               aMasterdata.Positions.Next;
             end;

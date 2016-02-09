@@ -27,9 +27,22 @@ uses
   Classes, SysUtils, FileUtil, IpHtml, LResources, Forms, Controls, Graphics,
   Dialogs, ExtCtrls, StdCtrls, Buttons, ActnList, ComCtrls,uBaseDbClasses,
   uBaseERPDBClasses,uprometscripts,uDocuments,uprometpascalscript,
-  genpascalscript,genscript,db;
+  genpascalscript,genscript,db,blcksock,synsock;
 
 type
+  TTCPCommandDaemon = class(TThread)
+  private
+    FOnData: TNotifyEvent;
+    FSocket:TTCPBlockSocket;
+    FData : string;
+    procedure DoData;
+  public
+    constructor Create;
+    Destructor Destroy; override;
+    procedure Execute; override;
+    property Data : string read FData;
+    property OnData : TNotifyEvent read FOnData write FOnData;
+  end;
   TFAutomation = class(TForm)
     acAbort: TAction;
     acExecuteStep: TAction;
@@ -76,6 +89,8 @@ type
     procedure acProduceExecute(Sender: TObject);
     procedure acReadyExecute(Sender: TObject);
     procedure fLogWaitFormbAbortClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure TreeDataScriptScriptRunLine(Sender: TScript; Module: string;
       aPosition, aRow, aCol: Integer);
     procedure tvStepSelectionChanged(Sender: TObject);
@@ -84,6 +99,8 @@ type
     FSelStep: TNotifyEvent;
     fScript : TBaseScript;
     nComm : TTreeNode;
+    FSocket : TTCPCommandDaemon;
+    procedure FSocketData(Sender: TObject);
     procedure SetDataSet(AValue: TBaseDBPosition);
     function FindNextStep: Boolean;
     function LoadStep : Boolean;
@@ -142,6 +159,71 @@ resourcestring
   strRunning                            = 'wird ausgeführt...';
   strRun                                = 'Ausführen';
   strNotmoreSteps                       = 'Es sind keine (weiteren) Arbeitschritte vorhanden.<br><br>Um einen neuen Auftrag auswählen zu können müssen Sie den Auftrag (ab)schließen';
+
+procedure TTCPCommandDaemon.DoData;
+begin
+  if Assigned(FOnData) then
+    FOnData(Self);
+end;
+
+constructor TTCPCommandDaemon.Create;
+begin
+  FSocket:=TTCPBlockSocket.create;
+  FreeOnTerminate:=true;
+  inherited Create(false);
+end;
+
+destructor TTCPCommandDaemon.Destroy;
+begin
+  FSocket.Free;
+  inherited Destroy;
+end;
+
+procedure TTCPCommandDaemon.Execute;
+var
+  ClientSock: TSocket;
+  ConnectionSocket: TTCPBlockSocket;
+begin
+  ConnectionSocket := TTCPBlockSocket.Create;
+  FSocket.CreateSocket;
+  FSocket.setLinger(true,10);
+  FSocket.Bind('localhost','9874');
+  FSocket.Listen;
+  if FSocket.LastError = 0 then
+    begin
+      while not Terminated do
+        begin
+          if FSocket.CanRead(300) then
+            begin
+              ConnectionSocket.Socket := FSocket.accept;
+              FData := ConnectionSocket.RecvString(10000);
+              if FData<>'' then
+                Synchronize(@DoData);
+              ConnectionSocket.CloseSocket;
+            end;
+        end;
+   end;
+end;
+
+procedure TFAutomation.FSocketData(Sender: TObject);
+var
+  aFunction: String;
+  aParams : array of Variant;
+  aRes : Variant;
+  tmp: String;
+begin
+  Setlength(aParams,0);
+  aFunction := TTCPCommandDaemon(Sender).Data;
+  if pos('(',aFunction)>0 then
+    begin
+      tmp := copy(aFunction,pos('(',aFunction)+1,length(aFunction));
+      tmp := copy(tmp,0,length(tmp)-2);
+      aFunction:=copy(aFunction,0,pos('(',aFunction)-1);
+    end;
+  if Assigned(FAutomation.Script) then
+    aRes := FAutomation.Script.Script.RunScriptFunction(aParams,aFunction);
+  TTCPCommandDaemon(Sender).FSocket.SendString(aRes);
+end;
 
 procedure TFAutomation.acExecuteStepExecute(Sender: TObject);
 var
@@ -261,6 +343,18 @@ end;
 procedure TFAutomation.fLogWaitFormbAbortClick(Sender: TObject);
 begin
   fLogWaitForm.Close;
+end;
+
+procedure TFAutomation.FormCreate(Sender: TObject);
+begin
+  FSocket := TTCPCommandDaemon.Create;
+  FSocket.OnData:=@FSocketData;
+end;
+
+procedure TFAutomation.FormDestroy(Sender: TObject);
+begin
+  FSocket.Terminate;
+  FSocket.WaitFor;
 end;
 
 procedure TFAutomation.TreeDataScriptScriptRunLine(Sender: TScript;
