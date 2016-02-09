@@ -73,6 +73,8 @@ begin
   Customers := TPerson.Create(nil);
   if Customers.SelectFromContactData(atmp) then
     begin
+      Customers.Open;
+      Customers.History.Open;
       try
       Customers.History.AddItem(Customers.DataSet,Format(strActionMessageReceived,[aSubject]),
                                 'MESSAGEIDX@'+mID+'{'+aSubject+'}',

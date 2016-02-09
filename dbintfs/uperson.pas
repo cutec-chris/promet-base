@@ -825,7 +825,6 @@ begin
       end;
   except
   end;
-  Self.Close;
   CustomerCont.Free;
 end;
 
