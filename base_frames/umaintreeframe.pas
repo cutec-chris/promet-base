@@ -901,7 +901,7 @@ begin
         end
       else if Assigned(Node1) and Assigned(Node1.TreeView) then
         Node1.HasChildren := False;
-      if Now()-FAsyncTime>300 then
+      if ((Now()-FAsyncTime)*MSecsPerDay)>300 then
         begin
           Application.ProcessMessages;
           FAsyncTime := Now();
@@ -1803,6 +1803,7 @@ var
   begin
     Result := True;
     Application.QueueAsyncCall(@GetTreeChildren,PtrInt(aNode));
+    FAsyncTime := Now();
   end;
   procedure AddEntry;
   var
