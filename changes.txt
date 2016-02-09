@@ -9,6 +9,7 @@
       - Positionseditor:Farbliche hervorhebung von Artikelnummern (Artikel vorhanden/nicht vorhanden), Mengen (Am Lager verfügbar/nicht verfügbar)
       - Gridview (Positionseditor,Aufgabeneditor) Zeilen kopierbar/einfügbar über Zwischenablage. Auch nach Excel/Openoffice kopierbar (Text und HTML Format)
       - IMAPServer:Fehler in der Befehsverarbeitung beseitigt, konnte zu undefiniertem Verhalten führen (ab und an Befehle ignoriert)
+      - Baumansichten:Strukturframes und Baum werden asynchron auf Untereinträge untersucht daher viel schnellere Ansicht
 Build 421
       - DAVServer:komplett auf Synapse portiert (SSL Support,Threading)
       - DAVServer:gegen davfs2 getestet/und angepasst
