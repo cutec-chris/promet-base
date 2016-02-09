@@ -37,6 +37,7 @@ type
     FData : string;
     procedure DoData;
   public
+    ConnectionSocket: TTCPBlockSocket;
     constructor Create;
     Destructor Destroy; override;
     procedure Execute; override;
@@ -182,7 +183,6 @@ end;
 procedure TTCPCommandDaemon.Execute;
 var
   ClientSock: TSocket;
-  ConnectionSocket: TTCPBlockSocket;
 begin
   ConnectionSocket := TTCPBlockSocket.Create;
   FSocket.CreateSocket;
@@ -196,9 +196,12 @@ begin
           if FSocket.CanRead(300) then
             begin
               ConnectionSocket.Socket := FSocket.accept;
-              FData := ConnectionSocket.RecvString(10000);
-              if FData<>'' then
-                Synchronize(@DoData);
+              FData := ConnectionSocket.RecvTerminated(600,CRLF);
+              try
+                if FData<>'' then
+                  Synchronize(@DoData);
+              except
+              end;
               ConnectionSocket.CloseSocket;
             end;
         end;
@@ -220,9 +223,18 @@ begin
       tmp := copy(tmp,0,length(tmp)-2);
       aFunction:=copy(aFunction,0,pos('(',aFunction)-1);
     end;
-  if Assigned(FAutomation.Script) then
-    aRes := FAutomation.Script.Script.RunScriptFunction(aParams,aFunction);
-  TTCPCommandDaemon(Sender).FSocket.SendString(aRes);
+  try
+    if Assigned(FAutomation.Script) then
+      aRes := FAutomation.Script.Script.RunScriptFunction(aParams,aFunction);
+  except
+    on E : Exception do
+      begin
+        TTCPCommandDaemon(Sender).ConnectionSocket.SendString(e.Message+CRLF);
+        ares := Null;
+      end;
+  end;
+  if (ares <> Null) then
+    TTCPCommandDaemon(Sender).ConnectionSocket.SendString(VarToStr(ares)+CRLF);
 end;
 
 procedure TFAutomation.acExecuteStepExecute(Sender: TObject);
