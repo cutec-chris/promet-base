@@ -4,7 +4,7 @@ object fScriptEditor: TfScriptEditor
   Top = 180
   Width = 1039
   Caption = 'Editor'
-  ClientHeight = 580
+  ClientHeight = 579
   ClientWidth = 1039
   Color = clBtnFace
   Font.Color = clWindowText
@@ -14,11 +14,11 @@ object fScriptEditor: TfScriptEditor
   OnClose = FormClose
   OnCreate = FormCreate
   Position = poDesktopCenter
-  LCLVersion = '1.5'
+  LCLVersion = '1.7'
   object StatusBar: TStatusBar
     Left = 0
     Height = 23
-    Top = 557
+    Top = 556
     Width = 1039
     Panels = <    
       item
@@ -31,17 +31,17 @@ object fScriptEditor: TfScriptEditor
   end
   object pDetail: TPanel
     Left = 285
-    Height = 557
+    Height = 556
     Top = 0
     Width = 754
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 557
+    ClientHeight = 556
     ClientWidth = 754
     TabOrder = 1
     inline ed: TSynEdit
       Left = 0
-      Height = 437
+      Height = 436
       Top = 32
       Width = 754
       Align = alClient
@@ -488,7 +488,6 @@ object fScriptEditor: TfScriptEditor
         'end.'
       )
       VisibleSpecialChars = [vscSpace, vscTabAtLast]
-      SelectedColor.FrameEdges = sfeAround
       SelectedColor.BackPriority = 50
       SelectedColor.ForePriority = 50
       SelectedColor.FramePriority = 50
@@ -496,23 +495,17 @@ object fScriptEditor: TfScriptEditor
       SelectedColor.ItalicPriority = 50
       SelectedColor.UnderlinePriority = 50
       SelectedColor.StrikeOutPriority = 50
-      IncrementColor.FrameEdges = sfeAround
-      HighlightAllColor.FrameEdges = sfeAround
       BracketHighlightStyle = sbhsBoth
       BracketMatchColor.Background = clNone
       BracketMatchColor.Foreground = clNone
-      BracketMatchColor.FrameEdges = sfeAround
       BracketMatchColor.Style = [fsBold]
       FoldedCodeColor.Background = clNone
       FoldedCodeColor.Foreground = clGray
       FoldedCodeColor.FrameColor = clGray
-      FoldedCodeColor.FrameEdges = sfeAround
       MouseLinkColor.Background = clNone
       MouseLinkColor.Foreground = clBlue
-      MouseLinkColor.FrameEdges = sfeAround
       LineHighlightColor.Background = clNone
       LineHighlightColor.Foreground = clNone
-      LineHighlightColor.FrameEdges = sfeAround
       OnChange = edChange
       OnDropFiles = edDropFiles
       OnGutterClick = edGutterClick
@@ -529,7 +522,6 @@ object fScriptEditor: TfScriptEditor
           MouseActions = <>
           MarkupInfo.Background = clBtnFace
           MarkupInfo.Foreground = clNone
-          MarkupInfo.FrameEdges = sfeAround
           DigitCount = 2
           ShowOnlyLineNumbersMultiplesOf = 1
           ZeroStart = False
@@ -546,13 +538,11 @@ object fScriptEditor: TfScriptEditor
           MouseActions = <>
           MarkupInfo.Background = clWhite
           MarkupInfo.Foreground = clGray
-          MarkupInfo.FrameEdges = sfeAround
         end
         object SynGutterCodeFolding1: TSynGutterCodeFolding
           MouseActions = <>
           MarkupInfo.Background = clNone
           MarkupInfo.Foreground = clGray
-          MarkupInfo.FrameEdges = sfeAround
           MouseActionsExpanded = <>
           MouseActionsCollapsed = <>
         end
@@ -562,7 +552,7 @@ object fScriptEditor: TfScriptEditor
       Cursor = crVSplit
       Left = 0
       Height = 4
-      Top = 469
+      Top = 468
       Width = 754
       Align = alBottom
       ResizeAnchor = akBottom
@@ -570,7 +560,7 @@ object fScriptEditor: TfScriptEditor
     object Panel1: TPanel
       Left = 0
       Height = 84
-      Top = 473
+      Top = 472
       Width = 754
       Align = alBottom
       BevelOuter = bvNone
@@ -588,6 +578,7 @@ object fScriptEditor: TfScriptEditor
         PopupMenu = PopupMenu2
         ScrollWidth = 752
         TabOrder = 0
+        TopIndex = -1
       end
       object gResults: TDBGrid
         Left = 0
@@ -679,7 +670,7 @@ object fScriptEditor: TfScriptEditor
             Left = 3
             Height = 25
             Top = 5
-            Width = 40
+            Width = 48
             Align = alLeft
             BorderSpacing.Left = 3
             BorderSpacing.Top = 5
@@ -689,13 +680,13 @@ object fScriptEditor: TfScriptEditor
           end
           object cbSyntax: TDBComboBox
             Left = 56
-            Height = 24
+            Height = 29
             Top = 4
             Width = 122
             Anchors = [akTop, akLeft, akRight]
             DataField = 'SYNTAX'
             DataSource = DataSource
-            ItemHeight = 16
+            ItemHeight = 0
             Items.Strings = (
               'Pascal'
               'SQL'
@@ -718,19 +709,19 @@ object fScriptEditor: TfScriptEditor
           TabOrder = 1
           object cbClient: TComboBox
             Left = 264
-            Height = 24
+            Height = 29
             Top = 0
             Width = 100
-            ItemHeight = 16
+            ItemHeight = 0
             TabOrder = 0
             Text = 'cbClient'
             Visible = False
           end
           object tbTools: TToolBar
-            Left = 45
+            Left = 46
             Height = 30
             Top = 0
-            Width = 138
+            Width = 137
             Align = alClient
             Caption = 'tbTools'
             EdgeBorders = []
@@ -743,7 +734,7 @@ object fScriptEditor: TfScriptEditor
             Left = 5
             Height = 25
             Top = 5
-            Width = 35
+            Width = 36
             Align = alLeft
             BorderSpacing.Left = 5
             BorderSpacing.Top = 5
@@ -787,7 +778,7 @@ object fScriptEditor: TfScriptEditor
         end
         object eSearchC: TEdit
           Left = 0
-          Height = 21
+          Height = 25
           Top = 5
           Width = 192
           Anchors = [akTop, akRight]
@@ -804,18 +795,18 @@ object fScriptEditor: TfScriptEditor
   end
   object pLeft: TPanel
     Left = 0
-    Height = 557
+    Height = 556
     Top = 0
     Width = 280
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 557
+    ClientHeight = 556
     ClientWidth = 280
     TabOrder = 2
     Visible = False
     object DBGrid1: TDBGrid
       Left = 0
-      Height = 557
+      Height = 556
       Top = 0
       Width = 280
       Align = alClient
@@ -826,14 +817,14 @@ object fScriptEditor: TfScriptEditor
           MinSize = 150
           SizePriority = 2
           Title.Caption = 'NAME'
-          Width = 123
+          Width = 126
           FieldName = 'NAME'
         end      
         item
           MinSize = 50
           MaxSize = 50
           Title.Caption = 'VERSION'
-          Width = 124
+          Width = 126
           FieldName = 'VERSION'
         end>
       DataSource = DataSource
@@ -846,7 +837,7 @@ object fScriptEditor: TfScriptEditor
   end
   object Splitter2: TSplitter
     Left = 280
-    Height = 557
+    Height = 556
     Top = 0
     Width = 5
   end
@@ -2126,22 +2117,7 @@ object fScriptEditor: TfScriptEditor
     DefaultFilter = 'SQL-Dateien (*.sql)|*.sql'
     Enabled = False
     CommentAttri.Foreground = clBlue
-    CommentAttri.FrameEdges = sfeAround
     CommentAttri.Style = []
-    DataTypeAttri.FrameEdges = sfeAround
-    DefaultPackageAttri.FrameEdges = sfeAround
-    ExceptionAttri.FrameEdges = sfeAround
-    FunctionAttri.FrameEdges = sfeAround
-    IdentifierAttri.FrameEdges = sfeAround
-    KeyAttri.FrameEdges = sfeAround
-    NumberAttri.FrameEdges = sfeAround
-    PLSQLAttri.FrameEdges = sfeAround
-    SpaceAttri.FrameEdges = sfeAround
-    SQLPlusAttri.FrameEdges = sfeAround
-    StringAttri.FrameEdges = sfeAround
-    SymbolAttri.FrameEdges = sfeAround
-    TableNameAttri.FrameEdges = sfeAround
-    VariableAttri.FrameEdges = sfeAround
     SQLDialect = sqlSybase
     left = 704
     top = 112
@@ -2169,23 +2145,12 @@ object fScriptEditor: TfScriptEditor
     Tag = 1
     Enabled = False
     AsmAttri.Foreground = clGreen
-    AsmAttri.FrameEdges = sfeAround
     CommentAttri.Foreground = clBlue
-    CommentAttri.FrameEdges = sfeAround
     CommentAttri.Style = [fsBold]
-    IDEDirectiveAttri.FrameEdges = sfeAround
-    IdentifierAttri.FrameEdges = sfeAround
-    KeyAttri.FrameEdges = sfeAround
     NumberAttri.Foreground = clNavy
-    NumberAttri.FrameEdges = sfeAround
-    SpaceAttri.FrameEdges = sfeAround
     StringAttri.Foreground = clBlue
-    StringAttri.FrameEdges = sfeAround
     SymbolAttri.Foreground = clRed
-    SymbolAttri.FrameEdges = sfeAround
-    CaseLabelAttri.FrameEdges = sfeAround
     DirectiveAttri.Foreground = clRed
-    DirectiveAttri.FrameEdges = sfeAround
     DirectiveAttri.Style = [fsBold]
     CompilerMode = pcmFPC
     NestedComments = True
@@ -2619,37 +2584,13 @@ object fScriptEditor: TfScriptEditor
     DefaultFilter = 'Python-Dateien (*.py)|*.py'
     Enabled = False
     CommentAttri.Foreground = clBlue
-    CommentAttri.FrameEdges = sfeAround
-    IdentifierAttri.FrameEdges = sfeAround
-    KeyAttri.FrameEdges = sfeAround
-    NonKeyAttri.FrameEdges = sfeAround
-    SystemAttri.FrameEdges = sfeAround
-    NumberAttri.FrameEdges = sfeAround
-    HexAttri.FrameEdges = sfeAround
-    OctalAttri.FrameEdges = sfeAround
-    FloatAttri.FrameEdges = sfeAround
-    SpaceAttri.FrameEdges = sfeAround
-    StringAttri.FrameEdges = sfeAround
-    DocStringAttri.FrameEdges = sfeAround
-    SymbolAttri.FrameEdges = sfeAround
-    ErrorAttri.FrameEdges = sfeAround
     left = 752
     top = 112
   end
   object HigC: TSynCppSyn
     DefaultFilter = 'C++-Quelltexte (*.c,*.cpp,*.h,*.hpp,*.hh)|*.c;*.cpp;*.h;*.hpp;*.hh'
     Enabled = False
-    AsmAttri.FrameEdges = sfeAround
     CommentAttri.Foreground = clBlue
-    CommentAttri.FrameEdges = sfeAround
-    DirecAttri.FrameEdges = sfeAround
-    IdentifierAttri.FrameEdges = sfeAround
-    InvalidAttri.FrameEdges = sfeAround
-    KeyAttri.FrameEdges = sfeAround
-    NumberAttri.FrameEdges = sfeAround
-    SpaceAttri.FrameEdges = sfeAround
-    StringAttri.FrameEdges = sfeAround
-    SymbolAttri.FrameEdges = sfeAround
     left = 800
     top = 112
   end

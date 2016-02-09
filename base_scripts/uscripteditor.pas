@@ -410,7 +410,9 @@ var
   i: Integer;
   m: TSynEditMark;
 begin
-  if ed.Highlighter=HigPascal then
+  if (ed.Highlighter=HigPascal)
+  or (ed.Highlighter=HigPython)
+  then
     begin
       if HasBreakPoint(ActiveFile, Line) then
         begin
@@ -541,9 +543,11 @@ begin
    else
      begin
        with BaseApplication as IBaseApplication do Debug('Script:'+Module+':'+IntToStr(Row));
-       if GetTickCount-LastStepTime > 10 then
-         Application.ProcessMessages;
-       LastStepTime:=GetTickCount;
+       if GetTickCount-LastStepTime > 50 then
+         begin
+           Application.ProcessMessages;
+           LastStepTime:=GetTickCount;
+         end;
      end;
  except
  end;
@@ -552,8 +556,8 @@ end;
 procedure TfScriptEditor.cbSyntaxSelect(Sender: TObject);
 begin
   ed.Highlighter := TSynCustomHighlighter(FindComponent('Hig'+cbSyntax.Text));
-  acStepinto.Enabled:=(ed.Highlighter=HigPascal) and (cbClient.Text='');
-  acStepover.Enabled:=(ed.Highlighter=HigPascal) and (cbClient.Text='');
+  acStepinto.Enabled:=(ed.Highlighter=HigPascal) or (ed.Highlighter=HigPython) and (cbClient.Text='');
+  acStepover.Enabled:=(ed.Highlighter=HigPascal) or (ed.Highlighter=HigPython) and (cbClient.Text='');
 end;
 
 procedure TfScriptEditor.edChange(Sender: TObject);
