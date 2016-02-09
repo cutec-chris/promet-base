@@ -139,7 +139,8 @@ type
   end;
 
 implementation
-uses uBaseDBInterface, uBaseSearch, uBaseApplication, uData, Utils,uthumbnails;
+uses uBaseDBInterface, uBaseSearch, uBaseApplication, uData, Utils,uthumbnails,
+  comparewild;
 
 procedure TPersonEmployees.DefineFields(aDataSet: TDataSet);
 begin
@@ -804,16 +805,27 @@ function TPerson.SelectFromContactData(aCont: string): Boolean;
 var
   CustomerCont: TPersonContactData;
 begin
+  Result := False;
   try
     CustomerCont := TPersonContactData.Create(nil);
     if Data.IsSQLDb then
-      Data.SetFilter(CustomerCont,Data.ProcessTerm('UPPER("DATA")=UPPER('''+aCont+''')',True))
+      Data.SetFilter(CustomerCont,Data.ProcessTerm('UPPER("DATA")=UPPER('''+aCont+''')',True)+' OR ("DATA" like ''%*%'')')
     else
       Data.SetFilter(CustomerCont,Data.ProcessTerm('"DATA"='''+aCont+''''));
-    Self.Filter('"ACCOUNTNO"='+Data.QuoteValue(CustomerCont.DataSet.FieldByName('ACCOUNTNO').AsString));
+    CustomerCont.First;
+    while not CustomerCont.EOF do
+      begin
+        if comparewild.WildComp(CustomerCont.Data.AsString,aCont) then
+          begin
+            Self.Filter('"ACCOUNTNO"='+Data.QuoteValue(CustomerCont.DataSet.FieldByName('ACCOUNTNO').AsString));
+            Result:=True;
+            break;
+          end;
+        CustomerCont.Next;
+      end;
   except
   end;
-  Result:=CustomerCont.Count>0;
+  Self.Close;
   CustomerCont.Free;
 end;
 
