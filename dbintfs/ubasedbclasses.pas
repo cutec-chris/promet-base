@@ -189,6 +189,7 @@ type
     procedure Change; override;
 
     procedure SelectByParent(aParent: Variant);
+    procedure SelectByParentStr(aParent: string);
     procedure SelectByRoot(aParent: Variant);
 
     function AddItem(aObject: TDataSet; aAction: string; aLink: string=''; aReference: string=''; aRefObject: TDataSet=nil; aIcon: Integer=0;aComission: string=''; CheckDouble: Boolean=True; DoPost: Boolean=True; DoChange: Boolean=False) : Boolean; virtual;
@@ -1849,6 +1850,7 @@ begin
             Add('TAGS',ftString,200,False);
             Add('CHANGEDBY',ftString,4,False);
             Add('PARENT',ftLargeInt,0,False);
+            Add('PARENTSTR',ftString,30,False);
             Add('ROOT',ftLargeInt,0,False);
             Add('DATE',ftDateTime,0,False);
           end;
@@ -1880,6 +1882,15 @@ begin
         Filter := '('+QuoteField('PARENT')+'='+QuoteValue(aParent)+')';
     end;
 end;
+
+procedure TBaseHistory.SelectByParentStr(aParent: string);
+begin
+  with  DataSet as IBaseDBFilter, BaseApplication as IBaseDBInterface, DataSet as IBaseManageDB do
+    begin
+      Filter := '('+QuoteField('PARENTSTR')+'='+QuoteValue(aParent)+')';
+    end;
+end;
+
 procedure TBaseHistory.SelectByRoot(aParent: Variant);
 begin
   with  DataSet as IBaseDBFilter, BaseApplication as IBaseDBInterface, DataSet as IBaseManageDB do

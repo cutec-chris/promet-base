@@ -7,7 +7,7 @@ unit pcmdprometapp;
 interface
 
 uses
-  uBaseCustomApplication, uPowerState, heaptrc_big;
+  uBaseCustomApplication, uPowerState;
 
 implementation
 
