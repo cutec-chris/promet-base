@@ -9,7 +9,7 @@ interface
 uses
   utextpositionframe, uPositionFrame, ufinance, uautomationframe, 
   uDetailPositionFrame, ubookfibuaccount, ucalcframe, fautomationform, 
-  LazarusPackageIntf;
+  uprometscriptprinting, LazarusPackageIntf;
 
 implementation
 

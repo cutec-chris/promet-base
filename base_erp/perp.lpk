@@ -9,7 +9,7 @@
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="13">
+    <Files Count="14">
       <Item1>
         <Filename Value="udetailpositionframe.lfm"/>
         <Type Value="LFM"/>
@@ -62,6 +62,10 @@
         <Filename Value="fautomationform.pas"/>
         <UnitName Value="fautomationform"/>
       </Item13>
+      <Item14>
+        <Filename Value="uprometscriptprinting.pas"/>
+        <UnitName Value="uprometscriptprinting"/>
+      </Item14>
     </Files>
     <RequiredPkgs Count="5">
       <Item1>

@@ -27,7 +27,7 @@ uses
   Classes, SysUtils, FileUtil, IpHtml, LResources, Forms, Controls, Graphics,
   Dialogs, ExtCtrls, StdCtrls, Buttons, ActnList, ComCtrls,uBaseDbClasses,
   uBaseERPDBClasses,uprometscripts,uDocuments,uprometpascalscript,
-  genpascalscript,genscript,db,blcksock,synsock;
+  genpascalscript,genscript,db,blcksock,synsock,uprometscriptprinting;
 
 type
   TTCPCommandDaemon = class(TThread)

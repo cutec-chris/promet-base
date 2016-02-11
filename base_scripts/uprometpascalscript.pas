@@ -24,15 +24,14 @@ unit uprometpascalscript;
 interface
 
 uses
-  Forms, Classes, SysUtils, genpascalscript, uprometscripts,uPSRuntime,uPSCompiler,uPSUtils,
-  Utils,db,uBaseDBInterface,genscript,uBaseDbClasses,LR_Class;
+  Classes, SysUtils, genpascalscript, uprometscripts,uPSRuntime,uPSCompiler,uPSUtils,
+  Utils,db,uBaseDBInterface,genscript,uBaseDbClasses;
 
 type
-
+  TScriptInternalPrint = function (aType,Reportname,Printer : string;Copies : Integer) : Boolean;
   { TPrometPascalScript }
 
   TPrometPascalScript = class(TPascalScript)
-    procedure FReportGetValue(const ParName: String; var ParValue: Variant);
     function TPascalScriptUses(Sender: TPascalScript; const aName: tbtString;
       OnlyAdditional : Boolean): Boolean;
   private
@@ -41,8 +40,6 @@ type
     FSlFunc: TSleepFunc;
     FWrFunc: TStrOutFunc;
     FWriFunc: TStrOutFunc;
-    FReport: TfrReport;
-    FReportVariables : TStringList;
 
     function InternalParamStr(Param : Integer) : String;
     function InternalParamCount : Integer;
@@ -81,12 +78,14 @@ type
 var
   FContextDataSet : TDataSet;
   FVariables : TStringList;
+  OnInternalPrint : TScriptInternalPrint;
+  FReportVariables : TStringList;
 
 implementation
 
 uses uPerson,uMasterdata,uBaseERPDBClasses,uProjects,uMessages,
   uDocuments,utask,uOrder,uData,variants,uBaseApplication,uStatistic,
-  uBaseDatasetInterfaces,LR_BarC;
+  uBaseDatasetInterfaces;
 
 procedure TBaseDbListPropertyTextR(Self: TBaseDbList; var T: TField); begin T := Self.Text; end;
 procedure TBaseDbListPropertyNumberR(Self: TBaseDbList; var T: TField); begin T := Self.Number; end;
@@ -125,13 +124,6 @@ procedure TOrderQMTestDetailsR(Self : TOrderQMTest;var T : TOrderQMTestDetails);
 procedure TOrderRepairDetailsR(Self : TOrderRepair;var T : TOrderRepairDetail);begin T := Self.Details; end;
 procedure TOrderPosRepairR(Self : TOrderPos;var T : TOrderRepair);begin T := Self.Repair; end;
 procedure TOrderPosQMTestR(Self : TOrderPos;var T : TOrderQMTest);begin T := Self.QMTest; end;
-
-procedure TPrometPascalScript.FReportGetValue(const ParName: String;
-  var ParValue: Variant);
-begin
-  if Assigned(FReportVariables) then
-    ParValue:=FReportVariables.Values[ParName];
-end;
 
 function TPrometPascalScript.TPascalScriptUses(Sender: TPascalScript;
   const aName: tbtString; OnlyAdditional: Boolean): Boolean;
@@ -847,39 +839,10 @@ end;
 
 function TPrometPascalScript.InternalPrint(aType, Reportname, Printer: string;
   Copies: Integer): Boolean;
-var
-  NotPrintable: Boolean;
 begin
-  if not Assigned(FReport) then
-    FReport := TfrReport.Create(nil);
-  FReport.ShowProgress:=False;
-  Data.Reports.Filter(Data.QuoteField('TYPE')+'='+Data.QuoteValue(aType));
-  Result := Data.Reports.DataSet.Locate('NAME',Reportname,[loCaseInsensitive]);
-  if Result then
-    begin
-      FReport.OnGetValue:=@FReportGetValue;
-      with Data.Reports.FieldByName('REPORT') as TBlobField do
-        if not Data.Reports.FieldByName('REPORT').IsNull then
-          begin
-            NotPrintable := False;
-            try
-              with BaseApplication as IBaseApplication do
-                begin
-                  Data.BlobFieldToFile(Data.Reports.DataSet,'REPORT',GetInternalTempDir+'preport.lrf');
-                  FReport.LoadFromFile(GetInternalTempDir+'preport.lrf');
-                end;
-            except
-              NotPrintable := True;
-            end;
-          end;
-      if NotPrintable then result := False
-      else
-        begin
-          Result := FReport.PrepareReport;
-          if Result then
-            FReport.PrintPreparedReport('',Copies);
-        end;
-    end;
+  Result := False;
+  if Assigned(OnInternalPrint) then
+    OnInternalPrint(aType,ReportName,Printer,Copies);
 end;
 
 procedure TPrometPascalScript.InternalSetReportVariable(Name, Value: string);
@@ -938,7 +901,6 @@ end;
 constructor TPrometPascalScript.Create;
 begin
   inherited Create;
-  FReport := nil;
   FReportVariables := nil
 end;
 
@@ -946,19 +908,14 @@ end;
 destructor TPrometPascalScript.Destroy;
 begin
   FReportVariables.Free;
-  FReport.Free;
   inherited Destroy;
 end;
-
-var
-  FBarc : TfrBarCodeObject;
 
 initialization
   RegisterScriptType(TPrometPascalScript);
   FVariables := TStringList.Create;
-  FBarc := TfrBarCodeObject.Create(nil);
+  OnInternalPrint := nil;
 finalization
-  fBarc.Free;
   FVariables.Free;
 end.
 
