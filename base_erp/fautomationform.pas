@@ -366,7 +366,7 @@ end;
 procedure TFAutomation.FormDestroy(Sender: TObject);
 begin
   FSocket.Terminate;
-  FSocket.WaitFor;
+  FSocket.OnData:=nil;
 end;
 
 procedure TFAutomation.TreeDataScriptScriptRunLine(Sender: TScript;
