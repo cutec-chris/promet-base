@@ -320,6 +320,7 @@ end;
 
 procedure TFAutomation.acDebugLogExecute(Sender: TObject);
 begin
+  fLogWaitForm.SetLanguage;
   fLogWaitForm.Show;
 end;
 
@@ -433,6 +434,7 @@ begin
     end;
   if Result then
     if Assigned(FSelStep) then FSelStep(tvStep);
+  if not Result then acExecuteStep.Enabled:=False;
 end;
 
 function TFAutomation.LoadStep: Boolean;
@@ -445,6 +447,8 @@ var
 begin
   lStep.Caption:=tvStep.Selected.Text;
   Result := False;
+  acExecuteStep.Enabled:=False;
+  acExecutePrepareStep.Enabled:=False;
   rbNoData.Checked:=True;
   TreeData := TProdTreeData(tvStep.Selected.Data);
   TreeData.WorkText.Clear;
@@ -508,8 +512,10 @@ begin
           if aMasterdata.Active then
             begin
               aMasterdata.Positions.Open;
-              //Positionsnummer in Stückliste finden
-              if aMasterdata.Positions.Locate('POSNO',DataSet.FieldByName('TPOSNO').AsString,[]) then
+              //Position in Stückliste finden
+              if aMasterdata.Positions.Locate('POSNO;SHORTTEXT',VarArrayOf([DataSet.FieldByName('TPOSNO').AsString,DataSet.FieldByName('SHORTTEXT').AsString]),[])
+              or aMasterdata.Positions.Locate('SHORTTEXT',VarArrayOf([DataSet.FieldByName('SHORTTEXT').AsString]),[])
+              then
                 begin
                   TreeData.LoadScript(aMasterdata.Positions.FieldByName('SCRIPT').AsString,aMasterdata.Positions.FieldByName('SCRIPTVER').AsVariant);
                   if Assigned(aMasterdata.Positions.FieldByName('PRSCRIPT')) then
@@ -814,6 +820,7 @@ var
   ss: TStringStream;
 begin
   FAutomation.FScript := nil;
+  FAutomation.acExecuteStep.Enabled:=False;
   FAutomation.acPrepare.Enabled:=PreText.Text<>'';
   FAutomation.acProduce.Enabled:=True;
   FAutomation.acReady.Enabled:=True;
@@ -992,7 +999,11 @@ var
 begin
   nNode := tvStep.Items.AddChildObject(GetParentNode,DataSet.FieldByName('SHORTTEXT').AsString,TProdTreeData.Create);
   case DataSet.PosTyp.FieldByName('TYPE').AsInteger of
-  0,1,2:nNode.ImageIndex:=14;//Artikel
+  0,1,2:
+    begin
+      nNode.ImageIndex:=14;//Artikel
+      nNode.Text:=nNode.Text+' ['+DataSet.FieldByName('VERSION').AsString+']';
+    end;
   3:nNode.ImageIndex:=49;//Text
   9:nNode.ImageIndex:=22;//Montage/Argeitsgang
   end;
