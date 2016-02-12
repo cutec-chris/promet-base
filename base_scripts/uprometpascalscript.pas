@@ -842,7 +842,7 @@ function TPrometPascalScript.InternalPrint(aType, Reportname, Printer: string;
 begin
   Result := False;
   if Assigned(OnInternalPrint) then
-    OnInternalPrint(aType,ReportName,Printer,Copies);
+    Result := OnInternalPrint(aType,ReportName,Printer,Copies);
 end;
 
 procedure TPrometPascalScript.InternalSetReportVariable(Name, Value: string);
