@@ -25,9 +25,10 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, IpHtml, LResources, Forms, Controls, Graphics,
-  Dialogs, ExtCtrls, StdCtrls, Buttons, ActnList, ComCtrls,uBaseDbClasses,
-  uBaseERPDBClasses,uprometscripts,uDocuments,uprometpascalscript,
-  genpascalscript,genscript,db,blcksock,synsock,uprometscriptprinting;
+  Dialogs, ExtCtrls, StdCtrls, Buttons, ActnList, ComCtrls, Menus,
+  uBaseDbClasses, uBaseERPDBClasses, uprometscripts, uDocuments,
+  uprometpascalscript, genpascalscript, genscript, db, simpleipc, blcksock,
+  synsock, uprometscriptprinting;
 
 type
   TTCPCommandDaemon = class(TThread)
@@ -53,10 +54,12 @@ type
     acSave: TAction;
     acExecutePrepareStep: TAction;
     acDebugLog: TAction;
+    acEdit: TAction;
     ActionList1: TActionList;
     Bevel3: TBevel;
     Bevel4: TBevel;
     Bevel7: TBevel;
+    Bevel8: TBevel;
     BitBtn1: TBitBtn;
     bExecute: TSpeedButton;
     BitBtn3: TSpeedButton;
@@ -66,6 +69,17 @@ type
     Label4: TLabel;
     Label5: TLabel;
     lStep: TLabel;
+    MenuItem1: TMenuItem;
+    MenuItem10: TMenuItem;
+    MenuItem2: TMenuItem;
+    MenuItem3: TMenuItem;
+    MenuItem4: TMenuItem;
+    MenuItem5: TMenuItem;
+    MenuItem6: TMenuItem;
+    MenuItem7: TMenuItem;
+    MenuItem8: TMenuItem;
+    MenuItem9: TMenuItem;
+    miExtended: TMenuItem;
     Panel3: TPanel;
     Panel5: TPanel;
     Panel6: TPanel;
@@ -73,17 +87,23 @@ type
     Panel8: TPanel;
     Panel9: TPanel;
     pNav1: TPanel;
+    PopupMenu1: TPopupMenu;
     rbArticle: TRadioButton;
     rbList: TRadioButton;
     rbNoData: TRadioButton;
     rbOrder: TRadioButton;
     sbMenue: TSpeedButton;
     sbMenue1: TSpeedButton;
+    sbMenue2: TSpeedButton;
+    sbMenue3: TSpeedButton;
+    sbMenue4: TSpeedButton;
+    sbMenue5: TSpeedButton;
     ToolBar1: TPanel;
     ToolButton1: TSpeedButton;
     ToolButton2: TSpeedButton;
     tvStep: TTreeView;
     procedure acDebugLogExecute(Sender: TObject);
+    procedure acEditExecute(Sender: TObject);
     procedure acExecutePrepareStepExecute(Sender: TObject);
     procedure acExecuteStepExecute(Sender: TObject);
     procedure acPrepareExecute(Sender: TObject);
@@ -95,6 +115,7 @@ type
     procedure TreeDataScriptScriptRunLine(Sender: TScript; Module: string;
       aPosition, aRow, aCol: Integer);
     procedure tvStepSelectionChanged(Sender: TObject);
+    function ExecuteServerFunction(aFunc : string) : Variant;
   private
     FDataSet: TBaseDBPosition;
     FSelStep: TNotifyEvent;
@@ -122,6 +143,7 @@ type
     procedure ScriptPrepareWriteln(const s: string);
     procedure ScriptWriteln(const s: string);
   public
+    EditParent : Int64;
     Position : Int64;
     Script,Preparescript : TBaseScript;
     Documents,PrepDocuments : TDocument;
@@ -153,7 +175,8 @@ var
 
 implementation
 
-uses Utils,uBaseVisualControls,uMasterdata,uData,uOrder,variants,uLogWait;
+uses Utils,uBaseVisualControls,uMasterdata,uData,uOrder,variants,uLogWait,
+  uautomationframe;
 
 resourcestring
   strDoPick                             = 'kommissionieren';
@@ -210,29 +233,11 @@ end;
 
 procedure TFAutomation.FSocketData(Sender: TObject);
 var
-  aFunction: String;
-  aParams : array of Variant;
   aRes : Variant;
-  tmp: String;
+  aFunction: String;
 begin
-  Setlength(aParams,0);
   aFunction := TTCPCommandDaemon(Sender).Data;
-  if pos('(',aFunction)>0 then
-    begin
-      tmp := copy(aFunction,pos('(',aFunction)+1,length(aFunction));
-      tmp := copy(tmp,0,length(tmp)-2);
-      aFunction:=copy(aFunction,0,pos('(',aFunction)-1);
-    end;
-  try
-    if Assigned(FAutomation.Script) then
-      aRes := FAutomation.Script.Script.RunScriptFunction(aParams,aFunction);
-  except
-    on E : Exception do
-      begin
-        TTCPCommandDaemon(Sender).ConnectionSocket.SendString(e.Message+CRLF);
-        ares := Null;
-      end;
-  end;
+  ares := ExecuteServerFunction(aFunction);
   if (ares <> Null) then
     TTCPCommandDaemon(Sender).ConnectionSocket.SendString(VarToStr(ares)+CRLF);
 end;
@@ -324,6 +329,11 @@ begin
   fLogWaitForm.Show;
 end;
 
+procedure TFAutomation.acEditExecute(Sender: TObject);
+begin
+
+end;
+
 procedure TFAutomation.acPrepareExecute(Sender: TObject);
 var
   TreeData: TProdTreeData;
@@ -397,6 +407,32 @@ begin
           acReady.Enabled:=False;
         end;
     end;
+end;
+
+function TFAutomation.ExecuteServerFunction(aFunc: string): variant;
+var
+  aFunction: String;
+  aParams : array of Variant;
+  tmp: String;
+begin
+  Result := Null;
+  Setlength(aParams,0);
+  aFunction := aFunc;
+  if pos('(',aFunction)>0 then
+    begin
+      tmp := copy(aFunction,pos('(',aFunction)+1,length(aFunction));
+      tmp := copy(tmp,0,length(tmp)-2);
+      aFunction:=copy(aFunction,0,pos('(',aFunction)-1);
+    end;
+  try
+    if Assigned(FAutomation.Script) then
+      Result := FAutomation.Script.Script.RunScriptFunction(aParams,aFunction);
+  except
+    on E : Exception do
+      begin
+        Result := e.Message+CRLF;
+      end;
+  end;
 end;
 
 procedure TFAutomation.SetDataSet(AValue: TBaseDBPosition);
@@ -1005,7 +1041,7 @@ begin
       nNode.Text:=nNode.Text+' ['+DataSet.FieldByName('VERSION').AsString+']';
     end;
   3:nNode.ImageIndex:=49;//Text
-  9:nNode.ImageIndex:=22;//Montage/Argeitsgang
+  9,6:nNode.ImageIndex:=22;//Montage/Argeitsgang
   end;
   nNode.SelectedIndex:=nNode.ImageIndex;
   TProdTreeData(nNode.Data).Position:=DataSet.Id.AsVariant;
