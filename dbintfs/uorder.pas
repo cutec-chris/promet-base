@@ -594,6 +594,12 @@ constructor TOrderQMTest.CreateEx(aOwner: TComponent; DM : TComponent;aConnectio
   aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
+  with DataSet as IBaseDBFilter do
+    begin
+      BaseSortFields := 'TESTTIME';
+      SortFields := 'TESTTIME';
+      SortDirection := sdDescending;
+    end;
   FDetails := TOrderQMTestDetails.CreateEx(aOwner,DM,aConnection,DataSet);
 end;
 destructor TOrderQMTest.Destroy;

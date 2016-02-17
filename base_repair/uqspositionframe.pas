@@ -45,12 +45,14 @@ type
     Panel3: TPanel;
     SpeedButton1: TSpeedButton;
     SpeedButton2: TSpeedButton;
+    SpeedButton3: TSpeedButton;
     Splitter1: TSplitter;
     procedure dgStepsDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure FrameEnter(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
+    procedure SpeedButton3Click(Sender: TObject);
   private
     { private declarations }
   public
@@ -78,6 +80,7 @@ const
 var
   s: string;
 begin
+  if not Assigned(Column.Field) then exit;
   with (Sender as TDBGrid) do begin
     if Column.Field.IsBlob then begin
       Canvas.FillRect(Rect);
@@ -105,6 +108,11 @@ begin
     Clipboard.AsText:=TOrderPos(TfPosition(Owner).Dataset).QMTest.FieldByName('RAWDATA').AsString;
 end;
 
+procedure TfQSPositionFrame.SpeedButton3Click(Sender: TObject);
+begin
+  OrderQMTest.DataSet.Refresh;
+end;
+
 procedure TfQSPositionFrame.SetupDB;
 begin
   if TfPosition(Owner).Dataset is TOrderPos then
@@ -125,4 +133,4 @@ begin
 end;
 
 end.
-
+

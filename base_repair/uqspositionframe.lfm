@@ -1,10 +1,8 @@
 inherited fQSPositionFrame: TfQSPositionFrame
-  Left = 0
   Height = 292
-  Top = 0
-  Width = 673
+  Width = 824
   ClientHeight = 292
-  ClientWidth = 673
+  ClientWidth = 824
   Color = clWindow
   Constraints.MinHeight = 230
   OnEnter = FrameEnter
@@ -13,7 +11,7 @@ inherited fQSPositionFrame: TfQSPositionFrame
     Left = 0
     Height = 1
     Top = 0
-    Width = 673
+    Width = 824
     Align = alTop
     BevelOuter = bvNone
     Color = clSilver
@@ -24,7 +22,7 @@ inherited fQSPositionFrame: TfQSPositionFrame
     Left = 0
     Height = 1
     Top = 291
-    Width = 673
+    Width = 824
     Align = alBottom
     BevelOuter = bvNone
     Color = clSilver
@@ -35,7 +33,7 @@ inherited fQSPositionFrame: TfQSPositionFrame
     Left = 184
     Height = 274
     Top = 9
-    Width = 481
+    Width = 632
     Align = alClient
     BorderSpacing.Around = 8
     Color = clWindow
@@ -59,6 +57,21 @@ inherited fQSPositionFrame: TfQSPositionFrame
         Title.Caption = 'RESULTSHORT'
         Width = 30
         FieldName = 'RESULTSHORT'
+      end    
+      item
+        Title.Caption = 'MODUL'
+        Width = 70
+        FieldName = 'MODUL'
+      end    
+      item
+        Title.Caption = 'NAME'
+        Width = 90
+        FieldName = 'NAME'
+      end    
+      item
+        Title.Caption = 'STEP'
+        Width = 20
+        FieldName = 'STEP'
       end>
     DataSource = OrderQMtestDetails
     ReadOnly = True
@@ -126,14 +139,14 @@ inherited fQSPositionFrame: TfQSPositionFrame
       Width = 120
       AutoSize = False
       DataField = 'SERIAL'
-      DataSource = OrderPos
+      DataSource = OrderQMTest
       ParentColor = False
     end
     object SpeedButton1: TSpeedButton
       Left = 148
       Height = 22
       Hint = 'Rawdaten anzeigen'
-      Top = 31
+      Top = 0
       Width = 23
       Glyph.Data = {
         36040000424D3604000000000000360000002800000010000000100000000100
@@ -171,14 +184,13 @@ inherited fQSPositionFrame: TfQSPositionFrame
         FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
         FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
       }
-      NumGlyphs = 0
       OnClick = SpeedButton1Click
     end
     object SpeedButton2: TSpeedButton
       Left = 126
       Height = 22
       Hint = 'Rawdaten in die Zwischenbalage kopieren'
-      Top = 31
+      Top = 0
       Width = 23
       Glyph.Data = {
         42020000424D4202000000000000420000002800000010000000100000000100
@@ -201,7 +213,6 @@ inherited fQSPositionFrame: TfQSPositionFrame
         FFFFFFFFFFFF000000000000000000000000000000000000FFFFFFFFFFFFFFFF
         FFFFFFFFFFFF
       }
-      NumGlyphs = 0
       OnClick = SpeedButton2Click
     end
     object lTesttime: TDBText
@@ -214,6 +225,50 @@ inherited fQSPositionFrame: TfQSPositionFrame
       DataSource = OrderQMTest
       ParentColor = False
     end
+    object SpeedButton3: TSpeedButton
+      Left = 148
+      Height = 22
+      Hint = 'Rawdaten anzeigen'
+      Top = 23
+      Width = 23
+      Glyph.Data = {
+        36040000424D3604000000000000360000002800000010000000100000000100
+        2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
+        FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+        FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+        FF00FFFFFF00FFFFFF00FFFFFF00286E2D03256929AAFFFFFF00FFFFFF00FFFF
+        FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+        FF00FFFFFF00FFFFFF00FFFFFF002D7533C0296F2ED2FFFFFF00FFFFFF00FFFF
+        FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+        FF00FFFFFF00FFFFFF0038833EB9569D5EFF53995AFF2A712FFF266B2BFF2366
+        27FF206223C01D5E2040FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+        FF00FFFFFF0042924AE960A768FF8DCD97FF8ACB94FF87CA91FF84C98EFF81C8
+        8CFF60A768FF206324CC1D5F2140FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+        FF00FFFFFF00FFFFFF0043944BBB62A96AFF5DA465FF35803BFF317A36FF5197
+        58FF82C88DFF5BA163FF21642599FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+        FF00FFFFFF004EA25709499C520245954CC2408F47D2FFFFFF00FFFFFF00327B
+        38C22D7533FF296F2EFF256A2AE0FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+        FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0046974EACFFFFFF00FFFFFF00FFFF
+        FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+        FF00FFFFFF00FFFFFF00FFFFFF0050A65903FFFFFF00FFFFFF0042924AAC3D8C
+        4503FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+        FF0061BD6CE05DB868FF5AB364FF56AD5FC2FFFFFF00FFFFFF00489A50D24394
+        4BC23F8D46023A874109FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+        FF0065C270998ECF97FFAAD9B1FF7AC383FF57AF61FF52A95CFF6FB778FF6BB3
+        74FF45954CBBFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+        FF0068C6734065C371CC94D29CFFABDAB2FFA8D9AFFFA5D8ADFFA2D6AAFF9FD5
+        A7FF6CB474FF46974EDCFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+        FF00FFFFFF0068C7744066C472C063C06FFF60BC6BFF5DB767FF79C282FF75BE
+        7EFF50A659B9FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+        FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF005DB868D25AB3
+        64C0FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+        FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF0062BE6DAA5EB9
+        6903FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+        FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+        FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
+      }
+      OnClick = SpeedButton3Click
+    end
   end
   object Splitter1: TSplitter[4]
     Left = 171
@@ -221,15 +276,15 @@ inherited fQSPositionFrame: TfQSPositionFrame
     Top = 1
     Width = 5
   end
-  object OrderQMTest: TDatasource[5]
+  object OrderQMTest: TDataSource[5]
     left = 216
     top = 104
   end
-  object OrderQMtestDetails: TDatasource[6]
+  object OrderQMtestDetails: TDataSource[6]
     left = 216
     top = 168
   end
-  object OrderPos: TDatasource[7]
+  object OrderPos: TDataSource[7]
     left = 216
     top = 48
   end
