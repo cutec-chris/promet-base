@@ -907,7 +907,8 @@ end;
 
 destructor TPrometPascalScript.Destroy;
 begin
-  FReportVariables.Free;
+  if Assigned(FReportVariables) then
+    FReportVariables.Free;
   inherited Destroy;
 end;
 

@@ -15,7 +15,7 @@ type
 
 implementation
 
-uses uData,db,uBaseApplication;
+uses uData,db,uBaseApplication,dateutils;
 
 var
   FReport : TfrReport;
@@ -25,13 +25,18 @@ var
 procedure TFakePrintingObject.FReportGetValue(const ParName: String;
   var ParValue: Variant);
 begin
-  if Assigned(FReportVariables) then
+  if Assigned(FReportVariables) and (FReportVariables.IndexOfName(ParName)>-1) then
     ParValue:=FReportVariables.Values[ParName];
+  if uppercase(ParName) = 'WEEKNO' then
+    ParValue := IntToStr(WeekOfTheYear(Now()))
+  else if uppercase(ParName) = 'WEEKDAY' then
+    ParValue := IntToStr(DayOfTheWeek(Now()))
+    ;
 end;
 
 function PrometScriptPrint(aType,Reportname,Printer : string;Copies : Integer) : Boolean;
 var
-  NotPrintable: Boolean;
+  NotPrintable: Boolean = False;
 begin
   if not Assigned(FReport) then
     FReport := TfrReport.Create(nil);

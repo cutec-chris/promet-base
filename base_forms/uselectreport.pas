@@ -96,6 +96,7 @@ type
     procedure bPrintClick(Sender: TObject);
     procedure cbPrinterSelect(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure GetReportVar(const ParName: String; var ParValue: Variant);
     procedure SpeedButton1Click(Sender: TObject);
   private
     FBooked: Boolean;
@@ -137,7 +138,7 @@ implementation
 uses
   uIntfStrConsts,uError,uData,
   uLogWait,uBaseDbInterface,uDocuments,uPerson,uSendMail,uEditText,umeeting,
-  ubaseconfig,LCLVersion;
+  ubaseconfig,LCLVersion,dateutils;
 
 resourcestring
   strDispatchTypenotfound       = 'Versandart nicht gefunden !';
@@ -794,6 +795,17 @@ begin
   Data.MandantDetails.CreateTable;
   Data.Reports.CreateTable;
 end;
+
+procedure TfSelectReport.GetReportVar(const ParName: String;
+  var ParValue: Variant);
+begin
+  if uppercase(ParName) = 'WEEKNO' then
+    ParValue := IntToStr(WeekOfTheYear(Now()))
+  else if uppercase(ParName) = 'WEEKDAY' then
+    ParValue := IntToStr(DayOfTheWeek(Now()))
+  ;
+end;
+
 procedure TfSelectReport.SpeedButton1Click(Sender: TObject);
 begin
   if PrinterSetupDialog1.Execute then
@@ -831,8 +843,10 @@ begin
       Application.CreateForm(TfSelectReport,fSelectReport);
       Self := fSelectReport;
     end;
+  if Assigned(FReport) then FReport.OnGetValue:=nil;
   if FReport=AValue then exit;
   FReport:=AValue;
+  if Assigned(FReport) then FReport.OnGetValue:=@GetReportVar;
 end;
 
 procedure TfSelectReport.SetDataSet(AValue: TBaseDBDataset);
