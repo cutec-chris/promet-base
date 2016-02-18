@@ -8,7 +8,7 @@
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="7">
+    <Files Count="8">
       <Item1>
         <Filename Value="uwikiframe.lfm"/>
         <Type Value="LFM"/>
@@ -37,27 +37,34 @@
         <Filename Value="uwikieditor.pas"/>
         <UnitName Value="uWikiEditor"/>
       </Item7>
+      <Item8>
+        <Filename Value="ueditortoolbar.pas"/>
+        <UnitName Value="ueditortoolbar"/>
+      </Item8>
     </Files>
-    <RequiredPkgs Count="5">
+    <RequiredPkgs Count="6">
       <Item1>
-        <PackageName Value="sql_parser"/>
-        <DefaultFilename Value="../../components/sqlparser/sql_parser.lpk"/>
+        <PackageName Value="KControlsLaz"/>
       </Item1>
       <Item2>
-        <PackageName Value="pDocuments"/>
-        <DefaultFilename Value="../base_documents/pdocuments.lpk"/>
+        <PackageName Value="sql_parser"/>
+        <DefaultFilename Value="../../components/sqlparser/sql_parser.lpk"/>
       </Item2>
       <Item3>
-        <PackageName Value="pvisualforms"/>
-        <DefaultFilename Value="../base_forms/pvisualforms.lpk"/>
+        <PackageName Value="pDocuments"/>
+        <DefaultFilename Value="../base_documents/pdocuments.lpk"/>
       </Item3>
       <Item4>
-        <PackageName Value="pvisualbaseframes"/>
-        <DefaultFilename Value="../base_frames/pvisualbaseframes.lpk"/>
+        <PackageName Value="pvisualforms"/>
+        <DefaultFilename Value="../base_forms/pvisualforms.lpk"/>
       </Item4>
       <Item5>
-        <PackageName Value="TurboPowerIPro"/>
+        <PackageName Value="pvisualbaseframes"/>
+        <DefaultFilename Value="../base_frames/pvisualbaseframes.lpk"/>
       </Item5>
+      <Item6>
+        <PackageName Value="TurboPowerIPro"/>
+      </Item6>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>
