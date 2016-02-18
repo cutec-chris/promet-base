@@ -4,7 +4,7 @@ object fScriptEditor: TfScriptEditor
   Top = 180
   Width = 1039
   Caption = 'Editor'
-  ClientHeight = 579
+  ClientHeight = 580
   ClientWidth = 1039
   Color = clBtnFace
   Font.Color = clWindowText
@@ -14,11 +14,11 @@ object fScriptEditor: TfScriptEditor
   OnClose = FormClose
   OnCreate = FormCreate
   Position = poDesktopCenter
-  LCLVersion = '1.7'
+  LCLVersion = '1.4.4.0'
   object StatusBar: TStatusBar
     Left = 0
     Height = 23
-    Top = 556
+    Top = 557
     Width = 1039
     Panels = <    
       item
@@ -31,17 +31,17 @@ object fScriptEditor: TfScriptEditor
   end
   object pDetail: TPanel
     Left = 285
-    Height = 556
+    Height = 557
     Top = 0
     Width = 754
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 556
+    ClientHeight = 557
     ClientWidth = 754
     TabOrder = 1
     inline ed: TSynEdit
       Left = 0
-      Height = 436
+      Height = 437
       Top = 32
       Width = 754
       Align = alClient
@@ -52,6 +52,7 @@ object fScriptEditor: TfScriptEditor
       ParentColor = False
       ParentFont = False
       ParentShowHint = False
+      PopupMenu = PopupMenu3
       ShowHint = True
       TabOrder = 0
       Gutter.Width = 57
@@ -552,7 +553,7 @@ object fScriptEditor: TfScriptEditor
       Cursor = crVSplit
       Left = 0
       Height = 4
-      Top = 468
+      Top = 469
       Width = 754
       Align = alBottom
       ResizeAnchor = akBottom
@@ -560,7 +561,7 @@ object fScriptEditor: TfScriptEditor
     object Panel1: TPanel
       Left = 0
       Height = 84
-      Top = 472
+      Top = 473
       Width = 754
       Align = alBottom
       BevelOuter = bvNone
@@ -578,7 +579,6 @@ object fScriptEditor: TfScriptEditor
         PopupMenu = PopupMenu2
         ScrollWidth = 752
         TabOrder = 0
-        TopIndex = -1
       end
       object gResults: TDBGrid
         Left = 0
@@ -670,7 +670,7 @@ object fScriptEditor: TfScriptEditor
             Left = 3
             Height = 25
             Top = 5
-            Width = 48
+            Width = 40
             Align = alLeft
             BorderSpacing.Left = 3
             BorderSpacing.Top = 5
@@ -680,13 +680,13 @@ object fScriptEditor: TfScriptEditor
           end
           object cbSyntax: TDBComboBox
             Left = 56
-            Height = 29
+            Height = 24
             Top = 4
             Width = 122
             Anchors = [akTop, akLeft, akRight]
             DataField = 'SYNTAX'
             DataSource = DataSource
-            ItemHeight = 0
+            ItemHeight = 16
             Items.Strings = (
               'Pascal'
               'SQL'
@@ -709,19 +709,19 @@ object fScriptEditor: TfScriptEditor
           TabOrder = 1
           object cbClient: TComboBox
             Left = 264
-            Height = 29
+            Height = 24
             Top = 0
             Width = 100
-            ItemHeight = 0
+            ItemHeight = 16
             TabOrder = 0
             Text = 'cbClient'
             Visible = False
           end
           object tbTools: TToolBar
-            Left = 46
+            Left = 45
             Height = 30
             Top = 0
-            Width = 137
+            Width = 138
             Align = alClient
             Caption = 'tbTools'
             EdgeBorders = []
@@ -734,7 +734,7 @@ object fScriptEditor: TfScriptEditor
             Left = 5
             Height = 25
             Top = 5
-            Width = 36
+            Width = 35
             Align = alLeft
             BorderSpacing.Left = 5
             BorderSpacing.Top = 5
@@ -778,7 +778,7 @@ object fScriptEditor: TfScriptEditor
         end
         object eSearchC: TEdit
           Left = 0
-          Height = 25
+          Height = 21
           Top = 5
           Width = 192
           Anchors = [akTop, akRight]
@@ -795,18 +795,18 @@ object fScriptEditor: TfScriptEditor
   end
   object pLeft: TPanel
     Left = 0
-    Height = 556
+    Height = 557
     Top = 0
     Width = 280
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 556
+    ClientHeight = 557
     ClientWidth = 280
     TabOrder = 2
     Visible = False
     object DBGrid1: TDBGrid
       Left = 0
-      Height = 556
+      Height = 557
       Top = 0
       Width = 280
       Align = alClient
@@ -817,14 +817,14 @@ object fScriptEditor: TfScriptEditor
           MinSize = 150
           SizePriority = 2
           Title.Caption = 'NAME'
-          Width = 126
+          Width = 123
           FieldName = 'NAME'
         end      
         item
           MinSize = 50
           MaxSize = 50
           Title.Caption = 'VERSION'
-          Width = 126
+          Width = 124
           FieldName = 'VERSION'
         end>
       DataSource = DataSource
@@ -837,7 +837,7 @@ object fScriptEditor: TfScriptEditor
   end
   object Splitter2: TSplitter
     Left = 280
-    Height = 556
+    Height = 557
     Top = 0
     Width = 5
   end
@@ -1259,6 +1259,24 @@ object fScriptEditor: TfScriptEditor
       Caption = 'acRunRemote'
       ImageIndex = 25
       OnExecute = acRunRemoteExecute
+    end
+    object EditCopy1: TEditCopy
+      Category = 'Edit'
+      Caption = '&Kopieren'
+      Hint = 'Kopieren'
+      OnExecute = EditCopy1Execute
+      ShortCut = 16451
+    end
+    object EditPaste1: TEditPaste
+      Category = 'Edit'
+      Caption = '&Einfügen'
+      Hint = 'Einfügen'
+      OnExecute = EditPaste1Execute
+      ShortCut = 16470
+    end
+    object acGotoUnit: TAction
+      Caption = 'gehe zu Unit'
+      OnExecute = acGotoUnitExecute
     end
   end
   object FindDialog: TFindDialog
@@ -2593,5 +2611,21 @@ object fScriptEditor: TfScriptEditor
     CommentAttri.Foreground = clBlue
     left = 800
     top = 112
+  end
+  object PopupMenu3: TPopupMenu
+    left = 431
+    top = 250
+    object MenuItem7: TMenuItem
+      Action = EditCopy1
+    end
+    object MenuItem8: TMenuItem
+      Action = EditPaste1
+    end
+    object MenuItem9: TMenuItem
+      Caption = '-'
+    end
+    object MenuItem10: TMenuItem
+      Action = acGotoUnit
+    end
   end
 end

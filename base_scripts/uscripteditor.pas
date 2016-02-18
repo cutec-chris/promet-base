@@ -28,7 +28,7 @@ uses
   RegExpr, LResources,  SynEditRegexSearch, SynEditSearch,
   SynEditMiscClasses, SynEditHighlighter, SynGutterBase, SynEditMarks,
   SynEditMarkupSpecialLine, SynHighlighterSQL, SynHighlighterPython,
-  SynHighlighterCpp, uprometscripts, LCLIntf, Buttons, genscript,
+  SynHighlighterCpp, uprometscripts, LCLIntf, Buttons, StdActns, genscript,
   uBaseDbClasses, variants,uIntfStrConsts
   ;
 
@@ -55,17 +55,25 @@ type
     acStepinto: TAction;
     acLogout: TAction;
     acRunRemote: TAction;
+    acGotoUnit: TAction;
     ActionList1: TActionList;
     cbSyntax: TDBComboBox;
     cbClient: TComboBox;
     DataSource: TDataSource;
+    EditCopy1: TEditCopy;
+    EditPaste1: TEditPaste;
     eSearchC: TEdit;
     GutterImages: TImageList;
     Label2: TLabel;
+    MenuItem10: TMenuItem;
     MenuItem6: TMenuItem;
+    MenuItem7: TMenuItem;
+    MenuItem8: TMenuItem;
+    MenuItem9: TMenuItem;
     Panel4: TPanel;
     Panel5: TPanel;
     PopupMenu2: TPopupMenu;
+    PopupMenu3: TPopupMenu;
     SelectData: TDatasource;
     gResults: TDBGrid;
     DBGrid1: TDBGrid;
@@ -131,6 +139,7 @@ type
     ToolButton9: TToolButton;
     procedure aButtonClick(Sender: TObject);
     procedure acDecompileExecute(Sender: TObject);
+    procedure acGotoUnitExecute(Sender: TObject);
     procedure acLogoutExecute(Sender: TObject);
     procedure acNewExecute(Sender: TObject);
     procedure acPauseExecute(Sender: TObject);
@@ -148,6 +157,8 @@ type
     procedure edChange(Sender: TObject);
     procedure edGutterClick(Sender: TObject; X, Y, Line: integer;
       mark: TSynEditMark);
+    procedure EditCopy1Execute(Sender: TObject);
+    procedure EditPaste1Execute(Sender: TObject);
     procedure edShowHint(Sender: TObject; HintInfo: PHintInfo);
     procedure edSpecialLineColors(Sender: TObject; Line: Integer; var Special: Boolean; var FG, BG: TColor);
     procedure BreakPointMenuClick(Sender: TObject);
@@ -243,6 +254,27 @@ uses
   Clipbrd,uprometpascalscript,uprometpythonscript,uprometcscript;
 
 {$R *.lfm}
+
+function GetCurWord(Sender : TCustomSynEdit):string;
+var
+  S:string;
+  i,j:integer;
+begin
+  Result:='';
+  with Sender do
+    begin
+      S:=Trim(Copy(LineText, 1, CaretX));
+      I:=Length(S);
+      while (i>0) and (S[i]<>'.') do Dec(I);
+      if (I>0) then
+      begin
+        J:=i-1;
+        //Get table name
+        while (j>0) and (S[j] in ['A'..'z','"']) do Dec(j);
+        Result:=trim(Copy(S, j+1, i-j-1));
+      end;
+    end;
+end;
 
 // options - to be saved to the registry
 var
@@ -439,6 +471,16 @@ begin
   ed.Refresh;
 end;
 
+procedure TfScriptEditor.EditCopy1Execute(Sender: TObject);
+begin
+  ed.CopyToClipboard;
+end;
+
+procedure TfScriptEditor.EditPaste1Execute(Sender: TObject);
+begin
+  ed.PasteFromClipboard;
+end;
+
 procedure TfScriptEditor.edShowHint(Sender: TObject; HintInfo: PHintInfo);
 var
   ASynEdit: TSynEdit;
@@ -499,6 +541,8 @@ end;
 
 procedure TfScriptEditor.aScriptRunLine(Sender: TScript; Module: string;
   aPosition, Row, Col: Integer);
+var
+  mo: TMessageObject;
 begin
  if Module='' then Module:=ActiveFile;
  try
@@ -543,6 +587,15 @@ begin
    else
      begin
        with BaseApplication as IBaseApplication do Debug('Script:'+Module+':'+IntToStr(Row));
+       if Assigned(LineMark) then
+         begin
+           mo := TMessageObject.Create;
+           mo.ModuleName:=Module;
+           mo.Y:=Row;
+           messages.AddItem('Unit:'+Module+':'+IntToStr(Row),mo);
+           messages.ItemIndex:=messages.Items.Count-1;
+           messages.MakeCurrentVisible;
+         end;
        if GetTickCount-LastStepTime > 50 then
          begin
            Application.ProcessMessages;
@@ -587,6 +640,14 @@ begin
  else if ed.Highlighter=HigSQL then
    begin
      messages.AddItem(ReplaceSQLFunctions(ed.Lines.Text),nil);
+   end;
+end;
+
+procedure TfScriptEditor.acGotoUnitExecute(Sender: TObject);
+begin
+ if Assigned(OnOpenUnit) then
+   begin
+     OnOpenUnit(Self.ed.GetWordAtRowCol(Self.ed.CaretXY),0,0);
    end;
 end;
 
@@ -980,26 +1041,6 @@ begin
 end;
 
 procedure TfScriptEditor.FSynCompletionExecute(Sender: TObject);
-function GetCurWord:string;
-var
-  S:string;
-  i,j:integer;
-begin
-  Result:='';
-  with TSynCompletion(Sender).Editor do
-    begin
-      S:=Trim(Copy(LineText, 1, CaretX));
-      I:=Length(S);
-      while (i>0) and (S[i]<>'.') do Dec(I);
-      if (I>0) then
-      begin
-        J:=i-1;
-        //Get table name
-        while (j>0) and (S[j] in ['A'..'z','"']) do Dec(j);
-        Result:=trim(Copy(S, j+1, i-j-1));
-      end;
-    end;
-end;
 var
   i: Integer;
   aStatement: String;
@@ -1012,7 +1053,7 @@ begin
   with FSynCompletion.ItemList do
     begin
       Clear;
-      s := GetCurWord;
+      s := GetCurWord(TSynCompletion(Sender).Editor);
       if cbSyntax.Text='SQL' then
         begin
           if s = '' then
