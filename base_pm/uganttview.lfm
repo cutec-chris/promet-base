@@ -8,7 +8,7 @@ object fGanttView: TfGanttView
   ClientWidth = 1076
   ShowHint = True
   ShowInTaskBar = stAlways
-  LCLVersion = '1.5'
+  LCLVersion = '1.7'
   object tbTop: TPanel
     Left = 0
     Height = 42

@@ -20,6 +20,7 @@
       <Item3>
         <Filename Value="uselectreport.pas"/>
         <UnitName Value="uSelectReport"/>
+        <ResourceBaseClass Value="Form"/>
       </Item3>
       <Item4>
         <Filename Value="usendmail.pas"/>
@@ -36,6 +37,7 @@
       <Item7>
         <Filename Value="usearch.pas"/>
         <UnitName Value="uSearch"/>
+        <ResourceBaseClass Value="Form"/>
       </Item7>
       <Item8>
         <Filename Value="uedittext.lfm"/>
@@ -44,6 +46,7 @@
       <Item9>
         <Filename Value="uedittext.pas"/>
         <UnitName Value="uEditText"/>
+        <ResourceBaseClass Value="Form"/>
       </Item9>
       <Item10>
         <Filename Value="unrights.lfm"/>
@@ -56,6 +59,7 @@
       <Item12>
         <Filename Value="unrights.pas"/>
         <UnitName Value="uNRights"/>
+        <ResourceBaseClass Value="Form"/>
       </Item12>
       <Item13>
         <Filename Value="utimeline.pas"/>
@@ -72,6 +76,7 @@
       <Item16>
         <Filename Value="uroweditor.pas"/>
         <UnitName Value="uRowEditor"/>
+        <ResourceBaseClass Value="Form"/>
       </Item16>
       <Item17>
         <Filename Value="ugridview.lfm"/>
@@ -84,6 +89,7 @@
       <Item19>
         <Filename Value="ugridview.pas"/>
         <UnitName Value="ugridview"/>
+        <ResourceBaseClass Value="Frame"/>
       </Item19>
       <Item20>
         <Filename Value="uscreenshotmain.lfm"/>
@@ -92,34 +98,39 @@
       <Item21>
         <Filename Value="uscreenshotmain.pas"/>
         <UnitName Value="uscreenshotmain"/>
+        <ResourceBaseClass Value="Form"/>
       </Item21>
       <Item22>
         <Filename Value="uspelling.pas"/>
         <UnitName Value="uspelling"/>
+        <ResourceBaseClass Value="Form"/>
       </Item22>
       <Item23>
         <Filename Value="uimagecache.pas"/>
         <UnitName Value="uImageCache"/>
       </Item23>
     </Files>
-    <RequiredPkgs Count="5">
+    <RequiredPkgs Count="6">
       <Item1>
-        <PackageName Value="LR_ZeosDB"/>
+        <PackageName Value="KControlsLaz"/>
       </Item1>
       <Item2>
-        <PackageName Value="pVisualPrometApp"/>
-        <DefaultFilename Value="../pvisualprometapp.lpk"/>
+        <PackageName Value="LR_ZeosDB"/>
       </Item2>
       <Item3>
-        <PackageName Value="lazreport_addons"/>
-        <DefaultFilename Value="../../components/lazreport/lazreport_addons.lpk"/>
+        <PackageName Value="pVisualPrometApp"/>
+        <DefaultFilename Value="../pvisualprometapp.lpk"/>
       </Item3>
       <Item4>
-        <PackageName Value="lr_DialogDesign"/>
+        <PackageName Value="lazreport_addons"/>
+        <DefaultFilename Value="../../components/lazreport/lazreport_addons.lpk"/>
       </Item4>
       <Item5>
-        <PackageName Value="lazreportpdfexport"/>
+        <PackageName Value="lr_DialogDesign"/>
       </Item5>
+      <Item6>
+        <PackageName Value="lazreportpdfexport"/>
+      </Item6>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

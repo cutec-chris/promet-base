@@ -26,25 +26,30 @@ unit ugridview;
 
 interface
 uses
-  Classes, SysUtils, Utils,  Forms, Controls, DBGrids, ExtCtrls,
-  Buttons, ComCtrls, uExtControls, db, Grids, ActnList, Menus, uBaseDBClasses,
-  uBaseDbInterface, StdCtrls, Graphics, types, Clipbrd, LMessages,
-  ubasevisualapplicationtools, ZVDateTimePicker, Dialogs, DbCtrls, EditBtn,uBaseDatasetInterfaces;
+  Classes, SysUtils, Utils, Forms, Controls, DBGrids, ExtCtrls, Buttons,
+  ComCtrls, uExtControls, db, Grids, ActnList, Menus, uBaseDBClasses,
+  uBaseDbInterface, StdCtrls, Graphics, types, Clipbrd, LMessages, kmemo,
+  kfunctions, ubasevisualapplicationtools, ZVDateTimePicker, Dialogs, DbCtrls,
+  EditBtn, uBaseDatasetInterfaces,keditcommon;
 type
   TUnprotectedGrid = class(TCustomGrid);
 
   { TInplaceMemo }
 
-  TInplaceMemo = class(TMemo)
+  TInplaceMemo = class(TKMemo)
   private
+    FFirstLine: string;
     FGrid: TCustomGrid;
     FCol,FRow: Integer;
     FSetValue: Boolean;
+    FLines : TStringList;
+    function GetFirstLine: string;
+    function GetLines: TStrings;
+    procedure SetFirstLine(AValue: string);
   protected
     procedure RealSetText(const Value: TCaption); override;
     procedure ShowControl(AControl: TControl); override;
     procedure SetParent(NewParent: TWinControl); override;
-    procedure Change;override;
     procedure msg_SetGrid(var Msg: TGridMessage); message GM_SETGRID;
     procedure msg_GetGrid(var Msg: TGridMessage); message GM_GETGRID;
     procedure msg_SetBounds(var Msg: TGridMessage); message GM_SETBOUNDS;
@@ -54,7 +59,11 @@ type
     procedure WMPaste(var Message: TLMPaste); message LM_PASTE;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure EditingDone; override;
+    procedure InplaceMemoChange(Sender: TObject);
+    //property Lines : TStrings read GetLines;
+    property FirstLine : string read GetFirstLine write SetFirstLine;
     property SetValue : Boolean read FSetValue write FSetValue;
   end;
   TRowObject = class
@@ -865,17 +874,17 @@ begin
     begin
       aLeave := True
     end
-  else if (Key = VK_UP) and (mInplace.SelStart <= length(mInplace.Lines[0])) then
+  else if (Key = VK_UP) and (mInplace.SelStart <= length(mInplace.FirstLine)) then
     begin
       aLeave := True
     end
   else if (Key = VK_DOWN) or (Key = VK_RIGHT) then
     begin
       aLength := 0;
-      for i := 0 to mInplace.Lines.Count-1 do
-        inc(aLength,UTF8length(mInplace.Lines[i])+UTF8length(lineending));
+      for i := 0 to mInplace.Blocks.Count-1 do
+        inc(aLength,UTF8length(mInplace.Blocks[i].Text)+UTF8length(lineending));
       dec(aLength,UTF8length(lineending));
-      if ((Key = VK_DOWN) and (mInplace.SelStart >= aLength-(length(mInplace.Lines[mInplace.Lines.Count-1])-1)))
+      if ((Key = VK_DOWN) and (mInplace.SelStart >= aLength-(length(mInplace.Blocks[mInplace.Blocks.Count-1].Text)-1)))
       or ((Key = VK_RIGHT) and (mInplace.SelStart >= aLength-1))
       then
         aLeave := True;
@@ -910,7 +919,7 @@ var
   aEdit: Boolean;
   aCur: objpas.Integer;
 begin
-  aHeight := ((mInplace.Lines.Count+1)*gList.Canvas.GetTextHeight('A'))+3;
+  aHeight := mInplace.Blocks.Height; //((mInplace.Lines.Count+1)*gList.Canvas.GetTextHeight('A'))+3;
   if gList.DefaultRowHeight > aHeight then
     aHeight := gList.DefaultRowHeight;
   if aHeight > (gList.Height-(gList.FixedRows*gList.DefaultRowHeight)) then
@@ -2847,7 +2856,7 @@ begin
   mInplace.OnKeyDown:=@mInplaceKeyDown;
   mInplace.BorderStyle:=bsNone;
   mInplace.OnResize:=@mInplaceResize;
-  mInplace.WordWrap:=False;
+  //mInplace.WordWrap:=False;
   FIgnoreSettext := False;
   Self.OnEnter:=@fGridViewEnter;
   {$ifdef gridvisible}
@@ -3679,6 +3688,24 @@ begin
   gList.Row:=aRow;
 end;
 
+function TInplaceMemo.GetLines: TStrings;
+begin
+  FLines.Text:=Text;
+end;
+
+function TInplaceMemo.GetFirstLine: string;
+begin
+  Result := '';
+  if Blocks.Count>0 then
+    Result := Blocks[0].Text;
+end;
+
+procedure TInplaceMemo.SetFirstLine(AValue: string);
+begin
+  if FFirstLine=AValue then Exit;
+  FFirstLine:=AValue;
+end;
+
 procedure TInplaceMemo.RealSetText(const Value: TCaption);
 begin
   inherited RealSetText(Value);
@@ -3694,17 +3721,6 @@ begin
   inherited SetParent(NewParent);
 end;
 
-procedure TInplaceMemo.Change;
-var
-  aText: TCaption;
-begin
-  inherited Change;
-  aText := Text;
-  if (FGrid<>nil) and Visible then
-    begin
-      TUnprotectedGrid(FGrid).SetEditText(FCol, FRow, aText);
-    end;
-end;
 procedure TInplaceMemo.msg_SetGrid(var Msg: TGridMessage);
 begin
   FGrid:=Msg.Grid;
@@ -3729,7 +3745,7 @@ var
 begin
   if FSetValue then
     begin
-      WordWrap:=True;
+      //WordWrap:=True;
       aText := Text;
       aClear := length(trim(aText))<2;
       Text:=Msg.Value;
@@ -3744,7 +3760,7 @@ begin
 end;
 procedure TInplaceMemo.msg_SelectAll(var Msg: TGridMessage);
 begin
-  SelectAll;
+  ExecuteCommand(ecSelectAll);
 end;
 
 procedure TInplaceMemo.WMPaste(var Message: TLMPaste);
@@ -3766,7 +3782,7 @@ begin
   SaveClipboard:=trim(SaveClipboard);
   Clipboard.AsText := SaveClipboard;
   Text := StringReplace(Text,OldText,SaveClipboard,[]);
-  inherited;
+  //inherited WMPaste(Message);
   EditingDone;
 end;
 
@@ -3774,7 +3790,15 @@ constructor TInplaceMemo.Create(AOwner: TComponent);
 begin
   FSetValue:=True;
   inherited Create(AOwner);
-  WordWrap:=True;
+  FLines := TStringList.Create;
+  //WordWrap:=True;
+  OnChange:=@InplaceMemoChange;
+end;
+
+destructor TInplaceMemo.Destroy;
+begin
+  FLines.Destroy;
+  inherited Destroy;
 end;
 
 procedure TInplaceMemo.EditingDone;
@@ -3782,6 +3806,17 @@ begin
   inherited EditingDone;
   if FGrid<>nil then
     FGrid.EditingDone;
+end;
+
+procedure TInplaceMemo.InplaceMemoChange(Sender: TObject);
+var
+  aText: TKString;
+begin
+  aText := Text;
+  if (FGrid<>nil) and Visible then
+    begin
+      TUnprotectedGrid(FGrid).SetEditText(FCol, FRow, aText);
+    end;
 end;
 
 initialization
