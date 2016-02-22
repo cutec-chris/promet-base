@@ -1,7 +1,5 @@
 inherited fTextPositionFrame: TfTextPositionFrame
-  Left = 0
   Height = 260
-  Top = 0
   Width = 790
   ClientHeight = 260
   ClientWidth = 790
@@ -12,39 +10,39 @@ inherited fTextPositionFrame: TfTextPositionFrame
   DesignTop = 251
   object lTenderPos: TLabel[0]
     Left = 3
-    Height = 13
+    Height = 15
     Top = 4
-    Width = 49
+    Width = 50
     Caption = 'Aus.Pos.'
     ParentColor = False
   end
   object lShortText: TLabel[1]
     Left = 63
-    Height = 13
+    Height = 15
     Top = 4
-    Width = 46
+    Width = 50
     Caption = 'Kurztext'
     ParentColor = False
   end
   object lLongtext: TLabel[2]
     Left = 64
-    Height = 13
+    Height = 15
     Top = 58
-    Width = 49
+    Width = 54
     Caption = 'Langtext'
     ParentColor = False
   end
   object lTexttype: TLabel[3]
     Left = 4
-    Height = 13
+    Height = 15
     Top = 58
-    Width = 41
+    Width = 44
     Caption = 'Texttyp'
     ParentColor = False
   end
   object eTenderPos: TDBEdit[4]
     Left = 3
-    Height = 23
+    Height = 25
     Top = 18
     Width = 54
     DataField = 'TPOSNO'
@@ -54,7 +52,7 @@ inherited fTextPositionFrame: TfTextPositionFrame
     TabOrder = 0
   end
   object mLongText: TDBMemo[5]
-    Left = 64
+    Left = 63
     Height = 182
     Top = 73
     Width = 720
@@ -87,7 +85,7 @@ inherited fTextPositionFrame: TfTextPositionFrame
     ScrollBars = ssAutoBoth
     TabOrder = 3
   end
-  object Position: TDatasource[8]
+  object Position: TDataSource[8]
     left = 31
     top = 119
   end
