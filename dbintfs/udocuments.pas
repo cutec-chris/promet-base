@@ -1159,7 +1159,7 @@ begin
                 FOnCheckCheckOutFile(aName);
               if (Directory <> '') then
                 ForceDirectories(UniToSys(AppendPathDelim(Directory)));
-              aFile := TFileStream.Create(aName,fmCreate);
+              aFile := TFileStream.Create(UniToSys(aName),fmCreate);
               CheckoutToStream(aFile,aRevision);
               aFile.Free;
               //generate original Checksum if not there
