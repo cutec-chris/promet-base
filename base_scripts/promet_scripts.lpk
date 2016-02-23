@@ -21,30 +21,34 @@
         <UnitName Value="uspeakinginterface"/>
       </Item2>
       <Item3>
-        <Filename Value="uprometcscript.pas"/>
-        <UnitName Value="uprometcscript"/>
-      </Item3>
-      <Item4>
         <Filename Value="uprometpythonscript.pas"/>
         <UnitName Value="uprometpythonscript"/>
-      </Item4>
-    </Files>
-    <RequiredPkgs Count="4">
-      <Item1>
-        <PackageName Value="general_python_script"/>
-        <DefaultFilename Value="..\..\..\..\general\python_script\general_python_script.lpk"/>
-      </Item1>
-      <Item2>
-        <PackageName Value="general_pascal_script"/>
-        <DefaultFilename Value="..\..\..\..\general\pascal_script\general_pascal_script.lpk"/>
-      </Item2>
-      <Item3>
-        <PackageName Value="pPrometDBIntfs"/>
-        <DefaultFilename Value="..\dbintfs\pprometdbintfs.lpk"/>
       </Item3>
       <Item4>
-        <PackageName Value="FCL"/>
+        <Filename Value="uprometcscript.pas"/>
+        <UnitName Value="uprometcscript"/>
       </Item4>
+    </Files>
+    <RequiredPkgs Count="5">
+      <Item1>
+        <PackageName Value="general_javascript_script"/>
+        <DefaultFilename Value="..\..\..\..\general\javas_script\general_javascript_script.lpk"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="general_python_script"/>
+        <DefaultFilename Value="..\..\..\..\general\python_script\general_python_script.lpk"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="general_pascal_script"/>
+        <DefaultFilename Value="..\..\..\..\general\pascal_script\general_pascal_script.lpk"/>
+      </Item3>
+      <Item4>
+        <PackageName Value="pPrometDBIntfs"/>
+        <DefaultFilename Value="..\dbintfs\pprometdbintfs.lpk"/>
+      </Item4>
+      <Item5>
+        <PackageName Value="FCL"/>
+      </Item5>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

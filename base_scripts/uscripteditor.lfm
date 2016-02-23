@@ -691,7 +691,7 @@ object fScriptEditor: TfScriptEditor
               'Pascal'
               'SQL'
               'Python'
-              'Lua'
+              'JavaScript'
             )
             MaxLength = 0
             OnSelect = cbSyntaxSelect
@@ -2627,5 +2627,11 @@ object fScriptEditor: TfScriptEditor
     object MenuItem10: TMenuItem
       Action = acGotoUnit
     end
+  end
+  object HigJavaScript: TSynJScriptSyn
+    Enabled = False
+    CommentAttri.Foreground = clBlue
+    left = 856
+    top = 112
   end
 end
