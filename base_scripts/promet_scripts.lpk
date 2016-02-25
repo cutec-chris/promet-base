@@ -8,10 +8,11 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
+        <OtherUnitFiles Value="..\..\components\besen\src"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="5">
+    <Files Count="6">
       <Item1>
         <Filename Value="uprometpascalscript.pas"/>
         <UnitName Value="uprometpascalscript"/>
@@ -32,6 +33,10 @@
         <Filename Value="uprometjavascriptscript.pas"/>
         <UnitName Value="uprometjavascriptscript"/>
       </Item5>
+      <Item6>
+        <Filename Value="..\..\components\besen\src\BESEN.pas"/>
+        <UnitName Value="BESEN"/>
+      </Item6>
     </Files>
     <RequiredPkgs Count="4">
       <Item1>
