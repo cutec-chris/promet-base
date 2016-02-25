@@ -1,6 +1,7 @@
 ﻿Build 423
       - Search:Show Articlenumber,Status also in Tree Search
       - Search:Search Asynchron (not on every type)
+      - Aufgabenansichten:akzeptieren Eingaben in Form: KW1-53
 Build 422
       - Automation:separates Vorbereitungsscript Script hinzugefügt
       - Scripte: Druckfunktionalität und nicht flüchtige Speicherfunktionalität (Variablen in ahuptspeicher oder Datenbank über die Laufzeit des Scriptes hinaus "retten")

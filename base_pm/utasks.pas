@@ -326,7 +326,7 @@ uses uRowEditor,uTask,ubasevisualapplicationtools,uData,uMainTreeFrame,
   uSearch,uProjects,uTaskEdit,uBaseApplication,LCLType,uBaseERPDBClasses,
   uSelectReport,uFormAnimate,md5,uNRights,uBaseVisualControls,
   uBaseVisualApplication,uError,uSendMail,uPerson,Utils,uprometipc,
-  uscriptimport;
+  uscriptimport,dateutils;
 procedure TfTaskFrame.SetDataSet(const AValue: TBaseDBDataSet);
 var
   aFilter: String = '';
@@ -1648,6 +1648,8 @@ procedure TfTaskFrame.FGridViewGetCellText(Sender: TObject; aCol: TColumn;aRow :
 var
   aUser: String;
   nF: Extended;
+  i: Integer;
+  aTime: TDateTime;
 begin
   if aCol.FieldName = 'OWNER' then
     begin
@@ -1684,6 +1686,35 @@ begin
     begin
       if TryStrToFloat(NewText,nF) then
         NewText := DayTimeToStr(nF);
+    end
+  else if  Assigned(aCol.Field) and (aCol.Field.DataType=ftDateTime) then
+    begin
+      if TryStrToFloat(NewText,aTime) or TryStrToDate(NewText,aTime) then
+        begin
+          for i := 1 to 52 do
+            if trunc(aTime) = trunc(dateutils.StartOfAWeek(YearOf(Now()),i)+4) then
+              begin
+                NewText:='KW'+IntToStr(i);
+                break;
+              end;
+        end;
+    end;
+end;
+procedure TfTaskFrame.FGridViewSetCellText(Sender: TObject; aCol: TColumn;
+  aRow: Integer; var NewText: string);
+var
+  NewKW: Integer;
+begin
+  if (aCol.FieldName = 'PLANTIME') or (aCol.FieldName = 'BUFFERTIME') or (aCol.FieldName = 'TIME') then
+    begin
+      if trim(NewText) <> '' then
+        NewText:=FloatToStr(StrToDayTime(NewText));
+    end
+  else if (aCol.Field.DataType=ftDateTime) then
+    begin
+      if Uppercase(copy(NewText,0,2))='KW' then
+        if TryStrToInt(trim(copy(trim(NewText),3,length(trim(NewText)))),NewKW) then
+          NewText := DateTimeToStr(DateUtils.StartOfAWeek(YearOf(Now()),trunc(NewKW))+4);
     end;
 end;
 function TfTaskFrame.FGridViewSearchKey(Sender: TObject; X, Y: Integer;
@@ -1779,15 +1810,6 @@ begin
           ActiveSearch.Start(SearchString);
           Application.ProcessMessages;
         end;
-    end;
-end;
-procedure TfTaskFrame.FGridViewSetCellText(Sender: TObject; aCol: TColumn;
-  aRow: Integer; var NewText: string);
-begin
-  if (aCol.FieldName = 'PLANTIME') or (aCol.FieldName = 'BUFFERTIME') or (aCol.FieldName = 'TIME') then
-    begin
-      if trim(NewText) <> '' then
-        NewText:=FloatToStr(StrToDayTime(NewText));
     end;
 end;
 procedure TfTaskFrame.acAddPosExecute(Sender: TObject);

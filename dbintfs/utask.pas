@@ -188,7 +188,7 @@ resourcestring
   strRenamed                = 'umbenannt in "%s"';
   strNeedsAction            = 'Aufgabe benötigt Hilfe';
 implementation
-uses uBaseApplication,uIntfStrConsts,uProjects,uData,uCalendar,uTimes;
+uses uBaseApplication,uIntfStrConsts,uProjects,uData,uCalendar,uTimes,dateutils;
 function GetHoursPerDay: Real;
 begin
   Result := 8;
@@ -214,7 +214,8 @@ begin
       if TryStrToFloat(trim(copy(trim(aStr),0,length(trim(aStr))-3)),Result) then
         Result := (Result/GetHoursPerDay)/MinsPerHour;
     end
-  else TryStrToFloat(aStr,Result);
+  else
+    TryStrToFloat(aStr,Result);
 end;
 
 function CompareStarts(Item1, Item2: Pointer): Integer;
