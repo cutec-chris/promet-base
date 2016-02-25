@@ -26,13 +26,100 @@ unit uprometjavascriptscript;
 interface
 
 uses
-  Classes, SysUtils, genjavascriptscript, uprometscripts;
+  Classes, SysUtils, genscript, uprometscripts,BESEN;
 
 type
-  TPrometJavaScriptScript = class(TJavascriptScript)
+
+  { TPrometJavaScriptScript }
+
+  TPrometJavaScriptScript = class(TScript)
+  private
+    FBesen : TBESEN;
+    FLines : TStringList;
+    FRunning: Boolean;
+    FStopping : Boolean;
+  protected
+    function GetTyp: string; override;
+  public
+    procedure Init; override;
+    constructor Create;
+    destructor Destroy; override;
+    function IsRunning: Boolean; override;
+    function Stop: Boolean; override;
+    function GetStatus: TScriptStatus; override;
+    function Execute(aParameters: Variant; Debug: Boolean=false): Boolean; override;
   end;
 
 implementation
+
+{ TPrometJavaScriptScript }
+
+function TPrometJavaScriptScript.GetTyp: string;
+begin
+  Result := 'JavaScript'
+end;
+
+procedure TPrometJavaScriptScript.Init;
+begin
+  FLines:=nil;
+  FRunning:=False;
+  FStopping:=False;
+end;
+
+constructor TPrometJavaScriptScript.Create;
+begin
+  FBesen := TBESEN.Create;
+end;
+
+destructor TPrometJavaScriptScript.Destroy;
+begin
+  FreeAndNil(FBesen);
+  inherited Destroy;
+end;
+
+function TPrometJavaScriptScript.IsRunning: Boolean;
+begin
+  Result:=FRunning;
+end;
+
+function TPrometJavaScriptScript.Stop: Boolean;
+begin
+  if IsRunning then
+    begin
+      FStopping := True;
+      Result:=True;
+    end;
+end;
+
+function TPrometJavaScriptScript.GetStatus: TScriptStatus;
+begin
+  if IsRunning then
+    Result := ssRunning
+  else Result := ssNone;
+end;
+
+function TPrometJavaScriptScript.Execute(aParameters: Variant; Debug: Boolean
+  ): Boolean;
+begin
+  Result := False;
+  try
+    FRunning := True;
+    //Exec
+    FBesen.Execute(Source);
+    FRunning:=False;
+    Result := True;
+  except
+    on e : Exception do
+      begin
+        if Assigned(Writeln) then
+          Writeln(e.Message);
+        FRunning:=False;
+        FreeAndNil(FLines);
+        Init;
+        FStopping:=False;
+      end;
+  end;
+end;
 
 initialization
   RegisterScriptType(TPrometJavaScriptScript);
