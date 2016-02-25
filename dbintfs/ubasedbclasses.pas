@@ -3121,7 +3121,7 @@ begin
   if not TBaseDBModule(DataModule).IgnoreOpenRequests then
     begin
       try
-        if Assigned(FDataSet) then
+        if Assigned(FDataSet) and Assigned(DataModule) then
           TBaseDBModule(DataModule).DestroyDataSet(FDataSet);
       except
         with BaseApplication as IBaseApplication do

@@ -174,7 +174,7 @@ begin
           end;
           SpamPoints+=aChk;}
         end;
-      if SpamPoints > 5 then
+      if SpamPoints >= 5 then
         begin
           aTreeEntry := TREE_ID_SPAM_MESSAGES;
         end;
@@ -223,8 +223,7 @@ begin
       Customers := TPerson.Create(nil);
       atmp:=SysToUni(getemailaddr(fullmsg.Header.From));
       atmp := StringReplace(atmp,'''','',[rfReplaceAll]);
-      if Customers.SelectFromContactData(atmp) then
-        aTreeEntry:=TREE_ID_MESSAGES;
+      Customers.SelectFromContactData(atmp);
       Customers.Open;
       fullmsg.Free;
       FieldByName('TREEENTRY').AsInteger := aTreeEntry;
