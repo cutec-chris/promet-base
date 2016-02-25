@@ -26,10 +26,10 @@ unit uprometjavascriptscript;
 interface
 
 uses
-  Classes, SysUtils, genjavascriptscript, uprometscripts;
+  Classes, SysUtils,genscript, uprometscripts;
 
 type
-  TPrometJavaScriptScript = class(TJavascriptScript)
+  TPrometJavaScriptScript = class(TScript)
   end;
 
 implementation

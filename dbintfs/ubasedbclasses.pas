@@ -3609,7 +3609,7 @@ begin
       SortFields := 'DATE';
       SortDirection := sdDescending;
       UpdateFloatFields:=True;
-      Limit:=0;
+      Limit:=100;
     end;
 end;
 procedure TMeasurementData.FillDefaults(aDataSet: TDataSet);

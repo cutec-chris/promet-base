@@ -702,7 +702,7 @@ begin
     begin
       FIntSQL := BuildSQL;
       SQL.Text := FIntSQL;
-      if (FLimit>0) and Assigned(Params.FindParam('Limit')) then
+      if (FLimit>0) and Assigned(Params.FindParam('Limit')) and ((copy(Connection.Protocol,0,8)<>'postgres') or (FLimit>90))  then
         ParamByName('Limit').AsInteger:=FLimit;
       FFirstOpen:=False;
     end;
