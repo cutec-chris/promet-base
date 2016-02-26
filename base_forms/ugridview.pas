@@ -651,6 +651,8 @@ begin
 end;
 procedure TfGridView.FDataSourceStateChange(Sender: TObject);
 begin
+  if not FEntered then
+    fGridViewEnter(Self);
 end;
 procedure TfGridView.fGridViewEnter(Sender: TObject);
 begin
@@ -659,6 +661,7 @@ begin
   try
     FEntered := True;
     SyncDataSource;
+    if not FInitialized then FEntered:=False;
     if Assigned(DataSet) then
       begin
         DataSet.First;
