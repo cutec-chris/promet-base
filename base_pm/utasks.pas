@@ -66,6 +66,7 @@ type
     ActionList1: TActionList;
     bAddPos: TSpeedButton;
     bAddPos1: TSpeedButton;
+    bDeletePos13: TSpeedButton;
     bGotoProject: TSpeedButton;
     bDeletePos10: TSpeedButton;
     bDeletePos11: TSpeedButton;
@@ -234,7 +235,6 @@ type
       Field: TColumn);
     procedure FGridViewCellChanged(Sender: TObject; NewCell, OldCell: TPoint);
     procedure FGridViewCheckBoxColumnToggle(Field: TColumn);
-    procedure FGridViewDblClick(Sender: TObject);
     procedure FGridViewDelete(Sender: TObject);
     function FGridViewDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState): Boolean;
@@ -1548,11 +1548,6 @@ begin
     DataSet.DataSet.Post;
   Screen.Cursor:=crDefault;
 end;
-procedure TfTaskFrame.FGridViewDblClick(Sender: TObject);
-begin
-  acOpen.Execute;
-end;
-
 procedure TfTaskFrame.FGridViewDelete(Sender: TObject);
 begin
   acDelPos.Execute;
@@ -1924,7 +1919,6 @@ begin
   FGridView.OnSetupPosition:=@FGridViewSetupPosition;
   FGridView.OnCellButtonClick:=@FGridViewCellButtonClick;
   FGridView.OnCellChanged:=@FGridViewCellChanged;
-  FgridView.OnDblClick:=@FGridViewDblClick;
   FGridView.OnGetCellText:=@FGridViewGetCellText;
   FGridView.OnSetCellText:=@FGridViewSetCellText;
   FOwners := TStringList.Create;

@@ -884,9 +884,7 @@ begin
   else if (Key = VK_DOWN) or (Key = VK_RIGHT) then
     begin
       aLength := 0;
-      for i := 0 to mInplace.Blocks.Count-1 do
-        inc(aLength,UTF8length(mInplace.Blocks[i].Text)+UTF8length(lineending));
-      dec(aLength,UTF8length(lineending));
+      aLength:=UTF8Length(mInplace.Text);
       if ((Key = VK_DOWN) and (mInplace.SelStart >= aLength-(length(mInplace.Blocks[mInplace.Blocks.Count-1].Text)-1)))
       or ((Key = VK_RIGHT) and (mInplace.SelStart >= aLength-1))
       then
