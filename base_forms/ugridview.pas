@@ -1043,7 +1043,10 @@ begin
       OnDblClick(Sender);
     end
   else if not gList.EditorMode then
-    gList.EditorMode:=True;
+    begin
+      gList.SelectEditor;
+      gList.EditorMode:=True;
+    end;
 end;
 procedure TfGridView.gListDrawCell(Sender: TObject; aCol, aRow: Integer;
   aRect: TRect; aState: TGridDrawState);

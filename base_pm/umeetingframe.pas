@@ -400,7 +400,8 @@ begin
     begin
       if Data.GotoLink(TMeetings(DataSet).Entrys.FieldByName('LINK').AsString) then Res := True;
     end;
-  if not Res then FGridView.gList.EditorMode:=True;
+  if not Res then
+    FGridView.gList.EditorMode:=True;
 end;
 
 procedure TfMeetingFrame.FGridViewDragDrop(Sender, Source: TObject; X,
