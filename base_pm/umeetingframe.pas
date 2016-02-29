@@ -28,8 +28,8 @@ uses
   ActnList, ComCtrls, ExtCtrls, StdCtrls, Buttons, DbCtrls, EditBtn,
   uprometframesinplace, uPrometFrames, uExtControls, ugridview, Dialogs,
   uIntfStrConsts, variants, DBGrids, Grids, Graphics, Menus, ExtDlgs,
-  DBZVDateTimePicker, ZVDateTimePicker, uBaseSearch, uBaseDbClasses,
-  uBaseDatasetInterfaces;
+  DBZVDateTimePicker, ZVDateTimePicker, kmemo, uBaseSearch, uBaseDbClasses,
+  uEditorToolbar, uBaseDatasetInterfaces;
 
 type
   THackCustomGrid = class(TCustomGrid);
@@ -43,14 +43,34 @@ type
     acCopy: TAction;
     acDelete: TAction;
     acDelPos: TAction;
+    ACEditHyperlink: TAction;
+    ACEditSelectAll: TKMemoEditSelectAllAction;
+    ACFontBold: TAction;
+    ACFontItalic: TAction;
+    ACFontStrikeout: TAction;
+    ACFontStyle: TAction;
+    ACFontSubscript: TAction;
+    ACFontSuperscript: TAction;
+    ACFontUnderline: TAction;
+    ACFormatCopy: TAction;
     acImport: TAction;
+    ACInsertHyperlink: TAction;
+    ACInsertImage: TAction;
     acMAkeSubTask: TAction;
+    ACParaCenter: TAction;
+    ACParaDecIndent: TAction;
+    ACParaIncIndent: TAction;
+    ACParaLeft: TAction;
+    ACParaNumbering: TAction;
+    ACParaRight: TAction;
+    ACParaStyle: TAction;
     acPaste: TAction;
     acPrint: TAction;
     acRefresh: TAction;
     acRights: TAction;
     acSave: TAction;
     acSetTreeDir: TAction;
+    ACShowFormatting: TAction;
     acShowTreeDir: TAction;
     acStartTimeRegistering: TAction;
     acAddTopic: TAction;
@@ -63,6 +83,7 @@ type
     Action2: TAction;
     ActionList: TActionList;
     acUnmakeSubTask: TAction;
+    ALMain: TActionList;
     bAddPos: TSpeedButton;
     bAddPos1: TSpeedButton;
     bAddPos2: TSpeedButton;
@@ -70,6 +91,7 @@ type
     bDeletePos: TSpeedButton;
     bDeletePos2: TSpeedButton;
     bDeletePos5: TSpeedButton;
+    Bevel2: TBevel;
     bExecute1: TSpeedButton;
     bRenumber: TSpeedButton;
     Bevel1: TBevel;
@@ -90,13 +112,48 @@ type
     dtEnd: TDBZVDateTimePicker;
     eName: TDBEdit;
     Entrys: TDatasource;
+    ExtRotatedLabel2: TExtRotatedLabel;
+    fEditorToolbar1: TfEditorToolbar;
+    ILMain: TImageList;
     MandantDetails: TDatasource;
     MenuItem1: TMenuItem;
     miDelete: TMenuItem;
+    MIEditCopy: TMenuItem;
+    MIEditHyperlink: TMenuItem;
+    MIEditPaste: TMenuItem;
+    MIFontStyle: TMenuItem;
+    MIParaStyle: TMenuItem;
+    N1: TMenuItem;
+    N3: TMenuItem;
+    ODMain: TOpenDialog;
+    OpenPictureDialog1: TOpenPictureDialog;
+    pEdit: TPanel;
     pmAction: TPopupMenu;
+    PMMain: TPopupMenu;
     pNav2: TPanel;
     sbMenue1: TSpeedButton;
     RefreshTimer: TTimer;
+    SDMain: TSaveDialog;
+    ToBCopy: TToolButton;
+    ToBFont: TToolButton;
+    ToBFontBold: TToolButton;
+    ToBFontItalic: TToolButton;
+    ToBFontSubscript: TToolButton;
+    ToBFontSuperscript: TToolButton;
+    ToBFontUnderline: TToolButton;
+    ToBFormatCopy: TToolButton;
+    ToBPara: TToolButton;
+    ToBParaCenter: TToolButton;
+    ToBParaDecIndent: TToolButton;
+    ToBParaIncIndent: TToolButton;
+    ToBParaLeft: TToolButton;
+    ToBParaNumbering: TToolButton;
+    ToBParaRight: TToolButton;
+    ToBPaste: TToolButton;
+    ToBSecond: TToolBar;
+    ToBShowFormatting: TToolButton;
+    ToolButton3: TToolButton;
+    ToolButton4: TToolButton;
     Users: TDatasource;
     ExtRotatedLabel1: TExtRotatedLabel;
     ExtRotatedLabel3: TExtRotatedLabel;
@@ -190,6 +247,8 @@ type
   public
     { public declarations }
     constructor Create(AOwner: TComponent); override;
+    procedure FGridViewgListBeforeEnterEdit(Sender: TObject);
+    procedure FGridViewgListEditingDone(Sender: TObject);
     function OpenFromLink(aLink: string): Boolean; override;
     procedure New;override;
     destructor Destroy; override;
@@ -1099,6 +1158,27 @@ begin
   FGridView.Align:=alClient;
   FGridView.OnDragOver:=@FGridViewDragOver;
   FGridView.OnDragDrop:=@FGridViewDragDrop;
+  FGridView.gList.BeforeEnterEdit:=@FGridViewgListBeforeEnterEdit;
+  FGridView.gList.OnEditingDone:=@FGridViewgListEditingDone;
+end;
+
+procedure TfMeetingFrame.FGridViewgListBeforeEnterEdit(Sender: TObject);
+begin
+  if FGridView.gList.Editor is TKMemo then
+    begin
+      fEditorToolbar1.Editor := FGridView.gList.Editor as TKMemo;
+      pEdit.Visible:=True;
+    end
+  else
+    begin
+      pEdit.Visible:=False;
+    end;
+end;
+
+procedure TfMeetingFrame.FGridViewgListEditingDone(Sender: TObject);
+begin
+  if not FGridView.gList.EditorMode then
+    pEdit.Visible:=False;
 end;
 
 function TfMeetingFrame.OpenFromLink(aLink: string): Boolean;
