@@ -84,7 +84,8 @@ inherited fTaskFrame: TfTaskFrame
         Caption = 'Aufgabe'
         Font.Color = clMedGray
         Font.Height = 11
-        Font.Orientation = -900
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
@@ -179,7 +180,8 @@ inherited fTaskFrame: TfTaskFrame
         Caption = 'Zeit'
         Font.Color = clMedGray
         Font.Height = 11
-        Font.Orientation = -900
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
@@ -214,7 +216,8 @@ inherited fTaskFrame: TfTaskFrame
         Caption = 'Ansicht'
         Font.Color = clMedGray
         Font.Height = 11
-        Font.Orientation = -900
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
@@ -437,7 +440,8 @@ inherited fTaskFrame: TfTaskFrame
         Caption = 'zusätzlich'
         Font.Color = clMedGray
         Font.Height = 11
-        Font.Orientation = -900
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
@@ -880,9 +884,9 @@ inherited fTaskFrame: TfTaskFrame
       end
       object ExtRotatedLabel4: TLabel
         Left = 6
-        Height = 14
+        Height = 11
         Top = 0
-        Width = 27
+        Width = 21
         Caption = 'Filter'
         Font.Color = clMedGray
         Font.Height = 11
@@ -893,13 +897,13 @@ inherited fTaskFrame: TfTaskFrame
       object cbFilter: TComboBox
         AnchorSideLeft.Side = asrBottom
         Left = 6
-        Height = 27
+        Height = 21
         Hint = 'hier können Sie einen Filter wählen um die Liste einzuschränken'
         Top = 12
         Width = 18
         Anchors = [akTop, akLeft, akRight]
         BorderSpacing.Left = 8
-        ItemHeight = 0
+        ItemHeight = 13
         OnSelect = cbFilterSelect
         TabOrder = 0
       end
@@ -1153,7 +1157,6 @@ inherited fTaskFrame: TfTaskFrame
       ScrollWidth = 450
       TabOrder = 0
       TabStop = False
-      TopIndex = -1
     end
   end
   object pFilterOptions: TPanel[4]
@@ -1180,9 +1183,9 @@ inherited fTaskFrame: TfTaskFrame
       TabOrder = 0
       object cbMaxResults: TCheckBox
         Left = 9
-        Height = 22
+        Height = 17
         Top = 5
-        Width = 217
+        Width = 173
         Caption = 'Filterergebnisse begrenzen auf  '
         Checked = True
         OnChange = seMaxresultsChange
@@ -1302,9 +1305,9 @@ inherited fTaskFrame: TfTaskFrame
       end
       object lFilterEdit: TLabel
         Left = 9
-        Height = 15
+        Height = 13
         Top = 33
-        Width = 95
+        Width = 74
         Caption = 'Filterbedingung'
         ParentColor = False
       end
@@ -1320,7 +1323,7 @@ inherited fTaskFrame: TfTaskFrame
       end
       object eFilterIn: TEdit
         Left = 417
-        Height = 25
+        Height = 21
         Hint = 'Wenn Sie über mehrere Tabellen Filtern '#13#10'möchten füllen Sie dieses Feld'#13#10'z.b.'#13#10'Orders,OrderPos'
         Top = 80
         Width = 152
@@ -1338,8 +1341,8 @@ inherited fTaskFrame: TfTaskFrame
       object seMaxresults: TSpinEdit
         AnchorSideLeft.Control = cbMaxResults
         AnchorSideLeft.Side = asrBottom
-        Left = 226
-        Height = 25
+        Left = 182
+        Height = 21
         Hint = 'hier können Sie die Zahl der maximalen Filterergebnisse angeben'
         Top = 5
         Width = 52
@@ -1790,9 +1793,7 @@ inherited fTaskFrame: TfTaskFrame
             ShortCut = 57379
           end>
         MouseActions = <>
-        MouseTextActions = <>
         MouseSelActions = <>
-        VisibleSpecialChars = [vscSpace, vscTabAtLast]
         SelectedColor.BackPriority = 50
         SelectedColor.ForePriority = 50
         SelectedColor.FramePriority = 50
