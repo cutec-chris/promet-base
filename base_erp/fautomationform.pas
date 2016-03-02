@@ -132,6 +132,7 @@ type
     property DataSet : TBaseDBPosition read FDataSet write SetDataSet;
     procedure Clear;
     procedure DoOpen;
+    procedure ClearScreen;
     procedure DoAddPosition;
     procedure SelectFirstStep;
     property Script : TBaseScript read fScript;
@@ -411,7 +412,7 @@ begin
     end;
 end;
 
-function TFAutomation.ExecuteServerFunction(aFunc: string): variant;
+function TFAutomation.ExecuteServerFunction(aFunc: string): Variant;
 var
   aFunction: String;
   aParams : array of Variant;
@@ -910,6 +911,18 @@ begin
     end;
   FAutomation.acExecutePrepareStep.Enabled:=Assigned(Preparescript) and (Preparescript.Count>0);
 end;
+
+procedure TFAutomation.ClearScreen;
+var
+  TreeData: TProdTreeData;
+begin
+  if Assigned(tvStep.Selected) then
+    begin
+      TreeData := TProdTreeData(tvStep.Selected.Data);
+      TreeData.WorkText.Clear;
+    end;
+end;
+
 procedure TProdTreeData.LoadScript(aScript: string; aVersion: Variant);
 begin
   if not Assigned(Script) then
@@ -1050,9 +1063,14 @@ begin
   TProdTreeData(nNode.Data).Position:=DataSet.Id.AsVariant;
 end;
 
+procedure InternalClearScreen(Sender : TObject);
+begin
+  if Assigned(FAutomation) then
+    FAutomation.ClearScreen;
+end;
 
 initialization
   {$I fautomationform.lrs}
-
+  genscript.DoClearScreen:=@InternalClearScreen;
 end.
 
