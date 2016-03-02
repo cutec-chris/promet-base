@@ -762,20 +762,10 @@ inherited fMeetingFrame: TfMeetingFrame
           ClientWidth = 64
           TabOrder = 3
           Visible = False
-          object Bevel2: TBevel
-            Left = 4
-            Height = 4
-            Top = 0
-            Width = 56
-            Align = alTop
-            BorderSpacing.Left = 4
-            BorderSpacing.Right = 4
-            Shape = bsTopLine
-          end
           object ExtRotatedLabel2: TExtRotatedLabel
             Left = 0
-            Height = 356
-            Top = 4
+            Height = 360
+            Top = 0
             Width = 14
             Align = alLeft
             AutoSize = False
@@ -788,11 +778,10 @@ inherited fMeetingFrame: TfMeetingFrame
           end
           inline fEditorToolbar1: TfEditorToolbar
             Left = 14
-            Height = 356
-            Top = 4
+            Height = 360
             Width = 50
             Align = alRight
-            ClientHeight = 356
+            ClientHeight = 360
             ClientWidth = 50
             inherited ToBSecond: TToolBar
               Width = 50

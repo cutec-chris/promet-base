@@ -57,6 +57,7 @@ type
     procedure msg_SetPos(var Msg: TGridMessage); message GM_SETPOS;
     procedure msg_SelectAll(var Msg: TGridMessage); message GM_SELECTALL;
     procedure WMPaste(var Message: TLMPaste); message LM_PASTE;
+    function HasRTF : Boolean;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -1365,7 +1366,17 @@ begin
               if not FWordWrap then
                 TextRect(bRect,bRect.Left+3,bRect.Top,aText,aTextStyle)
               else
-                TextRect(bRect,bRect.Left+3,bRect.Top,aText,aTextStyleW);
+                begin
+                  {
+                  if copy(aText,0,1)='{' then
+                    begin
+                      mInplace.RTF:=aText;
+                      mInplace.Blocks.PaintToCanvas(Canvas,bRect.Left,bRect.Top,bRect);
+                    end
+                  else
+                  }}
+                    TextRect(bRect,bRect.Left+3,bRect.Top,aText,aTextStyleW);
+                end;
               dec(aRect.Right,1);
               dec(aRect.Bottom,1);
               if (gdSelected in aState) and gList.Focused then
@@ -1853,6 +1864,8 @@ var
   sl: TStringList;
   aKey : Word = 0;
   oDate: TDateTime;
+  HasRTF: Boolean;
+
 begin
   if FDisableEdit then exit;
   if FIgnoreSettext then
@@ -1963,24 +1976,26 @@ begin
       except
       end;
     end
-  else
+  else //Textfield
     begin
       if FDataSet.DataSet.RecordCount=0 then
         FDataSet.DataSet.Edit;
       BeginUpdate;
       tmp :=Value;
-      FInpStringList.Text := tmp;
+      if copy(tmp,0,1)='{' then
+        mInplace.RTF:=tmp
+      else mInplace.Text:=tmp;
       if DataSet.DataSet.FieldDefs.IndexOf(ShortTextField)>=0 then
         begin
-          if FInpStringList.Count > 0 then
+          if mInplace.Blocks.Count > 0 then
             begin
-              if DataSet.FieldByName(ShortTextField).AsString<>FInpStringList[0] then
+              if DataSet.FieldByName(ShortTextField).AsString<>mInplace.FirstLine then
                 begin
                   if (FDataSource.State <> dsEdit) and (FDataSource.State <> dsInsert) then
                     FDataSource.DataSet.Edit;
-                  DataSet.FieldByName(ShortTextField).AsString:=FInpStringList[0];
+                  DataSet.FieldByName(ShortTextField).AsString:=mInplace.FirstLine;
                 end;
-              FInpStringList.Delete(0);
+              mInplace.DeleteLine(0);
             end
           else if DataSet.FieldByName(ShortTextField).AsString<>'' then
             begin                   ;
@@ -1989,14 +2004,19 @@ begin
               DataSet.FieldByName(ShortTextField).Clear;
             end
         end;
-      tmp :=FInpStringList.Text;
       if Assigned(DataSet.FieldByName(TextField)) then
         begin
-          if DataSet.FieldByName(TextField).AsString<>FInpStringList.Text then
+          HasRTF := mInplace.HasRTF;
+          if (not HasRTF) and (DataSet.FieldByName(TextField).AsString<>mInplace.Text)
+          or (HasRTF) and (DataSet.FieldByName(TextField).AsString<>mInplace.RTF)
+          then
             begin
               if (FDataSource.State <> dsEdit) and (FDataSource.State <> dsInsert) then
                 FDataSource.DataSet.Edit;
-              DataSet.FieldByName(TextField).AsString:=FInpStringList.Text;
+              //if HasRTF then
+              //  DataSet.FieldByName(TextField).AsString:=mInplace.RTF
+              //else
+                DataSet.FieldByName(TextField).AsString:=mInplace.Text;
               dataSet.Change;
               TRowObject(gList.Objects[0,aRow]).RefreshHeight:=True;
             end;
@@ -3790,6 +3810,19 @@ begin
   EditingDone;
 end;
 
+function TInplaceMemo.HasRTF: Boolean;
+var
+  a: Integer;
+begin
+  Result := False;
+  for a := 0 to Blocks.Count-1 do
+    if Blocks[a].ParaStyle<>ParaStyle then
+      begin
+        Result := True;
+        break;
+      end;
+end;
+
 constructor TInplaceMemo.Create(AOwner: TComponent);
 begin
   FSetValue:=True;
@@ -3816,7 +3849,10 @@ procedure TInplaceMemo.InplaceMemoChange(Sender: TObject);
 var
   aText: TKString;
 begin
-  aText := Text;
+  //if not HasRTF then
+    aText := Text
+  //else aText:=RTF
+  ;
   if (FGrid<>nil) and Visible then
     begin
       TUnprotectedGrid(FGrid).SetEditText(FCol, FRow, aText);

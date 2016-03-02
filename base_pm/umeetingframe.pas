@@ -91,7 +91,6 @@ type
     bDeletePos: TSpeedButton;
     bDeletePos2: TSpeedButton;
     bDeletePos5: TSpeedButton;
-    Bevel2: TBevel;
     bExecute1: TSpeedButton;
     bRenumber: TSpeedButton;
     Bevel1: TBevel;
