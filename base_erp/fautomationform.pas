@@ -262,7 +262,8 @@ begin
           if Assigned(TreeData.Script) then
             begin
               FScript := TreeData.Script;
-              if not TreeData.Script.Execute(Null) then
+              tvStep.Enabled:=False;
+              if not FScript.Execute(Null) then
                 begin
                   if not Assigned(TreeData.Script.Script) then
                     TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:Scripttyp unbekannt</b>')
@@ -276,6 +277,7 @@ begin
             end;
           acExecuteStep.Checked:=False;
           acExecuteStep.Caption:=strRun;
+          tvStep.Enabled:=True;
         end
       else
         begin
@@ -489,8 +491,9 @@ begin
   TreeData := TProdTreeData(tvStep.Selected.Data);
   TreeData.WorkText.Clear;
   TreeData.PreText.Clear;
-  FreeAndNil(TreeData.Script);
   FreeAndNil(TreeData.Documents);
+  FreeAndNil(TreeData.Preparescript);
+  FreeAndNil(TreeData.Script);
   //Information in Order
   if (Assigned(DataSet.FieldByName('PRSCRIPT')) and (DataSet.FieldByName('PRSCRIPT').AsString<>'')) or (DataSet.FieldByName('SCRIPT').AsString<>'') or (DataSet.FieldByName('TEXT').AsString<>'') then
     begin

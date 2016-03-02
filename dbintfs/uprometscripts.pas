@@ -431,8 +431,12 @@ var
   aStartTime: TDateTime;
 begin
   Result := False;
-  if Assigned(GetScript) then
-    Result := FScript.Execute(Parameters,Debug);
+  try
+    if Assigned(GetScript) then
+      Result := FScript.Execute(Parameters,Debug);
+  except
+    Result := False;
+  end;
 end;
 
 function TBaseScript.Copy(aNewVersion: Variant): Boolean;
