@@ -30,7 +30,7 @@ uses
   ComCtrls, uExtControls, db, Grids, ActnList, Menus, uBaseDBClasses,
   uBaseDbInterface, StdCtrls, Graphics, types, Clipbrd, LMessages, kmemo,
   kfunctions, ubasevisualapplicationtools, ZVDateTimePicker, Dialogs, DbCtrls,
-  EditBtn, uBaseDatasetInterfaces,keditcommon;
+  EditBtn, uBaseDatasetInterfaces,keditcommon,kcontrols;
 type
   TUnprotectedGrid = class(TCustomGrid);
 
@@ -46,6 +46,7 @@ type
     function GetFirstLine: string;
     function GetLines: TStrings;
     procedure SetFirstLine(AValue: string);
+    procedure InplaceMemoChange(Sender: TObject);
   protected
     procedure RealSetText(const Value: TCaption); override;
     procedure ShowControl(AControl: TControl); override;
@@ -57,12 +58,11 @@ type
     procedure msg_SetPos(var Msg: TGridMessage); message GM_SETPOS;
     procedure msg_SelectAll(var Msg: TGridMessage); message GM_SELECTALL;
     procedure WMPaste(var Message: TLMPaste); message LM_PASTE;
-    function HasRTF : Boolean;
+    function CheckRTF(List: TKObjectList): Boolean;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure EditingDone; override;
-    procedure InplaceMemoChange(Sender: TObject);
     //property Lines : TStrings read GetLines;
     property FirstLine : string read GetFirstLine write SetFirstLine;
     property SetValue : Boolean read FSetValue write FSetValue;
@@ -2011,7 +2011,7 @@ begin
         end;
       if Assigned(DataSet.FieldByName(TextField)) then
         begin
-          HasRTF := mInplace.HasRTF;
+          HasRTF := mInplace.CheckRTF(mInplace.Blocks);
           if (DataSet.FieldByName(TextField).AsString<>FInpStringList.Text)
           then
             begin
@@ -3776,7 +3776,10 @@ begin
       //WordWrap:=True;
       aText := Text;
       aClear := length(trim(aText))<2;
-      Text:=Msg.Value;
+      if copy(msg.Value,0,1)='{' then
+        RTF:=Msg.Value
+      else
+        Text:=Msg.Value;
       if aClear then
         SelStart:=length(Msg.Value)+1;
     end;
@@ -3814,17 +3817,35 @@ begin
   EditingDone;
 end;
 
-function TInplaceMemo.HasRTF: Boolean;
+function TInplaceMemo.CheckRTF(List : TKObjectList): Boolean;
 var
-  a: Integer;
+  i: Integer;
+  aBlock: TObject;
+  aStyle: TKMemoTextStyle = nil;
 begin
   Result := False;
-  for a := 0 to Blocks.Count-1 do
-    if Blocks[a].ParaStyle<>ParaStyle then
-      begin
-        Result := True;
-        break;
-      end;
+  for i := 0 to List.Count-1 do
+    begin
+      aBlock := List[i];
+      if (aBlock is TKMemoTextBlock) then
+        begin
+          if not Assigned(aStyle) then
+            aStyle := TKMemoTextBlock(aBlock).TextStyle;
+          Result := Result or (aStyle.Font.Name <> TKMemoTextBlock(aBlock).TextStyle.Font.Name);
+          Result := Result or (aStyle.Font.Style <> TKMemoTextBlock(aBlock).TextStyle.Font.Style);
+          Result := Result or (aStyle.Font.Color <> TKMemoTextBlock(aBlock).TextStyle.Font.Color);
+        end
+      else if aBlock is TKObjectList then
+        Result := CheckRTF(aBlock as TKObjectList)
+      else if aBlock is TKMemoHyperlink then
+        Result := True
+      else if aBlock is TKMemoImageBlock then
+        Result := True
+      else if aBlock is TKMemoTable then
+        Result := True
+      ;
+      if Result then break;
+    end;
 end;
 
 constructor TInplaceMemo.Create(AOwner: TComponent);
@@ -3853,9 +3874,9 @@ procedure TInplaceMemo.InplaceMemoChange(Sender: TObject);
 var
   aText: TKString;
 begin
-  //if not HasRTF then
+  if not CheckRTF(Blocks) then
     aText := Text
-  //else aText:=RTF
+  else aText:=RTF
   ;
   if (FGrid<>nil) and Visible then
     begin
