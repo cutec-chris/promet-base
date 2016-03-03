@@ -261,7 +261,7 @@ type
     FSortField: string;
     FActSortDirection: TSortDirection;
     FActSortField: string;
-    FInpStringList : TStringList;
+    FInpStringList : TKMemoBlocks;
     FDataSet : TBaseDBDataSet;
     FSTextField: string;
     FTextField: string;
@@ -1370,8 +1370,8 @@ begin
                   {
                   if copy(aText,0,1)='{' then
                     begin
-                      mInplace.RTF:=aText;
-                      mInplace.Blocks.PaintToCanvas(Canvas,bRect.Left,bRect.Top,bRect);
+                      mDrawInplace.RTF:=aText;
+                      mDrawInplace.Blocks.PaintToCanvas(Canvas,bRect.Left,bRect.Top,bRect);
                     end
                   else
                   }}
@@ -1982,20 +1982,25 @@ begin
         FDataSet.DataSet.Edit;
       BeginUpdate;
       tmp :=Value;
-      if copy(tmp,0,1)='{' then
-        mInplace.RTF:=tmp
-      else mInplace.Text:=tmp;
-      if DataSet.DataSet.FieldDefs.IndexOf(ShortTextField)>=0 then
+      if not (gList.Editor=mInplace) then
         begin
-          if mInplace.Blocks.Count > 0 then
+          if copy(tmp,0,1)='{' then
+            mInplace.RTF:=tmp
+          else mInplace.Text:=tmp;
+        end;
+      FInpStringList.Assign(mInplace.Blocks);
+      if DataSet.DataSet.FieldDefs.IndexOf(ShortTextField)>=0 then
+        begin          if FInpStringList.Count > 0 then
             begin
               if DataSet.FieldByName(ShortTextField).AsString<>mInplace.FirstLine then
                 begin
                   if (FDataSource.State <> dsEdit) and (FDataSource.State <> dsInsert) then
                     FDataSource.DataSet.Edit;
-                  DataSet.FieldByName(ShortTextField).AsString:=mInplace.FirstLine;
+                  DataSet.FieldByName(ShortTextField).AsString:=FInpStringList[0].Text;
                 end;
-              mInplace.DeleteLine(0);
+              FInpStringList.Delete(0);
+              if FInpStringList.Count>0 then
+                FInpStringList.Delete(0);
             end
           else if DataSet.FieldByName(ShortTextField).AsString<>'' then
             begin                   ;
@@ -2007,8 +2012,7 @@ begin
       if Assigned(DataSet.FieldByName(TextField)) then
         begin
           HasRTF := mInplace.HasRTF;
-          if (not HasRTF) and (DataSet.FieldByName(TextField).AsString<>mInplace.Text)
-          or (HasRTF) and (DataSet.FieldByName(TextField).AsString<>mInplace.RTF)
+          if (DataSet.FieldByName(TextField).AsString<>FInpStringList.Text)
           then
             begin
               if (FDataSource.State <> dsEdit) and (FDataSource.State <> dsInsert) then
@@ -2016,7 +2020,7 @@ begin
               //if HasRTF then
               //  DataSet.FieldByName(TextField).AsString:=mInplace.RTF
               //else
-                DataSet.FieldByName(TextField).AsString:=mInplace.Text;
+                DataSet.FieldByName(TextField).AsString:=FInpStringList.Text;
               dataSet.Change;
               TRowObject(gList.Objects[0,aRow]).RefreshHeight:=True;
             end;
@@ -2872,7 +2876,7 @@ begin
   FDontUpdate := 0;
   FInvertedDrawing:=False;
   FSortDirection:=sdIgnored;
-  FInpStringList := TStringList.Create;
+  FInpStringList := TKMemoBlocks.Create;
   FDefaultRowHeight := False;
   mInplace := TInplaceMemo.Create(Self);
   mInplace.ScrollBars:=ssAutoVertical;

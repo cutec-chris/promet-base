@@ -68,6 +68,7 @@ type
     bAddPos: TSpeedButton;
     bAddPos1: TSpeedButton;
     bDeletePos13: TSpeedButton;
+    bDeletePos14: TSpeedButton;
     bGotoProject: TSpeedButton;
     bDeletePos10: TSpeedButton;
     bDeletePos11: TSpeedButton;

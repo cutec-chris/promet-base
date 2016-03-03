@@ -25,6 +25,7 @@ uses
 type
   { TfMainTaskFrame }
   TfMainTaskFrame = class(TPrometMainFrame)
+    procedure FTasksGridViewgListDblClick(Sender: TObject);
   private
     { private declarations }
     FTasks : TfTaskFrame;
@@ -42,6 +43,11 @@ type
 
 implementation
 {$R *.lfm}
+
+procedure TfMainTaskFrame.FTasksGridViewgListDblClick(Sender: TObject);
+begin
+  fTasks.acOpen.Execute;
+end;
 
 procedure TfMainTaskFrame.SetConnection(AValue: TComponent);
 begin
@@ -66,6 +72,7 @@ begin
   FTasks.Parent := Self;
   fTasks.Align:=alClient;
   fTasks.Show;
+  fTasks.GridView.gList.OnDblClick:=@FTasksGridViewgListDblClick;
 end;
 destructor TfMainTaskFrame.Destroy;
 begin

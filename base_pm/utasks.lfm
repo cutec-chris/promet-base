@@ -36,13 +36,13 @@ inherited fTaskFrame: TfTaskFrame
     TabOrder = 1
     object Panel1: TPanel
       Left = 0
-      Height = 171
+      Height = 196
       Top = 20
       Width = 47
       Align = alTop
       BorderSpacing.Top = 20
       BevelOuter = bvNone
-      ClientHeight = 171
+      ClientHeight = 196
       ClientWidth = 47
       TabOrder = 0
       object bAddPos: TSpeedButton
@@ -57,7 +57,7 @@ inherited fTaskFrame: TfTaskFrame
       object bDeletePos: TSpeedButton
         Left = 15
         Height = 24
-        Top = 146
+        Top = 169
         Width = 24
         Action = acDelPos
         Flat = True
@@ -76,7 +76,7 @@ inherited fTaskFrame: TfTaskFrame
       end
       object ExtRotatedLabel1: TExtRotatedLabel
         Left = 0
-        Height = 167
+        Height = 192
         Top = 4
         Width = 14
         Align = alLeft
@@ -92,7 +92,7 @@ inherited fTaskFrame: TfTaskFrame
       object bDeletePos2: TSpeedButton
         Left = 15
         Height = 24
-        Top = 50
+        Top = 73
         Width = 24
         Action = acMAkeSubTask
         Flat = True
@@ -102,7 +102,7 @@ inherited fTaskFrame: TfTaskFrame
       object bDeletePos5: TSpeedButton
         Left = 15
         Height = 24
-        Top = 74
+        Top = 97
         Width = 24
         Action = acUnmakeSubTask
         Flat = True
@@ -112,7 +112,7 @@ inherited fTaskFrame: TfTaskFrame
       object bDeletePos6: TSpeedButton
         Left = 15
         Height = 24
-        Top = 98
+        Top = 121
         Width = 24
         Action = acLink
         Flat = True
@@ -122,7 +122,7 @@ inherited fTaskFrame: TfTaskFrame
       object bDeletePos10: TSpeedButton
         Left = 15
         Height = 24
-        Top = 27
+        Top = 50
         Width = 24
         Action = acTerminate
         Flat = True
@@ -132,9 +132,19 @@ inherited fTaskFrame: TfTaskFrame
       object bDeletePos12: TSpeedButton
         Left = 15
         Height = 24
-        Top = 122
+        Top = 145
         Width = 24
         Action = acMarkProblem
+        Flat = True
+        Layout = blGlyphTop
+        ShowCaption = False
+      end
+      object bDeletePos14: TSpeedButton
+        Left = 15
+        Height = 24
+        Top = 27
+        Width = 25
+        Action = acOpen
         Flat = True
         Layout = blGlyphTop
         ShowCaption = False
@@ -143,7 +153,7 @@ inherited fTaskFrame: TfTaskFrame
     object Panel2: TPanel
       Left = 0
       Height = 35
-      Top = 191
+      Top = 216
       Width = 47
       Align = alTop
       BevelOuter = bvNone
@@ -189,7 +199,7 @@ inherited fTaskFrame: TfTaskFrame
     object Panel3: TPanel
       Left = 0
       Height = 125
-      Top = 226
+      Top = 251
       Width = 47
       Align = alTop
       BevelOuter = bvNone
@@ -402,7 +412,7 @@ inherited fTaskFrame: TfTaskFrame
     object Panel9: TPanel
       Left = 0
       Height = 54
-      Top = 351
+      Top = 376
       Width = 47
       Align = alTop
       BevelOuter = bvNone
@@ -462,17 +472,17 @@ inherited fTaskFrame: TfTaskFrame
       Left = 80
       Height = 42
       Top = 0
-      Width = 240
+      Width = 232
       Align = alLeft
       BevelOuter = bvNone
       ClientHeight = 42
-      ClientWidth = 240
+      ClientWidth = 232
       TabOrder = 0
       object Label3: TLabel
         Left = 4
         Height = 15
         Top = -2
-        Width = 232
+        Width = 224
         Alignment = taCenter
         Anchors = [akLeft, akRight, akBottom]
         AutoSize = False
@@ -493,7 +503,7 @@ inherited fTaskFrame: TfTaskFrame
         ShowCaption = False
       end
       object bDeletePos1: TSpeedButton
-        Left = 212
+        Left = 205
         Height = 24
         Top = 14
         Width = 24
@@ -503,7 +513,7 @@ inherited fTaskFrame: TfTaskFrame
         ShowCaption = False
       end
       object bDeletePos3: TSpeedButton
-        Left = 143
+        Left = 136
         Height = 24
         Top = 14
         Width = 24
@@ -513,7 +523,7 @@ inherited fTaskFrame: TfTaskFrame
         ShowCaption = False
       end
       object bDeletePos4: TSpeedButton
-        Left = 166
+        Left = 159
         Height = 24
         Top = 14
         Width = 24
@@ -523,7 +533,7 @@ inherited fTaskFrame: TfTaskFrame
         ShowCaption = False
       end
       object bDeletePos7: TSpeedButton
-        Left = 189
+        Left = 182
         Height = 24
         Top = 14
         Width = 24
@@ -533,7 +543,7 @@ inherited fTaskFrame: TfTaskFrame
         ShowCaption = False
       end
       object bDeletePos8: TSpeedButton
-        Left = 72
+        Left = 65
         Height = 24
         Top = 14
         Width = 25
@@ -543,7 +553,7 @@ inherited fTaskFrame: TfTaskFrame
         ShowCaption = False
       end
       object bDeletePos9: TSpeedButton
-        Left = 120
+        Left = 113
         Height = 24
         Top = 14
         Width = 24
@@ -553,7 +563,7 @@ inherited fTaskFrame: TfTaskFrame
         ShowCaption = False
       end
       object bDeletePos11: TSpeedButton
-        Left = 96
+        Left = 89
         Height = 24
         Top = 14
         Width = 25
@@ -574,7 +584,7 @@ inherited fTaskFrame: TfTaskFrame
       end
     end
     object Panel6: TPanel
-      Left = 320
+      Left = 312
       Height = 42
       Top = 0
       Width = 29
@@ -620,7 +630,7 @@ inherited fTaskFrame: TfTaskFrame
       end
     end
     object Panel7: TPanel
-      Left = 392
+      Left = 384
       Height = 42
       Top = 0
       Width = 127
@@ -833,7 +843,7 @@ inherited fTaskFrame: TfTaskFrame
       end
     end
     object pNav1: TPanel
-      Left = 349
+      Left = 341
       Height = 42
       Top = 0
       Width = 43
@@ -862,15 +872,15 @@ inherited fTaskFrame: TfTaskFrame
       end
     end
     object Panel5: TPanel
-      Left = 580
+      Left = 572
       Height = 42
       Top = 0
-      Width = 69
+      Width = 77
       Align = alClient
       BorderSpacing.Right = 40
       BevelOuter = bvNone
       ClientHeight = 42
-      ClientWidth = 69
+      ClientWidth = 77
       Constraints.MaxWidth = 700
       TabOrder = 4
       object Bevel7: TBevel
@@ -900,7 +910,7 @@ inherited fTaskFrame: TfTaskFrame
         Height = 21
         Hint = 'hier können Sie einen Filter wählen um die Liste einzuschränken'
         Top = 12
-        Width = 18
+        Width = 26
         Anchors = [akTop, akLeft, akRight]
         BorderSpacing.Left = 8
         ItemHeight = 13
@@ -908,7 +918,7 @@ inherited fTaskFrame: TfTaskFrame
         TabOrder = 0
       end
       object bEditFilter: TSpeedButton
-        Left = 27
+        Left = 35
         Height = 21
         Hint = 'zeigt/verbirgt den Filtereditor'
         Top = 12
@@ -957,7 +967,7 @@ inherited fTaskFrame: TfTaskFrame
       end
     end
     object Panel8: TPanel
-      Left = 519
+      Left = 511
       Height = 42
       Top = 0
       Width = 61
@@ -2016,6 +2026,7 @@ inherited fTaskFrame: TfTaskFrame
     end
     object acOpen: TAction
       Caption = 'Öffnen'
+      Hint = 'Aufgabe öffnen'
       ImageIndex = 19
       OnExecute = acOpenExecute
       ShortCut = 16463
