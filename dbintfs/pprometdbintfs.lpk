@@ -165,8 +165,8 @@
         <UnitName Value="uWlxModule"/>
       </Item38>
       <Item39>
-        <Filename Value="uspreedsheet.pas"/>
-        <UnitName Value="uspreedsheet"/>
+        <Filename Value="uspreadsheet.pas"/>
+        <UnitName Value="uspreadsheet"/>
       </Item39>
     </Files>
     <RequiredPkgs Count="4">

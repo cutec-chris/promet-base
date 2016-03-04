@@ -173,6 +173,19 @@ type
   TBaseDBDatasetClass = class of TBaseDBDataset;
   TBaseDBListClass = class of TBaseDBList;
 
+  TBaseDBFields = class(TBaseDBDataset)
+  public
+    procedure DefineFields(aDataSet : TDataSet);override;
+  end;
+
+  TBaseDBTables = class(TBaseDBDataset)
+  private
+    FFields: TBaseDBFields;
+  public
+    procedure DefineFields(aDataSet : TDataSet);override;
+    property Fields : TBaseDBFields read FFields;
+  end;
+
   { TBaseHistory }
 
   TBaseHistory = class(TBaseDBList)
@@ -581,6 +594,57 @@ resourcestring
   strAvalible                   = 'Verfügbar';
   strNeedsAction                = 'benötigt Hilfe';
   strCostCentre                 = 'Kostenstelle';
+
+procedure TBaseDBFields.DefineFields(aDataSet: TDataSet);
+begin
+  with aDataSet as IBaseManageDB do
+    begin
+      TableName := 'TABLEFIELDS';
+      if Assigned(ManagedFieldDefs) then
+        with ManagedFieldDefs do
+          begin
+            Add('NAME',ftString,50,True);
+            Add('ALIAS',ftString,150,False);
+            Add('TYPE',ftString,1,True);
+            {
+              C:NVARCHAR
+              T:TEXT
+              I:INTEGER
+              D:DATE
+              B:BLOB
+            }
+            Add('SIZE',ftInteger,0,True);
+          end;
+      if Assigned(ManagedIndexdefs) then
+        with ManagedIndexDefs do
+          begin
+            Add('NAME','NAME',[ixUnique]);
+            Add('ALIAS','ALIAS',[]);
+          end;
+    end;
+end;
+
+procedure TBaseDBTables.DefineFields(aDataSet: TDataSet);
+begin
+  with aDataSet as IBaseManageDB do
+    begin
+      TableName := 'TABLES';
+      if Assigned(ManagedFieldDefs) then
+        with ManagedFieldDefs do
+          begin
+            Add('NAME',ftString,50,True);
+            Add('SHEMA',ftString,150,False);
+            Add('SHEMAFILE',ftString,150,False);
+            Add('ALIAS',ftString,150,False);
+          end;
+      if Assigned(ManagedIndexdefs) then
+        with ManagedIndexDefs do
+          begin
+            Add('NAME','NAME',[ixUnique]);
+            Add('ALIAS','ALIAS',[]);
+          end;
+    end;
+end;
 
 procedure TBoilerplate.DefineFields(aDataSet: TDataSet);
 begin

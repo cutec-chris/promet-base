@@ -298,7 +298,7 @@ begin
   with Application as IBaseDbInterface do
     begin
     s := DBConfig.ReadString('GRID:'+Uppercase(tmp),'');
-    if s='' then //Try to find an Cionfiguration from Other User matches that grid
+    if s='' then //Try to find an Configuration from Other User matches that grid
       begin
         aOptions := TOptions.Create(nil);
         aOptions.Filter(Data.QuoteField('OPTION')+'='+Data.QuoteValue('GRID:'+Uppercase(tmp)));
