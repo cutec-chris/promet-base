@@ -5,7 +5,7 @@ unit uspreadsheet;
 interface
 
 uses
-  Classes, SysUtils,uBaseDbClasses,db,uBaseDatasetInterfaces;
+  Classes, SysUtils,uBaseDbClasses,db,uBaseDatasetInterfaces,variants;
 type
   TSpreedsheetCell = class(TBaseDBDataSet)
   public
@@ -51,7 +51,7 @@ end;
 function TSpreedsheet.GetCell(Row, Col : Integer): TSpreedsheetCell;
 begin
   Result := FCells;
-  if not FCells.Locate('ROW;CELL',VarArrayOf([]),[]) then
+  if not FCells.Locate('ROW;CELL',VarArrayOf([Row,Col]),[]) then
     begin
       FCells.Append;
       FCells.FieldByName('ROW').AsInteger:=Row;
