@@ -68,7 +68,7 @@ var
 
 implementation
 {$R *.lfm}
-uses uBaseDBInterface;
+uses uBaseDBInterface,uBaseDbClasses;
 procedure TfRowEditor.bAddRowClick(Sender: TObject);
 begin
   if lbSource.ItemIndex > -1 then
@@ -284,6 +284,7 @@ var
   GridWidth: Integer;
   Percentage: Boolean;
   sl: String;
+  aOptions: TOptions;
 begin
   Result := False;
   if not Assigned(DataSource) then exit;
@@ -296,7 +297,16 @@ begin
   IsReadOnly := True;
   with Application as IBaseDbInterface do
     begin
-    s := DBConfig.ReadString('GRID:'+Uppercase(tmp),Defaults);
+    s := DBConfig.ReadString('GRID:'+Uppercase(tmp),'');
+    if s='' then //Try to find an Cionfiguration from Other User matches that grid
+      begin
+        aOptions := TOptions.Create(nil);
+        aOptions.Filter(Data.QuoteField('OPTION')+'='+Data.QuoteValue('GRID:'+Uppercase(tmp)));
+        if aOptions.Count>0 then
+          s := aOptions.FieldByName('VALUE').AsString
+        else s := Defaults;
+        aOptions.Free;
+      end;
     if ((s = '') and (Filter <> '')) and Data.IsSQLDB then
       begin
         aConfig := Data.GetNewDataSet('select '+Data.QuoteField('VALUE')+' from '+Data.QuoteField('OPTIONS')+' where '+Data.QuoteField('OPTION')+'='+Data.QuoteValue('GRID:'+Uppercase(tmp)));
