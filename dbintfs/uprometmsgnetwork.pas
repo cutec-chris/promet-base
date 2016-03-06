@@ -24,7 +24,7 @@ unit uprometmsgnetwork;
 interface
 
 uses
-  Classes, SysUtils, blcksock, synsock;
+  Classes, SysUtils, blcksock, synsock, ssl_openssl, synautil;
 type
   TPrometNetworkDaemon = class(TThread)
   private
@@ -35,10 +35,16 @@ type
     procedure Execute; override;
   end;
 
+  { TPrometNetworkThrd }
+
   TPrometNetworkThrd = class(TThread)
   private
     Sock:TTCPBlockSocket;
     CSock: TSocket;
+    FCommand : string;
+    FResult : string;
+    procedure DoCommand;
+    function ProcessHttpRequest(Request, URI: string): integer;
   public
     Constructor Create (hsock:tSocket);
     procedure Execute; override;
@@ -81,15 +87,25 @@ end;
 procedure TPrometNetworkDaemon.Execute;
 var
   ClientSock:TSocket;
+  ListenOk: Boolean;
 begin
   with sock do
     begin
       CreateSocket;
       setLinger(true,10000);
-      bind('0.0.0.0','8087');
-      listen;
+      ListenOk := False;
       repeat
-        if LastError<>0 then Listen
+        if not ListenOk then
+          begin
+            bind('0.0.0.0','8087');
+            if LastError=0 then
+              begin
+                ListenOk:=True;
+                listen;
+                if LastError<>0 then
+                  ListenOk:=False;
+              end;
+          end
         else
           begin
             if terminated then break;
@@ -103,7 +119,94 @@ begin
     end;
 end;
 
-Constructor TPrometNetworkThrd.Create(Hsock:TSocket);
+procedure TPrometNetworkThrd.DoCommand;
+var
+  aCmd, uri, protocol, s: String;
+  headers: TStringList;
+  size, Timeout, x, ResultCode, n: Integer;
+  InputData, OutputData: TMemoryStream;
+begin
+  FResult:='ERROR: failed!';
+  if pos(' ',FCommand)>0 then
+    aCmd := copy(FCommand,0,pos(' ',FCommand)-1)
+  else aCmd := FCommand;
+  Fetch(FCommand,' ');
+  case Uppercase(aCmd) of
+  'EXIT','QUIT':
+    begin
+      FResult:='OK:Bye!';
+      Terminate;
+    end;
+  'STARTTLS':
+    begin
+      if not sock.SSLAcceptConnection then
+        Sock.SendString('This Connection is insecure.'+CRLF)
+      else
+        Sock.SendString('This Connection is secure now.'+CRLF);
+    end;
+  'GET','HEAD':
+    begin
+      Timeout := 12000;
+      uri := fetch(FCommand, ' ');
+      if uri = '' then
+        Exit;
+      protocol := fetch(FCommand, ' ');
+      headers := TStringList.Create;
+      size := -1;
+      //read request headers
+      if protocol <> '' then
+      begin
+        if pos('HTTP/', protocol) <> 1 then
+          Exit;
+        repeat
+          s := sock.RecvString(Timeout);
+          if sock.lasterror <> 0 then
+            Exit;
+          if s <> '' then
+            Headers.add(s);
+          if Pos('CONTENT-LENGTH:', Uppercase(s)) = 1 then
+            Size := StrToIntDef(SeparateRight(s, ' '), -1);
+        until s = '';
+      end;
+      //recv document...
+      InputData := TMemoryStream.Create;
+      if size >= 0 then
+      begin
+        InputData.SetSize(Size);
+        x := Sock.RecvBufferEx(InputData.Memory, Size, Timeout);
+        InputData.SetSize(x);
+        if sock.lasterror <> 0 then
+          Exit;
+      end;
+      OutputData := TMemoryStream.Create;
+      ResultCode := ProcessHttpRequest(aCmd, uri);
+      sock.SendString('HTTP/1.0 ' + IntTostr(ResultCode) + CRLF);
+      if protocol <> '' then
+      begin
+        headers.Add('Content-length: ' + IntTostr(OutputData.Size));
+        headers.Add('Connection: close');
+        headers.Add('Date: ' + Rfc822DateTime(now));
+        headers.Add('Server: Synapse HTTP server demo');
+        headers.Add('');
+        for n := 0 to headers.count - 1 do
+          sock.sendstring(headers[n] + CRLF);
+      end;
+      if sock.lasterror <> 0 then
+        Exit;
+      Sock.SendBuffer(OutputData.Memory, OutputData.Size);
+      headers.Free;
+    end
+  else
+    FResult:='ERROR: not implemented';
+  end;
+end;
+
+function TPrometNetworkThrd.ProcessHttpRequest(Request, URI: string): integer;
+begin
+  Result := 500;
+end;
+
+constructor TPrometNetworkThrd.Create(hsock: tSocket);
 begin
   inherited create(false);
   Csock := Hsock;
@@ -124,7 +227,9 @@ begin
           if terminated then break;
           s := RecvTerminated(60000,CRLF);
           if lastError<>0 then break;
-          SendString(s);
+          FCommand := s;
+          Synchronize(@DoCommand);
+          SendString(FResult+CRLF);
           if lastError<>0 then break;
         until false;
       end;
