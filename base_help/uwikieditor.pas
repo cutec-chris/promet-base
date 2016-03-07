@@ -93,6 +93,7 @@ type
     FDocName: String;
     FIdent: Variant;
     FOnChange: TNotifyEvent;
+    FOnNeedId: TNotifyEvent;
     function GetChanged: Boolean;
     function GetText: string;
     procedure SetDocuments(AValue: TDocuments);
@@ -103,13 +104,15 @@ type
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
     function GetHTML(aHTML: String): TSimpleIpHtml;
-    procedure Open(aText : string;aId : Variant;aTyp,aName : string);
+    procedure Open(aText: string; aId: Variant; aTyp, aName: string;
+      Refreshpages: Boolean=True);
     property Id : Variant read FIdent;
     property Text : string read GetText;
     property Caption : string read FCaption write FCaption;
     property Documents : TDocuments read FDocuments write SetDocuments;
     property Changed : Boolean read GetChanged;
     property OnChange : TNotifyEvent read FOnChange write FOnChange;
+    property OnNeedId : TNotifyEvent read FOnNeedId write FOnNeedId;
   end;
 
 resourcestring
@@ -407,6 +410,10 @@ end;
 
 procedure TfWikiEditor.AddDocuments(Sender: TObject);
 begin
+  if not Assigned(FDocuments) then
+    if Assigned(FOnNeedId) then
+      FOnNeedId(Self);
+  if not Assigned(FDocuments) then exit;
   TfDocumentFrame(Sender).DataSet := FDocuments;
   TfDocumentFrame(Sender).Refresh(FDocId,FDocTyp,FDocName,Null,Null);
 end;
@@ -432,7 +439,7 @@ begin
   mEdit.Text := AValue;
 end;
 
-procedure TfWikiEditor.Open(aText: string; aId: Variant; aTyp, aName: string);
+procedure TfWikiEditor.Open(aText: string; aId: Variant; aTyp, aName: string;Refreshpages : Boolean = True);
 var
   aDocPage: TTabSheet;
   aDocFrame: TfDocumentFrame;
@@ -441,13 +448,16 @@ var
   i: Integer;
 begin
   i := 0;
-  while i<pcPages.PageCount-1 do
+  if Refreshpages then
     begin
-      if (pcPages.Pages[i].ControlCount > 0) and (pcPages.Pages[i].Controls[0] is TfDocumentFrame) then
-        pcPages.Pages[i].Destroy
-      else inc(i);
+      while i<pcPages.PageCount-1 do
+        begin
+          if (pcPages.Pages[i].ControlCount > 0) and (pcPages.Pages[i].Controls[0] is TfDocumentFrame) then
+            pcPages.Pages[i].Destroy
+          else inc(i);
+        end;
+      pcPages.ClearTabClasses;
     end;
-  pcPages.ClearTabClasses;
   FIdent := aID;
   pcPages.AddTabClass(TfDocumentFrame,strFiles,@AddDocuments);
   if not Assigned(FDocuments) then

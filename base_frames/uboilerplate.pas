@@ -39,6 +39,7 @@ type
     procedure DataSetDataSetAfterScroll(DataSet: TDataSet);
     procedure eFilterChange(Sender: TObject);
     procedure FEditorChange(Sender: TObject);
+    procedure FEditorNeedId(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
@@ -80,10 +81,22 @@ begin
     end;
 end;
 
+procedure TfBoilerplate.FEditorNeedId(Sender: TObject);
+begin
+  if DataSet.State=dsInsert then
+    begin
+      DataSet.FieldByName('TEXT').AsString:=FEditor.Text;
+      DataSet.Post;
+      DataSet.DataSet.Refresh;
+      FEditor.Open(DataSet.FieldByName('TEXT').AsString,FBoilerpl.Id.AsVariant,'B',DataSet.FieldByName('NAME').AsString,False);
+    end;
+end;
+
 procedure TfBoilerplate.DataSetDataSetAfterScroll(DataSet: TDataSet);
 begin
   FEditor.Open(DataSet.FieldByName('TEXT').AsString,FBoilerpl.Id.AsVariant,'B',DataSet.FieldByName('NAME').AsString);
   FEditor.OnChange:=@FEditorChange;
+  FEditor.OnNeedId:=@FEditorNeedId;
 end;
 
 procedure TfBoilerplate.FormDestroy(Sender: TObject);
