@@ -139,6 +139,7 @@ begin
   Scanner.ScanImage;
 {$ENDIF}
   bScan.Caption := strScanNext;
+  bCloseandUse.Enabled:=True;
 end;
 procedure TfAcquire.bPreviewScanClick(Sender: TObject);
 var
@@ -342,6 +343,7 @@ begin
       Setlength(Images,length(Images)+1);
       Images[length(Images)-1] := TPicture.Create;
       Images[length(Images)-1].Bitmap.Assign(xImage);
+      Images[length(Images)-1].SaveToFile('c:\test.jpg');
       if cbOCR.Checked then
         begin
           StartOCR(Texts,Images[length(Images)-1]);
@@ -414,7 +416,7 @@ begin
   Image.Picture.Clear;
   if length(Images)>udPage.Position then
     begin
-      Image.Picture.Assign(Images[udPage.Position]);
+      Image.Picture.Bitmap.Assign(Images[udPage.Position].Bitmap);
       Ratio := Images[udPage.Position].Height / Images[udPage.Position].Width;
       Image.Height := round(Image.Width*Ratio);
     end;

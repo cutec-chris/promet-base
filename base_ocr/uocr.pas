@@ -120,7 +120,10 @@ var
   aImage: TFPMemoryImage;
   r: TFPReaderJPEG;
   aP: TExtendedProcess;
+  bImage: TPicture;
 begin
+  bImage := TPicture.Create;
+  bImage.Assign(Image);
   try
     if reworkImage then
       begin
@@ -135,7 +138,7 @@ begin
             uImaging.Delight(aImage);
             aImage.SaveToFile(GetInternalTempDir+'rpv.jpg');
             aImage.Free;
-            Image.LoadFromFile(GetInternalTempDir+'rpv.jpg');
+            bImage.LoadFromFile(GetInternalTempDir+'rpv.jpg');
             DeleteFileUTF8(GetInternalTempDir+'rpv.jpg');
           end;
       end;
@@ -147,14 +150,14 @@ begin
       end;
   end;
   try
-    aP := TTesseractProcess.Create(Pages,Image);
+    aP := TTesseractProcess.Create(Pages,bImage);
     FreeAndNil(aP);
   except
   end;
   if Pages.Count=0 then
     begin
       try
-        aP := TCuneIFormProcess.Create(Pages,Image);
+        aP := TCuneIFormProcess.Create(Pages,bImage);
         FreeAndNil(aP);
       except
       end;
@@ -162,11 +165,12 @@ begin
   if Pages.Count=0 then
     begin
       try
-        aP := TGOCRProcess.Create(Pages,Image);
+        aP := TGOCRProcess.Create(Pages,bImage);
         FreeAndNil(aP);
       except
       end;
     end;
+  bImage.Free;
 end;
 function FixText(aText: TStrings): Integer;
 var
