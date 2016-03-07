@@ -14,7 +14,7 @@ object fAcquire: TfAcquire
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   Position = poMainFormCenter
-  LCLVersion = '1.1'
+  LCLVersion = '1.4.4.0'
   object lResolution: TLabel
     Left = 317
     Height = 14
@@ -60,7 +60,6 @@ object fAcquire: TfAcquire
     OnSelectionChange = lbDevicesSelectionChange
     ScrollWidth = 219
     TabOrder = 1
-    TopIndex = -1
   end
   object Panel1: TPanel
     Left = 7
@@ -70,8 +69,8 @@ object fAcquire: TfAcquire
     Anchors = [akTop, akLeft, akRight, akBottom]
     BevelOuter = bvNone
     BorderStyle = bsSingle
-    ClientHeight = 403
-    ClientWidth = 304
+    ClientHeight = 401
+    ClientWidth = 302
     Color = clWindow
     ParentColor = False
     TabOrder = 2
@@ -79,41 +78,41 @@ object fAcquire: TfAcquire
       Left = 0
       Height = 381
       Top = 0
-      Width = 304
+      Width = 302
       Align = alTop
       Stretch = True
     end
     object udPage: TUpDown
-      Left = 248
+      Left = 246
       Height = 23
-      Top = 370
+      Top = 368
       Width = 44
       Anchors = [akRight, akBottom]
-      Min = 0
       Max = 0
+      Min = 0
+      OnChanging = udPageChanging
       Orientation = udHorizontal
       Position = 0
       TabOrder = 0
       Wrap = False
-      OnChanging = udPageChanging
     end
     object Label1: TLabel
       Left = 0
       Height = 1
-      Top = 402
-      Width = 304
+      Top = 400
+      Width = 302
       Align = alBottom
       ParentColor = False
     end
   end
   object cbType: TComboBox
     Left = 320
-    Height = 25
+    Height = 21
     Hint = 'wählen Sie hier das Format in dem das '#13#10'Bild gespeichert werden soll'
-    Top = 316
+    Top = 320
     Width = 221
     Anchors = [akRight, akBottom]
-    ItemHeight = 0
+    ItemHeight = 13
     ItemIndex = 0
     Items.Strings = (
       'JPEG'
@@ -232,7 +231,7 @@ object fAcquire: TfAcquire
     TabOrder = 6
   end
   object bScan: TBitBtn
-    Left = 321
+    Left = 320
     Height = 33
     Hint = 'holt ein/mehrere Bild(er) mit '#13#10'den gewählten Einstellungen'
     Top = 272
@@ -294,10 +293,10 @@ object fAcquire: TfAcquire
   end
   object cbSource: TComboBox
     Left = 320
-    Height = 27
+    Height = 21
     Top = 104
     Width = 219
-    ItemHeight = 0
+    ItemHeight = 13
     OnChange = cbSourceChange
     TabOrder = 9
     Text = 'cbSource'
@@ -314,4 +313,4 @@ object fAcquire: TfAcquire
     TabOrder = 10
     Visible = False
   end
-end
+end

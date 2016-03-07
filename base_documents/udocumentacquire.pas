@@ -115,8 +115,6 @@ var
 {$ENDIF}
 begin
   if lbDevices.ItemIndex = -1 then exit;
-  bScan.Enabled := False;
-  Preview := False;
 {$IFDEF WINDOWS}
   Scanner.Source[lbDevices.ItemIndex].LoadSource;
   Scanner.Source[lbDevices.ItemIndex].TransferMode := ttmMemory;
@@ -151,8 +149,6 @@ var
 {$endif}
 begin
   if lbDevices.ItemIndex = -1 then exit;
-  bPreviewScan.Enabled := False;
-  bScan.Enabled := False;
   Preview := True;
 {$IFDEF WINDOWS}
   Scanner.Source[lbDevices.ItemIndex].TransferMode := ttmMemory;
