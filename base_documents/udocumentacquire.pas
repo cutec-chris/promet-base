@@ -343,7 +343,6 @@ begin
       Setlength(Images,length(Images)+1);
       Images[length(Images)-1] := TPicture.Create;
       Images[length(Images)-1].Bitmap.Assign(xImage);
-      Images[length(Images)-1].SaveToFile('c:\test.jpg');
       if cbOCR.Checked then
         begin
           StartOCR(Texts,Images[length(Images)-1]);
