@@ -177,7 +177,7 @@ var
 implementation
 
 uses Utils,uBaseVisualControls,uMasterdata,uData,uOrder,variants,uLogWait,
-  uautomationframe;
+  uautomationframe,wikitohtml;
 
 resourcestring
   strDoPick                             = 'kommissionieren';
@@ -505,13 +505,13 @@ begin
         aPosID := DataSet.FieldByName('ORDERNO').AsString+DataSet.FieldByName('POSNO').AsString
       else
         aPosID := DataSet.FieldByName('SQL_ID').AsString+DataSet.FieldByName('POSNO').AsString;
-      TreeData.WorkText.Text:=DataSet.FieldByName('TEXT').AsString;
+      TreeData.WorkText.Text:=WikiText2HTML(DataSet.FieldByName('TEXT').AsString);
       if DataSet.FieldByName('PREPTEXT').AsString<>'' then
         begin
           aTexts := TBoilerplate.Create(nil);
           aTexts.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(DataSet.FieldByName('PREPTEXT').AsString));
           if aTexts.Count>0 then
-            TreeData.PreText.Text:=aTexts.FieldByName('TEXT').AsString;
+            TreeData.PreText.Text:=WikiText2HTML(aTexts.FieldByName('TEXT').AsString);
           TreeData.LoadPrepDocuments(aTexts.Id.AsVariant,'B',aTexts.FieldByName('NAME').AsString,Null,Null);
           aTexts.Free;
         end;
@@ -520,7 +520,7 @@ begin
           aTexts := TBoilerplate.Create(nil);
           aTexts.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(DataSet.FieldByName('WORKTEXT').AsString));
           if aTexts.Count>0 then
-            TreeData.WorkText.Text:=aTexts.FieldByName('TEXT').AsString;
+            TreeData.WorkText.Text:=WikiText2HTML(aTexts.FieldByName('TEXT').AsString);
           TreeData.LoadDocuments(aTexts.Id.AsVariant,'B',aTexts.FieldByName('NAME').AsString,Null,Null);
           aTexts.Free;
         end
@@ -560,7 +560,7 @@ begin
                   TreeData.LoadScript(aMasterdata.Positions.FieldByName('SCRIPT').AsString,aMasterdata.Positions.FieldByName('SCRIPTVER').AsVariant);
                   if Assigned(aMasterdata.Positions.FieldByName('PRSCRIPT')) then
                     TreeData.LoadPrepareScript(aMasterdata.Positions.FieldByName('PRSCRIPT').AsString,aMasterdata.Positions.FieldByName('PRSCRIPTVER').AsVariant);
-                  TreeData.WorkText.Text:=aMasterdata.Positions.FieldByName('TEXT').AsString;
+                  TreeData.WorkText.Text:=WikiText2HTML(aMasterdata.Positions.FieldByName('TEXT').AsString);
                   if aMasterdata.Positions.DataSet.FieldDefs.IndexOf('ORDERNO') <> -1 then
                     aPosID := aMasterdata.Positions.FieldByName('ORDERNO').AsString+aMasterdata.Positions.FieldByName('POSNO').AsString
                   else
@@ -570,7 +570,7 @@ begin
                       aTexts := TBoilerplate.Create(nil);
                       aTexts.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(aMasterdata.Positions.FieldByName('PREPTEXT').AsString));
                       if aTexts.Count>0 then
-                        TreeData.PreText.Text:=aTexts.FieldByName('TEXT').AsString;
+                        TreeData.PreText.Text:=WikiText2HTML(aTexts.FieldByName('TEXT').AsString);
                       TreeData.LoadPrepDocuments(aTexts.Id.AsVariant,'B',aTexts.FieldByName('NAME').AsString,Null,Null);
                       aTexts.Free;
                     end;
@@ -579,7 +579,7 @@ begin
                       aTexts := TBoilerplate.Create(nil);
                       aTexts.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(aMasterdata.Positions.FieldByName('WORKTEXT').AsString));
                       if aTexts.Count>0 then
-                        TreeData.WorkText.Text:=aTexts.FieldByName('TEXT').AsString;
+                        TreeData.WorkText.Text:=WikiText2HTML(aTexts.FieldByName('TEXT').AsString);
                       TreeData.LoadDocuments(aTexts.Id.AsVariant,'B',aTexts.FieldByName('NAME').AsString,Null,Null);
                       aTexts.Free;
                     end
@@ -620,14 +620,14 @@ begin
             begin
               aMasterdata.Texts.Open;
               if aMasterdata.Texts.Locate('TEXTTYPE',TextTyp.DataSet.RecNo,[]) then
-                TreeData.WorkText.Text:=aMasterdata.Texts.FieldByName('TEXT').AsString;
+                TreeData.WorkText.Text:=WikiText2HTML(aMasterdata.Texts.FieldByName('TEXT').AsString);
             end;
           if aMasterdata.FieldByName('PREPTEXT').AsString<>'' then
             begin
               aTexts := TBoilerplate.Create(nil);
               aTexts.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(aMasterdata.FieldByName('PREPTEXT').AsString));
               if aTexts.Count>0 then
-                TreeData.PreText.Text:=aTexts.FieldByName('TEXT').AsString;
+                TreeData.PreText.Text:=WikiText2HTML(aTexts.FieldByName('TEXT').AsString);
               TreeData.LoadPrepDocuments(aTexts.Id.AsVariant,'B',aTexts.FieldByName('NAME').AsString,Null,Null);
               aTexts.Free;
             end;
@@ -636,7 +636,7 @@ begin
               aTexts := TBoilerplate.Create(nil);
               aTexts.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(aMasterdata.FieldByName('WORKTEXT').AsString));
               if aTexts.Count>0 then
-                TreeData.WorkText.Text:=aTexts.FieldByName('TEXT').AsString;
+                TreeData.WorkText.Text:=WikiText2HTML(aTexts.FieldByName('TEXT').AsString);
               TreeData.LoadDocuments(aTexts.Id.AsVariant,'B',aTexts.FieldByName('NAME').AsString,Null,Null);
               aTexts.Free;
             end
