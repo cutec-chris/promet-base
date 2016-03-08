@@ -583,7 +583,7 @@ begin
       Show;
     end;
   FTimeLine.OnDrawColumnCell:=@FContListDrawColumnCell;
-  FTimeLine.OnDblClick:=@FContListViewDetails;
+  FTimeLine.gList.OnDblClick:=@FContListViewDetails;
   FTimeLine.OnGetCellText:=@FTimeLineGetCellText;
   FTimeLine.WordWrap:=true;
   Panel3.Visible:=Data.Users.Rights.Right('HISTORY') > RIGHT_WRITE;
