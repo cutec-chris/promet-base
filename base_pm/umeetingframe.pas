@@ -1060,7 +1060,7 @@ begin
       HasChildsField:='HASCHILDS';
       SortDirection:=TSortDirection.sdAscending;
       ReadOnly:=False;
-      OnDblClick:=@FGridViewDblClick;
+      gList.OnDblClick:=@FGridViewDblClick;
     end;
   FGridView.OnSetupPosition:=@FGridViewSetupPosition;
   FGridView.OnCellButtonClick:=@FGridViewCellButtonClick;
