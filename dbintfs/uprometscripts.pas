@@ -68,6 +68,7 @@ type
     procedure Open; override;
     property Script : TScript read GetScript;
     procedure ResetScript;
+    procedure CheckStatus(Output : TStringList);
     function Execute(Parameters : Variant;Debug : Boolean = False) : Boolean;virtual;
     property Write : TStrOutFunc read FWriFunc write SetWriFunc;
     property Writeln : TStrOutFunc read FWrFunc write SetWRFunc;
@@ -103,6 +104,7 @@ type
 var
   Historyrun : Boolean;
   ScriptTypes : TClassList;
+  FStatusCache : TStringList;
 
 implementation
 
@@ -426,6 +428,20 @@ begin
   FreeAndNil(FScript);
 end;
 
+procedure TBaseScript.CheckStatus(Output: TStringList);
+begin
+  if FStatusCache.Count=0 then
+    begin
+      Data.States.Filter(Data.QuoteField('TYPE')+'='+Data.QuoteValue('S'));
+      Data.States.First;
+      while not Data.States.EOF do
+        if Data.States.FieldByName('ACTIVE').AsString='N' then
+          FStatusCache.Values[Data.States.FieldByName('STATUS').AsString]:=Data.States.FieldByName('NAME').AsString;
+    end;
+  if FStatusCache.Values[Self.Status.AsString]<>'' then
+    Output.Add(Self.Text.AsString+'='+FStatusCache.Values[Self.Status.AsString]);
+end;
+
 function TBaseScript.Execute(Parameters: Variant; Debug: Boolean): Boolean;
 var
   aStartTime: TDateTime;
@@ -615,7 +631,9 @@ initialization
   Historyrun:=True;
   ScriptTypes:=TClassList.Create;
   RegisterScriptType(TSQLScript);
+  FStatusCache := TStringList.Create;
 finalization
+  FStatusCache.Free;
   ScriptTypes.Free;
 end.
 
