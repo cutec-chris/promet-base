@@ -72,6 +72,8 @@ type
                  etMeetingList,
                etWiki,
                  etWikiPage,
+               etSchemes,
+                 etScheme,
                etClipboard,
                  etClipboardItem,
                etAllObjects

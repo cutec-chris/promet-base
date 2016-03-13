@@ -14,7 +14,7 @@ inherited fUserOptions: TfUserOptions
     Top = 8
     Width = 221
     Anchors = [akTop, akLeft, akRight, akBottom]
-    DefaultItemHeight = 16
+    DefaultItemHeight = 18
     DragMode = dmAutomatic
     Images = fVisualControls.Images
     ReadOnly = True
@@ -37,13 +37,13 @@ inherited fUserOptions: TfUserOptions
     TabOrder = 1
     object cbPosition: TDBComboBox
       Left = 126
-      Height = 21
+      Height = 27
       Hint = 'wenn hier LEADER angegeben wird hat der Benutzer an einigen Stellen im Programm '#10'erweiterte Rechte, z.b. darf er für alle untergeordneten Benutzer und Gruppen '#10'Aufgabenpläne und Kalender einsehen und bearbeiten'
       Top = 96
       Width = 161
       DataField = 'POSITION'
       DataSource = UsersDS
-      ItemHeight = 13
+      ItemHeight = 0
       Items.Strings = (
         'LEADER'
       )
@@ -52,7 +52,7 @@ inherited fUserOptions: TfUserOptions
     end
     object eDepartment: TDBEdit
       Left = 8
-      Height = 21
+      Height = 25
       Top = 96
       Width = 115
       DataField = 'DEPARTMENT'
@@ -63,7 +63,7 @@ inherited fUserOptions: TfUserOptions
     end
     object eCustomerNumber: TDBEdit
       Left = 80
-      Height = 21
+      Height = 25
       Hint = 'Die Kundennummer im System für diesen Benutzer'
       Top = 140
       Width = 94
@@ -75,7 +75,7 @@ inherited fUserOptions: TfUserOptions
     end
     object eIDCode: TDBEdit
       Left = 9
-      Height = 21
+      Height = 25
       Hint = 'Ein Kürzel für den Benutzer '#13#10'z.b. oft 1. Buchstabe von Vor und Nachnamen'#13#10'oder 1. Buchstabe vom Vornamen und 1. und letzter vom Nachnamen'
       Top = 140
       Width = 55
@@ -87,7 +87,7 @@ inherited fUserOptions: TfUserOptions
     end
     object eUsername: TDBEdit
       Left = 8
-      Height = 21
+      Height = 25
       Hint = 'Der Benutzername'
       Top = 57
       Width = 279
@@ -100,9 +100,9 @@ inherited fUserOptions: TfUserOptions
     end
     object lPosition: TLabel
       Left = 126
-      Height = 13
+      Height = 15
       Top = 80
-      Width = 37
+      Width = 46
       Caption = 'Position'
       ParentColor = False
     end
@@ -117,41 +117,41 @@ inherited fUserOptions: TfUserOptions
     end
     object lDepartment: TLabel
       Left = 8
-      Height = 13
+      Height = 15
       Top = 80
-      Width = 45
+      Width = 58
       Caption = 'Abteilung'
       ParentColor = False
     end
     object lIDCode: TLabel
       Left = 10
-      Height = 13
+      Height = 15
       Top = 125
-      Width = 39
+      Width = 47
       Caption = 'ID Code'
       ParentColor = False
     end
     object lUsername: TLabel
       Left = 8
-      Height = 13
+      Height = 15
       Top = 40
-      Width = 69
+      Width = 88
       Caption = 'Benutzername'
       ParentColor = False
     end
     object lCustomerNumber: TLabel
       Left = 80
-      Height = 13
+      Height = 15
       Top = 125
-      Width = 74
+      Width = 98
       Caption = 'Kundennummer'
       ParentColor = False
     end
     object lEmploymentDate: TLabel
       Left = 9
-      Height = 13
+      Height = 15
       Top = 232
-      Width = 86
+      Width = 113
       Caption = 'Einstellungsdatum'
       ParentColor = False
     end
@@ -161,7 +161,7 @@ inherited fUserOptions: TfUserOptions
       Top = 328
       Width = 277
       Anchors = [akTop, akLeft, akRight, akBottom]
-      DefaultItemHeight = 16
+      DefaultItemHeight = 18
       MultiSelect = True
       PopupMenu = pmRights
       ReadOnly = True
@@ -170,7 +170,7 @@ inherited fUserOptions: TfUserOptions
       TabOrder = 5
       Options = [tvoAllowMultiselect, tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoRowSelect, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips]
       Items.Data = {
-        F9FFFFFF020011000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF050000000000
+        F9FFFFFF020012000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF050000000000
         0000010700000047656E65726963FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
         000000000000000A0000004564697446696C746572FFFFFFFFFFFFFFFFFFFFFF
         FFFFFFFFFF00000000000000000009000000446F63756D656E7473FFFFFFFFFF
@@ -189,30 +189,31 @@ inherited fUserOptions: TfUserOptions
         000057696B69FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF01000000000000000108
         00000050726F6A65637473FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000
         000000000C0000005265736F7572636576696577FFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFF000000000000000000070000005265706F727473FFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFF0300000000000000010700000053746F72616765FFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000B000000446973706F7369
-        74696F6EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000000000000000070000
-        0057656273686F70FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000
-        0009000000496E76656E746F7279FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0200
-        000000000000010A0000004163636F756E74696E67FFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFF0000000000000000000A00000042616E6B4163636E7473FFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000900000053616C65734C69
-        7374FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0100000000000000010700000054
-        696D65726567FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000E
-        0000004D757374656E74657274696D6573FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FF0000000000000000000A00000053746174697374696373FFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFF010000000000000001070000004F7074696F6E73FFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFF000000000000000000110000004D617374657264
-        6174614F7074696F6E73FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000000000
-        000000080000004D656574696E6773
+        FFFFFFFF00000000000000000006000000536368656D65FFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFF000000000000000000070000005265706F727473FFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFF0300000000000000010700000053746F72616765FF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000B00000044697370
+        6F736974696F6EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000000000000000
+        0700000057656273686F70FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000
+        0000000009000000496E76656E746F7279FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FF0200000000000000010A0000004163636F756E74696E67FFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFF0000000000000000000A00000042616E6B4163636E7473FF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000900000053616C65
+        734C697374FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0100000000000000010700
+        000054696D65726567FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000000000
+        00000E0000004D757374656E74657274696D6573FFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFF0000000000000000000A00000053746174697374696373FFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFF010000000000000001070000004F7074696F6E73FF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000000000000000110000004D617374
+        6572646174614F7074696F6E73FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000
+        000000000000080000004D656574696E6773
       }
     end
     object lRights: TLabel
       Left = 10
-      Height = 13
+      Height = 15
       Top = 312
-      Width = 34
+      Width = 41
       Caption = 'Rechte'
       ParentColor = False
     end
@@ -248,7 +249,7 @@ inherited fUserOptions: TfUserOptions
     end
     object eCustomerNumber1: TDBEdit
       Left = 10
-      Height = 21
+      Height = 25
       Hint = 'Login für Webanwendungen, bei einigen Webanwendungen '#10'wie z.b. imap Server kann nicht der Volle Name des Benutzers'#10'als Login benutzt werden, in diesem Fall ist hier ein benutzer oder '#10'Spitzname hinterlegbar'
       Top = 181
       Width = 120
@@ -260,26 +261,26 @@ inherited fUserOptions: TfUserOptions
       TabOrder = 6
     end
     object lCustomerNumber1: TLabel
-      Left = 10
-      Height = 13
+      Left = 2
+      Height = 15
       Top = 166
-      Width = 25
+      Width = 33
       Anchors = [akTop, akRight]
       Caption = 'Login'
       ParentColor = False
     end
     object lCustomerNumber2: TLabel
-      Left = 139
-      Height = 13
+      Left = 122
+      Height = 15
       Top = 232
-      Width = 57
+      Width = 74
       Anchors = [akTop, akRight]
       Caption = 'Lohngruppe'
       ParentColor = False
     end
     object DBLookupComboBox1: TDBLookupComboBox
       Left = 139
-      Height = 21
+      Height = 27
       Top = 248
       Width = 124
       Anchors = [akTop, akLeft, akRight]
@@ -294,15 +295,15 @@ inherited fUserOptions: TfUserOptions
     end
     object lCustomerNumber3: TLabel
       Left = 139
-      Height = 13
+      Height = 15
       Top = 166
-      Width = 34
+      Width = 40
       Caption = 'e-MAIL'
       ParentColor = False
     end
     object eCustomerNumber2: TDBEdit
       Left = 139
-      Height = 21
+      Height = 25
       Top = 181
       Width = 148
       DataField = 'EMAIL'
@@ -314,10 +315,10 @@ inherited fUserOptions: TfUserOptions
     end
     object DBCheckBox1: TDBCheckBox
       Left = 8
-      Height = 17
+      Height = 22
       Hint = 'Wenn der Haken entfernt wird kann der'#10'Benutzer sich am System nicht anmelden wohl '#10'aber z.b. Aufgaben zugewiesen bekommen'#10'oder in Besprechungsprotokollen benannt werden'
       Top = 208
-      Width = 103
+      Width = 137
       AutoSize = True
       Caption = 'Anmelden möglich'
       DataField = 'LOGINACTIVE'
@@ -328,10 +329,10 @@ inherited fUserOptions: TfUserOptions
     end
     object DBCheckBox2: TDBCheckBox
       Left = 156
-      Height = 17
+      Height = 22
       Hint = 'Soll ein Zugriff über Webanwendungen für diesen Benutzer'#10'zulässig sein ?'
       Top = 208
-      Width = 71
+      Width = 88
       AutoSize = True
       Caption = 'Fernzugriff'
       DataField = 'REMOTEACCESS'
@@ -342,15 +343,15 @@ inherited fUserOptions: TfUserOptions
     end
     object lCustomerNumber4: TLabel
       Left = 183
-      Height = 13
+      Height = 15
       Top = 125
-      Width = 79
+      Width = 102
       Caption = 'Personalnummer'
       ParentColor = False
     end
     object eCustomerNumber3: TDBEdit
       Left = 183
-      Height = 21
+      Height = 25
       Hint = 'Eine Personalnummer (z.b. aus Buchhaltungssystem)'
       Top = 140
       Width = 104
@@ -364,7 +365,7 @@ inherited fUserOptions: TfUserOptions
       Left = 8
       Height = 21
       Top = 248
-      Width = 81
+      Width = 95
       DataField = 'EMPLOYMENT'
       DataSource = UsersDS
       ReadOnly = False
@@ -387,7 +388,7 @@ inherited fUserOptions: TfUserOptions
       Left = 8
       Height = 21
       Top = 288
-      Width = 81
+      Width = 95
       DataField = 'LEAVED'
       DataSource = UsersDS
       ReadOnly = False
@@ -416,15 +417,15 @@ inherited fUserOptions: TfUserOptions
     end
     object Label1: TLabel
       Left = 139
-      Height = 13
+      Height = 15
       Top = 272
-      Width = 51
+      Width = 63
       Caption = 'Arbeitszeit'
       ParentColor = False
     end
     object eWorktime: TDBEdit
       Left = 139
-      Height = 21
+      Height = 25
       Hint = 'Die Arbeitszeit des Benutzers in Stunden '#13#10'wenn leer wird von 8 ausgegangen'
       Top = 288
       Width = 54
@@ -436,7 +437,7 @@ inherited fUserOptions: TfUserOptions
     end
     object eWorkpercentage: TDBEdit
       Left = 208
-      Height = 21
+      Height = 25
       Hint = 'gibt die Mögliche Auslastung für Projekte an'#13#10'beim Terminieren von Aufgaben wird nur der gültige Bereich '#13#10'mit Aufgaben befüllt so das für Tagesgeschäft Zeit bleibt'
       Top = 288
       Width = 54
@@ -448,9 +449,9 @@ inherited fUserOptions: TfUserOptions
     end
     object Label2: TLabel
       Left = 208
-      Height = 13
+      Height = 15
       Top = 272
-      Width = 53
+      Width = 67
       Caption = 'Auslastung'
       ParentColor = False
     end

@@ -1085,6 +1085,7 @@ var
   cRect: TRect;
   aNewHeight: Integer;
   UpdatedARow: Boolean;
+  aTextStream: TStringStream;
   procedure DrawExpandSign(MidX, MidY: integer; CollapseSign: boolean);
   const
     PlusMinusDetail: array[Boolean {Hot}, Boolean {Expanded}] of TThemedTreeview =
@@ -1367,14 +1368,15 @@ begin
                 TextRect(bRect,bRect.Left+3,bRect.Top,aText,aTextStyle)
               else
                 begin
-                  {
                   if copy(aText,0,1)='{' then
                     begin
-                      mDrawInplace.RTF:=aText;
-                      mDrawInplace.Blocks.PaintToCanvas(Canvas,bRect.Left,bRect.Top,bRect);
+                      aTextStream := TStringStream.Create(aText);
+                      aTextStream.Position:=0;
+                      FInpStringList.LoadFromRTFStream(aTextStream);
+                      FInpStringList.PaintToCanvas(Canvas,bRect.Left,bRect.Top,bRect);
+                      aTextStream.Free;
                     end
                   else
-                  }}
                     TextRect(bRect,bRect.Left+3,bRect.Top,aText,aTextStyleW);
                 end;
               dec(aRect.Right,1);
@@ -2011,15 +2013,15 @@ begin
         end;
       if Assigned(DataSet.FieldByName(TextField)) then
         begin
-          HasRTF := mInplace.CheckRTF(mInplace.Blocks);
-          if (DataSet.FieldByName(TextField).AsString<>FInpStringList.Text)
+          HasRTF := mInplace.CheckRTF(FInpStringList);
+          if (DataSet.FieldByName(TextField).AsString<>FInpStringList.Text) or (HasRTF)
           then
             begin
               if (FDataSource.State <> dsEdit) and (FDataSource.State <> dsInsert) then
                 FDataSource.DataSet.Edit;
-              //if HasRTF then
-              //  DataSet.FieldByName(TextField).AsString:=mInplace.RTF
-              //else
+              if HasRTF then
+                DataSet.FieldByName(TextField).AsString:=mInplace.RTF
+              else
                 DataSet.FieldByName(TextField).AsString:=FInpStringList.Text;
               dataSet.Change;
               TRowObject(gList.Objects[0,aRow]).RefreshHeight:=True;
@@ -2208,6 +2210,7 @@ begin
                   end;
                 if gList.Canvas.HandleAllocated then
                   begin
+                    {
                     r := gList.CellRect(i+1,aRow);
                     r.Right:=r.Left+TextWidth;
                     aStyle := gList.Canvas.Font.Style;
@@ -2218,6 +2221,11 @@ begin
                       r,
                       DT_LEFT or DT_WORDBREAK or DT_CALCRECT);
                     gList.Canvas.Font.Style := aStyle;
+                    }
+                    FInpStringList.Text:=aText;
+                    FInpStringList.SetExtent(TextWidth,0);
+                    Result.Y := FInpStringList.Height;
+                    Result.X := FInpStringList.Width;
                   end;
               end;
           end;
