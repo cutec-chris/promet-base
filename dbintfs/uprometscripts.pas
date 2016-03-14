@@ -451,8 +451,11 @@ begin
       Data.States.Filter(Data.QuoteField('TYPE')+'='+Data.QuoteValue('S'));
       Data.States.First;
       while not Data.States.EOF do
-        if Data.States.FieldByName('ACTIVE').AsString='N' then
-          FStatusCache.Values[Data.States.FieldByName('STATUS').AsString]:=Data.States.FieldByName('STATUSNAME').AsString;
+        begin
+          if Data.States.FieldByName('ACTIVE').AsString='N' then
+            FStatusCache.Values[Data.States.FieldByName('STATUS').AsString]:=Data.States.FieldByName('STATUSNAME').AsString;
+          Data.States.Next;
+        end;
     end;
   if FStatusCache.Values[Self.Status.AsString]<>'' then
     Output.Add(Self.Text.AsString+'='+FStatusCache.Values[Self.Status.AsString]);
