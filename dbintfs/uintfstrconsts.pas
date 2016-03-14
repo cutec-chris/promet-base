@@ -21,7 +21,7 @@ unit uIntfStrConsts;
 {$mode objfpc}{$H+}
 interface
 resourcestring
-  strSchemeList                 = 'Schematiken';
+  strSchemeList                 = 'Schema';
   strSpreetsheet                = 'Tabellen';
   strSentenceNotValid           = 'Das wurde leider nicht verstanden !';
   strChangeNumer                = 'Nummer ändern';

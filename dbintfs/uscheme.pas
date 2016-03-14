@@ -23,7 +23,8 @@ unit uscheme;
 interface
 
 uses
-  Classes, SysUtils, uBaseDBClasses, uBaseERPDbClasses;
+  Classes, SysUtils, uBaseDBClasses, uBaseERPDbClasses,uBaseDatasetInterfaces,
+  db,uIntfStrConsts;
 
 type
   { TProjectList }
@@ -45,6 +46,11 @@ type
 implementation
 
 { TSchemeList }
+
+function TSchemeList.GetDescriptionFieldName: string;
+begin
+  Result:='DESCRIPTION';
+end;
 
 function TSchemeList.GetTextFieldName: string;
 begin
@@ -68,7 +74,28 @@ end;
 
 procedure TSchemeList.DefineFields(aDataSet: TDataSet);
 begin
-
+  with aDataSet as IBaseManageDB do
+    begin
+      TableName := 'SCHEME';
+      TableCaption := strSchemeList;
+      if Assigned(ManagedFieldDefs) then
+        with ManagedFieldDefs do
+          begin
+            Add('NAME',ftString,250,False);
+            Add('STATUS',ftString,4,True);
+            Add('DESCRIPTION',ftMemo,0,false);
+            Add('DATA',ftBlob,0,false);
+            Add('CHANGEDBY',ftString,4,false);
+            Add('CREATEDBY',ftString,4,false);
+            Add('CREATEDAT',ftDate,0,false);
+          end;
+      if Assigned(ManagedIndexdefs) then
+        with ManagedIndexDefs do
+          begin
+            Add('NAME','NAME',[]);
+            Add('TREEENTRY','TREEENTRY',[]);
+          end;
+    end;
 end;
 
 end.
