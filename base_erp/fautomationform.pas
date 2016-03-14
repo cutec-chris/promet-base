@@ -65,6 +65,7 @@ type
     BitBtn3: TSpeedButton;
     BitBtn5: TSpeedButton;
     ipWorkHTML: TIpHtmlPanel;
+    lStatusProblems: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
@@ -184,6 +185,7 @@ resourcestring
   strRunning                            = 'wird ausgeführt...';
   strRun                                = 'Ausführen';
   strNotmoreSteps                       = 'Es sind keine (weiteren) Arbeitschritte vorhanden.<br><br>Um einen neuen Auftrag auswählen zu können müssen Sie den Auftrag (ab)schließen';
+  strPartiallyProblematic               = 'Achtung Teile des Auftrages sind in nicht freigegebenem Zustand !';
 
 procedure TTCPCommandDaemon.DoData;
 begin
@@ -931,6 +933,13 @@ begin
   Script.Open;
   Script.Writeln:=@ScriptWriteln;
   Script.Debugln:=@ScriptDebugln;
+  Script.Compile;
+  FAutomation.lStatusProblems.Visible:=False;
+  if Script.StatusProblems.Text<>'' then
+    begin
+      FAutomation.lStatusProblems.Caption:=strPartiallyProblematic+LineEnding+Script.StatusProblems.Text;
+      FAutomation.lStatusProblems.Visible:=True;
+    end;
   if not Script.Locate('VERSION',aVersion,[]) then
     Script.Close;
 end;

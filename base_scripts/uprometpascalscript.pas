@@ -63,13 +63,13 @@ type
     function InternalExecuteScriptFuncionRS(aScript, aFunc : string) : string;
 
     function InternalPrint(aType,Reportname,Printer : string;Copies : Integer) : Boolean;
-    procedure InternalSetReportVariable(Name,Value : string);
+    procedure InternalSetReportVariable(aName,Value : string);
 
     function InternalGetNumberFromNumberset(Numberset : string) : string;
 
     function InternalSaveFilefromDocuments(Filename,OutPath : string) : Boolean;
   public
-    function InternalUses(Comp: TPSPascalCompiler; Name: string): Boolean; override;
+    function InternalUses(Comp: TPSPascalCompiler; aName: string): Boolean; override;
     property Sleep : TSleepFunc read FSlFunc write FSlFunc;
     constructor Create; override;
     destructor Destroy;override;
@@ -647,7 +647,11 @@ begin
           aScript.Filter(Data.ProcessTerm('UPPER('+Data.QuoteField('NAME')+')=UPPER('+Data.QuoteValue(aName)+') AND '+Data.QuoteField('ACTIVE')+'='+Data.QuoteValue('Y')));
           if aScript.Count>0 then
             if aScript.Locate('NAME',aName,[loCaseInsensitive]) then
-              Result := Sender.Compiler.Compile(aScript.FieldByName('SCRIPT').AsString);
+              begin
+                if Assigned(OnCheckModule) then
+                  OnCheckModule(aScript.Script,aScript.Script.Name,0,0,0);
+                Result := Sender.Compiler.Compile(aScript.FieldByName('SCRIPT').AsString);
+              end;
         except
           Result := False;
         end;
@@ -845,11 +849,11 @@ begin
     Result := OnInternalPrint(aType,ReportName,Printer,Copies);
 end;
 
-procedure TPrometPascalScript.InternalSetReportVariable(Name, Value: string);
+procedure TPrometPascalScript.InternalSetReportVariable(aName, Value: string);
 begin
   if not Assigned(FReportVariables) then
     FReportVariables := TStringList.Create;
-  FReportVariables.Values[name] := Value;
+  FReportVariables.Values[aName] := Value;
 end;
 
 function TPrometPascalScript.InternalGetNumberFromNumberset(Numberset: string
@@ -921,11 +925,11 @@ begin
   aDocuments.Free;
 end;
 
-function TPrometPascalScript.InternalUses(Comp: TPSPascalCompiler; Name: string
+function TPrometPascalScript.InternalUses(Comp: TPSPascalCompiler; aName: string
   ): Boolean;
 begin
-  Result:=inherited InternalUses(Comp, Name);
-  Result := TPascalScriptUses(Self,Name,Result);
+  Result:=inherited InternalUses(Comp, aName);
+  Result := TPascalScriptUses(Self,aName,Result);
 end;
 
 constructor TPrometPascalScript.Create;

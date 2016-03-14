@@ -322,8 +322,8 @@ object FAutomation: TFAutomation
     TabOrder = 1
     object ipWorkHTML: TIpHtmlPanel
       Left = 0
-      Height = 466
-      Top = 56
+      Height = 434
+      Top = 88
       Width = 788
       Align = alClient
       FixedTypeface = 'Courier New'
@@ -410,6 +410,22 @@ object FAutomation: TFAutomation
         Anchors = [akTop]
         GroupIndex = 116
       end
+    end
+    object lStatusProblems: TLabel
+      Left = 8
+      Height = 16
+      Top = 64
+      Width = 772
+      Align = alTop
+      BorderSpacing.Around = 8
+      Caption = 'Achtung Teile des Auftrages sind in nicht freigegebenem Zustand !'
+      Color = clRed
+      Font.Color = clWhite
+      Font.Height = -13
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      Transparent = False
     end
   end
   object Bevel8: TBevel

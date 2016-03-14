@@ -31,6 +31,8 @@ type
   { TBaseScript }
 
   TBaseScript = class(TBaseERPList,IBaseHistory)
+    procedure aScriptCheckModule(Sender: TScript; Module: string; Position,
+      Row, Col: Integer);
     procedure DataSetAfterScroll(aDataSet: TDataSet);
     procedure FDataSourceDataChange(Sender: TObject; Field: TField);
   private
@@ -46,6 +48,7 @@ type
     FSelectedName : variant;
     FStatus : string;
     FStateChange: TNotifyEvent;
+    FStatusProblems: TStringList;
     function GetScript: TScript;
     function GetVersion: TField;
     procedure SetDWRFunc(AValue: TStrOutFunc);
@@ -69,6 +72,7 @@ type
     property Script : TScript read GetScript;
     procedure ResetScript;
     procedure CheckStatus(Output : TStringList);
+    function CheckScript : string;
     function Execute(Parameters : Variant;Debug : Boolean = False) : Boolean;virtual;
     property Write : TStrOutFunc read FWriFunc write SetWriFunc;
     property Writeln : TStrOutFunc read FWrFunc write SetWRFunc;
@@ -84,6 +88,7 @@ type
     function Compile : Boolean;
     destructor Destroy;override;
     property OnStateChange : TNotifyEvent read FStateChange write FStateChange;
+    property StatusProblems : TStringList read FStatusProblems;
   end;
 
   TSQLScript = class(TScript)
@@ -270,6 +275,13 @@ begin
   ConnectEvents;
 end;
 
+procedure TBaseScript.aScriptCheckModule(Sender: TScript; Module: string;
+  Position, Row, Col: Integer);
+begin
+  if Assigned(FStatusProblems) then
+    CheckStatus(FStatusProblems);
+end;
+
 procedure TBaseScript.DataSetAfterScroll(aDataSet: TDataSet);
 begin
   ResetScript;
@@ -315,6 +327,8 @@ begin
         begin
           aScript.Init;
           aScript.Source:=FieldByName('SCRIPT').AsString;
+          aScript.Name:=FieldByName('NAME').AsString;
+          aScript.OnCheckModule:=@aScriptCheckModule;
           FScript:=aScript;
           FScript.Parent:=Self;
           FScript.Id:=Id.AsVariant;
@@ -327,6 +341,7 @@ end;
 
 destructor TBaseScript.Destroy;
 begin
+  FStatusProblems.Free;
   ResetScript;
   FLinks.Free;
   FHistory.Free;
@@ -358,6 +373,7 @@ constructor TBaseScript.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
+  FStatusProblems := TStringList.Create;
   FDataSource := TDataSource.Create(Self);
   FDataSource.OnDataChange:=@FDataSourceDataChange;
   FSelectedName := Null;
@@ -436,10 +452,21 @@ begin
       Data.States.First;
       while not Data.States.EOF do
         if Data.States.FieldByName('ACTIVE').AsString='N' then
-          FStatusCache.Values[Data.States.FieldByName('STATUS').AsString]:=Data.States.FieldByName('NAME').AsString;
+          FStatusCache.Values[Data.States.FieldByName('STATUS').AsString]:=Data.States.FieldByName('STATUSNAME').AsString;
     end;
   if FStatusCache.Values[Self.Status.AsString]<>'' then
     Output.Add(Self.Text.AsString+'='+FStatusCache.Values[Self.Status.AsString]);
+end;
+
+function TBaseScript.CheckScript: string;
+begin
+  Result := '';
+  if Assigned(GetScript) then
+    if FScript is TByteCodeScript then
+      with FScript as TByteCodeScript do
+        begin
+          Compile;
+        end;
 end;
 
 function TBaseScript.Execute(Parameters: Variant; Debug: Boolean): Boolean;
@@ -622,6 +649,7 @@ end;
 
 function TBaseScript.Compile: Boolean;
 begin
+  FStatusProblems.Clear;
   Result := True;
   if Assigned(GetScript) and (FScript is TByteCodeScript) then
     Result := TByteCodeScript(FScript).Compile;

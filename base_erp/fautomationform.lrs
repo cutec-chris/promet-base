@@ -172,7 +172,7 @@ LazarusResources.Add('TFAutomation','FORMDATA',[
   +'idth'#3#20#3#5'Align'#7#8'alClient'#20'BorderSpacing.Around'#2#8#10'BevelOu'
   +'ter'#7#6'bvNone'#7'Caption'#6#6'Panel3'#12'ClientHeight'#3'<'#2#11'ClientWi'
   +'dth'#3#20#3#8'TabOrder'#2#1#0#12'TIpHtmlPanel'#10'ipWorkHTML'#4'Left'#2#0#6
-  +'Height'#3#210#1#3'Top'#2'8'#5'Width'#3#20#3#5'Align'#7#8'alClient'#13'Fixed'
+  +'Height'#3#178#1#3'Top'#2'X'#5'Width'#3#20#3#5'Align'#7#8'alClient'#13'Fixed'
   +'Typeface'#6#11'Courier New'#15'DefaultTypeFace'#6#5'arial'#15'DefaultFontSi'
   +'ze'#2#11#10'FlagErrors'#8#24'PrintSettings.MarginLeft'#5#0#0#0#0#0#0#0#128
   +#254'?'#23'PrintSettings.MarginTop'#5#0#0#0#0#0#0#0#128#254'?'#25'PrintSetti'
@@ -196,20 +196,25 @@ LazarusResources.Add('TFAutomation','FORMDATA',[
   ,#2'2'#11'ClientWidth'#3#20#3#8'TabOrder'#2#2#0#12'TSpeedButton'#8'bExecute'#4
   +'Left'#3#2#1#6'Height'#2'&'#3'Top'#2#8#5'Width'#3#24#1#6'Action'#7#13'acExec'
   +'uteStep'#10'AllowAllUp'#9#7'Anchors'#11#5'akTop'#0#10'GroupIndex'#2't'#0#0#0
-  +#0#6'TBevel'#6'Bevel8'#4'Left'#2'h'#6'Height'#2'"'#3'Top'#2#4#5'Width'#2#16
-  +#17'BorderSpacing.Top'#2#4#20'BorderSpacing.Bottom'#2#4#5'Shape'#7#10'bsLeft'
-  +'Line'#0#0#12'TSpeedButton'#8'sbMenue5'#4'Left'#3#152#0#6'Height'#2#28#3'Top'
-  +#2#12#5'Width'#2' '#6'Action'#7#6'acEdit'#4'Flat'#9#11'ShowCaption'#8#0#0#12
-  +'TSpeedButton'#8'sbMenue4'#4'Left'#2'x'#6'Height'#2#28#4'Hint'#6#28'Vorberei'
-  +'tungscript editieren'#3'Top'#2#12#5'Width'#2' '#7'Caption'#6#28'Vorbereitun'
-  +'gscript editieren'#4'Flat'#9#10'Glyph.Data'#10':'#4#0#0'6'#4#0#0'BM6'#4#0#0
-  +#0#0#0#0'6'#0#0#0'('#0#0#0#16#0#0#0#16#0#0#0#1#0' '#0#0#0#0#0#0#4#0#0'd'#0#0
-  +#0'd'#0#0#0#0#0#0#0#0#0#0#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255
-  +#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0
+  +#6'TLabel'#15'lStatusProblems'#4'Left'#2#8#6'Height'#2#16#3'Top'#2'@'#5'Widt'
+  +'h'#3#4#3#5'Align'#7#5'alTop'#20'BorderSpacing.Around'#2#8#7'Caption'#6'AAch'
+  +'tung Teile des Auftrages sind in nicht freigegebenem Zustand !'#5'Color'#7#5
+  +'clRed'#10'Font.Color'#7#7'clWhite'#11'Font.Height'#2#243#10'Font.Style'#11#6
+  +'fsBold'#0#11'ParentColor'#8#10'ParentFont'#8#11'Transparent'#8#0#0#0#6'TBev'
+  +'el'#6'Bevel8'#4'Left'#2'h'#6'Height'#2'"'#3'Top'#2#4#5'Width'#2#16#17'Borde'
+  +'rSpacing.Top'#2#4#20'BorderSpacing.Bottom'#2#4#5'Shape'#7#10'bsLeftLine'#0#0
+  +#12'TSpeedButton'#8'sbMenue5'#4'Left'#3#152#0#6'Height'#2#28#3'Top'#2#12#5'W'
+  +'idth'#2' '#6'Action'#7#6'acEdit'#4'Flat'#9#11'ShowCaption'#8#0#0#12'TSpeedB'
+  +'utton'#8'sbMenue4'#4'Left'#2'x'#6'Height'#2#28#4'Hint'#6#28'Vorbereitungscr'
+  +'ipt editieren'#3'Top'#2#12#5'Width'#2' '#7'Caption'#6#28'Vorbereitungscript'
+  +' editieren'#4'Flat'#9#10'Glyph.Data'#10':'#4#0#0'6'#4#0#0'BM6'#4#0#0#0#0#0#0
+  +'6'#0#0#0'('#0#0#0#16#0#0#0#16#0#0#0#1#0' '#0#0#0#0#0#0#4#0#0'd'#0#0#0'd'#0#0
+  +#0#0#0#0#0#0#0#0#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0
   +#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255
-  +#255#255#0#255#255#255#0#255#255#255#0#19'@X'#255#21'B^'#255'%i'#156#255',v'
-  +#180#255';'#139#186#173#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255
-  +#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255
+  +#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255
+  +#255#0#255#255#255#0#255#255#255#0#19'@X'#255#21'B^'#255'%i'#156#255',v'#180
+  +#255';'#139#186#173#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0
+  +#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255
   +#255#255#0#255#255#255#0#18'BY'#255']'#156#212#255#166#207#245#255#169#207
   +#236#255'H'#139#193#255',v'#180#255#255#255#255#0#255#255#255#0#255#255#255#0
   +#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255
@@ -252,12 +257,12 @@ LazarusResources.Add('TFAutomation','FORMDATA',[
   +#9'O'#170#219#234'P'#147#202#253'N'#144#200#255'/'#157#210#223'5'#164#222#25
   +#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255
   +#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255
-  +#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0
+  ,#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0
   +#11'ShowCaption'#8#0#0#12'TSpeedButton'#8'sbMenue3'#4'Left'#2'H'#6'Height'#2
   +#28#4'Hint'#6#14'Text editieren'#3'Top'#2#12#5'Width'#2' '#7'Caption'#6#14'T'
   +'ext editieren'#4'Flat'#9#10'Glyph.Data'#10':'#4#0#0'6'#4#0#0'BM6'#4#0#0#0#0
   +#0#0'6'#0#0#0'('#0#0#0#16#0#0#0#16#0#0#0#1#0' '#0#0#0#0#0#0#4#0#0'd'#0#0#0'd'
-  ,#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#207#255#0#0#0#0#0#0#0#0#0#0
+  +#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#207#255#0#0#0#0#0#0#0#0#0#0
   +#237#255#2#0#154#222#29#0#153#219'6'#0#188#250#19#0#255#255#0#0#0#0#0#0#180
   +#253#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#207
   +#255#14#0#134#201'Q'#0#138#226#157#0#148#228#137#0#129#197'g'#0#179#243'F'#0
@@ -316,12 +321,12 @@ LazarusResources.Add('TFAutomation','FORMDATA',[
   +'ngstext editieren'#10'ImageIndex'#2'C'#9'OnExecute'#7#13'acEditExecute'#0#0
   +#0#10'TPopupMenu'#10'PopupMenu1'#4'left'#2'H'#3'top'#2'H'#0#9'TMenuItem'#9'M'
   +'enuItem1'#7'Caption'#6#7'Eintrag'#0#9'TMenuItem'#9'MenuItem5'#6'Action'#7#6
-  +'acSave'#0#0#9'TMenuItem'#9'MenuItem6'#6'Action'#7#7'acAbort'#0#0#0#9'TMenuI'
+  ,'acSave'#0#0#9'TMenuItem'#9'MenuItem6'#6'Action'#7#7'acAbort'#0#0#0#9'TMenuI'
   +'tem'#9'MenuItem2'#7'Caption'#6#9'Erweitert'#0#9'TMenuItem'#10'miExtended'#7
   +'Caption'#6#4'Menu'#0#0#0#9'TMenuItem'#9'MenuItem3'#7'Caption'#6#5'Ebene'#0#9
   +'TMenuItem'#9'MenuItem7'#7'Caption'#6#9'New Item9'#9'RadioItem'#9#0#0#9'TMen'
   +'uItem'#10'MenuItem10'#7'Caption'#6#10'New Item12'#0#0#9'TMenuItem'#9'MenuIt'
-  ,'em9'#7'Caption'#6#10'New Item11'#0#0#9'TMenuItem'#9'MenuItem8'#7'Caption'#6
+  +'em9'#7'Caption'#6#10'New Item11'#0#0#9'TMenuItem'#9'MenuItem8'#7'Caption'#6
   +#10'New Item10'#0#0#0#9'TMenuItem'#9'MenuItem4'#7'Caption'#6#10'Bearbeiten'#0
   +#0#0#0
 ]);
