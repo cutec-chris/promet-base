@@ -937,7 +937,7 @@ begin
   FAutomation.lStatusProblems.Visible:=False;
   if Script.StatusProblems.Text<>'' then
     begin
-      FAutomation.lStatusProblems.Caption:=strPartiallyProblematic+LineEnding+Script.StatusProblems.Text;
+      FAutomation.lStatusProblems.Caption:=strPartiallyProblematic+LineEnding+trim(Script.StatusProblems.Text);
       FAutomation.lStatusProblems.Visible:=True;
     end;
   if not Script.Locate('VERSION',aVersion,[]) then

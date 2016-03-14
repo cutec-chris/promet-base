@@ -31,8 +31,7 @@ type
   { TBaseScript }
 
   TBaseScript = class(TBaseERPList,IBaseHistory)
-    procedure aScriptCheckModule(Sender: TScript; Module: string; Position,
-      Row, Col: Integer);
+    procedure aScriptCheckModule(Sender: TObject);
     procedure DataSetAfterScroll(aDataSet: TDataSet);
     procedure FDataSourceDataChange(Sender: TObject; Field: TField);
   private
@@ -71,7 +70,7 @@ type
     procedure Open; override;
     property Script : TScript read GetScript;
     procedure ResetScript;
-    procedure CheckStatus(Output : TStringList);
+    procedure CheckStatus(Output: TStringList; Module, aStatus: string);
     function CheckScript : string;
     function Execute(Parameters : Variant;Debug : Boolean = False) : Boolean;virtual;
     property Write : TStrOutFunc read FWriFunc write SetWriFunc;
@@ -275,11 +274,10 @@ begin
   ConnectEvents;
 end;
 
-procedure TBaseScript.aScriptCheckModule(Sender: TScript; Module: string;
-  Position, Row, Col: Integer);
+procedure TBaseScript.aScriptCheckModule(Sender: TObject);
 begin
   if Assigned(FStatusProblems) then
-    CheckStatus(FStatusProblems);
+    CheckStatus(FStatusProblems,(Sender as TBaseScript).Script.Name,(Sender as TBaseScript).Status.AsString);
 end;
 
 procedure TBaseScript.DataSetAfterScroll(aDataSet: TDataSet);
@@ -444,7 +442,7 @@ begin
   FreeAndNil(FScript);
 end;
 
-procedure TBaseScript.CheckStatus(Output: TStringList);
+procedure TBaseScript.CheckStatus(Output: TStringList; Module,aStatus: string);
 begin
   if FStatusCache.Count=0 then
     begin
@@ -457,8 +455,8 @@ begin
           Data.States.Next;
         end;
     end;
-  if FStatusCache.Values[Self.Status.AsString]<>'' then
-    Output.Add(Self.Text.AsString+'='+FStatusCache.Values[Self.Status.AsString]);
+  if FStatusCache.Values[aStatus]<>'' then
+    Output.Add(Module+'='+FStatusCache.Values[aStatus]);
 end;
 
 function TBaseScript.CheckScript: string;
@@ -655,7 +653,11 @@ begin
   FStatusProblems.Clear;
   Result := True;
   if Assigned(GetScript) and (FScript is TByteCodeScript) then
-    Result := TByteCodeScript(FScript).Compile;
+    begin
+      if Assigned(Script.OnCheckModule) then
+        Script.OnCheckModule(Self);
+      Result := TByteCodeScript(FScript).Compile;
+    end;
 end;
 
 initialization

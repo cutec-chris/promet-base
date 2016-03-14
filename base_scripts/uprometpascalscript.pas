@@ -649,7 +649,7 @@ begin
             if aScript.Locate('NAME',aName,[loCaseInsensitive]) then
               begin
                 if Assigned(OnCheckModule) then
-                  OnCheckModule(aScript.Script,aScript.Script.Name,0,0,0);
+                  OnCheckModule(aScript);
                 Result := Sender.Compiler.Compile(aScript.FieldByName('SCRIPT').AsString);
               end;
         except
