@@ -920,9 +920,12 @@ end;
 
 procedure TfPosition.DoAsyncInit(Data: PtrInt);
 begin
-  Application.ProcessMessages;
-  FGridView.fGridViewEnter(FGridView);
-  acPermanentEditorModeExecute(acPermanentEditorMode);
+  try
+    Application.ProcessMessages;
+    FGridView.fGridViewEnter(FGridView);
+    acPermanentEditorModeExecute(acPermanentEditorMode);
+  except
+  end;
 end;
 
 procedure TfPosition.sgPositionsDragDrop(Sender, Source: TObject; X, Y: Integer
