@@ -922,6 +922,8 @@ begin
     begin
       TreeData := TProdTreeData(tvStep.Selected.Data);
       TreeData.WorkText.Clear;
+      TreeData.ScriptOutput.Clear;
+      TreeData.PrepareOutput.Clear;
     end;
 end;
 

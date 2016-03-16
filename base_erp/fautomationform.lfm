@@ -426,6 +426,7 @@ object FAutomation: TFAutomation
       ParentColor = False
       ParentFont = False
       Transparent = False
+      Visible = False
     end
   end
   object Bevel8: TBevel
