@@ -81,8 +81,8 @@ begin
       if Assigned(ManagedFieldDefs) then
         with ManagedFieldDefs do
           begin
-            Add('NAME',ftString,250,False);
-            Add('STATUS',ftString,4,True);
+            Add('NAME',ftString,250,True);
+            Add('STATUS',ftString,4,False);
             Add('DESCRIPTION',ftMemo,0,false);
             Add('DATA',ftBlob,0,false);
             Add('CHANGEDBY',ftString,4,false);
