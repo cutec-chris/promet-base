@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, IpHtml, LResources, Forms, Controls, Graphics,
-  Dialogs, ExtCtrls, StdCtrls, Buttons, ActnList, ComCtrls, Menus,
+  Dialogs, ExtCtrls, StdCtrls, Buttons, ActnList, ComCtrls, Menus, DbCtrls,
   uBaseDbClasses, uBaseERPDBClasses, uprometscripts, uDocuments,
   uprometpascalscript, genpascalscript, genscript, db, simpleipc, blcksock,
   synsock, uprometscriptprinting;
@@ -64,6 +64,8 @@ type
     bExecute: TSpeedButton;
     BitBtn3: TSpeedButton;
     BitBtn5: TSpeedButton;
+    Order: TDataSource;
+    DBMemo1: TDBMemo;
     ipWorkHTML: TIpHtmlPanel;
     lStatusProblems: TLabel;
     Label3: TLabel;
@@ -95,7 +97,6 @@ type
     rbOrder: TRadioButton;
     sbMenue: TSpeedButton;
     sbMenue1: TSpeedButton;
-    sbMenue2: TSpeedButton;
     sbMenue3: TSpeedButton;
     sbMenue4: TSpeedButton;
     sbMenue5: TSpeedButton;
@@ -977,6 +978,7 @@ end;
 procedure TFAutomation.DoOpen;
 begin
   Screen.Cursor:=crHourGlass;
+  Order.DataSet := DataSet.DataSet;
   Application.ProcessMessages;
   nComm := nil;
   while not DataSet.EOF do
