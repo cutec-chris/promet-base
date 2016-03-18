@@ -209,7 +209,7 @@ type
 implementation
 uses uSearch, uBaseDbInterface, uOrder, uDocumentFrame, uDocuments,
   uData,uMasterdata,uBaseVisualApplication,uMainTreeFrame,ucalcframe,uProjects,
-  uautomationframe,utask,fautomationform;
+  uautomationframe,utask,fautomationform,uPosGotoArticle,uArticleFrame;
 {$R *.lfm}
 procedure TfPosition.FDataSourceStateChange(Sender: TObject);
 begin
@@ -544,6 +544,9 @@ end;
 procedure TfPosition.acGotoArticleExecute(Sender: TObject);
 var
   aMasterdata: TMasterdataList;
+  MdThere : Boolean = False;
+  VersionThere : Boolean = False;
+  aFrame: TfArticleFrame;
 begin
   aMasterdata := TMasterdata.CreateEx(Self,Data);
   aMasterdata.CreateTable;
@@ -556,8 +559,42 @@ begin
       aMasterdata.Open;
       if not aMasterdata.Locate('VERSION;LANGUAGE',VarArrayOf([DataSet.FieldByName('VERSION').AsVariant,DataSet.FieldByName('LANGUAGE').AsVariant]),[]) then
         aMasterdata.Locate('VERSION',DataSet.FieldByName('VERSION').AsVariant,[]);
-    end;
-  if aMasterdata.Count > 0 then
+      if aMasterdata.Locate('VERSION',DataSet.FieldByName('VERSION').AsVariant,[]) then
+        VersionThere:=True;
+    end
+  else MdThere:=True;
+  if not (MdThere and VersionThere) then
+    begin
+      fGotoArticle.SetLanguage;
+      with fGotoArticle do
+        begin
+          rbCreate.Enabled:=not MdThere;
+          rbVersionate.Enabled := (not VersionThere)  and MdThere;
+          rbOpenInVersion.Enabled := VersionThere and MdThere;
+          rbOpenOther.Enabled:=(not VersionThere) and MdThere;
+          if (not VersionThere)  and (not MdThere) then rbCreate.Checked:=True;
+          if fGotoArticle.Execute then
+            begin
+              if rbCreate.Checked then
+                begin
+                  aFrame := TfArticleFrame.Create(Self);
+                  fMainTreeFrame.pcPages.AddTab(aFrame);
+                  aFrame.SetLanguage;
+                  aFrame.New;
+                  aFrame.eName.SetFocus;
+                end
+              else if rbOpenInVersion.Checked then
+                Data.GotoLink(Data.BuildLink(aMasterdata.DataSet))
+              else if rbOpenOther.Checked then
+                Data.GotoLink(Data.BuildLink(aMasterdata.DataSet))
+              else if rbVersionate.Checked then
+                begin
+
+                end;
+            end;
+        end;
+    end
+  else if aMasterdata.Count > 0 then
     begin
       Data.GotoLink(Data.BuildLink(aMasterdata.DataSet));
     end;

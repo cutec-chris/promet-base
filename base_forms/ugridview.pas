@@ -1998,7 +1998,7 @@ begin
                 begin
                   if (FDataSource.State <> dsEdit) and (FDataSource.State <> dsInsert) then
                     FDataSource.DataSet.Edit;
-                  DataSet.FieldByName(ShortTextField).AsString:=FInpStringList[0].Text;
+                  DataSet.FieldByName(ShortTextField).AsString:=StringReplace(FInpStringList[0].Text,'¶','',[rfReplaceAll]);
                 end;
               FInpStringList.Delete(0);
               if FInpStringList.Count>0 then

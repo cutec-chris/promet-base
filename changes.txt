@@ -3,6 +3,7 @@
       - Search:Search Asynchron (not on every type)
       - Aufgabenansichten:akzeptieren Eingaben in Form: KW1-53
       - Aufgabenansichten:Doppelklick zum Editiern (Aufgaben werden nicht geöffnet)
+      - Schemaeditor:initiale Version
 Build 422
       - Automation:separates Vorbereitungsscript Script hinzugefügt
       - Scripte: Druckfunktionalität und nicht flüchtige Speicherfunktionalität (Variablen in ahuptspeicher oder Datenbank über die Laufzeit des Scriptes hinaus "retten")

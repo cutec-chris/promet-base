@@ -1,0 +1,60 @@
+object fGotoArticle: TfGotoArticle
+  Left = 470
+  Height = 205
+  Top = 372
+  Width = 380
+  Caption = 'Zu Artikel/Neuer Artikel'
+  ClientHeight = 205
+  ClientWidth = 380
+  LCLVersion = '1.7'
+  object rbOpenOther: TRadioButton
+    Left = 24
+    Height = 22
+    Top = 48
+    Width = 217
+    Caption = 'Artikel in anderer Version öffnen'
+    TabOrder = 0
+  end
+  object ButtonPanel1: TButtonPanel
+    Left = 6
+    Height = 42
+    Top = 157
+    Width = 368
+    OKButton.Name = 'OKButton'
+    OKButton.DefaultCaption = True
+    HelpButton.Name = 'HelpButton'
+    HelpButton.DefaultCaption = True
+    CloseButton.Name = 'CloseButton'
+    CloseButton.DefaultCaption = True
+    CancelButton.Name = 'CancelButton'
+    CancelButton.DefaultCaption = True
+    TabOrder = 1
+    ShowButtons = [pbOK, pbCancel]
+  end
+  object rbOpenInVersion: TRadioButton
+    Left = 24
+    Height = 22
+    Top = 16
+    Width = 225
+    Caption = 'Artikel in gewähler Version öffnen'
+    Checked = True
+    TabOrder = 4
+    TabStop = True
+  end
+  object rbVersionate: TRadioButton
+    Left = 24
+    Height = 22
+    Top = 80
+    Width = 139
+    Caption = 'Artikel versionieren'
+    TabOrder = 2
+  end
+  object rbCreate: TRadioButton
+    Left = 24
+    Height = 22
+    Top = 113
+    Width = 253
+    Caption = 'Artikel (in gewählter Version) erstellen'
+    TabOrder = 3
+  end
+end

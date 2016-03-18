@@ -9,7 +9,7 @@
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="14">
+    <Files Count="22">
       <Item1>
         <Filename Value="udetailpositionframe.lfm"/>
         <Type Value="LFM"/>
@@ -66,6 +66,38 @@
         <Filename Value="uprometscriptprinting.pas"/>
         <UnitName Value="uprometscriptprinting"/>
       </Item14>
+      <Item15>
+        <Filename Value="uposgotoarticle.pas"/>
+        <UnitName Value="uPosGotoArticle"/>
+      </Item15>
+      <Item16>
+        <Filename Value="uarticleframe.pas"/>
+        <UnitName Value="uArticleFrame"/>
+      </Item16>
+      <Item17>
+        <Filename Value="uarticlepositionframe.pas"/>
+        <UnitName Value="uArticlePositionFrame"/>
+      </Item17>
+      <Item18>
+        <Filename Value="uarticlestorageframe.pas"/>
+        <UnitName Value="uArticleStorageFrame"/>
+      </Item18>
+      <Item19>
+        <Filename Value="uarticletext.pas"/>
+        <UnitName Value="uArticleText"/>
+      </Item19>
+      <Item20>
+        <Filename Value="ucopyarticledata.pas"/>
+        <UnitName Value="uCopyArticleData"/>
+      </Item20>
+      <Item21>
+        <Filename Value="uarticlesupplierframe.pas"/>
+        <UnitName Value="uarticlesupplierframe"/>
+      </Item21>
+      <Item22>
+        <Filename Value="uprojectoverview.pas"/>
+        <UnitName Value="uprojectoverview"/>
+      </Item22>
     </Files>
     <RequiredPkgs Count="5">
       <Item1>
