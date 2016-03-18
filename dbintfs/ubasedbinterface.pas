@@ -949,6 +949,7 @@ begin
   else if (copy(aLink, 0, 4) = 'WIKI') then      Result := IMAGE_WIKI
   else if (copy(aLink, 0, 10) = 'STATISTICS') then  Result := IMAGE_STATISTIC
   else if (copy(aLink, 0, 7) = 'SCRIPTS') then   Result := 62
+  else if (copy(aLink, 0, 6) = 'SCHEME') then   Result := 130
   ;
 end;
 function TBaseDBModule.BuildLink(aDataSet: TDataSet): string;

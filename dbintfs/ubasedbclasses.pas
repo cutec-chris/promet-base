@@ -1628,6 +1628,11 @@ begin
                 aObj.Text.AsString := Self.Text.AsString;
                 aObj.FieldByName('LINK').AsString:=Data.BuildLink(Self.DataSet);
               end;
+            if aObj.FieldByName('ICON').AsVariant<>Data.GetLinkIcon(Data.BuildLink(Self.DataSet),True) then
+              begin
+                aObj.Edit;
+                aObj.FieldByName('ICON').AsInteger:=Data.GetLinkIcon(Data.BuildLink(Self.DataSet),True);
+              end;
             if aObj.Number.AsString<>Self.Number.AsString then
               begin
                 aObj.Edit;
