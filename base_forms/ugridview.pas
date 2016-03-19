@@ -36,37 +36,30 @@ type
 
   { TInplaceMemo }
 
-  TInplaceMemo = class(TKMemo)
-  private
-    FFirstLine: string;
-    FGrid: TCustomGrid;
-    FCol,FRow: Integer;
-    FSetValue: Boolean;
-    FLines : TStringList;
-    function GetFirstLine: string;
-    function GetLines: TStrings;
-    procedure SetFirstLine(AValue: string);
-    procedure InplaceMemoChange(Sender: TObject);
-  protected
-    procedure RealSetText(const Value: TCaption); override;
-    procedure ShowControl(AControl: TControl); override;
-    procedure SetParent(NewParent: TWinControl); override;
-    procedure msg_SetGrid(var Msg: TGridMessage); message GM_SETGRID;
-    procedure msg_GetGrid(var Msg: TGridMessage); message GM_GETGRID;
-    procedure msg_SetBounds(var Msg: TGridMessage); message GM_SETBOUNDS;
-    procedure msg_SetValue(var Msg: TGridMessage); message GM_SETVALUE;
-    procedure msg_SetPos(var Msg: TGridMessage); message GM_SETPOS;
-    procedure msg_SelectAll(var Msg: TGridMessage); message GM_SELECTALL;
-    procedure WMPaste(var Message: TLMPaste); message LM_PASTE;
-    function CheckRTF(List: TKObjectList): Boolean;
-  public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
-    procedure EditingDone; override;
-    //property Lines : TStrings read GetLines;
-    property FirstLine : string read GetFirstLine write SetFirstLine;
-    property SetValue : Boolean read FSetValue write FSetValue;
-  end;
+  TInplaceMemo = class(TMemo)
+    private
+      FGrid: TCustomGrid;
+      FCol,FRow: Integer;
+      FSetValue: Boolean;
+      function GetFirstLine: string;
+    protected
+      procedure RealSetText(const Value: TCaption); override;
+      procedure ShowControl(AControl: TControl); override;
+      procedure SetParent(NewParent: TWinControl); override;
+      procedure Change;override;
+      procedure msg_SetGrid(var Msg: TGridMessage); message GM_SETGRID;
+      procedure msg_GetGrid(var Msg: TGridMessage); message GM_GETGRID;
+      procedure msg_SetBounds(var Msg: TGridMessage); message GM_SETBOUNDS;
+      procedure msg_SetValue(var Msg: TGridMessage); message GM_SETVALUE;
+      procedure msg_SetPos(var Msg: TGridMessage); message GM_SETPOS;
+      procedure msg_SelectAll(var Msg: TGridMessage); message GM_SELECTALL;
+      procedure WMPaste(var Message: TLMPaste); message LM_PASTE;
+    public
+      constructor Create(AOwner: TComponent); override;
+      procedure EditingDone; override;
+      property SetValue : Boolean read FSetValue write FSetValue;
+      property FirstLine : string read GetFirstLine;
+    end;
   TRowObject = class
   private
     function GetStringRec: string;
@@ -261,7 +254,7 @@ type
     FSortField: string;
     FActSortDirection: TSortDirection;
     FActSortField: string;
-    FInpStringList : TKMemoBlocks;
+    FInpStringList : TStringList;
     FDataSet : TBaseDBDataSet;
     FSTextField: string;
     FTextField: string;
@@ -409,7 +402,7 @@ type
 implementation
 {$R *.lfm}
 uses uRowEditor,LCLType,LCLProc,LCLIntf,Themes,uIntfStrConsts,
-  uData,uBaseVisualApplication,Math;
+  uData,uBaseVisualApplication,Math,rtf2html,htmltowiki;
 { TRowObject }
 
 procedure TfGridView.ReplacePasteFields(aField: TField; aOldValue: string;
@@ -886,7 +879,7 @@ begin
     begin
       aLength := 0;
       aLength:=UTF8Length(mInplace.Text);
-      if ((Key = VK_DOWN) and (mInplace.SelStart >= aLength-(length(mInplace.Blocks[mInplace.Blocks.Count-1].Text)-1)))
+      if ((Key = VK_DOWN) and (mInplace.SelStart >= aLength-(length(mInplace.Lines[mInplace.Lines.Count-1])-1)))
       or ((Key = VK_RIGHT) and (mInplace.SelStart >= aLength-1))
       then
         aLeave := True;
@@ -921,7 +914,7 @@ var
   aEdit: Boolean;
   aCur: objpas.Integer;
 begin
-  aHeight := mInplace.Blocks.Height; //((mInplace.Lines.Count+1)*gList.Canvas.GetTextHeight('A'))+3;
+  aHeight := ((mInplace.Lines.Count+1)*gList.Canvas.GetTextHeight('A'))+3;
   if gList.DefaultRowHeight > aHeight then
     aHeight := gList.DefaultRowHeight;
   if aHeight > (gList.Height-(gList.FixedRows*gList.DefaultRowHeight)) then
@@ -1370,14 +1363,17 @@ begin
                 begin
                   if copy(aText,0,1)='{' then
                     begin
+                      aText:=StripHTML(RtfToHtml(aText));
+                      {
                       aTextStream := TStringStream.Create(aText);
+
                       aTextStream.Position:=0;
                       FInpStringList.LoadFromRTFStream(aTextStream);
                       FInpStringList.PaintToCanvas(Canvas,bRect.Left,bRect.Top,bRect);
                       aTextStream.Free;
-                    end
-                  else
-                    TextRect(bRect,bRect.Left+3,bRect.Top,aText,aTextStyleW);
+                      }
+                    end;
+                  TextRect(bRect,bRect.Left+3,bRect.Top,aText,aTextStyleW);
                 end;
               dec(aRect.Right,1);
               dec(aRect.Bottom,1);
@@ -1987,10 +1983,10 @@ begin
       if not (gList.Editor=mInplace) then
         begin
           if copy(tmp,0,1)='{' then
-            mInplace.RTF:=tmp
+            mInplace.Text:=StripHTML(RtfToHtml(tmp))
           else mInplace.Text:=tmp;
         end;
-      FInpStringList.Assign(mInplace.Blocks);
+      FInpStringList.Assign(mInplace.Lines);
       if DataSet.DataSet.FieldDefs.IndexOf(ShortTextField)>=0 then
         begin          if FInpStringList.Count > 0 then
             begin
@@ -1998,7 +1994,7 @@ begin
                 begin
                   if (FDataSource.State <> dsEdit) and (FDataSource.State <> dsInsert) then
                     FDataSource.DataSet.Edit;
-                  DataSet.FieldByName(ShortTextField).AsString:=StringReplace(FInpStringList[0].Text,'¶','',[rfReplaceAll]);
+                  DataSet.FieldByName(ShortTextField).AsString:=StringReplace(FInpStringList[0],'¶','',[rfReplaceAll]);
                 end;
               FInpStringList.Delete(0);
               if FInpStringList.Count>0 then
@@ -2013,14 +2009,14 @@ begin
         end;
       if Assigned(DataSet.FieldByName(TextField)) then
         begin
-          HasRTF := mInplace.CheckRTF(FInpStringList);
+          HasRTF := false;//mInplace.CheckRTF(FInpStringList);
           if (DataSet.FieldByName(TextField).AsString<>FInpStringList.Text) or (HasRTF)
           then
             begin
               if (FDataSource.State <> dsEdit) and (FDataSource.State <> dsInsert) then
                 FDataSource.DataSet.Edit;
               if HasRTF then
-                DataSet.FieldByName(TextField).AsString:=mInplace.RTF
+                //DataSet.FieldByName(TextField).AsString:=mInplace.RTF
               else
                 DataSet.FieldByName(TextField).AsString:=FInpStringList.Text;
               dataSet.Change;
@@ -2210,7 +2206,6 @@ begin
                   end;
                 if gList.Canvas.HandleAllocated then
                   begin
-                    {
                     r := gList.CellRect(i+1,aRow);
                     r.Right:=r.Left+TextWidth;
                     aStyle := gList.Canvas.Font.Style;
@@ -2221,11 +2216,12 @@ begin
                       r,
                       DT_LEFT or DT_WORDBREAK or DT_CALCRECT);
                     gList.Canvas.Font.Style := aStyle;
-                    }
+                    {
                     FInpStringList.Text:=aText;
                     FInpStringList.SetExtent(TextWidth,0);
                     Result.Y := FInpStringList.Height;
                     Result.X := FInpStringList.Width;
+                    }
                   end;
               end;
           end;
@@ -2884,7 +2880,7 @@ begin
   FDontUpdate := 0;
   FInvertedDrawing:=False;
   FSortDirection:=sdIgnored;
-  FInpStringList := TKMemoBlocks.Create;
+  FInpStringList := TStringList.Create;
   FDefaultRowHeight := False;
   mInplace := TInplaceMemo.Create(Self);
   mInplace.ScrollBars:=ssAutoVertical;
@@ -3724,22 +3720,11 @@ begin
   gList.Row:=aRow;
 end;
 
-function TInplaceMemo.GetLines: TStrings;
-begin
-  FLines.Text:=Text;
-end;
-
 function TInplaceMemo.GetFirstLine: string;
 begin
   Result := '';
-  if Blocks.Count>0 then
-    Result := Blocks[0].Text;
-end;
-
-procedure TInplaceMemo.SetFirstLine(AValue: string);
-begin
-  if FFirstLine=AValue then Exit;
-  FFirstLine:=AValue;
+  if Lines.Count>0 then
+    Result := Lines[0];
 end;
 
 procedure TInplaceMemo.RealSetText(const Value: TCaption);
@@ -3755,6 +3740,15 @@ end;
 procedure TInplaceMemo.SetParent(NewParent: TWinControl);
 begin
   inherited SetParent(NewParent);
+end;
+
+procedure TInplaceMemo.Change;
+begin
+  inherited Change;
+  if (FGrid<>nil) and Visible then
+    begin
+      TUnprotectedGrid(FGrid).SetEditText(FCol, FRow, Lines.Text);
+    end;
 end;
 
 procedure TInplaceMemo.msg_SetGrid(var Msg: TGridMessage);
@@ -3785,7 +3779,7 @@ begin
       aText := Text;
       aClear := length(trim(aText))<2;
       if copy(msg.Value,0,1)='{' then
-        RTF:=Msg.Value
+        Text := StripHTML(RtfToHtml(Msg.Value)) //RTF:=Msg.Value
       else
         Text:=Msg.Value;
       if aClear then
@@ -3799,7 +3793,8 @@ begin
 end;
 procedure TInplaceMemo.msg_SelectAll(var Msg: TGridMessage);
 begin
-  ExecuteCommand(ecSelectAll);
+  SelectAll;
+  //ExecuteCommand(ecSelectAll);
 end;
 
 procedure TInplaceMemo.WMPaste(var Message: TLMPaste);
@@ -3825,50 +3820,12 @@ begin
   EditingDone;
 end;
 
-function TInplaceMemo.CheckRTF(List : TKObjectList): Boolean;
-var
-  i: Integer;
-  aBlock: TObject;
-  aStyle: TKMemoTextStyle = nil;
-begin
-  Result := False;
-  for i := 0 to List.Count-1 do
-    begin
-      aBlock := List[i];
-      if (aBlock is TKMemoTextBlock) then
-        begin
-          if not Assigned(aStyle) then
-            aStyle := TKMemoTextBlock(aBlock).TextStyle;
-          Result := Result or (aStyle.Font.Name <> TKMemoTextBlock(aBlock).TextStyle.Font.Name);
-          Result := Result or (aStyle.Font.Style <> TKMemoTextBlock(aBlock).TextStyle.Font.Style);
-          Result := Result or (aStyle.Font.Color <> TKMemoTextBlock(aBlock).TextStyle.Font.Color);
-        end
-      else if aBlock is TKObjectList then
-        Result := CheckRTF(aBlock as TKObjectList)
-      else if aBlock is TKMemoHyperlink then
-        Result := True
-      else if aBlock is TKMemoImageBlock then
-        Result := True
-      else if aBlock is TKMemoTable then
-        Result := True
-      ;
-      if Result then break;
-    end;
-end;
-
 constructor TInplaceMemo.Create(AOwner: TComponent);
 begin
   FSetValue:=True;
   inherited Create(AOwner);
-  FLines := TStringList.Create;
   //WordWrap:=True;
-  OnChange:=@InplaceMemoChange;
-end;
-
-destructor TInplaceMemo.Destroy;
-begin
-  FLines.Destroy;
-  inherited Destroy;
+  //OnChange:=@InplaceMemoChange;
 end;
 
 procedure TInplaceMemo.EditingDone;
@@ -3876,20 +3833,6 @@ begin
   inherited EditingDone;
   if FGrid<>nil then
     FGrid.EditingDone;
-end;
-
-procedure TInplaceMemo.InplaceMemoChange(Sender: TObject);
-var
-  aText: TKString;
-begin
-  if not CheckRTF(Blocks) then
-    aText := Text
-  else aText:=RTF
-  ;
-  if (FGrid<>nil) and Visible then
-    begin
-      TUnprotectedGrid(FGrid).SetEditText(FCol, FRow, aText);
-    end;
 end;
 
 initialization

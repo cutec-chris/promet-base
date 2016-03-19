@@ -561,9 +561,10 @@ begin
         aMasterdata.Locate('VERSION',DataSet.FieldByName('VERSION').AsVariant,[]);
       if aMasterdata.Locate('VERSION',DataSet.FieldByName('VERSION').AsVariant,[]) then
         VersionThere:=True;
+      MdThere:=aMasterdata.Count>0;
     end
   else MdThere:=True;
-  if not (MdThere and VersionThere) then
+  if not (VersionThere) then
     begin
       fGotoArticle.SetLanguage;
       with fGotoArticle do
@@ -571,6 +572,8 @@ begin
           rbCreate.Enabled:=not MdThere;
           rbVersionate.Enabled := (not VersionThere)  and MdThere;
           rbOpenInVersion.Enabled := VersionThere and MdThere;
+          if rbOpenInVersion.Enabled then
+            rbOpenInVersion.Checked:=True;
           rbOpenOther.Enabled:=(not VersionThere) and MdThere;
           if (not VersionThere)  and (not MdThere) then rbCreate.Checked:=True;
           if fGotoArticle.Execute then
@@ -581,7 +584,31 @@ begin
                   fMainTreeFrame.pcPages.AddTab(aFrame);
                   aFrame.SetLanguage;
                   aFrame.New;
-                  aFrame.eName.SetFocus;
+                  aFrame.DataSet.FieldByName('ID').AsString:=Dataset.FieldByName('IDENT').AsString;
+                  aFrame.DataSet.FieldByName('SHORTTEXT').AsString:=Dataset.FieldByName('SHORTTEXT').AsString;
+                  aFrame.DataSet.FieldByName('VERSION').AsVariant:=Dataset.FieldByName('VERSION').AsVariant;
+                  aFrame.DataSet.FieldByName('QUANTITYU').AsString:=Dataset.FieldByName('QUANTITYU').AsString;
+                  aFrame.DataSet.FieldByName('WEIGHT').AsVariant:=Dataset.FieldByName('WEIGHT').AsVariant;
+                  aFrame.mShortText.OnChange(aFrame.mShortText);
+                  aFrame.DataSet.Post;
+                  {
+                  if Dataset.FieldByName('SELLPRICE').AsFloat<>0 then
+                    begin
+                      TMasterdata(aFrame.DataSet).Prices.Append;
+                      //TODO:Set price Type from Pricetypes
+                      TMasterdata(aFrame.DataSet).Prices.FieldByName('PTYPE').AsString:='VK';
+                      TMasterdata(aFrame.DataSet).Prices.FieldByName('PRICE').AsFloat:=Dataset.FieldByName('SELLPRICE').AsFloat;
+                      TMasterdata(aFrame.DataSet).Prices.Post;
+                    end;
+                  if Dataset.FieldByName('PURCHASE').AsFloat<>0 then
+                    begin
+                      TMasterdata(aFrame.DataSet).Prices.Append;
+                      //TODO:Set price Type from Pricetypes
+                      TMasterdata(aFrame.DataSet).Prices.FieldByName('PTYPE').AsString:='EKD';
+                      TMasterdata(aFrame.DataSet).Prices.FieldByName('PRICE').AsFloat:=Dataset.FieldByName('PURCHASE').AsFloat;
+                      TMasterdata(aFrame.DataSet).Prices.Post;
+                    end;
+                  }
                 end
               else if rbOpenInVersion.Checked then
                 Data.GotoLink(Data.BuildLink(aMasterdata.DataSet))
