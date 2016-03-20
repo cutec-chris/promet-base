@@ -124,7 +124,7 @@ type
     function GetCheckoutPath(Directory: string; TempID: string): string;
     function GetIDCheckoutPath(Directory: string; TempID: string): string;
     procedure DoCheckout(Directory : string;aRevision : Integer = -1);
-    procedure CheckoutToStream(aStream : TStream;aRevision : Integer = -1);
+    procedure CheckoutToStream(aStream : TStream;aRevision : Integer = -1;aSize : Integer = -1);
     procedure CheckInFromStream(aStream: TStream; Desc: string='');
     function CollectCheckInFiles(Directory : string) : TStrings;
     function CheckCheckInFiles(aFiles : TStrings;Directory: string) : Boolean;
@@ -1176,7 +1176,8 @@ begin
         end;
     end;
 end;
-procedure TDocument.CheckoutToStream(aStream: TStream;aRevision : Integer = -1);
+procedure TDocument.CheckoutToStream(aStream: TStream; aRevision: Integer;
+  aSize: Integer);
 var
   aDocument: TDocument;
   ss: TStringStream;
@@ -1197,7 +1198,7 @@ begin
           aDocument.Open;
           try
             if aDocument.Count > 0 then
-              aDocument.CheckoutToStream(aStream,aRevision)
+              aDocument.CheckoutToStream(aStream,aRevision,aSize)
           finally
             aDocument.Free;
           end;
@@ -1215,7 +1216,7 @@ begin
                 DataSet.Prior;
               //patch revision by revision till the target rev
               with BaseApplication as IBaseDbInterface,BaseApplication as IBaseApplication do
-                Data.BlobFieldToFile(DataSet,'DOCUMENT',GetInternalTempDir+'prometheusfile.tmp');//full file
+                Data.BlobFieldToFile(DataSet,'DOCUMENT',GetInternalTempDir+'prometheusfile.tmp',aSize);//full file
               aRev := DataSet.FieldByName('REVISION').AsInteger;
               while (aRev<aRevision) and (not DataSet.EOF)  do
                 begin
@@ -1244,7 +1245,7 @@ begin
             end
           else
             with BaseApplication as IBaseDbInterface do
-              Data.BlobFieldToStream(DataSet,'DOCUMENT',aStream);
+              Data.BlobFieldToStream(DataSet,'DOCUMENT',aStream,aSize);
         end;
     end;
 end;

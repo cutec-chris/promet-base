@@ -225,7 +225,7 @@ end;
 
 procedure TLoadThread.CheckOutToStream;
 begin
-  aDocument.CheckoutToStream(aStream,FRev);
+  aDocument.CheckoutToStream(aStream,FRev,1024*512);
 end;
 
 procedure TLoadThread.Execute;
@@ -247,7 +247,7 @@ begin
       if DoAbort then goto aExit;
       Synchronize(@FillRevision);
       if DoAbort then goto aExit;
-      if aDocument.Size>(15*1024*1024) then goto aExit; //to big for preview
+      if aDocument.Size>(3*1024*1024) then goto aExit; //to big for preview
       aStream := TMemoryStream.Create;
       Synchronize(@CheckoutToStream);
       if not DoAbort then

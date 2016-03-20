@@ -65,8 +65,8 @@ type
     function DateTimeToFilter(aValue : TDateTime) : string;override;
     function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';AutoInc : Boolean = True) : Variant;override;
     procedure StreamToBlobField(Stream : TStream;DataSet : TDataSet;Fieldname : string);override;
-    procedure BlobFieldToStream(DataSet: TDataSet; Fieldname: string;
-      dStream: TStream); override;
+    function BlobFieldStream(DataSet: TDataSet; Fieldname: string): TStream;
+      override;
     function GetErrorNum(e: EDatabaseError): Integer; override;
     procedure DeleteExpiredSessions;override;
     function GetNewConnection: TComponent;override;
@@ -1922,16 +1922,14 @@ begin
     end
   else inherited;
 end;
-procedure TZeosDBDM.BlobFieldToStream(DataSet: TDataSet; Fieldname: string;
-  dStream: TStream);
+
+function TZeosDBDM.BlobFieldStream(DataSet: TDataSet; Fieldname: string
+  ): TStream;
 var
   GeneralQuery: TZQuery;
-  aSQL : string;
-  pBuf    : Pointer;
-  cnt: LongInt;
-  totCnt: LongInt=0;
-  Stream: TStream;
+  aSql: String;
 begin
+  Result := nil;
   if DataSet.Fielddefs.IndexOf(FieldName) = -1 then
     begin
       GeneralQuery := TZQuery.Create(Self);
@@ -1939,32 +1937,10 @@ begin
       aSql := 'select '+QuoteField(Fieldname)+' from '+QuoteField(TZeosDBDataSet(DataSet).DefaultTableName)+' where '+QuoteField('SQL_ID')+'='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
       GeneralQuery.SQL.Text := aSql;
       GeneralQuery.Open;
-      Stream := GeneralQuery.CreateBlobStream(GeneralQuery.FieldByName(Fieldname),bmRead);
-      try
-        GetMem(pBuf, ChunkSize);
-        try
-          cnt := Stream.Read(pBuf^, ChunkSize);
-          cnt := dStream.Write(pBuf^, cnt);
-          totCnt := totCnt + cnt;
-          {Loop the process of reading and writing}
-          while (cnt > 0) do
-            begin
-              {Read bufSize bytes from source into the buffer}
-              cnt := Stream.Read(pBuf^, ChunkSize);
-              {Now write those bytes into destination}
-              cnt := dStream.Write(pBuf^, cnt);
-              {Increment totCnt for progress and do arithmetic to update the gauge}
-              totcnt := totcnt + cnt;
-            end;
-        finally
-          FreeMem(pBuf, ChunkSize);
-        end;
-      finally
-        Stream.Free;
-      end;
+      result := GeneralQuery.CreateBlobStream(GeneralQuery.FieldByName(Fieldname),bmRead);
       GeneralQuery.Free;
     end
-  else inherited;
+  else Result := inherited;
 end;
 
 function TZeosDBDM.GetErrorNum(e: EDatabaseError): Integer;

@@ -137,11 +137,12 @@ type
     function GetNewDataSet(aSQL : string;aConnection : TComponent = nil;MasterData : TDataSet = nil;aOrigtable : TBaseDBDataSet = nil) : TDataSet;virtual;
     procedure DestroyDataSet(DataSet : TDataSet);virtual;abstract;
     function Ping(aConnection : TComponent) : Boolean;virtual;abstract;
-    procedure BlobFieldToFile(DataSet : TDataSet;Fieldname : string;Filename : string);virtual;
+    procedure BlobFieldToFile(DataSet : TDataSet;Fieldname : string;Filename : string;aSize : Integer = -1);virtual;
     procedure FileToBlobField(Filename : string;DataSet : TDataSet;Fieldname : string);virtual;
     procedure StreamToBlobField(Stream : TStream;DataSet : TDataSet;Fieldname : string);virtual;
     procedure BlobFieldToStream(DataSet: TDataSet; Fieldname: string;
-      dStream: TStream); virtual;
+      dStream: TStream;aSize : Integer = -1); virtual;
+    function BlobFieldStream(DataSet: TDataSet; Fieldname: string) : TStream; virtual;
     function QuoteField(aField : string) : string;virtual;
     function QuoteValue(aValue : string) : string;virtual;
     function EscapeString(aValue : string) : string;virtual;
@@ -531,13 +532,13 @@ begin
   raise Exception.Create(strNotSupported);
 end;
 procedure TBaseDBModule.BlobFieldToFile(DataSet: TDataSet; Fieldname: string;
-  Filename: string);
+  Filename: string; aSize: Integer);
 var
   fstream: TFileStream;
 begin
   fstream := TFileStream.Create(UniToSys(Filename),fmCreate);
   try
-    BlobFieldToStream(DataSet,Fieldname,fstream);
+    BlobFieldToStream(DataSet,Fieldname,fstream,aSize);
   except
     fStream.Free;
     raise;
@@ -602,14 +603,14 @@ begin
     DataSet.Post;
 end;
 procedure TBaseDBModule.BlobFieldToStream(DataSet: TDataSet; Fieldname: string;
-  dStream: TStream);
+  dStream: TStream; aSize: Integer);
 var
   pBuf    : Pointer;
   cnt: LongInt;
   totCnt: LongInt=0;
   Stream: TStream;
 begin
-  Stream := DataSet.CreateBlobStream(DataSet.FieldByName(Fieldname),bmRead);
+  Stream := BlobFieldStream(DataSet,Fieldname);
   try
     GetMem(pBuf, ChunkSize);
     try
@@ -625,6 +626,8 @@ begin
           cnt := dStream.Write(pBuf^, cnt);
           {Increment totCnt for progress and do arithmetic to update the gauge}
           totcnt := totcnt + cnt;
+          if aSize>-1 then
+            if totCnt>aSize then break;
         end;
     finally
       FreeMem(pBuf, ChunkSize);
@@ -633,6 +636,13 @@ begin
     Stream.Free;
   end;
 end;
+
+function TBaseDBModule.BlobFieldStream(DataSet: TDataSet; Fieldname: string
+  ): TStream;
+begin
+  Result := DataSet.CreateBlobStream(DataSet.FieldByName(Fieldname),bmRead);
+end;
+
 function TBaseDBModule.QuoteField(aField: string): string;
 begin
   Result := '"'+aField+'"';

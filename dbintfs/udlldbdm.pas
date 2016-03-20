@@ -46,7 +46,7 @@ type
     function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';AutoInc : Boolean = True) : Variant;override;
     procedure StreamToBlobField(Stream : TStream;DataSet : TDataSet;Fieldname : string);override;
     procedure BlobFieldToStream(DataSet: TDataSet; Fieldname: string;
-      dStream: TStream); override;
+      dStream: TStream;aSize : Integer = -1); override;
     function GetErrorNum(e: EDatabaseError): Integer; override;
     procedure DeleteExpiredSessions;override;
     function GetNewConnection: TComponent;override;
@@ -139,9 +139,9 @@ begin
 end;
 
 procedure TDLLDBDM.BlobFieldToStream(DataSet: TDataSet; Fieldname: string;
-  dStream: TStream);
+  dStream: TStream; aSize: Integer);
 begin
-  inherited BlobFieldToStream(DataSet, Fieldname, dStream);
+  inherited BlobFieldToStream(DataSet, Fieldname, dStream, aSize);
 end;
 
 function TDLLDBDM.GetErrorNum(e: EDatabaseError): Integer;
