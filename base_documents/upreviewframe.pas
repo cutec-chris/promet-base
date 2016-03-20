@@ -225,7 +225,7 @@ end;
 
 procedure TLoadThread.CheckOutToStream;
 begin
-  aDocument.CheckoutToStream(aStream,FRev,1024*512);
+  aDocument.CheckoutToStream(aStream,FRev);
 end;
 
 procedure TLoadThread.Execute;
