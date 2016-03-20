@@ -209,7 +209,7 @@ type
 implementation
 uses uSearch, uBaseDbInterface, uOrder, uDocumentFrame, uDocuments,
   uData,uMasterdata,uBaseVisualApplication,uMainTreeFrame,ucalcframe,uProjects,
-  uautomationframe,utask,fautomationform,uPosGotoArticle,uArticleFrame;
+  uautomationframe,utask,fautomationform,uPosGotoArticle,uArticleFrame,Dialogs;
 {$R *.lfm}
 procedure TfPosition.FDataSourceStateChange(Sender: TObject);
 begin
@@ -591,6 +591,9 @@ begin
                   aFrame.DataSet.FieldByName('WEIGHT').AsVariant:=Dataset.FieldByName('WEIGHT').AsVariant;
                   aFrame.mShortText.OnChange(aFrame.mShortText);
                   aFrame.DataSet.Post;
+                  Dataset.Edit;
+                  Dataset.FieldByName('LANGUAGE').AsString:=aFrame.DataSet.FieldByName('LANGUAGE').AsVariant;
+                  Dataset.Post;
                   {
                   if Dataset.FieldByName('SELLPRICE').AsFloat<>0 then
                     begin
@@ -616,7 +619,7 @@ begin
                 Data.GotoLink(Data.BuildLink(aMasterdata.DataSet))
               else if rbVersionate.Checked then
                 begin
-
+                  Showmessage('im Moment nicht implementiert !');
                 end;
             end;
         end;

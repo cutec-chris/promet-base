@@ -60,7 +60,7 @@ type
     bExecute1: TSpeedButton;
     bShowTree: TSpeedButton;
     cbActive: TDBCheckBox;
-    cbLanguage: TComboBox;
+    cbLanguage: TExtDBCombobox;
     cbNoStorage: TDBCheckBox;
     cbNoStorage1: TDBCheckBox;
     cbOwnProduction: TDBCheckBox;

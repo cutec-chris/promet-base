@@ -817,7 +817,11 @@ begin
       FieldByName('USESERIAL').AsString := 'N';
       FieldByName('OWNPROD').AsString := 'N';
       FieldByName('UNIT').AsInteger   := 1;
-      FieldByName('LANGUAGE').AsString := 'de'; //TODO:find default language
+      TBaseDBModule(DataModule).Languages.Open;
+      if TBaseDBModule(DataModule).Languages.Locate('DEFAULTLNG','Y',[loCaseInsensitive]) then
+        FieldByName('LANGUAGE').AsString := TBaseDBModule(DataModule).Languages.FieldByName('ISO6391').AsString
+      else
+        FieldByName('LANGUAGE').AsString := 'DE';
       FieldByName('CRDATE').AsDateTime := Date;
       FieldByName('ACTIVE').AsString  := 'Y';
       FieldByName('VAT').AsString     := Vat.FieldByName('ID').AsString;
