@@ -388,9 +388,6 @@ begin
   FDBInterface.SetOwner(Self);
   {.$Warnings On}
   Properties := TXMLPropStorage.Create(AOwner);
-  //if not DirectoryExistsUTF8(GetGlobalConfigDir(GetAppname)) then
-  //  ForceDirectoriesUTF8(GetGlobalConfigDir(GetAppname));
-  Properties.FileName := GetOurConfigDir+'config.xml';
   Properties.RootNodePath := 'Config';
   Self.OnQueryEndSession:=@BaseVisualApplicationQueryEndSession;
   Self.OnException:=@BaseVisualApplicationException;

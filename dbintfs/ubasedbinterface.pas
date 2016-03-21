@@ -1784,7 +1784,7 @@ begin
           end
         else FilePath := GetConfigDir(StringReplace(lowercase('prometerp'),'-','',[rfReplaceAll]));
       end;
-    if not DirectoryExists(FilePath) then ForceDirectories(FilePath);
+    if not DirectoryExists(UniToSys(FilePath)) then ForceDirectories(UniToSys(FilePath));
     FConfigPath:=FilePath;
     Result := True;
   except
