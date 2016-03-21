@@ -64,8 +64,6 @@ type
     bExecute: TSpeedButton;
     BitBtn3: TSpeedButton;
     BitBtn5: TSpeedButton;
-    Order: TDataSource;
-    DBMemo1: TDBMemo;
     ipWorkHTML: TIpHtmlPanel;
     lStatusProblems: TLabel;
     Label3: TLabel;
@@ -978,7 +976,6 @@ end;
 procedure TFAutomation.DoOpen;
 begin
   Screen.Cursor:=crHourGlass;
-  Order.DataSet := DataSet.DataSet;
   Application.ProcessMessages;
   nComm := nil;
   while not DataSet.EOF do

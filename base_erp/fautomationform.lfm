@@ -211,18 +211,6 @@ object FAutomation: TFAutomation
         Flat = True
         ShowCaption = False
       end
-      object DBMemo1: TDBMemo
-        Left = 80
-        Height = 44
-        Top = 4
-        Width = 160
-        Align = alRight
-        Anchors = [akTop, akLeft, akRight, akBottom]
-        BorderSpacing.Around = 4
-        DataField = 'NOTE'
-        DataSource = Order
-        TabOrder = 0
-      end
     end
     object Panel7: TPanel
       Left = 124
@@ -643,9 +631,5 @@ object FAutomation: TFAutomation
     object MenuItem4: TMenuItem
       Caption = 'Bearbeiten'
     end
-  end
-  object Order: TDataSource
-    left = 432
-    top = 21
   end
 end
