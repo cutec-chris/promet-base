@@ -82,6 +82,8 @@ resourcestring
 { TSQLStatement }
 
 function ReplaceSQLFunctions(Str : string) : string;
+var
+  aLmt: String;
 begin
   Result := Str;
   if Data.GetDBType='postgres' then
@@ -97,6 +99,17 @@ begin
   else if Data.GetDBType='mssql' then
     begin
       Result := StringReplace(Result,'JULIANDAY(','2415020.5+CONVERT(FLOAT,',[rfReplaceAll,rfIgnoreCase]);
+      if pos('limit ',lowercase(Str))>0 then
+        begin
+          aLmt := copy(Str,pos('limit ',lowercase(Str))+6,length(Str));
+          if pos(' ',aLmt)>0 then
+            aLmt := copy(aLmt,0,pos(' ',aLmt));
+          if pos(';',aLmt)>0 then
+            aLmt := copy(aLmt,0,pos(';',aLmt));
+          aLmt :=  trim(aLmt);
+          Result := copy(Result,0,pos('limit ',lowercase(Result))-1);
+          Result := StringReplace(Result,'select ','select top '+aLmt+' ',[rfReplaceAll,rfIgnoreCase]);
+        end;
     end
   else if Data.GetDBType='sqlite' then
     begin
