@@ -1859,6 +1859,7 @@ begin
             end;
         end;
       ID := IntToStr(Int64(Data.Tree.Id.AsVariant));
+      Data.Tree.Filter('');
       Typ := Data.Tree.FieldByName('TYPE').AsString;
       Data.Tree.DataSet.Filter:=Data.QuoteField('PARENT')+'='+Data.QuoteValue(ID);
       Data.Tree.DataSet.Filtered:=True;
