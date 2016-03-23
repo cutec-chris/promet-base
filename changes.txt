@@ -1,4 +1,6 @@
-﻿Build 423
+﻿Build 424
+
+Build 423
       - Search:Show Articlenumber,Status also in Tree Search
       - Search:Search Asynchron (not on every type)
       - Aufgabenansichten:akzeptieren Eingaben in Form: KW1-53
