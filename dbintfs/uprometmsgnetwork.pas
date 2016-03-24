@@ -44,7 +44,7 @@ type
     FCommand : string;
     FResult : string;
     procedure DoCommand;
-    function ProcessHttpRequest(Request, URI: string): integer;
+    function ProcessHttpRequest(Request, URI: string;Input,Output : TMemoryStream): integer;
   public
     Constructor Create (hsock:tSocket);
     procedure Execute; override;
@@ -72,18 +72,18 @@ var
 
 implementation
 
+uses Utils;
+
 Constructor TPrometNetworkDaemon.Create;
 begin
   inherited create(false);
   sock:=TTCPBlockSocket.create;
   FreeOnTerminate:=true;
 end;
-
 Destructor TPrometNetworkDaemon.Destroy;
 begin
   Sock.free;
 end;
-
 procedure TPrometNetworkDaemon.Execute;
 var
   ClientSock:TSocket;
@@ -118,7 +118,6 @@ begin
       until false;
     end;
 end;
-
 procedure TPrometNetworkThrd.DoCommand;
 var
   aCmd, uri, protocol, s: String;
@@ -132,19 +131,19 @@ begin
   else aCmd := FCommand;
   Fetch(FCommand,' ');
   case Uppercase(aCmd) of
-  'EXIT','QUIT':
+  'EXIT','QUIT'://Quit Connection
     begin
       FResult:='OK:Bye!';
       Terminate;
     end;
-  'STARTTLS':
+  'STARTTLS'://Start SSL
     begin
       if not sock.SSLAcceptConnection then
         Sock.SendString('This Connection is insecure.'+CRLF)
       else
         Sock.SendString('This Connection is secure now.'+CRLF);
     end;
-  'GET','HEAD':
+  'GET','HEAD'://HTTP Request
     begin
       Timeout := 12000;
       uri := fetch(FCommand, ' ');
@@ -179,14 +178,14 @@ begin
           Exit;
       end;
       OutputData := TMemoryStream.Create;
-      ResultCode := ProcessHttpRequest(aCmd, uri);
+      ResultCode := ProcessHttpRequest(aCmd, uri, InputData, OutputData);
       sock.SendString('HTTP/1.0 ' + IntTostr(ResultCode) + CRLF);
       if protocol <> '' then
       begin
         headers.Add('Content-length: ' + IntTostr(OutputData.Size));
         headers.Add('Connection: close');
         headers.Add('Date: ' + Rfc822DateTime(now));
-        headers.Add('Server: Synapse HTTP server demo');
+        headers.Add('Server: Avamm Internal Network');
         headers.Add('');
         for n := 0 to headers.count - 1 do
           sock.sendstring(headers[n] + CRLF);
@@ -195,24 +194,48 @@ begin
         Exit;
       Sock.SendBuffer(OutputData.Memory, OutputData.Size);
       headers.Free;
+      FResult:='';
+    end
+  'PUB'://Publish Message [GUID,TOPIC,MESSAGE]
+    begin
+      //Check if we have someone to forward this message
+      //Check if we should do something with it (Scripts,Measurements)
+    end;
+  'SUB'://Subscribe to Topic [TOPIC]
+    begin
+    end;
+  'UNSUB'://Unsubscribe from Topic [TOPIC]
+    begin
     end
   else
-    FResult:='ERROR: not implemented';
+    begin
+      if (copy(aCmd,0,1)='<') and IsNumeric(copy(aCmd,2,pos('>',aCmd)-2)) then
+        begin //Syslog Message
+          FResult:='ERROR: Syslog at time not implemented';
+        end
+      else
+        FResult:='ERROR: not implemented';
+    end;
   end;
 end;
-
-function TPrometNetworkThrd.ProcessHttpRequest(Request, URI: string): integer;
+function TPrometNetworkThrd.ProcessHttpRequest(Request, URI: string; Input,
+  Output: TMemoryStream): integer;
+var
+  aSL: TStringList;
 begin
-  Result := 500;
+  Result := 200;
+  aSL:= TStringList.Create;
+  aSL.Add('<html><body>');
+  aSL.Add('Seite: '+URI);
+  aSL.Add('</body></html>');
+  aSl.SaveToStream(Output);
 end;
-
 constructor TPrometNetworkThrd.Create(hsock: tSocket);
 begin
   inherited create(false);
   Csock := Hsock;
   FreeOnTerminate:=true;
 end;
-
 procedure TPrometNetworkThrd.Execute;
 var
   s: string;
@@ -237,14 +260,11 @@ begin
     Sock.Free;
   end;
 end;
-
 { TDiscoveryDaemon }
-
 procedure TPrometDiscoveryDaemon.AddLog;
 begin
 
 end;
-
 constructor TPrometDiscoveryDaemon.Create;
 begin
   SendDiscover;
@@ -255,14 +275,12 @@ begin
   Priority := tpNormal;
   inherited Create(False);
 end;
-
 destructor TPrometDiscoveryDaemon.Destroy;
 begin
   inherited Destroy;
   Sock.Free;
   Clients.Free;
 end;
-
 procedure TPrometDiscoveryDaemon.SendDiscover;
 var
   asock: TUDPBlockSocket;
@@ -281,7 +299,6 @@ begin
     asock.Free;
   end;
 end;
-
 procedure TPrometDiscoveryDaemon.Execute;
 begin
   try
@@ -300,7 +317,6 @@ begin
   finally
   end;
 end;
-
 initialization
   Discovery := TPrometDiscoveryDaemon.Create;
   NetworkDaemon := TPrometNetworkDaemon.Create;
