@@ -24,7 +24,8 @@ unit uprometmsgnetwork;
 interface
 
 uses
-  Classes, SysUtils, blcksock, synsock, ssl_openssl, synautil;
+  Classes, SysUtils, blcksock, synsock, ssl_openssl, synautil, uBaseDbClasses,
+  uBaseDBInterface;
 type
   TPrometNetworkDaemon = class(TThread)
   private
@@ -41,12 +42,13 @@ type
   private
     Sock:TTCPBlockSocket;
     CSock: TSocket;
-    FCommand : string;
     FResult : string;
-    procedure DoCommand;
+    DataModule : TBaseDBInterface;
+    procedure DoCommand(FCommand : string);
     function ProcessHttpRequest(Request, URI: string;Input,Output : TMemoryStream): integer;
   public
     Constructor Create (hsock:tSocket);
+    destructor Destroy; override;
     procedure Execute; override;
   end;
 
@@ -72,7 +74,7 @@ var
 
 implementation
 
-uses Utils;
+uses Utils,uBaseApplication;
 
 Constructor TPrometNetworkDaemon.Create;
 begin
@@ -118,7 +120,7 @@ begin
       until false;
     end;
 end;
-procedure TPrometNetworkThrd.DoCommand;
+procedure TPrometNetworkThrd.DoCommand(FCommand: string);
 var
   aCmd, uri, protocol, s: String;
   headers: TStringList;
@@ -135,6 +137,15 @@ begin
     begin
       FResult:='OK:Bye!';
       Terminate;
+    end;
+  'LOGIN':
+    begin
+      {
+      with DataModule as IBaseDBInterface do
+        begin
+          DBLogin(Data.Mandant,);
+        end;
+      }
     end;
   'STARTTLS'://Start SSL
     begin
@@ -231,11 +242,24 @@ begin
   aSl.SaveToStream(Output);
 end;
 constructor TPrometNetworkThrd.Create(hsock: tSocket);
+var
+  LoggedIn: Boolean;
 begin
   inherited create(false);
   Csock := Hsock;
   FreeOnTerminate:=true;
+  DataModule := TBaseDBInterface.Create;
+  DataModule.SetOwner(BaseApplication);
+  if not DataModule.LoadMandants then
+    raise Exception.Create('failed to Load Mandants');
 end;
+
+destructor TPrometNetworkThrd.Destroy;
+begin
+  DataModule.Free;
+  inherited Destroy;
+end;
+
 procedure TPrometNetworkThrd.Execute;
 var
   s: string;
@@ -250,8 +274,7 @@ begin
           if terminated then break;
           s := RecvTerminated(60000,CRLF);
           if lastError<>0 then break;
-          FCommand := s;
-          Synchronize(@DoCommand);
+          DoCommand(s);
           SendString(FResult+CRLF);
           if lastError<>0 then break;
         until false;

@@ -71,6 +71,7 @@ type
     FKeepAlive: TNotifyEvent;
     FLastStmt: string;
     FLastTime: Int64;
+    Fmandant: string;
     FSessionID: LargeInt;
     FTables: TStrings;
     FTriggers: TStrings;
@@ -182,6 +183,7 @@ type
     procedure RegisterLinkHandlers;
     property IgnoreOpenRequests : Boolean read FIgnoreOpenrequests write FIgnoreOpenrequests;
     property Tables : TStrings read FTables;
+    property Mandant : string read Fmandant;
     property CheckedTables : TStringList read FCheckedTables;
     property Triggers : TStrings read FTriggers;
     property LimitAfterSelect : Boolean read GetLimitAfterSelect;

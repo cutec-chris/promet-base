@@ -9,22 +9,29 @@
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="1">
+    <Files Count="2">
       <Item1>
         <Filename Value="uprometmsgnetwork.pas"/>
         <UnitName Value="uprometmsgnetwork"/>
       </Item1>
+      <Item2>
+        <Filename Value="uprometpubsub.pas"/>
+        <UnitName Value="uprometpubsub"/>
+      </Item2>
     </Files>
-    <RequiredPkgs Count="3">
+    <RequiredPkgs Count="4">
       <Item1>
-        <PackageName Value="general_nogui"/>
+        <PackageName Value="pPrometDBIntfs"/>
       </Item1>
       <Item2>
-        <PackageName Value="laz_synapse"/>
+        <PackageName Value="general_nogui"/>
       </Item2>
       <Item3>
-        <PackageName Value="FCL"/>
+        <PackageName Value="laz_synapse"/>
       </Item3>
+      <Item4>
+        <PackageName Value="FCL"/>
+      </Item4>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>
