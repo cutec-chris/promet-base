@@ -97,7 +97,7 @@ begin
   with sock do
     begin
       CreateSocket;
-      setLinger(true,10000);
+      setLinger(true,1000);
       ListenOk := False;
       repeat
         if not ListenOk then
@@ -294,11 +294,14 @@ begin
       begin
         repeat
           if terminated then break;
-          s := RecvTerminated(60000,CRLF);
-          if lastError<>0 then break;
-          DoCommand(s);
-          SendString(FResult+CRLF);
-          if lastError<>0 then break;
+          s := RecvTerminated(5000,CRLF);
+          if (lastError<>0) and (LastError<>110) then break;
+          if s <> '' then
+            begin
+              DoCommand(s);
+              SendString(FResult+CRLF);
+              if lastError<>0 then break;
+            end;
         until false;
       end;
   finally
