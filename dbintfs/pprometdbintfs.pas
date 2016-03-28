@@ -14,7 +14,7 @@ uses
   uDocumentProcess, uProcessManager, uProcessManagement, uprometipc, umeeting, 
   uBaseDocPages, uthumbnails, ucalc, uimport, uPasswordSave, uzugferd, 
   uprometscripts, uMeasurement, uwlxprototypes, uWlxModule, uspreadsheet, 
-  uscheme;
+  uscheme, uprometpubsub;
 
 implementation
 

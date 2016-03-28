@@ -11,7 +11,7 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="40">
+    <Files Count="41">
       <Item1>
         <Filename Value="udlldbdm.pas"/>
         <UnitName Value="udlldbdm"/>
@@ -172,6 +172,10 @@
         <Filename Value="uscheme.pas"/>
         <UnitName Value="uscheme"/>
       </Item40>
+      <Item41>
+        <Filename Value="uprometpubsub.pas"/>
+        <UnitName Value="uprometpubsub"/>
+      </Item41>
     </Files>
     <RequiredPkgs Count="4">
       <Item1>

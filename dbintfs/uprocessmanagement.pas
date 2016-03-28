@@ -20,7 +20,8 @@ unit uProcessManagement;
 {$mode objfpc}{$H+}
 interface
 uses
-  Classes, SysUtils,uBaseDbClasses,db,Process,uBaseDatasetInterfaces,syncobjs;
+  Classes, SysUtils,uBaseDbClasses,db,Process,uBaseDatasetInterfaces,syncobjs,
+  uprometpubsub;
 type
 
   { TProcProcess }
@@ -81,6 +82,7 @@ type
     FLastRefresh: TDateTime;
     FProcesses: TProcesses;
     ProcessData : array of TProcProcess;
+    Pubsub: TPubSubClient;
   public
     constructor CreateEx(aOwner: TComponent; DM: TComponent;
        aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
@@ -241,12 +243,14 @@ constructor TProcessClient.CreateEx(aOwner: TComponent; DM: TComponent;
 begin
   inherited;
   FProcesses := TProcesses.CreateEx(Self, DM,aConnection,DataSet);
+  Pubsub:=TPubSubClient.Create;
 end;
 
 destructor TProcessClient.Destroy;
 var
   i: Integer;
 begin
+  Pubsub.Free;
   FProcesses.Destroy;
   inherited Destroy;
 end;
@@ -467,11 +471,13 @@ var
               while sl.Count>0 do
                 begin
                   DoLog(aprocess+':'+sl[0],aLog,BaseApplication.HasOption('log'));
+                  Pubsub.Publish('/processes/'+aProcess,sl[0]);
                   sl.Delete(0);
                 end;
               sl.Free;
               if aNewStatus='N' then
                 begin
+                  Pubsub.Publish('/processes/'+aProcess,'Terminating process');
                   bProcess.Terminate(1);
                   RefreshStatus(bProcess,aLog);
                   FreeAndNil(bProcess);
@@ -488,6 +494,7 @@ var
               while sl.Count>0 do
                 begin
                   DoLog(aprocess+':'+sl[0],aLog,BaseApplication.HasOption('log'));
+                  Pubsub.Publish('/processes/'+aProcess,sl[0]);
                   sl.Delete(0);
                 end;
               sl.Free;
@@ -499,6 +506,7 @@ var
                   begin
                     DoLog(aprocess+':'+strStartingProcessTimeout+' '+DateTimeToStr((aLastStopped+(max(aInterval,2)/MinsPerDay)))+'>'+DateTimeToStr(aNow),aLog,BaseApplication.HasOption('debug'));
                     DoLog(aProcess+':'+strStartingProcess+' ('+bProcess.CommandLine+')',aLog,True);
+                    Pubsub.Publish('/processes/'+aProcess,'starting ('+bProcess.CommandLine+')');
                     bProcess.Informed:=False;
                     bProcess.Execute;
                     bProcess.Informed := False;
@@ -519,6 +527,7 @@ var
             aStartTime := Now();
             aLog.Clear;
             DoLog(aProcess+':'+strStartingProcess+' ('+cmd+')',aLog,True);
+            Pubsub.Publish('/processes/'+aProcess,'starting ('+cmd+')');
             NewProcess := TProcProcess.Create(nil);
             {$if FPC_FULLVERSION<20400}
             NewProcess.InheritHandles := false;

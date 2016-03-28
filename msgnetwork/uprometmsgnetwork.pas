@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, blcksock, synsock, ssl_openssl, synautil, uBaseDbClasses,
-  uBaseDBInterface;
+  uBaseDBInterface,uprometpubsub;
 type
   TPrometNetworkDaemon = class(TThread)
   private
@@ -44,8 +44,11 @@ type
     CSock: TSocket;
     FResult : string;
     DataModule : TBaseDBInterface;
+    Pubsub : TPubSubClient;
     procedure DoCommand(FCommand : string);
     function ProcessHttpRequest(Request, URI: string;Input,Output : TMemoryStream): integer;
+  protected
+    procedure PubsubPublish(const Topic, Value: string);
   public
     Constructor Create (hsock:tSocket);
     destructor Destroy; override;
@@ -211,12 +214,22 @@ begin
     begin
       //Check if we have someone to forward this message
       //Check if we should do something with it (Scripts,Measurements)
+      if Pubsub.Publish(copy(FCommand,0,pos(' ',FCommand)-1),copy(FCommand,pos(' ',FCommand)+1,length(FCommand))) then
+        FResult:='OK';
     end;
   'SUB'://Subscribe to Topic [TOPIC]
     begin
+      Pubsub.Subscribe(FCommand);
+      FResult:='OK';
     end;
   'UNSUB'://Unsubscribe from Topic [TOPIC]
     begin
+      if Pubsub.UnSubscribe(FCommand) then
+        FResult:='OK';
+    end;
+  'PING':
+    begin
+      FResult:='PONG';
     end
   else
     begin
@@ -241,6 +254,12 @@ begin
   aSL.Add('</body></html>');
   aSl.SaveToStream(Output);
 end;
+
+procedure TPrometNetworkThrd.PubsubPublish(const Topic, Value: string);
+begin
+  Sock.SendString('PUB:'+Topic+' '+Value+CRLF);
+end;
+
 constructor TPrometNetworkThrd.Create(hsock: tSocket);
 var
   LoggedIn: Boolean;
@@ -249,6 +268,8 @@ begin
   Csock := Hsock;
   FreeOnTerminate:=true;
   DataModule := TBaseDBInterface.Create;
+  Pubsub := TPubSubClient.Create;
+  Pubsub.OnPublish:=@PubsubPublish;
   DataModule.SetOwner(BaseApplication);
   if not DataModule.LoadMandants then
     raise Exception.Create('failed to Load Mandants');
@@ -256,8 +277,9 @@ end;
 
 destructor TPrometNetworkThrd.Destroy;
 begin
-  DataModule.Free;
+  Pubsub.Free;
   inherited Destroy;
+  DataModule.Free;
 end;
 
 procedure TPrometNetworkThrd.Execute;
