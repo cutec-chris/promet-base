@@ -125,13 +125,13 @@ const
   BufSize = 1024; //4096;
 begin
   OutputLine:='';
-  if not Active then
+  if Output.NumBytesAvailable>0 then
     begin
-      SetLength(Buf,BufSize);
+      SetLength(Buf,Output.NumBytesAvailable);
       repeat
         if (Output<>nil) then
           begin
-            Count:=Output.Read(Buf[1],Length(Buf));
+            Count:=Output.Read(Buf[1],length(Buf));
           end
         else Count:=0;
         FOutput:=FOutput+copy(Buf,0,Count);
