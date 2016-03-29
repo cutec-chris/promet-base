@@ -639,6 +639,7 @@ end;
 procedure TfPosition.acPermanentEditorModeExecute(Sender: TObject);
 begin
   Application.ProcessMessages;
+  if not Assigned(acPermanentEditormode) then exit;
   if acPermanentEditormode.Checked then
     FGridView.gList.Options:=FGridView.gList.Options+[goAlwaysShowEditor]
   else
