@@ -87,6 +87,8 @@ begin
 end;
 Destructor TPrometNetworkDaemon.Destroy;
 begin
+  Terminate;
+  WaitFor;
   Sock.free;
 end;
 procedure TPrometNetworkDaemon.Execute;
