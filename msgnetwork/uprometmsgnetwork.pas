@@ -109,14 +109,19 @@ begin
                 listen;
                 if LastError<>0 then
                   ListenOk:=False;
-              end;
+              end
+            else sleep(1000);
           end
         else
           begin
             if terminated then break;
             if canread(1000) then
               begin
-                ClientSock:=accept;
+                try
+                  ClientSock:=accept;
+                except
+                  Terminate;
+                end;
                 if lastError=0 then TPrometNetworkThrd.create(ClientSock);
               end;
           end;
@@ -295,7 +300,8 @@ begin
         repeat
           if terminated then break;
           s := RecvTerminated(5000,CRLF);
-          if (lastError<>0) and (LastError<>110) then break;
+          if (lastError<>0) and (LastError<>WSAETIMEDOUT) then
+            break;
           if s <> '' then
             begin
               DoCommand(s);
