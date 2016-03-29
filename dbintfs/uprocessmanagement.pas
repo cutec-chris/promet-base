@@ -121,8 +121,6 @@ var
   OutputLine: String;
   Buf: string;
   Count,LineStart: LongInt;
-const
-  BufSize = 1024; //4096;
 begin
   OutputLine:='';
   if Output.NumBytesAvailable>0 then

@@ -235,6 +235,11 @@ begin
   'PING':
     begin
       FResult:='PONG';
+    end;
+  'SHUTDOWN':
+    begin
+      FResult:='OK';
+      BaseApplication.Terminate;
     end
   else
     begin
