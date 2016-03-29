@@ -410,7 +410,8 @@ begin
       if FileExistsUTF8(TfrDesignerForm(LR_Class.frDesigner).CurDocName) then
         with BaseApplication as IBaseApplication do
           Data.FileToBlobField(TfrDesignerForm(LR_Class.frDesigner).CurDocName,Data.Reports.DataSet,'REPORT');
-      DeleteFileUTF8(TfrDesignerForm(LR_Class.frDesigner).CurDocName);
+      with BaseApplication as IBaseApplication do
+        DeleteFileUTF8(GetInternalTempDir+'preport.lrf');
       if Data.Reports.DataSet.FieldByName('NAME').IsNull then
         begin
           Data.Reports.DataSet.FieldByName('NAME').AsString:=strStandard;
