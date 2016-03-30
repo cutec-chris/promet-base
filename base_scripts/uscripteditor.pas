@@ -365,6 +365,10 @@ begin
   FSynCompletion.OnUTF8KeyPress:=@FSynCompletionUTF8KeyPress;
   FSynCompletion.OnSearchPosition:=@FSynCompletionSearchPosition;
   genpascalscript.DoSleep:=@DoSleep;
+  Linemark := TSynEditMark.Create(ed);
+  Linemark.ImageList:=GutterImages;
+  Linemark.ImageIndex:=8;
+  ed.Marks.Add(Linemark);
 end;
 
 destructor TfScriptEditor.Destroy;
@@ -525,9 +529,8 @@ end;
 procedure TfScriptEditor.aScriptIdle(Sender: TObject);
 begin
   Application.ProcessMessages;
-  if Assigned(Linemark) and (not Linemark.Visible) then
+  if (not Linemark.Visible) then
     begin
-      Linemark.Visible:=True;
       ButtonStatus(TBaseScript(FDataSet).Script.Status);
     end;
   if FResume then
@@ -536,6 +539,7 @@ begin
       if Assigned(FScript) then
         FScript.Resume;
       FActiveLine := 0;
+      Linemark.Visible:=False;
       ed.Refresh;
     end;
 end;
@@ -550,15 +554,7 @@ begin
    if Assigned(Data) and (not FDataSet.Active) then exit;
    if (Module=ActiveFile) and ((FScript.Status<>ssRunning) or HasBreakPoint(Module, Row)) then
      begin
-       //Set mark
-       if not Assigned(LineMark) then
-         begin
-           Linemark := TSynEditMark.Create(ed);
-           Linemark.ImageList:=GutterImages;
-           Linemark.ImageIndex:=8;
-           ed.Marks.Add(Linemark);
-           Linemark.Visible:=True;
-         end;
+       Linemark.Visible:=True;
        Linemark.Line:=Row;
        with BaseApplication as IBaseApplication do
          begin
@@ -588,7 +584,7 @@ begin
    else
      begin
        with BaseApplication as IBaseApplication do Debug('Script:'+Module+':'+IntToStr(Row));
-       if Assigned(LineMark) then
+       if LineMark.Visible then
          begin
            mo := TMessageObject.Create;
            mo.ModuleName:=Module;
@@ -684,7 +680,7 @@ begin
       begin
         DoCleanUp;
         ButtonStatus(ssNone);
-        FreeAndNil(Linemark);
+        Linemark.Visible:=False;
         FActiveLine := 0;
       end;
 end;
@@ -694,13 +690,9 @@ var
   sl: TStringList;
   i: Integer;
 begin
+  Linemark.Visible:=False;
   if Assigned(Fscript) and (Fscript.Status<>ssNone) then
     begin
-      try
-        if Assigned(Linemark) then FreeAndNil(Linemark);
-      except
-        Linemark:=nil;
-      end;
       FActiveLine := 0;
       Fscript.Resume;
       ButtonStatus(ssRunning);
