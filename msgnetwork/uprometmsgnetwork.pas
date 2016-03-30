@@ -89,7 +89,7 @@ Destructor TPrometNetworkDaemon.Destroy;
 begin
   Terminate;
   WaitFor;
-  Sock.free;
+  //Sock.free;
 end;
 procedure TPrometNetworkDaemon.Execute;
 var
@@ -376,6 +376,7 @@ begin
           Synchronize(@AddLog);
       end;
   finally
+    Sock.Free;
   end;
 end;
 initialization
