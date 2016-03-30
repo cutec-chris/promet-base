@@ -166,6 +166,14 @@ begin
     end;
   'GET','HEAD'://HTTP Request
     begin
+      {
+      /objects/contacts
+      /objects/contacts('1091')
+      /objects/contacts('1091')?setstatus=I
+      /objects/contacts('1091')/address
+      http://www.odata.org/
+      /wiki/folder1/page2
+      }
       Timeout := 12000;
       uri := fetch(FCommand, ' ');
       if uri = '' then
