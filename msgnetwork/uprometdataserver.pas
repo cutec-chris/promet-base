@@ -8,7 +8,7 @@ uses
   Classes, SysUtils,fpjson, uBaseDBInterface,uBaseDbClasses,fpsqlparser,
   fpsqlscanner, fpsqltree,httpsend,OpenSSL, jsonparser, db;
 
-function HandleHTTPRequest(Method,URL : string) : Integer;
+function HandleHTTPRequest(Method,URL : string;Headers : TStringList;Input,Output : TStream) : Integer;
 
 procedure DataSetToJSON(ADataSet: TDataSet; AJSON: TJSONArray; const ADateAsString: Boolean; Fields: TSQLElementList = nil);
 procedure ObjectToJSON(AObject : TBaseDBDataSet; AJSON: TJSONObject;const ADateAsString: Boolean);
@@ -17,8 +17,16 @@ implementation
 
 uses usync,uBaseDatasetInterfaces;
 
-function HandleHTTPRequest(Method, URL: string): Integer;
+function HandleHTTPRequest(Method, URL: string;Headers : TStringList;Input,Output : TStream): Integer;
 begin
+  {
+  /objects/contacts
+  /objects/contacts('1091')
+  /objects/contacts('1091')?setstatus=I
+  /objects/contacts('1091')/address
+  http://www.odata.org/
+  /wiki/folder1/page2
+  }
   Result := 500;
 end;
 

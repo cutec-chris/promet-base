@@ -27,13 +27,20 @@ uses
   Classes, SysUtils, blcksock, synsock, ssl_openssl, synautil, uBaseDbClasses,
   uBaseDBInterface,uprometpubsub;
 type
+
+  { TPrometNetworkDaemon }
+
   TPrometNetworkDaemon = class(TThread)
   private
+    Socks : TList;
     Sock:TTCPBlockSocket;
+    function GetConnections: Integer;
   public
     Constructor Create;
     Destructor Destroy; override;
     procedure Execute; override;
+    property Connections : Integer read GetConnections;
+    property Sockets : TList read Socks;
   end;
 
   { TPrometNetworkThrd }
@@ -46,7 +53,8 @@ type
     DataModule : TBaseDBInterface;
     Pubsub : TPubSubClient;
     procedure DoCommand(FCommand : string);
-    function ProcessHttpRequest(Request, URI: string;Input,Output : TMemoryStream): integer;
+    function ProcessHttpRequest(Request, URI: string; Header: TStringList; Input,
+      Output: TMemoryStream): integer;
   protected
     procedure PubsubPublish(const Topic, Value: string);
   public
@@ -77,19 +85,26 @@ var
 
 implementation
 
-uses Utils,uBaseApplication;
+uses Utils,uBaseApplication,uprometdataserver;
 
-Constructor TPrometNetworkDaemon.Create;
+function TPrometNetworkDaemon.GetConnections: Integer;
+begin
+  Result := Socks.Count;
+end;
+
+constructor TPrometNetworkDaemon.Create;
 begin
   inherited create(false);
   sock:=TTCPBlockSocket.create;
+  Socks := TList.Create;
   FreeOnTerminate:=true;
 end;
-Destructor TPrometNetworkDaemon.Destroy;
+destructor TPrometNetworkDaemon.Destroy;
 begin
   Terminate;
   WaitFor;
   //Sock.free;
+  Socks.Free;
 end;
 procedure TPrometNetworkDaemon.Execute;
 var
@@ -124,7 +139,8 @@ begin
                 except
                   Terminate;
                 end;
-                if lastError=0 then TPrometNetworkThrd.create(ClientSock);
+                if lastError=0 then
+                  Socks.Add(TPrometNetworkThrd.create(ClientSock));
               end;
           end;
       until false;
@@ -164,16 +180,8 @@ begin
       else
         Sock.SendString('This Connection is secure now.'+CRLF);
     end;
-  'GET','HEAD'://HTTP Request
+  'GET','HEAD','POST','DELETE'://HTTP Request
     begin
-      {
-      /objects/contacts
-      /objects/contacts('1091')
-      /objects/contacts('1091')?setstatus=I
-      /objects/contacts('1091')/address
-      http://www.odata.org/
-      /wiki/folder1/page2
-      }
       Timeout := 12000;
       uri := fetch(FCommand, ' ');
       if uri = '' then
@@ -207,7 +215,7 @@ begin
           Exit;
       end;
       OutputData := TMemoryStream.Create;
-      ResultCode := ProcessHttpRequest(aCmd, uri, InputData, OutputData);
+      ResultCode := ProcessHttpRequest(aCmd, uri, Headers, InputData, OutputData);
       sock.SendString('HTTP/1.0 ' + IntTostr(ResultCode) + CRLF);
       if protocol <> '' then
       begin
@@ -262,17 +270,16 @@ begin
     end;
   end;
 end;
-function TPrometNetworkThrd.ProcessHttpRequest(Request, URI: string; Input,
+function TPrometNetworkThrd.ProcessHttpRequest(Request, URI: string;Header : TStringList; Input,
   Output: TMemoryStream): integer;
 var
   aSL: TStringList;
+  Prot, User, Pass, Host, Port, Path, Para: string;
 begin
-  Result := 200;
-  aSL:= TStringList.Create;
-  aSL.Add('<html><body>');
-  aSL.Add('Seite: '+URI);
-  aSL.Add('</body></html>');
-  aSl.SaveToStream(Output);
+  ParseURL(URI,Prot,User,Pass,Host,Port,Path,Para);
+  if copy(Path,0,10)='/objects/' then
+    Result := uprometdataserver.HandleHTTPRequest(Request,URI,Header,Input,Output);
+  Result := 404;
 end;
 
 procedure TPrometNetworkThrd.PubsubPublish(const Topic, Value: string);
@@ -300,6 +307,7 @@ begin
   Pubsub.Free;
   inherited Destroy;
   DataModule.Free;
+  NetworkDaemon.Sockets.Remove(Self);
 end;
 
 procedure TPrometNetworkThrd.Execute;
@@ -332,7 +340,7 @@ end;
 { TDiscoveryDaemon }
 procedure TPrometDiscoveryDaemon.AddLog;
 begin
-
+  Clients.Add(LogData);
 end;
 constructor TPrometDiscoveryDaemon.Create;
 begin
@@ -363,7 +371,7 @@ begin
     asock.MulticastTTL := 1;
     asock.Connect('234.5.6.7', '22402');
     if asock.LastError = 0 then
-      asock.SendString(OwnIPAddr+'=');
+      asock.SendString(IntToStr(NetworkDaemon.Connections));
   finally
     asock.Free;
   end;
@@ -388,8 +396,8 @@ begin
   end;
 end;
 initialization
-  Discovery := TPrometDiscoveryDaemon.Create;
   NetworkDaemon := TPrometNetworkDaemon.Create;
+  Discovery := TPrometDiscoveryDaemon.Create;
 finalization
   Discovery.Free;
   NetworkDaemon.Free;
