@@ -130,7 +130,7 @@ begin
         aImage := TFPMemoryImage.Create(1,1);
         with BaseApplication as IBaseApplication do
           begin
-            DeleteFileUTF8(GetInternalTempDir+'rpv.jpg');
+            DeleteFile(UniToSys(GetInternalTempDir+'rpv.jpg'));
             Image.SaveToFile(GetInternalTempDir+'rpv.jpg');
             r := TFPReaderJPEG.Create;
             aImage.LoadFromFile(GetInternalTempDir+'rpv.jpg',r);
@@ -138,8 +138,8 @@ begin
             uImaging.Delight(aImage);
             aImage.SaveToFile(GetInternalTempDir+'rpv.jpg');
             aImage.Free;
-            bImage.LoadFromFile(GetInternalTempDir+'rpv.jpg');
-            DeleteFileUTF8(GetInternalTempDir+'rpv.jpg');
+            bImage.LoadFromFile(UniToSys(GetInternalTempDir+'rpv.jpg'));
+            DeleteFile(UniToSys(GetInternalTempDir+'rpv.jpg'));
           end;
       end;
   except

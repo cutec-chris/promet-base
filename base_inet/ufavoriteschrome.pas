@@ -5,7 +5,7 @@ unit ufavoriteschrome;
 interface
 
 uses
-  Classes, SysUtils,FileUtil,fpjson,jsonparser,lclproc;
+  Classes, SysUtils,FileUtil,fpjson,jsonparser,lclproc,LazFileUtils;
 
 function GetChromeFavourites : TStrings;
 

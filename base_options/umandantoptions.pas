@@ -105,7 +105,7 @@ type
   end;
 implementation
 {$R *.lfm}
-uses uData,uOrder,uDocuments,uBaseERPDBClasses,uImpCSV;
+uses uData,uOrder,uDocuments,uBaseERPDBClasses,uImpCSV,Utils;
 
 procedure TfMandantOptions.bExportConfigurationClick(Sender: TObject);
 var
@@ -124,7 +124,7 @@ begin
   if SelectDirectoryDialog.Execute then
     begin
       OutputDir := SelectDirectoryDialog.FileName;
-      ForceDirectoriesUTF8(OutputDir);
+      ForceDirectories(UniToSys(OutputDir));
       aCountries := TCountries.Create(nil);
       aCountries.Open;
       CSVExport(OutputDir+DirectorySeparator+'countries.csv',';',aCountries.DataSet);

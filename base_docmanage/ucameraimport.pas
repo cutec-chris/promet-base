@@ -126,12 +126,12 @@ begin
     end;
   with BaseApplication as IBaseApplication do
     begin
-      If FindFirstUTF8(AppendPathDelim(GetInternalTempDir)+'raw_*',faAnyFile,AInfo)=0 then
+      If FindFirst(UniToSys(AppendPathDelim(GetInternalTempDir))+'raw_*',faAnyFile,AInfo)=0 then
         Repeat
           With aInfo do
             begin
               If (Attr and faDirectory) <> faDirectory then
-                DeleteFileUTF8(AppendPathDelim(GetInternalTempDir)+AInfo.Name);
+                DeleteFile(UniToSys(AppendPathDelim(GetInternalTempDir)+AInfo.Name));
             end;
         Until FindNext(ainfo)<>0;
       FindClose(aInfo);
@@ -152,7 +152,7 @@ begin
   end;
   with BaseApplication as IBaseApplication do
     begin
-      If FindFirstUTF8(AppendPathDelim(GetInternalTempDir)+'raw_*',faAnyFile,AInfo)=0 then
+      If FindFirst(UniToSys(AppendPathDelim(GetInternalTempDir))+'raw_*',faAnyFile,AInfo)=0 then
         Repeat
           With aInfo do
             begin
@@ -162,7 +162,7 @@ begin
                 end;
             end;
         Until FindNext(ainfo)<>0;
-      FindCloseUTF8(AInfo);
+      FindClose(AInfo);
     end;
   sl.Free;
   if not FileExists(aFile) then
@@ -216,11 +216,11 @@ begin
           or (extn = '.arw')
           then
             begin
-              if FileExistsUTF8(copy(aFile,0,rpos('.',aFile)-1)+'.jpg') then
+              if FileExists(UniToSys(copy(aFile,0,rpos('.',aFile)-1)+'.jpg')) then
                 aSecFile := copy(aFile,0,rpos('.',aFile)-1)+'.jpg'
-              else if FileExistsUTF8(copy(aFile,0,rpos('.',aFile)-1)+'.JPG') then
+              else if FileExists(UniToSys(copy(aFile,0,rpos('.',aFile)-1)+'.JPG')) then
                 aSecFile := copy(aFile,0,rpos('.',aFile)-1)+'.JPG'
-              else if FileExistsUTF8(copy(aFile,0,rpos('.',aFile)-1)+'.Jpg') then
+              else if FileExists(UniToSys(copy(aFile,0,rpos('.',aFile)-1)+'.Jpg')) then
                 aSecFile := copy(aFile,0,rpos('.',aFile)-1)+'.Jpg'
               else aSecFile:='';
               if aSecFile <> '' then
@@ -229,16 +229,16 @@ begin
                   try
                     ExecProcess('gvfs-rm "'+aSecFile+'"');
                   except
-                    DeleteFileUTF8(aSecFile);
+                    DeleteFile(UniToSys(aSecFile));
                   end;
                   {$else}
-                  DeleteFileUTF8(aSecFile);
+                  DeleteFile(UniToSys(aSecFile));
                   {$endif}
                 end;
             end;
-          if FileExistsUTF8(copy(NewFileName,0,length(NewFileName)-length(extn))+'.ufraw') then
-            DeleteFileUTF8(copy(NewFileName,0,length(NewFileName)-length(extn))+'.ufraw');
-          DeleteFileUTF8(NewFileName);
+          if FileExists(UniToSys(copy(NewFileName,0,length(NewFileName)-length(extn))+'.ufraw')) then
+            DeleteFile(UniToSys(copy(NewFileName,0,length(NewFileName)-length(extn))+'.ufraw'));
+          DeleteFile(UniToSys(NewFileName));
           if NewFileName<>aFile then
             begin
               {$ifdef linux}

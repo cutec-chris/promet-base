@@ -108,7 +108,7 @@ begin
                           except
                             FreeAndnil(Picture);
                           end;
-                          DeleteFileUTF8(GetInternalTempDir+copy(url,5,length(url))+'.'+aDocument.FieldByName('EXTENSION').AsString);
+                          DeleteFile(UniToSys(GetInternalTempDir+copy(url,5,length(url))+'.'+aDocument.FieldByName('EXTENSION').AsString));
                           if Assigned(Picture) and (Picture.Width = 0) then
                             FreeAndNil(Picture);
                         end;
@@ -151,7 +151,7 @@ begin
                           except
                             FreeAndnil(Picture);
                           end;
-                          DeleteFileUTF8(GetInternalTempDir+copy(url,5,length(url))+'.'+aDocument.FieldByName('EXTENSION').AsString);
+                          DeleteFile(UniToSys(GetInternalTempDir+copy(url,5,length(url))+'.'+aDocument.FieldByName('EXTENSION').AsString));
                         end;
                       if Assigned(Picture) and (Picture.Width = 0) then
                         FreeAndNil(Picture);

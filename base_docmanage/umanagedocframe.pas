@@ -389,8 +389,8 @@ begin
         FFetchSQL:='select '+Data.QuoteField('SQL_ID')+','+Data.QuoteField('THUMBNAIL')+' from '+Data.QuoteField(TableName)+' where '+FFetchSQL+' order by '+Data.QuoteField('ORIGDATE')+' desc';
       FFetchDS := Data.GetNewDataSet(FFetchSQL);
       FFetchDS.Open;
-      if not DirectoryExistsUTF8(FtempPath) then
-        ForceDirectoriesUTF8(FtempPath);
+      if not DirectoryExists(UniToSys(FtempPath)) then
+        ForceDirectories(UniToSys(FtempPath));
       while not FFetchDS.EOF do
         begin
           Data.BlobFieldToFile(FFetchDS,'THUMBNAIL',FtempPath+FFetchDS.FieldByName('SQL_ID').AsString+'.jpg');
@@ -821,11 +821,11 @@ begin
                   or (extn = '.arw')
                   then
                     begin
-                      if FileExistsUTF8(copy(aFile,0,rpos('.',aFile)-1)+'.jpg') then
+                      if FileExists(UniToSys(copy(aFile,0,rpos('.',aFile)-1)+'.jpg')) then
                         aSecFile := copy(aFile,0,rpos('.',aFile)-1)+'.jpg'
-                      else if FileExistsUTF8(copy(aFile,0,rpos('.',aFile)-1)+'.JPG') then
+                      else if FileExists(UniToSys(copy(aFile,0,rpos('.',aFile)-1)+'.JPG')) then
                         aSecFile := copy(aFile,0,rpos('.',aFile)-1)+'.JPG'
-                      else if FileExistsUTF8(copy(aFile,0,rpos('.',aFile)-1)+'.Jpg') then
+                      else if FileExists(UniToSys(copy(aFile,0,rpos('.',aFile)-1)+'.Jpg')) then
                         aSecFile := copy(aFile,0,rpos('.',aFile)-1)+'.Jpg'
                       else aSecFile:='';
                       if aSecFile <> '' then
@@ -834,16 +834,16 @@ begin
                           try
                             ExecProcess('gvfs-rm "'+aSecFile+'"');
                           except
-                            DeleteFileUTF8(aSecFile);
+                            DeleteFile(UniToSys(aSecFile));
                           end;
                           {$else}
-                          DeleteFileUTF8(aSecFile);
+                          DeleteFile(UniToSys(aSecFile));
                           {$endif}
                         end;
                     end;
-                  if FileExistsUTF8(copy(NewFileName,0,length(NewFileName)-length(extn))+'.ufraw') then
-                    DeleteFileUTF8(copy(NewFileName,0,length(NewFileName)-length(extn))+'.ufraw');
-                  DeleteFileUTF8(NewFileName);
+                  if FileExists(UniToSys(copy(NewFileName,0,length(NewFileName)-length(extn))+'.ufraw')) then
+                    DeleteFile(UniToSys(copy(NewFileName,0,length(NewFileName)-length(extn))+'.ufraw'));
+                  DeleteFile(UniToSys(NewFileName));
                   if NewFileName<>iFile then
                     begin
                       {$ifdef linux}
@@ -1016,7 +1016,7 @@ begin
       Setlength(aFiles,1);
       aFiles[length(aFiles)-1] := GetTempDir+FSelectTemplate.eName.Text+'.'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString;
       DoOnDropFiles(nil,aFiles);
-      DeleteFileUtf8(GetTempDir+FSelectTemplate.eName.Text+'.'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString);
+      DeleteFile(UniToSys(GetTempDir+FSelectTemplate.eName.Text+'.'+FSelectTemplate.DataSet.DataSet.FieldByName('EXTENSION').AsString));
       RebuidThumb;
       acEdit.Execute;
     end;
@@ -1821,7 +1821,7 @@ begin
   ThumbControl1.BorderStyle:=bsNone;
   DataSet := TDocPagesList.Create(nil);
   FTempPath := uthumbnails.GetThumbTempDir;
-  ForceDirectoriesUTF8(FtempPath);
+  ForceDirectories(UniToSys(FtempPath));
   FtempPath := AppendPathDelim(FtempPath);
   FDocFrame := TfDocumentFrame.Create(Self);
   FDocFrame.DataSet := TDocuments.Create(nil);

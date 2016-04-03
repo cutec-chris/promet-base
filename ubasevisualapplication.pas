@@ -447,8 +447,8 @@ begin
   Result := GetConfigDir(StringReplace(lowercase(GetAppname),'-','',[rfReplaceAll]));
   if HasOption('c','config-path') then
     Result := GetOptionValue('c','config-path');
-  if not DirectoryExistsUTF8(Result) then
-    ForceDirectoriesUTF8(Result);
+  if not DirectoryExists(UniToSys(Result)) then
+    ForceDirectories(UniToSys(Result));
   result := AppendPathDelim(Result);
 end;
 procedure TBaseVisualApplication.SetConfigName(aName: string);
@@ -802,7 +802,7 @@ begin
     begin
       //Win32 user may decide to override locale with LANG variable.
       if Lang = '' then
-        Lang := GetEnvironmentVariableUTF8('LANG');
+        Lang := GetEnvironmentVariable('LANG');
       debugln('Detected Language:'+Lang);
       if (lowercase(copy(Lang,0,2)) = 'de') or (LongMonthNames[1]='Januar') then
         SetLanguage('Deutsch')
@@ -812,7 +812,7 @@ begin
   LoadLanguage(GetLanguage);
   miLanguage.Clear;
   sl := TStringList.Create;
-  if FileExistsUTF8(AppendPathDelim(AppendPathDelim(ProgramDirectory) + 'languages')+'languages.txt') then
+  if FileExists(UniToSys(AppendPathDelim(AppendPathDelim(ProgramDirectory) + 'languages'))+'languages.txt') then
     sl.LoadFromFile(UniToSys(AppendPathDelim(AppendPathDelim(ProgramDirectory) + 'languages')+'languages.txt'));
   for i := 0 to sl.Count-1 do
     begin

@@ -25,7 +25,7 @@ uses
   Classes, SysUtils,  Forms, Controls, Dialogs, Buttons, StdCtrls,
   ExtCtrls, ComCtrls, Utils, db, uIntfStrConsts, md5, mimepart, mimemess,
   Variants, uExtControls, uViewMessage, FileUtil, LCLType,
-  ActnList, urichframe, RichMemo, LCLProc, ClipBrd, Menus, DbCtrls, EditBtn,
+  ActnList, urichframe, LCLProc, ClipBrd, Menus, DbCtrls, EditBtn,
   htmltortf, uMessages, uDocumentFrame, uBaseSearch, uBaseDbClasses;
 type
   THackComboBox = class(TComboBox);
@@ -146,14 +146,12 @@ resourcestring
   strAddingMail                 = 'erstelle Mail an "%s"';
 procedure TfMessageEdit.AddSignature;
 var
-  tmpRich: TRichMemo;
-  tmpRich2: TRichMemo;
   OldClipbrd: String;
   ss: TStringStream;
 
   function MsgPos : Integer;
   begin
-    Result := UTF8Pos('%MESSAGE%',Stringreplace(tmpRich.Lines.Text,#10,'',[rfReplaceAll]));
+   // Result := UTF8Pos('%MESSAGE%',Stringreplace(tmpRich.Lines.Text,#10,'',[rfReplaceAll]));
   end;
 begin
   {$IFDEF LCLGTK2}
@@ -263,7 +261,8 @@ var
     if cbType.Text = 'HTML' then
       begin
         bDataSet.Content.FieldByName('DATATYP').AsString := 'HTML';
-        aStream := TStringStream.Create(RTFToHTML(frichEdit.rmText,''));
+        //aStream := TStringStream.Create(RTFToHTML(frichEdit.rmText,''));
+        aStream := TStringStream.Create(frichEdit.rmText.Text);
         Data.StreamToBlobField(aStream,bDataSet.Content.DataSet,'DATA');
         aStream.Free;
       end
@@ -358,7 +357,8 @@ begin
           if cbType.Text = 'HTML' then
             begin
               FieldbyName('DATATYP').AsString := 'HTML';
-              aStream := TStringStream.Create(RTFToHTML(frichEdit.rmText,''));
+              //aStream := TStringStream.Create(RTFToHTML(frichEdit.rmText,''));
+              aStream := TStringStream.Create(frichEdit.rmText.Text);
               Data.StreamToBlobField(aStream,FDataSet.Content.DataSet,'DATA');
               aStream.Free;
             end

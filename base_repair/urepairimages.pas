@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, db, FileUtil, Forms, Controls, Graphics, Dialogs, Menus,
   DbCtrls, StdCtrls, DBGrids, ButtonPanel, ComCtrls, ExtCtrls, Buttons,
-  uExtControls, uOrder, variants,ActnList,ExtDlgs;
+  uExtControls, uOrder, variants,ActnList,ExtDlgs,LazFileUtils;
 
 type
 

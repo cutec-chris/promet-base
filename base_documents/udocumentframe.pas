@@ -249,7 +249,7 @@ uses uDocuments, uData, uDocumentAddOptions, uBaseApplication, SecureUtils,
   uDocumentAcquire,PdfDoc,PdfImages,uOCR,uMessages,
   uPerson, uMimeTypeEdit, uDocumentProcess, uDocumentAction,uDocumentCheckin,
   uOrder,uBaseDBInterface,ClipBrd,uBaseVisualApplication,uSelectTemplate,
-  uNRights,uDocProperties,ubaseconfig;
+  uNRights,uDocProperties,ubaseconfig,LazFileUtils;
 resourcestring
   strFileExtDesc                             = '%s Datei';
   strCheckingOutFile                         = 'Hole %s';
@@ -631,7 +631,7 @@ begin
                 begin
                   DelRetry:
                     case Config.ReadInteger('DELETEMETHOD',0) of
-                    0:DelOK := DeleteFileUTF8(DocumentDialog.Files[i]);
+                    0:DelOK := SysUtils.DeleteFile(UniToSys(DocumentDialog.Files[i]));
                     1:DelOK := DeleteSecure(DocumentDialog.Files[i]);
                     2:DelOK := DeleteSecure(DocumentDialog.Files[i],dmDoD522022);
                     3:DelOK := DeleteSecure(DocumentDialog.Files[i],dmOverride);
@@ -1411,8 +1411,8 @@ begin
   if bDocument.DocumentActions.Count > 0 then
     begin
       UseStarter := not (bDocument.DocumentActions.FieldByName('USESTARTER').AsString = 'N');
-      UseStarter := UseStarter and ((FileExistsUTF8(ExtractFilePath(Application.Exename)+'pstarter'+ExtractFileExt(Application.Exename)))
-                                 or (DirectoryExistsUTF8(FileUtil.CleanAndExpandDirectory(Application.Location+'..'+DirectorySeparator+'..'+DirectorySeparator+'..'+DirectorySeparator)+'pstarter.app')));
+      UseStarter := UseStarter and ((FileExists(UniToSys(ExtractFilePath(Application.Exename)+'pstarter'+ExtractFileExt(Application.Exename))))
+                                 or (DirectoryExists(UniToSys(CleanAndExpandDirectory(Application.Location+'..'+DirectorySeparator+'..'+DirectorySeparator+'..'+DirectorySeparator)+'pstarter.app'))));
       if bDocument.DocumentActions.FieldByName('ACTION').AsString <> 'N' then
         begin
           if (bDocument.DocumentActions.FieldByName('CODIR').AsString = 'Y') and (DataSet.FieldByName('ISDIR').AsString = 'Y') then
@@ -1525,7 +1525,7 @@ begin
   UseStarter := FileExistsUTF8(ExtractFilePath(Application.Exename)+'pstarter'+ExtractFileExt(Application.Exename));
   aDocument.AftercheckInFiles:=FAfterCheckinFiles;
   aDocument.OnCheckCheckinFiles:=@aDocumentCheckCheckinFiles;
-  TDocExecuteThread.Create(aDocument,'exec:'+StringReplace(aCommand,'%s',Utf8ToSys(filename),[rfReplaceAll])+lineending+StringReplace('waitfor:%s','%s',filename,[rfReplaceAll]),DoDelete,UseStarter and (bDocument.MimeTypes.FieldByName('USESTARTER').AsString<>'N'),TempID,Null,bDocument.MimeTypes.Id.AsVariant);
+  TDocExecuteThread.Create(aDocument,'exec:'+StringReplace(aCommand,'%s',UniToSys(filename),[rfReplaceAll])+lineending+StringReplace('waitfor:%s','%s',filename,[rfReplaceAll]),DoDelete,UseStarter and (bDocument.MimeTypes.FieldByName('USESTARTER').AsString<>'N'),TempID,Null,bDocument.MimeTypes.Id.AsVariant);
   bDocument.Free;
 end;
 

@@ -345,7 +345,7 @@ var
   aNewName: String;
 begin
   if not Supports(Application, IBaseApplication, BaseApplication) then exit;
-  ForceDirectoriesUTF8(AppendPathDelim(GetAppConfigDirUTF8(false, true))+'LazReport');
+  ForceDirectories(UniToSys(AppendPathDelim(GetAppConfigDir(false)))+'LazReport');
   Printer.PrinterIndex:=-1;
   if cbPrinter.Text = '<'+strFileExport+'>' then
   else if cbPrinter.Text = '<'+streMail+'>' then
@@ -407,11 +407,11 @@ begin
         Config.WriteRect('ReportEditor',TfrDesignerForm(LR_Class.frDesigner).BoundsRect);
       Data.Reports.DataSet.Edit;
       aNewName := TfrDesignerForm(LR_Class.frDesigner).CurDocName;
-      if FileExistsUTF8(TfrDesignerForm(LR_Class.frDesigner).CurDocName) then
+      if FileExists(UniToSys(TfrDesignerForm(LR_Class.frDesigner).CurDocName)) then
         with BaseApplication as IBaseApplication do
           Data.FileToBlobField(TfrDesignerForm(LR_Class.frDesigner).CurDocName,Data.Reports.DataSet,'REPORT');
       with BaseApplication as IBaseApplication do
-        DeleteFileUTF8(GetInternalTempDir+'preport.lrf');
+        DeleteFile(UniToSys(GetInternalTempDir+'preport.lrf'));
       if Data.Reports.DataSet.FieldByName('NAME').IsNull then
         begin
           Data.Reports.DataSet.FieldByName('NAME').AsString:=strStandard;
@@ -943,7 +943,7 @@ begin
                 begin
                   Data.BlobFieldToFile(Data.Reports.DataSet,'REPORT',GetInternalTempDir+'preport.lrf');
                   Report.LoadFromFile(GetInternalTempDir+'preport.lrf');
-                  DeleteFileUTF8(GetInternalTempDir+'preport.lrf');
+                  DeleteFile(UniToSys(GetInternalTempDir+'preport.lrf'));
                 end;
             end
           else

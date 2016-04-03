@@ -6,29 +6,24 @@ object fRichFrame: TfRichFrame
   ClientHeight = 268
   ClientWidth = 813
   TabOrder = 0
-  DesignLeft = 433
-  DesignTop = 355
-  object rmText: TRichMemo
+  DesignLeft = 442
+  DesignTop = 337
+  object rmText: TKMemo
     Left = 0
     Height = 242
     Top = 26
     Width = 813
     Align = alClient
     BorderStyle = bsNone
-    HideSelection = False
-    Lines.Strings = (
-      'rmText'
-      'asjhdkjahsklJASdkhA'
-      'asdasdAHJSGDHkajshdkjAHSDHkas'
-      'ASJDHajhsdkj'
-    )
+    ContentPadding.Left = 5
+    ContentPadding.Top = 5
+    ContentPadding.Right = 5
+    ContentPadding.Bottom = 5
+    ScrollBars = ssAutoBoth
+    TabOrder = 0
     OnClick = rmTextClick
     OnExit = rmTextExit
     OnKeyPress = rmTextKeyPress
-    ScrollBars = ssAutoBoth
-    TabOrder = 0
-    WantTabs = True
-    ZoomFactor = 1
   end
   object FormatToolBar: TToolBar
     Left = 0
@@ -62,8 +57,7 @@ object fRichFrame: TfRichFrame
       Top = 2
       Width = 127
       AutoSize = False
-      ItemHeight = 0
-      OnSelect = FontComboBoxSelect
+      ItemHeight = 15
       Style = csSimple
       TabOrder = 0
     end
@@ -73,7 +67,7 @@ object fRichFrame: TfRichFrame
       Top = 2
       Width = 48
       AutoSize = False
-      ItemHeight = 0
+      ItemHeight = 15
       Items.Strings = (
         '8'
         '9'
@@ -86,7 +80,6 @@ object fRichFrame: TfRichFrame
         '20'
         '24'
       )
-      OnSelect = FontSizeComboBoxSelect
       Style = csSimple
       TabOrder = 1
     end
@@ -190,7 +183,6 @@ object fRichFrame: TfRichFrame
       Caption = 'Left'
       GroupIndex = 1
       ImageIndex = 4
-      OnExecute = AcFontBoldExecute
     end
     object AcHorCenterAlign: TAction
       Tag = 102
@@ -199,7 +191,6 @@ object fRichFrame: TfRichFrame
       Caption = 'Centered'
       GroupIndex = 1
       ImageIndex = 5
-      OnExecute = AcFontBoldExecute
     end
     object AcRightAlign: TAction
       Tag = 103
@@ -208,7 +199,6 @@ object fRichFrame: TfRichFrame
       Caption = 'Right'
       GroupIndex = 1
       ImageIndex = 6
-      OnExecute = AcFontBoldExecute
     end
     object AcFontBold: TAction
       Category = 'Format'
@@ -216,7 +206,6 @@ object fRichFrame: TfRichFrame
       Caption = 'Bold'
       Hint = 'Bold'
       ImageIndex = 7
-      OnExecute = AcFontBoldExecute
     end
     object AcFontItalic: TAction
       Category = 'Format'
@@ -224,7 +213,6 @@ object fRichFrame: TfRichFrame
       Caption = 'Italic'
       Hint = 'Italic'
       ImageIndex = 8
-      OnExecute = AcFontBoldExecute
     end
     object AcFontStrikeout: TAction
       Category = 'Format'
@@ -232,7 +220,6 @@ object fRichFrame: TfRichFrame
       Caption = 'Strike out'
       Hint = 'Strike out'
       ImageIndex = 9
-      OnExecute = AcFontBoldExecute
     end
     object AcFontUnderline: TAction
       Tag = 9
@@ -241,14 +228,12 @@ object fRichFrame: TfRichFrame
       Caption = 'Underline'
       Hint = 'Underline'
       ImageIndex = 10
-      OnExecute = AcFontBoldExecute
     end
     object AcFont: TAction
       Category = 'Format'
       Caption = 'Font...'
       Hint = 'Font'
       ImageIndex = 11
-      OnExecute = AcFontExecute
     end
     object AcVAlignDefault: TAction
       Tag = 110
