@@ -5,14 +5,20 @@ unit ufavoriteschrome;
 interface
 
 uses
-  Classes, SysUtils,FileUtil,fpjson,jsonparser,lclproc,LazFileUtils;
+  Classes, SysUtils,FileUtil,fpjson,jsonparser,lclproc,LCLVersion;
 
 function GetChromeFavourites : TStrings;
 
 implementation
+uses
 {$IFDEF MSWINDOWS}
-uses Windows;
+ Windows
 {$ENDIF}
+{$if lcl_fullversion >= 01070000}
+ {$IFDEF MSWINDOWS},{$endif}LazFileUtils
+{$endif}
+;
+
 function GetChromeFavourites: TStrings;
 {$IFDEF MSWINDOWS}
 type

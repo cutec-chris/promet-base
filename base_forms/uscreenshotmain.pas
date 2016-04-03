@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  LCLType, ExtDlgs, StdCtrls, LazFileUtils;
+  LCLType, ExtDlgs, StdCtrls,LCLVersion;
 
 type
 
@@ -45,7 +45,11 @@ var
 
 implementation
 {$R *.lfm}
-uses LCLIntf,Math;
+uses LCLIntf,Math
+  {$if lcl_fullversion >= 01070000}
+  ,LazFileUtils
+  {$endif}
+  ;
 procedure TfScreenshot.FormCreate(Sender: TObject);
 var
   FScreenDC: HDC;

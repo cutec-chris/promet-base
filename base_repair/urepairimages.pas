@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, db, FileUtil, Forms, Controls, Graphics, Dialogs, Menus,
   DbCtrls, StdCtrls, DBGrids, ButtonPanel, ComCtrls, ExtCtrls, Buttons,
-  uExtControls, uOrder, variants,ActnList,ExtDlgs,LazFileUtils;
+  uExtControls, uOrder, variants,ActnList,ExtDlgs,LCLVersion;
 
 type
 
@@ -84,7 +84,11 @@ var
 
 implementation
 uses uData,uHistoryFrame,uImageFrame,uIntfStrConsts,uDocuments,uDocumentFrame,uLinkFrame,
-  uthumbnails,Clipbrd,uscreenshotmain,uBaseApplication;
+  uthumbnails,Clipbrd,uscreenshotmain,uBaseApplication
+  {$if lcl_fullversion >= 01070000}
+  ,LazFileUtils
+  {$endif}
+  ;
 {$R *.lfm}
 
 { TfRepairImages }

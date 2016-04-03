@@ -24,7 +24,7 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, ExtCtrls, Buttons, ComCtrls,
   ActnList, Menus, Dialogs, uPrometFramesInplaceDB, Graphics, StdCtrls,
   uBaseDBClasses, db, uIntfStrConsts,uGeneralStrConsts, Utils,UtilsVis, uExtControls, uWait, Variants,
-  uPreviewFrame
+  uPreviewFrame,LCLVersion
   {$IFDEF WINDOWS}
   ,ActiveX,Windows,OleDropFiles
   {$ENDIF}
@@ -249,7 +249,11 @@ uses uDocuments, uData, uDocumentAddOptions, uBaseApplication, SecureUtils,
   uDocumentAcquire,PdfDoc,PdfImages,uOCR,uMessages,
   uPerson, uMimeTypeEdit, uDocumentProcess, uDocumentAction,uDocumentCheckin,
   uOrder,uBaseDBInterface,ClipBrd,uBaseVisualApplication,uSelectTemplate,
-  uNRights,uDocProperties,ubaseconfig,LazFileUtils;
+  uNRights,uDocProperties,ubaseconfig
+  {$if lcl_fullversion >= 01070000}
+  ,LazFileUtils
+  {$endif}
+  ;
 resourcestring
   strFileExtDesc                             = '%s Datei';
   strCheckingOutFile                         = 'Hole %s';
