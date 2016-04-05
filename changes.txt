@@ -1,5 +1,11 @@
 ﻿Build 424
       - Shema:using Links in Shemas, first complete Working Version of Shema Editor
+      - Dokumente:Separates Datenobjekt für Detaileintrag (beim Scrollen wechseln Datenfelder nicht mehr den Datensatz)
+      - Processmanager:begonnen ein Narichten(mesh)netzwerk zu bauen, damit Clients direkt Narichten ohne SQL Server versenden können
+                       Dieses netzwerk erlaubt es Pub/Sub Narichten zu verschicken/empfangen. Per Telnet/SSH kann man direkt auf dieses Netzwerk zugreifen
+                       Auf selbem Port wie Msg Netzwerk,ist HTTP möglich (Datenserver/Wiki)
+                       weiterhin können dorthin Syslog Messages geschickt werden, die automatisch ins Pub/Sub Netzwerk eingespeist werden
+      - Dokumente:löschen über Multiselect mögich
 Build 423
       - Search:Show Articlenumber,Status also in Tree Search
       - Search:Search Asynchron (not on every type)

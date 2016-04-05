@@ -2,7 +2,7 @@
   Copyright (C) Christian Ulrich info@cu-tec.de
 
   This source is free software; you can redistribute it and/or modify it under
-  the terms of the GNU General Public License as published by the Free
+  the terms of the GNU General Public License as published by the Free                                                 f
   Software Foundation; either version 2 of the License, or commercial alternative
   contact us for more information
 
@@ -85,7 +85,7 @@ type
     bZoomIn: TSpeedButton;
     bZoomOut: TSpeedButton;
     cbFilter: TComboBox;
-    Datasource1: TDatasource;
+    Documents: TDatasource;
     DBEdit1: TDBEdit;
     IdleTimer1: TTimer;
     MenuItem11: TMenuItem;
@@ -427,6 +427,8 @@ begin
         end;
     end;
   DataSet.DataSet.Locate('SQL_ID',copy(Item.URL,0,pos('.',Item.URL)-1),[]);
+  FFullDataSet.Select(copy(Item.URL,0,pos('.',Item.URL)-1));
+  FFullDataSet.Open;
   FTimeLine.MarkerDate:=DataSet.FieldByName('ORIGDATE').AsDateTime;
   if bShowDetail.Down then
     ShowDocument;
@@ -584,7 +586,7 @@ begin
   FLast:='';
   ThumbControl1.URLList:='';
   SelectedItem:=nil;
-  Datasource1.DataSet := DataSet.DataSet;
+  Documents.DataSet := FFullDataSet.DataSet;
   FetchNext;
   ThumbControl1.Invalidate;
   //Application.ProcessMessages;
@@ -875,15 +877,35 @@ end;
 procedure TfManageDocFrame.acDeleteExecute(Sender: TObject);
 var
   aItem: TThreadedImage;
+  i: Integer;
+
+  procedure DeleteItem;
+  begin
+    DataSet.DataSet.Locate('SQL_ID',copy(aItem.URL,0,pos('.',aItem.URL)-1),[]);
+    TDocPages(FFullDataSet).Select(DataSet.Id.AsVariant);
+    TDocPages(FFullDataSet).Open;
+    if TDocPages(FFullDataSet).Count>0 then
+      begin
+        while FDocFrame.DataSet.Count>0 do
+          TDocuments(FDocFrame.DataSet).Delete;
+        DataSet.Delete;
+        ThumbControl1.ImageLoaderManager.List.Delete(ThumbControl1.ImageLoaderManager.ActiveIndex);
+      end;
+  end;
+
 begin
   if GotoCurrentItem and (MessageDlg(strRealdelete,mtInformation,[mbYes,mbNo],0) = mrYes) then
     begin
-      aItem := ThumbControl1.ImageLoaderManager.ActiveItem;
-
-      while FDocFrame.DataSet.Count>0 do
-        TDocuments(FDocFrame.DataSet).Delete;
-      DataSet.Delete;
-      ThumbControl1.ImageLoaderManager.List.Delete(ThumbControl1.ImageLoaderManager.ActiveIndex);
+      if ThumbControl1.SelectedList.Count=0 then
+        begin
+          aItem := SelectedItem;
+          DeleteItem;
+        end
+      else for i := 0 to ThumbControl1.SelectedList.Count-1 do
+        begin
+          aItem := TThreadedImage(ThumbControl1.SelectedList[i]);
+          DeleteItem;
+        end;
       ThumbControl1.Arrange;
       ThumbControl1.Invalidate;
       acRefresh.Execute;
@@ -1152,12 +1174,6 @@ var
           TDocPages(FFullDataSet).FieldByName('DONE').AsString:='Y';
         TDocPages(FFullDataSet).Post;
       end;
-    if Assigned(Item.Pointer) then
-      begin
-        TImageItem(Item.Pointer).Free;
-        Item.Pointer := nil;
-        ThumbControl1.Invalidate;
-      end;
   end;
 
 begin
@@ -1171,6 +1187,9 @@ begin
       Item := TThreadedImage(ThumbControl1.SelectedList[i]);
       ToggleDone;
     end;
+  ThumbControl1.Arrange;
+  ThumbControl1.Invalidate;
+  acRefresh.Execute;
 end;
 
 procedure TfManageDocFrame.acOCRExecute(Sender: TObject);
@@ -1314,7 +1333,7 @@ begin
   FLast:='';
   ThumbControl1.URLList:='';
   SelectedItem:=nil;
-  Datasource1.DataSet := DataSet.DataSet;
+  Documents.DataSet := DataSet.DataSet;
   FetchNext;
   while ThumbControl1.ImageLoaderManager.CountItems<OldIdx do
     FetchNext;
@@ -1880,7 +1899,7 @@ begin
   TDocPages(DataSet).PrepareDataSet;
   ThumbControl1.URLList:='';
   SelectedItem:=nil;
-  Datasource1.DataSet := DataSet.DataSet;
+  Documents.DataSet := DataSet.DataSet;
   bShowDetail.Down:=False;
   bShowDetailClick(nil);
   bShowDetail.Enabled:=DataSet.Count>0;
@@ -1932,7 +1951,7 @@ begin
   FLast:='';
   ThumbControl1.URLList:='';
   SelectedItem:=nil;
-  Datasource1.DataSet := DataSet.DataSet;
+  Documents.DataSet := DataSet.DataSet;
   FetchNext;
   if Assigned(IdleTimer1) then
     IdleTimer1.Tag:=0;
