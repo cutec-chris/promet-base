@@ -28,7 +28,7 @@ uses
   Dialogs, ExtCtrls, StdCtrls, Buttons, ActnList, ComCtrls, Menus, DbCtrls,
   uBaseDbClasses, uBaseERPDBClasses, uprometscripts, uDocuments,
   uprometpascalscript, genpascalscript, genscript, db, simpleipc, blcksock,
-  synsock, uprometscriptprinting;
+  synsock, uprometscriptprinting,uImageCache;
 
 type
   TTCPCommandDaemon = class(TThread)
@@ -109,6 +109,7 @@ type
     procedure acPrepareExecute(Sender: TObject);
     procedure acProduceExecute(Sender: TObject);
     procedure acReadyExecute(Sender: TObject);
+    function FCacheGetFile(URL: string; var NewPath: string): TStream;
     procedure fLogWaitFormbAbortClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -122,6 +123,7 @@ type
     fScript : TBaseScript;
     nComm : TTreeNode;
     FSocket : TTCPCommandDaemon;
+    FCache : TFileCache;
     procedure FSocketData(Sender: TObject);
     procedure SetDataSet(AValue: TBaseDBPosition);
     function FindNextStep: Boolean;
@@ -367,6 +369,95 @@ begin
   FindNextStep;
 end;
 
+function TFAutomation.FCacheGetFile(URL: string; var NewPath: string): TStream;
+var
+  TreeData: TProdTreeData;
+  ms: TMemoryStream;
+  aPicture: TPicture;
+  aURL: String;
+  Path: String;
+  aNumber: integer;
+  tmp: String;
+  aDoc: TDocument;
+  Picture: TPicture;
+begin
+  Result := nil;
+  try
+  if Assigned(FAutomation.tvStep.Selected) then
+    begin
+      TreeData := TProdTreeData(FAutomation.tvStep.Selected.Data);
+      if not Assigned(TreeData.Documents) then exit;
+      Path := URL;
+      if copy(uppercase(Path),0,5)='ICON(' then
+        begin
+          if TryStrToInt(copy(Path,6,length(Path)-6),aNumber) then
+            begin
+              ms := TMemoryStream.Create;
+              Picture := TPicture.Create;
+              fVisualControls.Images.GetBitmap(aNumber,Picture.Bitmap);
+              Picture.SaveToStreamWithFileExt(ms,'png');
+              NewPath := Copy(Path,0,length(path)-length(ExtractFileExt(Path)))+'.png';
+              ms.Position:=0;
+              Result := ms;
+              ms.Position:=0;
+              Result := ms;
+              Picture.Free;
+            end;
+        end
+      else if copy(uppercase(Path),0,12)='HISTORYICON(' then
+        begin
+          tmp := copy(Path,13,length(Path)-13);
+          if TryStrToInt(tmp,aNumber) then
+            begin
+              ms := TMemoryStream.Create;
+              Picture := TPicture.Create;
+              fVisualControls.HistoryImages.GetBitmap(aNumber,Picture.Bitmap);
+              Picture.SaveToStreamWithFileExt(ms,'png');
+              NewPath := Copy(Path,0,length(path)-length(ExtractFileExt(Path)))+'.png';
+              ms.Position:=0;
+              Result := ms;
+              ms.Position:=0;
+              Result := ms;
+              Picture.Free;
+            end;
+        end
+      else
+        begin
+          TreeData.Documents.Open;
+          aURL := copy(URL,0,rpos('.',URL)-1);
+          if TreeData.Documents.Locate('NAME',aURL,[loCaseInsensitive]) then
+            begin
+              ms := TMemoryStream.Create;
+              aDoc := TDocument.Create(nil);
+              aDoc.SelectByNumber(TreeData.Documents.FieldByName('NUMBER').AsVariant);
+              aDoc.Open;
+              aDoc.CheckoutToStream(ms);
+              aDoc.Free;
+              ms.Position:=0;
+              Result := ms;
+            end
+          else if Assigned(TreeData.PrepDocuments) then
+            begin
+                TreeData.PrepDocuments.Open;
+                if TreeData.PrepDocuments.Locate('NAME',aURL,[loCaseInsensitive]) then
+                begin
+                  ms := TMemoryStream.Create;
+                  aDoc := TDocument.Create(nil);
+                  aDoc.SelectByNumber(TreeData.PrepDocuments.FieldByName('NUMBER').AsVariant);
+                  aDoc.Open;
+                  aDoc.CheckoutToStream(ms);
+                  aDoc.Free;
+                  ms.Position:=0;
+                  Result := ms;
+                end;
+            end;
+        end;
+    end;
+  except
+    Result := nil;
+  end;
+end;
+
 procedure TFAutomation.fLogWaitFormbAbortClick(Sender: TObject);
 begin
   fLogWaitForm.Close;
@@ -376,10 +467,13 @@ procedure TFAutomation.FormCreate(Sender: TObject);
 begin
   FSocket := TTCPCommandDaemon.Create;
   FSocket.OnData:=@FSocketData;
+  FCache := TFileCache.Create(30);
+  FCache.OnGetFile:=@FCacheGetFile;
 end;
 
 procedure TFAutomation.FormDestroy(Sender: TObject);
 begin
+  FCache.Free;
   FSocket.Terminate;
   FSocket.OnData:=nil;
 end;
@@ -668,93 +762,22 @@ end;
 procedure TSimpleIpHtml.SimpleIpHtmlGetImageX(Sender: TIpHtmlNode;
   const URL: string; var Picture: TPicture);
 var
-  TreeData: TProdTreeData;
-  ms: TMemoryStream;
-  aPicture: TPicture;
-  aURL: String;
-  Path: String;
-  aNumber: integer;
-  NewPath: String;
-  Result: TMemoryStream;
-  tmp: String;
-  aDoc: TDocument;
+  aPicture: TPicture = nil;
+  aFile: TMemoryStream = nil;
+  NewURL : string = '';
+  FActNode: TIpHtmlNode;
 begin
-  Picture:=nil;
-  if Assigned(FAutomation.tvStep.Selected) then
+  FActNode := Sender;
+  aFile := FAutomation.FCache.GetFile(URL,NewURL);
+  if Assigned(aFile) then
     begin
-      TreeData := TProdTreeData(FAutomation.tvStep.Selected.Data);
-      if not Assigned(TreeData.Documents) then exit;
-      Path := URL;
-      if copy(uppercase(Path),0,5)='ICON(' then
-        begin
-          if TryStrToInt(copy(Path,6,length(Path)-6),aNumber) then
-            begin
-              ms := TMemoryStream.Create;
-              Picture := TPicture.Create;
-              fVisualControls.Images.GetBitmap(aNumber,Picture.Bitmap);
-              Picture.SaveToStreamWithFileExt(ms,'png');
-              NewPath := Copy(Path,0,length(path)-length(ExtractFileExt(Path)))+'.png';
-              ms.Position:=0;
-              Result := ms;
-              ms.Position:=0;
-              aPicture := TPicture.Create;
-              aPicture.LoadFromStreamWithFileExt(ms,'png');
-              Picture := aPicture;
-            end;
-        end
-      else if copy(uppercase(Path),0,12)='HISTORYICON(' then
-        begin
-          tmp := copy(Path,13,length(Path)-13);
-          if TryStrToInt(tmp,aNumber) then
-            begin
-              ms := TMemoryStream.Create;
-              Picture := TPicture.Create;
-              fVisualControls.HistoryImages.GetBitmap(aNumber,Picture.Bitmap);
-              Picture.SaveToStreamWithFileExt(ms,'png');
-              NewPath := Copy(Path,0,length(path)-length(ExtractFileExt(Path)))+'.png';
-              ms.Position:=0;
-              Result := ms;
-              ms.Position:=0;
-              aPicture := TPicture.Create;
-              aPicture.LoadFromStreamWithFileExt(ms,'png');
-              Picture := aPicture;
-            end;
-        end
-      else
-        begin
-          TreeData.Documents.Open;
-          aURL := copy(URL,0,rpos('.',URL)-1);
-          if TreeData.Documents.Locate('NAME',aURL,[loCaseInsensitive]) then
-            begin
-              ms := TMemoryStream.Create;
-              aDoc := TDocument.Create(nil);
-              aDoc.SelectByNumber(TreeData.Documents.FieldByName('NUMBER').AsVariant);
-              aDoc.Open;
-              aDoc.CheckoutToStream(ms);
-              aDoc.Free;
-              ms.Position:=0;
-              aPicture := TPicture.Create;
-              aPicture.LoadFromStreamWithFileExt(ms,TreeData.Documents.FieldByName('EXTENSION').AsString);
-              Picture := aPicture;
-            end
-          else if Assigned(TreeData.PrepDocuments) then
-            begin
-                TreeData.PrepDocuments.Open;
-                if TreeData.PrepDocuments.Locate('NAME',aURL,[loCaseInsensitive]) then
-                begin
-                  ms := TMemoryStream.Create;
-                  aDoc := TDocument.Create(nil);
-                  aDoc.SelectByNumber(TreeData.PrepDocuments.FieldByName('NUMBER').AsVariant);
-                  aDoc.Open;
-                  aDoc.CheckoutToStream(ms);
-                  aDoc.Free;
-                  ms.Position:=0;
-                  aPicture := TPicture.Create;
-                  aPicture.LoadFromStreamWithFileExt(ms,TreeData.PrepDocuments.FieldByName('EXTENSION').AsString);
-                  Picture := aPicture;
-                end;
-            end;
-        end;
+      Picture := TPicture.Create;
+      aFile.Position := 0;
+      try
+        Picture.LoadFromStreamWithFileExt(aFile,ExtractFileExt(NewURL));
+      except
+        FreeAndNil(Picture);
+      end;
     end;
 end;
 constructor TSimpleIpHtml.Create;
