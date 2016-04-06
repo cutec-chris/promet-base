@@ -6,6 +6,7 @@
                        Auf selbem Port wie Msg Netzwerk,ist HTTP möglich (Datenserver/Wiki)
                        weiterhin können dorthin Syslog Messages geschickt werden, die automatisch ins Pub/Sub Netzwerk eingespeist werden
       - Dokumente:löschen über Multiselect mögich
+      - Avad:Bilder werden nun gecached, (schnellere Dastellung, Speicherprobleme behoben)
 Build 423
       - Search:Show Articlenumber,Status also in Tree Search
       - Search:Search Asynchron (not on every type)
