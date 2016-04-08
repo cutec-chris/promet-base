@@ -112,10 +112,10 @@
     </Files>
     <RequiredPkgs Count="6">
       <Item1>
-        <PackageName Value="KControlsLaz"/>
+        <PackageName Value="LR_ZeosDB"/>
       </Item1>
       <Item2>
-        <PackageName Value="LR_ZeosDB"/>
+        <PackageName Value="KControlsLaz"/>
       </Item2>
       <Item3>
         <PackageName Value="pVisualPrometApp"/>
