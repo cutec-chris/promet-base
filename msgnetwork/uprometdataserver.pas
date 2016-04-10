@@ -20,10 +20,10 @@ uses usync,uBaseDatasetInterfaces;
 function HandleHTTPRequest(Method, URL: string;Headers : TStringList;Input,Output : TStream): Integer;
 begin
   {
-  /objects/contacts
-  /objects/contacts('1091')
-  /objects/contacts('1091')?setstatus=I
-  /objects/contacts('1091')/address
+  /api/pds/objects/contacts
+  /api/pds/objects/contacts('1091')
+  /api/pds/objects/contacts('1091')?setstatus=I
+  /api/pds/objects/contacts('1091')/address
   http://www.odata.org/
   /wiki/folder1/page2
   }

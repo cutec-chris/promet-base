@@ -589,7 +589,7 @@ var
           begin
             cmd := AppendPathDelim(BaseApplication.Location)+'pscript'+ExtractFileExt(BaseApplication.ExeName);
             if not FileExists(UniToSys(cmd)) then
-              cmd := AppendPathDelim(BaseApplication.Location)+'tools'+DirectorySeparator+'pscript'+ExtractFileExt(BaseApplication.ExeName);
+              cmd := AppendPathDelim(BaseApplication.Location)+DirectorySeparator+'pscript'+ExtractFileExt(BaseApplication.ExeName);
             if FileExists(UniToSys(cmd)) then
               begin
                 cmd := cmd+BuildCmdLine;
