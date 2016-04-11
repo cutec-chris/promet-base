@@ -36,7 +36,7 @@
         <UnitName Value="uscriptimport"/>
       </Item6>
     </Files>
-    <RequiredPkgs Count="8">
+    <RequiredPkgs Count="7">
       <Item1>
         <PackageName Value="lazreport"/>
       </Item1>
@@ -48,22 +48,18 @@
         <PackageName Value="general"/>
       </Item3>
       <Item4>
-        <PackageName Value="ppascalscriptlcl"/>
-        <DefaultFilename Value="..\..\components\pascalscript\Source\ppascalscriptlcl.lpk"/>
-      </Item4>
-      <Item5>
         <PackageName Value="pPrometDBIntfs"/>
         <DefaultFilename Value="..\dbintfs\pprometdbintfs.lpk"/>
+      </Item4>
+      <Item5>
+        <PackageName Value="SynEdit"/>
       </Item5>
       <Item6>
-        <PackageName Value="SynEdit"/>
+        <PackageName Value="LCL"/>
       </Item6>
       <Item7>
-        <PackageName Value="LCL"/>
-      </Item7>
-      <Item8>
         <PackageName Value="FCL"/>
-      </Item8>
+      </Item7>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>
