@@ -556,8 +556,4 @@ object fSelectReport: TfSelectReport
     left = 112
     top = 224
   end
-  object lrZeosData1: TlrZeosData
-    left = 112
-    top = 264
-  end
 end
