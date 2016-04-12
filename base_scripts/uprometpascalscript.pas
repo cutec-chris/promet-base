@@ -892,35 +892,6 @@ begin
       aStream.Free;
       aDocument.Free;
       Result := True;
-    end
-  else
-    begin
-      aScript := TBaseScript.Create(nil);
-      aScript.SelectByName(FLastUnitName);
-      aScript.Open;
-      if aScript.Count>0 then
-        begin
-          aDocuments.Select(aScript.Script.Id,'S',aScript.Script.Id,aScript.Script.Version,Null);
-          aDocuments.Open;
-          aName := ExtractFileName(Filename);
-          if rpos('.',aName)>0 then
-            aName := copy(aName,0,rpos('.',aName)-1);
-          aExt := ExtractFileExt(Filename);
-          if pos('.',aExt)>0 then
-            aExt := copy(aExt,pos('.',aExt)+1,length(aExt));
-          if aDocuments.Locate('NAME;EXTENSION',VarArrayOf([aName,aExt]),[loCaseInsensitive]) then
-            begin
-              aDocument := TDocument.Create(nil);
-              aDocument.SelectByNumber(aDocuments.FieldByName('NUMBER').AsVariant);
-              aDocument.Open;
-              aStream := TFileStream.Create(OutPath,fmCreate);
-              aDocument.CheckoutToStream(aStream);
-              aStream.Free;
-              aDocument.Free;
-              Result := True;
-            end;
-        end;
-      aScript.Free;
     end;
   aDocuments.Free;
 end;

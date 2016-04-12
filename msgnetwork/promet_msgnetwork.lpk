@@ -9,7 +9,7 @@
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="2">
+    <Files Count="3">
       <Item1>
         <Filename Value="uprometmsgnetwork.pas"/>
         <UnitName Value="uprometmsgnetwork"/>
@@ -18,6 +18,10 @@
         <Filename Value="uprometdataserver.pas"/>
         <UnitName Value="uprometdataserver"/>
       </Item2>
+      <Item3>
+        <Filename Value="uappserver.pas"/>
+        <UnitName Value="uappserver"/>
+      </Item3>
     </Files>
     <RequiredPkgs Count="4">
       <Item1>

@@ -25,43 +25,8 @@ interface
 
 uses
   Classes, SysUtils, blcksock, synsock, ssl_openssl, synautil, uBaseDbClasses,
-  uBaseDBInterface,uprometpubsub;
+  uBaseDBInterface,uprometpubsub,uAppServer;
 type
-
-  { TPrometNetworkDaemon }
-
-  TPrometNetworkDaemon = class(TThread)
-  private
-    Socks : TList;
-    Sock:TTCPBlockSocket;
-    function GetConnections: Integer;
-  public
-    Constructor Create;
-    Destructor Destroy; override;
-    procedure Execute; override;
-    property Connections : Integer read GetConnections;
-    property Sockets : TList read Socks;
-  end;
-
-  { TPrometNetworkThrd }
-
-  TPrometNetworkThrd = class(TThread)
-  private
-    Sock:TTCPBlockSocket;
-    CSock: TSocket;
-    FResult : string;
-    DataModule : TBaseDBInterface;
-    Pubsub : TPubSubClient;
-    procedure DoCommand(FCommand : string);
-    function ProcessHttpRequest(Request, URI: string; Header: TStringList; Input,
-      Output: TMemoryStream): integer;
-  protected
-    procedure PubsubPublish(const Topic, Value: string);
-  public
-    Constructor Create (hsock:tSocket);
-    destructor Destroy; override;
-    procedure Execute; override;
-  end;
 
   { TPrometDiscoveryDaemon }
 
@@ -81,262 +46,12 @@ type
 
 var
   Discovery : TPrometDiscoveryDaemon;
-  NetworkDaemon : TPrometNetworkDaemon;
+  NetworkDaemon : TAppNetworkDaemon;
 
 implementation
 
 uses Utils,uBaseApplication,uprometdataserver;
 
-function TPrometNetworkDaemon.GetConnections: Integer;
-begin
-  Result := Socks.Count;
-end;
-
-constructor TPrometNetworkDaemon.Create;
-begin
-  inherited create(false);
-  sock:=TTCPBlockSocket.create;
-  Socks := TList.Create;
-  FreeOnTerminate:=true;
-end;
-destructor TPrometNetworkDaemon.Destroy;
-begin
-  Terminate;
-  WaitFor;
-  //Sock.free;
-  Socks.Free;
-end;
-procedure TPrometNetworkDaemon.Execute;
-var
-  ClientSock:TSocket;
-  ListenOk: Boolean;
-begin
-  with sock do
-    begin
-      CreateSocket;
-      setLinger(true,1000);
-      ListenOk := False;
-      repeat
-        if not ListenOk then
-          begin
-            bind('0.0.0.0','8087');
-            if LastError=0 then
-              begin
-                ListenOk:=True;
-                listen;
-                if LastError<>0 then
-                  ListenOk:=False;
-              end
-            else sleep(1000);
-          end
-        else
-          begin
-            if terminated then break;
-            if canread(1000) then
-              begin
-                try
-                  ClientSock:=accept;
-                except
-                  Terminate;
-                end;
-                if lastError=0 then
-                  Socks.Add(TPrometNetworkThrd.create(ClientSock));
-              end;
-          end;
-      until false;
-    end;
-end;
-procedure TPrometNetworkThrd.DoCommand(FCommand: string);
-var
-  aCmd, uri, protocol, s: String;
-  headers: TStringList;
-  size, Timeout, x, ResultCode, n: Integer;
-  InputData, OutputData: TMemoryStream;
-begin
-  FResult:='ERROR: failed!';
-  if pos(' ',FCommand)>0 then
-    aCmd := copy(FCommand,0,pos(' ',FCommand)-1)
-  else aCmd := FCommand;
-  Fetch(FCommand,' ');
-  case Uppercase(aCmd) of
-  'EXIT','QUIT'://Quit Connection
-    begin
-      FResult:='OK:Bye!';
-      Terminate;
-    end;
-  'LOGIN':
-    begin
-      {
-      with DataModule as IBaseDBInterface do
-        begin
-          DBLogin(Data.Mandant,);
-        end;
-      }
-    end;
-  'STARTTLS'://Start SSL
-    begin
-      if not sock.SSLAcceptConnection then
-        Sock.SendString('This Connection is insecure.'+CRLF)
-      else
-        Sock.SendString('This Connection is secure now.'+CRLF);
-    end;
-  'GET','HEAD','POST','DELETE'://HTTP Request
-    begin
-      Timeout := 12000;
-      uri := fetch(FCommand, ' ');
-      if uri = '' then
-        Exit;
-      protocol := fetch(FCommand, ' ');
-      headers := TStringList.Create;
-      size := -1;
-      //read request headers
-      if protocol <> '' then
-      begin
-        if pos('HTTP/', protocol) <> 1 then
-          Exit;
-        repeat
-          s := sock.RecvString(Timeout);
-          if sock.lasterror <> 0 then
-            Exit;
-          if s <> '' then
-            Headers.add(s);
-          if Pos('CONTENT-LENGTH:', Uppercase(s)) = 1 then
-            Size := StrToIntDef(SeparateRight(s, ' '), -1);
-        until s = '';
-      end;
-      //recv document...
-      InputData := TMemoryStream.Create;
-      if size >= 0 then
-      begin
-        InputData.SetSize(Size);
-        x := Sock.RecvBufferEx(InputData.Memory, Size, Timeout);
-        InputData.SetSize(x);
-        if sock.lasterror <> 0 then
-          Exit;
-      end;
-      OutputData := TMemoryStream.Create;
-      ResultCode := ProcessHttpRequest(aCmd, uri, Headers, InputData, OutputData);
-      sock.SendString('HTTP/1.0 ' + IntTostr(ResultCode) + CRLF);
-      if protocol <> '' then
-      begin
-        headers.Add('Content-length: ' + IntTostr(OutputData.Size));
-        headers.Add('Connection: close');
-        headers.Add('Date: ' + Rfc822DateTime(now));
-        headers.Add('Server: Avamm Internal Network');
-        headers.Add('');
-        for n := 0 to headers.count - 1 do
-          sock.sendstring(headers[n] + CRLF);
-      end;
-      if sock.lasterror <> 0 then
-        Exit;
-      Sock.SendBuffer(OutputData.Memory, OutputData.Size);
-      headers.Free;
-      FResult:='';
-    end;
-  'PUB'://Publish Message [GUID,TOPIC,MESSAGE]
-    begin
-      //Check if we have someone to forward this message
-      //Check if we should do something with it (Scripts,Measurements)
-      if Pubsub.Publish(copy(FCommand,0,pos(' ',FCommand)-1),copy(FCommand,pos(' ',FCommand)+1,length(FCommand))) then
-        FResult:='OK';
-    end;
-  'SUB'://Subscribe to Topic [TOPIC]
-    begin
-      Pubsub.Subscribe(FCommand);
-      FResult:='OK';
-    end;
-  'UNSUB'://Unsubscribe from Topic [TOPIC]
-    begin
-      if Pubsub.UnSubscribe(FCommand) then
-        FResult:='OK';
-    end;
-  'PING':
-    begin
-      FResult:='PONG';
-    end;
-  'SHUTDOWN':
-    begin
-      FResult:='OK';
-      BaseApplication.Terminate;
-    end
-  else
-    begin
-      if (copy(aCmd,0,1)='<') and IsNumeric(copy(aCmd,2,pos('>',aCmd)-2)) then
-        begin //Syslog Message
-          FResult:='ERROR: Syslog at time not implemented';
-        end
-      else
-        FResult:='ERROR: not implemented';
-    end;
-  end;
-end;
-function TPrometNetworkThrd.ProcessHttpRequest(Request, URI: string;Header : TStringList; Input,
-  Output: TMemoryStream): integer;
-var
-  aSL: TStringList;
-  Prot, User, Pass, Host, Port, Path, Para: string;
-begin
-  ParseURL(URI,Prot,User,Pass,Host,Port,Path,Para);
-  if copy(Path,0,10)='/objects/' then
-    Result := uprometdataserver.HandleHTTPRequest(Request,URI,Header,Input,Output);
-  Result := 404;
-end;
-
-procedure TPrometNetworkThrd.PubsubPublish(const Topic, Value: string);
-begin
-  Sock.SendString('PUB:'+Topic+' '+Value+CRLF);
-end;
-
-constructor TPrometNetworkThrd.Create(hsock: tSocket);
-var
-  LoggedIn: Boolean;
-begin
-  inherited create(false);
-  Csock := Hsock;
-  FreeOnTerminate:=true;
-  DataModule := TBaseDBInterface.Create;
-  Pubsub := TPubSubClient.Create;
-  Pubsub.OnPublish:=@PubsubPublish;
-  DataModule.SetOwner(BaseApplication);
-  if not DataModule.LoadMandants then
-    raise Exception.Create('failed to Load Mandants');
-end;
-
-destructor TPrometNetworkThrd.Destroy;
-begin
-  Pubsub.Free;
-  inherited Destroy;
-  DataModule.Free;
-  NetworkDaemon.Sockets.Remove(Self);
-end;
-
-procedure TPrometNetworkThrd.Execute;
-var
-  s: string;
-begin
-  sock:=TTCPBlockSocket.create;
-  try
-    Sock.socket:=CSock;
-    sock.GetSins;
-    with sock do
-      begin
-        repeat
-          if terminated then break;
-          s := RecvTerminated(5000,CRLF);
-          if (lastError<>0) and (LastError<>WSAETIMEDOUT) then
-            break;
-          if s <> '' then
-            begin
-              DoCommand(s);
-              SendString(FResult+CRLF);
-              if lastError<>0 then break;
-            end;
-        until false;
-      end;
-  finally
-    Sock.Free;
-  end;
-end;
 { TDiscoveryDaemon }
 procedure TPrometDiscoveryDaemon.AddLog;
 begin
@@ -395,8 +110,146 @@ begin
     Sock.Free;
   end;
 end;
+function HandlePrometCommand(Sender : TObject;FCommand : string) : string;
+var
+  aCmd, uri, protocol, s: String;
+  headers: TStringList;
+  size, Timeout, x, ResultCode, n, i: Integer;
+  InputData, OutputData: TMemoryStream;
+begin
+  Result := '';
+  if pos(' ',FCommand)>0 then
+    aCmd := copy(FCommand,0,pos(' ',FCommand)-1)
+  else aCmd := FCommand;
+  Fetch(FCommand,' ');
+  case Uppercase(aCmd) of
+  'EXIT','QUIT'://Quit Connection
+    begin
+      Result:='OK:Bye!';
+      TAppNetworkThrd(Sender).Terminate;
+    end;
+  'LOGIN':
+    begin
+      {
+      with DataModule as IBaseDBInterface do
+        begin
+          DBLogin(Data.Mandant,);
+        end;
+      }
+    end;
+  'STARTTLS'://Start SSL
+    begin
+      if not TAppNetworkThrd(Sender).sock.SSLAcceptConnection then
+        TAppNetworkThrd(Sender).Sock.SendString('This Connection is insecure.'+CRLF)
+      else
+        TAppNetworkThrd(Sender).Sock.SendString('This Connection is secure now.'+CRLF);
+    end;
+  'GET','HEAD','POST','DELETE'://HTTP Request
+    begin
+      Timeout := 12000;
+      uri := fetch(FCommand, ' ');
+      if uri = '' then
+        Exit;
+      protocol := fetch(FCommand, ' ');
+      headers := TStringList.Create;
+      size := -1;
+      //read request headers
+      if protocol <> '' then
+      begin
+        if pos('HTTP/', protocol) <> 1 then
+          Exit;
+        repeat
+          s := TAppNetworkThrd(Sender).sock.RecvString(Timeout);
+          if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
+            Exit;
+          if s <> '' then
+            Headers.add(s);
+          if Pos('CONTENT-LENGTH:', Uppercase(s)) = 1 then
+            Size := StrToIntDef(SeparateRight(s, ' '), -1);
+        until s = '';
+      end;
+      //recv document...
+      InputData := TMemoryStream.Create;
+      if size >= 0 then
+      begin
+        InputData.SetSize(Size);
+        x := TAppNetworkThrd(Sender).Sock.RecvBufferEx(InputData.Memory, Size, Timeout);
+        InputData.SetSize(x);
+        if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
+          Exit;
+      end;
+      OutputData := TMemoryStream.Create;
+      ResultCode := ProcessHttpRequest(aCmd, uri, Headers, InputData, OutputData);
+      TAppNetworkThrd(Sender).sock.SendString('HTTP/1.0 ' + IntTostr(ResultCode) + CRLF);
+      if protocol <> '' then
+      begin
+        headers.Add('Content-length: ' + IntTostr(OutputData.Size));
+        headers.Add('Connection: close');
+        headers.Add('Date: ' + Rfc822DateTime(now));
+        headers.Add('Server: Avamm Internal Network');
+        headers.Add('');
+        for n := 0 to headers.count - 1 do
+          TAppNetworkThrd(Sender).sock.sendstring(headers[n] + CRLF);
+      end;
+      if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
+        Exit;
+      TAppNetworkThrd(Sender).Sock.SendBuffer(OutputData.Memory, OutputData.Size);
+      headers.Free;
+      FResult:='';
+    end;
+  'PUB'://Publish Message [GUID,TOPIC,MESSAGE]
+    begin
+      //Check if we have someone to forward this message
+      //Check if we should do something with it (Scripts,Measurements)
+      if Pubsub.Publish(copy(FCommand,0,pos(' ',FCommand)-1),copy(FCommand,pos(' ',FCommand)+1,length(FCommand))) then
+        FResult:='OK';
+    end;
+  'SUB'://Subscribe to Topic [TOPIC]
+    begin
+      Pubsub.Subscribe(FCommand);
+      FResult:='OK';
+    end;
+  'UNSUB'://Unsubscribe from Topic [TOPIC]
+    begin
+      if Pubsub.UnSubscribe(FCommand) then
+        FResult:='OK';
+    end;
+  'PING':
+    begin
+      FResult:='PONG';
+    end;
+  'SHUTDOWN':
+    begin
+      FResult:='OK';
+      BaseApplication.Terminate;
+    end
+  else
+    begin
+      if (copy(aCmd,0,1)='<') and IsNumeric(copy(aCmd,2,pos('>',aCmd)-2)) then
+        begin //Syslog Message
+          FResult:='ERROR: Syslog at time not implemented';
+        end;
+    end;
+  end;
+end;
+{
+function TAppNetworkThrd.ProcessHttpRequest(Request, URI: string;Header : TStringList; Input,
+  Output: TMemoryStream): integer;
+var
+  aSL: TStringList;
+  Prot, User, Pass, Host, Port, Path, Para: string;
+begin
+  ParseURL(URI,Prot,User,Pass,Host,Port,Path,Para);
+  if copy(Path,0,10)='/objects/' then
+    Result := uprometdataserver.HandleHTTPRequest(Request,URI,Header,Input,Output);
+  Result := 404;
+end;
+}
+
 initialization
-  NetworkDaemon := TPrometNetworkDaemon.Create;
+  NetworkDaemon := TAppNetworkDaemon.Create;
+  NetworkDaemon.RegisterCommandHandler(@HandlePrometCommand);
+  uAppServer.NetworkDaemon := NetworkDaemon;
   Discovery := TPrometDiscoveryDaemon.Create;
 finalization
   Discovery.Free;

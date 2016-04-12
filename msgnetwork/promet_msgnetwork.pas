@@ -8,7 +8,7 @@ unit promet_msgnetwork;
 interface
 
 uses
-  uprometmsgnetwork, uprometdataserver, LazarusPackageIntf;
+  uprometmsgnetwork, uprometdataserver, uAppServer, LazarusPackageIntf;
 
 implementation
 
