@@ -535,8 +535,6 @@ begin
   inherited Destroy;
 end;
 
-{ TStatistic }
-
 procedure TStatistic.FDSDataChange(Sender: TObject; Field: TField);
 begin
   if not Assigned(Field) then exit;
@@ -572,6 +570,8 @@ begin
 end;
 
 procedure TStatistic.Open;
+var
+  i: Integer;
 begin
   inherited Open;
   FStatus:=FieldByName('STATUS').AsString;
