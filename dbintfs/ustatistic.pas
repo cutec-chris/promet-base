@@ -68,11 +68,13 @@ type
     FDS : TDataSource;
     procedure aScriptWriteln(const s: string);
     function GetHistory: TBaseHistory;
-  public
+  protected
     function GetTextFieldName: string;override;
-    procedure Open; override;
+    function GetStatusFieldName: string; override;
     function GetNumberFieldName : string;override;
     function GetDescriptionFieldName: string; override;
+  public
+    procedure Open; override;
     procedure DefineFields(aDataSet : TDataSet);override;
     constructor CreateEx(aOwner: TComponent; DM: TComponent;
        aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
@@ -562,6 +564,11 @@ end;
 function TStatistic.GetTextFieldName: string;
 begin
   Result := 'NAME';
+end;
+
+function TStatistic.GetStatusFieldName: string;
+begin
+  Result:='STATUS';
 end;
 
 procedure TStatistic.Open;
