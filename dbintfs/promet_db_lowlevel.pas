@@ -4,7 +4,6 @@
 
 unit promet_db_lowlevel;
 
-{$warn 5023 off : no warning about unused units}
 interface
 
 uses

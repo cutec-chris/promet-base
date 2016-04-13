@@ -58,18 +58,28 @@ type
 
   { TStatistic }
 
-  TStatistic = class(TBaseDbList)
+  TStatistic = class(TBaseDbList,IBaseHistory)
+    procedure FDSDataChange(Sender: TObject; Field: TField);
   private
+    FHistory: TBaseHistory;
     FInternalScript : string;
+    FStateChange: TNotifyEvent;
+    FStatus : string;
+    FDS : TDataSource;
     procedure aScriptWriteln(const s: string);
+    function GetHistory: TBaseHistory;
   public
     function GetTextFieldName: string;override;
+    procedure Open; override;
     function GetNumberFieldName : string;override;
     function GetDescriptionFieldName: string; override;
     procedure DefineFields(aDataSet : TDataSet);override;
     constructor CreateEx(aOwner: TComponent; DM: TComponent;
        aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
+    destructor Destroy; override;
     function BuildQuerry(aVariables : TStrings) : string;
+    property History : TBaseHistory read FHistory;
+    property OnStateChange : TNotifyEvent read FStateChange write FStateChange;
   end;
 
   function ReplaceSQLFunctions(Str : string) : string;
@@ -525,14 +535,39 @@ end;
 
 { TStatistic }
 
+procedure TStatistic.FDSDataChange(Sender: TObject; Field: TField);
+begin
+  if not Assigned(Field) then exit;
+  if DataSet.ControlsDisabled then exit;
+  if Field.FieldName = 'STATUS' then
+    begin
+      History.Open;
+      History.AddItem(Self.DataSet,Format(strStatusChanged,[FStatus,Field.AsString]),'','',nil,ACICON_STATUSCH);
+      FStatus := Field.AsString;
+      if Assigned(FStateChange) then
+        FStateChange(Self);
+    end;
+end;
+
 procedure TStatistic.aScriptWriteln(const s: string);
 begin
   FInternalScript := FInternalScript+s+#10;
 end;
 
+function TStatistic.GetHistory: TBaseHistory;
+begin
+  Result := FHistory;
+end;
+
 function TStatistic.GetTextFieldName: string;
 begin
   Result := 'NAME';
+end;
+
+procedure TStatistic.Open;
+begin
+  inherited Open;
+  FStatus:=FieldByName('STATUS').AsString;
 end;
 
 function TStatistic.GetNumberFieldName: string;
@@ -556,6 +591,7 @@ begin
           begin
             Add('NAME',ftString,40,True);
             Add('DESCRIPTION',ftMemo,0,False);
+            Add('STATUS',ftString,4,false);
             Add('QUERRY',ftMemo,0,False);
             Add('DETAIL',ftMemo,0,False);
             Add('SUBDETAIL',ftMemo,0,False);
@@ -584,7 +620,19 @@ begin
           Limit := 0;
         end;
     end;
+  FHistory := TBaseHistory.CreateEx(Self,DM,aConnection,DataSet);
+  FDS := TDataSource.Create(Self);
+  FDS.DataSet := DataSet;
+  FDS.OnDataChange:=@FDSDataChange;
 end;
+
+destructor TStatistic.Destroy;
+begin
+  FDS.Free;
+  FHistory.Free;
+  inherited Destroy;
+end;
+
 const
   ST_NEXTCHAR = 1;
   ST_NAME = 2;
