@@ -27,8 +27,8 @@ inherited fImageFrame: TfImageFrame
       HorzScrollBar.Page = 512
       VertScrollBar.Page = 305
       Align = alClient
-      ClientHeight = 311
-      ClientWidth = 524
+      ClientHeight = 309
+      ClientWidth = 522
       TabOrder = 0
       object iPreview: TDBImage
         Left = 0
@@ -60,17 +60,17 @@ inherited fImageFrame: TfImageFrame
       Left = 0
       Height = 40
       Top = 208
-      Width = 40
+      Width = 44
       Align = alTop
       BevelOuter = bvNone
       ClientHeight = 40
-      ClientWidth = 40
+      ClientWidth = 44
       TabOrder = 0
       object Bevel1: TBevel
         Left = 4
         Height = 4
         Top = 0
-        Width = 32
+        Width = 36
         Align = alTop
         BorderSpacing.Left = 4
         BorderSpacing.Right = 4
@@ -85,8 +85,9 @@ inherited fImageFrame: TfImageFrame
         AutoSize = False
         Caption = 'Datei'
         Font.Color = clMedGray
-        Font.Height = 11
-        Font.Orientation = -900
+        Font.Height = 13
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
@@ -142,18 +143,18 @@ inherited fImageFrame: TfImageFrame
       Left = 0
       Height = 188
       Top = 20
-      Width = 40
+      Width = 44
       Align = alTop
       BorderSpacing.Top = 20
       BevelOuter = bvNone
       ClientHeight = 188
-      ClientWidth = 40
+      ClientWidth = 44
       TabOrder = 1
       object Bevel2: TBevel
         Left = 4
         Height = 4
         Top = 0
-        Width = 32
+        Width = 36
         Align = alTop
         BorderSpacing.Left = 4
         BorderSpacing.Right = 4
@@ -168,8 +169,9 @@ inherited fImageFrame: TfImageFrame
         AutoSize = False
         Caption = 'Navigation'
         Font.Color = clMedGray
-        Font.Height = 11
-        Font.Orientation = -900
+        Font.Height = 13
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
@@ -199,17 +201,17 @@ inherited fImageFrame: TfImageFrame
       Left = 0
       Height = 88
       Top = 248
-      Width = 40
+      Width = 44
       Align = alTop
       BevelOuter = bvNone
       ClientHeight = 88
-      ClientWidth = 40
+      ClientWidth = 44
       TabOrder = 2
       object Bevel3: TBevel
         Left = 4
         Height = 4
         Top = 0
-        Width = 32
+        Width = 36
         Align = alTop
         BorderSpacing.Left = 4
         BorderSpacing.Right = 4
@@ -224,8 +226,9 @@ inherited fImageFrame: TfImageFrame
         AutoSize = False
         Caption = 'Zwischenablage'
         Font.Color = clMedGray
-        Font.Height = 11
-        Font.Orientation = -900
+        Font.Height = 13
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
@@ -325,7 +328,7 @@ inherited fImageFrame: TfImageFrame
       end
     end
   end
-  object Images: TDatasource[2]
+  object Images: TDataSource[2]
     left = 64
     top = 16
   end
