@@ -8,7 +8,7 @@ object fGanttView: TfGanttView
   ClientWidth = 1076
   ShowHint = True
   ShowInTaskBar = stAlways
-  LCLVersion = '1.7'
+  LCLVersion = '1.4.4.0'
   object tbTop: TPanel
     Left = 0
     Height = 42
@@ -40,7 +40,7 @@ object fGanttView: TfGanttView
         BorderSpacing.Left = 5
         Caption = 'Ansicht'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 13
         ParentColor = False
         ParentFont = False
       end
@@ -334,7 +334,7 @@ object fGanttView: TfGanttView
         BorderSpacing.Left = 5
         Caption = 'Übernehmen'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 13
         ParentColor = False
         ParentFont = False
       end
@@ -487,15 +487,15 @@ object fGanttView: TfGanttView
       TabOrder = 2
       object Label6: TLabel
         Left = 4
-        Height = 14
-        Top = -3
+        Height = 13
+        Top = -2
         Width = 52
         Alignment = taCenter
         Anchors = [akLeft, akRight, akBottom]
         BorderSpacing.Left = 5
         Caption = 'Berechnung'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 13
         ParentColor = False
         ParentFont = False
       end
@@ -543,7 +543,7 @@ object fGanttView: TfGanttView
         BorderSpacing.Left = 5
         Caption = 'Aktuell'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 13
         ParentColor = False
         ParentFont = False
       end
@@ -590,7 +590,7 @@ object fGanttView: TfGanttView
         BorderSpacing.Left = 5
         Caption = 'Snapshots'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 13
         ParentColor = False
         ParentFont = False
       end
@@ -618,10 +618,10 @@ object fGanttView: TfGanttView
       end
       object cbSnapshot: TComboBox
         Left = 32
-        Height = 29
+        Height = 28
         Top = 14
         Width = 140
-        ItemHeight = 0
+        ItemHeight = 20
         OnSelect = cbSnapshotSelect
         Style = csDropDownList
         TabOrder = 0
@@ -648,7 +648,7 @@ object fGanttView: TfGanttView
         BorderSpacing.Left = 5
         Caption = 'Ausgabe'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 13
         ParentColor = False
         ParentFont = False
       end
@@ -731,7 +731,7 @@ object fGanttView: TfGanttView
         BorderSpacing.Left = 5
         Caption = 'Verlauf'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 13
         ParentColor = False
         ParentFont = False
       end
