@@ -51,6 +51,7 @@ type
     ActionList1: TActionList;
     bAssignTree: TSpeedButton;
     bChangeNumber: TSpeedButton;
+    Bevel2: TBevel;
     Bevel3: TBevel;
     Bevel4: TBevel;
     Bevel5: TBevel;
