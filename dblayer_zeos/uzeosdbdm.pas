@@ -1560,7 +1560,6 @@ begin
     FLimitAfterSelect := False;
     FLimitSTMT := 'LIMIT %s';
     FDBTyp := FConnection.Protocol;
-    FConnection.Properties.Add('Undefined_Varchar_AsString_Length= 255');
     if FConnection.Protocol = 'sqlite-3' then
       begin
         //FConnection.ExecuteDirect('PRAGMA synchronous = NORMAL;');
