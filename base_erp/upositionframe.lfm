@@ -19,13 +19,13 @@ inherited fPosition: TfPosition
     TabOrder = 0
     object Panel2: TPanel
       Left = 0
-      Height = 68
+      Height = 76
       Top = 20
       Width = 61
       Align = alTop
       BorderSpacing.Top = 20
       BevelOuter = bvNone
-      ClientHeight = 68
+      ClientHeight = 76
       ClientWidth = 61
       TabOrder = 0
       object Bevel1: TBevel
@@ -40,33 +40,35 @@ inherited fPosition: TfPosition
       end
       object ExtRotatedLabel1: TExtRotatedLabel
         Left = 0
-        Height = 64
+        Height = 72
         Top = 4
         Width = 14
         Align = alLeft
         AutoSize = False
         Caption = 'Position'
         Font.Color = clMedGray
-        Font.Height = 11
-        Font.Orientation = -900
+        Font.Height = 13
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
       object Panel5: TPanel
         Left = 14
-        Height = 64
+        Height = 72
         Top = 4
         Width = 47
         Align = alClient
         BevelOuter = bvNone
-        ClientHeight = 64
+        ClientHeight = 72
         ClientWidth = 47
         TabOrder = 0
         object tbPosition: TToolBar
           Left = 0
-          Height = 66
+          Height = 72
           Top = 0
           Width = 47
+          Align = alClient
           AutoSize = True
           Caption = 'tbPosition'
           EdgeBorders = []
@@ -108,7 +110,7 @@ inherited fPosition: TfPosition
     object Panel3: TPanel
       Left = 0
       Height = 62
-      Top = 136
+      Top = 152
       Width = 61
       Align = alTop
       BevelOuter = bvNone
@@ -134,8 +136,9 @@ inherited fPosition: TfPosition
         AutoSize = False
         Caption = 'Zusätzlich'
         Font.Color = clMedGray
-        Font.Height = 11
-        Font.Orientation = -900
+        Font.Height = 13
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
@@ -179,12 +182,12 @@ inherited fPosition: TfPosition
     end
     object Panel4: TPanel
       Left = 0
-      Height = 48
-      Top = 88
+      Height = 56
+      Top = 96
       Width = 61
       Align = alTop
       BevelOuter = bvNone
-      ClientHeight = 48
+      ClientHeight = 56
       ClientWidth = 61
       TabOrder = 2
       object Bevel4: TBevel
@@ -199,33 +202,35 @@ inherited fPosition: TfPosition
       end
       object ExtRotatedLabel3: TExtRotatedLabel
         Left = 0
-        Height = 44
+        Height = 52
         Top = 4
-        Width = 14
+        Width = 16
         Align = alLeft
         AutoSize = False
         Caption = 'Ansicht'
         Font.Color = clMedGray
-        Font.Height = 11
-        Font.Orientation = -900
+        Font.Height = 13
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
       object Panel6: TPanel
-        Left = 14
-        Height = 44
+        Left = 16
+        Height = 52
         Top = 4
-        Width = 47
+        Width = 45
         Align = alClient
         BevelOuter = bvNone
-        ClientHeight = 44
-        ClientWidth = 47
+        ClientHeight = 52
+        ClientWidth = 45
         TabOrder = 0
         object tbAnsicht: TToolBar
           Left = 0
-          Height = 44
+          Height = 52
           Top = 0
-          Width = 47
+          Width = 45
+          Align = alClient
           AutoSize = True
           Caption = 'ToolBar1'
           EdgeBorders = []
@@ -237,13 +242,13 @@ inherited fPosition: TfPosition
             Action = acViewDetails
           end
           object ToolButton6: TToolButton
-            Left = 24
-            Top = 0
+            Left = 1
+            Top = 22
             Action = acViewTexts
           end
           object ToolButton9: TToolButton
-            Left = 1
-            Top = 22
+            Left = 24
+            Top = 0
             Action = acRefresh
           end
         end
@@ -275,14 +280,14 @@ inherited fPosition: TfPosition
       object tsDetails: TTabSheet
         Caption = 'Details'
         ClientHeight = 201
-        ClientWidth = 700
+        ClientWidth = 698
         ImageIndex = 40
         ParentFont = False
         object Panel1: TPanel
           Left = 0
           Height = 201
           Top = 0
-          Width = 700
+          Width = 698
           Align = alClient
           BevelOuter = bvNone
           Caption = 'keine Detailansicht verfügbar'
@@ -326,7 +331,6 @@ inherited fPosition: TfPosition
       ScrollWidth = 422
       TabOrder = 0
       TabStop = False
-      TopIndex = -1
     end
   end
   object ActionList1: TActionList[4]
