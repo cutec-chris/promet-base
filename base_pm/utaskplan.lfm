@@ -36,7 +36,7 @@ inherited fTaskPlan: TfTaskPlan
         BorderSpacing.Left = 5
         Caption = 'Ansicht'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 13
         ParentColor = False
         ParentFont = False
       end
@@ -280,7 +280,7 @@ inherited fTaskPlan: TfTaskPlan
         BorderSpacing.Left = 5
         Caption = 'Aktuell'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 13
         ParentColor = False
         ParentFont = False
       end
@@ -328,7 +328,7 @@ inherited fTaskPlan: TfTaskPlan
         BorderSpacing.Left = 5
         Caption = 'Übernehmen'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 13
         ParentColor = False
         ParentFont = False
       end
@@ -420,7 +420,7 @@ inherited fTaskPlan: TfTaskPlan
       TabOrder = 1
       object Label1: TLabel
         Left = 8
-        Height = 13
+        Height = 20
         Top = 8
         Width = 978
         Align = alTop
