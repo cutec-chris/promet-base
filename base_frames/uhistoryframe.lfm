@@ -54,7 +54,7 @@ inherited fHistoryFrame: TfHistoryFrame
         AutoSize = False
         Caption = 'Neu'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 13
         Font.Orientation = 900
         Layout = tlBottom
         ParentColor = False
@@ -145,7 +145,7 @@ inherited fHistoryFrame: TfHistoryFrame
         AutoSize = False
         Caption = 'löschen'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 13
         Font.Orientation = 900
         Layout = tlBottom
         ParentColor = False
