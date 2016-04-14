@@ -17,12 +17,12 @@ inherited fMeasurementFrame: TfMeasurementFrame
     object tsData: TTabSheet
       Caption = 'Daten'
       ClientHeight = 352
-      ClientWidth = 958
+      ClientWidth = 956
       object gData: TDBGrid
         Left = 48
         Height = 344
         Top = 4
-        Width = 591
+        Width = 589
         Align = alClient
         AutoFillColumns = True
         BorderSpacing.Around = 4
@@ -51,7 +51,7 @@ inherited fMeasurementFrame: TfMeasurementFrame
           end        
           item
             Title.Caption = 'ID'
-            Width = 119
+            Width = 117
             FieldName = 'ID'
           end>
         DataSource = Measurements
@@ -63,7 +63,7 @@ inherited fMeasurementFrame: TfMeasurementFrame
         TitleStyle = tsNative
       end
       object Panel1: TPanel
-        Left = 648
+        Left = 646
         Height = 352
         Top = 0
         Width = 310
@@ -102,7 +102,7 @@ inherited fMeasurementFrame: TfMeasurementFrame
         end
       end
       object Splitter1: TSplitter
-        Left = 643
+        Left = 641
         Height = 352
         Top = 0
         Width = 5
@@ -148,8 +148,9 @@ inherited fMeasurementFrame: TfMeasurementFrame
             AutoSize = False
             Caption = 'Optionen'
             Font.Color = clMedGray
-            Font.Height = 11
-            Font.Orientation = -900
+            Font.Height = 13
+            Font.Orientation = 900
+            Layout = tlBottom
             ParentColor = False
             ParentFont = False
           end
@@ -195,8 +196,9 @@ inherited fMeasurementFrame: TfMeasurementFrame
             AutoSize = False
             Caption = 'Navigation'
             Font.Color = clMedGray
-            Font.Height = 11
-            Font.Orientation = -900
+            Font.Height = 13
+            Font.Orientation = 900
+            Layout = tlBottom
             ParentColor = False
             ParentFont = False
           end
@@ -263,7 +265,6 @@ inherited fMeasurementFrame: TfMeasurementFrame
         )
         Align = alClient
         DoubleBuffered = True
-        ParentColor = False
         object Chart1LineSeries1: TLineSeries
         end
       end
@@ -322,11 +323,11 @@ inherited fMeasurementFrame: TfMeasurementFrame
       end
     end
   end
-  object Measurements: TDatasource[1]
+  object Measurements: TDataSource[1]
     left = 112
     top = 136
   end
-  object MeasurementData: TDatasource[2]
+  object MeasurementData: TDataSource[2]
     Enabled = False
     left = 112
     top = 192
