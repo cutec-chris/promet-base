@@ -2499,12 +2499,6 @@ inherited fMeetingFrame: TfMeetingFrame
       Hint = 'Insert hyperlink'
       ImageIndex = 28
     end
-    object ACEditSelectAll: TKMemoEditSelectAllAction
-      Category = 'Edit'
-      Caption = 'Select all'
-      Hint = 'Select all'
-      ImageIndex = 14
-    end
     object ACEditHyperlink: TAction
       Category = 'Edit'
       Caption = 'Edit hyperlink'

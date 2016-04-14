@@ -44,7 +44,6 @@ type
     acDelete: TAction;
     acDelPos: TAction;
     ACEditHyperlink: TAction;
-    ACEditSelectAll: TKMemoEditSelectAllAction;
     ACFontBold: TAction;
     ACFontItalic: TAction;
     ACFontStrikeout: TAction;
