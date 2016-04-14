@@ -54,7 +54,7 @@ inherited fLinkFrame: TfLinkFrame
         AutoSize = False
         Caption = 'Eintrag'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 13
         Font.Orientation = 900
         Layout = tlBottom
         ParentColor = False
