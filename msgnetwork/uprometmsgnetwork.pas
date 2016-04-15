@@ -144,90 +144,20 @@ begin
       else
         TAppNetworkThrd(Sender).Sock.SendString('This Connection is secure now.'+CRLF);
     end;
-  'GET','HEAD','POST','DELETE'://HTTP Request
-    begin
-      Timeout := 12000;
-      uri := fetch(FCommand, ' ');
-      if uri = '' then
-        Exit;
-      protocol := fetch(FCommand, ' ');
-      headers := TStringList.Create;
-      size := -1;
-      //read request headers
-      if protocol <> '' then
-      begin
-        if pos('HTTP/', protocol) <> 1 then
-          Exit;
-        repeat
-          s := TAppNetworkThrd(Sender).sock.RecvString(Timeout);
-          if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
-            Exit;
-          if s <> '' then
-            Headers.add(s);
-          if Pos('CONTENT-LENGTH:', Uppercase(s)) = 1 then
-            Size := StrToIntDef(SeparateRight(s, ' '), -1);
-        until s = '';
-      end;
-      //recv document...
-      InputData := TMemoryStream.Create;
-      if size >= 0 then
-      begin
-        InputData.SetSize(Size);
-        x := TAppNetworkThrd(Sender).Sock.RecvBufferEx(InputData.Memory, Size, Timeout);
-        InputData.SetSize(x);
-        if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
-          Exit;
-      end;
-      OutputData := TMemoryStream.Create;
-      ResultCode := ProcessHttpRequest(aCmd, uri, Headers, InputData, OutputData);
-      TAppNetworkThrd(Sender).sock.SendString('HTTP/1.0 ' + IntTostr(ResultCode) + CRLF);
-      if protocol <> '' then
-      begin
-        headers.Add('Content-length: ' + IntTostr(OutputData.Size));
-        headers.Add('Connection: close');
-        headers.Add('Date: ' + Rfc822DateTime(now));
-        headers.Add('Server: Avamm Internal Network');
-        headers.Add('');
-        for n := 0 to headers.count - 1 do
-          TAppNetworkThrd(Sender).sock.sendstring(headers[n] + CRLF);
-      end;
-      if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
-        Exit;
-      TAppNetworkThrd(Sender).Sock.SendBuffer(OutputData.Memory, OutputData.Size);
-      headers.Free;
-      FResult:='';
-    end;
-  'PUB'://Publish Message [GUID,TOPIC,MESSAGE]
-    begin
-      //Check if we have someone to forward this message
-      //Check if we should do something with it (Scripts,Measurements)
-      if Pubsub.Publish(copy(FCommand,0,pos(' ',FCommand)-1),copy(FCommand,pos(' ',FCommand)+1,length(FCommand))) then
-        FResult:='OK';
-    end;
-  'SUB'://Subscribe to Topic [TOPIC]
-    begin
-      Pubsub.Subscribe(FCommand);
-      FResult:='OK';
-    end;
-  'UNSUB'://Unsubscribe from Topic [TOPIC]
-    begin
-      if Pubsub.UnSubscribe(FCommand) then
-        FResult:='OK';
-    end;
   'PING':
     begin
-      FResult:='PONG';
+      Result:='PONG';
     end;
   'SHUTDOWN':
     begin
-      FResult:='OK';
+      Result:='OK';
       BaseApplication.Terminate;
     end
   else
     begin
       if (copy(aCmd,0,1)='<') and IsNumeric(copy(aCmd,2,pos('>',aCmd)-2)) then
         begin //Syslog Message
-          FResult:='ERROR: Syslog at time not implemented';
+          Result:='ERROR: Syslog at time not implemented';
         end;
     end;
   end;

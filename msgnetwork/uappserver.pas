@@ -31,6 +31,8 @@ type
 
   { TPrometNetworkDaemon }
 
+  { TAppNetworkDaemon }
+
   TAppNetworkDaemon = class(TThread)
   private
     Socks : TList;
@@ -41,6 +43,7 @@ type
     Constructor Create;
     Destructor Destroy; override;
     procedure Execute; override;
+    procedure registerCommandHandler(aHandler : TCommandHandlerProc);
     property Connections : Integer read GetConnections;
     property Sockets : TList read Socks;
   end;
@@ -127,6 +130,14 @@ begin
       until false;
     end;
 end;
+
+procedure TAppNetworkDaemon.registerCommandHandler(aHandler: TCommandHandlerProc
+  );
+begin
+  setlength(CommandHandlers,length(CommandHandlers)+1);
+  CommandHandlers[Length(CommandHandlers)-1] := aHandler;
+end;
+
 procedure TAppNetworkThrd.DoCommand(FCommand: string);
 var
   i: Integer;

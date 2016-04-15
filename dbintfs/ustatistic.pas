@@ -574,6 +574,7 @@ var
   i: Integer;
 begin
   inherited Open;
+  if not Active then exit;
   FStatus:=FieldByName('STATUS').AsString;
 end;
 
