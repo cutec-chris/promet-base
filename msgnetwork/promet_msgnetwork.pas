@@ -9,7 +9,7 @@ interface
 
 uses
   uprometmsgnetwork, uprometdataserver, uAppServer, uappserverhttp, 
-  uappserverpubsub, LazarusPackageIntf;
+  uappserverpubsub, uprometwikiserver, LazarusPackageIntf;
 
 implementation
 

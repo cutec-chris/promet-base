@@ -45,6 +45,16 @@ begin
   /wiki/folder1/page2
   }
   Result := 500;
+  if copy(lowercase(url),0,17)='/api/pds/objects/' then
+    begin
+      url := copy(url,18,length(url));
+
+    end
+  else if copy(lowercase(url),0,15)='/api/pds/lists/' then
+    begin
+      url := copy(url,16,length(url));
+
+    end;
 end;
 
 procedure DataSetToJSON(ADataSet: TDataSet; AJSON: TJSONArray;
