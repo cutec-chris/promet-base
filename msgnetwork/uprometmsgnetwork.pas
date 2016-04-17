@@ -178,7 +178,7 @@ end;
 
 initialization
   NetworkDaemon := TAppNetworkDaemon.Create;
-  NetworkDaemon.RegisterCommandHandler(@HandlePrometCommand);
+  uAppServer.RegisterCommandHandler(@HandlePrometCommand);
   uAppServer.NetworkDaemon := NetworkDaemon;
   Discovery := TPrometDiscoveryDaemon.Create;
 finalization

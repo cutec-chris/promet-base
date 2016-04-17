@@ -63,6 +63,6 @@ begin
 end;
 
 initialization
-  NetworkDaemon.RegisterCommandHandler(@HandlePubSubCommand);
+  uAppServer.RegisterCommandHandler(@HandlePubSubCommand);
 end.
 

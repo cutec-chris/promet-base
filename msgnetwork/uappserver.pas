@@ -39,11 +39,9 @@ type
     Sock:TTCPBlockSocket;
     function GetConnections: Integer;
   public
-    CommandHandlers : array of TCommandHandlerProc;
     Constructor Create;
     Destructor Destroy; override;
     procedure Execute; override;
-    procedure registerCommandHandler(aHandler : TCommandHandlerProc);
     property Connections : Integer read GetConnections;
     property Sockets : TList read Socks;
   end;
@@ -64,8 +62,11 @@ type
     procedure Execute; override;
   end;
 
+procedure RegisterCommandHandler(aHandler : TCommandHandlerProc);
+
 var
   NetworkDaemon : TAppNetworkDaemon;
+  CommandHandlers : array of TCommandHandlerProc;
 
 implementation
 
@@ -131,7 +132,7 @@ begin
     end;
 end;
 
-procedure TAppNetworkDaemon.registerCommandHandler(aHandler: TCommandHandlerProc
+procedure RegisterCommandHandler(aHandler: TCommandHandlerProc
   );
 begin
   setlength(CommandHandlers,length(CommandHandlers)+1);
@@ -142,9 +143,9 @@ procedure TAppNetworkThrd.DoCommand(FCommand: string);
 var
   i: Integer;
 begin
-  for i := 0 to Length(NetworkDaemon.CommandHandlers)-1 do
+  for i := 0 to Length(CommandHandlers)-1 do
     begin
-      FResult := NetworkDaemon.CommandHandlers[i](Self,FCommand);
+      FResult := CommandHandlers[i](Self,FCommand);
       if FResult <>'' then break;
     end;
   if FResult='' then

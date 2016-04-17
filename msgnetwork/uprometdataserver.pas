@@ -25,9 +25,7 @@ interface
 
 uses
   Classes, SysUtils,fpjson, uBaseDBInterface,uBaseDbClasses,fpsqlparser,
-  fpsqlscanner, fpsqltree,httpsend,OpenSSL, jsonparser, db;
-
-function HandleHTTPRequest(Method,URL : string;Headers : TStringList;Input,Output : TStream) : Integer;
+  fpsqlscanner, fpsqltree,httpsend,OpenSSL, jsonparser, db, uappserverhttp;
 
 procedure DataSetToJSON(ADataSet: TDataSet; AJSON: TJSONArray; const ADateAsString: Boolean; Fields: TSQLElementList = nil);
 procedure ObjectToJSON(AObject : TBaseDBDataSet; AJSON: TJSONObject;const ADateAsString: Boolean);
@@ -36,7 +34,7 @@ implementation
 
 uses usync,uBaseDatasetInterfaces;
 
-function HandleHTTPRequest(Method, URL: string;Headers : TStringList;Input,Output : TStream): Integer;
+function HandleDataRequest(Method, URL: string;Headers : TStringList;Input,Output : TStream): Integer;
 begin
   {
   /api/pds/objects/contacts
@@ -83,5 +81,7 @@ begin
       end;
 end;
 
+initialization
+  uappserverhttp.RegisterHTTPHandler(@HandleDataRequest);
 end.
 

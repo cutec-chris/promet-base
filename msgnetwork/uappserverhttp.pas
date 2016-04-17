@@ -117,6 +117,6 @@ begin
 end;
 
 initialization
-  NetworkDaemon.RegisterCommandHandler(@HandleHTTPCommand);
+  uAppServer.RegisterCommandHandler(@HandleHTTPCommand);
 end.
 
