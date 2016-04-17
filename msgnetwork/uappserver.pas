@@ -142,9 +142,13 @@ procedure TAppNetworkThrd.DoCommand(FCommand: string);
 var
   i: Integer;
 begin
-  FResult:='ERROR: failed!';
   for i := 0 to Length(NetworkDaemon.CommandHandlers)-1 do
-    if NetworkDaemon.CommandHandlers[i](Sock,FCommand)<>'' then break;
+    begin
+      FResult := NetworkDaemon.CommandHandlers[i](Self,FCommand);
+      if FResult <>'' then break;
+    end;
+  if FResult='' then
+    FResult:='ERROR: failed!';
 end;
 
 procedure TAppNetworkThrd.PubsubPublish(const Topic, Value: string);

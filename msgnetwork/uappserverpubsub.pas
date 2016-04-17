@@ -24,7 +24,7 @@ unit uappserverpubsub;
 interface
 
 uses
-  Classes, SysUtils, synautil, uprometpubsub;
+  Classes, SysUtils, synautil, uprometpubsub, uAppServer;
 
 implementation
 
@@ -62,5 +62,7 @@ begin
 
 end;
 
+initialization
+  NetworkDaemon.RegisterCommandHandler(@HandlePubSubCommand);
 end.
 

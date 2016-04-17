@@ -182,7 +182,9 @@ initialization
   uAppServer.NetworkDaemon := NetworkDaemon;
   Discovery := TPrometDiscoveryDaemon.Create;
 finalization
-  Discovery.Free;
-  NetworkDaemon.Free;
+  Discovery.Terminate;
+  NetworkDaemon.Terminate;
+  //Discovery.Free;
+  //NetworkDaemon.Free;
 end.
 

@@ -36,7 +36,6 @@ implementation
 var
   HTTPHandlers : array of THTTPHandlerProc;
 
-
 function HandleHTTPCommand(Sender : TObject;FCommand : string) : string;
 var
   aCmd, uri, protocol, s: String;
@@ -106,7 +105,7 @@ begin
         Exit;
       TAppNetworkThrd(Sender).Sock.SendBuffer(OutputData.Memory, OutputData.Size);
       headers.Free;
-      Result:='';
+      Result:=' ';
     end;
   end;
 end;
@@ -117,6 +116,7 @@ begin
   HTTPHandlers[Length(HTTPHandlers)-1] := aHandler;
 end;
 
-
+initialization
+  NetworkDaemon.RegisterCommandHandler(@HandleHTTPCommand);
 end.
 
