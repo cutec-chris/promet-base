@@ -111,6 +111,7 @@ begin
   else if Data.GetDBType='mssql' then
     begin
       Result := StringReplace(Result,'JULIANDAY(','2415020.5+CONVERT(FLOAT,',[rfReplaceAll,rfIgnoreCase]);
+      Result := StringReplace(Result,'IFNULL(','ISNULL(',[rfReplaceAll,rfIgnoreCase]);
       if pos('limit ',lowercase(Str))>0 then
         begin
           aLmt := copy(Str,pos('limit ',lowercase(Str))+6,length(Str));
