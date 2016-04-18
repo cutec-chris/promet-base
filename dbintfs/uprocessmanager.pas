@@ -113,7 +113,7 @@ begin
   if BaseApplication.HasOption('config-path') then
     cmdln := cmdln+' "--config-path='+BaseApplication.GetOptionValue('config-path')+'"';
   if ProcessExists(aProcess+ExtractFileExt(BaseApplication.ExeName),cmdln) then exit;
-  aDir := StringReplace(BaseApplication.Location,DirectorySeparator,'',[rfIgnoreCase])+DirectorySeparator;
+  aDir := BaseApplication.Location;
   if (not FileExists(UniToSys(aProcess+ExtractFileExt(BaseApplication.ExeName)))) and (not FileExists(UniToSys(aDir+aProcess+ExtractFileExt(BaseApplication.ExeName)))) then
     begin
       aDir := GetCurrentDir+DirectorySeparator;
