@@ -43,7 +43,7 @@ object FAutomation: TFAutomation
         BorderSpacing.Left = 5
         Caption = 'Eintrag'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 13
         ParentColor = False
         ParentFont = False
       end
@@ -84,7 +84,7 @@ object FAutomation: TFAutomation
         BorderSpacing.Left = 5
         Caption = 'Erweitert'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 13
         ParentColor = False
         ParentFont = False
       end
@@ -211,6 +211,15 @@ object FAutomation: TFAutomation
         Flat = True
         ShowCaption = False
       end
+      object bNet: TToggleBox
+        Left = 32
+        Height = 28
+        Top = 12
+        Width = 34
+        Caption = 'Net'
+        OnChange = bNetChange
+        TabOrder = 0
+      end
     end
     object Panel7: TPanel
       Left = 124
@@ -234,7 +243,7 @@ object FAutomation: TFAutomation
         BorderSpacing.Left = 5
         Caption = 'Ebene'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 13
         ParentColor = False
         ParentFont = False
       end
@@ -250,25 +259,25 @@ object FAutomation: TFAutomation
       end
       object rbOrder: TRadioButton
         Left = 4
-        Height = 17
+        Height = 19
         Top = 12
-        Width = 55
+        Width = 60
         Caption = 'Auftrag'
         TabOrder = 0
       end
       object rbList: TRadioButton
         Left = 72
-        Height = 17
+        Height = 19
         Top = 12
-        Width = 40
+        Width = 44
         Caption = 'Liste'
         TabOrder = 1
       end
       object rbArticle: TRadioButton
         Left = 128
-        Height = 17
+        Height = 19
         Top = 12
-        Width = 48
+        Width = 54
         Caption = 'Artikel'
         Checked = True
         TabOrder = 2
@@ -276,9 +285,9 @@ object FAutomation: TFAutomation
       end
       object rbNoData: TRadioButton
         Left = 4
-        Height = 17
+        Height = 19
         Top = 32
-        Width = 75
+        Width = 82
         Caption = 'keine Daten'
         TabOrder = 3
       end
@@ -290,8 +299,7 @@ object FAutomation: TFAutomation
       Width = 261
       Align = alRight
       BorderStyle = bsNone
-      DefaultItemHeight = 16
-      Images = fVisualControls.Images
+      DefaultItemHeight = 18
       ReadOnly = True
       ScrollBars = ssAutoVertical
       TabOrder = 4
@@ -313,8 +321,8 @@ object FAutomation: TFAutomation
     TabOrder = 1
     object ipWorkHTML: TIpHtmlPanel
       Left = 0
-      Height = 434
-      Top = 88
+      Height = 433
+      Top = 89
       Width = 816
       Align = alClient
       FixedTypeface = 'Courier New'
@@ -369,7 +377,7 @@ object FAutomation: TFAutomation
       end
       object lStep: TLabel
         Left = 0
-        Height = 16
+        Height = 17
         Top = 0
         Width = 816
         Align = alTop
@@ -404,7 +412,7 @@ object FAutomation: TFAutomation
     end
     object lStatusProblems: TLabel
       Left = 8
-      Height = 16
+      Height = 17
       Top = 64
       Width = 800
       Align = alTop

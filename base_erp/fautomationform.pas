@@ -45,6 +45,9 @@ type
     property Data : string read FData;
     property OnData : TNotifyEvent read FOnData write FOnData;
   end;
+
+  { TFAutomation }
+
   TFAutomation = class(TForm)
     acAbort: TAction;
     acExecuteStep: TAction;
@@ -98,6 +101,7 @@ type
     sbMenue3: TSpeedButton;
     sbMenue4: TSpeedButton;
     sbMenue5: TSpeedButton;
+    bNet: TToggleBox;
     ToolBar1: TPanel;
     ToolButton1: TSpeedButton;
     ToolButton2: TSpeedButton;
@@ -109,10 +113,12 @@ type
     procedure acPrepareExecute(Sender: TObject);
     procedure acProduceExecute(Sender: TObject);
     procedure acReadyExecute(Sender: TObject);
+    procedure bNetChange(Sender: TObject);
     function FCacheGetFile(URL: string; var NewPath: string): TStream;
     procedure fLogWaitFormbAbortClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FSocketTerminate(Sender: TObject);
     procedure TreeDataScriptScriptRunLine(Sender: TScript; Module: string;
       aPosition, aRow, aCol: Integer);
     procedure tvStepSelectionChanged(Sender: TObject);
@@ -369,6 +375,17 @@ begin
   FindNextStep;
 end;
 
+procedure TFAutomation.bNetChange(Sender: TObject);
+begin
+  if bNet.Checked then
+    if not Assigned(FSocket) then
+      begin
+        FSocket := TTCPCommandDaemon.Create;
+        FSocket.OnData:=@FSocketData;
+        FSocket.OnTerminate:=@FSocketTerminate;
+      end;
+end;
+
 function TFAutomation.FCacheGetFile(URL: string; var NewPath: string): TStream;
 var
   TreeData: TProdTreeData;
@@ -467,6 +484,8 @@ procedure TFAutomation.FormCreate(Sender: TObject);
 begin
   FSocket := TTCPCommandDaemon.Create;
   FSocket.OnData:=@FSocketData;
+  FSocket.OnTerminate:=@FSocketTerminate;
+  bNet.Checked:=True;
   FCache := TFileCache.Create(30);
   FCache.OnGetFile:=@FCacheGetFile;
 end;
@@ -474,8 +493,18 @@ end;
 procedure TFAutomation.FormDestroy(Sender: TObject);
 begin
   FCache.Free;
-  FSocket.Terminate;
-  FSocket.OnData:=nil;
+  if Assigned(FSocket) then
+    begin
+      FSocket.Terminate;
+      FSocket.OnData:=nil;
+      FSocket.WaitFor;
+    end;
+end;
+
+procedure TFAutomation.FSocketTerminate(Sender: TObject);
+begin
+  bNet.Checked:=False;
+  FSocket := nil;
 end;
 
 procedure TFAutomation.TreeDataScriptScriptRunLine(Sender: TScript;
