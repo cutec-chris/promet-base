@@ -185,7 +185,11 @@ var
 implementation
 
 uses Utils,uBaseVisualControls,uMasterdata,uData,uOrder,variants,uLogWait,
-  uautomationframe,wikitohtml;
+  uautomationframe,wikitohtml
+  {$IFDEF WINDOWS}
+  ,Windows
+  {$ENDIF}
+  ;
 
 resourcestring
   strDoPick                             = 'kommissionieren';
@@ -220,7 +224,7 @@ begin
   ConnectionSocket := TTCPBlockSocket.Create;
   FSocket.CreateSocket;
   FSocket.setLinger(true,10);
-  FSocket.Bind('localhost','9874');
+  FSocket.Bind('127.0.0.1','9874');
   FSocket.Listen;
   if FSocket.LastError = 0 then
     begin
@@ -1138,6 +1142,13 @@ begin
       FAutomation.BringToFront;
       if Assigned(FAutomation.Parent) then
         FAutomation.Parent.BringToFront;
+      Application.BringToFront;
+      {$IFDEF WINDOWS}
+      if IsIconic(Application.MainForm.Handle) then
+       ShowWindow(Application.MainForm.Handle, SW_SHOWNOACTIVATE);
+      SetWindowPos(Application.MainForm.Handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE or SWP_NOACTIVATE or SWP_NOMOVE);
+      SetWindowPos(Application.MainForm.Handle, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE or SWP_NOACTIVATE or SWP_NOMOVE);
+      {$ENDIF}
     end;
 end;
 
