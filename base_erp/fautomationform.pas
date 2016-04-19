@@ -1131,8 +1131,19 @@ begin
     FAutomation.ClearScreen;
 end;
 
+procedure InternalBringToFront(Sender : TObject);
+begin
+  if Assigned(FAutomation) then
+    begin
+      FAutomation.BringToFront;
+      if Assigned(FAutomation.Parent) then
+        FAutomation.Parent.BringToFront;
+    end;
+end;
+
 initialization
   {$I fautomationform.lrs}
   genscript.DoClearScreen:=@InternalClearScreen;
+  genscript.DoBringToFront:=@InternalBringToFront;
 end.
 
