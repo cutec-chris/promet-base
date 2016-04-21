@@ -1,7 +1,7 @@
 object fHistoryAddItem: TfHistoryAddItem
-  Left = 414
+  Left = 413
   Height = 243
-  Top = 257
+  Top = 231
   Width = 559
   ActiveControl = eAction
   Caption = 'Neuer Verlaufseintrag'
@@ -10,11 +10,11 @@ object fHistoryAddItem: TfHistoryAddItem
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poMainFormCenter
-  LCLVersion = '1.4.4.0'
+  LCLVersion = '1.7'
   object ButtonPanel1: TButtonPanel
     Left = 6
-    Height = 34
-    Top = 203
+    Height = 42
+    Top = 195
     Width = 547
     OKButton.Name = 'OKButton'
     OKButton.DefaultCaption = True
@@ -29,16 +29,16 @@ object fHistoryAddItem: TfHistoryAddItem
   end
   object lAction: TLabel
     Left = 8
-    Height = 13
+    Height = 17
     Top = 8
-    Width = 30
+    Width = 35
     Caption = 'Aktion'
     ParentColor = False
   end
   object lReference: TLabel
     Left = 8
-    Height = 13
-    Top = 146
+    Height = 17
+    Top = 142
     Width = 300
     Anchors = [akLeft, akRight, akBottom]
     Caption = 'Referenz'
@@ -46,8 +46,8 @@ object fHistoryAddItem: TfHistoryAddItem
   end
   object eReference: TEdit
     Left = 8
-    Height = 21
-    Top = 163
+    Height = 27
+    Top = 157
     Width = 383
     Anchors = [akLeft, akRight, akBottom]
     TabOrder = 1
@@ -60,7 +60,6 @@ object fHistoryAddItem: TfHistoryAddItem
     Width = 383
     Anchors = [akTop, akLeft, akRight, akBottom]
     TabOrder = 0
-    WordWrap = False
   end
   object lbAdditional: TListBox
     Left = 396
@@ -74,6 +73,7 @@ object fHistoryAddItem: TfHistoryAddItem
     ScrollWidth = 155
     Style = lbOwnerDrawFixed
     TabOrder = 3
+    TopIndex = -1
   end
   object Label1: TLabel
     Left = 380
