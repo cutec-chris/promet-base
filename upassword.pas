@@ -55,10 +55,13 @@ type
     procedure SpeedButton1Click(Sender: TObject);
   private
     { private declarations }
+    FUserSelectable: Boolean;
+    FSHint: String;
     procedure StartWizardMandant;
+    procedure RefreshList;
   public
     { public declarations }
-    function Execute(aHint : string = '';UserSelectable : Boolean = True) : Boolean;
+    function Execute(aHint: string=''; aUserSelectable: Boolean=True): Boolean;
   end; 
 
 var
@@ -67,7 +70,7 @@ var
 implementation
 {$R *.lfm}
 uses
-  uMashineID,uData,UTF8Process,Process,ubaseconfig;
+  uMashineID,uData,UTF8Process,Process,ubaseconfig,uWizardNewMandant;
 { TfPassword }
 
 procedure TfPassword.cbMandantSelect(Sender: TObject);
@@ -219,43 +222,18 @@ begin
 end;
 
 procedure TfPassword.StartWizardMandant;
-var
-  aProcess: TProcessUTF8;
 begin
-  aProcess := TProcessUTF8.Create(Self);
-  aProcess.CommandLine:=AppendPathDelim(Application.Location)+'wizardmandant'+ExtractFileExt(Application.ExeName);
-  if Application.HasOption('c','config-path') then
-    aProcess.CommandLine:=aProcess.CommandLine+' "--config-path='+Application.GetOptionValue('c','config-path')+'"';
-  if Application.HasOption('database') then
+  with TfWizardNewMandant.Create(Application) do
     begin
-      aProcess.CommandLine:=aProcess.CommandLine+' "--database='+Application.GetOptionValue('database')+'"';
-      aProcess.CommandLine:=aProcess.CommandLine+' --silent';
+      ShowModal;
+      RefreshList;
     end;
-  if Application.HasOption('firebird') then
-    begin
-      aProcess.CommandLine:=aProcess.CommandLine+' --firebird';
-    end;
-  aProcess.CommandLine:=aProcess.CommandLine+' "--execute='+Application.ExeName+'"';
-  aProcess.Options := [poNoConsole];
-  try
-    aProcess.Execute;
-    Application.Terminate;
-  except
-    aProcess.Free;
-    raise Exception.Create(strNoMandants);
-  end;
 end;
 
-function TfPassword.Execute(aHint : string = '';UserSelectable : Boolean = True): Boolean;
+procedure TfPassword.RefreshList;
 var
-  AInfo: TSearchRec;
+  aInfo : TSearchRec;
 begin
-  Result := False;
-  if not Assigned(Self) then
-    begin
-      Application.CreateForm(TfPassword,fPassword);
-      Self := fPassword;
-    end;
   lFirstLogin.Caption:='';
   lFirstLogin.Visible:=False;
   lFirstLogin.Height:=0;
@@ -312,16 +290,29 @@ begin
             end;
         end;
     end;
-  cbMandant.Enabled:=UserSelectable;
-  cbUser.Enabled:=UserSelectable;
+  cbMandant.Enabled:=FUserSelectable;
+  cbUser.Enabled:=FUserSelectable;
   ePasswort.Text:='';
-  if aHint <> '' then
+  if FSHint <> '' then
     begin
       lFirstLogin.AutoSize:=True;
       lFirstLogin.Visible:=True;
-      lFirstLogin.Caption:=aHint;
+      lFirstLogin.Caption:=FSHint;
       lFirstLoginResize(nil);
     end;
+end;
+
+function TfPassword.Execute(aHint : string = '';aUserSelectable : Boolean = True): Boolean;
+begin
+  Result := False;
+  if not Assigned(Self) then
+    begin
+      Application.CreateForm(TfPassword,fPassword);
+      Self := fPassword;
+    end;
+  FSHint := aHint;
+  FUserSelectable := aUserSelectable;
+  RefreshList;
   Result := Showmodal = mrOK;
 end;
 initialization

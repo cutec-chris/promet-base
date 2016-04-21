@@ -22,7 +22,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Buttons, DbCtrls, StdCtrls,
   ComCtrls, ExtCtrls, Menus, ActnList, uOptionsFrame, db, uBaseDbClasses,
-  uBaseVisualControls, DBZVDateTimePicker;
+  DBZVDateTimePicker;
 type
   TUserTreeEntry = class
     Rec : Int64;

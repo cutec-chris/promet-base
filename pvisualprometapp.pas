@@ -4,12 +4,11 @@
 
 unit pVisualPrometApp;
 
-{$warn 5023 off : no warning about unused units}
 interface
 
 uses
   uBaseVisualApplication, ubasevisualapplicationtools, uBaseVisualControls, 
-  uFormAnimate, uPassword;
+  uFormAnimate, uPassword, uWizardNewMandant;
 
 implementation
 

@@ -11,7 +11,7 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="11">
+    <Files Count="12">
       <Item1>
         <Filename Value="ubasevisualapplication.pas"/>
         <UnitName Value="uBaseVisualApplication"/>
@@ -56,47 +56,55 @@
         <Filename Value="changes.txt"/>
         <Type Value="Text"/>
       </Item11>
+      <Item12>
+        <Filename Value="uwizardnewmandant.pas"/>
+        <UnitName Value="uWizardNewMandant"/>
+      </Item12>
     </Files>
-    <RequiredPkgs Count="10">
+    <RequiredPkgs Count="11">
       <Item1>
-        <PackageName Value="promet_dblayer_zeos"/>
-        <DefaultFilename Value="dblayer_zeos\promet_dblayer_zeos.lpk"/>
+        <PackageName Value="pOptions"/>
+        <DefaultFilename Value="base_options\poptions.lpk"/>
       </Item1>
       <Item2>
-        <PackageName Value="pscripts"/>
-        <DefaultFilename Value="base_scripts\pscripts.lpk"/>
+        <PackageName Value="promet_dblayer_zeos"/>
+        <DefaultFilename Value="dblayer_zeos\promet_dblayer_zeos.lpk"/>
       </Item2>
       <Item3>
-        <PackageName Value="v103_lazarus"/>
-        <DefaultFilename Value="..\components\tvplanit\packages\v103_lazarus.lpk"/>
+        <PackageName Value="pscripts"/>
+        <DefaultFilename Value="base_scripts\pscripts.lpk"/>
       </Item3>
       <Item4>
-        <PackageName Value="ZVDateTimeCtrls"/>
-        <DefaultFilename Value="..\components\zvdatetimectrls\zvdatetimectrls.lpk"/>
+        <PackageName Value="v103_lazarus"/>
+        <DefaultFilename Value="..\components\tvplanit\packages\v103_lazarus.lpk"/>
       </Item4>
       <Item5>
-        <PackageName Value="laz_twain"/>
-        <DefaultFilename Value="..\components\scanning\laz_twain.lpk"/>
+        <PackageName Value="ZVDateTimeCtrls"/>
+        <DefaultFilename Value="..\components\zvdatetimectrls\zvdatetimectrls.lpk"/>
       </Item5>
       <Item6>
-        <PackageName Value="pack_powerpdf"/>
-        <DefaultFilename Value="..\components\powerpdf\pack_powerpdf.lpk"/>
+        <PackageName Value="laz_twain"/>
+        <DefaultFilename Value="..\components\scanning\laz_twain.lpk"/>
       </Item6>
       <Item7>
-        <PackageName Value="sanetools"/>
-        <DefaultFilename Value="..\components\scanning\sanetools.lpk"/>
+        <PackageName Value="pack_powerpdf"/>
+        <DefaultFilename Value="..\components\powerpdf\pack_powerpdf.lpk"/>
       </Item7>
       <Item8>
-        <PackageName Value="lazreport"/>
+        <PackageName Value="sanetools"/>
+        <DefaultFilename Value="..\components\scanning\sanetools.lpk"/>
       </Item8>
       <Item9>
-        <PackageName Value="pPrometDBIntfs"/>
-        <DefaultFilename Value="dbintfs\pprometdbintfs.lpk"/>
+        <PackageName Value="lazreport"/>
       </Item9>
       <Item10>
+        <PackageName Value="pPrometDBIntfs"/>
+        <DefaultFilename Value="dbintfs\pprometdbintfs.lpk"/>
+      </Item10>
+      <Item11>
         <PackageName Value="general"/>
         <DefaultFilename Value="..\..\..\general\general.lpk"/>
-      </Item10>
+      </Item11>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

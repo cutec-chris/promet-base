@@ -91,12 +91,11 @@
     </Files>
     <RequiredPkgs Count="3">
       <Item1>
-        <PackageName Value="pscripts"/>
-        <DefaultFilename Value="..\base_scripts\pscripts.lpk"/>
+        <PackageName Value="ZVDateTimeCtrls"/>
       </Item1>
       <Item2>
-        <PackageName Value="pvisualforms"/>
-        <DefaultFilename Value="..\base_forms\pvisualforms.lpk"/>
+        <PackageName Value="pscripts"/>
+        <DefaultFilename Value="..\base_scripts\pscripts.lpk"/>
       </Item2>
       <Item3>
         <PackageName Value="FCL"/>

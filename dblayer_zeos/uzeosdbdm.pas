@@ -2032,7 +2032,10 @@ begin
         //Get uncached
         if not Assigned(aConnection) then
           begin
-            FMainConnection.DbcConnection.GetMetadata.ClearCache;
+            try
+              FMainConnection.DbcConnection.GetMetadata.ClearCache;
+            except
+            end;
             FMainConnection.GetTableNames('','',Tables);
             FMainConnection.GetTriggerNames('','',Triggers);
           end
