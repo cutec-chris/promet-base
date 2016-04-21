@@ -370,11 +370,11 @@ inherited fMeetingFrame: TfMeetingFrame
       end
       object cbStatus: TComboBox
         Left = 1
-        Height = 29
+        Height = 23
         Hint = 'hier können Sie den Status des vorgangs ändern um ihn in neue Zustände zu überführen'
         Top = 12
         Width = 137
-        ItemHeight = 0
+        ItemHeight = 15
         OnSelect = cbStatusSelect
         Style = csDropDownList
         TabOrder = 0
@@ -384,7 +384,7 @@ inherited fMeetingFrame: TfMeetingFrame
       Left = 392
       Height = 15
       Top = 24
-      Width = 61
+      Width = 53
       Caption = 'Einleitung'
       ParentColor = False
     end
@@ -433,7 +433,7 @@ inherited fMeetingFrame: TfMeetingFrame
       Left = 9
       Height = 15
       Top = 0
-      Width = 35
+      Width = 32
       Caption = 'Name'
       ParentColor = False
     end
@@ -451,7 +451,7 @@ inherited fMeetingFrame: TfMeetingFrame
     end
     object eName: TDBEdit
       Left = 9
-      Height = 25
+      Height = 23
       Top = 16
       Width = 359
       DataField = 'NAME'
@@ -462,10 +462,10 @@ inherited fMeetingFrame: TfMeetingFrame
       OnChange = eNameChange
     end
     object dtStart: TDBZVDateTimePicker
-      Left = 555
-      Height = 21
+      Left = 584
+      Height = 23
       Top = 0
-      Width = 147
+      Width = 118
       DataField = 'STARTTIME'
       DataSource = Datasource
       ReadOnly = False
@@ -486,10 +486,10 @@ inherited fMeetingFrame: TfMeetingFrame
       MonthNames = 'Long'
     end
     object dtEnd: TDBZVDateTimePicker
-      Left = 645
-      Height = 21
+      Left = 652
+      Height = 23
       Top = 26
-      Width = 57
+      Width = 50
       DataField = 'ENDTIME'
       DataSource = Datasource
       ReadOnly = False
@@ -522,16 +522,16 @@ inherited fMeetingFrame: TfMeetingFrame
     NewTabImageIndex = 0
     object tsMeeting: TTabSheet
       Caption = 'Besprechung'
-      ClientHeight = 1166
-      ClientWidth = 1400
+      ClientHeight = 588
+      ClientWidth = 698
       object tbLeft: TPanel
         Left = 0
-        Height = 583
+        Height = 588
         Top = 0
         Width = 64
         Align = alLeft
         BevelOuter = bvNone
-        ClientHeight = 583
+        ClientHeight = 588
         ClientWidth = 64
         TabOrder = 1
         object Panel1: TPanel
@@ -756,18 +756,18 @@ inherited fMeetingFrame: TfMeetingFrame
         end
         object pEdit: TPanel
           Left = 0
-          Height = 360
+          Height = 365
           Top = 223
           Width = 64
           Align = alClient
           BevelOuter = bvNone
-          ClientHeight = 360
+          ClientHeight = 365
           ClientWidth = 64
           TabOrder = 3
           Visible = False
           object ExtRotatedLabel2: TExtRotatedLabel
             Left = 0
-            Height = 360
+            Height = 365
             Top = 0
             Width = 14
             Align = alLeft
@@ -782,10 +782,10 @@ inherited fMeetingFrame: TfMeetingFrame
           end
           inline fEditorToolbar1: TfEditorToolbar
             Left = 14
-            Height = 360
+            Height = 365
             Width = 50
             Align = alRight
-            ClientHeight = 360
+            ClientHeight = 365
             ClientWidth = 50
             inherited ToBSecond: TToolBar
               Width = 50
@@ -794,7 +794,7 @@ inherited fMeetingFrame: TfMeetingFrame
         end
       end
       object pSearch: TPanel
-        Left = -3331
+        Left = -4033
         Height = 72
         Top = 216
         Width = 452
@@ -816,7 +816,6 @@ inherited fMeetingFrame: TfMeetingFrame
           ScrollWidth = 450
           TabOrder = 0
           TabStop = False
-          TopIndex = -1
         end
       end
     end

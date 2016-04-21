@@ -925,6 +925,7 @@ var
   Hist : IBaseHistory;
 begin
   fSelectReport.Report := Report;
+  Report.OnGetValue:=@ReportGetValue;
   PList.DataSet := DataSet.DataSet;
   fSelectReport.SetLanguage;
   acRefresh.Execute;
