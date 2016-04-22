@@ -629,6 +629,7 @@ begin
               begin
                 if (copy(Connection.Protocol,0,8) = 'postgres') then
                   aSQL := 'ALTER TABLE '+QuoteField(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' TYPE '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';'
+                else if (copy(Connection.Protocol,0,6) = 'sqlite') then
                 else
                   aSQL := 'ALTER TABLE '+QuoteField(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
                 with BaseApplication as IBaseApplication do

@@ -53,12 +53,15 @@ type
     property Connection : TComponent read FConnection write SetConnection;
     property DataSet : TBaseDBDataSet read FDataSet write SetDataSet;
     procedure CloseConnection(Ask : Boolean = True);virtual;
-
-    function DefineMenuEntry(aParent : Variant;aName : string;aLink : string;aIcon : Integer) : Variant;
-
+    procedure OpenConnection;virtual;
+    procedure Save;virtual;
+    procedure Abort;virtual;
     function CanHandleLink(aLink : string) : Boolean;virtual;abstract;
     function OpenFromLink(aLink : string) : Boolean;virtual;
     procedure New;virtual;
+
+    function DefineMenuEntry(aParent : Variant;aName : string;aLink : string;aIcon : Integer) : Variant;
+
     procedure ListFrameAdded(aFrame : TObject);virtual;abstract;//Configure your List/Filter Frame
     function HasListFrame : Boolean;virtual;
     procedure DoSetup;virtual;abstract;
@@ -148,9 +151,9 @@ begin
 end;
 destructor TPrometMainFrame.Destroy;
 begin
-  if Assigned(FConnection) then
+  CloseConnection;
+  if Assigned(FConnection) and (FConnection<>Data.MainConnection) then
     begin
-      CloseConnection;
       FreeAndNil(FConnection);
     end;
   if Assigned(FDataSet) then
@@ -162,14 +165,8 @@ begin
 end;
 procedure TPrometMainFrame.New;
 begin
-  if Assigned(FConnection) then
-    begin
-      CloseConnection;
-      FConnection.Free;
-    end;
-  if FUseTransactions then
-    with Application as IBaseDbInterface do
-      FConnection := Data.GetNewConnection;
+  CloseConnection;
+  OpenConnection;
 end;
 
 function TPrometMainFrame.HasListFrame: Boolean;
@@ -215,6 +212,44 @@ begin
   end;
 end;
 
+procedure TPrometMainFrame.OpenConnection;
+begin
+  if UseTransactions then
+    begin
+      CloseConnection;
+      if not Assigned(FConnection) then
+        FConnection := Data.GetNewConnection;
+      Data.StartTransaction(FConnection);
+    end
+  else FConnection := Data.MainConnection;
+end;
+
+procedure TPrometMainFrame.Save;
+begin
+  if Assigned(FConnection) then
+    begin
+      FDataSet.CascadicPost;
+      if UseTransactions then
+        begin
+          Data.CommitTransaction(FConnection);
+          Data.StartTransaction(FConnection);
+        end;
+    end;
+end;
+
+procedure TPrometMainFrame.Abort;
+begin
+  if Assigned(FConnection) then
+    begin
+      FDataSet.CascadicCancel;
+      if UseTransactions then
+        begin
+          Data.RollbackTransaction(FConnection);
+          Data.StartTransaction(FConnection);
+        end;
+    end;
+end;
+
 function TPrometMainFrame.DefineMenuEntry(aParent: Variant; aName: string;
   aLink: string; aIcon: Integer): Variant;
 begin
@@ -237,6 +272,7 @@ end;
 function TPrometMainFrame.OpenFromLink(aLink: string): Boolean;
 begin
   FLink := aLink;
+  OpenConnection;
 end;
 
 procedure TPrometMainFrame.CloseFrame;

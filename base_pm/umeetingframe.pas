@@ -293,13 +293,7 @@ end;
 
 procedure TfMeetingFrame.acSaveExecute(Sender: TObject);
 begin
-  if Assigned(FConnection) or (not UseTransactions) then
-    begin
-      FDataSet.CascadicPost;
-      //Data.Commit(FConnection);
-      //Data.StartTransaction(FConnection);
-      acRefresh.Execute;
-    end;
+  Save;
 end;
 
 procedure TfMeetingFrame.acSetTopicExecute(Sender: TObject);
@@ -839,12 +833,7 @@ end;
 
 procedure TfMeetingFrame.acCancelExecute(Sender: TObject);
 begin
-  if Assigned(FConnection) or (not UseTransactions) then
-    begin
-      FDataSet.CascadicCancel;
-      //Data.Rollback(FConnection);
-      //Data.StartTransaction(FConnection);
-    end;
+  Abort;
 end;
 
 procedure TfMeetingFrame.acAddPosExecute(Sender: TObject);
@@ -1182,15 +1171,13 @@ end;
 
 function TfMeetingFrame.OpenFromLink(aLink: string): Boolean;
 begin
+  inherited;
   result := False;
   if not (copy(aLink,0,8) = 'MEETINGS') then exit;
   if rpos('{',aLink) > 0 then
     aLink := copy(aLink,0,rpos('{',aLink)-1)
   else if rpos('(',aLink) > 0 then
     aLink := copy(aLink,0,rpos('(',aLink)-1);
-  CloseConnection;
-  if not Assigned(FConnection) then
-    FConnection := Data.GetNewConnection;
   DataSet := TMeetings.CreateEx(Self,Data,FConnection);
   DataSet.OnChange:=@DataSetChange;
   Data.SetFilter(FDataSet,Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(copy(aLink,pos('@',aLink)+1,length(aLink))),1);
@@ -1206,10 +1193,7 @@ procedure TfMeetingFrame.New;
 var
   aFrame: TfMeetingUsers;
 begin
-  CloseConnection;
-  if not Assigned(FConnection) then
-    FConnection := Data.GetNewConnection;
-  //Data.StartTransaction(FConnection);
+  inherited;
   DataSet := TMeetings.CreateEx(Self,Data,FConnection);
   DataSet.OnChange:=@DataSetChange;
   DataSet.Select(0);
@@ -1225,12 +1209,10 @@ end;
 
 destructor TfMeetingFrame.Destroy;
 begin
-  if Assigned(FConnection) then
+  if Assigned(DataSet) then
     begin
-      CloseConnection(acSave.Enabled);
       DataSet.Destroy;
       DataSet := nil;
-      FreeAndNil(FConnection);
     end;
   FOwners.Free;
   inherited Destroy;

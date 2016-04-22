@@ -218,15 +218,7 @@ resourcestring
   strPiecelist                               = 'Stückliste';
 procedure TfArticleFrame.acSaveExecute(Sender: TObject);
 begin
-  if Assigned(FConnection) then
-    begin
-      FDataSet.CascadicPost;
-      if UseTransactions then
-        begin
-          Data.CommitTransaction(FConnection);
-          Data.StartTransaction(FConnection);
-        end;
-    end;
+  Save;
 end;
 procedure TfArticleFrame.acScreenshotExecute(Sender: TObject);
 var
@@ -380,8 +372,7 @@ begin
   CloseConnection;
   Screen.Cursor:=crHourglass;
   application.ProcessMessages;
-  if UseTransactions then
-    Data.StartTransaction(FConnection);
+  OpenConnection;
   TMasterdata(DataSet).Positions.Close;
   TMasterdata(DataSet).Select(aId,cbVersion.Text,aLanguage);
   DataSet.DataSet.DisableControls;
@@ -482,15 +473,7 @@ begin
 end;
 procedure TfArticleFrame.acCancelExecute(Sender: TObject);
 begin
-  if Assigned(FConnection) then
-    begin
-      FDataSet.CascadicCancel;
-      if UseTransactions then
-        begin
-          Data.RollbackTransaction(FConnection);
-          Data.StartTransaction(FConnection);
-        end;
-    end;
+  Abort;
 end;
 procedure TfArticleFrame.acCloseExecute(Sender: TObject);
 begin
@@ -503,12 +486,7 @@ begin
       Screen.Cursor := crHourglass;
       Application.ProcessMessages;
       DataSet.Delete;
-      FDataSet.CascadicCancel;
-      if UseTransactions then
-        begin
-          Data.CommitTransaction(FConnection);
-          Data.StartTransaction(FConnection);
-        end;
+      Abort;
       acClose.Execute;
       Screen.Cursor := crDefault;
     end;
@@ -1024,11 +1002,10 @@ begin
 end;
 destructor TfArticleFrame.Destroy;
 begin
-  if Assigned(FConnection) then
+  if Assigned(DataSet) then
     begin
-      CloseConnection(acSave.Enabled);
-      FreeAndNil(FDataSet);
-      FreeAndNil(FConnection);
+      DataSet.Destroy;
+      DataSet := nil;
     end;
   inherited Destroy;
 end;
@@ -1042,11 +1019,6 @@ function TfArticleFrame.OpenFromLink(aLink: string) : Boolean;
 begin
   inherited;
   if not CanHandleLink(aLink) then exit;
-  CloseConnection;
-  if not Assigned(FConnection) then
-    FConnection := Data.GetNewConnection;
-  if UseTransactions then
-    Data.StartTransaction(FConnection);
   DataSet := TMasterdata.CreateEx(Self,Data,FConnection);
   DataSet.OnChange:=@MasterdataStateChange;
   TBaseDbList(DataSet).SelectFromLink(aLink);
@@ -1074,12 +1046,8 @@ end;
 
 procedure TfArticleFrame.New;
 begin
-  CloseConnection;
-  if not Assigned(FConnection) then
-    FConnection := Data.GetNewConnection;
+  inherited;
   TabCaption := strNewArticle;
-  if UseTransactions then
-    Data.StartTransaction(FConnection);
   DataSet := TMasterdata.CreateEx(Self,Data,FConnection);
   DataSet.OnChange:=@MasterdataStateChange;
   DataSet.Select(0);
