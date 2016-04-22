@@ -522,8 +522,8 @@ inherited fMeetingFrame: TfMeetingFrame
     NewTabImageIndex = 0
     object tsMeeting: TTabSheet
       Caption = 'Besprechung'
-      ClientHeight = 588
-      ClientWidth = 698
+      ClientHeight = 1176
+      ClientWidth = 1396
       object tbLeft: TPanel
         Left = 0
         Height = 588
