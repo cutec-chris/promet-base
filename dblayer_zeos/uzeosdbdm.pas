@@ -2032,16 +2032,15 @@ begin
         //Get uncached
         if not Assigned(aConnection) then
           begin
-            try
+            if FMainConnection.DbcConnection<>nil then
               FMainConnection.DbcConnection.GetMetadata.ClearCache;
-            except
-            end;
             FMainConnection.GetTableNames('','',Tables);
             FMainConnection.GetTriggerNames('','',Triggers);
           end
         else
           begin
-            TZConnection(aConnection).DbcConnection.GetMetadata.ClearCache;
+            if FMainConnection.DbcConnection<>nil then
+              TZConnection(aConnection).DbcConnection.GetMetadata.ClearCache;
             TZConnection(aConnection).GetTableNames('','',Tables);
             FMainConnection.GetTriggerNames('','',Triggers);
           end;
