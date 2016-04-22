@@ -137,6 +137,7 @@ begin
         end;
       Data.Users.CreateTable;
       Data.Users.Open;
+      Data.Users.First;
       while not Data.Users.DataSet.EOF do
         begin
           if Data.Users.Leaved.IsNull and (Data.Users.FieldByName('TYPE').AsString <> 'G') and ((not Assigned(Data.Users.FieldByName('LOGINACTIVE'))) or (Data.Users.FieldByName('LOGINACTIVE').AsString<>'N')) then
@@ -238,6 +239,7 @@ begin
   lFirstLogin.Visible:=False;
   lFirstLogin.Height:=0;
   lFirstLoginResize(nil);
+  cbMandant.Clear;
   with Application as IBaseApplication,Application as IBaseConfig do
     begin
       if cbMandant.Items.Count = 0 then
