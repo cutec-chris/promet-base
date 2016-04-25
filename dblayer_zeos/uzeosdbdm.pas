@@ -1572,7 +1572,7 @@ begin
         FConnection.ExecuteDirect('PRAGMA foreign_keys = ON;');
         FConnection.ExecuteDirect('PRAGMA case_sensitive_like = ON;');
         //FConnection.ExecuteDirect('PRAGMA secure_delete = ON;');
-        FConnection.ExecuteDirect('PRAGMA incremental_vacuum(50);');
+        //FConnection.ExecuteDirect('PRAGMA incremental_vacuum(50);');
       end
     else if (copy(FConnection.Protocol,0,8) = 'firebird')
          or (copy(FConnection.Protocol,0,9) = 'interbase') then
