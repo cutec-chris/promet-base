@@ -1521,16 +1521,20 @@ begin
     FConnection.BeforeConnect:=@FConnectionBeforeConnect;
     FConnection.AfterConnect:=@FConnectionAfterConnect;
     if (copy(FConnection.Protocol,0,6) = 'sqlite')
-    or (copy(FConnection.Protocol,0,8) = 'postgres')
+    then
+      begin
+        if not FileExists(FConnection.Database) then
+          raise Exception.Create('Databasefile dosend exists');
+        FConnection.TransactIsolationLevel:=tiNone;
+      end;
+    if (copy(FConnection.Protocol,0,8) = 'postgres')
     then
       begin
         {$IFDEF CPUARM}
         FConnection.Properties.Add('sslmode=disable');
         {$ENDIF}
         FConnection.TransactIsolationLevel:=tiNone;
-        if (copy(FConnection.Protocol,0,6) = 'sqlite') then
-          if not FileExists(FConnection.Database) then
-            raise Exception.Create('Databasefile dosend exists');
+        FConnection.AutoEncodeStrings:=true;
       end
     else if (copy(FConnection.Protocol,0,8) = 'firebird')
     or (copy(FConnection.Protocol,0,9) = 'interbase')
@@ -1564,7 +1568,6 @@ begin
     if FConnection.Protocol = 'sqlite-3' then
       begin
         //FConnection.ExecuteDirect('PRAGMA synchronous = NORMAL;');
-        //FConnection.ExecuteDirect('PRAGMA synchronous = FULL;');
         FConnection.ExecuteDirect('PRAGMA cache_size = 5120;');
         //FConnection.ExecuteDirect('PRAGMA auto_vacuum = INCREMENTAL;');
         //FConnection.ExecuteDirect('PRAGMA journal_mode = TRUNCATE;');
