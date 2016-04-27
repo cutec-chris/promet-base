@@ -639,11 +639,11 @@ begin
   else if not OnlyAdditional then
     begin
       try
+        aScript := TBaseScript.CreateEx(nil,Data);
         try
           Result:=False;
           with BaseApplication as IBaseApplication do
             Debug('Uses get Unit from Database:'+aName);
-          aScript := TBaseScript.CreateEx(nil,Data);
           aScript.Filter(Data.ProcessTerm('UPPER('+Data.QuoteField('NAME')+')=UPPER('+Data.QuoteValue(aName)+') AND '+Data.QuoteField('ACTIVE')+'='+Data.QuoteValue('Y')));
           if aScript.Count>0 then
             if aScript.Locate('NAME',aName,[loCaseInsensitive]) then
@@ -656,7 +656,7 @@ begin
           Result := False;
         end;
       finally
-        aScript.Free;
+        FreeAndNil(aScript);
       end;
     end;
   if not OnlyAdditional then
@@ -912,8 +912,11 @@ end;
 
 destructor TPrometPascalScript.Destroy;
 begin
-  if Assigned(FReportVariables) then
-    FReportVariables.Free;
+  try
+    if Assigned(FReportVariables) then
+      FreeAndNil(FReportVariables);
+  except
+  end;
   inherited Destroy;
 end;
 

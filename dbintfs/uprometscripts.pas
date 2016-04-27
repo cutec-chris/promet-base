@@ -558,7 +558,11 @@ begin
               aObj.Insert;
               aObj.Text.AsString := Self.Text.AsString;
               aObj.FieldByName('SQL_ID').AsVariant:=Self.Id.AsVariant;
-              aObj.FieldByName('ID').AsVariant:=Self.Number.AsString;
+              if aObj.Number.AsString<>Self.Number.AsString then
+                begin
+                  aObj.Edit;
+                  aObj.Number.AsString := Self.FieldByName('NAME').AsString;
+                end;
               if Assigned(Self.Matchcode) then
                 aObj.Matchcode.AsString := Self.Matchcode.AsString;
               if Assigned(Self.Status) then
