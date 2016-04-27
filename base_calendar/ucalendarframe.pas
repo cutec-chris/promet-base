@@ -611,11 +611,6 @@ end;
 destructor TfCalendarFrame.Destroy;
 begin
   FList.Free;
-  if Assigned(DataSet) then
-    begin
-      DataSet.Destroy;
-      DataSet := nil;
-    end;
   if Assigned(DataStore.Resource) then
     DataStore.Resource.Free;
   DataStore.Free;
