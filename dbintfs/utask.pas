@@ -1274,8 +1274,6 @@ begin
           DataSet.FieldByName('CHECKED').AsString:='N';
           DataSet.FieldByName('DUEDATE').Clear;
           DataSet.FieldByName('STARTDATE').Clear;
-          DataSet.FieldByName('BUFFERTIME').Clear;
-          DataSet.FieldByName('PLANTIME').Clear;
           if not History.DataSet.Active then History.Open;
           History.AddItem(Self.DataSet,strTaskReopened,Data.BuildLink(FDS.DataSet),'',nil,ACICON_STATUSCH);
           aProject := TProject.CreateEx(Self,Data,Connection);
