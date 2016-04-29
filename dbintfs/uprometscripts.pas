@@ -393,7 +393,7 @@ begin
             Add('PARENT',ftLargeint,0,False);
             Add('NAME',ftString,60,True);
             Add('STATUS',ftString,4,false);
-            Add('VERSION',ftString,8,False);
+            Add('VERSION',ftString,25,False);
             Add('ACTIVE',ftString,1,True);
             Add('SYNTAX',ftString,15,True);
             Add('PRIORITY',ftInteger,0,False);

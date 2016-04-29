@@ -287,7 +287,7 @@ begin
           begin
             Add('POSNO',ftInteger,0,True);
             Add('IDENT',ftString,20,True);
-            Add('VERSION',ftString,8,False);
+            Add('VERSION',ftString,25,False);
             Add('LANGUAGE',ftString,3,False);
             Add('SHORTTEXT',ftString,200,True);
             Add('STORAGE',ftString,3,True);
@@ -653,7 +653,7 @@ begin
             Add('POSNO',ftInteger,0,False);
             Add('TYPE',ftString,1,False);
             Add('ID',ftString,20,False);
-            Add('VERSION',ftString,8,False);
+            Add('VERSION',ftString,25,False);
             Add('LANGUAGE',ftString,3,False);
             Add('SERIAL',ftString,30,False);
             Add('NOTE',ftString,500,False);
@@ -1197,7 +1197,7 @@ begin
             Add('ACTIVE',ftString,1,False);
             Add('TPOSNO',ftString,15,False);                //Auschreibungsnummer
             Add('IDENT',ftString,40,False);
-            Add('VERSION',ftString,8,False);
+            Add('VERSION',ftString,25,False);
             Add('LANGUAGE',ftString,3,False);
             Add('TEXTTYPE',ftString,1,False);
             Add('SHORTTEXT',ftString,200,False);

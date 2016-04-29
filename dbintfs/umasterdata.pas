@@ -1030,7 +1030,7 @@ begin
           begin
             Add('TYPE',ftString,1,True);
             Add('ID',ftString,40,True);
-            Add('VERSION',ftString,20,False);
+            Add('VERSION',ftString,25,False);
             Add('LANGUAGE',ftString,3,False);
             Add('ACTIVE',ftString,1,True);
             Add('STATUS',ftString,4,false);

@@ -815,7 +815,7 @@ begin
             Add('NUMBER',ftString,60,False);
             Add('NAME',ftString,200,False);
             Add('MATCHCODE',ftString,200,False);
-            Add('VERSION',ftString,20,False);
+            Add('VERSION',ftString,25,False);
             Add('LINK',ftString,400,False);
             Add('STATUS',ftString,4,False);
             Add('ICON',ftInteger,0,False);
