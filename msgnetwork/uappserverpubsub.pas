@@ -25,6 +25,8 @@ interface
 
 uses
   Classes, SysUtils, synautil, uprometpubsub, uAppServer;
+var
+  Pubsub : TPubSubClient;
 
 implementation
 
@@ -35,6 +37,8 @@ var
   size, Timeout, x, ResultCode, n, i: Integer;
   InputData, OutputData: TMemoryStream;
 begin
+  if not Assigned(Pubsub) then
+    Pubsub := TPubSubClient.Create;
   Result := '';
   if pos(' ',FCommand)>0 then
     aCmd := copy(FCommand,0,pos(' ',FCommand)-1)
@@ -45,18 +49,18 @@ begin
     begin
       //Check if we have someone to forward this message
       //Check if we should do something with it (Scripts,Measurements)
-      //if Pubsub.Publish(copy(FCommand,0,pos(' ',FCommand)-1),copy(FCommand,pos(' ',FCommand)+1,length(FCommand))) then
-      //  FResult:='OK';
+      if Pubsub.Publish(copy(FCommand,0,pos(' ',FCommand)-1),copy(FCommand,pos(' ',FCommand)+1,length(FCommand))) then
+        Result:='OK';
     end;
   'SUB'://Subscribe to Topic [TOPIC]
     begin
-      //Pubsub.Subscribe(FCommand);
+      Pubsub.Subscribe(FCommand);
       Result:='OK';
     end;
   'UNSUB'://Unsubscribe from Topic [TOPIC]
     begin
-      //if Pubsub.UnSubscribe(FCommand) then
-      //  FResult:='OK';
+      if Pubsub.UnSubscribe(FCommand) then
+        Result:='OK';
     end;
   end;
 
@@ -64,5 +68,8 @@ end;
 
 initialization
   uAppServer.RegisterCommandHandler(@HandlePubSubCommand);
+  Pubsub := nil;
+finalization
+  if Assigned(Pubsub) then FreeAndNil(Pubsub);
 end.
 

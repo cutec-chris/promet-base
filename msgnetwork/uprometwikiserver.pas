@@ -5,7 +5,7 @@ unit uprometwikiserver;
 interface
 
 uses
-  Classes, SysUtils, uappserverhttp;
+  Classes, SysUtils, uappserverhttp, uWiki;
 
 implementation
 
