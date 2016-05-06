@@ -1482,6 +1482,7 @@ begin
   Result := True;
   tmp := aProp;
   try
+    CleanupSession;
     if FConnection.Connected then
       FConnection.Disconnect;
     FConnection.Port:=0;

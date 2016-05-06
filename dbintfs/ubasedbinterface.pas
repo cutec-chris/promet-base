@@ -120,6 +120,7 @@ type
     property Users : TUser read GetUsers;
     property MainConnection : TComponent read GetConnection;
     property UsersFilter : string read FUsersFilter;
+    procedure CleanupSession;
     function GetNewConnection: TComponent;virtual;abstract;
     procedure Disconnect(aConnection : TComponent);virtual;abstract;
     function StartTransaction(aConnection : TComponent;ForceTransaction : Boolean = False): Boolean;virtual;abstract;
@@ -526,6 +527,11 @@ begin
   ActiveUsers.Free;
   FCS.Free;
   inherited Destroy;
+end;
+
+procedure TBaseDBModule.CleanupSession;
+begin
+  FreeAndNil(FUsers);
 end;
 
 function TBaseDBModule.GetNewDataSet(aSQL: string; aConnection: TComponent;
