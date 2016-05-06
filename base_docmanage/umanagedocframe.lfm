@@ -5,8 +5,8 @@ inherited fManageDocFrame: TfManageDocFrame
   ClientWidth = 874
   OnEnter = FrameEnter
   OnExit = FrameExit
-  DesignLeft = 302
-  DesignTop = 140
+  DesignLeft = 301
+  DesignTop = 114
   object Panel4: TPanel[0]
     Left = 0
     Height = 42
@@ -736,10 +736,10 @@ inherited fManageDocFrame: TfManageDocFrame
     end
   end
   object pcPages: TPageControl[1]
-    Left = 234
+    Left = 336
     Height = 567
     Top = 42
-    Width = 640
+    Width = 538
     ActivePage = tsDocument
     Align = alClient
     TabIndex = 0
@@ -747,16 +747,16 @@ inherited fManageDocFrame: TfManageDocFrame
     object tsDocument: TTabSheet
       Caption = 'Dokument'
       ClientHeight = 532
-      ClientWidth = 634
+      ClientWidth = 532
       object pThumb: TPanel
         Left = 0
         Height = 50
         Top = 482
-        Width = 634
+        Width = 532
         Align = alBottom
         BevelOuter = bvNone
         ClientHeight = 50
-        ClientWidth = 634
+        ClientWidth = 532
         TabOrder = 0
         object DBZVDateTimePicker1: TDBZVDateTimePicker
           Left = 6
@@ -785,7 +785,7 @@ inherited fManageDocFrame: TfManageDocFrame
           Left = 184
           Height = 27
           Top = 24
-          Width = 446
+          Width = 344
           DataField = 'TAGS'
           DataSource = Documents
           Anchors = [akTop, akLeft, akRight]
@@ -814,7 +814,7 @@ inherited fManageDocFrame: TfManageDocFrame
     object tsFiles: TTabSheet
       Caption = 'Dateien'
       ClientHeight = 532
-      ClientWidth = 634
+      ClientWidth = 532
       object pDocFrame: TPanel
         Left = 0
         Height = 532
@@ -985,7 +985,7 @@ inherited fManageDocFrame: TfManageDocFrame
     object tstext: TTabSheet
       Caption = 'Text'
       ClientHeight = 532
-      ClientWidth = 634
+      ClientWidth = 532
       OnShow = tstextShow
       object pLeft: TPanel
         Left = 0
@@ -1077,11 +1077,11 @@ inherited fManageDocFrame: TfManageDocFrame
     Left = 0
     Height = 567
     Top = 42
-    Width = 229
+    Width = 331
     Align = alLeft
     Caption = 'Panel1'
     ClientHeight = 567
-    ClientWidth = 229
+    ClientWidth = 331
     TabOrder = 1
     object pRight: TPanel
       Left = 1
@@ -1099,16 +1099,16 @@ inherited fManageDocFrame: TfManageDocFrame
       Left = 58
       Height = 565
       Top = 1
-      Width = 170
+      Width = 272
       Directory = 'none'
-      ThumbWidth = 130
-      ThumbHeight = 130
+      ThumbWidth = 250
+      ThumbHeight = 250
       ThumbDistance = 5
       ThumbFrameWith = 5
       ThumbLeftOffset = 5
       ThumbTopOffset = 5
       ThumbResizeFactor = 0
-      MultiThreaded = True
+      MultiThreaded = False
       ShowCaptions = True
       Layout = LsGrid
       SelectStyle = ssAlpha
@@ -1138,12 +1138,12 @@ inherited fManageDocFrame: TfManageDocFrame
     end
   end
   object spPages: TSplitter[3]
-    Left = 229
+    Left = 331
     Height = 567
     Top = 42
     Width = 5
   end
-  object Documents: TDatasource[4]
+  object Documents: TDataSource[4]
     left = 256
     top = 512
   end

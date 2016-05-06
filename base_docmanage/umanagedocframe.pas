@@ -370,17 +370,23 @@ procedure TfManageDocFrame.ThumbControl1ImageLoaderManagerBeforeStartQueue(
 var
   i: Integer;
   aId: String;
+  aImg: TThreadedImage;
 begin
   //if ThumbControl1.ImageLoaderManager.Queue.Count=0 then exit;
   FFetchSQL:='';
   for i := 0 to ThumbControl1.ImageLoaderManager.Queue.Count-1 do
     begin
-      if not FileExists(FtempPath+TThreadedImage(ThumbControl1.ImageLoaderManager.Queue[i]).URL) then
-        begin
-          aId := copy(TThreadedImage(ThumbControl1.ImageLoaderManager.Queue[i]).URL,0,pos('.',TThreadedImage(ThumbControl1.ImageLoaderManager.Queue[i]).URL)-1);
-          if IsNumeric(aID) then
-            FFetchSQL:=FFetchSQL+' or '+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(aId);
-        end;
+      aImg := TThreadedImage(ThumbControl1.ImageLoaderManager.Queue[i]);
+      try
+        if Assigned(aImg) then
+          if not FileExists(FtempPath+aImg.URL) then
+            begin
+              aId := copy(aImg.URL,0,pos('.',aImg.URL)-1);
+              if IsNumeric(aID) then
+                FFetchSQL:=FFetchSQL+' or '+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(aId);
+            end;
+      except
+      end;
     end;
   FFetchSQL:=copy(FFetchSQL,4,length(FFetchSQL));
   if FFetchSQL <> '' then
@@ -1617,7 +1623,7 @@ begin
   if bShowDetail.Down then
     begin
       Panel1.Align:=alLeft;
-      Panel1.Width:=230;
+      Panel1.Width:=330;
       pcPages.Visible:=True;
       spPages.Visible:=True;
       pcPages.Align:=alClient;
