@@ -792,6 +792,7 @@ begin
   tvStep.Items.Clear;
   ipWorkHTML.SetHtml(nil);
   nComm := nil;
+  bExecute.Enabled:=False;
 end;
 
 procedure TSimpleIpHtml.SimpleIpHtmlGetImageX(Sender: TIpHtmlNode;
