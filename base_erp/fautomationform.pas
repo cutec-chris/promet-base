@@ -990,17 +990,22 @@ begin
     Script := TBaseScript.Create(nil);
   Script.SelectByName(aScript);
   Script.Open;
-  Script.Writeln:=@ScriptWriteln;
-  Script.Debugln:=@ScriptDebugln;
-  Script.Compile;
-  FAutomation.lStatusProblems.Visible:=False;
-  if Script.StatusProblems.Text<>'' then
-    begin
-      FAutomation.lStatusProblems.Caption:=strPartiallyProblematic+LineEnding+trim(Script.StatusProblems.Text);
-      FAutomation.lStatusProblems.Visible:=True;
-    end;
-  if not Script.Locate('VERSION',aVersion,[]) then
+  if (not Script.Locate('VERSION',aVersion,[]))
+  and ((aVersion='') and (not Script.Locate('VERSION',Null,[])))
+  then
     Script.Close;
+  if Script.Active then
+    begin
+      Script.Writeln:=@ScriptWriteln;
+      Script.Debugln:=@ScriptDebugln;
+      Script.Compile;
+      FAutomation.lStatusProblems.Visible:=False;
+      if Script.StatusProblems.Text<>'' then
+        begin
+          FAutomation.lStatusProblems.Caption:=strPartiallyProblematic+LineEnding+trim(Script.StatusProblems.Text);
+          FAutomation.lStatusProblems.Visible:=True;
+        end;
+    end;
 end;
 
 procedure TProdTreeData.LoadPrepareScript(aScript: string; aVersion: Variant);
@@ -1011,7 +1016,9 @@ begin
   PrepareScript.Open;
   PrepareScript.Writeln:=@ScriptPrepareWriteln;
   PrepareScript.Debugln:=@ScriptDebugln;
-  if not PrepareScript.Locate('VERSION',aVersion,[]) then
+  if (not PrepareScript.Locate('VERSION',aVersion,[]))
+  and ((aVersion='') and (not PrepareScript.Locate('VERSION',Null,[])))
+  then
     PrepareScript.Close;
 end;
 
