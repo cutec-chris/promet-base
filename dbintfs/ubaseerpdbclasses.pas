@@ -1238,6 +1238,8 @@ begin
             Add('PRSCRIPTVER',ftString,8,False);
             Add('PREPTEXT',ftString,100,False);
             Add('WORKTEXT',ftString,100,False);
+            Add('CHANGEDBY',ftString,4,False);
+            Add('CREATEDBY',ftString,4,False);
           end;
       if Assigned(ManagedIndexdefs) then
         with ManagedIndexDefs do
