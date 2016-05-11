@@ -44,6 +44,7 @@ type
     procedure SetConnection(AValue: TComponent);virtual;
     procedure DoCloseFrame(Data : PtrInt);
     procedure DoWindowize(Data : PtrInt);
+    procedure DoEnter; override;
     procedure DoExit; override;
     procedure DoOpen;virtual;
   public
@@ -128,9 +129,24 @@ begin
   end;
 end;
 
+procedure TPrometMainFrame.DoEnter;
+var
+  i: Integer;
+begin
+  inherited DoEnter;
+  for i := 0 to ComponentCount-1 do
+    if Components[i] is TActionList then
+      TActionList(Components[i]).State:=asNormal;
+end;
+
 procedure TPrometMainFrame.DoExit;
+var
+  i: Integer;
 begin
   inherited DoExit;
+  for i := 0 to ComponentCount-1 do
+    if Components[i] is TActionList then
+      TActionList(Components[i]).State:=asSuspended;
   if Assigned(Parent) and (Parent is TTabSheet) and (TTabSheet(Parent).Visible) and (TTabSheet(Parent).PageControl is TExtMenuPageControl) and Parent.CanFocus then
     TTabSheet(Parent).PageControl.SetFocus;
 end;

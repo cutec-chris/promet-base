@@ -162,8 +162,6 @@ type
     procedure cbStatusSelect(Sender: TObject);
     procedure cbVersionExit(Sender: TObject);
     procedure cbVersionSelect(Sender: TObject);
-    procedure FrameEnter(Sender: TObject);
-    procedure FrameExit(Sender: TObject);
     procedure MasterdataStateChange(Sender: TObject);
     procedure mShortTextChange(Sender: TObject);
     procedure mShortTextExit(Sender: TObject);
@@ -393,14 +391,6 @@ begin
   Screen.Cursor:=crDefault;
 end;
 
-procedure TfArticleFrame.FrameEnter(Sender: TObject);
-begin
-  ActionList1.State:=asNormal;
-end;
-procedure TfArticleFrame.FrameExit(Sender: TObject);
-begin
-  ActionList1.State:=asSuspended;
-end;
 procedure TfArticleFrame.MasterdataStateChange(Sender: TObject);
 begin
   acSave.Enabled := DataSet.CanEdit or DataSet.Changed;
