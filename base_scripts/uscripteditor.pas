@@ -60,6 +60,7 @@ type
     cbSyntax: TDBComboBox;
     cbClient: TComboBox;
     DataSource: TDataSource;
+    eRunFunction: TEdit;
     EditCopy1: TEditCopy;
     EditPaste1: TEditPaste;
     eSearchC: TEdit;
@@ -736,7 +737,9 @@ begin
           ButtonStatus(ssRunning);
           if Fscript is TByteCodeScript then
             TByteCodeScript(Fscript).ByteCode:='';
-          if not TBaseScript(FDataSet).Execute(Null,True) then
+          if eRunFunction.Text<>'' then
+            TBaseScript(FDataSet).Script.RunScriptFunction([],eRunFunction.Text)
+          else if not TBaseScript(FDataSet).Execute(Null,True) then
             messages.AddItem('failed to executing',nil);
           ButtonStatus(ssNone);
         end;

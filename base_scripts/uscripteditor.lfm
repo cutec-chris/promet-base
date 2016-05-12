@@ -612,7 +612,7 @@ object fScriptEditor: TfScriptEditor
       object ToolBar1: TToolBar
         Left = 0
         Top = 0
-        Width = 512
+        Width = 408
         Align = alClient
         ButtonHeight = 30
         Caption = 'ToolBar1'
@@ -699,9 +699,9 @@ object fScriptEditor: TfScriptEditor
           end
         end
         object Panel3: TPanel
-          Left = 329
+          Left = 1
           Height = 30
-          Top = 0
+          Top = 30
           Width = 183
           BevelOuter = bvNone
           ClientHeight = 30
@@ -745,19 +745,19 @@ object fScriptEditor: TfScriptEditor
         end
       end
       object Panel5: TPanel
-        Left = 512
+        Left = 408
         Height = 32
         Top = 0
-        Width = 242
+        Width = 346
         Align = alRight
         BevelOuter = bvNone
         ClientHeight = 32
-        ClientWidth = 242
+        ClientWidth = 346
         Color = clBtnFace
         ParentColor = False
         TabOrder = 1
         object SpeedButton1: TSpeedButton
-          Left = 218
+          Left = 322
           Height = 21
           Hint = 'weitersuchen'
           Top = 5
@@ -767,7 +767,7 @@ object fScriptEditor: TfScriptEditor
           OnClick = SpeedButton1Click
         end
         object SpeedButton2: TSpeedButton
-          Left = 194
+          Left = 298
           Height = 21
           Hint = 'weitersuchen'
           Top = 5
@@ -777,8 +777,8 @@ object fScriptEditor: TfScriptEditor
           OnClick = SpeedButton2Click
         end
         object eSearchC: TEdit
-          Left = 0
-          Height = 21
+          Left = 104
+          Height = 23
           Top = 5
           Width = 192
           Anchors = [akTop, akRight]
@@ -789,6 +789,14 @@ object fScriptEditor: TfScriptEditor
           TabStop = False
           TabOrder = 0
           Text = '<Suche>'
+        end
+        object eRunFunction: TEdit
+          Left = 8
+          Height = 24
+          Hint = 'Funktion einzeln ausführen'#13#10'Führt nur die hier eingegebene Funktion aus, nicht das gesamte Script'
+          Top = 5
+          Width = 96
+          TabOrder = 1
         end
       end
     end

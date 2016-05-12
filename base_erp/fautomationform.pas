@@ -260,6 +260,7 @@ end;
 procedure TFAutomation.acExecuteStepExecute(Sender: TObject);
 var
   TreeData: TProdTreeData;
+  aRes : Variant;
 begin
   fLogWaitForm.Clear;
   if Assigned(tvStep.Selected) then
@@ -278,7 +279,11 @@ begin
             begin
               FScript := TreeData.Script;
               tvStep.Enabled:=False;
-              if not FScript.Execute(Null) then
+              if TreeData.Func<>'' then
+                begin
+                  aRes := FScript.Script.RunScriptFunction([],TreeData.Func);
+                end
+              else if not FScript.Execute(Null) then
                 begin
                   if not Assigned(TreeData.Script.Script) then
                     TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:Scripttyp unbekannt</b>')
@@ -374,15 +379,6 @@ begin
       TreeData := TProdTreeData(tvStep.Selected.Data);
       TreeData.Prepared:=True;
       TreeData.ShowData;
-      if Assigned(TreeData.Script) then
-        begin
-          TreeData.Script.Compile;
-          if TreeData.Script.StatusProblems.Text<>'' then
-            begin
-              FAutomation.lStatusProblems.Caption:=strPartiallyProblematic+LineEnding+trim(TreeData.Script.StatusProblems.Text);
-              FAutomation.lStatusProblems.Visible:=True;
-            end;
-        end;
     end;
 end;
 
@@ -647,6 +643,8 @@ begin
         aPosID := DataSet.FieldByName('ORDERNO').AsString+DataSet.FieldByName('POSNO').AsString
       else
         aPosID := DataSet.FieldByName('SQL_ID').AsString+DataSet.FieldByName('POSNO').AsString;
+      TreeData.Func:=DataSet.FieldByName('SCRIPTFUNC').AsString;
+      TreeData.PrepareFunc:=DataSet.FieldByName('PRSCRIPTFUNC').AsString;
       TreeData.WorkText.Text:=WikiText2HTML(DataSet.FieldByName('TEXT').AsString);
       if DataSet.FieldByName('PREPTEXT').AsString<>'' then
         begin
@@ -930,6 +928,19 @@ procedure TProdTreeData.ShowData;
 var
   aHTML: TSimpleIpHtml;
   ss: TStringStream;
+  procedure DoCompile;
+  begin
+    if Assigned(Script) then
+      begin
+        Script.Compile;
+        if Script.StatusProblems.Text<>'' then
+          begin
+            FAutomation.lStatusProblems.Caption:=strPartiallyProblematic+LineEnding+trim(Script.StatusProblems.Text);
+            FAutomation.lStatusProblems.Visible:=True;
+          end;
+      end;
+  end;
+
 begin
   FAutomation.FScript := nil;
   FAutomation.acExecuteStep.Enabled:=False;
@@ -937,11 +948,17 @@ begin
   FAutomation.acProduce.Enabled:=True;
   FAutomation.acReady.Enabled:=True;
   if (FAutomation.acPrepare.Checked and (not FAutomation.acPrepare.Enabled)) or (Prepared) then
-    FAutomation.acProduce.Checked:=True
+    begin
+      FAutomation.acProduce.Checked:=True;
+      DoCompile;
+    end
   else if FAutomation.acPrepare.Enabled then
     FAutomation.acPrepare.Checked:=True
   else
-    FAutomation.acProduce.Checked:=True;
+    begin
+      FAutomation.acProduce.Checked:=True;
+      DoCompile;
+    end;
   if FAutomation.acPrepare.Checked then
     begin
       aHTML := TSimpleIPHtml.Create;
@@ -999,6 +1016,7 @@ end;
 
 procedure TProdTreeData.LoadScript(aScript: string; aVersion: Variant);
 begin
+  Func:='';
   if not Assigned(Script) then
     Script := TBaseScript.Create(nil);
   Script.SelectByName(aScript);
@@ -1016,6 +1034,7 @@ end;
 
 procedure TProdTreeData.LoadPrepareScript(aScript: string; aVersion: Variant);
 begin
+  PrepareFunc:='';
   if not Assigned(PrepareScript) then
     PrepareScript := TBaseScript.Create(nil);
   PrepareScript.SelectByName(aScript);
@@ -1154,16 +1173,18 @@ procedure InternalBringToFront(Sender : TObject);
 begin
   if Assigned(FAutomation) then
     begin
-      FAutomation.BringToFront;
       if Assigned(FAutomation.Parent) then
-        FAutomation.Parent.BringToFront;
-      Application.BringToFront;
-      {$IFDEF WINDOWS}
-      if IsIconic(Application.MainForm.Handle) then
-       ShowWindow(Application.MainForm.Handle, SW_SHOWNOACTIVATE);
-      SetWindowPos(Application.MainForm.Handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE or SWP_NOACTIVATE or SWP_NOMOVE);
-      SetWindowPos(Application.MainForm.Handle, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE or SWP_NOACTIVATE or SWP_NOMOVE);
-      {$ENDIF}
+        begin
+          Application.BringToFront;
+          FAutomation.Parent.BringToFront;
+          FAutomation.BringToFront;
+          {$IFDEF WINDOWS}
+          if IsIconic(Application.MainForm.Handle) then
+           ShowWindow(Application.MainForm.Handle, SW_SHOWNOACTIVATE);
+          SetWindowPos(Application.MainForm.Handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE or SWP_NOACTIVATE or SWP_NOMOVE);
+          SetWindowPos(Application.MainForm.Handle, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE or SWP_NOACTIVATE or SWP_NOMOVE);
+          {$ENDIF}
+        end;
     end;
 end;
 
