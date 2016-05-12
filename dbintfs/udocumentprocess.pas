@@ -61,7 +61,7 @@ begin
           bCmd := '';
         end;
       with BaseApplication as IBaseApplication do
-        Debug('TDocExecuteThread:Command='+ACmd);
+        Info('TDocExecuteThread:Command='+ACmd);
       if copy(Uppercase(ACmd),0,5) = 'EXEC:' then
         begin
           ACmd := StringReplace(copy(ACmd,6,length(ACmd)),#13,'',[rfReplaceAll]);
