@@ -279,13 +279,13 @@ inherited fPosition: TfPosition
       NewTabImageIndex = 59
       object tsDetails: TTabSheet
         Caption = 'Details'
-        ClientHeight = 201
+        ClientHeight = 206
         ClientWidth = 698
         ImageIndex = 40
         ParentFont = False
         object Panel1: TPanel
           Left = 0
-          Height = 201
+          Height = 206
           Top = 0
           Width = 698
           Align = alClient

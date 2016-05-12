@@ -563,7 +563,11 @@ begin
         VersionThere:=True;
       MdThere:=aMasterdata.Count>0;
     end
-  else MdThere:=True;
+  else
+    begin
+      MdThere:=True;
+      VersionThere:=True;
+    end;
   if not (VersionThere) then
     begin
       fGotoArticle.SetLanguage;
