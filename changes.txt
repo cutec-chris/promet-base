@@ -68,7 +68,7 @@ Build 417
                       ActualObject für Import/Export funktioniert nun (Auf aktuelles Element per Script zugreifen)
                       In Kontakten,Artikeln,Aufträgen und Projektformularen Scriptimport hinzugefügt
                       VCard Import/export auf Scripte umgehoben
-      - Dublizieren:Icon geändert und vereinheitlicht
+      - Duplizieren:Icon geändert und vereinheitlicht
 Build 416
       - Projekte:Gantt Berechnung um kleinere Berechnungsfehler erleichtert
       - Feedreceiver:zu lange Feedtitel werden automatisch gekürzt
@@ -246,7 +246,7 @@ Build 376
 Build 375
       - Scripte:asynchrone ausführung möglich
       - Projekte:Aufgaben in anderes Projekt verschieben
-      - Projekte:Aufgaben aus anderem Projekt dublizieren
+      - Projekte:Aufgaben aus anderem Projekt duplizieren
       - Projekte:Klassifizierung hinzugefügt (wie 2. Kategorie, ebenfalls in Kategorien Optionen einstellbar)
       - Scripte:ausführung unter Windows wird zwischenConsole, keine Console unterschieden
 Build 374
@@ -420,7 +420,7 @@ Build 333
       - Setup:Lieferschein im Vorgang sichtbar
       - Setup:benötigt nun Hauptbenutzer Rechte (in Windows 8.1 benötigt)
 Build 332
-      - Projekte: Status wird beim dublizieren nicht geändert, Aufgaben werden nicht aktiviert
+      - Projekte: Status wird beim duplizieren nicht geändert, Aufgaben werden nicht aktiviert
       - Projekte: Gantt Knopf ziegt bei inaktivem Projekt Gantt mit inaktiven Aufgaben und bei Aktivem keine inaktiven Aufgaben
       - Grobplanung: separates Flag im Projekt um manuell zu steuern welches Projekt in Grobplanung zu sehen ist
       - Nachrichten: Sanduhr wärend löschen einblenden (kann bei vielen Nachrichten ein paar Sekunden dauern)
@@ -511,7 +511,7 @@ Build 309
       - Startseite: erste voll arbeitende Version
       - Kontakte:Dublettensuche/kombinieren von Kontakten
       - Grids: Spaltenbreite kann prozentual gespeichert werden so das alle Grids immer die volle Breite ausnutzen unabhängig von Bildschirmauflösung
-      - Projekte:beim dublizieren von prozessen konnte es vorkommen das Abhängigkeiten auf altes sowie neues Projekt erstellt wurden
+      - Projekte:beim duplizieren von prozessen konnte es vorkommen das Abhängigkeiten auf altes sowie neues Projekt erstellt wurden
       - Gantt Ansicht: besseres verhalten beim aufbauen der Ansicht (Statusdialog, Button Status stimmt nun nach dem öffnen)
       - Besprechungen: Artikel werden auch als Themen fett dargestellt
 Build 308

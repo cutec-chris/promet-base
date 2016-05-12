@@ -2088,7 +2088,7 @@ inherited fTaskFrame: TfTaskFrame
       OnExecute = acMoveToProjectExecute
     end
     object acAddTasksfromProject: TAction
-      Caption = 'Aufgaben aus Projekt/Prozess holen (dublizieren)'
+      Caption = 'Aufgaben aus Projekt/Prozess holen (duplizieren)'
       ImageIndex = 13
       OnExecute = acAddTasksfromProjectExecute
     end

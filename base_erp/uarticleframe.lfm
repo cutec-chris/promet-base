@@ -1152,7 +1152,7 @@ inherited fArticleFrame: TfArticleFrame
       OnExecute = acExportExecute
     end
     object acRestart: TAction
-      Caption = 'Dublizieren'
+      Caption = 'Duplizieren'
       Enabled = False
       Hint = 'Dupliziert den Artikel'
       ImageIndex = 124
