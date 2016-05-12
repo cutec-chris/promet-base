@@ -18,26 +18,26 @@ inherited fAutomationframe: TfAutomationframe
   end
   object GroupBox1: TPanel[1]
     Left = 56
-    Height = 120
+    Height = 137
     Top = 24
     Width = 386
     BevelOuter = bvLowered
-    ClientHeight = 120
+    ClientHeight = 137
     ClientWidth = 386
     Color = clNone
     ParentColor = False
     TabOrder = 1
     object Label3: TLabel
       Left = 8
-      Height = 13
+      Height = 15
       Top = 8
-      Width = 87
+      Width = 93
       Caption = 'Vorbereitungstext'
       ParentColor = False
     end
     object eScript1: TDBEdit
       Left = 8
-      Height = 21
+      Height = 23
       Top = 22
       Width = 296
       DataField = 'PREPTEXT'
@@ -57,7 +57,7 @@ inherited fAutomationframe: TfAutomationframe
     end
     object eScript3: TDBEdit
       Left = 8
-      Height = 21
+      Height = 23
       Top = 64
       Width = 224
       DataField = 'PRSCRIPT'
@@ -68,23 +68,23 @@ inherited fAutomationframe: TfAutomationframe
     end
     object Label5: TLabel
       Left = 8
-      Height = 13
+      Height = 15
       Top = 48
-      Width = 27
+      Width = 30
       Caption = 'Script'
       ParentColor = False
     end
     object Label6: TLabel
       Left = 240
-      Height = 13
+      Height = 15
       Top = 50
-      Width = 35
+      Width = 39
       Caption = 'Version'
       ParentColor = False
     end
     object eVersion1: TDBEdit
       Left = 240
-      Height = 21
+      Height = 23
       Top = 64
       Width = 80
       DataField = 'PRSCRIPTVER'
@@ -101,21 +101,29 @@ inherited fAutomationframe: TfAutomationframe
       Action = acEditPrepareScript
       TabOrder = 4
     end
+    object Label9: TLabel
+      Left = 8
+      Height = 15
+      Top = 88
+      Width = 139
+      Caption = 'Funktion (main wenn leer)'
+      ParentColor = False
+    end
   end
   object GroupBox2: TPanel[2]
     Left = 56
-    Height = 128
-    Top = 168
+    Height = 136
+    Top = 200
     Width = 386
     BevelOuter = bvLowered
-    ClientHeight = 128
+    ClientHeight = 136
     ClientWidth = 386
     Color = clNone
     ParentColor = False
     TabOrder = 2
     object eScript: TDBEdit
       Left = 8
-      Height = 21
+      Height = 23
       Top = 64
       Width = 224
       DataField = 'SCRIPT'
@@ -126,15 +134,15 @@ inherited fAutomationframe: TfAutomationframe
     end
     object Label2: TLabel
       Left = 240
-      Height = 13
+      Height = 15
       Top = 50
-      Width = 35
+      Width = 39
       Caption = 'Version'
       ParentColor = False
     end
     object eVersion: TDBEdit
       Left = 240
-      Height = 21
+      Height = 23
       Top = 64
       Width = 80
       DataField = 'SCRIPTVER'
@@ -145,15 +153,15 @@ inherited fAutomationframe: TfAutomationframe
     end
     object Label4: TLabel
       Left = 8
-      Height = 13
+      Height = 15
       Top = 8
-      Width = 299
+      Width = 320
       Caption = 'Arbeitstextbaustein (falls nicht gesetzt wird Langtext genutzt)'
       ParentColor = False
     end
     object eScript2: TDBEdit
       Left = 8
-      Height = 21
+      Height = 23
       Top = 24
       Width = 296
       DataField = 'WORKTEXT'
@@ -173,9 +181,9 @@ inherited fAutomationframe: TfAutomationframe
     end
     object Label1: TLabel
       Left = 8
-      Height = 13
+      Height = 15
       Top = 48
-      Width = 27
+      Width = 30
       Caption = 'Script'
       ParentColor = False
     end
@@ -187,28 +195,58 @@ inherited fAutomationframe: TfAutomationframe
       Action = acEditScript
       TabOrder = 4
     end
+    object eScript5: TDBEdit
+      Left = 8
+      Height = 23
+      Top = 105
+      Width = 224
+      DataField = 'SCRIPTFUNC'
+      DataSource = Position
+      CharCase = ecNormal
+      MaxLength = 0
+      TabOrder = 5
+    end
+    object Label10: TLabel
+      Left = 8
+      Height = 15
+      Top = 88
+      Width = 139
+      Caption = 'Funktion (main wenn leer)'
+      ParentColor = False
+    end
   end
   object Label7: TLabel[3]
     Left = 56
-    Height = 13
+    Height = 15
     Top = 8
-    Width = 62
+    Width = 69
     Caption = 'Vorbereitung'
     ParentColor = False
   end
   object Label8: TLabel[4]
     Left = 56
-    Height = 13
-    Top = 152
-    Width = 60
+    Height = 15
+    Top = 184
+    Width = 67
     Caption = 'Druchführen'
     ParentColor = False
   end
-  object Position: TDataSource[5]
+  object eScript4: TDBEdit[5]
+    Left = 64
+    Height = 23
+    Top = 128
+    Width = 224
+    DataField = 'PRSCRIPTFUNC'
+    DataSource = Position
+    CharCase = ecNormal
+    MaxLength = 0
+    TabOrder = 3
+  end
+  object Position: TDataSource[6]
     left = 408
     top = 59
   end
-  object ActionList1: TActionList[6]
+  object ActionList1: TActionList[7]
     Images = fVisualControls.Images
     left = 408
     top = 8

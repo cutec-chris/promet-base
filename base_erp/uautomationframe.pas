@@ -39,11 +39,14 @@ type
     eScript1: TDBEdit;
     eScript2: TDBEdit;
     eScript3: TDBEdit;
+    eScript4: TDBEdit;
+    eScript5: TDBEdit;
     eVersion: TDBEdit;
     eVersion1: TDBEdit;
     GroupBox1: TPanel;
     GroupBox2: TPanel;
     Label1: TLabel;
+    Label10: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
@@ -51,6 +54,7 @@ type
     Label6: TLabel;
     Label7: TLabel;
     Label8: TLabel;
+    Label9: TLabel;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     Position: TDatasource;
