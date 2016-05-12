@@ -156,6 +156,7 @@ type
     Position : Int64;
     Script,Preparescript : TBaseScript;
     Documents,PrepDocuments : TDocument;
+    Func,PrepareFunc : string;
 
     PreText : TStringList;
     WorkText : TStringList;
@@ -354,6 +355,7 @@ procedure TFAutomation.acPrepareExecute(Sender: TObject);
 var
   TreeData: TProdTreeData;
 begin
+  FAutomation.lStatusProblems.Visible:=False;
   if Assigned(tvStep.Selected) then
     begin
       TreeData := TProdTreeData(tvStep.Selected.Data);
@@ -366,11 +368,21 @@ procedure TFAutomation.acProduceExecute(Sender: TObject);
 var
   TreeData: TProdTreeData;
 begin
+  FAutomation.lStatusProblems.Visible:=False;
   if Assigned(tvStep.Selected) then
     begin
       TreeData := TProdTreeData(tvStep.Selected.Data);
       TreeData.Prepared:=True;
       TreeData.ShowData;
+      if Assigned(TreeData.Script) then
+        begin
+          TreeData.Script.Compile;
+          if TreeData.Script.StatusProblems.Text<>'' then
+            begin
+              FAutomation.lStatusProblems.Caption:=strPartiallyProblematic+LineEnding+trim(TreeData.Script.StatusProblems.Text);
+              FAutomation.lStatusProblems.Visible:=True;
+            end;
+        end;
     end;
 end;
 
@@ -999,13 +1011,6 @@ begin
     begin
       Script.Writeln:=@ScriptWriteln;
       Script.Debugln:=@ScriptDebugln;
-      Script.Compile;
-      FAutomation.lStatusProblems.Visible:=False;
-      if Script.StatusProblems.Text<>'' then
-        begin
-          FAutomation.lStatusProblems.Caption:=strPartiallyProblematic+LineEnding+trim(Script.StatusProblems.Text);
-          FAutomation.lStatusProblems.Visible:=True;
-        end;
     end;
 end;
 
