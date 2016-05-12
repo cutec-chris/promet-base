@@ -31,6 +31,7 @@ type
  { TfQSPositionFrame }
 
   TfQSPositionFrame = class(TPrometInplaceFrame)
+    eSerialSearch: TEdit;
     lTesttime: TDBText;
     lSerial: TDBText;
     lPosNo: TDBText;
@@ -49,6 +50,7 @@ type
     Splitter1: TSplitter;
     procedure dgStepsDrawColumnCell(Sender: TObject; const Rect: TRect;
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure eSerialSearchChange(Sender: TObject);
     procedure FrameEnter(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
@@ -90,6 +92,11 @@ begin
       DefaultDrawColumnCell(Rect, DataCol, Column, State);
     end;
   end;
+end;
+
+procedure TfQSPositionFrame.eSerialSearchChange(Sender: TObject);
+begin
+  OrderQMTest.DataSet.Locate('SERIAL',eSerialSearch.Text,[loPartialKey]);
 end;
 
 procedure TfQSPositionFrame.SpeedButton1Click(Sender: TObject);

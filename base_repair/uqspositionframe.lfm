@@ -126,7 +126,7 @@ inherited fQSPositionFrame: TfQSPositionFrame
       Left = 8
       Height = 14
       Top = 7
-      Width = 159
+      Width = 48
       AutoSize = False
       DataField = 'POSNO'
       DataSource = OrderPos
@@ -136,7 +136,7 @@ inherited fQSPositionFrame: TfQSPositionFrame
       Left = 8
       Height = 15
       Top = 39
-      Width = 120
+      Width = 80
       AutoSize = False
       DataField = 'SERIAL'
       DataSource = OrderQMTest
@@ -268,6 +268,15 @@ inherited fQSPositionFrame: TfQSPositionFrame
         FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
       }
       OnClick = SpeedButton3Click
+    end
+    object eSerialSearch: TEdit
+      Left = 96
+      Height = 23
+      Hint = 'Serianummern Suche'
+      Top = 32
+      Width = 49
+      OnChange = eSerialSearchChange
+      TabOrder = 1
     end
   end
   object Splitter1: TSplitter[4]
