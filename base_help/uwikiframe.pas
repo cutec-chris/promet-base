@@ -134,6 +134,8 @@ type
     procedure tsViewShow(Sender: TObject);
     procedure WikiDataChange(Sender: TObject; Field: TField);
     procedure WikiStateChange(Sender: TObject);
+    procedure DoEnter; override;
+    procedure DoExit; override;
   private
     { private declarations }
     FHistory : THistory;
@@ -318,6 +320,17 @@ begin
   acSave.Enabled := DataSet.CanEdit;
   acCancel.Enabled:= DataSet.CanEdit;
 end;
+
+procedure TfWikiFrame.DoEnter;
+begin
+  //avoid enabling Actionlist
+end;
+
+procedure TfWikiFrame.DoExit;
+begin
+  //avoid disabling Actionlist
+end;
+
 procedure TfWikiFrame.ipHTMLHotClick(Sender: TObject);
 var
   PageName: String;

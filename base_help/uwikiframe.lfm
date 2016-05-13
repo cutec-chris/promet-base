@@ -3,8 +3,8 @@ inherited fWikiFrame: TfWikiFrame
   Width = 690
   ClientHeight = 529
   ClientWidth = 690
-  DesignLeft = 328
-  DesignTop = 212
+  DesignLeft = 327
+  DesignTop = 186
   object pTop: TPanel[0]
     Left = 0
     Height = 42
@@ -300,8 +300,8 @@ inherited fWikiFrame: TfWikiFrame
       end
       object Bevel4: TBevel
         Left = 0
-        Height = 22
-        Top = 16
+        Height = 21
+        Top = 17
         Width = 8
         Align = alLeft
         BorderSpacing.Top = 4
@@ -310,7 +310,7 @@ inherited fWikiFrame: TfWikiFrame
       end
       object eName: TDBEdit
         Left = 4
-        Height = 28
+        Height = 27
         Top = 13
         Width = 316
         DataField = 'CAPTION'
@@ -323,7 +323,7 @@ inherited fWikiFrame: TfWikiFrame
       end
       object Label1: TDBText
         Left = 40
-        Height = 12
+        Height = 13
         Top = 0
         Width = 284
         Align = alTop
@@ -424,8 +424,7 @@ inherited fWikiFrame: TfWikiFrame
         Caption = 'Navigation'
         Font.Color = clMedGray
         Font.Height = 13
-        Font.Orientation = 900
-        Layout = tlBottom
+        Font.Orientation = -900
         ParentColor = False
         ParentFont = False
       end
@@ -497,8 +496,7 @@ inherited fWikiFrame: TfWikiFrame
         Caption = 'bearbeiten'
         Font.Color = clMedGray
         Font.Height = 13
-        Font.Orientation = 900
-        Layout = tlBottom
+        Font.Orientation = -900
         ParentColor = False
         ParentFont = False
       end
@@ -540,6 +538,10 @@ inherited fWikiFrame: TfWikiFrame
       PrintSettings.MarginTop = 0.5
       PrintSettings.MarginRight = 0.5
       PrintSettings.MarginBottom = 0.5
+      PrintSettings.Preview.Left = 480
+      PrintSettings.Preview.Top = 270
+      PrintSettings.Preview.Width = 1440
+      PrintSettings.Preview.Height = 810
       ShowHints = False
       TabOrder = 0
       OnHotClick = ipHTMLHotClick
