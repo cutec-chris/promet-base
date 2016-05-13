@@ -862,6 +862,7 @@ begin
             Add('PARENT','PARENT',[]);
             Add('NUMBER','NUMBER',[]);
             Add('REVISION','REVISION',[]);
+            Add('TYPE','TYPE',[]);
           end;
     end;
 end;
