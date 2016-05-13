@@ -193,25 +193,30 @@ var
   begin
     aProcess := TProcess.Create(nil);
     {$IFDEF WINDOWS}
-    aProcess.Options:= [poNoConsole, poWaitonExit,poNewConsole, poStdErrToOutPut, poNewProcessGroup];
+    aProcess.Options:= [poNoConsole, poWaitonExit,poNewConsole, poNewProcessGroup];
     {$ELSE}
-    aProcess.Options:= [poWaitonExit,poStdErrToOutPut];
+    aProcess.Options:= [poWaitonExit,poNewProcessGroup,poNewConsole];
     {$ENDIF}
     aProcess.ShowWindow := swoHide;
     aProcess.CommandLine := aCmd;
     aProcess.CurrentDirectory := AppendPathDelim(ExtractFileDir(ParamStr(0)))+'tools';
+    with BaseApplication as IBaseApplication do
+      Debug('Generate Thumbnail:'+aCmd);
     try
-      aProcess.Execute;
-    except
-      on e : Exception do
-        begin
-          with BaseApplication as IBaseApplication do
-            Error('Convert Error:'+e.Message);
-          result := False;
-        end;
+      try
+        aProcess.Execute;
+      except
+        on e : Exception do
+          begin
+            with BaseApplication as IBaseApplication do
+              Error('Convert Error:'+e.Message);
+            result := False;
+          end;
+      end;
+      Result := FileExists(aFileName+aExt);
+    finally
+      aProcess.Free;
     end;
-    Result := FileExists(aFileName+aExt);
-    aProcess.Free;
     if Result then
       begin
         Img := TFPMemoryImage.Create(0, 0);
@@ -227,8 +232,6 @@ var
 begin
   Result := False;
   try
-  if Assigned(OnGenerateThumb) then
-    Result := OnGenerateThumb(aName,aFileName,aThumbFile,aWidth,aHeight);
   if Result and FileExists(UniToSys(aThumbFile)) then
     begin
       aOrigName:=aFileName;
@@ -298,13 +301,17 @@ Redo:
           end
         else
           begin
-            Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+{$ENDIF}'convert %s[1] -resize %d -alpha off +antialias "%s"',[aFileName,500,afileName+'.bmp']),'.bmp');
-            if not Result then
-              Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+{$ENDIF}'ffmpeg -i "%s" -qscale 0 -vframes 1 "%s"',[aFileName,aFileName+'.bmp']),'.bmp');
+            Result := False;
             if not Result then
               Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+{$ENDIF}'avconv -i "%s" -qscale 0 -vframes 1 "%s"',[aFileName,aFileName+'.bmp']),'.bmp');
+            if not Result then
+              Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+{$ENDIF}'convert %s[1] -resize %d -alpha off +antialias "%s"',[aFileName,500,afileName+'.bmp']),'.bmp');
+            if not Result then
+              Result := ConvertExec(Format({$IFDEF WINDOWS}AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'tools')+{$ENDIF}'ffmpeg -i "%s" -qscale 0 -vframes 1 "%s"',[aFileName,aFileName+'.bmp']),'.bmp');
           end;
       end;
+    if not Result and Assigned(OnGenerateThumb) then
+      Result := OnGenerateThumb(aName,aFileName,aThumbFile,aWidth,aHeight);
     SysUtils.DeleteFile(aFileName);
     if Assigned(Img) then
       begin
