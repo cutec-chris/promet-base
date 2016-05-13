@@ -612,6 +612,8 @@ begin
               with BaseApplication as IBaseApplication do
                 Debug(aSQL);
               aConnection := Connection;
+              TZConnection(aConnection).ExecuteDirect(aSQL);
+              {
               GeneralQuery := TZQuery.Create(Self);
               try
                 GeneralQuery.Connection := aConnection;
@@ -620,6 +622,7 @@ begin
               finally
                 GeneralQuery.Free;
               end;
+              }
               Changed := True;
               Result := True;
             end
@@ -635,56 +638,68 @@ begin
                 with BaseApplication as IBaseApplication do
                   Debug(aSQL);
                 aConnection := Connection;
-                GeneralQuery := TZQuery.Create(Self);
-                try
-                  GeneralQuery.Connection := aConnection;
-                  GeneralQuery.SQL.Text := aSQL;
-                  GeneralQuery.ExecSQL;
-                finally
-                  GeneralQuery.Free;
+                if aSQL<>'' then
+                  begin
+                  TZConnection(aConnection).ExecuteDirect(aSQL);
+                  {
+                  GeneralQuery := TZQuery.Create(Self);
+                  try
+                    GeneralQuery.Connection := aConnection;
+                    GeneralQuery.SQL.Text := aSQL;
+                    GeneralQuery.ExecSQL;
+                  finally
+                    GeneralQuery.Free;
+                  end;
+                  }
+                  Changed := True;
+                  Result := True;
                 end;
-                Changed := True;
-                Result := True;
               end;
           end;
         aSQL := '';
         if Assigned(FManagedIndexDefs) then
           for i := 0 to FManagedIndexDefs.Count-1 do                                           //Primary key
-            if (not IndexExists(Uppercase(Self.DefaultTableName+'_'+FManagedIndexDefs.Items[i].Name))) and (FManagedIndexDefs.Items[i].Name <>'SQL_ID') then
-              begin
-                aSQL := aSQL+'CREATE ';
-                if ixUnique in FManagedIndexDefs.Items[i].Options then
-                  aSQL := aSQL+'UNIQUE ';
-                aSQL := aSQL+'INDEX '+QuoteField(Uppercase(Self.DefaultTableName+'_'+FManagedIndexDefs.Items[i].Name))+' ON '+QuoteField(Self.DefaultTableName)+' ('+QuoteField(StringReplace(FManagedIndexDefs.Items[i].Fields,';',QuoteField(','),[rfReplaceAll]))+');'+lineending;
-                with BaseApplication as IBaseApplication do
-                  Debug(aSQL);
-                if aSQL <> '' then
+            begin
+              try
+                if (not IndexExists(Uppercase(Self.DefaultTableName+'_'+FManagedIndexDefs.Items[i].Name))) and (FManagedIndexDefs.Items[i].Name <>'SQL_ID') then
                   begin
-                    try
-                      GeneralQuery := TZQuery.Create(Self);
-                      GeneralQuery.Connection := Connection;
-                      GeneralQuery.SQL.Text := aSQL;
-                      GeneralQuery.ExecSQL;
-                    finally
-                      GeneralQuery.Free;
-                      aSQL := '';
-                    end;
+                    aSQL := aSQL+'CREATE ';
+                    if ixUnique in FManagedIndexDefs.Items[i].Options then
+                      aSQL := aSQL+'UNIQUE ';
+                    aSQL := aSQL+'INDEX '+QuoteField(Uppercase(Self.DefaultTableName+'_'+FManagedIndexDefs.Items[i].Name))+' ON '+QuoteField(Self.DefaultTableName)+' ('+QuoteField(StringReplace(FManagedIndexDefs.Items[i].Fields,';',QuoteField(','),[rfReplaceAll]))+');'+lineending;
+                    with BaseApplication as IBaseApplication do
+                      Debug(aSQL);
+                    if aSQL <> '' then
+                      begin
+                        TZConnection(Connection).ExecuteDirect(aSQL);
+                        {
+                        try
+                          GeneralQuery := TZQuery.Create(Self);
+                          GeneralQuery.Connection := Connection;
+                          GeneralQuery.SQL.Text := aSQL;
+                          GeneralQuery.ExecSQL;
+                        finally
+                          GeneralQuery.Free;
+                          aSQL := '';
+                        end;
+                        }
+                      end;
+                    Result := True;
                   end;
-                Result := True;
+              except
               end;
+            end;
       end;
   except
     Result := False;
   end;
   if Result and Changed and (Self.FDefaultTableName<>'TABLEVERSIONS') then
     begin
-      Connection.DbcConnection.GetMetadata.ClearCache;
-      {
+      //Connection.DbcConnection.GetMetadata.ClearCache;
       with BaseApplication as IBaseApplication do
         Info('Table '+Self.FDefaultTableName+' was altered reconecting...');
       Connection.Disconnect;
       Connection.Connect;
-      }
     end;
   if Changed then
     TBaseDBModule(Self.Owner).UpdateTableVersion(Self.FDefaultTableName);
