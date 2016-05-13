@@ -930,15 +930,6 @@ var
   ss: TStringStream;
   procedure DoCompile;
   begin
-    if Assigned(Script) then
-      begin
-        Script.Compile;
-        if Script.StatusProblems.Text<>'' then
-          begin
-            FAutomation.lStatusProblems.Caption:=strPartiallyProblematic+LineEnding+trim(Script.StatusProblems.Text);
-            FAutomation.lStatusProblems.Visible:=True;
-          end;
-      end;
   end;
 
 begin
@@ -1029,6 +1020,15 @@ begin
     begin
       Script.Writeln:=@ScriptWriteln;
       Script.Debugln:=@ScriptDebugln;
+      if Assigned(Script) then
+        begin
+          Script.Compile;
+          if Script.StatusProblems.Text<>'' then
+            begin
+              FAutomation.lStatusProblems.Caption:=strPartiallyProblematic+LineEnding+trim(Script.StatusProblems.Text);
+              FAutomation.lStatusProblems.Visible:=True;
+            end;
+        end;
     end;
 end;
 
