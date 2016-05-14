@@ -4,13 +4,13 @@ inherited fVisualOptions: TfVisualOptions
   ClientHeight = 509
   ClientWidth = 554
   TabOrder = 0
-  DesignLeft = 434
-  DesignTop = 183
+  DesignLeft = 433
+  DesignTop = 157
   object rbLeft: TRadioButton[0]
     Left = 16
-    Height = 17
+    Height = 22
     Top = 16
-    Width = 198
+    Width = 235
     Caption = 'Vertikale Toolbars auf der linken Seite'
     Checked = True
     OnChange = rbLeftChange
@@ -19,18 +19,18 @@ inherited fVisualOptions: TfVisualOptions
   end
   object rbRight: TRadioButton[1]
     Left = 16
-    Height = 17
+    Height = 22
     Top = 64
-    Width = 208
+    Width = 245
     Caption = 'Vertikale Toolbars auf der rechten Seite'
     TabOrder = 0
   end
   object cbHideTree: TCheckBox[2]
     Left = 16
-    Height = 17
+    Height = 22
     Hint = 'blendet den Baum nach Öffnen eines Eintrages automatisch aus'#13#10'(Startmenü feeling)'
     Top = 112
-    Width = 163
+    Width = 197
     Caption = 'Baum automatisch ausblenden'
     OnChange = cbHideTreeChange
     TabOrder = 2

@@ -363,7 +363,12 @@ end;
 procedure TDBConfig.WriteString(const ASection, Ident, Value: string);
 begin
   with BaseApplication as IBaseDBInterface do
-    Data.Users.Options.SetOption(ASection, Ident, Value);
+    begin
+      if not Data.Users.Active then exit;
+      if not Data.Users.Options.Active then
+        Data.Users.Options.Open;
+      Data.Users.Options.SetOption(ASection, Ident, Value);
+    end;
 end;
 
 function TDBConfig.ReadString(Ident, DefaultValue: string): string;

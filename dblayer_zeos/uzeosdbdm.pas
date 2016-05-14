@@ -538,8 +538,8 @@ begin
           else
             aSql := copy(aSQL,0,length(aSQL)-2)+');';
           TZConnection(bConnection).ExecuteDirect(aSQL);
-          //TZConnection(bConnection).Disconnect;
-          //TZConnection(bConnection).Connect;
+          TZConnection(bConnection).Disconnect;
+          TZConnection(bConnection).Connect;
           {
           try
             try
@@ -704,8 +704,8 @@ begin
       //Connection.DbcConnection.GetMetadata.ClearCache;
       with BaseApplication as IBaseApplication do
         Info('Table '+Self.FDefaultTableName+' was altered reconecting...');
-      //Connection.Disconnect;
-      //Connection.Connect;
+      Connection.Disconnect;
+      Connection.Connect;
     end;
   if Changed then
     TBaseDBModule(Self.Owner).UpdateTableVersion(Self.FDefaultTableName);

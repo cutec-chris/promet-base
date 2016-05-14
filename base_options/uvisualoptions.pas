@@ -70,7 +70,6 @@ end;
 constructor TfVisualOptions.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
-  aConnection := Data.GetNewConnection;
   with Application as IBaseDbInterface do
     cbHideTree.Checked := DBConfig.ReadBoolean('HIDETREE',false);
   with Application as IBaseDbInterface do
@@ -79,28 +78,21 @@ end;
 
 destructor TfVisualOptions.Destroy;
 begin
-  try
-    aConnection.Destroy;
-  except
-  end;
   inherited Destroy;
 end;
 
 procedure TfVisualOptions.StartTransaction;
 begin
   inherited StartTransaction;
-  Data.StartTransaction(aConnection);
 end;
 
 procedure TfVisualOptions.CommitTransaction;
 begin
-  Data.CommitTransaction(aConnection);
   inherited CommitTransaction;
 end;
 
 procedure TfVisualOptions.RollbackTransaction;
 begin
-  Data.RollbackTransaction(aConnection);
   inherited RollbackTransaction;
 end;
 
