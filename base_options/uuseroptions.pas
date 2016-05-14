@@ -336,7 +336,6 @@ var
   Node1: TTreeNode;
 begin
   inherited;
-  //Data.StartTransaction(aConnection);
   aUsers.Open;
   aPaygroups.Open;
   with aUsers.DataSet do

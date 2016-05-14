@@ -1,4 +1,7 @@
-﻿Build 424
+﻿Build 425
+      - Wizardmandant:in Hauptapplikationen intigriert
+      - Wizardmandant:Fehler beim befüllen der Rechtetabelle behoben
+Build 424
       - Shema:using Links in Shemas, first complete Working Version of Shema Editor
       - Dokumente:Separates Datenobjekt für Detaileintrag (beim Scrollen wechseln Datenfelder nicht mehr den Datensatz)
       - Processmanager:begonnen ein Narichten(mesh)netzwerk zu bauen, damit Clients direkt Narichten ohne SQL Server versenden können
