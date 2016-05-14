@@ -82,6 +82,7 @@ type
     lDescription11: TLabel;
     lDescription12: TLabel;
     lDescription13: TLabel;
+    lDescription14: TLabel;
     lDescription5: TLabel;
     lDescription6: TLabel;
     lDescription7: TLabel;
@@ -135,6 +136,7 @@ type
     DirectoryEdit2: TDirectoryEdit;
     bCopyConnectionString: TSpeedButton;
     rbFB: TRadioButton;
+    rbMyS: TRadioButton;
     rbPersonal: TRadioButton;
     RadioButton2: TRadioButton;
     rbSqlite: TRadioButton;
@@ -392,6 +394,8 @@ begin
     cbSQLType.Text:='postgresql-8'
   else if rbMS.Checked then
     cbSQLType.Text:='mssql'
+  else if rbMyS.Checked then
+    cbSQLType.Text:='mysql'
   else if rbFB.Checked then
     cbSQLType.Text:='firebird-2.1'
   ;

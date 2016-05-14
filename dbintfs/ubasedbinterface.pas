@@ -122,6 +122,7 @@ type
     property UsersFilter : string read FUsersFilter;
     procedure CleanupSession;
     function GetNewConnection: TComponent;virtual;abstract;
+    procedure Connect(aConnection : TComponent);virtual;abstract;
     procedure Disconnect(aConnection : TComponent);virtual;abstract;
     function StartTransaction(aConnection : TComponent;ForceTransaction : Boolean = False): Boolean;virtual;abstract;
     function CommitTransaction(aConnection : TComponent): Boolean;virtual;abstract;
@@ -453,6 +454,7 @@ function TBaseDBModule.CreateDBFromProperties(aProp: string): Boolean;
 begin
   Result := False;
 end;
+
 function TBaseDBModule.ProcessTerm(aTerm: string; ForceLike: Boolean): string;
 var
   UseLike: Boolean;
@@ -1440,6 +1442,7 @@ procedure TBaseDBModule.RemoveUserFromActiveList;
 begin
   if FIgnoreOpenRequests then exit;
   try
+    if not Assigned(ActiveUsers) then exit;
     with ActiveUsers.DataSet as IBaseManageDB do
       UpdateStdFields := False;
     if ActiveUsers.DataSet.Active then

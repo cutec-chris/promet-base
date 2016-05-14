@@ -73,6 +73,7 @@ type
     function QuoteField(aField: string): string; override;
     function QuoteValue(aField: string): string; override;
     procedure Disconnect(aConnection : TComponent);override;
+    procedure Connect(aConnection: TComponent); override;
     function StartTransaction(aConnection : TComponent;ForceTransaction : Boolean = False): Boolean;override;
     function CommitTransaction(aConnection : TComponent): Boolean;override;
     function RollbackTransaction(aConnection : TComponent): Boolean;override;
@@ -536,6 +537,10 @@ begin
             aSQL += TZeosDBDM(Self.Owner).FieldToSQL('TIMESTAMPD',ftDateTime,0,True)+');'
           else
             aSql := copy(aSQL,0,length(aSQL)-2)+');';
+          TZConnection(bConnection).ExecuteDirect(aSQL);
+          TZConnection(bConnection).Disconnect;
+          TZConnection(bConnection).Connect;
+          {
           try
             try
               GeneralQuery := TZQuery.Create(Self);
@@ -552,6 +557,7 @@ begin
           finally
             GeneralQuery.Destroy;
           end;
+          }
         end;
     end;
   Close;
@@ -777,6 +783,13 @@ begin
           raise;
         end;
       end;
+      if ReadOnly then
+        with BaseApplication as IBaseApplication do
+          if Assigned(FOrigTable) then
+            begin
+              Warning(FOrigTable.TableName+' Dataset is read Only !');
+              ReadOnly:=False;
+            end;
   finally
     if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
       TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
@@ -2008,6 +2021,12 @@ procedure TZeosDBDM.Disconnect(aConnection: TComponent);
 begin
   TZConnection(aConnection).Disconnect;
 end;
+
+procedure TZeosDBDM.Connect(aConnection: TComponent);
+begin
+  TZConnection(aConnection).Connect;
+end;
+
 function TZeosDBDM.StartTransaction(aConnection: TComponent;ForceTransaction : Boolean = False): Boolean;
 begin
   TZConnection(aConnection).Tag := Integer(TZConnection(aConnection).TransactIsolationLevel);
