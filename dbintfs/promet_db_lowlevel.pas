@@ -2,21 +2,14 @@
   This source is only used to compile and install the package.
  }
 
-unit promet_db_lowlevel;
+unit promet_db_lowlevel; 
 
-{$warn 5023 off : no warning about unused units}
 interface
 
 uses
-  uBaseDBInterface, uBaseSearch, uBaseDbClasses, uBaseERPDBClasses, uWiki, 
-  uStatistic, LazarusPackageIntf;
+    uBaseDBInterface, uBaseSearch, uBaseDbClasses, uBaseERPDBClasses, uWiki, 
+  uStatistic;
 
 implementation
 
-procedure Register;
-begin
-end;
-
-initialization
-  RegisterPackage('promet_db_lowlevel', @Register);
 end.
