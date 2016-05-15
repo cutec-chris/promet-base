@@ -1,16 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <CONFIG>
-  <Package Version="4">
+  <Package Version="3">
     <PathDelim Value="\"/>
     <Name Value="pmimemessages"/>
-    <Type Value="RunAndDesignTime"/>
-    <AddToProjectUsesSection Value="True"/>
     <CompilerOptions>
-      <Version Value="11"/>
+      <Version Value="9"/>
       <PathDelim Value="\"/>
       <SearchPaths>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
+      <Other>
+        <CompilerPath Value="$(CompPath)"/>
+      </Other>
     </CompilerOptions>
     <Files Count="3">
       <Item1>
