@@ -952,15 +952,18 @@ begin
   else if copy(aLink, 0, 10) = 'ALLOBJECTS' then
     begin
       Result := 121;
-      if GetRealIcon then
-        begin
-          aObjs := TObjects.Create(nil);
-          aObjs.SelectByLink(aLink);
-          aObjs.Open;
-          if aObjs.Count>0 then
-            Result := aObjs.FieldByName('ICON').AsInteger;
-          aObjs.Free;
-        end;
+      try
+        if GetRealIcon then
+          begin
+            aObjs := TObjects.Create(nil);
+            aObjs.SelectByLink(aLink);
+            aObjs.Open;
+            if aObjs.Count>0 then
+              Result := aObjs.FieldByName('ICON').AsInteger;
+            aObjs.Free;
+          end;
+      except
+      end;
     end
   else if (copy(aLink, 0, 9) = 'CUSTOMERS') then Result := IMAGE_PERSON
   else if copy(aLink, 0, 9) = 'DOCUMENTS' then   Result := IMAGE_DOCUMENTS

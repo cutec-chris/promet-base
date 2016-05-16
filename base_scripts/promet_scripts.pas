@@ -9,14 +9,8 @@ interface
 
 uses
   uprometpascalscript, uspeakinginterface, uprometpythonscript, 
-  uprometcscript, uprometjavascriptscript, BESEN, LazarusPackageIntf;
+  uprometcscript, uprometjavascriptscript, BESEN;
 
 implementation
 
-procedure Register;
-begin
-end;
-
-initialization
-  RegisterPackage('promet_scripts', @Register);
 end.
