@@ -395,6 +395,8 @@ begin
     FList.BaseFilter:=Data.QuoteField('TREEENTRY')+'='+Data.QuoteValue(VarToStr(Directory))+' and '+Data.QuoteField('MESSAGEIDX')+'.'+Data.QuoteField('USER')+'='+Data.QuoteValue(Data.Users.FieldByName('ACCOUNTNO').AsString)
    else
     FList.BaseFilter:=Data.QuoteField('TREEENTRY')+'='+Data.QuoteValue(VarToStr(Directory));
+  FList.DataSet.Close;
+  FList.acFilterExecute(nil);
   FBoardDir := Data.Tree.FieldByName('TYPE').AsString = 'B';
   FDir := Directory;
   FList.SortField:='SENDDATE';
