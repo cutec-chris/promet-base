@@ -24,9 +24,20 @@ unit uappserverpubsub;
 interface
 
 uses
-  Classes, SysUtils, synautil, uprometpubsub, uAppServer;
+  Classes, SysUtils, synautil, uprometpubsub, uAppServer, blcksock;
+type
+
+  { TPubSubHandler }
+
+  TPubSubHandler = class
+  public
+    Socket : TObject;
+    procedure AfterPublished(const s1,s2: string);
+  end;
+
 var
   Pubsub : TPubSubClient;
+  PubSubHandler : TPubSubHandler;
 
 implementation
 
@@ -38,7 +49,12 @@ var
   InputData, OutputData: TMemoryStream;
 begin
   if not Assigned(Pubsub) then
-    Pubsub := TPubSubClient.Create;
+    begin
+      Pubsub := TPubSubClient.Create;
+      PubSubHandler := TPubSubHandler.Create;
+      Pubsub.OnPublish:=@PubSubHandler.AfterPublished;
+      PubSubHandler.Socket := Sender;
+    end;
   Result := '';
   if pos(' ',FCommand)>0 then
     aCmd := copy(FCommand,0,pos(' ',FCommand)-1)
@@ -64,6 +80,13 @@ begin
     end;
   end;
 
+end;
+
+{ TPubSubHandler }
+
+procedure TPubSubHandler.AfterPublished(const s1, s2: string);
+begin
+  TAppNetworkThrd(Socket).Sock.SendString('PUB '+s1+' '+s2+CRLF);
 end;
 
 initialization
