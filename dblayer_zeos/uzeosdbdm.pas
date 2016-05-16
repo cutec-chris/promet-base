@@ -701,11 +701,12 @@ begin
   end;
   if Result and Changed and (Self.FDefaultTableName<>'TABLEVERSIONS') then
     begin
-      //Connection.DbcConnection.GetMetadata.ClearCache;
       with BaseApplication as IBaseApplication do
-        Info('Table '+Self.FDefaultTableName+' was altered reconecting...');
-      Connection.Disconnect;
-      Connection.Connect;
+        Info('Table '+Self.FDefaultTableName+' resetting Metadata Infos...');
+      try
+        Connection.DbcConnection.GetMetadata.ClearCache;
+      except
+      end;
     end;
   if Changed then
     TBaseDBModule(Self.Owner).UpdateTableVersion(Self.FDefaultTableName);

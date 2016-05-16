@@ -1,6 +1,7 @@
 ﻿Build 425
       - Wizardmandant:in Hauptapplikationen intigriert
       - Wizardmandant:Fehler beim befüllen der Rechtetabelle behoben
+      - Avad:Aus Scripten können nun einzelne Funktionen mit Positionen verknüpft werden (aus Automations Frame)
 Build 424
       - Shema:using Links in Shemas, first complete Working Version of Shema Editor
       - Dokumente:Separates Datenobjekt für Detaileintrag (beim Scrollen wechseln Datenfelder nicht mehr den Datensatz)
