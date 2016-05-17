@@ -195,7 +195,7 @@ var
     {$IFDEF WINDOWS}
     aProcess.Options:= [poNoConsole, poWaitonExit,poNewConsole, poNewProcessGroup];
     {$ELSE}
-    aProcess.Options:= [poWaitonExit,poNewProcessGroup,poNewConsole];
+    aProcess.Options:= aProcess.Options+[poWaitonExit];
     {$ENDIF}
     aProcess.ShowWindow := swoHide;
     aProcess.CommandLine := aCmd;

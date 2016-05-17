@@ -223,6 +223,9 @@ type
     procedure WaitForImage;
     procedure RebuidThumb;
     procedure ShowDocument;
+  protected
+    procedure DoEnter; override;
+    procedure DoExit; override;
   public
     { public declarations }
     constructor Create(AOwner: TComponent); override;
@@ -386,6 +389,8 @@ begin
                 FFetchSQL:=FFetchSQL+' or '+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(aId);
             end;
       except
+        ThumbControl1.ImageLoaderManager.Queue.Delete(i);
+        break;
       end;
     end;
   FFetchSQL:=copy(FFetchSQL,4,length(FFetchSQL));
@@ -1832,6 +1837,14 @@ begin
       if tstext.Visible then
         tstext.OnShow(tsText);
     end;
+end;
+
+procedure TfManageDocFrame.DoEnter;
+begin
+end;
+
+procedure TfManageDocFrame.DoExit;
+begin
 end;
 
 constructor TfManageDocFrame.Create(AOwner: TComponent);
