@@ -375,15 +375,19 @@ begin
           sType := strEdited;
           if not Hist.History.ChangedDuringSession then
             begin
-              saType:=' (';
-              for i := 0 to DataSet.Fields.Count-1 do
-                begin
-                  aField := DataSet.Fields[i];
-                  if aField.OldValue<>aField.NewValue then
-                    saType := saType+','+aField.FieldName;
-                end;
-              saType:=Stringreplace(saType,'(,','(',[rfReplaceAll])+')';
-              saType:=Stringreplace(saType,'()','',[rfReplaceAll]);
+              try
+                saType:=' (';
+                for i := 0 to DataSet.Fields.Count-1 do
+                  begin
+                    aField := DataSet.Fields[i];
+                    if aField.OldValue<>aField.NewValue then
+                      saType := saType+','+aField.FieldName;
+                  end;
+                saType:=Stringreplace(saType,'(,','(',[rfReplaceAll])+')';
+                saType:=Stringreplace(saType,'()','',[rfReplaceAll]);
+              except
+                saType:='';
+              end;
             end;
         end;
       sType:=sType+saType;
