@@ -441,7 +441,7 @@ begin
           if Assigned(FEndSearch) then FEndSearch(Self);
         end;
       //Search for Serial Number
-      if (fsSerial in FSearchTypes) and (trim(SearchText)<>'') then
+      if (fsSerial in FSearchTypes) and (trim(SearchText)<>'') and (length(SearchText)>2) then
         begin
           aPos := TOrderPos.Create(nil);
           try

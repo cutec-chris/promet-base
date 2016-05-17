@@ -16,11 +16,11 @@ object fSearch: TfSearch
   Position = poMainFormCenter
   ShowHint = True
   ShowInTaskBar = stAlways
-  LCLVersion = '1.5'
+  LCLVersion = '1.4.4.0'
   object pTop: TPanel
     Left = 0
     Height = 111
-    Top = 29
+    Top = 31
     Width = 596
     Align = alTop
     BevelOuter = bvNone
@@ -29,7 +29,7 @@ object fSearch: TfSearch
     TabOrder = 0
     object eContains: TEdit
       Left = 72
-      Height = 21
+      Height = 23
       Top = 9
       Width = 318
       Anchors = [akTop, akLeft, akRight]
@@ -171,9 +171,9 @@ object fSearch: TfSearch
     end
     object cbContains: TRadioButton
       Left = 72
-      Height = 17
+      Height = 19
       Top = 55
-      Width = 52
+      Width = 57
       Caption = 'enthält'
       Checked = True
       TabOrder = 4
@@ -181,18 +181,18 @@ object fSearch: TfSearch
     end
     object cbWildgards: TRadioButton
       Left = 160
-      Height = 17
+      Height = 19
       Top = 55
-      Width = 137
+      Width = 148
       Caption = 'Jokerzeichen verwenden'
       OnChange = cbWildgardsChange
       TabOrder = 1
     end
     object cbAutomaticsearch: TCheckBox
-      Left = 442
-      Height = 17
+      Left = 428
+      Height = 19
       Top = 55
-      Width = 146
+      Width = 160
       Anchors = [akTop, akRight]
       Caption = 'Suche wärend des Tippens'
       Checked = True
@@ -250,7 +250,7 @@ object fSearch: TfSearch
     end
     object seMaxresults: TSpinEdit
       Left = 530
-      Height = 21
+      Height = 23
       Top = 83
       Width = 58
       Anchors = [akTop, akRight]
@@ -263,10 +263,10 @@ object fSearch: TfSearch
       Value = 100
     end
     object cbMaxResults: TCheckBox
-      Left = 358
-      Height = 17
+      Left = 342
+      Height = 19
       Top = 83
-      Width = 166
+      Width = 182
       Anchors = [akTop, akRight]
       Caption = 'Anzahl Ergebnisse pro Suchtyp'
       OnChange = seMaxresultsChange
@@ -324,19 +324,19 @@ object fSearch: TfSearch
   end
   object Panel2: TPanel
     Left = 450
-    Height = 326
-    Top = 140
+    Height = 324
+    Top = 142
     Width = 146
     Align = alRight
     BevelOuter = bvNone
-    ClientHeight = 326
+    ClientHeight = 324
     ClientWidth = 146
     TabOrder = 1
     object Splitter2: TSplitter
       Cursor = crVSplit
       Left = 0
       Height = 5
-      Top = 212
+      Top = 210
       Width = 146
       Align = alBottom
       ResizeAnchor = akBottom
@@ -344,7 +344,7 @@ object fSearch: TfSearch
     object Panel1: TPanel
       Left = 0
       Height = 109
-      Top = 217
+      Top = 215
       Width = 146
       Align = alBottom
       BevelOuter = bvNone
@@ -353,7 +353,7 @@ object fSearch: TfSearch
       TabOrder = 1
       object lSearchIn: TLabel
         Left = 4
-        Height = 13
+        Height = 15
         Top = 4
         Width = 138
         Align = alTop
@@ -363,8 +363,8 @@ object fSearch: TfSearch
       end
       object cbSearchIn: TCheckListBox
         Left = 8
-        Height = 76
-        Top = 25
+        Height = 74
+        Top = 27
         Width = 130
         Align = alClient
         BorderSpacing.Around = 8
@@ -376,17 +376,17 @@ object fSearch: TfSearch
     end
     object Panel5: TPanel
       Left = 0
-      Height = 212
+      Height = 210
       Top = 0
       Width = 146
       Align = alClient
       BevelOuter = bvNone
-      ClientHeight = 212
+      ClientHeight = 210
       ClientWidth = 146
       TabOrder = 2
       object lSearchtype: TLabel
         Left = 4
-        Height = 13
+        Height = 15
         Top = 4
         Width = 138
         Align = alTop
@@ -396,8 +396,8 @@ object fSearch: TfSearch
       end
       object cbSearchType: TCheckListBox
         Left = 8
-        Height = 179
-        Top = 25
+        Height = 175
+        Top = 27
         Width = 130
         Align = alClient
         BorderSpacing.Around = 8
@@ -409,8 +409,8 @@ object fSearch: TfSearch
   end
   object Splitter1: TSplitter
     Left = 445
-    Height = 326
-    Top = 140
+    Height = 324
+    Top = 142
     Width = 5
     Align = alRight
     ResizeAnchor = akRight
@@ -418,19 +418,19 @@ object fSearch: TfSearch
   end
   object Panel3: TPanel
     Left = 0
-    Height = 326
-    Top = 140
+    Height = 324
+    Top = 142
     Width = 445
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 326
+    ClientHeight = 324
     ClientWidth = 445
     TabOrder = 3
     object lResults: TLabel
       Left = 8
-      Height = 13
+      Height = 15
       Top = 0
-      Width = 89
+      Width = 87
       Caption = 'Suchergebnisse'
       Font.Style = [fsBold]
       ParentColor = False
@@ -438,7 +438,7 @@ object fSearch: TfSearch
     end
     object sgResults: TStringGrid
       Left = 8
-      Height = 286
+      Height = 284
       Top = 20
       Width = 429
       Anchors = [akTop, akLeft, akRight, akBottom]
@@ -501,7 +501,7 @@ object fSearch: TfSearch
     object bSearchFurther: TButton
       Left = 8
       Height = 23
-      Top = 303
+      Top = 301
       Width = 429
       Anchors = [akLeft, akRight, akBottom]
       Caption = 'weitersuchen (mehr Ergebnisse)'
@@ -512,7 +512,7 @@ object fSearch: TfSearch
   end
   object lHint: TLabel
     Left = 8
-    Height = 13
+    Height = 15
     Top = 8
     Width = 580
     Align = alTop
