@@ -440,9 +440,11 @@ end;
 procedure TBaseScript.ResetScript;
 begin
   try
-    FScript.OnRunLine:=nil;
     if Assigned(FScript) then
-      FreeAndNil(FScript);
+      begin
+        FScript.OnRunLine:=nil;
+        FreeAndNil(FScript);
+      end;
   except
     on e : Exception do
       Write('Internal Error:'+e.Message);
