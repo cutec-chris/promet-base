@@ -440,6 +440,7 @@ end;
 procedure TBaseScript.ResetScript;
 begin
   try
+    FScript.OnRunLine:=nil;
     if Assigned(FScript) then
       FreeAndNil(FScript);
   except
