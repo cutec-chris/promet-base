@@ -730,6 +730,8 @@ begin
             Add('LTIMESTAMP',ftDateTime,0,False);
             Add('FILTERIN',ftMemo,0,False);
             Add('FILTEROUT',ftMemo,0,False);
+            Add('LOCKEDBY',ftString,60,False);
+            Add('LOCKEDAT',ftDateTime,0,False);
           end;
     end;
 end;
