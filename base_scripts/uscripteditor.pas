@@ -594,7 +594,7 @@ begin
            messages.ItemIndex:=messages.Items.Count-1;
            messages.MakeCurrentVisible;
          end;
-       if GetTickCount-LastStepTime > 50 then
+       if GetTickCount-LastStepTime > 10 then
          begin
            Application.ProcessMessages;
            LastStepTime:=GetTickCount;
