@@ -373,7 +373,6 @@ procedure TFAutomation.acProduceExecute(Sender: TObject);
 var
   TreeData: TProdTreeData;
 begin
-  FAutomation.lStatusProblems.Visible:=False;
   if Assigned(tvStep.Selected) then
     begin
       TreeData := TProdTreeData(tvStep.Selected.Data);
@@ -1022,6 +1021,7 @@ begin
       Script.Debugln:=@ScriptDebugln;
       if Assigned(Script) then
         begin
+          FAutomation.lStatusProblems.Visible:=False;
           Script.Compile;
           if Script.StatusProblems.Text<>'' then
             begin
