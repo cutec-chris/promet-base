@@ -77,6 +77,9 @@ type
     procedure DefineFields(aDataSet : TDataSet);override;
     property Position : TBaseDBPosition read FPosition;
   end;
+
+  { TBaseDBPosition }
+
   TBaseDBPosition = class(TBaseDbDataSet)
     procedure DataSetAfterCancel(aDataSet: TDataSet);
     procedure DataSetAfterDelete(aDataSet: TDataSet);
@@ -131,6 +134,7 @@ type
     procedure DefineFields(aDataSet : TDataSet);override;
     procedure FillDefaults(aDataSet : TDataSet);override;
     procedure Assign(Source: TPersistent); override;
+    procedure DirectAssign(Source: TPersistent);override;
     property PosTyp : TPositionTyp read GetPosTyp;
     property PosTypDec : Integer read GetPosTypDec;
     property PosCalc : TPositionCalc read FPosCalc;
@@ -1077,7 +1081,8 @@ begin
     //-CommonPrice
     tmp := tmp-DataSet.FieldByName('COMPRICE').AsFloat;
     // div Menge
-    DataSet.FieldByName('SELLPRICE').AsFloat := tmp/DataSet.FieldByName('QUANTITY').AsFloat;
+    if Assigned(DataSet.FieldByName('SELLPRICE')) and Assigned(DataSet.FieldByName('QUANTITY')) then
+      DataSet.FieldByName('SELLPRICE').AsFloat := tmp/DataSet.FieldByName('QUANTITY').AsFloat;
 
   finally
     EnableCalculation;
@@ -1436,6 +1441,14 @@ begin
   else
     inherited Assign(Source);
 end;
+
+procedure TBaseDBPosition.DirectAssign(Source: TPersistent);
+begin
+  DisableCalculation;
+  inherited DirectAssign(Source);
+  EnableCalculation;
+end;
+
 procedure TBaseDBPosition.DisableCalculation;
 begin
   inc(FCalculationDisabled);

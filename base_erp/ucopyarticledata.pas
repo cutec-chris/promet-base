@@ -23,6 +23,9 @@ uses
   Classes, SysUtils,  Forms, Controls, Graphics, Dialogs, StdCtrls,
   ExtCtrls, Buttons, ButtonPanel,uIntfStrConsts,uMasterdata;
 type
+
+  { TfCopyArticleData }
+
   TfCopyArticleData = class(TForm)
     ButtonPanel1: TButtonPanel;
     cbCopyPrices: TCheckBox;
@@ -30,6 +33,7 @@ type
     cbCopyTexts: TCheckBox;
     cbCopySupplier: TCheckBox;
     cbActivate: TCheckBox;
+    cbPiecelist: TCheckBox;
     lFeaturesforNewArticleversion: TLabel;
   private
     { private declarations }

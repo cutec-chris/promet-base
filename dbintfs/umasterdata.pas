@@ -182,11 +182,13 @@ type
     function Copy(aNewVersion : Variant;aNewLanguage : Variant;cPrices : Boolean = True;
                                                                cProperties : Boolean = True;
                                                                cTexts : Boolean = True;
-                                                               cSupplier : Boolean = True) : Boolean;
+                                                               cSupplier : Boolean = True;
+                                                               cPiecelists : Boolean = True) : Boolean;
     function Versionate(aNewversion : Variant;aMakeActive : Boolean = True;cPrices : Boolean = True;
                                                                cProperties : Boolean = True;
                                                                cTexts : Boolean = True;
-                                                               cSupplier : Boolean = True) : Boolean;
+                                                               cSupplier : Boolean = True;
+                                                               cPiecelists : Boolean = True) : Boolean;
     function Find(aIdent : string;Unsharp : Boolean = False) : Boolean;override;
     procedure GenerateThumbnail; override;
     property OnStateChange : TNotifyEvent read FStateChange write FStateChange;
@@ -856,8 +858,8 @@ begin
   inherited CascadicCancel;
 end;
 function TMasterdata.Copy(aNewVersion: Variant; aNewLanguage: Variant;
-  cPrices: Boolean; cProperties: Boolean; cTexts: Boolean; cSupplier: Boolean
-  ): Boolean;
+  cPrices: Boolean; cProperties: Boolean; cTexts: Boolean; cSupplier: Boolean;
+  cPiecelists: Boolean): Boolean;
 var
   bMasterdata: TMasterdata;
 begin
@@ -877,6 +879,57 @@ begin
       bMasterdata.CascadicPost;
       FDS.DataSet:=DataSet;
       bMasterdata.FDS.DataSet:=DataSet;
+      if cPrices then
+        begin
+          Prices.Open;
+          while not Prices.EOF do
+            begin
+              bMasterdata.Prices.Append;
+              bMasterdata.Prices.DirectAssign(Prices);
+              Prices.Next;
+            end;
+        end;
+      if cProperties then
+        begin
+          Properties.Open;
+          while not Properties.EOF do
+            begin
+              bMasterdata.Properties.Append;
+              bMasterdata.Properties.DirectAssign(Properties);
+              Properties.Next;
+            end;
+        end;
+      if cTexts then
+        begin
+          Texts.Open;
+          while not Texts.EOF do
+            begin
+              bMasterdata.Texts.Append;
+              bMasterdata.Texts.DirectAssign(Texts);
+              Texts.Next;
+            end;
+        end;
+      if cSupplier then
+        begin
+          Supplier.Open;
+          while not Supplier.EOF do
+            begin
+              bMasterdata.Supplier.Append;
+              bMasterdata.Supplier.DirectAssign(Supplier);
+              Supplier.Next;
+            end;
+        end;
+      if cPiecelists then
+        begin
+          Positions.Open;
+          while not Positions.EOF do
+            begin
+              bMasterdata.Positions.Append;
+              bMasterdata.Positions.DirectAssign(Positions);
+              Positions.Next;
+            end;
+        end;
+
       Self.Select(bMasterdata.Id.AsVariant);
       Self.Open;
     except
@@ -890,12 +943,12 @@ begin
 end;
 
 function TMasterdata.Versionate(aNewversion: Variant; aMakeActive: Boolean;
-  cPrices: Boolean; cProperties: Boolean; cTexts: Boolean; cSupplier: Boolean
-  ): Boolean;
+  cPrices: Boolean; cProperties: Boolean; cTexts: Boolean; cSupplier: Boolean;
+  cPiecelists: Boolean): Boolean;
 var
   bMasterdata: TMasterdata;
 begin
-  Result := Copy(aNewversion,FieldByName('LANGUAGE').AsVariant,cPrices,cProperties,cTexts,cSupplier);
+  Result := Copy(aNewversion,FieldByName('LANGUAGE').AsVariant,cPrices,cProperties,cTexts,cSupplier,cPiecelists);
   if aMakeActive then
     begin
       bMasterdata := TMasterdata.CreateEx(Self,DataModule,Self.Connection);

@@ -209,7 +209,8 @@ type
 implementation
 uses uSearch, uBaseDbInterface, uOrder, uDocumentFrame, uDocuments,
   uData,uMasterdata,uBaseVisualApplication,uMainTreeFrame,ucalcframe,uProjects,
-  uautomationframe,utask,fautomationform,uPosGotoArticle,uArticleFrame,Dialogs;
+  uautomationframe,utask,fautomationform,uPosGotoArticle,uArticleFrame,Dialogs,
+  uCopyArticleData;
 {$R *.lfm}
 procedure TfPosition.FDataSourceStateChange(Sender: TObject);
 begin
@@ -543,7 +544,7 @@ begin
 end;
 procedure TfPosition.acGotoArticleExecute(Sender: TObject);
 var
-  aMasterdata: TMasterdataList;
+  aMasterdata: TMasterdata;
   MdThere : Boolean = False;
   VersionThere : Boolean = False;
   aFrame: TfArticleFrame;
@@ -623,7 +624,8 @@ begin
                 Data.GotoLink(Data.BuildLink(aMasterdata.DataSet))
               else if rbVersionate.Checked then
                 begin
-                  Showmessage('im Moment nicht implementiert !');
+                  if fCopyArticleData.Execute(aMasterdata,Dataset.FieldByName('VERSION').AsVariant,Null) then
+                    Data.GotoLink(Data.BuildLink(aMasterdata.DataSet));
                 end;
             end;
         end;

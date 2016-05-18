@@ -108,7 +108,7 @@ type
     function EOF : Boolean;virtual;
     function FieldByName(const aFieldName : string) : TField;virtual;
     procedure Assign(Source: TPersistent); override;
-    procedure DirectAssign(Source : TPersistent);
+    procedure DirectAssign(Source : TPersistent);virtual;
     procedure Filter(aFilter : string;aLimit : Integer = 0);virtual;
     procedure FilterEx(aFilter : string;aLimit : Integer = 0;aOrderBy : string = '';aSortDirection : string = 'ASC';aLocalSorting : Boolean = False;aGlobalFilter : Boolean = True;aUsePermissions : Boolean = False;aFilterIn : string = '');virtual;
     property ActualFilter : string read GetFilter write SetFilter;
