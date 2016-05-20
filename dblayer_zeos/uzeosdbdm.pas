@@ -24,7 +24,7 @@ uses
   Classes, SysUtils, db, ZConnection, ZSqlMetadata,
   ZAbstractRODataset, ZDataset, ZSequence,ZAbstractConnection,
   uModifiedDS,ZSqlMonitor,Utils,uBaseDatasetInterfaces,syncobjs,
-  uBaseDBInterface,uBaseDbClasses,ZCompatibility;
+  uBaseDBInterface,uBaseDbClasses,ZCompatibility,dateutils;
 type
   TUnprotectedDataSet = class(TDataSet);
 
@@ -915,7 +915,7 @@ begin
   if FUpStdFields and Assigned(FOrigTable) {and (FOrigTable.Changed)} then
     begin
       if (FieldDefs.IndexOf('TIMESTAMPD') > -1) then
-        FieldByName('TIMESTAMPD').AsDateTime:=Now();
+        FieldByName('TIMESTAMPD').AsDateTime:=LocalTimeToUniversal(Now());
       with BaseApplication as IBaseDBInterface do
         begin
           if Data.Users.DataSet.Active then
