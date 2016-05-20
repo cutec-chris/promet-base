@@ -591,7 +591,7 @@ begin
         tvStep.Selected:=tvStep.Selected.GetNextSibling
       else
         tvStep.Selected:=tvStep.Selected.GetNext;
-      while tvStep.Selected.ImageIndex=43 do
+      while Assigned(tvStep.Selected) and (tvStep.Selected.ImageIndex=43) do
         tvStep.Selected:=tvStep.Selected.GetNextSibling;
       if Assigned(tvStep.Selected) then
         begin
