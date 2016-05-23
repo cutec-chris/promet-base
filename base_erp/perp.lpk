@@ -11,92 +11,92 @@
     </CompilerOptions>
     <Files Count="22">
       <Item1>
-        <Filename Value="udetailpositionframe.lfm"/>
-        <Type Value="LFM"/>
+        <Filename Value="fautomationform.pas"/>
+        <UnitName Value="fautomationform"/>
       </Item1>
       <Item2>
-        <Filename Value="utextpositionframe.pas"/>
-        <UnitName Value="utextpositionframe"/>
+        <Filename Value="uarticleframe.pas"/>
+        <UnitName Value="uArticleFrame"/>
       </Item2>
       <Item3>
-        <Filename Value="upositionframe.lfm"/>
-        <Type Value="LFM"/>
+        <Filename Value="uarticlepositionframe.pas"/>
+        <UnitName Value="uArticlePositionFrame"/>
       </Item3>
       <Item4>
-        <Filename Value="upositionframe.pas"/>
-        <UnitName Value="uPositionFrame"/>
+        <Filename Value="uarticlestorageframe.pas"/>
+        <UnitName Value="uArticleStorageFrame"/>
       </Item4>
       <Item5>
-        <Filename Value="ufinance.lfm"/>
-        <Type Value="LFM"/>
+        <Filename Value="uarticlesupplierframe.pas"/>
+        <UnitName Value="uarticlesupplierframe"/>
       </Item5>
       <Item6>
-        <Filename Value="ufinance.pas"/>
-        <UnitName Value="ufinance"/>
+        <Filename Value="uarticletext.pas"/>
+        <UnitName Value="uArticleText"/>
       </Item6>
       <Item7>
         <Filename Value="uautomationframe.pas"/>
         <UnitName Value="uautomationframe"/>
       </Item7>
       <Item8>
-        <Filename Value="udetailpositionframe.pas"/>
-        <UnitName Value="uDetailPositionFrame"/>
+        <Filename Value="ubookfibuaccount.pas"/>
+        <UnitName Value="ubookfibuaccount"/>
       </Item8>
       <Item9>
-        <Filename Value="ucalcframe.lfm"/>
+        <Filename Value="ubookfibuaccount.lfm"/>
         <Type Value="LFM"/>
       </Item9>
       <Item10>
-        <Filename Value="ubookfibuaccount.lfm"/>
-        <Type Value="LFM"/>
-      </Item10>
-      <Item11>
-        <Filename Value="ubookfibuaccount.pas"/>
-        <UnitName Value="ubookfibuaccount"/>
-      </Item11>
-      <Item12>
         <Filename Value="ucalcframe.pas"/>
         <UnitName Value="ucalcframe"/>
-      </Item12>
-      <Item13>
-        <Filename Value="fautomationform.pas"/>
-        <UnitName Value="fautomationform"/>
-      </Item13>
-      <Item14>
-        <Filename Value="uprometscriptprinting.pas"/>
-        <UnitName Value="uprometscriptprinting"/>
-      </Item14>
-      <Item15>
-        <Filename Value="uposgotoarticle.pas"/>
-        <UnitName Value="uPosGotoArticle"/>
-      </Item15>
-      <Item16>
-        <Filename Value="uarticleframe.pas"/>
-        <UnitName Value="uArticleFrame"/>
-      </Item16>
-      <Item17>
-        <Filename Value="uarticlepositionframe.pas"/>
-        <UnitName Value="uArticlePositionFrame"/>
-      </Item17>
-      <Item18>
-        <Filename Value="uarticlestorageframe.pas"/>
-        <UnitName Value="uArticleStorageFrame"/>
-      </Item18>
-      <Item19>
-        <Filename Value="uarticletext.pas"/>
-        <UnitName Value="uArticleText"/>
-      </Item19>
-      <Item20>
+      </Item10>
+      <Item11>
+        <Filename Value="ucalcframe.lfm"/>
+        <Type Value="LFM"/>
+      </Item11>
+      <Item12>
         <Filename Value="ucopyarticledata.pas"/>
         <UnitName Value="uCopyArticleData"/>
-      </Item20>
-      <Item21>
-        <Filename Value="uarticlesupplierframe.pas"/>
-        <UnitName Value="uarticlesupplierframe"/>
-      </Item21>
-      <Item22>
+      </Item12>
+      <Item13>
+        <Filename Value="udetailpositionframe.pas"/>
+        <UnitName Value="uDetailPositionFrame"/>
+      </Item13>
+      <Item14>
+        <Filename Value="udetailpositionframe.lfm"/>
+        <Type Value="LFM"/>
+      </Item14>
+      <Item15>
+        <Filename Value="ufinance.pas"/>
+        <UnitName Value="ufinance"/>
+      </Item15>
+      <Item16>
+        <Filename Value="ufinance.lfm"/>
+        <Type Value="LFM"/>
+      </Item16>
+      <Item17>
+        <Filename Value="uposgotoarticle.pas"/>
+        <UnitName Value="uPosGotoArticle"/>
+      </Item17>
+      <Item18>
+        <Filename Value="upositionframe.pas"/>
+        <UnitName Value="uPositionFrame"/>
+      </Item18>
+      <Item19>
+        <Filename Value="upositionframe.lfm"/>
+        <Type Value="LFM"/>
+      </Item19>
+      <Item20>
         <Filename Value="uprojectoverview.pas"/>
         <UnitName Value="uprojectoverview"/>
+      </Item20>
+      <Item21>
+        <Filename Value="uprometscriptprinting.pas"/>
+        <UnitName Value="uprometscriptprinting"/>
+      </Item21>
+      <Item22>
+        <Filename Value="utextpositionframe.pas"/>
+        <UnitName Value="utextpositionframe"/>
       </Item22>
     </Files>
     <RequiredPkgs Count="5">

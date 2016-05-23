@@ -11,12 +11,12 @@ inherited fRepairImageFrame: TfRepairImageFrame
   DesignTop = 385
   object Panel3: TPanel[0]
     Left = 0
-    Height = 229
-    Top = 29
+    Height = 227
+    Top = 31
     Width = 868
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 229
+    ClientHeight = 227
     ClientWidth = 868
     TabOrder = 0
     object lVersion1: TLabel
@@ -39,17 +39,17 @@ inherited fRepairImageFrame: TfRepairImageFrame
     end
     object lErrordescription: TLabel
       Left = 105
-      Height = 13
+      Height = 15
       Top = 134
-      Width = 94
+      Width = 104
       Caption = 'Fehlerbeschreibung'
       ParentColor = False
     end
     object lNotesforCustomer: TLabel
       Left = 304
-      Height = 13
+      Height = 15
       Top = 136
-      Width = 86
+      Width = 96
       Caption = 'Notizen für Kunde'
       ParentColor = False
     end
@@ -75,7 +75,7 @@ inherited fRepairImageFrame: TfRepairImageFrame
     end
     object eSerial1: TDBEdit
       Left = 105
-      Height = 21
+      Height = 23
       Top = 19
       Width = 76
       DataField = 'SERIAL'
@@ -87,30 +87,31 @@ inherited fRepairImageFrame: TfRepairImageFrame
     end
     object cbVersion1: TDBComboBox
       Left = 104
-      Height = 21
+      Height = 23
       Top = 58
       Width = 77
       DataField = 'VERSION'
       DataSource = Position
-      ItemHeight = 13
+      ItemHeight = 15
       MaxLength = 0
+      OnDropDown = cbVersion1DropDown
       TabOrder = 1
     end
     object cbOperation: TDBComboBox
       Left = 730
-      Height = 21
+      Height = 23
       Top = 19
       Width = 124
       Anchors = [akTop, akRight]
       DataField = 'OPERATION'
       DataSource = Repair
-      ItemHeight = 13
+      ItemHeight = 15
       MaxLength = 0
       TabOrder = 2
     end
     object mErrordesc: TDBMemo
       Left = 104
-      Height = 70
+      Height = 68
       Top = 152
       Width = 192
       Anchors = [akTop, akLeft, akBottom]
@@ -120,7 +121,7 @@ inherited fRepairImageFrame: TfRepairImageFrame
     end
     object mNotes: TDBMemo
       Left = 304
-      Height = 70
+      Height = 68
       Top = 152
       Width = 256
       Anchors = [akTop, akLeft, akBottom]
@@ -131,7 +132,7 @@ inherited fRepairImageFrame: TfRepairImageFrame
     end
     object mInternalNotes: TDBMemo
       Left = 568
-      Height = 70
+      Height = 68
       Top = 152
       Width = 286
       Anchors = [akTop, akLeft, akRight, akBottom]
@@ -156,20 +157,20 @@ inherited fRepairImageFrame: TfRepairImageFrame
     end
     object cbImage: TComboBox
       Left = 192
-      Height = 21
+      Height = 23
       Top = 19
       Width = 464
       Anchors = [akTop, akLeft, akRight]
-      ItemHeight = 13
+      ItemHeight = 15
       OnKeyPress = cbImageKeyPress
       OnSelect = cbImageSelect
       TabOrder = 7
     end
     object Label1: TLabel
       Left = 192
-      Height = 13
+      Height = 15
       Top = 3
-      Width = 46
+      Width = 52
       Caption = 'Fehlerbild'
       ParentColor = False
     end
@@ -240,9 +241,9 @@ inherited fRepairImageFrame: TfRepairImageFrame
     end
     object lNotesforCustomer1: TLabel
       Left = 224
-      Height = 13
+      Height = 15
       Top = 43
-      Width = 93
+      Width = 100
       Caption = 'betroffene Bauteile'
       ParentColor = False
     end
@@ -269,7 +270,7 @@ inherited fRepairImageFrame: TfRepairImageFrame
   end
   object lInfo: TLabel[1]
     Left = 8
-    Height = 13
+    Height = 15
     Top = 8
     Width = 852
     Align = alTop
@@ -282,9 +283,9 @@ inherited fRepairImageFrame: TfRepairImageFrame
   end
   object Label2: TLabel[2]
     Left = 8
-    Height = 13
+    Height = 15
     Top = 32
-    Width = 30
+    Width = 32
     Caption = 'Fehler'
     ParentColor = False
   end

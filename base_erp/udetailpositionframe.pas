@@ -25,6 +25,9 @@ uses
   uPrometFramesInplace;
 
 type
+
+  { TfDetailPositionFrame }
+
   TfDetailPositionFrame = class(TPrometInplaceFrame)
     cbPQuantityU: TDBComboBox;
     cbTexttyp: TDBComboBox;
@@ -51,6 +54,7 @@ type
     lTexttype: TLabel;
     lVersion: TLabel;
     mLongText: TDBMemo;
+    procedure cbVersionDropDown(Sender: TObject);
     procedure FrameEnter(Sender: TObject);
   private
     { private declarations }
@@ -61,13 +65,30 @@ type
 
 implementation
 {$R *.lfm}
-uses uPositionFrame,uBaseERPDBClasses;
+uses uPositionFrame,uBaseERPDBClasses,uMasterdata;
 procedure TfDetailPositionFrame.FrameEnter(Sender: TObject);
 begin
   with TfPosition(Owner).DataSet as TBaseDbPosition do
     begin
       Position.DataSet := DataSet;
     end;
+end;
+
+procedure TfDetailPositionFrame.cbVersionDropDown(Sender: TObject);
+var
+  aMD: TMasterdata;
+begin
+  cbVersion.Clear;
+  aMD := TMasterdata.Create(nil);
+  aMD.Select(Position.DataSet.FieldByName('IDENT').AsString);
+  aMD.Open;
+  aMD.First;
+  while not aMD.EOF do
+    begin
+      cbVersion.Items.Add(aMD.FieldByName('VERSION').AsString);
+      aMd.Next;
+    end;
+  aMD.Free;
 end;
 
 procedure TfDetailPositionFrame.SetRights(Editable: Boolean);

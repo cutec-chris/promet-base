@@ -4,15 +4,14 @@
 
 unit perp;
 
-{$warn 5023 off : no warning about unused units}
 interface
 
 uses
-  utextpositionframe, uPositionFrame, ufinance, uautomationframe, 
-  uDetailPositionFrame, ubookfibuaccount, ucalcframe, fautomationform, 
-  uprometscriptprinting, uPosGotoArticle, uArticleFrame, 
-  uArticlePositionFrame, uArticleStorageFrame, uArticleText, uCopyArticleData, 
-  uarticlesupplierframe, uprojectoverview, LazarusPackageIntf;
+  fautomationform, uArticleFrame, uArticlePositionFrame, uArticleStorageFrame, 
+  uarticlesupplierframe, uArticleText, uautomationframe, ubookfibuaccount, 
+  ucalcframe, uCopyArticleData, uDetailPositionFrame, ufinance, 
+  uPosGotoArticle, uPositionFrame, uprojectoverview, uprometscriptprinting, 
+  utextpositionframe, LazarusPackageIntf;
 
 implementation
 

@@ -46,6 +46,7 @@ type
     Timer2: TTimer;
     procedure cbImageKeyPress(Sender: TObject; var Key: char);
     procedure cbImageSelect(Sender: TObject);
+    procedure cbVersion1DropDown(Sender: TObject);
     procedure ComboSearch(Data: PtrInt);
     procedure eSerial1Exit(Sender: TObject);
     procedure FrameEnter(Sender: TObject);
@@ -199,6 +200,23 @@ begin
     begin
       SetRepairImage;
     end;
+end;
+
+procedure TfRepairImageFrame.cbVersion1DropDown(Sender: TObject);
+var
+  aMD: TMasterdata;
+begin
+  cbVersion1.Clear;
+  aMD := TMasterdata.Create(nil);
+  aMD.Select(Position.DataSet.FieldByName('IDENT').AsString);
+  aMD.Open;
+  aMD.First;
+  while not aMD.EOF do
+    begin
+      cbVersion1.Items.Add(aMD.FieldByName('VERSION').AsString);
+      aMD.Next;
+    end;
+  aMD.Free;
 end;
 
 procedure TfRepairImageFrame.ComboSearch(Data: PtrInt);
