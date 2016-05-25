@@ -78,7 +78,7 @@ procedure TfDetailPositionFrame.cbVersionDropDown(Sender: TObject);
 var
   aMD: TMasterdata;
 begin
-  cbVersion.Clear;
+  cbVersion.Items.Clear;
   aMD := TMasterdata.Create(nil);
   aMD.Select(Position.DataSet.FieldByName('IDENT').AsString);
   aMD.Open;

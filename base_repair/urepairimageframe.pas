@@ -206,7 +206,7 @@ procedure TfRepairImageFrame.cbVersion1DropDown(Sender: TObject);
 var
   aMD: TMasterdata;
 begin
-  cbVersion1.Clear;
+  cbVersion1.Items.Clear;
   aMD := TMasterdata.Create(nil);
   aMD.Select(Position.DataSet.FieldByName('IDENT').AsString);
   aMD.Open;

@@ -1,4 +1,7 @@
-﻿Build 425
+﻿Build 426
+      - Wizardmandant:interner Wizard wird genutzt statt externem (externer wurde in 425 noch aufgerufen wird aber nicht mehr mitgeliefert)
+      - Detail,Reparaturframe:Feld Version wird mit den möglichen Versionen gefüllt
+Build 425
       - Wizardmandant:in Hauptapplikationen intigriert
       - Wizardmandant:Fehler beim befüllen der Rechtetabelle behoben
       - Avad:Aus Scripten können nun einzelne Funktionen mit Positionen verknüpft werden (aus Automations Frame)

@@ -20,12 +20,23 @@ Created 04.03.2016
 unit uprometmsgnetwork;
 
 {$mode objfpc}{$H+}
+{$DEFINE HAS_SSH_SUPPORT} //comment out if only telnet support required
+{$DEFINE LIBSSH2}
 
 interface
 
 uses
-  Classes, SysUtils, blcksock, synsock, ssl_openssl, synautil, uBaseDbClasses,
-  uBaseDBInterface,uprometpubsub,uAppServer;
+  Classes, SysUtils, blcksock, synsock, synautil, uBaseDbClasses,
+  uBaseDBInterface,uprometpubsub,uAppServer,
+  {$IFDEF HAS_SSH_SUPPORT}
+    {ssl - or actually ssh - libs required by tlntsend}
+      {$IFDEF LIBSSH2}
+        ssl_libssh2
+      {$ELSE}
+        ssl_cryptlib
+    {$ENDIF}
+    {$ENDIF HAS_SSH_SUPPORT}
+  ;
 type
 
   { TPrometDiscoveryDaemon }
