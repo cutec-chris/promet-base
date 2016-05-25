@@ -257,16 +257,11 @@ begin
               FindClose(aInfo);
               if cbMandant.Items.Count = 0 then
                 begin
-                  if FileExists(UniToSys(AppendPathDelim(Application.Location)+'wizardmandant'+ExtractFileExt(Application.ExeName))) then
+                  if MessageDlg(strStartmandantWizard,mtInformation,[mbYes,mbNo],0) = mrYes then
                     begin
-                      if MessageDlg(strStartmandantWizard,mtInformation,[mbYes,mbNo],0) = mrYes then
-                        begin
-                          StartWizardMandant;
-                        end
-                      else  raise Exception.Create(strNoMandants);
+                      StartWizardMandant;
                     end
-                  else
-                    raise Exception.Create(strNoMandants);
+                  else  raise Exception.Create(strNoMandants);
                   exit;
                 end;
             end;
