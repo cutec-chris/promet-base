@@ -1,4 +1,6 @@
-﻿Build 426
+﻿Build 427
+      - Reportvorschau:wird nun immer in Taskbar angezeigt
+Build 426
       - Wizardmandant:interner Wizard wird genutzt statt externem (externer wurde in 425 noch aufgerufen wird aber nicht mehr mitgeliefert)
       - Detail,Reparaturframe:Feld Version wird mit den möglichen Versionen gefüllt
 Build 425
