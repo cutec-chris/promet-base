@@ -2,8 +2,9 @@
   This source is only used to compile and install the package.
  }
 
-unit promet_dblayer_zeos; 
+unit promet_dblayer_zeos;
 
+{$warn 5023 off : no warning about unused units}
 interface
 
 uses
