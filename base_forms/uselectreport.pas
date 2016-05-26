@@ -467,6 +467,7 @@ begin
           NewRect.Top:=100;
         end;
       pv.BoundsRect := NewRect;
+      pv.ShowInTaskBar:=stAlways;
       try
         if Report.PrepareReport then
           begin
