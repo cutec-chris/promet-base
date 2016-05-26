@@ -716,6 +716,7 @@ procedure TZeosDBDataSet.InternalOpen;
 var
   a: Integer;
 begin
+  if (not Assigned(Connection)) or (not Connection.Connected) then exit;
   if Connection.Protocol='mysql' then
     Properties.Values['ValidateUpdateCount'] := 'False';
   if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
