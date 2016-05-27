@@ -275,7 +275,6 @@ type
     SearchKeyTimer : TTimer;
     FDisableEdit : Boolean;
     FInitialized : Boolean;
-    procedure ClearFilters;
     function GetFilterRow: Boolean;
     function GetRowObject(Row : Integer): TObject;
     procedure SetExpField(AValue: string);
@@ -344,6 +343,7 @@ type
     procedure SetRights(Editable : Boolean);
     procedure SetChild(Dorefresh : Boolean = True);
     procedure UnSetChild;
+    procedure ClearFilters;
     property BaseFilter : string read FbaseFilter write SetBaseFilter;
     property ApplyAutoFilter : Boolean read FApplyAutoFilter write FApplyAutoFilter;
     function GotoActiveRow : Boolean;
