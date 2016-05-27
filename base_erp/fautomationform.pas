@@ -697,6 +697,8 @@ begin
               then
                 begin
                   TreeData.LoadScript(aMasterdata.Positions.FieldByName('SCRIPT').AsString,aMasterdata.Positions.FieldByName('SCRIPTVER').AsVariant);
+                  TreeData.Func:=aMasterdata.Positions.FieldByName('SCRIPTFUNC').AsString;
+                  TreeData.PrepareFunc:=aMasterdata.Positions.FieldByName('PRSCRIPTFUNC').AsString;
                   if Assigned(aMasterdata.Positions.FieldByName('PRSCRIPT')) then
                     TreeData.LoadPrepareScript(aMasterdata.Positions.FieldByName('PRSCRIPT').AsString,aMasterdata.Positions.FieldByName('PRSCRIPTVER').AsVariant);
                   TreeData.WorkText.Text:=WikiText2HTML(aMasterdata.Positions.FieldByName('TEXT').AsString);
@@ -750,6 +752,8 @@ begin
       if aMasterdata.Active then
         begin
           TreeData.LoadScript(aMasterdata.FieldByName('SCRIPT').AsString,aMasterdata.FieldByName('SCRIPTVER').AsVariant);
+          TreeData.Func:=aMasterdata.FieldByName('SCRIPTFUNC').AsString;
+          TreeData.PrepareFunc:=aMasterdata.FieldByName('PRSCRIPTFUNC').AsString;
           if Assigned(aMasterdata.FieldByName('PRSCRIPT')) then
             TreeData.LoadPrepareScript(aMasterdata.FieldByName('PRSCRIPT').AsString,aMasterdata.FieldByName('PRSCRIPTVER').AsVariant);
           if not Assigned(uBaseERPDBClasses.TextTyp) then
