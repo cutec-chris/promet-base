@@ -1,5 +1,7 @@
 ﻿Build 427
       - Reportvorschau:wird nun immer in Taskbar angezeigt
+      - Auftrag:Moglichkeit Filter zu deaktivieren bei Statusänderungen (wenn man gefiltert einen Auftragsstatus ändert werden nur gefilterte zeilen in die neue Version übernommen)
+      - Avad:Funktionsaufrufe (über Positionsverknüpfung) funktionieren nun in allen Fällen
 Build 426
       - Wizardmandant:interner Wizard wird genutzt statt externem (externer wurde in 425 noch aufgerufen wird aber nicht mehr mitgeliefert)
       - Detail,Reparaturframe:Feld Version wird mit den möglichen Versionen gefüllt
