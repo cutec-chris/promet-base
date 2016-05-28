@@ -2,7 +2,7 @@
 <CONFIG>
   <Package Version="4">
     <Name Value="msgclient"/>
-    <Type Value="RunAndDesignTime"/>
+    <Type Value="RunTimeOnly"/>
     <CompilerOptions>
       <Version Value="11"/>
       <SearchPaths>
