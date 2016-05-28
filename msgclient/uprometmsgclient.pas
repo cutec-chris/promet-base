@@ -54,7 +54,7 @@ end;
 
 procedure TPrometMsgClient.Log(AppName,aType: string; aMsg: string);
 begin
-  Sock.SendString('PUB /'+FName+'/'+AppName+'/'+UpperCase(aType)+' '+aMsg+CRLF);
+  Sock.SendString('PUB /'+FName+'/'+AppName+'/'+aType+' '+aMsg+CRLF);
 end;
 
 end.
