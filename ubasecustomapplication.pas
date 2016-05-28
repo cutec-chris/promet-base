@@ -22,7 +22,7 @@ unit uBaseCustomApplication;
 interface
 uses
   {$ifdef UNIX}cwstring,{$endif}Classes, SysUtils, CustApp, uBaseApplication, uBaseDBInterface,
-  uData, uSystemMessage, eventlog,Utils, uZeosDBDM;
+  uData, uSystemMessage, eventlog,Utils, uZeosDBDM, uprometmsgclient;
 resourcestring
   strFailedtoLoadMandants    = 'Mandanten konnten nicht gelanden werden !';
   strMandantnotSelected      = 'kein Mandant gewählt (--mandant) !';
@@ -54,6 +54,7 @@ type
     FAppName : string;
     FAppRevsion : Integer;
     FAppVersion : Real;
+    FMsgClient : TPrometMsgClient;
     function HandleSystemCommand(Sender : TObject;aCommand : string) : Boolean;
   public
     constructor Create(AOwner: TComponent); override;
@@ -168,6 +169,7 @@ begin
   DoDestroy := False;
   BaseApplication := Self;
   FMessageHandler := nil;
+  FMsgClient := TPrometMsgClient.Create;
   {.$Warnings Off}
   FDBInterface := TBaseDBInterface.Create;
   FDBInterface.SetOwner(Self);
@@ -176,6 +178,7 @@ end;
 destructor TBaseCustomApplication.Destroy;
 begin
   DoExit;
+  FMsgClient.Free;
   if Assigned(FmessageHandler) then
     begin
       FMessagehandler.Terminate;
@@ -299,6 +302,8 @@ begin
             writeln('Error:'+aMsg);
           end;
       end;
+    if Assigned(FMsgClient) then
+      FMsgClient.Log(Stringreplace(copy(ExeName,rpos('/',ExeName)+1,length(ExeName)),'.exe','',[rfIgnoreCase]),aType,aMsg);
   except
   end;
 end;
@@ -358,8 +363,11 @@ end;
 procedure TBaseCustomApplication.DoExit;
 begin
   if Assigned(FMessageHandler) then FreeAndNil(FMessageHandler);
-  with Self as IBaseDbInterface do
-    DBLogout;
+  try
+    with Self as IBaseDbInterface do
+      DBLogout;
+  except
+  end;
 end;
 end.
 
