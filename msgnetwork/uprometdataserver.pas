@@ -37,20 +37,20 @@ uses usync,uBaseDatasetInterfaces;
 function HandleDataRequest(Method, URL: string;Headers : TStringList;Input,Output : TStream): Integer;
 begin
   {
-  /api/pds/objects/contacts
-  /api/pds/objects/contacts('1091')
-  /api/pds/objects/contacts('1091')?setstatus=I
-  /api/pds/objects/contacts('1091')/address
+  /api/jsonrpc/pds/objects/contacts
+  /api/jsonrpc/pds/objects/contacts('1091')
+  /api/jsonrpc/pds/objects/contacts('1091')?setstatus=I
+  /api/jsonrpc/pds/objects/contacts('1091')/address
   http://www.odata.org/
   /wiki/folder1/page2
   }
   Result := 500;
-  if copy(lowercase(url),0,17)='/api/pds/objects/' then
+  if copy(lowercase(url),0,17)='/api/jsonrpc/pds/objects/' then
     begin
       url := copy(url,18,length(url));
 
     end
-  else if copy(lowercase(url),0,15)='/api/pds/lists/' then
+  else if copy(lowercase(url),0,15)='/api/jsonrpc/pds/lists/' then
     begin
       url := copy(url,16,length(url));
 
