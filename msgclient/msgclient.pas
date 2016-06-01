@@ -7,14 +7,8 @@ unit msgclient;
 interface
 
 uses
-  uprometmsgclient, LazarusPackageIntf;
+  uprometmsgclient;
 
 implementation
 
-procedure Register;
-begin
-end;
-
-initialization
-  RegisterPackage('msgclient', @Register);
 end.
