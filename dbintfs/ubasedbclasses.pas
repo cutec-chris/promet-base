@@ -178,10 +178,14 @@ type
     procedure DefineFields(aDataSet : TDataSet);override;
   end;
 
+  { TBaseDBTables }
+
   TBaseDBTables = class(TBaseDBDataset)
   private
     FFields: TBaseDBFields;
   public
+    constructor CreateEx(aOwner: TComponent; DM: TComponent;
+      aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
     procedure DefineFields(aDataSet : TDataSet);override;
     property Fields : TBaseDBFields read FFields;
   end;
@@ -324,6 +328,9 @@ type
     property WorkTime : Extended read GetWorktime;
     property IDCode : TField read GetIDCode;
   end;
+
+  { TDatabaseTables }
+
   TActiveUsers = class(TBaseDBDataSet)
   public
     procedure DefineFields(aDataSet : TDataSet);override;
@@ -595,6 +602,8 @@ resourcestring
   strNeedsAction                = 'benötigt Hilfe';
   strCostCentre                 = 'Kostenstelle';
 
+{ TDatabaseTables }
+
 procedure TBaseDBFields.DefineFields(aDataSet: TDataSet);
 begin
   with aDataSet as IBaseManageDB do
@@ -624,11 +633,22 @@ begin
     end;
 end;
 
+constructor TBaseDBTables.CreateEx(aOwner: TComponent; DM: TComponent;
+  aConnection: TComponent; aMasterdata: TDataSet);
+begin
+  inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
+  with BaseApplication as IBaseDbInterface do
+    begin
+      with FDataSet as IBaseDBFilter do
+        Limit := 0;
+    end;
+end;
+
 procedure TBaseDBTables.DefineFields(aDataSet: TDataSet);
 begin
   with aDataSet as IBaseManageDB do
     begin
-      TableName := 'TABLES';
+      TableName := 'DBTABLES';
       if Assigned(ManagedFieldDefs) then
         with ManagedFieldDefs do
           begin
@@ -2671,6 +2691,7 @@ begin
             Add('DBVERSION',ftInteger,0,False);
             Add('STAMP',ftLargeInt,0,False);
             Add('IMAGE',ftBlob,0,False);
+            Add('DBSTATEMENTS',ftMemo,0,False);
           end;
     end;
 end;

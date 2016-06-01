@@ -90,6 +90,7 @@ type
     function GetLimitAfterSelect: Boolean;virtual;
     function GetLimitSTMT: string;virtual;
   public
+    DBTables : TBaseDBTables;
     ActiveUsers : TActiveUsers;
     Numbers : TNumberSets;
     MandantDetails : TMandantDetails;
@@ -439,6 +440,7 @@ begin
       UserFieldDefs := TUserFieldDefs.CreateEx(nil,Self);
       Filters := TFilters.CreateEx(nil,Self);
       Reports := TReports.CreateEx(nil,Self);
+      DBTables :=  TBaseDBTables.CreateEx(nil,Self);
       ActiveUsers := TActiveUsers.CreateEx(nil,Self);
       Permissions := TPermissions.CreateEx(nil,Self);
       StorageTypes := TStorageTypes.CreateEx(nil,Self);

@@ -17,8 +17,8 @@
         <Type Value="LFM"/>
       </Item1>
       <Item2>
-        <Filename Value="umandantoptions.pas"/>
-        <UnitName Value="uMandantOptions"/>
+        <Filename Value="utableoptions.pas"/>
+        <UnitName Value="utableoptions"/>
       </Item2>
       <Item3>
         <Filename Value="uoptions.lfm"/>

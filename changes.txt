@@ -1,4 +1,6 @@
-﻿Build 427
+﻿Build 428
+      - Optionen:Tab Datenbankeinstellungen hinzugefügt
+Build 427
       - Reportvorschau:wird nun immer in Taskbar angezeigt
       - Auftrag:Moglichkeit Filter zu deaktivieren bei Statusänderungen (wenn man gefiltert einen Auftragsstatus ändert werden nur gefilterte zeilen in die neue Version übernommen)
       - Avad:Funktionsaufrufe (über Positionsverknüpfung) funktionieren nun in allen Fällen

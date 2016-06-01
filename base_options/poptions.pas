@@ -4,11 +4,10 @@
 
 unit pOptions;
 
-{$warn 5023 off : no warning about unused units}
 interface
 
 uses
-  uMandantOptions, uOptions, uOptionsFrame, uProcessOptions, uuseroptions, 
+  utableoptions, uOptions, uOptionsFrame, uProcessOptions, uuseroptions, 
   uSyncOptions, uvisualoptions, uimportoptions, upaygroups, uScriptOptions, 
   uUserfieldDefOptions, LazarusPackageIntf;
 
