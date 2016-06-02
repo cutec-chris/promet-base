@@ -110,7 +110,6 @@ type
     States : TStates;
     Categories : TCategory;
     DeletedItems : TDeletedItems;
-    TableVersions : TBaseDBDataset;
     //_DocumentActions : TInternalDBDataSet;
     //_MimeTypes : TInternalDBDataSet;
     ProcessClient : TProcessClient;
@@ -454,7 +453,6 @@ begin
       Categories := TCategory.CreateEx(nil,Self);
       DeletedItems := TDeletedItems.CreateEx(nil,Self);
       ProcessClient := TProcessClient.CreateEx(nil,Self);
-      TableVersions := TTableVersions.CreateEx(nil,Self);
     end;
 end;
 function TBaseDBModule.CreateDBFromProperties(aProp: string): Boolean;
@@ -509,7 +507,7 @@ begin
 end;
 destructor TBaseDBModule.Destroy;
 begin
-  TableVersions.Free;
+  DBTables.Free;
   FCheckedTables.Free;
   FTables.Free;
   FTriggers.Free;
@@ -1267,25 +1265,26 @@ var
 begin
   if aTableName='TABLEVERSIONS' then exit;
   try
-    if TableVersions.DataSet.State=dsInsert then TableVersions.DataSet.Cancel;
-    TableVersions.Filter('',0);
-    TableVersions.Open;
+    if DBTables.DataSet.State=dsInsert then DBTables.DataSet.Cancel;
+    DBTables.Filter('',0);
+    DBTables.Open;
     with BaseApplication as IBaseApplication do
       begin
-        if not TableVersions.Locate('NAME',aTableName,[]) then
+        if not DBTables.Locate('NAME',aTableName,[]) then
           begin
-            TableVersions.Insert;
-            TableVersions.FieldByName('NAME').AsString:=aTableName;
+            DBTables.Insert;
+            DBTables.FieldByName('NAME').AsString:=aTableName;
+            DBTables.FieldByName('ALIAS').AsString:=aTableName;
           end;
         with BaseApplication as IBaseApplication do
           begin
-            TableVersions.Edit;
-            TableVersions.FieldByName('DBVERSION').AsInteger:=round(AppVersion*10000+AppRevision);
-            TableVersions.Post;
+            DBTables.Edit;
+            DBTables.FieldByName('DBVERSION').AsInteger:=round(AppVersion*10000+AppRevision);
+            DBTables.Post;
           end;
       end;
   except
-    if TableVersions.DataSet.State=dsInsert then TableVersions.DataSet.Cancel;
+    if DBTables.DataSet.State=dsInsert then DBTables.DataSet.Cancel;
   end;
 end;
 
@@ -1698,12 +1697,7 @@ begin
       exit;
     end;
   mSettings.Free;
-  FDB.TableVersions.CreateTable;
-  FDB.MandantDetails.CreateTable;
   FDB.MandantDetails.Open;
-  FDB.FUsers.CreateTable;
-  FDB.Numbers.CreateTable;
-  FDB.ActiveUsers.CreateTable;
   if aUser <> '' then
     begin
       with FDB.Users.DataSet do
@@ -1750,29 +1744,8 @@ begin
           FDB.ActiveUsers.Delete;
       end;
 
-  FCategory := TCategory.CreateEx(nil,FDB,FDB.MainConnection);
-  FCategory.CreateTable;
-  FCategory.Free;
-  FImages := TImages.CreateEx(nil,FDB,FDB.MainConnection);
-  FImages.CreateTable;
-  FImages.Free;
-  FLinks := TLinks.CreateEx(nil,FDB,FDB.MainConnection);
-  FLinks.CreateTable;
-  FLinks.Free;
-  FHistory := TBaseHistory.CreateEx(nil,FDB,FDB.MainConnection);
-  FHistory.CreateTable;
-  FHistory.Free;
-  FArchiveStore := TArchivedMessage.CreateEx(nil,FDB,FDB.MainConnection);
-  FArchiveStore.CreateTable;
-  FArchiveStore.Free;
-  FDB.Permissions.CreateTable;
-  FDB.DeletedItems.CreateTable;
-  FDB.Forms.CreateTable;
-  FDB.StorageType.CreateTable;
-  FDB.Users.Options.Open;
   if AppendToActiveList then
     FDB.AppendUserToActiveList;
-  FDB.Tree.CreateTable;
   {
   aNumHelper := TNumberHelper.CreateEx(nil,FDB,FDB.MainConnection);
   try

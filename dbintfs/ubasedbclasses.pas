@@ -656,6 +656,7 @@ begin
             Add('SHEMA',ftString,150,False);
             Add('SHEMAFILE',ftString,150,False);
             Add('ALIAS',ftString,150,False);
+            Add('DBVERSION',ftInteger,0,False);
           end;
       if Assigned(ManagedIndexdefs) then
         with ManagedIndexDefs do
