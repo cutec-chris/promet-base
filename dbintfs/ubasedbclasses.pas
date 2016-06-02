@@ -850,7 +850,7 @@ procedure TObjects.FillDefaults(aDataSet: TDataSet);
 begin
   inherited FillDefaults(aDataSet);
   try
-    FieldByName('ICON').AsInteger:=Data.GetLinkIcon('ALLOBJECTS@',True);
+    FieldByName('ICON').AsInteger:=TBaseDBModule(DataModule).GetLinkIcon('ALLOBJECTS@',True);
   except
   end;
 end;
@@ -866,16 +866,16 @@ begin
           begin
             tmp := copy(aLink,12,length(aLink));
             if pos('{',aLink)>0 then tmp := copy(tmp,0,pos('{',tmp)-1);
-            Filter := TBaseDBModule(DataModule).QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(tmp);
+            Filter := TBaseDBModule(DataModule).QuoteField(TableName)+'.'+TBaseDBModule(DataModule).QuoteField('SQL_ID')+'='+TBaseDBModule(DataModule).QuoteValue(tmp);
           end
         else if copy(aLink,0,14)='ALLOBJECTS.ID@' then
           begin
             tmp := copy(aLink,15,length(aLink));
             if pos('{',aLink)>0 then tmp := copy(tmp,0,pos('{',tmp)-1);
-            Filter := TBaseDBModule(DataModule).QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(tmp);
+            Filter := TBaseDBModule(DataModule).QuoteField(TableName)+'.'+TBaseDBModule(DataModule).QuoteField('SQL_ID')+'='+TBaseDBModule(DataModule).QuoteValue(tmp);
           end
         else
-          Filter := Data.QuoteField('LINK')+'='+Data.QuoteValue(aLink);
+          Filter := TBaseDBModule(DataModule).QuoteField('LINK')+'='+TBaseDBModule(DataModule).QuoteValue(aLink);
       end;
 end;
 
@@ -886,9 +886,9 @@ begin
       with Self.DataSet as IBaseDBFilter do
         begin
           if aId <> Null then
-            Filter := TBaseDBModule(DataModule).QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+TBaseDBModule(DataModule).QuoteValue(Format('%d',[Int64(aID)]))
+            Filter := TBaseDBModule(DataModule).QuoteField(TableName)+'.'+TBaseDBModule(DataModule).QuoteField('SQL_ID')+'='+TBaseDBModule(DataModule).QuoteValue(Format('%d',[Int64(aID)]))
           else
-            Filter := TBaseDBModule(DataModule).QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue('0');
+            Filter := TBaseDBModule(DataModule).QuoteField(TableName)+'.'+TBaseDBModule(DataModule).QuoteField('SQL_ID')+'='+TBaseDBModule(DataModule).QuoteValue('0');
           Limit := 0;
         end;
     end;
@@ -940,10 +940,10 @@ begin
       if pos('{',nLink)>0 then
         begin
           nLink := copy(nLink,0,pos('{',nLink)-1);
-          FFilter2:=FFilter2+' OR ('+Data.ProcessTerm(Data.QuoteField('OBJECT')+'='+Data.QuoteValue(nLink+'*'))+')';
+          FFilter2:=FFilter2+' OR ('+TBaseDBModule(DataModule).ProcessTerm(TBaseDBModule(DataModule).QuoteField('OBJECT')+'='+TBaseDBModule(DataModule).QuoteValue(nLink+'*'))+')';
         end
       else
-        FFilter2:=FFilter2+' OR ('+Data.QuoteField('OBJECT')+'='+Data.QuoteValue(nLink)+')';
+        FFilter2:=FFilter2+' OR ('+TBaseDBModule(DataModule).QuoteField('OBJECT')+'='+TBaseDBModule(DataModule).QuoteValue(nLink)+')';
       inc(i);
       Next;
     end;
@@ -1081,7 +1081,7 @@ begin
           if uthumbnails.GenerateThumbNail('.'+GraphExt,s,aStream,'') then
             begin
               if aStream.Size>0 then
-                Data.StreamToBlobField(aStream,aThumbnail.DataSet,'THUMBNAIL');
+                TBaseDBModule(DataModule).StreamToBlobField(aStream,aThumbnail.DataSet,'THUMBNAIL');
               aThumbnail.Post;
             end;
           aStream.Free;
@@ -1106,9 +1106,9 @@ begin
         if Assigned(FParent) and Assigned(FParent.Id) then
           begin
             if not FParent.Id.IsNull then
-              BaseFilter := Data.QuoteField('RREF_ID')+'='+Data.QuoteValue(FParent.Id.AsString)
+              BaseFilter := TBaseDBModule(DataModule).QuoteField('RREF_ID')+'='+TBaseDBModule(DataModule).QuoteValue(FParent.Id.AsString)
             else
-              BaseFilter := Data.QuoteField('RREF_ID')+'= 0';
+              BaseFilter := TBaseDBModule(DataModule).QuoteField('RREF_ID')+'= 0';
           end;
         end;
     end;
@@ -1142,8 +1142,8 @@ var
   aIcon: Integer;
 begin
   Result := False;
-  aLinkDesc := Data.GetLinkDesc(aLink);
-  aIcon := Data.GetLinkIcon(aLink);
+  aLinkDesc := TBaseDBModule(DataModule).GetLinkDesc(aLink);
+  aIcon := TBaseDBModule(DataModule).GetLinkIcon(aLink);
   if not Active then  Open;
   if Locate('LINK',aLink,[]) then exit;
   Append;
@@ -1152,7 +1152,7 @@ begin
       FieldByName('LINK').AsString := aLink;
       FieldByName('NAME').AsString := aLinkDesc;
       FieldByName('ICON').AsInteger := aIcon;
-      FieldByName('CHANGEDBY').AsString := Data.Users.Idcode.AsString;
+      FieldByName('CHANGEDBY').AsString := TBaseDBModule(DataModule).Users.Idcode.AsString;
       Post;
       Result := True;
     end;
@@ -1285,13 +1285,13 @@ begin
   if aStat <> '' then Result := StrToIntDef(aStat,-1)
   else
     begin
-      if Data.States.DataSet.Locate('TYPE;STATUS',VarArrayOf([GetTyp,FieldByName(GetStatusFieldName).AsString]),[]) then
-        Result := StrToIntDef(Data.States.DataSet.FieldByName('ICON').AsString,-1)
+      if TBaseDBModule(DataModule).States.DataSet.Locate('TYPE;STATUS',VarArrayOf([GetTyp,FieldByName(GetStatusFieldName).AsString]),[]) then
+        Result := StrToIntDef(TBaseDBModule(DataModule).States.DataSet.FieldByName('ICON').AsString,-1)
       else
         begin
-          Data.SetFilter(Data.States,Data.QuoteField('TYPE')+'='+Data.QuoteValue(GetTyp));
-          if Data.States.DataSet.Locate('TYPE;STATUS',VarArrayOf([GetTyp,FieldByName(GetStatusFieldName).AsString]),[]) then
-            Result := StrToIntDef(Data.States.DataSet.FieldByName('ICON').AsString,-1)
+          TBaseDBModule(DataModule).SetFilter(TBaseDBModule(DataModule).States,TBaseDBModule(DataModule).QuoteField('TYPE')+'='+TBaseDBModule(DataModule).QuoteValue(GetTyp));
+          if TBaseDBModule(DataModule).States.DataSet.Locate('TYPE;STATUS',VarArrayOf([GetTyp,FieldByName(GetStatusFieldName).AsString]),[]) then
+            Result := StrToIntDef(TBaseDBModule(DataModule).States.DataSet.FieldByName('ICON').AsString,-1)
         end;
       FStatusCache.Values[FieldByName(GetStatusFieldName).AsString] := IntToStr(Result);
     end;
@@ -1334,11 +1334,11 @@ begin
   Result:=False;
   try
     aObj := TObjects.Create(nil);
-    if not Data.TableExists(aObj.TableName) then
+    if not TBaseDBModule(DataModule).TableExists(aObj.TableName) then
       begin
         aObj.CreateTable;
         aObj.Free;
-        aObj := TObjects.CreateEx(nil,Data,nil,DataSet);
+        aObj := TObjects.CreateEx(nil,DataModule,nil,DataSet);
       end;
     aObj.SelectByRefId(Id.AsVariant);
     aObj.Open;
@@ -1608,20 +1608,20 @@ begin
         begin
           if DataSet.State<>dsInsert then
             begin
-              if not Data.TableExists(aHistory.TableName) then
+              if not TBaseDBModule(DataModule).TableExists(aHistory.TableName) then
                 aHistory.CreateTable;
               aHistory.Free;
-              aHistory := TAccessHistory.CreateEx(nil,Data,nil,DataSet);
-              aHistory.AddItem(DataSet,Format(strItemOpened,[Data.GetLinkDesc(Data.BuildLink(DataSet))]),Data.BuildLink(DataSet));
+              aHistory := TAccessHistory.CreateEx(nil,DataModule,nil,DataSet);
+              aHistory.AddItem(DataSet,Format(strItemOpened,[TBaseDBModule(DataModule).GetLinkDesc(TBaseDBModule(DataModule).BuildLink(DataSet))]),TBaseDBModule(DataModule).BuildLink(DataSet));
             end;
         end;
       if DataSet.State<>dsInsert then
         begin
-        if not Data.TableExists(aObj.TableName) then
+        if not TBaseDBModule(DataModule).TableExists(aObj.TableName) then
           begin
             aObj.CreateTable;
             aObj.Free;
-            aObj := TObjects.CreateEx(nil,Data,nil,DataSet);
+            aObj := TObjects.CreateEx(nil,DataModule,nil,DataSet);
           end;
         aObj.SelectByRefId(Id.AsVariant);
         aObj.Open;
@@ -1635,8 +1635,8 @@ begin
             if Assigned(Self.Status) then
               aObj.Status.AsString := Self.Status.AsString;
             aObj.Number.AsVariant:=Self.Number.AsVariant;
-            aObj.FieldByName('LINK').AsString:=Data.BuildLink(Self.DataSet);
-            aObj.FieldByName('ICON').AsInteger:=Data.GetLinkIcon(Data.BuildLink(Self.DataSet),True);
+            aObj.FieldByName('LINK').AsString:=TBaseDBModule(DataModule).BuildLink(Self.DataSet);
+            aObj.FieldByName('ICON').AsInteger:=TBaseDBModule(DataModule).GetLinkIcon(TBaseDBModule(DataModule).BuildLink(Self.DataSet),True);
             aObj.Post;
             Self.GenerateThumbnail;
           end
@@ -1646,18 +1646,18 @@ begin
               begin
                 aObj.Edit;
                 aObj.Text.AsString := Self.Text.AsString;
-                aObj.FieldByName('LINK').AsString:=Data.BuildLink(Self.DataSet);
+                aObj.FieldByName('LINK').AsString:=TBaseDBModule(DataModule).BuildLink(Self.DataSet);
               end;
-            if aObj.FieldByName('ICON').AsVariant<>Data.GetLinkIcon(Data.BuildLink(Self.DataSet),True) then
+            if aObj.FieldByName('ICON').AsVariant<>TBaseDBModule(DataModule).GetLinkIcon(TBaseDBModule(DataModule).BuildLink(Self.DataSet),True) then
               begin
                 aObj.Edit;
-                aObj.FieldByName('ICON').AsInteger:=Data.GetLinkIcon(Data.BuildLink(Self.DataSet),True);
+                aObj.FieldByName('ICON').AsInteger:=TBaseDBModule(DataModule).GetLinkIcon(TBaseDBModule(DataModule).BuildLink(Self.DataSet),True);
               end;
             if aObj.Number.AsString<>Self.Number.AsString then
               begin
                 aObj.Edit;
                 aObj.Number.AsString := Self.Number.AsString;
-                aObj.FieldByName('LINK').AsString:=Data.BuildLink(Self.DataSet);
+                aObj.FieldByName('LINK').AsString:=TBaseDBModule(DataModule).BuildLink(Self.DataSet);
               end;
             if Assigned(Self.Status) and (aObj.Status.AsString<>Self.Status.AsString) then
               begin
@@ -1724,7 +1724,7 @@ begin
   with BaseApplication as IBaseDBInterface do
     with DataSet as IBaseDBFilter do
       begin
-        Filter := Data.QuoteField(GetNumberFieldName)+'='+Data.QuoteValue(aNumber);
+        Filter := TBaseDBModule(DataModule).QuoteField(GetNumberFieldName)+'='+TBaseDBModule(DataModule).QuoteValue(aNumber);
       end;
 end;
 
@@ -1966,7 +1966,7 @@ begin
   with  DataSet as IBaseDBFilter, BaseApplication as IBaseDBInterface, DataSet as IBaseManageDB do
     begin
       if aParent=Null then
-        Filter := Data.ProcessTerm('('+QuoteField('PARENT')+'='+Data.QuoteValue('')+')')
+        Filter := TBaseDBModule(DataModule).ProcessTerm('('+QuoteField('PARENT')+'='+TBaseDBModule(DataModule).QuoteValue('')+')')
       else
         Filter := '('+QuoteField('PARENT')+'='+QuoteValue(aParent)+')';
     end;
@@ -1985,7 +1985,7 @@ begin
   with  DataSet as IBaseDBFilter, BaseApplication as IBaseDBInterface, DataSet as IBaseManageDB do
     begin
       if aParent=Null then
-        Filter := Data.ProcessTerm('('+QuoteField('ROOT')+'='+Data.QuoteValue('')+')')
+        Filter := TBaseDBModule(DataModule).ProcessTerm('('+QuoteField('ROOT')+'='+TBaseDBModule(DataModule).QuoteValue('')+')')
       else
         Filter := '('+QuoteField('ROOT')+'='+QuoteValue(aParent)+')';
     end;
@@ -2006,7 +2006,7 @@ function TBaseHistory.AddItem(aObject: TDataSet; aAction: string;
   aComission: string; CheckDouble: Boolean; DoPost: Boolean; DoChange: Boolean) : Boolean;
 begin
   if Assigned(aRefObject) then
-    Result := AddItemSR(aObject,aAction,aLink,aReference,Data.BuildLink(aRefObject),aIcon,aComission,CheckDouble,DoPost,DoChange)
+    Result := AddItemSR(aObject,aAction,aLink,aReference,TBaseDBModule(DataModule).BuildLink(aRefObject),aIcon,aComission,CheckDouble,DoPost,DoChange)
   else
     Result := AddItemSR(aObject,aAction,aLink,aReference,'',aIcon,aComission,CheckDouble,DoPost,DoChange);
 end;
@@ -2018,7 +2018,7 @@ function TBaseHistory.AddItemSR(aObject: TDataSet; aAction: string;
 begin
   with BaseApplication as IBaseDbInterface do
     if Assigned(aObject) then
-      Result := AddItemPlain(Data.BuildLink(aObject),aAction,aLink,aReference,aRefObject,aIcon,aComission,CheckDouble,DoPost,DoChange);
+      Result := AddItemPlain(TBaseDBModule(DataModule).BuildLink(aObject),aAction,aLink,aReference,aRefObject,aIcon,aComission,CheckDouble,DoPost,DoChange);
 end;
 
 function TBaseHistory.AddItemPlain(aObject: string; aAction: string;
@@ -2040,8 +2040,8 @@ begin
       and (aIcon<>ACICON_USEREDITED)
       and (FieldByName('LINK').AsString = aLink)
       and (trunc(FieldByName('TIMESTAMPD').AsDatetime) = trunc(Now()))
-      and (FieldByName('CHANGEDBY').AsString = Data.Users.Idcode.AsString)
-      and ((FieldByName('REFERENCE').AsString = aReference) or (FieldByName('REFERENCE').AsString=Data.Users.IDCode.Asstring))
+      and (FieldByName('CHANGEDBY').AsString = TBaseDBModule(DataModule).Users.Idcode.AsString)
+      and ((FieldByName('REFERENCE').AsString = aReference) or (FieldByName('REFERENCE').AsString=TBaseDBModule(DataModule).Users.IDCode.Asstring))
       and ((aIcon=11{Termin}))
       and (CheckDouble)
       then
@@ -2058,7 +2058,7 @@ begin
   if aRefObject<>'' then
     FieldByName('REFOBJECT').AsString := aRefObject;
   with BaseApplication as IBaseDbInterface do
-    FieldByName('CHANGEDBY').AsString := Data.Users.IDCode.AsString;
+    FieldByName('CHANGEDBY').AsString := TBaseDBModule(DataModule).Users.IDCode.AsString;
   DataSet.FieldByName('COMMISSION').AsString := aComission;
   DataSet.FieldByName('DATE').AsDateTime:=Now();
   if DoPost then
@@ -2162,14 +2162,14 @@ begin
       if aLink <> '' then
         FieldByName('LINK').AsString      := aLink;
       with BaseApplication as IBaseDbInterface do
-        FieldByName('OBJECT').AsString := Data.BuildLink(aObject);
+        FieldByName('OBJECT').AsString := TBaseDBModule(DataModule).BuildLink(aObject);
       FieldByName('ACTIONICON').AsInteger := aIcon;
       FieldByName('ACTION').AsString    := aAction;
       FieldByName('REFERENCE').AsString := aReference;
       if Assigned(aRefObject) then
         begin
           with BaseApplication as IBaseDbInterface do
-            FieldByName('REFOBJECT').AsString := Data.BuildLink(aRefObject);
+            FieldByName('REFOBJECT').AsString := TBaseDBModule(DataModule).BuildLink(aRefObject);
         end;
       DataSet.FieldByName('COMMISSION').AsString := aComission;
       if DoPost then
@@ -2541,7 +2541,7 @@ begin
     begin
       if not Active then Open;
       if not Locate('OPTION',aIdent,[]) then
-        Data.SetFilter(Self,'',0);
+        TBaseDBModule(DataModule).SetFilter(Self,'',0);
       if not Locate('OPTION',aIdent,[]) then
         begin
           if Value <> '' then
@@ -2648,7 +2648,7 @@ begin
           begin
             aUser := UserTable.GetBookmark;
             with Self.DataSet as IBaseDBFilter do
-              Filter := Data.QuoteField('RIGHTNAME')+'='+Data.QuoteValue(UpperCase(Element));
+              Filter := TBaseDBModule(DataModule).QuoteField('RIGHTNAME')+'='+TBaseDBModule(DataModule).QuoteValue(UpperCase(Element));
             Open;
             RecursiveGetRight;
             UserTable.GotoBookmark(aUser);
@@ -2719,7 +2719,7 @@ begin
   Result := '';
   with BaseApplication as IBaseDbInterface do
     begin
-      Data.SetFilter(Self, Data.QuoteField('TABLENAME')+'='+Data.QuoteValue(numberset));
+      TBaseDBModule(DataModule).SetFilter(Self, TBaseDBModule(DataModule).QuoteField('TABLENAME')+'='+TBaseDBModule(DataModule).QuoteValue(numberset));
       if DataSet.Recordcount > 0 then
         begin
           if DataSet.FieldByName('TYPE').AsString = 'N' then
@@ -2750,7 +2750,7 @@ end;
 function TNumbersets.HasNumberSet(Numberset: string): Boolean;
 begin
   with BaseApplication as IBaseDbInterface do
-    Data.SetFilter(Self, Data.QuoteField('TABLENAME')+'='+Data.QuoteValue(numberset));
+    TBaseDBModule(DataModule).SetFilter(Self, TBaseDBModule(DataModule).QuoteField('TABLENAME')+'='+TBaseDBModule(DataModule).QuoteValue(numberset));
   Result := Count > 0;
 end;
 function TUser.GetLeaved: TField;
@@ -2897,7 +2897,7 @@ end;
 procedure TUser.FillDefaults(aDataSet: TDataSet);
 begin
   with BaseApplication as IBaseDbInterface do
-    aDataSet.FieldByName('ACCOUNTNO').AsString:=Data.Numbers.GetNewNumber('USERS');
+    aDataSet.FieldByName('ACCOUNTNO').AsString:=TBaseDBModule(DataModule).Numbers.GetNewNumber('USERS');
 end;
 
 procedure TUser.SelectByParent(aParent: Variant);
@@ -2905,7 +2905,7 @@ begin
   with  DataSet as IBaseDBFilter, BaseApplication as IBaseDBInterface, DataSet as IBaseManageDB do
     begin
       if aParent=Null then
-        Filter := Data.ProcessTerm('('+QuoteField('PARENT')+'='+Data.QuoteValue('')+')')
+        Filter := TBaseDBModule(DataModule).ProcessTerm('('+QuoteField('PARENT')+'='+TBaseDBModule(DataModule).QuoteValue('')+')')
       else
         Filter := '('+QuoteField('PARENT')+'='+QuoteValue(aParent)+')';
     end;
@@ -2992,7 +2992,7 @@ begin
   with BaseApplication as IBaseDBInterface do
     with DataSet as IBaseDBFilter do
       begin
-        Filter := Data.QuoteField('ACCOUNTNO')+'='+Data.QuoteValue(aAccountno);
+        Filter := TBaseDBModule(DataModule).QuoteField('ACCOUNTNO')+'='+TBaseDBModule(DataModule).QuoteValue(aAccountno);
       end;
 end;
 
@@ -3203,7 +3203,7 @@ end;
 
 constructor TBaseDBDataset.Create(aOwner: TComponent);
 begin
-  CreateEx(aOwner,Data,nil,nil);
+  CreateEx(aOwner,DataModule,nil,nil);
 end;
 
 destructor TBaseDBDataset.Destroy;
@@ -3236,14 +3236,14 @@ begin
       exit;
     end;
   with FDataSet as IBaseManageDB do
-    if (Assigned(Data)) and (Data.ShouldCheckTable(TableName,True)) then
+    if (Assigned(DataModule)) and (TBaseDBModule(DataModule).ShouldCheckTable(TableName,True)) then
       begin
         if not Self.CreateTable then
           begin
             with DataSet as IBaseManageDB do
               FDataSet.Open;
-            if (not Data.IsTransactionActive(Connection)) and AlterTable then
-            else if (not Data.IsTransactionActive(Connection)) then
+            if (not TBaseDBModule(DataModule).IsTransactionActive(Connection)) and AlterTable then
+            else if (not TBaseDBModule(DataModule).IsTransactionActive(Connection)) then
               begin
                 with BaseApplication as IBaseApplication do
                   Info('Table "'+TableName+'" altering failed ');
@@ -3272,37 +3272,11 @@ begin
   with FDataSet as IBaseManageDB do
     begin
       Result := False;
-      if TBaseDBModule(DataModule).ShouldCheckTable(TableName) then
-        if not TBaseDBModule(DataModule).TableExists(TableName,Connection) then
-          begin
-            Result := CreateTable;
-            TBaseDBModule(DataModule).Tables.Clear;
-          end;
-      {
-      if not Result then
+      if not TBaseDBModule(DataModule).TableExists(TableName,Connection) then
         begin
-          aTableName:=TableName;
-          if (not Assigned(Data)) or (Data.ShouldCheckTable(aTableName)) then
-            begin
-              with DataSet as IBaseDbFilter do
-                begin
-                  aOldFilter := Filter;
-                  with DataSet as IBaseManageDb do
-                    if ManagedFieldDefs.IndexOf('AUTO_ID') > -1 then
-                      aField := 'AUTO_ID';
-                  if aField = '' then aField := 'SQL_ID';
-                  Filter := TBaseDBModule(DataModule).QuoteField(TableName)+'.'+TBaseDBModule(DataModule).QuoteField(aField)+'='+TBaseDBModule(DataModule).QuoteValue('0');
-                  aOldLimit := Limit;
-                  Limit := 1;
-                end;
-              FDataSet.Open;
-              with DataSet as IBaseDbFilter do
-                begin
-                  Limit := aOldLimit;
-                  Filter := aOldFilter;
-                end;
-            end;
-        end;}
+          Result := CreateTable;
+          TBaseDBModule(DataModule).Tables.Clear;
+        end;
     end;
 end;
 procedure TBaseDBDataset.DefineDefaultFields(aDataSet: TDataSet;
@@ -3333,7 +3307,7 @@ begin
               UserFields.Open;
             end;
           with aDataSet as IBaseManageDB do
-            UserFields.DataSet.Filter := Data.QuoteField('TTABLE')+'='+Data.QuoteValue(GetTableName);
+            UserFields.DataSet.Filter := TBaseDBModule(DataModule).QuoteField('TTABLE')+'='+TBaseDBModule(DataModule).QuoteValue(GetTableName);
           UserFields.DataSet.Filtered:=True;
           UserFields.DataSet.First;
           while not UserFields.DataSet.EOF do
