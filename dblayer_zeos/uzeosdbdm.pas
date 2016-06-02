@@ -1670,7 +1670,6 @@ begin
           end;
         end;
     end;
-  DBTables.CreateTable;
   DBTables.Open;
 end;
 function TZeosDBDM.CreateDBFromProperties(aProp: string): Boolean;
