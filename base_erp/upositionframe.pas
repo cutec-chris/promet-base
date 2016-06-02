@@ -63,12 +63,14 @@ type
     Bevel1: TBevel;
     Bevel2: TBevel;
     Bevel4: TBevel;
+    ExtRotatedLabel2: TExtRotatedLabel;
     MenuItem11: TMenuItem;
     miCopy: TMenuItem;
     miPaste: TMenuItem;
+    pDetails: TPanel;
     Position: TDatasource;
     ExtRotatedLabel1: TExtRotatedLabel;
-    ExtRotatedLabel2: TExtRotatedLabel;
+    ExtRotated1270991Label2: TExtRotatedLabel;
     ExtRotatedLabel3: TExtRotatedLabel;
     lbResults: TListBox;
     MenuItem1: TMenuItem;
@@ -82,7 +84,6 @@ type
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     OrderPos: TDataSource;
-    Panel1: TPanel;
     Panel2: TPanel;
     Panel3: TPanel;
     Panel4: TPanel;
@@ -1111,9 +1112,9 @@ begin
           if (Postyp <> -1) and Assigned(InplaceFrames[PosTyp]) and (FPosTyp<>PosTyp) then
             begin
               FPosTyp:=PosTyp;
-              if tsDetails.ControlCount > 0 then
-                tsDetails.RemoveControl(tsDetails.Controls[0]);
-              InplaceFrames[PosTyp].Parent := tsDetails;
+              if pDetails.ControlCount > 0 then
+                pDetails.RemoveControl(pDetails.Controls[0]);
+              InplaceFrames[PosTyp].Parent := pDetails;
               InplaceFrames[PosTyp].Align:=alClient;
               TUnprotectedFrame(InplaceFrames[GetPosTyp]).DoEnter;
               NewVisible:=True;
@@ -1121,10 +1122,17 @@ begin
           else if (Postyp <> -1) and Assigned(InplaceFrames[PosTyp]) then
             begin
               TUnprotectedFrame(InplaceFrames[GetPosTyp]).DoEnter;
+              NewVisible:=True;
             end
           else NewVisible:=False;
         end
       else NewVisible:=False;
+      if not NewVisible then
+        begin
+          if pDetails.ControlCount>0 then
+            TUnprotectedFrame(pDetails.Controls[0]).Parent := nil;
+          FPosTyp:=-1;
+        end;
       RefreshTabs;
     end;
 end;
@@ -1404,6 +1412,8 @@ end;
 procedure TfPosition.Post;
 begin
   FGridView.Post;
+  FPosTyp:=-1;
+  TabTimer.Enabled:=True;
 end;
 
 end.
