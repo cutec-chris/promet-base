@@ -1259,7 +1259,7 @@ begin
             Add('POSNO','POSNO',[]);
             Add('SHORTTEXT','SHORTTEXT',[]);
           end;
-      UpdateChangedBy:=False;
+      //UpdateChangedBy:=False;
     end;
 end;
 procedure TBaseDBPosition.FillDefaults(aDataSet: TDataSet);
