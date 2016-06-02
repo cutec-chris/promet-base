@@ -19,7 +19,7 @@ inherited fTableOptions: TfTableOptions
   object mDBOptions: TDBMemo[1]
     Left = 8
     Height = 72
-    Hint = 'Die Adresse des Mandanten, wird für Reports verwendet.'#10'Trennen Sie die Adresse am besten durch Kommas und nicht durch'#10'Zeilenumbrüche damit die Standardreports sie überall'#10'richtig darstellen.'
+    Hint = 'Hier können Sie spezielle Datenbankanweisungen hinterlegen.'#13#10'Diese werden direkt nach der Anmeldung auf der Datenbank ausgeführt.'
     Top = 24
     Width = 412
     Anchors = [akTop, akLeft, akRight]
