@@ -24,15 +24,18 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, ExtCtrls, StdCtrls, DbCtrls,
-  Dialogs, Buttons, ExtDlgs, ComCtrls, db, uOptionsFrame, uBaseDBClasses,
-  uBaseDBInterface,uBaseDatasetInterfaces;
+  Dialogs, Buttons, ExtDlgs, ComCtrls, DBGrids, db, uOptionsFrame,
+  uBaseDBClasses, uBaseDBInterface, uBaseDatasetInterfaces;
 
 type
 
   { TfTableOptions }
 
   TfTableOptions = class(TOptionsFrame)
+    DBTables: TDataSource;
+    DBGrid1: TDBGrid;
     iImage: TDBImage;
+    Label1: TLabel;
     lAdress: TLabel;
     mDBOptions: TDBMemo;
     MandantDetailDS: TDatasource;
@@ -58,6 +61,7 @@ begin
   aConnection := Data.GetNewConnection;
   aMandant := TMandantDetails.CreateEx(Self,Data,aConnection);
   MandantDetailDS.DataSet := aMandant.DataSet;
+  DBTables.DataSet := data.DBTables.DataSet;
 end;
 
 destructor TfTableOptions.Destroy;

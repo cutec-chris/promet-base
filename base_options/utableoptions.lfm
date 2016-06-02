@@ -27,8 +27,47 @@ inherited fTableOptions: TfTableOptions
     DataSource = MandantDetailDS
     TabOrder = 0
   end
-  object MandantDetailDS: TDataSource[2]
-    left = 328
+  object Label1: TLabel[2]
+    Left = 8
+    Height = 15
+    Top = 104
+    Width = 45
+    Caption = 'Tabellen'
+    ParentColor = False
+  end
+  object DBGrid1: TDBGrid[3]
+    Left = 8
+    Height = 304
+    Top = 120
+    Width = 412
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Color = clWindow
+    Columns = <    
+      item
+        Title.Caption = 'NAME'
+        Width = 120
+        FieldName = 'NAME'
+      end    
+      item
+        Title.Caption = 'ALIAS'
+        Width = 120
+        FieldName = 'ALIAS'
+      end    
+      item
+        Title.Caption = 'SHEMA'
+        Width = 120
+        FieldName = 'SHEMA'
+      end>
+    DataSource = DBTables
+    TabOrder = 1
+    TitleStyle = tsNative
+  end
+  object MandantDetailDS: TDataSource[4]
+    left = 352
     top = 8
+  end
+  object DBTables: TDataSource[5]
+    left = 352
+    top = 104
   end
 end

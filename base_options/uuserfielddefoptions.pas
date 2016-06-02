@@ -62,11 +62,11 @@ var
   aTable: String;
 begin
   aTable := UserfielddefsDS.DataSet.FieldByName('TTABLE').AsString;
-  Data.TableVersions.DataSet.Filter:=Data.QuoteField('NAME')+'='+Data.QuoteValue(aTable);
-  Data.TableVersions.DataSet.Filtered:=True;
-  while not Data.TableVersions.EOF do
-    Data.TableVersions.DataSet.Delete;
-  Data.TableVersions.DataSet.Filtered:=false;
+  Data.DBTables.DataSet.Filter:=Data.QuoteField('NAME')+'='+Data.QuoteValue(aTable);
+  Data.DBTables.DataSet.Filtered:=True;
+  while not Data.DBTables.EOF do
+    Data.DBTables.DataSet.Delete;
+  Data.DBTables.DataSet.Filtered:=false;
   while Data.CheckedTables.IndexOf(aTable)>-1 do
     Data.CheckedTables.Delete(Data.CheckedTables.IndexOf(aTable));
 end;
