@@ -153,16 +153,17 @@ end;
 function TPubSubClient.UnSubscribe(Topic: string): Boolean;
 var
   glb: TRegExpr;
-  i: Integer;
+  i: Integer = 0;
 begin
   Result := False;
   glb := TRegExpr.Create;
   glb.Expression:=GlobToReg(Topic);
-  for i := 0 to FSubscribed.Count-1 do
+  while i < FSubscribed.Count do
     if glb.Exec(FSubscribed[i]) then
       begin
         FSubscribed.Delete(i);
-      end;
+      end
+    else inc(i);
   glb.Free;
 end;
 
