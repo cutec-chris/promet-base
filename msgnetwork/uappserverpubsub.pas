@@ -87,7 +87,9 @@ end;
 procedure TPubSubHandler.AfterPublished(const s1, s2: string);
 begin
   TAppNetworkThrd(Socket).Sock.SendString('PUB '+s1+' '+s2+CRLF);
-  sleep(1);
+  TAppNetworkThrd(Socket).Sock.CanWrite(200);
+  if TAppNetworkThrd(Socket).Sock.LastError<>0 then
+    writeln('Error:'+TAppNetworkThrd(Socket).Sock.LastErrorDesc);
 end;
 
 initialization
