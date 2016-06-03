@@ -151,6 +151,9 @@ type
     procedure DoView;
     procedure DoEdit;
     procedure DoOpen;
+  protected
+    procedure DoEnter; override;
+    procedure DoExit; override;
   public
     { public declarations }
     constructor Create(AOwner: TComponent); override;
@@ -1228,6 +1231,14 @@ end;
 procedure TfWikiFrame.DoOpen;
 begin
   ipHTML.SetHtml(Wiki2HTML(DataSet.FieldByName('DATA').AsString));
+end;
+
+procedure TfWikiFrame.DoEnter;
+begin
+end;
+
+procedure TfWikiFrame.DoExit;
+begin
 end;
 
 procedure TfWikiFrame.New;
