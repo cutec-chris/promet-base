@@ -736,13 +736,16 @@ begin
       try
         inherited InternalOpen;
       except
-        InternalClose;
-        if TZeosDBDM(Owner).Ping(Connection) then
-          inherited InternalOpen
-        else
+        on e : Exception do
           begin
-            WaitForLostConnection;
-            inherited InternalOpen;
+            InternalClose;
+            if TZeosDBDM(Owner).Ping(Connection) then
+              raise
+            else
+              begin
+                WaitForLostConnection;
+                inherited InternalOpen;
+              end;
           end;
       end;
       try
