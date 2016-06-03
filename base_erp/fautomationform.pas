@@ -58,16 +58,16 @@ type
     acExecutePrepareStep: TAction;
     acDebugLog: TAction;
     acEdit: TAction;
+    acRefresh: TAction;
     ActionList1: TActionList;
     Bevel3: TBevel;
     Bevel4: TBevel;
     Bevel7: TBevel;
-    Bevel8: TBevel;
     BitBtn1: TBitBtn;
     bExecute: TSpeedButton;
     BitBtn3: TSpeedButton;
     BitBtn5: TSpeedButton;
-    ipWorkHTML: TIpHtmlPanel;
+    ipHTML: TIpHtmlPanel;
     lStatusProblems: TLabel;
     Label3: TLabel;
     Label4: TLabel;
@@ -98,7 +98,7 @@ type
     rbOrder: TRadioButton;
     sbMenue: TSpeedButton;
     sbMenue1: TSpeedButton;
-    sbMenue3: TSpeedButton;
+    sbMenue2: TSpeedButton;
     sbMenue4: TSpeedButton;
     sbMenue5: TSpeedButton;
     bNet: TToggleBox;
@@ -113,12 +113,14 @@ type
     procedure acPrepareExecute(Sender: TObject);
     procedure acProduceExecute(Sender: TObject);
     procedure acReadyExecute(Sender: TObject);
+    procedure acRefreshExecute(Sender: TObject);
     procedure bNetChange(Sender: TObject);
     function FCacheGetFile(URL: string; var NewPath: string): TStream;
     procedure fLogWaitFormbAbortClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FSocketTerminate(Sender: TObject);
+    procedure ipHTMLHotClick(Sender: TObject);
     procedure TreeDataScriptScriptRunLine(Sender: TScript; Module: string;
       aPosition, aRow, aCol: Integer);
     procedure tvStepSelectionChanged(Sender: TObject);
@@ -186,7 +188,7 @@ var
 implementation
 
 uses Utils,uBaseVisualControls,uMasterdata,uData,uOrder,variants,uLogWait,
-  uautomationframe,wikitohtml
+  uautomationframe,wikitohtml,LCLIntf
   {$IFDEF WINDOWS}
   ,Windows
   {$ENDIF}
@@ -290,8 +292,8 @@ begin
                   else
                     TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:'+TreeData.Script.Script.Results+'</b>');
                   TreeData.ShowData;
-                  FAutomation.ipWorkHTML.Repaint;
-                  FAutomation.ipWorkHTML.Scroll(hsaEnd);
+                  FAutomation.ipHTML.Repaint;
+                  FAutomation.ipHTML.Scroll(hsaEnd);
                   Application.ProcessMessages;
                 end;
             end;
@@ -332,8 +334,8 @@ begin
                 else
                   TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:'+TreeData.Preparescript.Script.Results+'</b>');
                 TreeData.ShowData;
-                FAutomation.ipWorkHTML.Repaint;
-                FAutomation.ipWorkHTML.Scroll(hsaEnd);
+                FAutomation.ipHTML.Repaint;
+                FAutomation.ipHTML.Scroll(hsaEnd);
                 Application.ProcessMessages;
               end;
           acExecutePrepareStep.Checked:=False;
@@ -384,6 +386,11 @@ end;
 procedure TFAutomation.acReadyExecute(Sender: TObject);
 begin
   FindNextStep;
+end;
+
+procedure TFAutomation.acRefreshExecute(Sender: TObject);
+begin
+  LoadStep;
 end;
 
 procedure TFAutomation.bNetChange(Sender: TObject);
@@ -518,6 +525,28 @@ begin
   FSocket := nil;
 end;
 
+procedure TFAutomation.ipHTMLHotClick(Sender: TObject);
+var
+  PageName: String;
+  ID: Integer;
+  i: Integer;
+  aLink: String;
+begin
+  if Assigned(IpHtml.HotNode) and (ipHTML.HotNode is TIpHtmlNodeA) then
+    begin
+      aLink := TIpHtmlNodeA(IpHtml.HotNode).HRef;
+      PageName := StringReplace(aLink,' ','_',[rfReplaceAll]);
+      for i := 0 to FVariables.Count-1 do
+        pageName := StringReplace(PageName,'@VARIABLES.'+FVariables.Names[i]+'@',FVariables.ValueFromIndex[i],[rfReplaceAll,rfIgnoreCase]);
+      if Data.GotoLink('WIKI@'+PageName) then
+      else if (pos('@',PageName)>0) and Data.GotoLink(PageName) then
+        begin
+        end
+      else if ((Pos('://', aLink) > 0) or (pos('www',lowercase(aLink)) > 0)) then
+        OpenURL(aLink);
+    end;
+end;
+
 procedure TFAutomation.TreeDataScriptScriptRunLine(Sender: TScript;
   Module: string; aPosition, aRow, aCol: Integer);
 begin
@@ -538,7 +567,7 @@ begin
       if not Res then
         begin
           lStep.Caption:=tvStep.Selected.Text;
-          ipWorkHTML.SetHtml(nil);
+          ipHTML.SetHtml(nil);
           rbNoData.Checked:=True;
           acProduce.Enabled:=False;
           acPrepare.Enabled:=False;
@@ -606,7 +635,7 @@ begin
       ss := TStringStream.Create('<body>'+UniToSys(strNotmoreSteps)+'</body>');
       aHTML.LoadFromStream(ss);
       ss.Free;
-      ipWorkHTML.SetHtml(aHTML);
+      ipHTML.SetHtml(aHTML);
     end;
   if Result then
     if Assigned(FSelStep) then FSelStep(tvStep);
@@ -621,6 +650,7 @@ var
   aTexts: TBoilerplate;
   nOrder: TOrder;
 begin
+  if not Assigned(tvStep.Selected) then exit;
   lStep.Caption:=tvStep.Selected.Text;
   Result := False;
   acExecuteStep.Enabled:=False;
@@ -803,7 +833,7 @@ begin
   fLogWaitForm.bAbort.Kind:=bkClose;
   fLogWaitForm.bAbort.OnClick:=@fLogWaitFormbAbortClick;
   tvStep.Items.Clear;
-  ipWorkHTML.SetHtml(nil);
+  ipHTML.SetHtml(nil);
   nComm := nil;
   bExecute.Enabled:=False;
 end;
@@ -862,11 +892,11 @@ begin
       PrepareOutput.Add('<img src="ICON(75)"></img><b>'+aTxt+' -> '+copy(s,9,length(s))+'</b><br>')
     end
   else PrepareOutput.Add(s);
-  FAutomation.ipWorkHTML.Visible:=False;
+  FAutomation.ipHTML.Visible:=False;
   ShowData;
-  FAutomation.ipWorkHTML.Visible:=True;
-  FAutomation.ipWorkHTML.Repaint;
-  FAutomation.ipWorkHTML.Scroll(hsaEnd);
+  FAutomation.ipHTML.Visible:=True;
+  FAutomation.ipHTML.Repaint;
+  FAutomation.ipHTML.Scroll(hsaEnd);
   Application.ProcessMessages;
 end;
 
@@ -893,8 +923,8 @@ begin
     end
   else ScriptOutput.Add(s);
   ShowData;
-  FAutomation.ipWorkHTML.Repaint;
-  FAutomation.ipWorkHTML.Scroll(hsaEnd);
+  FAutomation.ipHTML.Repaint;
+  FAutomation.ipHTML.Scroll(hsaEnd);
   Application.ProcessMessages;
 end;
 constructor TProdTreeData.Create;
@@ -962,7 +992,7 @@ begin
         ss := TStringStream.Create('<body>'+UniToSys(PreText.Text+'<br><br>'+PrepareOutput.Text)+'</body>');
       aHTML.LoadFromStream(ss);
       ss.Free;
-      FAutomation.ipWorkHTML.SetHtml(aHTML);
+      FAutomation.ipHTML.SetHtml(aHTML);
       FAutomation.bExecute.Action:=FAutomation.acExecutePrepareStep;
     end
   else
@@ -984,7 +1014,7 @@ begin
         end;
       aHTML.LoadFromStream(ss);
       ss.Free;
-      FAutomation.ipWorkHTML.SetHtml(aHTML);
+      FAutomation.ipHTML.SetHtml(aHTML);
       FAutomation.bExecute.Action:=FAutomation.acExecuteStep;
     end;
   if Assigned(Script) and (Script.Count>0) then
@@ -1108,7 +1138,7 @@ begin
           ss := TStringStream.Create('<body>'+UniToSys(strNotmoreSteps)+'</body>');
           aHTML.LoadFromStream(ss);
           ss.Free;
-          ipWorkHTML.SetHtml(aHTML);
+          ipHTML.SetHtml(aHTML);
         end;
       if Result then
         if Assigned(FSelStep) then FSelStep(tvStep);
