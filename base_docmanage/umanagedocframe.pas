@@ -224,8 +224,6 @@ type
     procedure RebuidThumb;
     procedure ShowDocument;
   protected
-    procedure DoEnter; override;
-    procedure DoExit; override;
   public
     { public declarations }
     constructor Create(AOwner: TComponent); override;
@@ -1837,14 +1835,6 @@ begin
       if tstext.Visible then
         tstext.OnShow(tsText);
     end;
-end;
-
-procedure TfManageDocFrame.DoEnter;
-begin
-end;
-
-procedure TfManageDocFrame.DoExit;
-begin
 end;
 
 constructor TfManageDocFrame.Create(AOwner: TComponent);

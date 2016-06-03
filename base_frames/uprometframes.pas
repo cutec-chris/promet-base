@@ -154,8 +154,12 @@ end;
 procedure TPrometMainFrame.DoOpen;
 var
   aHistory: TAccessHistory;
+  i: Integer;
 begin
   if HasHelp then AddHelp(Self);
+  for i := 0 to ComponentCount-1 do
+    if Components[i] is TActionList then
+      TActionList(Components[i]).State:=asNormal;
 end;
 
 constructor TPrometMainFrame.Create(AOwner: TComponent);
