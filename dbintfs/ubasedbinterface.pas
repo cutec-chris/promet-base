@@ -1254,7 +1254,7 @@ end;
 function TBaseDBModule.ShouldCheckTable(aTableName : string;SetChecked : Boolean): Boolean;
 begin
   Result := FCheckedTables.IndexOf(aTableName) = -1;
-  if (aTableName='TABLEVERSIONS') or (not Result) then exit;
+  if (aTableName='DBTABLES') or (not Result) then exit;
   if SetChecked and TableExists(aTableName) and (FCheckedTables.IndexOf(aTableName) = -1) then
     FCheckedTables.Add(aTableName);
 end;
@@ -1263,7 +1263,7 @@ procedure TBaseDBModule.UpdateTableVersion(aTableName: string);
 var
   i: Integer;
 begin
-  if aTableName='TABLEVERSIONS' then exit;
+  if aTableName='DBTABLES' then exit;
   try
     if DBTables.DataSet.State=dsInsert then DBTables.DataSet.Cancel;
     DBTables.Filter('',0);
