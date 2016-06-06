@@ -1674,6 +1674,13 @@ begin
         end;
     end;
   DBTables.Open;
+  MandantDetails.Open;
+  try
+    if MandantDetails.FieldByName('DBSTATEMENTS').AsString<>'' then
+      FMainConnection.ExecuteDirect(MandantDetails.FieldByName('DBSTATEMENTS').AsString);
+  except
+    raise;
+  end;
 end;
 function TZeosDBDM.CreateDBFromProperties(aProp: string): Boolean;
 var
