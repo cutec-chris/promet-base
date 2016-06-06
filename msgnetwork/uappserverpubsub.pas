@@ -62,6 +62,7 @@ begin
       PubSub.Socket := Sender;
       SetLength(PubSubHandlers,length(PubSubHandlers)+1);
       PubSubHandlers[length(PubSubHandlers)-1] := Pubsub;
+      TAppNetworkThrd(Sender).Objects.Add(Pubsub);
     end;
   Result := '';
   if pos(' ',FCommand)>0 then
@@ -94,11 +95,12 @@ end;
 
 procedure TPubSubHandler.AfterPublished(const s1, s2: string);
 begin
-  TAppNetworkThrd(Socket).PubsubPublish(s1,s2);
+  TAppNetworkThrd(Socket).Sock.SendString('PUB '+s1+' '+s2+CRLF);
 end;
 
 initialization
   uAppServer.RegisterCommandHandler(@HandlePubSubCommand);
 finalization
+  Setlength(PubSubHandlers,0);
 end.
 

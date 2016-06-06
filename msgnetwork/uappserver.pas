@@ -54,14 +54,15 @@ type
   private
     CSock: TSocket;
     FResult : string;
+    FObjects : TList;
     procedure DoCommand(FCommand : string);
   protected
   public
     Sock:TTCPBlockSocket;
-    procedure PubsubPublish(const Topic, Value: string);
     Constructor Create (hsock:tSocket);
     destructor Destroy; override;
     procedure Execute; override;
+    property Objects : TList read FObjects;
   end;
 
 procedure RegisterCommandHandler(aHandler : TCommandHandlerProc);
@@ -154,22 +155,27 @@ begin
     FResult:='ERROR: failed!';
 end;
 
-procedure TAppNetworkThrd.PubsubPublish(const Topic, Value: string);
-begin
-  Sock.SendString('PUB '+Topic+' '+Value+CRLF);
-end;
-
 constructor TAppNetworkThrd.Create(hsock: tSocket);
 var
   LoggedIn: Boolean;
 begin
   inherited create(false);
+  FObjects := TList.Create;
   Csock := Hsock;
   FreeOnTerminate:=true;
 end;
 
 destructor TAppNetworkThrd.Destroy;
 begin
+  try
+    while FObjects.Count>0 do
+      begin
+        TObject(FObjects[0]).Free;
+        FObjects.Delete(0);
+      end;
+    FObjects.Free;
+  except
+  end;
   inherited Destroy;
   NetworkDaemon.Sockets.Remove(Self);
 end;
