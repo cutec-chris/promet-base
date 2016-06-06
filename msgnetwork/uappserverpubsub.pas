@@ -32,12 +32,12 @@ type
   TPubSubHandler = class
   public
     Socket : TObject;
+    Pubsub : TPubSubClient;
     procedure AfterPublished(const s1,s2: string);
   end;
 
 var
-  Pubsub : TPubSubClient;
-  PubSubHandler : TPubSubHandler;
+  PubSubHandlers : array of TPubSubHandler;
 
 implementation
 
@@ -47,13 +47,21 @@ var
   headers: TStringList;
   size, Timeout, x, ResultCode, n, i: Integer;
   InputData, OutputData: TMemoryStream;
+  PubSub : TPubSubHandler = nil;
 begin
-  if not Assigned(Pubsub) then
+  for i := 0 to Length(PubSubHandlers)-1 do
+    if PubSubHandlers[i].Socket=Sender then
+      begin
+        PubSub := PubSubHandlers[i];
+      end;
+  if PubSub=nil then
     begin
-      Pubsub := TPubSubClient.Create;
-      PubSubHandler := TPubSubHandler.Create;
-      Pubsub.OnPublish:=@PubSubHandler.AfterPublished;
-      PubSubHandler.Socket := Sender;
+      Pubsub := TPubSubHandler.Create;
+      PubSub.Pubsub := TPubSubClient.Create;
+      Pubsub.Pubsub.OnPublish:=@PubSub.AfterPublished;
+      PubSub.Socket := Sender;
+      SetLength(PubSubHandlers,length(PubSubHandlers)+1);
+      PubSubHandlers[length(PubSubHandlers)-1] := Pubsub;
     end;
   Result := '';
   if pos(' ',FCommand)>0 then
@@ -65,17 +73,17 @@ begin
     begin
       //Check if we have someone to forward this message
       //Check if we should do something with it (Scripts,Measurements)
-      if Pubsub.Publish(copy(FCommand,0,pos(' ',FCommand)-1),copy(FCommand,pos(' ',FCommand)+1,length(FCommand))) then
+      if Pubsub.Pubsub.Publish(copy(FCommand,0,pos(' ',FCommand)-1),copy(FCommand,pos(' ',FCommand)+1,length(FCommand))) then
         Result:='OK';
     end;
   'SUB'://Subscribe to Topic [TOPIC]
     begin
-      Pubsub.Subscribe(FCommand);
+      Pubsub.Pubsub.Subscribe(FCommand);
       Result:='OK';
     end;
   'UNSUB'://Unsubscribe from Topic [TOPIC]
     begin
-      if Pubsub.UnSubscribe(FCommand) then
+      if Pubsub.Pubsub.UnSubscribe(FCommand) then
         Result:='OK';
     end;
   end;
@@ -86,14 +94,11 @@ end;
 
 procedure TPubSubHandler.AfterPublished(const s1, s2: string);
 begin
-  TAppNetworkThrd(Socket).Sock.SendString('PUB '+s1+' '+s2+CRLF);
-  sleep(200);
+  TAppNetworkThrd(Socket).PubsubPublish(s1,s2);
 end;
 
 initialization
   uAppServer.RegisterCommandHandler(@HandlePubSubCommand);
-  Pubsub := nil;
 finalization
-  if Assigned(Pubsub) then FreeAndNil(Pubsub);
 end.
 

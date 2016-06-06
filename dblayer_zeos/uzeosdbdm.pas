@@ -198,6 +198,7 @@ type
     procedure SetUseIntegrity(AValue: Boolean);
     function GetAsReadonly: Boolean;
     procedure SetAsReadonly(AValue: Boolean);
+    function GetFullTableName(aName : string = '') : string;
     //IBaseSubDataSets
     function GetSubDataSet(aName : string): TComponent;
     procedure RegisterSubDataSet(aDataSet : TComponent);
@@ -1296,6 +1297,11 @@ begin
   Self.ReadOnly:=AValue;
 end;
 
+function TZeosDBDataSet.GetFullTableName(aName: string): string;
+begin
+  Result := FDefaultTableName;
+end;
+
 procedure TZeosDBDataSet.SetFieldData(Field: TField; Buffer: Pointer);
 var
   tmp: String;
@@ -1679,7 +1685,7 @@ begin
     if MandantDetails.FieldByName('DBSTATEMENTS').AsString<>'' then
       FMainConnection.ExecuteDirect(MandantDetails.FieldByName('DBSTATEMENTS').AsString);
   except
-    raise;
+
   end;
 end;
 function TZeosDBDM.CreateDBFromProperties(aProp: string): Boolean;

@@ -48,15 +48,17 @@ type
 
   { TPrometNetworkThrd }
 
+  { TAppNetworkThrd }
+
   TAppNetworkThrd = class(TThread)
   private
     CSock: TSocket;
     FResult : string;
     procedure DoCommand(FCommand : string);
   protected
-    procedure PubsubPublish(const Topic, Value: string);
   public
     Sock:TTCPBlockSocket;
+    procedure PubsubPublish(const Topic, Value: string);
     Constructor Create (hsock:tSocket);
     destructor Destroy; override;
     procedure Execute; override;
@@ -154,7 +156,7 @@ end;
 
 procedure TAppNetworkThrd.PubsubPublish(const Topic, Value: string);
 begin
-  Sock.SendString('PUB:'+Topic+' '+Value+CRLF);
+  Sock.SendString('PUB '+Topic+' '+Value+CRLF);
 end;
 
 constructor TAppNetworkThrd.Create(hsock: tSocket);
@@ -184,7 +186,7 @@ begin
       begin
         repeat
           if terminated then break;
-          s := RecvTerminated(5000,CRLF);
+          s := RecvTerminated(2000,CRLF);
           if (lastError<>0) and (LastError<>WSAETIMEDOUT) then
             break;
           if s <> '' then
