@@ -74,7 +74,7 @@ begin
     begin
       //Check if we have someone to forward this message
       //Check if we should do something with it (Scripts,Measurements)
-      if Pubsub.Pubsub.Publish(copy(FCommand,0,pos(' ',FCommand)-1),copy(FCommand,pos(' ',FCommand)+1,length(FCommand))) then
+      if Pubsub.Pubsub.DirectPublish(copy(FCommand,0,pos(' ',FCommand)-1),copy(FCommand,pos(' ',FCommand)+1,length(FCommand))) then
         Result:='OK';
     end;
   'SUB'://Subscribe to Topic [TOPIC]

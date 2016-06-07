@@ -41,6 +41,7 @@ type
     constructor Create;
     destructor Destroy; override;
     function Publish(Topic,Value : string) : Boolean;
+    function DirectPublish(Topic,Value : string) : Boolean;
     function Subscribe(Topic : string) : Boolean;
     function UnSubscribe(Topic : string) : Boolean;
     property OnPublish : TStrOut2Func read FPub write FPub;
@@ -136,6 +137,17 @@ begin
 end;
 
 function TPubSubClient.Publish(Topic, Value: string): Boolean;
+begin
+  if lowercase(copy(Topic,0,length(GetSystemName)+1))<>'/'+lowercase(GetSystemName) then
+    begin
+      if copy(Topic,0,1)<>'/' then
+        Topic:='/'+Topic;
+      Topic:='/'+GetSystemName+Topic;
+    end;
+  DirectPublish(Topic,Value);
+end;
+
+function TPubSubClient.DirectPublish(Topic, Value: string): Boolean;
 var
   i: Integer;
 begin
