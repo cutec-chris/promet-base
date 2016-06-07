@@ -458,8 +458,13 @@ type
   public
     procedure DefineFields(aDataSet : TDataSet);override;
   end;
+
+  { TImages }
+
   TImages = class(TBaseDBDataSet)
   public
+    constructor CreateEx(aOwner: TComponent; DM: TComponent;
+      aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
     procedure DefineFields(aDataSet : TDataSet);override;
     procedure GenerateThumbnail(aThumbnail : TBaseDbDataSet);
   end;
@@ -1047,6 +1052,15 @@ begin
           end;
     end;
 end;
+
+constructor TImages.CreateEx(aOwner: TComponent; DM: TComponent;
+  aConnection: TComponent; aMasterdata: TDataSet);
+begin
+  inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
+  with DataSet as IBaseManageDB do
+    UseIntegrity:=False;
+end;
+
 procedure TImages.DefineFields(aDataSet: TDataSet);
 begin
   with aDataSet as IBaseManageDB do
@@ -1062,7 +1076,7 @@ begin
     end;
 end;
 
-procedure TImages.GenerateThumbnail(aThumbnail: TBaseDBDataset);
+procedure TImages.GenerateThumbnail(aThumbnail: TBaseDbDataSet);
 var
   s: TStream;
   GraphExt: String;
@@ -1096,6 +1110,8 @@ constructor TLinks.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
+  with DataSet as IBaseManageDB do
+    UseIntegrity:=False;
 end;
 
 procedure TLinks.Open;
@@ -1905,6 +1921,8 @@ begin
   FShouldChange:=False;
   with BaseApplication as IBaseDbInterface do
     begin
+      with DataSet as IBaseManageDB do
+        UseIntegrity:=False;
       with FDataSet as IBaseDBFilter do
         Limit := 50;
     end;

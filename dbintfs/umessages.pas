@@ -95,12 +95,26 @@ type
   public
     destructor Destroy;override;
   end;
+
+  { TArchivedMessage }
+
   TArchivedMessage = class(TBaseDBDataSet)
   public
+    constructor CreateEx(aOwner: TComponent; DM: TComponent; aConnection: TComponent
+  =nil; aMasterdata: TDataSet=nil); override;
     procedure DefineFields(aDataSet : TDataSet);override;
   end;
 implementation
 uses uData,md5,Variants,Utils,htmltowiki;
+
+constructor TArchivedMessage.CreateEx(aOwner: TComponent; DM: TComponent;
+  aConnection: TComponent; aMasterdata: TDataSet);
+begin
+  inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
+  with DataSet as IBaseManageDB do
+    UseIntegrity:=False;
+end;
+
 procedure TArchivedMessage.DefineFields(aDataSet: TDataSet);
 begin
   with aDataSet as IBaseManageDB do

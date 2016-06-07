@@ -1759,14 +1759,10 @@ begin
 
   if AppendToActiveList then
     FDB.AppendUserToActiveList;
-  {
-  aNumHelper := TNumberHelper.CreateEx(nil,FDB,FDB.MainConnection);
-  try
-    aNumHelper.CreateTable;
-  except
-  end;
-  aNumHelper.Free;
-  }
+  FDB.Permissions.CreateTable;
+  FDB.DeletedItems.CreateTable;
+  FDB.Forms.CreateTable;
+  FDB.StorageType.CreateTable;
   FDB.Users.LoginWasOK;
   Result := True;
 end;

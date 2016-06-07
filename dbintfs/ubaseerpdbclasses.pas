@@ -273,6 +273,8 @@ begin
   inherited;
   with BaseApplication as IBaseDbInterface do
     begin
+      with DataSet as IBaseManageDB do
+        UseIntegrity:=False;
       with DataSet as IBaseDBFilter do
         begin
           Limit := 0;

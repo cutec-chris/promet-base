@@ -515,7 +515,7 @@ begin
                   aSQL += TZeosDBDM(Self.Owner).FieldToSQL('AUTO_ID',ftLargeInt,0,True)+' PRIMARY KEY,'+lineending;
                 end;
             end;
-          if Assigned(MasterSource) then
+          if Assigned(MasterSource) and (pos('REF_ID ',aSQL)=-1) then
             begin
               aSQL += TZeosDBDM(Self.Owner).FieldToSQL('REF_ID',ftLargeInt,0,True);
               if FUseIntegrity then
