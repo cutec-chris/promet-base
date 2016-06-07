@@ -161,6 +161,7 @@ begin
       Application.CreateForm(TfOptions,fOptions);
       Self := fOptions;
     end;
+  if not Assigned(tvMain) then exit;
   aParentNode := nil;
   if aCategory <> '' then
     begin
