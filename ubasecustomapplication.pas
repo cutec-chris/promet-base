@@ -303,7 +303,7 @@ begin
           end;
       end;
     if Assigned(FMsgClient) then
-      FMsgClient.Log(Stringreplace(copy(ExeName,rpos('/',ExeName)+1,length(ExeName)),'.exe','',[rfIgnoreCase]),aType,aMsg);
+      FMsgClient.Log(Stringreplace(copy(copy(ExeName,rpos('/',ExeName)+1,length(ExeName)),rpos('\',ExeName)+1,length(ExeName)),'.exe','',[rfIgnoreCase]),aType,aMsg);
   except
   end;
 end;
