@@ -168,6 +168,7 @@ type
     function ShouldCheckTable(aTableName : string;SetChecked : Boolean = False) : Boolean;
     procedure UpdateTableVersion(aTableName: string);
     function RemoveCheckTable(aTableName : string) : Boolean;
+    function GetFullTableName(aTable: string): string;
     function TableExists(aTableName : string;aConnection : TComponent = nil;AllowLowercase: Boolean = False) : Boolean;virtual;abstract;
     function TriggerExists(aTriggerName : string;aConnection : TComponent = nil;AllowLowercase: Boolean = False) : Boolean;virtual;
     function CreateTrigger(aTriggerName : string;aTableName : string;aUpdateOn : string;aSQL : string;aField : string = '';aConnection : TComponent = nil) : Boolean;virtual;
@@ -1298,6 +1299,18 @@ function TBaseDBModule.TriggerExists(aTriggerName: string;
   aConnection: TComponent; AllowLowercase: Boolean): Boolean;
 begin
   Result := False;
+end;
+function TBaseDBModule.GetFullTableName(aTable: string): string;
+begin
+  if Assigned(DBTables) and (DBTables.Active) then
+    begin
+      if not DBTables.Locate('NAME',aTable,[]) then
+        DBTables.Filter('');
+      if (DBTables.Locate('NAME',aTable,[])) then
+        if DBTables.FieldByName('SHEMA').AsString<>'' then
+          aTable := QuoteField(DBTables.FieldByName('SHEMA').AsString)+'.'+QuoteField(aTable);
+    end;
+  Result := aTable;
 end;
 function TBaseDBModule.CreateTrigger(aTriggerName: string; aTableName: string;
   aUpdateOn: string; aSQL: string;aField : string = ''; aConnection: TComponent=nil): Boolean;

@@ -198,7 +198,6 @@ type
     procedure SetUseIntegrity(AValue: Boolean);
     function GetAsReadonly: Boolean;
     procedure SetAsReadonly(AValue: Boolean);
-    function GetFullTableName(aName : string = '') : string;
     //IBaseSubDataSets
     function GetSubDataSet(aName : string): TComponent;
     procedure RegisterSubDataSet(aDataSet : TComponent);
@@ -256,8 +255,8 @@ begin
     begin
       Result := FTableNames;
       if Result = '' then
-        Result := FDefaultTableName;
-      Result := TBaseDBModule(Owner).QuoteField(Result);
+        Result := TBaseDBModule(Owner).GetFullTableName(GetTableName)
+      else Result := TBaseDBModule(Owner).QuoteField(Result);
       exit;
     end;
   tmp := FTableNames+',';
@@ -327,12 +326,12 @@ begin
   if FSQL <> '' then
     begin
       BuildSResult;
-      if (FManagedFieldDefs.IndexOf('AUTO_ID') = -1) and (TZeosDBDM(Owner).UsersFilter <> '') and FUsePermissions then
+      if (FManagedFieldDefs.IndexOf('AUTO_ID') = -1) and (TZeosDBDM(Owner).UsersFilter <> '') and FUsePermissions and TZeosDBDM(Owner).TableExists('PERMISSIONS') then
         begin
           PJ := ' LEFT JOIN '+TZeosDBDM(Owner).QuoteField('PERMISSIONS')+' ON ('+TZeosDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TZeosDBDM(Owner).QuoteField('REF_ID_ID')+'='+TZeosDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TZeosDBDM(Owner).QuoteField('SQL_ID')+')';
           PW := ' AND ('+aFilter+') AND (('+TZeosDBDM(Owner).UsersFilter+') OR '+TZeosDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TZeosDBDM(Owner).QuoteField('USER')+' is NULL)';
         end
-      else if (FManagedFieldDefs.IndexOf('AUTO_ID') = -1) and FUsePermissions then
+      else if (FManagedFieldDefs.IndexOf('AUTO_ID') = -1) and FUsePermissions and TZeosDBDM(Owner).TableExists('PERMISSIONS') then
         begin
           PJ := ' LEFT JOIN '+TZeosDBDM(Owner).QuoteField('PERMISSIONS')+' ON ('+TZeosDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TZeosDBDM(Owner).QuoteField('REF_ID_ID')+'='+TZeosDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TZeosDBDM(Owner).QuoteField('SQL_ID')+')';
           PW := ' AND ('+TZeosDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TZeosDBDM(Owner).QuoteField('USER')+' is NULL)'
@@ -370,9 +369,9 @@ begin
           else
             aFilter := TZeosDBDM(Owner).QuoteField('REF_ID')+'=:'+TZeosDBDM(Owner).QuoteField(aRefField);
         end;
-      if (FManagedFieldDefs.IndexOf('AUTO_ID') = -1) and (TZeosDBDM(Owner).UsersFilter <> '') and FUsePermissions then
+      if (FManagedFieldDefs.IndexOf('AUTO_ID') = -1) and (TZeosDBDM(Owner).UsersFilter <> '') and FUsePermissions and TZeosDBDM(Owner).TableExists('PERMISSIONS') then
         Result += 'FROM '+BuildJoins+' LEFT JOIN '+TZeosDBDM(Owner).QuoteField('PERMISSIONS')+' ON ('+TZeosDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TZeosDBDM(Owner).QuoteField('REF_ID_ID')+'='+TZeosDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TZeosDBDM(Owner).QuoteField('SQL_ID')+') WHERE ('+aFilter+') AND (('+TZeosDBDM(Owner).UsersFilter+') OR '+TZeosDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TZeosDBDM(Owner).QuoteField('USER')+' is NULL)'
-      else if (FManagedFieldDefs.IndexOf('AUTO_ID') = -1) and FUsePermissions then
+      else if (FManagedFieldDefs.IndexOf('AUTO_ID') = -1) and FUsePermissions and TZeosDBDM(Owner).TableExists('PERMISSIONS') then
         Result += 'FROM '+BuildJoins+' LEFT JOIN '+TZeosDBDM(Owner).QuoteField('PERMISSIONS')+' ON ('+TZeosDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TZeosDBDM(Owner).QuoteField('REF_ID_ID')+'='+TZeosDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TZeosDBDM(Owner).QuoteField('SQL_ID')+') WHERE ('+aFilter+') AND ('+TZeosDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TZeosDBDM(Owner).QuoteField('USER')+' is NULL)'
       else
         Result += 'FROM '+BuildJoins+' WHERE ('+aFilter+')';
@@ -494,6 +493,7 @@ var
 //  bConnection: TZConnection = nil;
   GeneralQuery: TZQuery;
   RestartTransaction: Boolean = False;
+  NewTableName: String;
 begin
   Result := False;
   with TBaseDBModule(Owner) do
@@ -504,7 +504,8 @@ begin
             DoCheck := True;
           bConnection := Connection;
           Result := True;
-          aSQL := 'CREATE TABLE '+QuoteField(Uppercase(Self.FDefaultTableName))+' ('+lineending;
+          NewTableName := GetFullTableName(GetTableName);
+          aSQL := 'CREATE TABLE '+NewTableName+' ('+lineending;
           if FUpStdFields then
             begin
               if FManagedFieldDefs.IndexOf('AUTO_ID') = -1 then
@@ -539,26 +540,9 @@ begin
           else
             aSql := copy(aSQL,0,length(aSQL)-2)+');';
           TZConnection(bConnection).ExecuteDirect(aSQL);
-          TZConnection(bConnection).Disconnect;
-          TZConnection(bConnection).Connect;
-          {
-          try
-            try
-              GeneralQuery := TZQuery.Create(Self);
-              GeneralQuery.Connection := bConnection;
-              GeneralQuery.SQL.Text := aSQL;
-              GeneralQuery.ExecSQL;
-              if bConnection.InTransaction then
-                begin
-                  TZeosDBDM(Self.Owner).CommitTransaction(bConnection);
-                  TZeosDBDM(Self.Owner).StartTransaction(bConnection);
-                end;
-            except
-            end;
-          finally
-            GeneralQuery.Destroy;
-          end;
-          }
+          //TODO:reconnect to DB and reopen all tables that WAS open
+          //TZConnection(bConnection).Disconnect;
+          //TZConnection(bConnection).Connect;
         end;
     end;
   Close;
@@ -923,8 +907,8 @@ begin
         FieldByName('TIMESTAMPD').AsDateTime:=LocalTimeToUniversal(Now());
       with BaseApplication as IBaseDBInterface do
         begin
-          if Data.Users.DataSet.Active then
-            UserCode := Data.Users.IDCode.AsString
+          if TBaseDBModule(ForigTable.DataModule).Users.DataSet.Active then
+            UserCode := TBaseDBModule(ForigTable.DataModule).Users.IDCode.AsString
           else UserCode := 'SYS';
           if (FieldDefs.IndexOf('CREATEDBY') > -1) and (FieldByName('CREATEDBY').IsNull) then
             FieldByName('CREATEDBY').AsString:=UserCode;
@@ -970,7 +954,7 @@ procedure TZeosDBDataSet.DoBeforeDelete;
 begin
   inherited DoBeforeDelete;
   if (GetTableName='DELETEDITEMS')
-  or (GetTableName='TABLEVERSIONS')
+  or (GetTableName='DBTABLES')
   then exit;
   try
     if Assigned(FOrigTable) and Assigned(FOrigTable.OnRemove) then FOrigTable.OnRemove(FOrigTable);
@@ -1295,11 +1279,6 @@ end;
 procedure TZeosDBDataSet.SetAsReadonly(AValue: Boolean);
 begin
   Self.ReadOnly:=AValue;
-end;
-
-function TZeosDBDataSet.GetFullTableName(aName: string): string;
-begin
-  Result := FDefaultTableName;
 end;
 
 procedure TZeosDBDataSet.SetFieldData(Field: TField; Buffer: Pointer);
@@ -1679,14 +1658,17 @@ begin
           end;
         end;
     end;
-  DBTables.Open;
-  MandantDetails.Open;
-  try
-    if MandantDetails.FieldByName('DBSTATEMENTS').AsString<>'' then
-      FMainConnection.ExecuteDirect(MandantDetails.FieldByName('DBSTATEMENTS').AsString);
-  except
+  if Assigned(MandantDetails) then
+    begin
+      MandantDetails.Open;
+      try
+        DBTables.Open;
+        if MandantDetails.FieldByName('DBSTATEMENTS').AsString<>'' then
+          FMainConnection.ExecuteDirect(MandantDetails.FieldByName('DBSTATEMENTS').AsString);
+      except
 
-  end;
+      end;
+    end;
 end;
 function TZeosDBDM.CreateDBFromProperties(aProp: string): Boolean;
 var
@@ -2082,8 +2064,11 @@ var
   aIndex: longint;
   i: Integer;
   tmp: String;
+  aQuerry: TZReadOnlyQuery;
 begin
   Result := False;
+  aTableName:=GetFullTableName(aTableName);
+  aTableName:=StringReplace(aTableName,copy(QuoteField(''),0,1),'',[rfReplaceAll]);
   try
     if Tables.Count = 0 then
       begin
@@ -2120,7 +2105,27 @@ begin
           break;
         end;
     end;
+  //Try to open the non existent Table since we dont know if its in another database
+  if not Result then
+    begin
+      aTableName:=GetFullTableName(aTableName);
+      aQuerry := TZReadOnlyQuery.Create(Self);
+      aQuerry.Connection:=TZConnection(MainConnection);
+      aQuerry.SQL.Text := 'select count(*) from '+aTableName;
+      try
+        aQuerry.Open;
+      except
+      end;
+      Result := aQuerry.Active;
+      if Result then
+        begin
+          aTableName:=StringReplace(aTableName,copy(QuoteField(''),0,1),'',[rfReplaceAll]);
+          Tables.Add(aTableName);
+        end;
+      aQuerry.Free;
+    end;
 end;
+
 function TZeosDBDM.TriggerExists(aTriggerName: string; aConnection: TComponent;
   AllowLowercase: Boolean): Boolean;
 var
