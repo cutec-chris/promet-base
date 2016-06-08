@@ -2093,7 +2093,8 @@ begin
       if Result then
         begin
           aTableName:=StringReplace(aTableName,copy(QuoteField(''),0,1),'',[rfReplaceAll]);
-          Tables.Add(aTableName);
+          if Tables.Count>0 then
+            Tables.Add(aTableName);
         end;
       aQuerry.Free;
     end;
