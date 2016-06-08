@@ -1,5 +1,6 @@
 ﻿Build 428
       - Optionen:Tab Datenbankeinstellungen hinzugefügt
+      - Datenbank:verteilen der Datenbank über mehrere Datenbanken möglich (unterschiedliche Tabellen aus unterschiedlichen Datenbanken)
 Build 427
       - Reportvorschau:wird nun immer in Taskbar angezeigt
       - Auftrag:Moglichkeit Filter zu deaktivieren bei Statusänderungen (wenn man gefiltert einen Auftragsstatus ändert werden nur gefilterte zeilen in die neue Version übernommen)

@@ -89,6 +89,8 @@ begin
   header := TStringList.Create;
   AssignFile(f,Filename);
   Reset(f);
+  with BaseApplication as IBaseApplication do
+    Debug('Importing:'+Filename);
   try
   readln(f,tmp);
   header.Delimiter:=Delemiter;
@@ -155,9 +157,7 @@ begin
     on e : Exception do
       begin
         with BaseApplication as IBaseApplication do
-          begin
-            debug('Zeile:'+tmp+' Fehler:'+e.Message);
-          end;
+          Error('Zeile:'+tmp+' Fehler:'+e.Message);
       end;
   end;
   DataSet.EnableControls;

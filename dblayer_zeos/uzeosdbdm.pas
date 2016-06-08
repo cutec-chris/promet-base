@@ -515,7 +515,7 @@ begin
                   aSQL += TZeosDBDM(Self.Owner).FieldToSQL('AUTO_ID',ftLargeInt,0,True)+' PRIMARY KEY,'+lineending;
                 end;
             end;
-          if Assigned(MasterSource) and (pos('REF_ID ',aSQL)=-1) then
+          if Assigned(MasterSource) and (FManagedFieldDefs.IndexOf('REF_ID')=-1) then
             begin
               aSQL += TZeosDBDM(Self.Owner).FieldToSQL('REF_ID',ftLargeInt,0,True);
               if FUseIntegrity then
@@ -539,6 +539,8 @@ begin
             aSQL += TZeosDBDM(Self.Owner).FieldToSQL('TIMESTAMPD',ftDateTime,0,True)+');'
           else
             aSql := copy(aSQL,0,length(aSQL)-2)+');';
+          with BaseApplication as IBaseApplication do
+            Debug(aSQL);
           TZConnection(bConnection).ExecuteDirect(aSQL);
           //TODO:reconnect to DB and reopen all tables that WAS open
           //TZConnection(bConnection).Disconnect;
@@ -604,16 +606,6 @@ begin
                 Debug(aSQL);
               aConnection := Connection;
               TZConnection(aConnection).ExecuteDirect(aSQL);
-              {
-              GeneralQuery := TZQuery.Create(Self);
-              try
-                GeneralQuery.Connection := aConnection;
-                GeneralQuery.SQL.Text := aSQL;
-                GeneralQuery.ExecSQL;
-              finally
-                GeneralQuery.Free;
-              end;
-              }
               Changed := True;
               Result := True;
             end
@@ -631,20 +623,12 @@ begin
                 aConnection := Connection;
                 if aSQL<>'' then
                   begin
-                  TZConnection(aConnection).ExecuteDirect(aSQL);
-                  {
-                  GeneralQuery := TZQuery.Create(Self);
-                  try
-                    GeneralQuery.Connection := aConnection;
-                    GeneralQuery.SQL.Text := aSQL;
-                    GeneralQuery.ExecSQL;
-                  finally
-                    GeneralQuery.Free;
+                    with BaseApplication as IBaseApplication do
+                      Debug(aSQL);
+                    TZConnection(aConnection).ExecuteDirect(aSQL);
+                    Changed := True;
+                    Result := True;
                   end;
-                  }
-                  Changed := True;
-                  Result := True;
-                end;
               end;
           end;
         aSQL := '';
@@ -654,26 +638,15 @@ begin
               try
                 if (not IndexExists(Uppercase(Self.DefaultTableName+'_'+FManagedIndexDefs.Items[i].Name))) and (FManagedIndexDefs.Items[i].Name <>'SQL_ID') then
                   begin
-                    aSQL := aSQL+'CREATE ';
+                    aSQL := 'CREATE ';
                     if ixUnique in FManagedIndexDefs.Items[i].Options then
                       aSQL := aSQL+'UNIQUE ';
                     aSQL := aSQL+'INDEX '+QuoteField(Uppercase(Self.DefaultTableName+'_'+FManagedIndexDefs.Items[i].Name))+' ON '+QuoteField(Self.DefaultTableName)+' ('+QuoteField(StringReplace(FManagedIndexDefs.Items[i].Fields,';',QuoteField(','),[rfReplaceAll]))+');'+lineending;
-                    with BaseApplication as IBaseApplication do
-                      Debug(aSQL);
                     if aSQL <> '' then
                       begin
+                        with BaseApplication as IBaseApplication do
+                          Debug(aSQL);
                         TZConnection(Connection).ExecuteDirect(aSQL);
-                        {
-                        try
-                          GeneralQuery := TZQuery.Create(Self);
-                          GeneralQuery.Connection := Connection;
-                          GeneralQuery.SQL.Text := aSQL;
-                          GeneralQuery.ExecSQL;
-                        finally
-                          GeneralQuery.Free;
-                          aSQL := '';
-                        end;
-                        }
                       end;
                     Result := True;
                   end;
