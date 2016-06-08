@@ -640,9 +640,13 @@ end;
 procedure TfSearch.sgResultsStartDrag(Sender: TObject;
   var DragObject: TDragObject);
 begin
-  DragObject := TDragEntry.Create(Self);
-  with DragObject as TDragEntry do
-    Links := GetLink(True);
+  try
+    DragObject := TDragEntry.Create(Self);
+    if Assigned(DragObject) then
+      with DragObject as TDragEntry do
+        Links := GetLink(True);
+  except
+  end;
 end;
 
 procedure TfSearch.WMCloseQuery(var message: TLMessage);

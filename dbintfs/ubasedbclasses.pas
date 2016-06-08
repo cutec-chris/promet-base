@@ -3305,7 +3305,7 @@ begin
     begin
       if Assigned(ManagedIndexdefs) then
         begin
-          if (ManagedFieldDefs.IndexOf('REF_ID') > -1) or HasMasterSource then
+          if (ManagedFieldDefs.IndexOf('REF_ID') > -1) or (HasMasterSource and (ManagedFieldDefs.IndexOf('REF_ID')>-1)) then
             ManagedIndexDefs.Add('REF_ID','REF_ID',[]);
           ManagedIndexDefs.Add('TIMESTAMPD','TIMESTAMPD',[]);
         end;

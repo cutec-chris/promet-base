@@ -1310,6 +1310,8 @@ begin
         if DBTables.FieldByName('SHEMA').AsString<>'' then
           aTable := QuoteField(DBTables.FieldByName('SHEMA').AsString)+'.'+QuoteField(aTable);
     end;
+  if copy(aTable,0,1)<>copy(QuoteField(''),0,1) then
+    aTable:=QuoteField(aTable);
   Result := aTable;
 end;
 function TBaseDBModule.CreateTrigger(aTriggerName: string; aTableName: string;
