@@ -920,14 +920,14 @@ begin
       if Data.ListDataSetFromLink(Result,aClass) then
         begin
           aDS := aClass.Create(nil);
-        end;
-      if Assigned(aDS) then
-        begin
-          tBaseDbList(aDS).SelectFromLink(Result);
-          aDS.Open;
-          if aDS.Count>0 then
-            Result := Data.BuildLink(aDS.DataSet);
-          FreeAndNil(aDS);
+          if Assigned(aDS) then
+            begin
+              tBaseDbList(aDS).SelectFromLink(Result);
+              aDS.Open;
+              if aDS.Count>0 then
+                Result := Data.BuildLink(aDS.DataSet);
+              FreeAndNil(aDS);
+            end;
         end;
     end;
 end;

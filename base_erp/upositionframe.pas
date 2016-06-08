@@ -808,6 +808,7 @@ var
   aStorQ: Real;
 begin
   try
+  if length(FChecks)<aData then exit;
   if FChecks[aData].Checked then exit;
   if FChecks[aData].Row<FGridView.gList.RowCount then
     begin
