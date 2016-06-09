@@ -518,7 +518,9 @@ begin
           if Assigned(MasterSource) and (FManagedFieldDefs.IndexOf('REF_ID')=-1) then
             begin
               aSQL += TZeosDBDM(Self.Owner).FieldToSQL('REF_ID',ftLargeInt,0,True);
-              if FUseIntegrity then
+              if FUseIntegrity
+              and (pos('.',NewTableName)=-1) //Wenn eigene Tabelle in externer Datenbank, keine Ref. Intigrität
+              and (pos('.',GetFullTableName(TZeosDBDataSet(MasterSource.DataSet).DefaultTableName))=-1) then //Wenn übergeordnete Tabelle in externer Datenbank, keine Ref. Intigrität
                 begin
                   with MasterSource.DataSet as IBaseManageDB do
                     begin
