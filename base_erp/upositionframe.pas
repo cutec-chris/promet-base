@@ -645,6 +645,7 @@ end;
 
 procedure TfPosition.acPermanentEditorModeExecute(Sender: TObject);
 begin
+  {
   Application.ProcessMessages;
   if not Assigned(acPermanentEditormode) then exit;
   if acPermanentEditormode.Checked then
@@ -658,6 +659,7 @@ begin
       else
         DBConfig.WriteString('EPOSVIS','');
     end;
+  }
 end;
 
 procedure TfPosition.acWorkExecute(Sender: TObject);
