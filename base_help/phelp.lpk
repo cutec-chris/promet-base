@@ -45,6 +45,7 @@
     <RequiredPkgs Count="6">
       <Item1>
         <PackageName Value="KControlsLaz"/>
+        <DefaultFilename Value="../../components/kcontrols/packages/kcontrols/kcontrolslaz.lpk"/>
       </Item1>
       <Item2>
         <PackageName Value="sql_parser"/>
