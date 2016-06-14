@@ -124,6 +124,7 @@ type
     FChangeUni : Boolean;
     FSQL,FIntSQL : string;
     FParams : TStringList;
+    FInBeforePost : Boolean;
     FHasNewID : Boolean;
     procedure SetNewIDIfNull;
     function BuildSQL : string;
@@ -870,6 +871,8 @@ procedure TZeosDBDataSet.DoBeforePost;
 var
   UserCode: String;
 begin
+  if FInBeforePost then exit;
+  FInBeforePost := True;
   inherited DoBeforePost;
   if Assigned(Self.FOrigTable) then
     Self.FOrigTable.DisableChanges;
@@ -882,7 +885,7 @@ begin
         FieldByName('TIMESTAMPD').AsDateTime:=LocalTimeToUniversal(Now());
       with BaseApplication as IBaseDBInterface do
         begin
-          if TBaseDBModule(ForigTable.DataModule).Users.DataSet.Active then
+          if TBaseDBModule(ForigTable.DataModule).Users.DataSet.Active and ((FieldDefs.IndexOf('CREATEDBY') > -1) or (FieldDefs.IndexOf('CHANGEDBY') > -1)) then
             UserCode := TBaseDBModule(ForigTable.DataModule).Users.IDCode.AsString
           else UserCode := 'SYS';
           if (FieldDefs.IndexOf('CREATEDBY') > -1) and (FieldByName('CREATEDBY').IsNull) then
@@ -899,6 +902,7 @@ begin
         FieldbyName('REF_ID').AsVariant:=DataSource.DataSet.FieldByName('SQL_ID').AsVariant;
     end;
   finally
+    FInBeforePost:= False;
     if Assigned(Self.FOrigTable) then
       Self.FOrigTable.EnableChanges;
   end;
@@ -1314,6 +1318,7 @@ begin
   FUpChangedBy := True;
   FUseIntegrity:=False;//disable for sync
   FParams := TStringList.Create;
+  FInBeforePost := False;
 end;
 destructor TZeosDBDataSet.Destroy;
 begin
