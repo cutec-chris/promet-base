@@ -6,8 +6,8 @@ object fRichFrame: TfRichFrame
   ClientHeight = 268
   ClientWidth = 813
   TabOrder = 0
-  DesignLeft = 442
-  DesignTop = 337
+  DesignLeft = 441
+  DesignTop = 311
   object rmText: TKMemo
     Left = 0
     Height = 242
@@ -19,7 +19,7 @@ object fRichFrame: TfRichFrame
     ContentPadding.Top = 5
     ContentPadding.Right = 5
     ContentPadding.Bottom = 5
-    ScrollBars = ssAutoBoth
+    Options = [eoDropFiles, eoGroupUndo, eoWantTab]
     TabOrder = 0
     OnClick = rmTextClick
     OnExit = rmTextExit
@@ -57,7 +57,7 @@ object fRichFrame: TfRichFrame
       Top = 2
       Width = 127
       AutoSize = False
-      ItemHeight = 15
+      ItemHeight = 0
       Style = csSimple
       TabOrder = 0
     end
@@ -67,7 +67,7 @@ object fRichFrame: TfRichFrame
       Top = 2
       Width = 48
       AutoSize = False
-      ItemHeight = 15
+      ItemHeight = 0
       Items.Strings = (
         '8'
         '9'

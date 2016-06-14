@@ -9,8 +9,8 @@ object fViewMessage: TfViewMessage
   OnResize = FrameResize
   ParentColor = False
   TabOrder = 0
-  DesignLeft = 429
-  DesignTop = 260
+  DesignLeft = 427
+  DesignTop = 208
   object ipHTMLContent: TIpHtmlPanel
     Left = 0
     Height = 310
