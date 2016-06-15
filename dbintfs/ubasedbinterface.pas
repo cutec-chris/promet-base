@@ -1305,12 +1305,14 @@ begin
   if Assigned(DBTables) and (DBTables.Active) then
     begin
       if pos('.',aTable)>0 then
-        aTable:=copy(aTable,pos('.',aTable)+1,length(aTable));
+        aTable:=copy(aTable,rpos('.',aTable)+1,length(aTable));
       if not DBTables.Locate('NAME',aTable,[]) then
         DBTables.Filter('');
       if (DBTables.Locate('NAME',aTable,[])) then
         if DBTables.FieldByName('SHEMA').AsString<>'' then
-          aTable := QuoteField(DBTables.FieldByName('SHEMA').AsString)+'.'+QuoteField(aTable);
+          begin
+            aTable := QuoteField(StringReplace(DBTables.FieldByName('SHEMA').AsString,'.',QuoteField('.'),[rfReplaceAll]))+'.'+QuoteField(aTable);
+          end;
     end;
   if copy(aTable,0,1)<>copy(QuoteField(''),0,1) then
     aTable:=QuoteField(aTable);
