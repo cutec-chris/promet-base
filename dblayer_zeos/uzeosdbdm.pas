@@ -2047,6 +2047,7 @@ var
   aQuerry: TZReadOnlyQuery;
 begin
   Result := False;
+  if not FMainConnection.Connected then exit;
   aTableName:=GetFullTableName(aTableName);
   aTableName:=StringReplace(aTableName,copy(QuoteField(''),0,1),'',[rfReplaceAll]);
   try

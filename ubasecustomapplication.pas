@@ -54,8 +54,9 @@ type
     FAppName : string;
     FAppRevsion : Integer;
     FAppVersion : Real;
-    FMsgClient : TPrometMsgClient;
     function HandleSystemCommand(Sender : TObject;aCommand : string) : Boolean;
+  protected
+    FMsgClient : TPrometMsgClient;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -178,7 +179,7 @@ end;
 destructor TBaseCustomApplication.Destroy;
 begin
   DoExit;
-  FMsgClient.Free;
+  FreeAndNil(FMsgClient);
   if Assigned(FmessageHandler) then
     begin
       FMessagehandler.Terminate;

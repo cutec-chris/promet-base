@@ -72,13 +72,13 @@ end;
 function TPrometMsgClient.Pub(Topic, Value: string): Boolean;
 begin
   Sock.SendString('PUB '+Topic+' '+Value+CRLF);
-  Result := Receive(100)='OK';
+  Result := True;
 end;
 
 function TPrometMsgClient.Sub(Topic: string): Boolean;
 begin
   Sock.SendString('SUB '+Topic+CRLF);
-  Result := True;
+  Result := Receive(100)='OK';
 end;
 
 function TPrometMsgClient.Receive(Timeout: Integer): string;
