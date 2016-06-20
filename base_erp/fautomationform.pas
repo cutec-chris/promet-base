@@ -712,11 +712,13 @@ begin
           aMasterdata.Select(nOrder.Positions.FieldByName('IDENT').AsString);
           aMasterdata.Open;
           //nach Artikel/Version/Sprache suchen
-          if not aMasterdata.Locate('ID;VERSION;LANGUAGE',VarArrayOf([nOrder.Positions.FieldByName('IDENT').AsString,nOrder.Positions.FieldByName('VERSION').AsString,nOrder.Positions.FieldByName('LANGUAGE').AsString]),[]) then
+          if not aMasterdata.Locate('ID;VERSION;LANGUAGE',VarArrayOf([nOrder.Positions.FieldByName('IDENT').AsString,nOrder.Positions.FieldByName('VERSION').AsVariant,nOrder.Positions.FieldByName('LANGUAGE').AsString]),[]) then
             begin
-              //nach Artikel/Version suchen (Sprache ignorieren)
-              if not aMasterdata.Locate('ID;VERSION',VarArrayOf([nOrder.Positions.FieldByName('IDENT').AsString,nOrder.Positions.FieldByName('VERSION').AsString]),[]) then
-                aMasterdata.Close;
+              if not ((nOrder.Positions.FieldByName('VERSION').AsString='')
+              and (aMasterdata.Locate('ID;VERSION;LANGUAGE',VarArrayOf([nOrder.Positions.FieldByName('IDENT').AsString,'',nOrder.Positions.FieldByName('LANGUAGE').AsString]),[]))) then
+                //nach Artikel/Version suchen (Sprache ignorieren)
+                if not aMasterdata.Locate('ID;VERSION',VarArrayOf([nOrder.Positions.FieldByName('IDENT').AsString,nOrder.Positions.FieldByName('VERSION').AsString]),[]) then
+                  aMasterdata.Close;
             end;
           if aMasterdata.Active then
             begin
@@ -769,15 +771,14 @@ begin
       aMasterdata := TMasterdata.Create(nil);
       aMasterdata.Select(DataSet.FieldByName('IDENT').AsString);
       aMasterdata.Open;
-      if not aMasterdata.Locate('ID;VERSION;LANGUAGE',VarArrayOf([DataSet.FieldByName('IDENT').AsString,DataSet.FieldByName('VERSION').AsString,DataSet.FieldByName('LANGUAGE').AsString]),[]) then
+      if not aMasterdata.Locate('ID;VERSION;LANGUAGE',VarArrayOf([DataSet.FieldByName('IDENT').AsString,DataSet.FieldByName('VERSION').AsVariant,DataSet.FieldByName('LANGUAGE').AsString]),[]) then
         begin
           //nach Artikel/Version suchen (Sprache ignorieren)
-          if not aMasterdata.Locate('ID;VERSION',VarArrayOf([DataSet.FieldByName('IDENT').AsString,DataSet.FieldByName('VERSION').AsString]),[]) then
-            if not aMasterdata.Locate('ID;VERSION',VarArrayOf([DataSet.FieldByName('IDENT').AsString,DataSet.FieldByName('VERSION').AsString]),[]) then
-              if (DataSet.FieldByName('VERSION').AsString='') and (not aMasterdata.Locate('ID;VERSION',VarArrayOf([DataSet.FieldByName('IDENT').AsString,Null]),[])) then
-                aMasterdata.Close
-              else if (DataSet.FieldByName('VERSION').AsString<>'') then
-                aMasterdata.Close;
+          if not aMasterdata.Locate('ID;VERSION',VarArrayOf([DataSet.FieldByName('IDENT').AsString,DataSet.FieldByName('VERSION').AsVariant]),[]) then
+            if (DataSet.FieldByName('VERSION').AsString='') and (not aMasterdata.Locate('ID;VERSION',VarArrayOf([DataSet.FieldByName('IDENT').AsString,Null]),[])) then
+              aMasterdata.Close
+            else if (DataSet.FieldByName('VERSION').AsString<>'') then
+              aMasterdata.Close;
         end;
       if aMasterdata.Active then
         begin
