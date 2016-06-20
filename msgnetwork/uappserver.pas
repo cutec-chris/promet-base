@@ -115,7 +115,19 @@ begin
                 if LastError<>0 then
                   ListenOk:=False;
               end
-            else sleep(1000);
+            else
+              begin
+                bind('127.0.0.1','8087');
+                if LastError=0 then
+                  begin
+                    ListenOk:=True;
+                    listen;
+                    if LastError<>0 then
+                      ListenOk:=False;
+                  end
+                else
+                  sleep(1000);
+              end;
           end
         else
           begin
