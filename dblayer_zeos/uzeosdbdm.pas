@@ -1643,7 +1643,7 @@ begin
       MandantDetails.Open;
       try
         DBTables.Open;
-        if MandantDetails.FieldByName('DBSTATEMENTS').AsString<>'' then
+        if Assigned(MandantDetails.FieldByName('DBSTATEMENTS')) and (MandantDetails.FieldByName('DBSTATEMENTS').AsString<>'') then
           FMainConnection.ExecuteDirect(MandantDetails.FieldByName('DBSTATEMENTS').AsString);
       except
 
