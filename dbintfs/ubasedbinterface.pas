@@ -62,6 +62,11 @@ type
     aListClass : TBaseDBDatasetClass;
   end;
 
+  DatasetClass = record
+    aName : string;
+    aClass : TBaseDBDatasetClass;
+  end;
+
   { TBaseDBModule }
 
   TBaseDBModule = class(TComponent)
@@ -157,6 +162,7 @@ type
       virtual;
     function BuildLink(aDataSet : TDataSet) : string;virtual;
     function GotoLink(const aLink : string) : Boolean;virtual;
+    function DataSetFromName(aName: string;var aClass : TBaseDBDatasetClass): Boolean;
     function DataSetFromLink(aLink: string;var aClass : TBaseDBDatasetClass): Boolean;
     function ListDataSetFromLink(aLink: string;var aClass : TBaseDBDatasetClass): Boolean;
     procedure RegisterLinkHandler(aLink : string;aOpenHandler : TOpenLinkEvent;DataSetClass : TBaseDBDatasetClass;DataSetListClass : TBaseDBDatasetClass = nil);
@@ -336,8 +342,12 @@ resourcestring
   strEnterAnName                 = 'enter an Name';
   strProjectProcess              = 'Projekt/Prozess';
   strFor                         = 'für';
+
+procedure RegisterdataSetClass(aName: string;aClass : TBaseDBDatasetClass);
+
 var
   DatabaseLayers : TClassList;
+  DatasetClasses : array of DatasetClass;
 
 implementation
 uses uBaseApplication, uWiki, uMessages, uprocessmanager,uRTFtoTXT,
@@ -1155,6 +1165,43 @@ begin
         break;
       end;
 end;
+
+function TBaseDBModule.DataSetFromName(aName: string;
+  var aClass: TBaseDBDatasetClass): Boolean;
+var
+  i: Integer;
+begin
+  Result := False;
+  for i := low(DatasetClasses) to High(DatasetClasses) do
+    if DatasetClasses[i].aName=aName then
+      begin
+        Result := True;
+        aClass:=DatasetClasses[i].aClass;
+        break;
+      end;
+end;
+
+procedure RegisterdataSetClass(aName: string;
+  aClass: TBaseDBDatasetClass);
+var
+  i: Integer;
+  Found: Boolean;
+begin
+  Found := False;
+  for i := low(DatasetClasses) to High(DatasetClasses) do
+    if DatasetClasses[i].aName=aName then
+      begin
+        Found := True;
+        break;
+      end;
+  if not Found then
+    begin
+      SetLength(DatasetClasses,length(DatasetClasses)+1);
+      DatasetClasses[length(DatasetClasses)-1].aName:=aName;
+      DatasetClasses[length(DatasetClasses)-1].aClass:=aClass;
+    end;
+end;
+
 function TBaseDBModule.DataSetFromLink(aLink: string;
   var aClass: TBaseDBDatasetClass): Boolean;
 var
@@ -1859,6 +1906,7 @@ end;
 
 initialization
   DataBaseLayers := TClassList.Create;
+  SetLength(DatasetClasses,0);
 finalization
   DatabaseLayers.Free;
 end.

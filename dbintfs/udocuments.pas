@@ -1822,5 +1822,6 @@ end;
 
 initialization
   FUsedFields := '';
+  RegisterdataSetClass('DOCUMENT',TDocument);
 end.
 

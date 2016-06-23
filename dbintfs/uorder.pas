@@ -2010,5 +2010,6 @@ begin
 end;
 
 initialization
+  RegisterdataSetClass('ORDER',TOrder);
 end.
 

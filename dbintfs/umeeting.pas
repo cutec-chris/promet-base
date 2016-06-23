@@ -486,6 +486,7 @@ begin
           end;
     end;
 end;
-
+initialization
+  RegisterdataSetClass('MEETING',TMeetings);
 end.
 

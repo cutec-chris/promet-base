@@ -511,4 +511,5 @@ begin
   DataSet.Post;
 end;
 initialization
+  RegisterdataSetClass('MESSAGE',TMessage);
 end.

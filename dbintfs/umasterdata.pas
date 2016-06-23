@@ -1308,5 +1308,6 @@ begin
 end;
 
 initialization
+  RegisterdataSetClass('MASTERDATA',TMasterdata);
 end.
 

@@ -107,5 +107,7 @@ begin
   inherited SetDisplayLabels(aDataSet);
   SetDisplayLabelName(aDataSet,'LINK',strEntry);
 end;
+initialization
+  RegisterdataSetClass('TIMES',TTimes);
 end.
 

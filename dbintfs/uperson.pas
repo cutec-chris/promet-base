@@ -1028,4 +1028,5 @@ begin
 end;
 
 initialization
+  RegisterdataSetClass('PERSON',TPerson);
 end.

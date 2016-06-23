@@ -833,5 +833,6 @@ begin
 end;
 
 initialization
+  RegisterdataSetClass('PROJECT',TProject);
 end.
 

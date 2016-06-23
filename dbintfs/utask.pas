@@ -1778,5 +1778,7 @@ function TTaskList.GetNumberFieldName: string;
 begin
   Result := 'SQL_ID';
 end;
+initialization
+  RegisterdataSetClass('TASK',TTask);
 end.
 

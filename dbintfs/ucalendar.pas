@@ -461,5 +461,7 @@ begin
   if (StartDate>=aStart) and (EndDate<=aEnd) and (FieldByName('ALLDAY').AsString='Y') then Result := 1;
 end;
 
+initialization
+  RegisterdataSetClass('CALENDAR',TCalendar);
 end.
 

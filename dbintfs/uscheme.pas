@@ -24,7 +24,7 @@ interface
 
 uses
   Classes, SysUtils, uBaseDBClasses, uBaseERPDbClasses,uBaseDatasetInterfaces,
-  db,uIntfStrConsts;
+  db,uIntfStrConsts,uBaseDBInterface;
 
 type
   { TProjectList }
@@ -99,6 +99,7 @@ begin
           end;
     end;
 end;
-
+initialization
+  RegisterdataSetClass('SCHEME',TSchemeList);
 end.
 
