@@ -49,11 +49,15 @@ var
   InputData, OutputData: TMemoryStream;
   PubSub : TPubSubHandler = nil;
 begin
-  for i := 0 to Length(PubSubHandlers)-1 do
-    if PubSubHandlers[i].Socket=Sender then
-      begin
-        PubSub := PubSubHandlers[i];
-      end;
+  try
+    for i := 0 to Length(PubSubHandlers)-1 do
+      if PubSubHandlers[i].Socket=Sender then
+        begin
+          PubSub := PubSubHandlers[i];
+        end;
+  except
+    PubSub:=nil;
+  end;
   if PubSub=nil then
     begin
       Pubsub := TPubSubHandler.Create;
