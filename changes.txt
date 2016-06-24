@@ -1,4 +1,6 @@
-﻿Build 428
+﻿Build 429
+      -
+Build 428
       - Optionen:Tab Datenbankeinstellungen hinzugefügt
       - Datenbank:verteilen der Datenbank über mehrere Datenbanken möglich (unterschiedliche Tabellen aus unterschiedlichen Datenbanken)
 Build 427

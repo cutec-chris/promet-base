@@ -43,10 +43,12 @@ type
     lPrices: TLabel;
     lTransportSupplier: TLabel;
     Panel1: TPanel;
+    Panel3: TPanel;
     pToolbar: TPanel;
     Panel2: TPanel;
+    Splitter1: TSplitter;
     Supplier: TDatasource;
-    SupplierPrices: TDatasource;
+    SupplierPrices: TDataSource;
     procedure gSupplierDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure gSupplierDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
