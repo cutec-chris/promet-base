@@ -66,6 +66,7 @@ inherited fArticleSupplierFrame: TfArticleSupplierFrame
         ChildSizing.ControlsPerLine = 100
         ClientHeight = 139
         ClientWidth = 24
+        DataSource = Supplier
         Direction = nbdVertical
         Options = []
         TabOrder = 0

@@ -62,56 +62,53 @@ type
   end;
 implementation
 {$R *.lfm}
-uses uMainTreeFrame,uSearch,uPerson,uData;
+uses uMainTreeFrame,uSearch,uPerson,uData,uBaseVisualApplication;
 procedure TfArticleSupplierFrame.gSupplierDragOver(Sender, Source: TObject; X,
   Y: Integer; State: TDragState; var Accept: Boolean);
 begin
   Accept := False;
-  if Assigned(uMainTreeFrame.fMainTreeFrame)
-  and (Source = uMainTreeFrame.fMainTreeFrame.tvMain)
-  and ((TTreeEntry(uMainTreeFrame.fMainTreeFrame.tvMain.Selected.Data).Typ = etSupplier)) then
-    Accept := True;
-  if Assigned(fSearch) and (Source = fSearch.sgResults) then
+  if Source is TDragEntry then
     begin
-      with fSearch.sgResults do
-        if copy(fSearch.GetLink,0,9) = 'CUSTOMERS' then
-          Accept := True;
+      Accept := pos('CUSTOMERS' ,TDragEntry(Source).Links)>0;
+      exit;
     end;
  end;
 procedure TfArticleSupplierFrame.gSupplierDragDrop(Sender, Source: TObject; X,
   Y: Integer);
+  procedure AddPosition(aLink : string);
+  var
+    aPersons: TPersonList;
+    aEmployee: String;
+    aName: String;
+  begin
+    aPersons := TPersonList.CreateEx(Self,Data);
+    aPersons.SelectFromLink(aLink);
+    aPersons.Open;
+    aEmployee := aPersons.FieldByName('ACCOUNTNO').AsString;
+    aName := aPersons.FieldByName('NAME').AsString;
+    aPersons.free;
+    if (aEmployee<>'') and (aName<>'') then
+      begin
+        Supplier.DataSet.Append;
+        Supplier.DataSet.FieldByName('ACCOUNTNO').AsString := aEmployee;
+        Supplier.DataSet.FieldByName('NAME').AsString := aName;
+        Supplier.DataSet.Post;
+      end;
+  end;
+
 var
-  nData: TTreeEntry;
-  aAccountno,aName : string;
-  aRec: String;
-  OldFilter: String;
-  aPersons: TPersonList;
+  aLinks: String;
 begin
-  if (Source = fMainTreeFrame.tvMain) then
+  if Source is TDragEntry then
     begin
-      nData := TTreeEntry(fMainTreeFrame.tvMain.Selected.Data);
-      aPersons := TPersonList.CreateEx(Self,Data);
-      Data.SetFilter(aPersons,nData.Filter);
-      aAccountno := aPersons.FieldByName('ACCOUNTNO').AsString;
-      aName := aPersons.FieldByName('NAME').AsString;
-      aPersons.free;
-    end
-  else if (Source = fSearch.sgResults) then
-    begin
-      aPersons := TPersonList.CreateEx(Self,Data);
-      Data.SetFilter(aPersons,Data.QuoteField('ACCOUNTNO')+'='+Data.QuoteValue(fSearch.sgResults.Cells[1,fSearch.sgResults.Row]));
-      if aPersons.DataSet.Locate('ACCOUNTNO',fSearch.sgResults.Cells[1,fSearch.sgResults.Row],[loCaseInsensitive,loPartialKey]) then
+      aLinks := TDragEntry(Source).Links;
+      while pos(';',aLinks)>0 do
         begin
-          aAccountno := aPersons.FieldByName('ACCOUNTNO').AsString;
-          aName := aPersons.FieldByName('NAME').AsString;
+          AddPosition(copy(aLinks,0,pos(';',aLinks)-1));
+          aLinks := copy(aLinks,pos(';',aLinks)+1,length(aLinks));
         end;
-      aPersons.Free;
-    end
-  else exit;
-  Supplier.DataSet.Append;
-  Supplier.DataSet.FieldByName('ACCOUNTNO').AsString := aAccountno;
-  Supplier.DataSet.FieldByName('NAME').AsString := aName;
-  Supplier.DataSet.Post;
+      AddPosition(aLinks);
+    end;
 end;
 constructor TfArticleSupplierFrame.Create(AOwner: TComponent);
 begin
