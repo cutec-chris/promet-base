@@ -1082,17 +1082,6 @@ begin
       Accept := pos('MASTERDATA' ,TDragEntry(Source).Links)>0;
       exit;
     end;
-  if Assigned(uMainTreeFrame.fMainTreeFrame)
-  and (Source = uMainTreeFrame.fMainTreeFrame.tvMain)
-  and ((TTreeEntry(uMainTreeFrame.fMainTreeFrame.tvMain.Selected.Data).Typ = etArticle)) then
-    Accept := True;
-  if Assigned(fSearch) and (Source = fSearch.sgResults) then
-    begin
-      with fSearch.sgResults do
-        if copy(fSearch.GetLink,0,10) = 'MASTERDATA' then
-          Accept := True;
-      exit;
-    end;
 end;
 procedure TfPosition.spDetailsMoved(Sender: TObject);
 begin

@@ -457,45 +457,29 @@ end;
 
 procedure TfMeetingFrame.FGridViewDragDrop(Sender, Source: TObject; X,
   Y: Integer);
-var
-  nData: uMainTreeFrame.TTreeEntry;
-  aProjects: TProject;
-  aLink: String;
-begin
-  if Source = uMainTreeFrame.fMainTreeFrame.tvMain then
-    begin
-      nData := TTreeEntry(uMainTreeFrame.fMainTreeFrame.tvMain.Selected.Data);
-      if nData.Typ=etProject then
-        begin
-          aProjects := TProject.CreateEx(Self,Data);
-          aProjects.CreateTable;
-          Data.SetFilter(aProjects,nData.Filter);
-          Data.GotoBookmark(aProjects,nData.Rec);
-          aLink := Data.BuildLink(aProjects.DataSet);
-          aProjects.Free;
-        end
-      else if nData.Typ = etLink then
-        aLink := nData.Link;
-      if Data.GetLinkDesc(aLink)<>'' then
-        begin
-          if (FGridView.DataSet.Changed) then
-            FGridView.Post;
-          if not (FGridView.DataSet.Canedit) then
-            FGridView.Append;
-          FGridView.DataSet.FieldByName('DESC').AsString:=Data.GetLinkDesc(aLink);
-          FGridView.DataSet.FieldByName('LINK').AsString:=aLink;
-          FGridView.Post;
-          FGridView.SyncActiveRow(FGridView.DataSet.Id.AsVariant,False,True);
-        end;
-    end
-  else
-  if (Source = fSearch.sgResults) then
-    begin
-      aLink := fSearch.GetLink;
-      FGridView.Append;
-      FGridView.DataSet.FieldByName('DESC').AsString:=Data.GetLinkDesc(aLink);
-      FGridView.DataSet.FieldByName('LINK').AsString:=aLink;
+  procedure AddPosition(aLink : string);
+  begin
+    if (FGridView.DataSet.Changed) then
       FGridView.Post;
+    if not (FGridView.DataSet.Canedit) then
+      FGridView.Append;
+    FGridView.DataSet.FieldByName('DESC').AsString:=Data.GetLinkDesc(aLink);
+    FGridView.DataSet.FieldByName('LINK').AsString:=aLink;
+    FGridView.Post;
+  end;
+
+var
+  aLinks: String;
+begin
+  if Source is TDragEntry then
+    begin
+      aLinks := TDragEntry(Source).Links;
+      while pos(';',aLinks)>0 do
+        begin
+          AddPosition(copy(aLinks,0,pos(';',aLinks)-1));
+          aLinks := copy(aLinks,pos(';',aLinks)+1,length(aLinks));
+        end;
+      AddPosition(aLinks);
     end;
 end;
 
@@ -503,18 +487,12 @@ procedure TfMeetingFrame.FGridViewDragOver(Sender, Source: TObject; X,
   Y: Integer; State: TDragState; var Accept: Boolean);
 begin
   Accept := False;
-  if Assigned(uMainTreeFrame.fMainTreeFrame)
-  and (Source = uMainTreeFrame.fMainTreeFrame.tvMain)
-  and (
-     (TTreeEntry(uMainTreeFrame.fMainTreeFrame.tvMain.Selected.Data).Typ = etProject)
-  or (TTreeEntry(uMainTreeFrame.fMainTreeFrame.tvMain.Selected.Data).Typ = etLink)
-  ) then
-    Accept := True;
-  if Assigned(fSearch) and (Source = fSearch.sgResults) then
+  if Source is TDragEntry then
     begin
-      with fSearch.sgResults do
-        if copy(fSearch.GetLink,0,7) = 'PROJECT' then
-          Accept := True;
+      Accept := (pos('PROJECT' ,TDragEntry(Source).Links)>0)
+             or (pos('MASTERDATA' ,TDragEntry(Source).Links)>0)
+      ;
+      exit;
     end;
 end;
 

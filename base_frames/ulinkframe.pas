@@ -484,87 +484,69 @@ end;
 
 procedure TfLinkFrame.FContListDragDrop(Sender, Source: TObject; X, Y: Integer);
 var
-  aRec: String;
-  OldFilter: String;
-  aLink: String;
-  aLinkDesc: String;
-  aIcon: Integer;
-  DataT: TTreeEntry;
-  addToLinked: Boolean;
   aLinks: String;
-  aDS: TBaseDBList;
-  bLink: String;
-  aClass: TBaseDBDatasetClass;
-begin
-  if Assigned(fSearch) and (Source = fSearch.sgResults) then
-    begin
-      aLinks := fSearch.GetLink(True);
-      addToLinked := MessageDlg(strAddEntryToLinkedItem,mtInformation,[mbYes,mbNo],0) = mrYes;
-      while pos(';',aLinks) > 0 do
-        begin
-          aLink := copy(aLinks,0,pos(';',aLinks)-1);
-          aLinks := copy(aLinks,pos(';',aLinks)+1,length(aLinks));
-          aLinkDesc := Data.GetLinkDesc(aLink);
-          aIcon := Data.GetLinkIcon(aLink,True);
-          with DataSet.DataSet do
-            begin
-              Insert;
-              FieldByName('LINK').AsString := aLink;
-              FieldByName('NAME').AsString := aLinkDesc;
-              FieldByName('ICON').AsInteger := aIcon;
-              FieldByName('CHANGEDBY').AsString := Data.Users.IDCode.AsString;
-              Post;
-              if addToLinked then
-                begin
-                  aDS := nil;
-                  bLink := Data.BuildLink(DataSet.Parent.DataSet);
-                  if Data.ListDataSetFromLink(aLink,aClass) then
-                    begin
-                      aDS := TBaseDbList(aClass.Create(nil));
-                    end;
-                  if Assigned(aDS) then
-                    begin
-                      tBaseDbList(aDS).SelectFromLink(aLink);
-                      aDS.Open;
-                      if aDS.Count>0 then
-                        begin
-                          Insert;
-                          FieldByName('RREF_ID').AsVariant:=aDS.Id.AsVariant;
-                          aLinkDesc := Data.GetLinkDesc(bLink);
-                          aIcon := Data.GetLinkIcon(bLink,True);
-                          FieldByName('LINK').AsString := bLink;
-                          FieldByName('NAME').AsString := aLinkDesc;
-                          FieldByName('ICON').AsInteger := aIcon;
-                          FieldByName('CHANGEDBY').AsString := Data.Users.IDCode.AsString;
-                          Post;
-                        end;
-                      aDS.Free;
-                      DataSet.DataSet.Refresh;
-                    end;
-                end;
-            end;
-        end;
-    end;
-  if Source = uMainTreeFrame.fMainTreeFrame.tvMain then
-    begin
-      DataT := TTreeEntry(uMainTreeFrame.fMainTreeFrame.tvMain.Selected.Data);
-      case DataT.Typ of
-      etLink:
-        begin
-          aLink := DataT.Link;
-          aLinkDesc := Data.GetLinkDesc(aLink);
-          aIcon := Data.GetLinkIcon(aLink,True);
-          with DataSet.DataSet do
-            begin
-              Insert;
-              FieldByName('LINK').AsString := aLink;
-              FieldByName('NAME').AsString := aLinkDesc;
-              FieldByName('ICON').AsInteger := aIcon;
-              FieldByName('CHANGEDBY').AsString := Data.Users.IDCode.AsString;
-              Post;
-            end;
-        end;
+  addToLinked: Boolean;
+
+  procedure AddPosition(aLink : string);
+  var
+    aLinkDesc: String;
+    aIcon: Integer;
+    aDS: TBaseDbList;
+    bLink: String;
+    aClass: TBaseDBDatasetClass;
+  begin
+    aLinkDesc := Data.GetLinkDesc(aLink);
+    aIcon := Data.GetLinkIcon(aLink,True);
+    with DataSet.DataSet do
+      begin
+        Insert;
+        FieldByName('LINK').AsString := aLink;
+        FieldByName('NAME').AsString := aLinkDesc;
+        FieldByName('ICON').AsInteger := aIcon;
+        FieldByName('CHANGEDBY').AsString := Data.Users.IDCode.AsString;
+        Post;
+        if addToLinked then
+          begin
+            aDS := nil;
+            bLink := Data.BuildLink(DataSet.Parent.DataSet);
+            if Data.ListDataSetFromLink(aLink,aClass) then
+              begin
+                aDS := TBaseDbList(aClass.Create(nil));
+              end;
+            if Assigned(aDS) then
+              begin
+                tBaseDbList(aDS).SelectFromLink(aLink);
+                aDS.Open;
+                if aDS.Count>0 then
+                  begin
+                    Insert;
+                    FieldByName('RREF_ID').AsVariant:=aDS.Id.AsVariant;
+                    aLinkDesc := Data.GetLinkDesc(bLink);
+                    aIcon := Data.GetLinkIcon(bLink,True);
+                    FieldByName('LINK').AsString := bLink;
+                    FieldByName('NAME').AsString := aLinkDesc;
+                    FieldByName('ICON').AsInteger := aIcon;
+                    FieldByName('CHANGEDBY').AsString := Data.Users.IDCode.AsString;
+                    Post;
+                  end;
+                aDS.Free;
+                DataSet.DataSet.Refresh;
+              end;
+          end;
       end;
+  end;
+
+begin
+  if Source is TDragEntry then
+    begin
+      aLinks := TDragEntry(Source).Links;
+      addToLinked := MessageDlg(strAddEntryToLinkedItem,mtInformation,[mbYes,mbNo],0) = mrYes;
+      while pos(';',aLinks)>0 do
+        begin
+          AddPosition(copy(aLinks,0,pos(';',aLinks)-1));
+          aLinks := copy(aLinks,pos(';',aLinks)+1,length(aLinks));
+        end;
+      AddPosition(aLinks);
     end;
 end;
 procedure TfLinkFrame.FContListDragOver(Sender, Source: TObject; X, Y: Integer;
@@ -573,21 +555,10 @@ var
   DataT: TTreeEntry;
 begin
   Accept := False;
-  if Assigned(fSearch) and (Source = fSearch.sgResults) then
+  if Source is TDragEntry then
     begin
-      with fSearch.sgResults do
-        Accept := trim(fSearch.GetLink) <> '';
-    end;
-  if Source = uMainTreeFrame.fMainTreeFrame.tvMain then
-    begin
-      if not Assigned(uMainTreeFrame.fMainTreeFrame.tvMain.Selected) then exit;
-      DataT := TTreeEntry(uMainTreeFrame.fMainTreeFrame.tvMain.Selected.Data);
-      case DataT.Typ of
-      etLink:
-        begin
-          Accept := True;
-        end;
-      end;
+      Accept := pos('@' ,TDragEntry(Source).Links)>0;
+      exit;
     end;
 end;
 procedure TfLinkFrame.FContListViewDetails(Sender: TObject);

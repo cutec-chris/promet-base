@@ -62,17 +62,17 @@ type
   end;
 
 implementation
-uses uSearch,uData;
+uses uSearch,uData,uBaseVisualApplication;
 {$R *.lfm}
 
 procedure TfMeetingUsers.FContListDragOver(Sender, Source: TObject; X,
   Y: Integer; State: TDragState; var Accept: Boolean);
 begin
   Accept := False;
-  if Assigned(fSearch) and (Source = fSearch.sgResults) then
+  if Source is TDragEntry then
     begin
-      with fSearch.sgResults do
-        Accept := copy(trim(fSearch.GetLink),0,5) = 'USERS';
+      Accept := pos('USERS' ,TDragEntry(Source).Links)>0;
+      exit;
     end;
 end;
 
