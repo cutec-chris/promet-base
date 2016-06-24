@@ -1,5 +1,5 @@
 ﻿Build 429
-      -
+      - Suche:Drag&Drop + Multiselect funktioniert nun
 Build 428
       - Optionen:Tab Datenbankeinstellungen hinzugefügt
       - Datenbank:verteilen der Datenbank über mehrere Datenbanken möglich (unterschiedliche Tabellen aus unterschiedlichen Datenbanken)

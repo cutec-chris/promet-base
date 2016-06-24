@@ -443,7 +443,6 @@ object fSearch: TfSearch
       Width = 429
       Anchors = [akTop, akLeft, akRight, akBottom]
       ColCount = 7
-      ColumnClickSorts = True
       Columns = <      
         item
           Title.Caption = 'Type'
@@ -474,8 +473,10 @@ object fSearch: TfSearch
           Title.Caption = 'Prio'
           Width = 0
         end>
+      DragMode = dmAutomatic
+      ExtendedSelect = False
       FixedCols = 0
-      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goDrawFocusSelected, goColSizing, goColMoving, goRowSelect, goSmoothScroll]
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect, goSmoothScroll]
       PopupMenu = PopupMenu1
       RowCount = 1
       TabOrder = 0

@@ -28,6 +28,9 @@ uses
 type
   TOpenItemEvent = function(aLink : string) : Boolean of Object;
   THackCustomDrawGrid = class(TCustomDrawGrid);
+
+  { TfSearch }
+
   TfSearch = class(TForm)
     acOpen: TAction;
     acCopyLink: TAction;
@@ -641,7 +644,7 @@ procedure TfSearch.sgResultsStartDrag(Sender: TObject;
   var DragObject: TDragObject);
 begin
   try
-    DragObject := TDragEntry.Create(Self);
+    DragObject := TDragEntry.Create(Sender as TControl);
     if Assigned(DragObject) then
       with DragObject as TDragEntry do
         Links := GetLink(True);
@@ -902,16 +905,18 @@ begin
           if Data.ListDataSetFromLink(tmp,aClass) then
             begin
               aDS := aClass.Create(nil);
+              if Assigned(aDS) then
+                begin
+                  tBaseDbList(aDS).SelectFromLink(tmp);
+                  aDS.Open;
+                  if aDS.Count>0 then
+                    begin
+                      tmp := Data.BuildLink(aDS.DataSet);
+                      Result := Result+tmp+';'
+                    end;
+                  FreeAndNil(aDS);
+                end;
             end;
-          if Assigned(aDS) then
-            begin
-              tBaseDbList(aDS).SelectFromLink(tmp);
-              aDS.Open;
-              if aDS.Count>0 then
-                tmp := Data.BuildLink(aDS.DataSet);
-              FreeAndNil(aDS);
-            end;
-          Result := Result+tmp+';'
         end;
     end
   else if (sgResults.RowCount > 0) and (sgResults.Row > -1) then
