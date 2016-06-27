@@ -649,6 +649,7 @@ var
   aPosID: String;
   aTexts: TBoilerplate;
   nOrder: TOrder;
+  aVersion : Variant;
 begin
   if not Assigned(tvStep.Selected) then exit;
   lStep.Caption:=tvStep.Selected.Text;
@@ -711,13 +712,16 @@ begin
           aMasterdata := TMasterdata.Create(nil);
           aMasterdata.Select(nOrder.Positions.FieldByName('IDENT').AsString);
           aMasterdata.Open;
+          aVersion := nOrder.Positions.FieldByName('VERSION').AsVariant;
+          if aVersion = '' then
+            aVersion := Null;
           //nach Artikel/Version/Sprache suchen
-          if not aMasterdata.Locate('ID;VERSION;LANGUAGE',VarArrayOf([nOrder.Positions.FieldByName('IDENT').AsString,nOrder.Positions.FieldByName('VERSION').AsVariant,nOrder.Positions.FieldByName('LANGUAGE').AsString]),[]) then
+          if not aMasterdata.Locate('ID;VERSION;LANGUAGE',VarArrayOf([nOrder.Positions.FieldByName('IDENT').AsString,aVersion,nOrder.Positions.FieldByName('LANGUAGE').AsVariant]),[]) then
             begin
-              if not ((nOrder.Positions.FieldByName('VERSION').AsString='')
+              if not (((nOrder.Positions.FieldByName('VERSION').AsString='') or (nOrder.Positions.FieldByName('VERSION').IsNull))
               and (aMasterdata.Locate('ID;VERSION;LANGUAGE',VarArrayOf([nOrder.Positions.FieldByName('IDENT').AsString,'',nOrder.Positions.FieldByName('LANGUAGE').AsString]),[]))) then
                 //nach Artikel/Version suchen (Sprache ignorieren)
-                if not aMasterdata.Locate('ID;VERSION',VarArrayOf([nOrder.Positions.FieldByName('IDENT').AsString,nOrder.Positions.FieldByName('VERSION').AsString]),[]) then
+                if not aMasterdata.Locate('ID;VERSION',VarArrayOf([nOrder.Positions.FieldByName('IDENT').AsString,aVersion]),[]) then
                   aMasterdata.Close;
             end;
           if aMasterdata.Active then

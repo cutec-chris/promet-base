@@ -548,6 +548,7 @@ var
   aMasterdata: TMasterdata;
   MdThere : Boolean = False;
   VersionThere : Boolean = False;
+  aVersion : Variant;
   aFrame: TfArticleFrame;
 begin
   aMasterdata := TMasterdata.CreateEx(Self,Data);
@@ -559,9 +560,13 @@ begin
     begin
       aMasterdata.Select(DataSet.FieldByName('IDENT').AsString);
       aMasterdata.Open;
-      if not aMasterdata.Locate('VERSION;LANGUAGE',VarArrayOf([DataSet.FieldByName('VERSION').AsVariant,DataSet.FieldByName('LANGUAGE').AsVariant]),[]) then
+      aVersion := DataSet.FieldByName('VERSION').AsVariant;
+      if aVersion = '' then aVersion := Null;
+      if not aMasterdata.Locate('VERSION;LANGUAGE',VarArrayOf([aVersion,DataSet.FieldByName('LANGUAGE').AsVariant]),[]) then
         aMasterdata.Locate('VERSION',DataSet.FieldByName('VERSION').AsVariant,[]);
-      if aMasterdata.Locate('VERSION',DataSet.FieldByName('VERSION').AsVariant,[]) then
+      if aMasterdata.Locate('VERSION',aVersion,[]) then
+        VersionThere:=True
+      else if ((DataSet.FieldByName('VERSION').AsString='') and (aMasterdata.Locate('VERSION','',[]))) then
         VersionThere:=True;
       MdThere:=aMasterdata.Count>0;
     end
