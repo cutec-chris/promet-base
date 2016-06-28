@@ -600,6 +600,7 @@ begin
       BaseSortFields := 'TESTTIME';
       SortFields := 'TESTTIME';
       SortDirection := sdDescending;
+      Limit:=0;
     end;
   FDetails := TOrderQMTestDetails.CreateEx(aOwner,DM,aConnection,DataSet);
 end;
