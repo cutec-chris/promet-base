@@ -247,6 +247,9 @@ begin
 end;
 
 function TZeosDBDataSet.BuildSQL : string;
+var
+  DoQuote : Boolean = False;
+
 function BuildJoins : string;
 var
   aDS : string;
@@ -256,7 +259,10 @@ begin
     begin
       Result := FTableNames;
       if Result = '' then
-        Result := TBaseDBModule(Owner).GetFullTableName(GetTableName)
+        begin
+          Result := TBaseDBModule(Owner).GetFullTableName(GetTableName);
+          DoQuote:=(pos('.',Result)>0) or DoQuote;
+        end
       else Result := TBaseDBModule(Owner).QuoteField(Result);
       exit;
     end;
@@ -378,6 +384,8 @@ begin
         Result += 'FROM '+BuildJoins+' WHERE ('+aFilter+')';
       Result := StringReplace(Result,' WHERE () AND ','WHERE ',[]);
       Result := StringReplace(Result,' WHERE ()','',[]);
+      //if (copy(TZConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,5) = 'mssql') and DoQuote then
+      //  Result := '('+Result+')';
       if (FSortFields <> '') and ((FSortDirection <> sdIgnored) or (FBaseSortDirection <> sdIgnored)) then
         begin
           BuildSResult;
@@ -2092,7 +2100,7 @@ begin
       aTableName:=GetFullTableName(aTableName);
       aQuerry := TZReadOnlyQuery.Create(Self);
       aQuerry.Connection:=TZConnection(MainConnection);
-      aQuerry.SQL.Text := 'select count(*) from '+aTableName;
+      aQuerry.SQL.Text := '(select count(*) from '+aTableName+')';
       try
         aQuerry.Open;
       except
