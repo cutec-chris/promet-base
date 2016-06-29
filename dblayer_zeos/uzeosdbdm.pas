@@ -842,7 +842,7 @@ begin
           begin
             inc(rc);
             ok := false;
-            if (FHasNewID and (rc<3)) then
+            if ((not FHasNewID) and (rc<3)) then
               begin
                 CleanID;
                 SetNewIDIfNull;
@@ -879,13 +879,13 @@ procedure TZeosDBDataSet.DoBeforePost;
 var
   UserCode: String;
 begin
-  if FInBeforePost then exit;
-  FInBeforePost := True;
   inherited DoBeforePost;
+  if FInBeforePost then exit;
+  try
+  FInBeforePost := True;
   if Assigned(Self.FOrigTable) then
     Self.FOrigTable.DisableChanges;
   FHasNewID:=False;
-  try
   SetNewIDIfNull;
   if FUpStdFields and Assigned(FOrigTable) {and (FOrigTable.Changed)} then
     begin
