@@ -2104,7 +2104,9 @@ begin
       aTableName:=GetFullTableName(aTableName);
       aQuerry := TZReadOnlyQuery.Create(Self);
       aQuerry.Connection:=TZConnection(MainConnection);
-      aQuerry.SQL.Text := '(select count(*) from '+aTableName+')';
+      aQuerry.SQL.Text := 'select count(*) from '+aTableName;
+      if (FMainConnection.Protocol = 'mssql') then
+        aQuerry.SQL.Text := '('+aQuerry.SQL.Text+')';
       try
         aQuerry.Open;
       except
