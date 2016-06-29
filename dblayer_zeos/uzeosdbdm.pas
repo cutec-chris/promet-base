@@ -1477,6 +1477,7 @@ function TZeosDBDM.SetProperties(aProp: string;Connection : TComponent = nil): B
 var
   tmp: String;
   FConnection : TZConnection;
+  actDir: String;
 begin
   if Assigned(BaseApplication) then
     with BaseApplication as IBaseDBInterface do
@@ -1651,8 +1652,11 @@ begin
       MandantDetails.Open;
       try
         DBTables.Open;
+        actDir := GetCurrentDir;
+        SetCurrentDir(ExtractFileDir(FConnection.Database));
         if Assigned(MandantDetails.FieldByName('DBSTATEMENTS')) and (MandantDetails.FieldByName('DBSTATEMENTS').AsString<>'') then
           FMainConnection.ExecuteDirect(MandantDetails.FieldByName('DBSTATEMENTS').AsString);
+        SetCurrentDir(actDir);
       except
 
       end;
