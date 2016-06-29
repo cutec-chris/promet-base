@@ -1906,7 +1906,6 @@ end;
 
 initialization
   DataBaseLayers := TClassList.Create;
-  SetLength(DatasetClasses,0);
 finalization
   DatabaseLayers.Free;
 end.

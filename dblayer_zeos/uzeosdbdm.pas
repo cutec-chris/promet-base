@@ -1530,8 +1530,8 @@ begin
     if (copy(FConnection.Protocol,0,6) = 'sqlite')
     then
       begin
-        if not FileExists(FConnection.Database) then
-          raise Exception.Create('Databasefile dosend exists');
+        //if not FileExists(FConnection.Database) then
+        //  raise Exception.Create('Databasefile dosend exists');
         FConnection.TransactIsolationLevel:=tiNone;
       end;
     if (copy(FConnection.Protocol,0,8) = 'postgres')
