@@ -840,17 +840,13 @@ begin
           inherited InternalPost;
         except
           begin
+            try
             inc(rc);
             ok := false;
             if ((not FHasNewID) and (rc<3)) then
               begin
                 CleanID;
                 SetNewIDIfNull;
-                while CheckID do
-                  begin
-                    CleanID;
-                    SetNewIDIfNull;
-                  end;
               end
             else
               begin
@@ -858,6 +854,9 @@ begin
                 raise;
                 exit;
               end;
+            except
+              exit;
+            end;
           end;
         end;
       end;

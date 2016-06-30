@@ -677,6 +677,7 @@ initialization
   Historyrun:=True;
   ScriptTypes:=TClassList.Create;
   RegisterScriptType(TSQLScript);
+  RegisterdataSetClass('SCRIPTS',TBaseScript);
   FStatusCache := TStringList.Create;
 finalization
   FStatusCache.Free;

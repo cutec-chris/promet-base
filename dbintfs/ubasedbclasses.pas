@@ -3702,5 +3702,10 @@ begin
 end;
 
 initialization
+  RegisterdataSetClass('USERS',TUser);
+  RegisterdataSetClass('ALLOBJECTS',TObjects);
+  RegisterdataSetClass('BOILERPLATE',TBoilerplate);
+  RegisterdataSetClass('FILTERS',TFilters);
+  RegisterdataSetClass('FORMS',TForms);
 end.
 
