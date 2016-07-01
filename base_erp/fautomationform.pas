@@ -690,8 +690,10 @@ begin
           aTexts := TBoilerplate.Create(nil);
           aTexts.Filter(Data.QuoteField('NAME')+'='+Data.QuoteValue(DataSet.FieldByName('WORKTEXT').AsString));
           if aTexts.Count>0 then
-            TreeData.WorkText.Text:=WikiText2HTML(aTexts.FieldByName('TEXT').AsString);
-          TreeData.LoadDocuments(aTexts.Id.AsVariant,'B',aTexts.FieldByName('NAME').AsString,Null,Null);
+            begin
+              TreeData.WorkText.Text:=WikiText2HTML(aTexts.FieldByName('TEXT').AsString);
+              TreeData.LoadDocuments(aTexts.Id.AsVariant,'B',aTexts.FieldByName('NAME').AsString,Null,Null);
+            end;
           aTexts.Free;
         end
       else
