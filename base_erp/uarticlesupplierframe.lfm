@@ -119,6 +119,7 @@ inherited fArticleSupplierFrame: TfArticleSupplierFrame
       ReadOnly = True
       TabOrder = 0
       TitleStyle = tsNative
+      OnDblClick = gSupplierDblClick
       OnDragDrop = gSupplierDragDrop
       OnDragOver = gSupplierDragOver
     end

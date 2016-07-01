@@ -49,6 +49,7 @@ type
     Splitter1: TSplitter;
     Supplier: TDatasource;
     SupplierPrices: TDataSource;
+    procedure gSupplierDblClick(Sender: TObject);
     procedure gSupplierDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure gSupplierDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
@@ -110,6 +111,12 @@ begin
       AddPosition(aLinks);
     end;
 end;
+
+procedure TfArticleSupplierFrame.gSupplierDblClick(Sender: TObject);
+begin
+  Data.GotoLink('CUSTOMERS@'+Supplier.DataSet.FieldByName('ACCOUNTNO').AsString);
+end;
+
 constructor TfArticleSupplierFrame.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);

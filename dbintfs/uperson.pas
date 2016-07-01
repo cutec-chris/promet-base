@@ -36,6 +36,7 @@ type
     constructor CreateEx(aOwner: TComponent; DM: TComponent;
        aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
     procedure DefineFields(aDataSet : TDataSet);override;
+    function SelectFromLink(aLink : string) : Boolean;override;
     procedure SelectByAccountNo(aAccountNo : string);overload;
     function CombineItems(aRemoteLink: string): Boolean; override;
   end;
@@ -132,7 +133,6 @@ type
     property Employees : TPersonEmployees read FEmployees;
     property AccountNo : TField read GetAccountNo;
     property Info : TField read GetInfo;
-    function SelectFromLink(aLink : string) : Boolean;override;
     function SelectFromContactData(aCont : string) : Boolean;
     property OnStateChange : TNotifyEvent read FStateChange write FStateChange;
     procedure GenerateThumbnail; override;
@@ -777,7 +777,7 @@ begin
       Result := Count > 0;
     end;
 end;
-function TPerson.SelectFromLink(aLink: string): Boolean;
+function TPersonList.SelectFromLink(aLink: string): Boolean;
 begin
   Result := False;
   if (not (copy(aLink,0,pos('@',aLink)-1) = 'CUSTOMERS'))
