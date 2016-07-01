@@ -1654,7 +1654,7 @@ begin
         actDir := GetCurrentDir;
         SetCurrentDir(ExtractFileDir(FConnection.Database));
         if Assigned(MandantDetails.FieldByName('DBSTATEMENTS')) and (MandantDetails.FieldByName('DBSTATEMENTS').AsString<>'') then
-          FMainConnection.ExecuteDirect(MandantDetails.FieldByName('DBSTATEMENTS').AsString);
+          FConnection.ExecuteDirect(MandantDetails.FieldByName('DBSTATEMENTS').AsString);
         SetCurrentDir(actDir);
       except
 
