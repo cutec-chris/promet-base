@@ -606,6 +606,7 @@ var
   aFrame: TTabSheet;
   WasDisabled: Boolean;
   oldIndex: Integer;
+  bMD: TMasterdata;
 begin
   oldIndex := pcPages.TabIndex;
   TMasterdata(FDataSet).OpenItem;
@@ -615,24 +616,20 @@ begin
     begin
       if Refreshversions then
         begin
+          bMD := TMasterdata.CreateEx(nil);
           Rec := DataSet.GetBookmark;
-          FDataSet.DataSet.DisableControls;
-          with FDataSet.DataSet as IBaseDbFilter do
-            begin
-              aFilter := Filter;
-              Filter := Data.QuoteField('ID')+'='+Data.QuoteValue(DataSet.FieldByName('ID').AsString);
-            end;
-          FDataSet.Open;
-          FDataSet.DataSet.First;
+          with bMD.DataSet as IBaseDbFilter do
+            Filter := Data.QuoteField('ID')+'='+Data.QuoteValue(DataSet.FieldByName('ID').AsString);
+          bMD.Open;
+          bMD.DataSet.First;
           cbVersion.Items.Clear;
-          while not DataSet.DataSet.EOF do
+          while not bMD.DataSet.EOF do
             begin
-              cbVersion.Items.Add(DataSet.FieldByName('VERSION').AsString);
-              DataSet.DataSet.Next;
+              cbVersion.Items.Add(bMD.FieldByName('VERSION').AsString);
+              bMD.DataSet.Next;
             end;
-          DataSet.GotoBookmark(Rec);
           cbVersion.Text:=DataSet.FieldByName('VERSION').AsString;
-          FDataSet.DataSet.EnableControls;
+          bMD.Free;
         end;
     end;
 
