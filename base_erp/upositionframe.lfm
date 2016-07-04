@@ -1,8 +1,8 @@
 inherited fPosition: TfPosition
   Height = 483
-  Width = 706
+  Width = 695
   ClientHeight = 483
-  ClientWidth = 706
+  ClientWidth = 695
   ParentShowHint = False
   ShowHint = True
   DesignLeft = 393
@@ -259,11 +259,11 @@ inherited fPosition: TfPosition
     Left = 40
     Height = 483
     Top = 0
-    Width = 666
+    Width = 655
     Align = alClient
     BevelOuter = bvNone
     ClientHeight = 483
-    ClientWidth = 666
+    ClientWidth = 655
     TabOrder = 1
     UseDockManager = False
     object spDetails: TSplitter
@@ -271,7 +271,7 @@ inherited fPosition: TfPosition
       Left = 0
       Height = 5
       Top = 478
-      Width = 666
+      Width = 655
       Align = alBottom
       OnMoved = spDetailsMoved
       ResizeAnchor = akBottom
@@ -279,22 +279,22 @@ inherited fPosition: TfPosition
       Visible = False
     end
     object pSearch: TPanel
-      Left = 120
+      Left = 109
       Height = 72
       Top = 118
-      Width = 424
+      Width = 536
       Anchors = [akTop, akRight]
       BevelOuter = bvNone
       Caption = 'pSearch'
       ClientHeight = 72
-      ClientWidth = 424
+      ClientWidth = 536
       TabOrder = 1
       Visible = False
       object lbResults: TListBox
         Left = 0
         Height = 72
         Top = 0
-        Width = 424
+        Width = 536
         Align = alClient
         ItemHeight = 0
         OnDblClick = lbResultsDblClick
@@ -307,17 +307,17 @@ inherited fPosition: TfPosition
       Left = 0
       Height = 230
       Top = 248
-      Width = 666
+      Width = 655
       Align = alBottom
       BevelOuter = bvNone
       ClientHeight = 230
-      ClientWidth = 666
+      ClientWidth = 655
       TabOrder = 2
       object pcTabs: TExtMenuPageControl
         Left = 0
         Height = 230
         Top = 0
-        Width = 666
+        Width = 655
         ActivePage = tsDetails
         Align = alClient
         TabIndex = 0
@@ -326,14 +326,14 @@ inherited fPosition: TfPosition
         object tsDetails: TTabSheet
           Caption = 'Details'
           ClientHeight = 202
-          ClientWidth = 658
+          ClientWidth = 647
           ImageIndex = 40
           ParentFont = False
           object pDetails: TPanel
             Left = 0
             Height = 202
             Top = 0
-            Width = 658
+            Width = 647
             Align = alClient
             BevelOuter = bvNone
             Caption = 'keine Detailansicht verfügbar'
