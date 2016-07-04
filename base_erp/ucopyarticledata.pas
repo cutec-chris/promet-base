@@ -61,9 +61,9 @@ begin
   if Result then
     begin
       if aNewLanguage<>Null then
-        Result := FMasterdata.Copy(aNewVersion,aNewLanguage,cbCopyPrices.Checked,cbCopyproperties.Checked,cbCopyTexts.Checked,cbCopySupplier.Checked)
+        Result := FMasterdata.Copy(aNewVersion,aNewLanguage,cbCopyPrices.Checked,cbCopyproperties.Checked,cbCopyTexts.Checked,cbCopySupplier.Checked,cbPiecelist.Checked)
       else
-        Result := FMasterdata.Versionate(aNewVersion,cbActivate.Checked,cbCopyPrices.Checked,cbCopyproperties.Checked,cbCopyTexts.Checked,cbCopySupplier.Checked)
+        Result := FMasterdata.Versionate(aNewVersion,cbActivate.Checked,cbCopyPrices.Checked,cbCopyproperties.Checked,cbCopyTexts.Checked,cbCopySupplier.Checked,cbPiecelist.Checked)
     end;
 end;
 initialization
