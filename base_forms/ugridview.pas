@@ -641,7 +641,8 @@ end;
 
 procedure TfGridView.FDataSourceDataChange(Sender: TObject; Field: TField);
 begin
-  FieldModified(Field);
+  if Assigned(Field) then
+    FieldModified(Field);
 end;
 procedure TfGridView.FDataSourceStateChange(Sender: TObject);
 begin
@@ -1867,6 +1868,7 @@ var
 
 begin
   if FDisableEdit then exit;
+  if not Assigned(DataSet) then exit;
   if FIgnoreSettext then
     begin
       FIgnoreSettext := False;
@@ -3163,9 +3165,7 @@ begin
                 begin
                   try
                     if DataSet.Changed then
-                      DataSet.Post
-                    else
-                      DataSet.Cancel;
+                      DataSet.Post;
                   except
                     DataSet.Cancel;
                   end;
