@@ -67,6 +67,8 @@ type
     MenuItem11: TMenuItem;
     miCopy: TMenuItem;
     miPaste: TMenuItem;
+    pDetail: TPanel;
+    pContent: TPanel;
     pDetails: TPanel;
     Position: TDatasource;
     ExtRotatedLabel1: TExtRotatedLabel;
@@ -94,7 +96,6 @@ type
     pSearch: TPanel;
     TabTimer: TIdleTimer;
     pcTabs: TExtMenuPageControl;
-    pDetail: TPanel;
     pToolbar: TPanel;
     spDetails: TSplitter;
     tbAnsicht1: TToolBar;
@@ -319,6 +320,7 @@ begin
             end;
           if Assigned(ActiveSearch) then
             begin
+              if ActiveSearch.SearchString=SearchString then exit;
               ActiveSearch.Abort;
               FreeAndNil(ActiveSearch);
             end;
@@ -767,15 +769,16 @@ begin
   if Assigned(Sender) then
     Application.ProcessMessages;
   pDetail.Visible:=acViewDetails.Checked;
+  with Application as IBaseDbInterface do
+    pDetail.Height:=DBConfig.ReadInteger('DSIZ'+BaseName,pDetail.Height);
   spDetails.Visible:=acViewDetails.Checked;
   if spDetails.Visible then
     begin
       spDetails.Top:=pDetail.Top-1;
-      FGridView.First;
       with Application as IBaseDbInterface do
         begin
+          Application.ProcessMessages;
           DBConfig.WriteString('DVIS'+BaseName,'Y');
-          pDetail.Height:=DBConfig.ReadInteger('DSIZ'+BaseName,pDetail.Height);
         end;
     end
   else
@@ -1366,7 +1369,7 @@ begin
   FGridView.SortField:='POSNO';
   FGridView.ShortTextField:='SHORTTEXT';
   FGridView.TreeField:='PARENT';
-  FGridView.Parent := Self;
+  FGridView.Parent := pContent;
   FGridView.Align:=alClient;
   FGridView.FilterRow:=true;
   FGridView.WordWrap:=true;

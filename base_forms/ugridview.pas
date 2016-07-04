@@ -655,7 +655,8 @@ begin
   try
     FEntered := True;
     SyncDataSource;
-    if not FInitialized then FEntered:=False;
+    if not FInitialized then
+      FEntered:=False;
     if Assigned(DataSet) then
       begin
         DataSet.First;
@@ -1827,17 +1828,17 @@ begin
         if Assigned(DataSet) and (DataSet.State<>dsInsert) then
           gList.EditorMode:=False;
       end
-    else if (OldCol < aCol) then
+    else if (OldCol < aCol) and WasEditing then
       begin
         if Assigned(FCheckIdent) then FCheckIdent(Self);
       end;
-    if ((OldCol < aCol) or (OldRow <> aRow)) and Assigned(FSearchKey) then
+    if (((OldCol < aCol) or (OldRow <> aRow)) and Assigned(FSearchKey)) and WasEditing then
       begin
         aRect := gList.CellRect(gList.Col,gList.Row);
         if gList.Col>1 then
           FSearchKey(Self,aRect.Left,aRect.Bottom,dgFake.Columns[gList.Col-1],aKey,[],'');
       end;
-    if Assigned(OnCellChanged) then
+    if Assigned(OnCellChanged) and ((aCol<>OldCol) or (aRow<>OldRow)) then
       OnCellChanged(Self,Point(aCol,aRow),Point(OldCol,OldRow));
     OldCol := aCol;
   except
@@ -3161,7 +3162,10 @@ begin
               if not ReadOnly then
                 begin
                   try
-                    DataSet.Post;
+                    if DataSet.Changed then
+                      DataSet.Post
+                    else
+                      DataSet.Cancel;
                   except
                     DataSet.Cancel;
                   end;

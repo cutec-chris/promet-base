@@ -1,7 +1,7 @@
 inherited fPosition: TfPosition
-  Height = 469
+  Height = 483
   Width = 706
-  ClientHeight = 469
+  ClientHeight = 483
   ClientWidth = 706
   ParentShowHint = False
   ShowHint = True
@@ -9,30 +9,30 @@ inherited fPosition: TfPosition
   DesignTop = 217
   object pToolbar: TPanel[0]
     Left = 0
-    Height = 230
+    Height = 483
     Top = 0
-    Width = 61
+    Width = 40
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 230
-    ClientWidth = 61
+    ClientHeight = 483
+    ClientWidth = 40
     TabOrder = 0
     object Panel2: TPanel
       Left = 0
-      Height = 76
+      Height = 148
       Top = 20
-      Width = 61
+      Width = 40
       Align = alTop
       BorderSpacing.Top = 20
       BevelOuter = bvNone
-      ClientHeight = 76
-      ClientWidth = 61
+      ClientHeight = 148
+      ClientWidth = 40
       TabOrder = 0
       object Bevel1: TBevel
         Left = 4
         Height = 4
         Top = 0
-        Width = 53
+        Width = 32
         Align = alTop
         BorderSpacing.Left = 4
         BorderSpacing.Right = 4
@@ -40,7 +40,7 @@ inherited fPosition: TfPosition
       end
       object ExtRotatedLabel1: TExtRotatedLabel
         Left = 0
-        Height = 72
+        Height = 144
         Top = 4
         Width = 14
         Align = alLeft
@@ -55,19 +55,19 @@ inherited fPosition: TfPosition
       end
       object Panel5: TPanel
         Left = 14
-        Height = 72
+        Height = 144
         Top = 4
-        Width = 47
+        Width = 26
         Align = alClient
         BevelOuter = bvNone
-        ClientHeight = 72
-        ClientWidth = 47
+        ClientHeight = 144
+        ClientWidth = 26
         TabOrder = 0
         object tbPosition: TToolBar
           Left = 0
-          Height = 72
+          Height = 144
           Top = 0
-          Width = 47
+          Width = 26
           Align = alClient
           AutoSize = True
           Caption = 'tbPosition'
@@ -75,18 +75,18 @@ inherited fPosition: TfPosition
           Images = fVisualControls.Images
           TabOrder = 0
           object ToolButton1: TToolButton
-            Left = 24
-            Top = 0
+            Left = 1
+            Top = 22
             Action = acAddPos
           end
           object ToolButton3: TToolButton
             Left = 1
-            Top = 22
+            Top = 88
             Action = acMakeSubPos
           end
           object ToolButton4: TToolButton
-            Left = 24
-            Top = 22
+            Left = 1
+            Top = 110
             Action = acUnMakeSebPos
           end
           object ToolButton5: TToolButton
@@ -96,11 +96,11 @@ inherited fPosition: TfPosition
           end
           object ToolButton10: TToolButton
             Left = 1
-            Top = 44
+            Top = 66
             Action = acDelPos
           end
           object ToolButton11: TToolButton
-            Left = 24
+            Left = 1
             Top = 44
             Action = acSavePos
           end
@@ -109,19 +109,19 @@ inherited fPosition: TfPosition
     end
     object Panel3: TPanel
       Left = 0
-      Height = 62
-      Top = 152
-      Width = 61
+      Height = 72
+      Top = 248
+      Width = 40
       Align = alTop
       BevelOuter = bvNone
-      ClientHeight = 62
-      ClientWidth = 61
+      ClientHeight = 72
+      ClientWidth = 40
       TabOrder = 1
       object Bevel2: TBevel
         Left = 4
         Height = 4
         Top = 0
-        Width = 53
+        Width = 32
         Align = alTop
         BorderSpacing.Left = 4
         BorderSpacing.Right = 4
@@ -129,7 +129,7 @@ inherited fPosition: TfPosition
       end
       object ExtRotatedLabel2: TExtRotatedLabel
         Left = 0
-        Height = 58
+        Height = 68
         Top = 4
         Width = 14
         Align = alLeft
@@ -144,19 +144,19 @@ inherited fPosition: TfPosition
       end
       object Panel7: TPanel
         Left = 14
-        Height = 58
+        Height = 68
         Top = 4
-        Width = 47
+        Width = 26
         Align = alClient
         BevelOuter = bvNone
-        ClientHeight = 58
-        ClientWidth = 47
+        ClientHeight = 68
+        ClientWidth = 26
         TabOrder = 0
         object tbAnsicht1: TToolBar
           Left = 0
-          Height = 44
+          Height = 66
           Top = 0
-          Width = 47
+          Width = 26
           AutoSize = True
           Caption = 'ToolBar1'
           EdgeBorders = []
@@ -164,11 +164,11 @@ inherited fPosition: TfPosition
           TabOrder = 0
           object ToolButton7: TToolButton
             Left = 1
-            Top = 0
+            Top = 44
             Action = acRenumber
           end
           object ToolButton8: TToolButton
-            Left = 24
+            Left = 1
             Top = 0
             Action = acGotoArticle
           end
@@ -182,19 +182,19 @@ inherited fPosition: TfPosition
     end
     object Panel4: TPanel
       Left = 0
-      Height = 56
-      Top = 96
-      Width = 61
+      Height = 80
+      Top = 168
+      Width = 40
       Align = alTop
       BevelOuter = bvNone
-      ClientHeight = 56
-      ClientWidth = 61
+      ClientHeight = 80
+      ClientWidth = 40
       TabOrder = 2
       object Bevel4: TBevel
         Left = 4
         Height = 4
         Top = 0
-        Width = 53
+        Width = 32
         Align = alTop
         BorderSpacing.Left = 4
         BorderSpacing.Right = 4
@@ -202,7 +202,7 @@ inherited fPosition: TfPosition
       end
       object ExtRotatedLabel3: TExtRotatedLabel
         Left = 0
-        Height = 52
+        Height = 76
         Top = 4
         Width = 16
         Align = alLeft
@@ -217,19 +217,19 @@ inherited fPosition: TfPosition
       end
       object Panel6: TPanel
         Left = 16
-        Height = 52
+        Height = 76
         Top = 4
-        Width = 45
+        Width = 24
         Align = alClient
         BevelOuter = bvNone
-        ClientHeight = 52
-        ClientWidth = 45
+        ClientHeight = 76
+        ClientWidth = 24
         TabOrder = 0
         object tbAnsicht: TToolBar
           Left = 0
-          Height = 52
+          Height = 76
           Top = 0
-          Width = 45
+          Width = 24
           Align = alClient
           AutoSize = True
           Caption = 'ToolBar1'
@@ -247,93 +247,103 @@ inherited fPosition: TfPosition
             Action = acViewTexts
           end
           object ToolButton9: TToolButton
-            Left = 24
-            Top = 0
+            Left = 1
+            Top = 44
             Action = acRefresh
           end
         end
       end
     end
   end
-  object pDetail: TPanel[1]
-    Left = 0
-    Height = 234
-    Top = 235
-    Width = 706
-    Align = alBottom
-    Anchors = [akTop, akLeft, akRight, akBottom]
+  object pContent: TPanel[1]
+    Left = 40
+    Height = 483
+    Top = 0
+    Width = 666
+    Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 234
-    ClientWidth = 706
+    ClientHeight = 483
+    ClientWidth = 666
     TabOrder = 1
-    Visible = False
-    object pcTabs: TExtMenuPageControl
+    UseDockManager = False
+    object spDetails: TSplitter
+      Cursor = crVSplit
       Left = 0
-      Height = 234
-      Top = 0
-      Width = 706
-      ActivePage = tsDetails
-      Align = alClient
-      TabIndex = 0
-      TabOrder = 0
-      NewTabImageIndex = 59
-      object tsDetails: TTabSheet
-        Caption = 'Details'
-        ClientHeight = 206
-        ClientWidth = 698
-        ImageIndex = 40
-        ParentFont = False
-        object pDetails: TPanel
-          Left = 0
-          Height = 206
-          Top = 0
-          Width = 698
-          Align = alClient
-          BevelOuter = bvNone
-          Caption = 'keine Detailansicht verfügbar'
-          TabOrder = 0
+      Height = 5
+      Top = 478
+      Width = 666
+      Align = alBottom
+      OnMoved = spDetailsMoved
+      ResizeAnchor = akBottom
+      ResizeStyle = rsLine
+      Visible = False
+    end
+    object pSearch: TPanel
+      Left = 120
+      Height = 72
+      Top = 118
+      Width = 424
+      Anchors = [akTop, akRight]
+      BevelOuter = bvNone
+      Caption = 'pSearch'
+      ClientHeight = 72
+      ClientWidth = 424
+      TabOrder = 1
+      Visible = False
+      object lbResults: TListBox
+        Left = 0
+        Height = 72
+        Top = 0
+        Width = 424
+        Align = alClient
+        ItemHeight = 0
+        OnDblClick = lbResultsDblClick
+        ScrollWidth = 422
+        TabOrder = 0
+        TabStop = False
+      end
+    end
+    object pDetail: TPanel
+      Left = 0
+      Height = 230
+      Top = 248
+      Width = 666
+      Align = alBottom
+      BevelOuter = bvNone
+      ClientHeight = 230
+      ClientWidth = 666
+      TabOrder = 2
+      object pcTabs: TExtMenuPageControl
+        Left = 0
+        Height = 230
+        Top = 0
+        Width = 666
+        ActivePage = tsDetails
+        Align = alClient
+        TabIndex = 0
+        TabOrder = 0
+        NewTabImageIndex = 59
+        object tsDetails: TTabSheet
+          Caption = 'Details'
+          ClientHeight = 202
+          ClientWidth = 658
+          ImageIndex = 40
+          ParentFont = False
+          object pDetails: TPanel
+            Left = 0
+            Height = 202
+            Top = 0
+            Width = 658
+            Align = alClient
+            BevelOuter = bvNone
+            Caption = 'keine Detailansicht verfügbar'
+            TabOrder = 0
+          end
         end
       end
     end
   end
-  object spDetails: TSplitter[2]
-    Cursor = crVSplit
-    Left = 0
-    Height = 5
-    Top = 230
-    Width = 706
-    Align = alBottom
-    OnMoved = spDetailsMoved
-    ResizeAnchor = akBottom
-    ResizeStyle = rsLine
-    Visible = False
-  end
-  object pSearch: TPanel[3]
-    Left = 88
-    Height = 72
-    Top = 118
-    Width = 424
-    Anchors = [akTop, akRight]
-    BevelOuter = bvNone
-    Caption = 'pSearch'
-    ClientHeight = 72
-    ClientWidth = 424
-    TabOrder = 3
-    Visible = False
-    object lbResults: TListBox
-      Left = 0
-      Height = 72
-      Top = 0
-      Width = 424
-      Align = alClient
-      ItemHeight = 0
-      OnDblClick = lbResultsDblClick
-      ScrollWidth = 422
-      TabOrder = 0
-      TabStop = False
-    end
-  end
-  object ActionList1: TActionList[4]
+  object ActionList1: TActionList[2]
     Images = fVisualControls.Images
     left = 80
     top = 64
@@ -453,14 +463,14 @@ inherited fPosition: TfPosition
       OnExecute = acWorkExecute
     end
   end
-  object TabTimer: TIdleTimer[5]
+  object TabTimer: TIdleTimer[3]
     Enabled = False
     Interval = 20
     OnTimer = TabTimerTimer
     left = 112
     top = 64
   end
-  object pmPosition: TPopupMenu[6]
+  object pmPosition: TPopupMenu[4]
     Images = fVisualControls.Images
     left = 160
     top = 64
@@ -888,13 +898,13 @@ inherited fPosition: TfPosition
       }
     end
   end
-  object Position: TDataSource[7]
+  object Position: TDataSource[5]
     OnStateChange = PositionStateChange
     OnDataChange = PositionDataChange
     left = 232
     top = 64
   end
-  object OrderPos: TDataSource[8]
+  object OrderPos: TDataSource[6]
     left = 304
     top = 64
   end
