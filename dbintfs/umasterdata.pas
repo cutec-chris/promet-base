@@ -926,6 +926,7 @@ begin
             begin
               bMasterdata.Positions.Append;
               bMasterdata.Positions.DirectAssign(Positions);
+              bMasterdata.Positions.FieldByName('REF_ID').AsVariant:=bMasterdata.Id.AsVariant;
               Positions.Next;
             end;
         end;
