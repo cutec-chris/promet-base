@@ -796,7 +796,6 @@ begin
       if not Found then
         cbSearchType.Items.Add(aLocations[i]);
     end;
-  OnValidateItem:=nil;
 end;
 procedure TfSearch.LoadOptions(OptionSet : string);
 var
