@@ -664,7 +664,10 @@ begin
   FreeAndNil(TreeData.Preparescript);
   FreeAndNil(TreeData.Script);
   //Information in Order
-  if (Assigned(DataSet.FieldByName('PRSCRIPT')) and (DataSet.FieldByName('PRSCRIPT').AsString<>'')) or (DataSet.FieldByName('SCRIPT').AsString<>'') or (DataSet.FieldByName('TEXT').AsString<>'') then
+  if (Assigned(DataSet.FieldByName('PRSCRIPT')) and (DataSet.FieldByName('PRSCRIPT').AsString<>''))
+  or (DataSet.FieldByName('SCRIPT').AsString<>'')
+  or (DataSet.FieldByName('TEXT').AsString<>'')
+  or (DataSet.FieldByName('WORKTEXT').AsString<>'') then
     begin
       TreeData.LoadScript(DataSet.FieldByName('SCRIPT').AsString,DataSet.FieldByName('SCRIPTVER').AsVariant);
       if Assigned(DataSet.FieldByName('PRSCRIPT')) then

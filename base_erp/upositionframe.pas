@@ -1257,13 +1257,15 @@ begin
           pcTabs.TabIndex:=0;
         end;
       aFrame := pcTabs.GetTab(TfAutomationframe);
-      if (not Assigned(aFrame)) and Assigned(TBaseDBPosition(Dataset).FieldByName('SCRIPT')) and (TBaseDBPosition(Dataset).FieldByName('SCRIPT').AsString<>'') then
+      if (not Assigned(aFrame)) and ((Assigned(TBaseDBPosition(Dataset).FieldByName('SCRIPT')) and (TBaseDBPosition(Dataset).FieldByName('SCRIPT').AsString<>''))
+                                  or (Assigned(TBaseDBPosition(Dataset).FieldByName('WORKTEXT')) and (TBaseDBPosition(Dataset).FieldByName('WORKTEXT').AsString<>''))) then
         begin
           pcTabs.AddTab(TfAutomationframe.Create(Self),False);
           aFrame := pcTabs.GetTab(TfAutomationframe);
           AddAutomationTab(aFrame.Controls[0]);
         end
-      else if Assigned(aFrame) and Assigned(TBaseDBPosition(Dataset).FieldByName('SCRIPT')) and (TBaseDBPosition(Dataset).FieldByName('SCRIPT').AsString='') then
+      else if Assigned(aFrame) and ((Assigned(TBaseDBPosition(Dataset).FieldByName('SCRIPT')) and (TBaseDBPosition(Dataset).FieldByName('SCRIPT').AsString=''))
+                                 or (Assigned(TBaseDBPosition(Dataset).FieldByName('WORKTEXT')) and (TBaseDBPosition(Dataset).FieldByName('WORKTEXT').AsString<>''))) then
         begin
           pcTabs.WillRemoveTab(aFrame);
           aFrame.Free;
