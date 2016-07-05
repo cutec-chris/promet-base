@@ -914,6 +914,7 @@ begin
           aFont := TFont.Create;
           TExtStringGrid(Sender).Objects[Column.Index,DataCol] := aFont;
           if not FGridView.GotoRowNumber(DataCol) then exit;
+          if FDataset.State=dsInsert then exit;
           AddAsyncCheck(DataSet.FieldByName('IDENT').AsString,DataSet.FieldByName('VERSION').AsVariant,DataCol,aFont,DataSet.FieldByName('QUANTITY').AsInteger,DataSet.FieldByName('QUANTITYD').AsInteger,DataSet.FieldByName('AVALIBLE').AsVariant,DataSet.FieldByName('STORAGE').AsString);
         end;
       if Assigned(TExtStringGrid(Sender).Objects[Column.Index,DataCol]) and (TExtStringGrid(Sender).Objects[Column.Index,DataCol] is TFont) then
