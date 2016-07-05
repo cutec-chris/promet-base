@@ -819,8 +819,9 @@ var
   aStorQ: Real;
 begin
   try
-  if length(FChecks)<aData then exit;
-  if FChecks[aData].Checked then exit;
+  aData := 0;
+  while (FChecks[adata].Checked) and (aData<length(FChecks)) do
+    inc(aData);
   if FChecks[aData].Row<FGridView.gList.RowCount then
     begin
       aMasterdata := TMasterdata.CreateEx(Self,Data);
@@ -887,13 +888,9 @@ begin
     end;
   FChecks[aData].Checked := True;
   aMasterdata.Free;
-  for i := 0 to length(FChecks)-1 do
-    if not FChecks[i].Checked then
-      begin
-        Application.ProcessMessages;
-        exit;
-      end;
-  Setlength(FChecks,0);
+  if aData=Length(FChecks)-1 then
+    Setlength(FChecks,0)
+  else Application.QueueAsyncCall(@DoCheckIdent,0);
   FGridView.Invalidate;
   except
     Setlength(FChecks,0);
@@ -1155,7 +1152,8 @@ begin
   FChecks[idx].QuantityD:=QuantityD;
   FChecks[idx].Storage:=Storage;
   FChecks[idx].Avalible:=Avalible;
-  Application.QueueAsyncCall(@DoCheckIdent,length(FChecks)-1);
+  if length(FChecks)=1 then
+    Application.QueueAsyncCall(@DoCheckIdent,0);
 end;
 
 procedure TfPosition.SetDataSet(const AValue: TBaseDBDataset);
