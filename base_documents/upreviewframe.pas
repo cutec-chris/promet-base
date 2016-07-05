@@ -119,6 +119,7 @@ type
   TLoadThread = class(TThread)
   private
     FAbort: Boolean;
+    aNumber: Int64;
     FID : LargeInt;
     FRev : Integer;
     aStream: TMemoryStream;
@@ -132,8 +133,8 @@ type
     procedure LoadText;
     procedure FillRevision;
     procedure EndLoading;
-    procedure getConnection;
     procedure CheckOutToStream;
+    procedure CreateDoc;
   public
     procedure Execute;override;
     constructor Create(aFrame: TfPreview; aID: Int64;aRevision : Integer = -1);
@@ -147,6 +148,9 @@ procedure TLoadThread.StartLoading;
 begin
   FFrame.iHourglass.Visible:=True;
   Application.ProcessMessages;
+  aNumber := aDocument.FieldByName('NUMBER').AsVariant;
+  aDocument.SelectByNumber(aNumber);
+  aDocument.Open;
 end;
 
 procedure TLoadThread.SetAbort(AValue: Boolean);
@@ -218,32 +222,26 @@ begin
   Application.ProcessMessages;
 end;
 
-procedure TLoadThread.getConnection;
-begin
-  aTransaction := Data.GetNewConnection;
-end;
-
 procedure TLoadThread.CheckOutToStream;
 begin
   aDocument.CheckoutToStream(aStream,FRev);
 end;
 
-procedure TLoadThread.Execute;
-var
-  aNumber: Int64;
-label aExit;
+procedure TLoadThread.CreateDoc;
 begin
-  Synchronize(@getConnection);
-  aDocument := TDocument.CreateEx(nil,Data,aTransaction);
+  aDocument := TDocument.Create(nil);
   aDocument.SelectByID(FID);
   aDocument.Open;
+end;
+
+procedure TLoadThread.Execute;
+label aExit;
+begin
+  Synchronize(@CreateDoc);
   if aDocument.Count > 0 then
     begin
       Synchronize(@StartLoading);
-      aNumber := aDocument.FieldByName('NUMBER').AsVariant;
-      aDocument.SelectByNumber(aNumber);
       if DoAbort then goto aExit;
-      aDocument.Open;
       if DoAbort then goto aExit;
       Synchronize(@FillRevision);
       if DoAbort then goto aExit;

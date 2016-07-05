@@ -1408,7 +1408,7 @@ begin
   TempID := StringReplace(TempID,'{','_',[rfReplaceAll]);
   TempID := StringReplace(TempID,'}','_',[rfReplaceAll]);
   aID := DataSet.FieldByName('NUMBER').AsVariant;
-  bDocument := TDocument.CreateEx(Self,Data);
+  bDocument := TDocument.Create(Self);
   bDocument.SelectByNumber(aId);
   bDocument.Open;
   Data.SetFilter(bDocument.DocumentActions,Data.QuoteField('NUMBER')+'='+Data.QuoteValue(DataSet.FieldByName('NUMBER').AsString));
