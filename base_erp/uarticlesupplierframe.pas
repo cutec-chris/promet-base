@@ -82,6 +82,7 @@ procedure TfArticleSupplierFrame.gSupplierDragDrop(Sender, Source: TObject; X,
     aEmployee: String;
     aName: String;
   begin
+    if aLink='' then exit;
     aPersons := TPersonList.CreateEx(Self,Data);
     aPersons.SelectFromLink(aLink);
     aPersons.Open;
