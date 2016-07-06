@@ -349,7 +349,7 @@ end;
 
 function TBaseScript.GetTextFieldName: string;
 begin
-  Result := 'NAME';
+  Result := 'SCRIPT';
 end;
 
 function TBaseScript.GetNumberFieldName: string;
