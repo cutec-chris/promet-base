@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ButtonPanel, ExtCtrls, Buttons, EditBtn, ActnList, db,uprometpascalscript,
+  ButtonPanel, ExtCtrls, Buttons, EditBtn, ActnList, db, uprometpascalscript,
   DBGrids,uprometscripts,uBaseDbClasses,genscript;
 
 type

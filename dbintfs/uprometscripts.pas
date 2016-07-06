@@ -58,6 +58,7 @@ type
     procedure DoSetStatus(s : string);
   protected
     function GetTextFieldName: string;override;
+    function GetDescriptionFieldName: string;override;
     function GetNumberFieldName : string;override;
     function GetHistory: TBaseHistory;
     function GetStatusFieldName: string;override;
@@ -111,9 +112,11 @@ var
   FStatusCache : TStringList;
 
 implementation
-
 uses uStatistic,uData,httpsend,variants,uPerson,uMasterdata,uProjects,uOrder,
-  uBaseApplication,uSystemMessage,utask,uMessages,uDocuments, uIntfStrConsts;
+  uBaseApplication,uSystemMessage,utask,uMessages,uDocuments, uIntfStrConsts,
+  uBaseSearch;
+resourcestring
+  strScripts                 = 'Scripte';
 
 procedure RegisterScriptType(aType : TScriptClass);
 begin
@@ -349,7 +352,12 @@ end;
 
 function TBaseScript.GetTextFieldName: string;
 begin
-  Result := 'SCRIPT';
+  Result := 'NAME';
+end;
+
+function TBaseScript.GetDescriptionFieldName: string;
+begin
+  Result:='SCRIPT';
 end;
 
 function TBaseScript.GetNumberFieldName: string;
@@ -386,6 +394,7 @@ begin
   with aDataSet as IBaseManageDB do
     begin
       TableName := 'SCRIPTS';
+      TableCaption:=strScripts;
       if Assigned(ManagedFieldDefs) then
         with ManagedFieldDefs do
           begin

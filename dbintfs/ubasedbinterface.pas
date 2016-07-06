@@ -351,7 +351,7 @@ var
 
 implementation
 uses uBaseApplication, uWiki, uMessages, uprocessmanager,uRTFtoTXT,
-  utask,uPerson,uMasterdata,uProjects,umeeting,uStatistic,usync;
+  utask,uPerson,uMasterdata,uProjects,umeeting,uStatistic,usync,uprometscripts;
 
 { TDBConfig }
 
@@ -1665,6 +1665,7 @@ begin
       except
       end;
     end;
+  AddSearchAbleDataSet(TBaseScript);
 end;
 
 function TBaseDBInterface.GetMandantPath: string;
