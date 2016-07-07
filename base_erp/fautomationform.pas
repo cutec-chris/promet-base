@@ -897,8 +897,12 @@ end;
 
 procedure TProdTreeData.CompileScript(Data: PtrInt);
 begin
-  Script.Compile;
-  if (Script.StatusProblems.Text<>'') and Assigned(FAutomation) then
+  if not Script.Compile then
+    begin
+      FAutomation.lStatusProblems.Caption:='Failed to compile Script !';
+      FAutomation.lStatusProblems.Visible:=True;
+    end
+  else if (Script.StatusProblems.Text<>'') and Assigned(FAutomation) then
     begin
       FAutomation.lStatusProblems.Caption:=strPartiallyProblematic+LineEnding+trim(Script.StatusProblems.Text);
       FAutomation.lStatusProblems.Visible:=True;
