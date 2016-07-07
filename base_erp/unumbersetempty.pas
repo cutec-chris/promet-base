@@ -20,12 +20,29 @@ type
     { private declarations }
   public
     { public declarations }
+    function Execute(Numberset : string) : Boolean;
   end;
 
 var
   fNumbersetEmpty: TfNumbersetEmpty;
 
 implementation
+
+{ TfNumbersetEmpty }
+
+function TfNumbersetEmpty.Execute(Numberset: string): Boolean;
+begin
+  if not Assigned(Self) then
+    begin
+      Application.CreateForm(TfNumbersetEmpty,fNumbersetEmpty);
+      Self := fNumbersetEmpty;
+    end;
+  Result := Showmodal = mrOK;
+  if Result then
+    begin
+
+    end;
+end;
 
 initialization
   {$I unumbersetempty.lrs}

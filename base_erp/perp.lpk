@@ -9,7 +9,7 @@
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="23">
+    <Files Count="24">
       <Item1>
         <Filename Value="fautomationform.pas"/>
         <UnitName Value="fautomationform"/>
@@ -102,6 +102,10 @@
         <Filename Value="unumbersetempty.pas"/>
         <UnitName Value="unumbersetempty"/>
       </Item23>
+      <Item24>
+        <Filename Value="ucreateproductionorder.pas"/>
+        <UnitName Value="ucreateproductionorder"/>
+      </Item24>
     </Files>
     <RequiredPkgs Count="5">
       <Item1>
