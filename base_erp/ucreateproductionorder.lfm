@@ -7,14 +7,6 @@ object fCreateProductionOrder: TfCreateProductionOrder
   ClientHeight = 133
   ClientWidth = 442
   LCLVersion = '1.4.4.0'
-  object eMasterdata: TEdit
-    Left = 144
-    Height = 23
-    Top = 24
-    Width = 208
-    TabOrder = 0
-    Text = 'eMasterdata'
-  end
   object Label1: TLabel
     Left = 16
     Height = 15
@@ -23,14 +15,14 @@ object fCreateProductionOrder: TfCreateProductionOrder
     Caption = 'Fertigungsauftrag von '
     ParentColor = False
   end
-  object eVersion: TComboBox
+  object cbVersion: TComboBox
     Left = 144
     Height = 23
     Top = 56
     Width = 100
+    Enabled = False
     ItemHeight = 15
-    TabOrder = 1
-    Text = 'eVersion'
+    TabOrder = 0
   end
   object Label2: TLabel
     Left = 81
@@ -62,7 +54,23 @@ object fCreateProductionOrder: TfCreateProductionOrder
     CloseButton.DefaultCaption = True
     CancelButton.Name = 'CancelButton'
     CancelButton.DefaultCaption = True
-    TabOrder = 2
+    TabOrder = 1
     ShowButtons = [pbOK, pbCancel]
+  end
+  object eMasterdata: TEditButton
+    Left = 144
+    Height = 23
+    Top = 24
+    Width = 260
+    ButtonCaption = '...'
+    ButtonHint = 'Artikel suchen'
+    ButtonWidth = 23
+    MaxLength = 0
+    NumGlyphs = 1
+    OnButtonClick = eMasterdataButtonClick
+    OnExit = eMasterdataExit
+    PasswordChar = #0
+    TabOrder = 2
+    Text = 'eMasterdata'
   end
 end
