@@ -328,7 +328,7 @@ begin
                   aFilter += Data.QuoteField('SQL_ID')+' as '+Data.QuoteField('SQL_ID')+',';
                   aFilter += Data.QuoteValue(Lists[i].TableName)+' as '+Data.QuoteField('TABLE')+',';
                   aFilter += Data.QuoteField('TIMESTAMPD')+' as '+Data.QuoteField('TIMESTAMPD');
-                  aFilter += ' from '+Data.QuoteField(Lists[i].TableName);
+                  aFilter += ' from '+Data.GetFullTableName(Lists[i].TableName);
                   if aSQL='' then
                     aFilter := copy(aFilter,pos(' ',aFilter)+1,length(aFilter));
                   bFilter:='';
