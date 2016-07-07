@@ -1264,8 +1264,8 @@ begin
           aFrame := pcTabs.GetTab(TfAutomationframe);
           AddAutomationTab(aFrame.Controls[0]);
         end
-      else if Assigned(aFrame) and ((Assigned(TBaseDBPosition(Dataset).FieldByName('SCRIPT')) and (TBaseDBPosition(Dataset).FieldByName('SCRIPT').AsString=''))
-                                 or (Assigned(TBaseDBPosition(Dataset).FieldByName('WORKTEXT')) and (TBaseDBPosition(Dataset).FieldByName('WORKTEXT').AsString<>''))) then
+      else if Assigned(aFrame) and (not ((Assigned(TBaseDBPosition(Dataset).FieldByName('SCRIPT')) and (TBaseDBPosition(Dataset).FieldByName('SCRIPT').AsString=''))
+                                 or (Assigned(TBaseDBPosition(Dataset).FieldByName('WORKTEXT')) and (TBaseDBPosition(Dataset).FieldByName('WORKTEXT').AsString<>'')))) then
         begin
           pcTabs.WillRemoveTab(aFrame);
           aFrame.Free;
