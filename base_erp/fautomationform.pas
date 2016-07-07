@@ -149,7 +149,10 @@ type
     property OnSelectStep : TNotifyEvent read FSelStep write FSelStep;
   end;
 
+  { TProdTreeData }
+
   TProdTreeData = class
+    procedure CompileScript(Data: PtrInt);
     procedure ScriptDebugln(const s: string);
     procedure ScriptPrepareWriteln(const s: string);
     procedure ScriptWriteln(const s: string);
@@ -875,6 +878,16 @@ begin
   OnGetImageX:=@SimpleIpHtmlGetImageX;
 end;
 
+procedure TProdTreeData.CompileScript(Data: PtrInt);
+begin
+  Script.Compile;
+  if (Script.StatusProblems.Text<>'') and Assigned(FAutomation) then
+    begin
+      FAutomation.lStatusProblems.Caption:=strPartiallyProblematic+LineEnding+trim(Script.StatusProblems.Text);
+      FAutomation.lStatusProblems.Visible:=True;
+    end;
+end;
+
 procedure TProdTreeData.ScriptDebugln(const s: string);
 begin
   fLogWaitForm.ShowInfo(s);
@@ -1066,12 +1079,7 @@ begin
       if Assigned(Script) then
         begin
           FAutomation.lStatusProblems.Visible:=False;
-          Script.Compile;
-          if Script.StatusProblems.Text<>'' then
-            begin
-              FAutomation.lStatusProblems.Caption:=strPartiallyProblematic+LineEnding+trim(Script.StatusProblems.Text);
-              FAutomation.lStatusProblems.Visible:=True;
-            end;
+          Application.QueueAsyncCall(@CompileScript,0);
         end;
     end;
 end;
