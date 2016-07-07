@@ -26,9 +26,9 @@ interface
 uses
   Classes, SysUtils, FileUtil, IpHtml, LResources, Forms, Controls, Graphics,
   Dialogs, ExtCtrls, StdCtrls, Buttons, ActnList, ComCtrls, Menus, DbCtrls,
-  uBaseDbClasses, uBaseERPDBClasses, uprometscripts, uDocuments,
+  Spin, uBaseDbClasses, uBaseERPDBClasses, uprometscripts, uDocuments,
   uprometpascalscript, genpascalscript, genscript, db, simpleipc, blcksock,
-  synsock, uprometscriptprinting,uImageCache;
+  synsock, uprometscriptprinting, uImageCache;
 
 type
   TTCPCommandDaemon = class(TThread)
@@ -67,7 +67,12 @@ type
     bExecute: TSpeedButton;
     BitBtn3: TSpeedButton;
     BitBtn5: TSpeedButton;
+    bResults: TSpeedButton;
     ipHTML: TIpHtmlPanel;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
     lStatusProblems: TLabel;
     Label3: TLabel;
     Label4: TLabel;
@@ -84,6 +89,7 @@ type
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     miExtended: TMenuItem;
+    Panel1: TPanel;
     Panel3: TPanel;
     Panel5: TPanel;
     Panel6: TPanel;
@@ -102,9 +108,20 @@ type
     sbMenue4: TSpeedButton;
     sbMenue5: TSpeedButton;
     bNet: TToggleBox;
+    SpinEdit1: TSpinEdit;
+    SpinEdit2: TSpinEdit;
     ToolBar1: TPanel;
+    ToolBar2: TToolBar;
     ToolButton1: TSpeedButton;
+    ToolButton13: TToolButton;
+    ToolButton14: TToolButton;
+    ToolButton15: TToolButton;
+    ToolButton16: TToolButton;
+    ToolButton17: TToolButton;
+    ToolButton18: TToolButton;
     ToolButton2: TSpeedButton;
+    ToolButton3: TToolButton;
+    ToolButton5: TToolButton;
     tvStep: TTreeView;
     procedure acDebugLogExecute(Sender: TObject);
     procedure acEditExecute(Sender: TObject);
