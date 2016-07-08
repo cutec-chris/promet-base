@@ -16,5 +16,5 @@ LazarusResources.Add('TfNumbersetEmpty','FORMDATA',[
   +'mernkreisdaten die Sie von der Zentralstelle bekommen ein'#11'ParentColor'#8
   +#8'WordWrap'#9#0#0#5'TEdit'#7'eNumber'#4'Left'#2#8#6'Height'#2#23#3'Top'#2'0'
   +#5'Width'#3#142#1#7'Anchors'#11#5'akTop'#6'akLeft'#7'akRight'#0#8'TabOrder'#2
-  +#1#4'Text'#6#7'eNumber'#0#0#0
+  +#1#0#0#0
 ]);

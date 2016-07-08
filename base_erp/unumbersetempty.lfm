@@ -42,6 +42,5 @@ object fNumbersetEmpty: TfNumbersetEmpty
     Width = 398
     Anchors = [akTop, akLeft, akRight]
     TabOrder = 1
-    Text = 'eNumber'
   end
 end

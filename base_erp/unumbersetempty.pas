@@ -47,6 +47,8 @@ var
 
 implementation
 
+uses uData;
+
 { TfNumbersetEmpty }
 
 function TfNumbersetEmpty.Execute(Numberset: string): Boolean;
@@ -59,7 +61,15 @@ begin
   Result := Showmodal = mrOK;
   if Result then
     begin
+      result := False;
+      if not Data.Numbers.Locate('NAME',Numberset,[]) then
+        begin
+          Data.Numbers.Insert;
+          Data.Numbers.FieldByName('NAME').AsString:=Numberset;
+          Data.Numbers.FieldByName('TYPE').AsString:='N';
 
+          Data.Numbers.Post;
+        end;
     end;
 end;
 
