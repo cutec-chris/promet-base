@@ -29,6 +29,7 @@ uses
 
 type
   TScriptInternalPrint = function (aType,Reportname,Printer : string;Copies : Integer) : Boolean;
+  TScriptNumbersetEmpty = function(aNumberset : string) : Boolean;
   { TPrometPascalScript }
 
   TPrometPascalScript = class(TPascalScript)
@@ -80,6 +81,7 @@ var
   FVariables : TStringList;
   OnInternalPrint : TScriptInternalPrint;
   FReportVariables : TStringList;
+  OnNumbersetEmpty : TScriptNumbersetEmpty;
 
 implementation
 
@@ -860,6 +862,10 @@ function TPrometPascalScript.InternalGetNumberFromNumberset(Numberset: string
   ): string;
 begin
   Result := Data.Numbers.GetNewNumber(Numberset);
+  if Result='' then
+    if Assigned(OnNumbersetEmpty) then
+      if OnNumbersetEmpty(Numberset) then
+        Result := Data.Numbers.GetNewNumber(Numberset);
 end;
 
 function TPrometPascalScript.InternalSaveFilefromDocuments(Filename,
