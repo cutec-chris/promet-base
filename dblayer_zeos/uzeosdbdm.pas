@@ -612,7 +612,7 @@ begin
         for i := 0 to FManagedFieldDefs.Count-1 do
           if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name) = -1) and (FManagedFieldDefs[i].Name <> 'AUTO_ID') then
             begin
-              aSQL := 'ALTER TABLE '+QuoteField(FDefaultTableName)+' ADD '+TZeosDBDM(Self.Owner).FieldToSQL(FManagedFieldDefs[i].Name,FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
+              aSQL := 'ALTER TABLE '+GetFullTableName(FDefaultTableName)+' ADD '+TZeosDBDM(Self.Owner).FieldToSQL(FManagedFieldDefs[i].Name,FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
               with BaseApplication as IBaseApplication do
                 Debug(aSQL);
               aConnection := Connection;
@@ -625,10 +625,10 @@ begin
             if FieldByName(FManagedFieldDefs[i].Name).Size<FManagedFieldDefs[i].Size then
               begin
                 if (copy(Connection.Protocol,0,8) = 'postgres') then
-                  aSQL := 'ALTER TABLE '+QuoteField(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' TYPE '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';'
+                  aSQL := 'ALTER TABLE '+GetFullTableName(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' TYPE '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';'
                 else if (copy(Connection.Protocol,0,6) = 'sqlite') then
                 else
-                  aSQL := 'ALTER TABLE '+QuoteField(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
+                  aSQL := 'ALTER TABLE '+GetFullTableName(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
                 with BaseApplication as IBaseApplication do
                   Debug(aSQL);
                 aConnection := Connection;
@@ -666,7 +666,12 @@ begin
             end;
       end;
   except
-    Result := False;
+    on e : Exception do
+      begin
+        with BaseApplication as IBaseApplication do
+          Error('Altering failed:'+e.Message);
+        Result := False;
+      end;
   end;
   if Result and Changed and (Self.FDefaultTableName<>'TABLEVERSIONS') then
     begin
