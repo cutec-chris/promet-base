@@ -1,13 +1,13 @@
 inherited fSyncOptions: TfSyncOptions
-  Height = 468
+  Height = 475
   Width = 656
-  ClientHeight = 468
+  ClientHeight = 475
   ClientWidth = 656
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
   DesignLeft = 596
-  DesignTop = 280
+  DesignTop = 273
   object dgDatabases: TDBGrid[0]
     Left = 8
     Height = 92
@@ -64,7 +64,7 @@ inherited fSyncOptions: TfSyncOptions
   end
   object dgTables: TDBGrid[3]
     Left = 40
-    Height = 148
+    Height = 155
     Hint = 'zu synchronisierende Tabellen'#10'Ausgehend,Eingehend bestimmen in welche Richtungen synchronisiert werden soll'#10'Um die gesamte Tabelle komplett neu zu synchronisieren löschen Sie einfach "zuletzt synchronisiert" für die Tabelle'
     Top = 160
     Width = 610
@@ -116,7 +116,7 @@ inherited fSyncOptions: TfSyncOptions
     Left = 80
     Height = 70
     Hint = 'hier können Sie pro Tablle einen Filter hinterlegen'#10'Dies ist nützlich um nur einen Teil der Tabelle zu synchronisieren'#10'Er entspricht im wesentlichen der where Bedingung im SQL.'
-    Top = 320
+    Top = 327
     Width = 568
     Anchors = [akLeft, akRight, akBottom]
     Font.Height = -13
@@ -723,7 +723,7 @@ inherited fSyncOptions: TfSyncOptions
     Left = 80
     Height = 64
     Hint = 'hier können Sie pro Tablle einen Filter hinterlegen'#10'Dies ist nützlich um nur einen Teil der Tabelle zu synchronisieren'#10'Er entspricht im wesentlichen der where Bedingung im SQL.'
-    Top = 392
+    Top = 399
     Width = 568
     Anchors = [akLeft, akRight, akBottom]
     Font.Height = -13
@@ -1329,7 +1329,7 @@ inherited fSyncOptions: TfSyncOptions
   object Label2: TLabel[6]
     Left = 8
     Height = 15
-    Top = 322
+    Top = 329
     Width = 11
     Anchors = [akLeft, akBottom]
     Caption = 'In'
@@ -1340,7 +1340,7 @@ inherited fSyncOptions: TfSyncOptions
   object Label3: TLabel[7]
     Left = 8
     Height = 15
-    Top = 394
+    Top = 401
     Width = 21
     Anchors = [akLeft, akBottom]
     Caption = 'Out'
@@ -1443,15 +1443,35 @@ inherited fSyncOptions: TfSyncOptions
     OnClick = bCheckConnectionClick
     TabOrder = 6
   end
-  object dsDatabases: TDataSource[13]
+  object DBNavigator2: TDBNavigator[13]
+    Left = 8
+    Height = 113
+    Top = 182
+    Width = 24
+    BevelOuter = bvNone
+    ChildSizing.EnlargeHorizontal = crsScaleChilds
+    ChildSizing.EnlargeVertical = crsScaleChilds
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclTopToBottomThenLeftToRight
+    ChildSizing.ControlsPerLine = 100
+    ClientHeight = 113
+    ClientWidth = 24
+    DataSource = dsTables
+    Direction = nbdVertical
+    Options = []
+    TabOrder = 7
+    VisibleButtons = [nbFirst, nbLast, nbDelete, nbCancel, nbRefresh]
+  end
+  object dsDatabases: TDataSource[14]
     left = 112
     top = 48
   end
-  object dsTables: TDataSource[14]
+  object dsTables: TDataSource[15]
     left = 112
     top = 208
   end
-  object SynSQLSyn1: TSynSQLSyn[15]
+  object SynSQLSyn1: TSynSQLSyn[16]
     DefaultFilter = 'SQL-Dateien (*.sql)|*.sql'
     Enabled = False
     SQLDialect = sqlSybase

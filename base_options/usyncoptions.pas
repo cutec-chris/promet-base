@@ -10,6 +10,7 @@ type
 
   TfSyncOptions = class(TOptionsFrame)
     bCheckConnection: TButton;
+    DBNavigator2: TDBNavigator;
     eConnString: TDBMemo;
     DBNavigator1: TDBNavigator;
     dsTables: TDatasource;

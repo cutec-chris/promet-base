@@ -1,0 +1,29 @@
+TFSYNCOPTIONS.DGDATABASES.COLUMNS[0].TITLE.CAPTION=Aktiv
+TFSYNCOPTIONS.DGDATABASES.COLUMNS[1].TITLE.CAPTION=Name
+TFSYNCOPTIONS.DGDATABASES.COLUMNS[2].TITLE.CAPTION=SyncID
+TFSYNCOPTIONS.DGDATABASES.COLUMNS[3].TITLE.CAPTION=In Arbeit
+TFSYNCOPTIONS.LD.CAPTION=Datenbanken
+TFSYNCOPTIONS.LABEL1.CAPTION=Tabellen
+TFSYNCOPTIONS.DGTABLES.HINT=zu synchronisierende Tabellen
+Ausgehend,Eingehend bestimmen in welche Richtungen synchronisiert werden soll
+Um die gesamte Tabelle komplett neu zu synchronisieren löschen Sie einfach "zuletzt synchronisiert" für die Tabelle
+TFSYNCOPTIONS.DGTABLES.COLUMNS[0].TITLE.CAPTION=Ausgehend
+TFSYNCOPTIONS.DGTABLES.COLUMNS[1].TITLE.CAPTION=Eingehend
+TFSYNCOPTIONS.DGTABLES.COLUMNS[2].TITLE.CAPTION=Tabellenname
+TFSYNCOPTIONS.DGTABLES.COLUMNS[3].TITLE.CAPTION=zuletzt synchronisiert
+TFSYNCOPTIONS.DGTABLES.COLUMNS[4].TITLE.CAPTION=gesperrt
+TFSYNCOPTIONS.DGTABLES.COLUMNS[5].TITLE.CAPTION=seit
+TFSYNCOPTIONS.SMIN.HINT=hier können Sie pro Tablle einen Filter hinterlegen
+Dies ist nützlich um nur einen Teil der Tabelle zu synchronisieren
+Er entspricht im wesentlichen der where Bedingung im SQL.
+TFSYNCOPTIONS.SMOUT.HINT=hier können Sie pro Tablle einen Filter hinterlegen
+Dies ist nützlich um nur einen Teil der Tabelle zu synchronisieren
+Er entspricht im wesentlichen der where Bedingung im SQL.
+TFSYNCOPTIONS.LABEL2.CAPTION=In
+TFSYNCOPTIONS.LABEL3.CAPTION=Out
+TFSYNCOPTIONS.ECONNSTRING.HINT=Sie können den Verbindungstring im Mandantenassistenten
+auf der Datenbankeinstellungsseite mit dem kopieren Knopf oben rechts in die Zwischenablage kopieren
+TFSYNCOPTIONS.LABEL4.CAPTION=Verbindungsstring
+TFSYNCOPTIONS.SBSTANDARDTABLES.HINT=Standardtabellen einfügen
+TFSYNCOPTIONS.BCHECKCONNECTION.HINT=Stellt eine Verbindung mit diesem Verbindungsstring her und prüft die SyncID
+TFSYNCOPTIONS.BCHECKCONNECTION.CAPTION=Verbindung Testen
