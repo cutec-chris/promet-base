@@ -2012,5 +2012,6 @@ end;
 
 initialization
   RegisterdataSetClass('ORDER',TOrder);
+  RegisterdataSetClass('ORDERPOSTYP',TOrderPosTyp);
 end.
 
