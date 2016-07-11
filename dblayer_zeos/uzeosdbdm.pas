@@ -798,70 +798,8 @@ begin
 end;
 
 procedure TZeosDBDataSet.InternalPost;
-var
-  ok : boolean = false;
-  rc : Integer = 0;
-
-  function CheckID : Boolean;
-  var
-    aDs: TDataSet;
-  begin
-    if (FieldDefs.IndexOf('AUTO_ID') = -1) and (FieldDefs.IndexOf('SQL_ID') > -1)  then
-      begin
-        aDs := TBaseDBModule(FOrigTable.DataModule).GetNewDataSet('select '+TBaseDBModule(FOrigTable.DataModule).QuoteField('SQL_ID')+' from '+TBaseDBModule(FOrigTable.DataModule).QuoteField(DefaultTableName)+' where '+TBaseDBModule(FOrigTable.DataModule).QuoteField('SQL_ID')+'='+TBaseDBModule(FOrigTable.DataModule).QuoteValue(FieldByName('SQL_ID').AsVariant));
-      end
-    else if (FieldDefs.IndexOf('SQL_ID') = -1) and (FieldDefs.IndexOf('AUTO_ID') > -1) then
-      begin
-        aDs := TBaseDBModule(FOrigTable.DataModule).GetNewDataSet('select '+TBaseDBModule(FOrigTable.DataModule).QuoteField('AUTO_ID')+' from '+TBaseDBModule(FOrigTable.DataModule).QuoteField(DefaultTableName)+' where '+TBaseDBModule(FOrigTable.DataModule).QuoteField('AUTO_ID')+'='+TBaseDBModule(FOrigTable.DataModule).QuoteValue(FieldByName('AUTO_ID').AsVariant));
-      end;
-    aDs.Open;
-    Result := aDs.RecordCount>0;
-    aDs.Free;
-  end;
-
-  procedure CleanID;
-  begin
-    if (FieldDefs.IndexOf('AUTO_ID') = -1) and (FieldDefs.IndexOf('SQL_ID') > -1)  then
-      begin
-        FieldByName('SQL_ID').AsVariant:=Null
-      end
-    else if (FieldDefs.IndexOf('SQL_ID') = -1) and (FieldDefs.IndexOf('AUTO_ID') > -1) then
-      begin
-        FieldByName('AUTO_ID').AsVariant:=Null;
-      end;
-  end;
-
 begin
-  try
-    while not ok do
-      begin
-        ok := True;
-        try
-          inherited InternalPost;
-        except
-          begin
-            try
-            inc(rc);
-            ok := false;
-            if ((not FHasNewID) and (rc<3)) then
-              begin
-                CleanID;
-                SetNewIDIfNull;
-              end
-            else
-              begin
-                ok := true;
-                raise;
-                exit;
-              end;
-            except
-              exit;
-            end;
-          end;
-        end;
-      end;
-  finally
-  end;
+  inherited InternalPost;
 end;
 
 procedure TZeosDBDataSet.DoAfterInsert;
@@ -1530,8 +1468,9 @@ begin
     if (copy(FConnection.Protocol,0,6) = 'sqlite')
     then
       begin
-        //if not FileExists(FConnection.Database) then
-        //  raise Exception.Create('Databasefile dosend exists');
+        if Connection=MainConnection then //Dont check this on attatched db´s (we want to create them on the fly)
+          if not FileExists(FConnection.Database) then
+            raise Exception.Create('Databasefile dosend exists');
         FConnection.TransactIsolationLevel:=tiNone;
       end;
     if (copy(FConnection.Protocol,0,8) = 'postgres')
