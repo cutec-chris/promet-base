@@ -1428,7 +1428,7 @@ inherited fSyncOptions: TfSyncOptions
     DataSource = dsDatabases
     Options = []
     TabOrder = 5
-    VisibleButtons = [nbInsert, nbDelete, nbEdit, nbPost, nbCancel, nbRefresh]
+    VisibleButtons = [nbInsert, nbEdit, nbPost, nbCancel, nbRefresh]
   end
   object bCheckConnection: TButton[12]
     Left = 524

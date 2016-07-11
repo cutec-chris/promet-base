@@ -113,7 +113,7 @@ begin
 end;
 
 procedure TfSyncOptions.sbStandardTablesClick(Sender: TObject);
-  procedure AddTable(aName : string;Active : Boolean = True;ActiveOut : Boolean = True);
+  procedure AddTable(aName : string;Active : Boolean = False;ActiveOut : Boolean = True);
   begin
     with dsTables.DataSet do
       begin
@@ -137,6 +137,8 @@ begin
   AddTable('LANGUAGES');
   AddTable('TREE');
   AddTable('REPORTS');
+  AddTable('BOILERPLATES');
+  AddTable('SCRIPTS');
   AddTable('DOCUMENTS');
   AddTable('TEMPLATES');
   AddTable('FILTERS');
@@ -249,4 +251,4 @@ begin
   inherited RollbackTransaction;
 end;
 end.
-
+
