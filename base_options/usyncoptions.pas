@@ -137,7 +137,7 @@ begin
   AddTable('LANGUAGES');
   AddTable('TREE');
   AddTable('REPORTS');
-  AddTable('BOILERPLATES');
+  AddTable('BOILERPLATE');
   AddTable('SCRIPTS');
   AddTable('DOCUMENTS');
   AddTable('TEMPLATES');
