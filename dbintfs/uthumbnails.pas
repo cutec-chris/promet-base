@@ -462,17 +462,19 @@ begin
       try
         aProcess := TProcess.Create(nil);
         {$IFDEF WINDOWS}
-        aProcess.Options:= [poNoConsole, poWaitonExit,poNewConsole, poStdErrToOutPut, poNewProcessGroup];
+        aProcess.Options:= [poNoConsole,poNewConsole, poStdErrToOutPut, poNewProcessGroup];
         {$ELSE}
-        aProcess.Options:= [poWaitonExit,poStdErrToOutPut];
+        aProcess.Options:= [poNewConsole,poNewProcessGroup,poStdErrToOutPut];
         {$ENDIF}
-        aProcess.ShowWindow := swoHide;
+//        aProcess.ShowWindow := swoHide;
         aProcess.CommandLine := Format('pdftotext'+ExtractFileExt(BaseApplication.ExeName)+' %s %s',[aFileName,aFileName+'.txt']);
         aProcess.CurrentDirectory := AppendPathDelim(AppendPathDelim(BaseApplication.Location)+'tools');
         {$IFDEF WINDOWS}
         aProcess.CommandLine := aProcess.CurrentDirectory+aProcess.CommandLine;
         {$ENDIF}
         aProcess.Execute;
+        while aProcess.Active do
+          sleep(100);
         aProcess.Free;
         SysUtils.DeleteFile(aFileName);
         if FileExists(aFileName+'.txt') then

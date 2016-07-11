@@ -42,6 +42,11 @@
         <UnitName Value="ueditortoolbar"/>
       </Item8>
     </Files>
+    <i18n>
+      <EnableI18N Value="True"/>
+      <OutDir Value="../../../languages"/>
+      <EnableI18NForLFM Value="True"/>
+    </i18n>
     <RequiredPkgs Count="6">
       <Item1>
         <PackageName Value="KControlsLaz"/>

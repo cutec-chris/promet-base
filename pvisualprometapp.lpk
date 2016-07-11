@@ -61,6 +61,10 @@
         <UnitName Value="uWizardNewMandant"/>
       </Item12>
     </Files>
+    <i18n>
+      <EnableI18N Value="True"/>
+      <EnableI18NForLFM Value="True"/>
+    </i18n>
     <RequiredPkgs Count="11">
       <Item1>
         <PackageName Value="pOptions"/>

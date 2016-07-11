@@ -5,8 +5,8 @@ inherited fManageDocFrame: TfManageDocFrame
   ClientWidth = 874
   OnEnter = FrameEnter
   OnExit = FrameExit
-  DesignLeft = 301
-  DesignTop = 114
+  DesignLeft = 300
+  DesignTop = 88
   object Panel4: TPanel[0]
     Left = 0
     Height = 42

@@ -104,6 +104,11 @@
         <UnitName Value="uBoilerplate"/>
       </Item23>
     </Files>
+    <i18n>
+      <EnableI18N Value="True"/>
+      <OutDir Value="..\..\..\languages"/>
+      <EnableI18NForLFM Value="True"/>
+    </i18n>
     <RequiredPkgs Count="3">
       <Item1>
         <PackageName Value="phelp"/>

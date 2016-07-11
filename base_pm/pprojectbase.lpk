@@ -2,14 +2,12 @@
 <CONFIG>
   <Package Version="4">
     <Name Value="pProjectbase"/>
+    <Type Value="RunAndDesignTime"/>
     <CompilerOptions>
       <Version Value="11"/>
       <SearchPaths>
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
-      <Other>
-        <CompilerPath Value="$(CompPath)"/>
-      </Other>
     </CompilerOptions>
     <Files Count="27">
       <Item1>
@@ -121,7 +119,11 @@
         <UnitName Value="uchangegantt"/>
       </Item27>
     </Files>
-    <Type Value="RunAndDesignTime"/>
+    <i18n>
+      <EnableI18N Value="True"/>
+      <OutDir Value="../../../languages"/>
+      <EnableI18NForLFM Value="True"/>
+    </i18n>
     <RequiredPkgs Count="5">
       <Item1>
         <PackageName Value="pcalendar"/>

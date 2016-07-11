@@ -104,9 +104,14 @@
       </Item23>
       <Item24>
         <Filename Value="ucreateproductionorder.pas"/>
-        <UnitName Value="ucreateproductionorder"/>
+        <UnitName Value="uCreateProductionOrder"/>
       </Item24>
     </Files>
+    <i18n>
+      <EnableI18N Value="True"/>
+      <OutDir Value="../../../languages"/>
+      <EnableI18NForLFM Value="True"/>
+    </i18n>
     <RequiredPkgs Count="5">
       <Item1>
         <PackageName Value="pvisualframes"/>

@@ -1869,23 +1869,27 @@ function TBaseDBInterface.OpenMandant(aDBTyp : string;aDBProp : string): Boolean
 begin
   with Self as IBaseDbInterface do
     begin
-      FreeAndNil(FConfig);
-      DBTyp := aDBTyp;
-      Result := Assigned(FDB);
-      if not Result then
-        begin
-          FLastError := 'failed setting DB Typ failed !';
-          Result := False;
-          exit;
-        end;
-      if not FDB.SetProperties(aDBProp) then
-        begin
-          Result := False;
-          FreeAndNil(FDB);
-          exit;
-        end;
-      FConfig := TDBConfig.Create;
-      Result := True;
+      try
+        FreeAndNil(FConfig);
+        DBTyp := aDBTyp;
+        Result := Assigned(FDB);
+        if not Result then
+          begin
+            FLastError := 'failed setting DB Typ failed !';
+            Result := False;
+            exit;
+          end;
+        if not FDB.SetProperties(aDBProp) then
+          begin
+            Result := False;
+            FreeAndNil(FDB);
+            exit;
+          end;
+        FConfig := TDBConfig.Create;
+        Result := True;
+      except
+        Result:=False;
+      end;
     end;
 end;
 function TBaseDBInterface.QuoteField(aField: string): string;
