@@ -3707,5 +3707,10 @@ initialization
   RegisterdataSetClass('BOILERPLATE',TBoilerplate);
   RegisterdataSetClass('FILTERS',TFilters);
   RegisterdataSetClass('FORMS',TForms);
+  RegisterdataSetClass('REPORTS',TReports);
+  RegisterdataSetClass('OPTIONS',TOptions);
+  RegisterdataSetClass('PERMISSIONS',TPermissions);
+  RegisterdataSetClass('MEASUREMENTS',TMeasurement);
+  RegisterdataSetClass('HISTORY',TBaseHistory);
 end.
 
