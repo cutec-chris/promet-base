@@ -508,6 +508,7 @@ uses uBaseDBInterface, uBaseApplication, uBaseSearch,XMLRead,XMLWrite,Utils,
   md5,sha1,uData,uthumbnails,base64,uMeasurement;
 resourcestring
   strNumbersetDontExists        = 'Nummernkreis "%s" existiert nicht !';
+  strNumbersetEmpty             = 'Nummernkreis "%s" ist leer !';
   strDeletedmessages            = 'gelöschte Narichten';
   strlogmessages                = 'Logs';
   strSendMessages               = 'gesendete Narichten';
@@ -2751,7 +2752,7 @@ begin
                   Result := IntToStr(DataSet.FieldByName('ACTUAL').AsInteger);
                   DataSet.Post;
                 end
-              else raise Exception.Create(Format(strNumbersetDontExists,[Numberset+' incr']));
+              else raise Exception.Create(Format(strNumbersetEmpty,[Numberset]));
             end
           else if DataSet.FieldByName('TYPE').AsString = 'A' then
             begin
