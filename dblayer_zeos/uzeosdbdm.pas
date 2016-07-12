@@ -1860,7 +1860,7 @@ begin
         end;
       GeneralQuery := TZQuery.Create(Self);
       GeneralQuery.Connection := TZQuery(DataSet).Connection;
-      GeneralQuery.SQL.Text := 'select * from '+QuoteField(TZeosDBDataSet(DataSet).DefaultTableName)+' where '+QuoteField('SQL_ID')+'='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
+      GeneralQuery.SQL.Text := 'select * from '+GetFullTableName(TZeosDBDataSet(DataSet).DefaultTableName)+' where '+QuoteField('SQL_ID')+'='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
       GeneralQuery.Open;
       GeneralQuery.Edit;
       dStream := GeneralQuery.CreateBlobStream(GeneralQuery.FieldByName(Fieldname),bmWrite);
@@ -1904,7 +1904,7 @@ begin
     begin
       GeneralQuery := TZQuery.Create(Self);
       GeneralQuery.Connection := TZQuery(DataSet).Connection;
-      aSql := 'select '+QuoteField(Fieldname)+' from '+QuoteField(TZeosDBDataSet(DataSet).DefaultTableName)+' where '+QuoteField('SQL_ID')+'='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
+      aSql := 'select '+QuoteField(Fieldname)+' from '+GetFullTableName(TZeosDBDataSet(DataSet).DefaultTableName)+' where '+QuoteField('SQL_ID')+'='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
       GeneralQuery.SQL.Text := aSql;
       GeneralQuery.Open;
       result := GeneralQuery.CreateBlobStream(GeneralQuery.FieldByName(Fieldname),bmRead);
