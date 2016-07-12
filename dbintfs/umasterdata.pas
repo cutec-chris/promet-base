@@ -826,6 +826,7 @@ begin
         FieldByName('LANGUAGE').AsString := 'DE';
       FieldByName('CRDATE').AsDateTime := Date;
       FieldByName('ACTIVE').AsString  := 'Y';
+      FieldByName('PTYPE').AsString  := 'P';
       FieldByName('VAT').AsString     := Vat.FieldByName('ID').AsString;
       FieldByName('CREATEDBY').AsString := Data.Users.IDCode.AsString;
       FieldByName('CHANGEDBY').AsString := Data.Users.IDCode.AsString;
