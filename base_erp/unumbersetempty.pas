@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  ButtonPanel, StdCtrls;
+  ButtonPanel, StdCtrls, base64;
 
 type
 
@@ -52,6 +52,11 @@ uses uData;
 { TfNumbersetEmpty }
 
 function TfNumbersetEmpty.Execute(Numberset: string): Boolean;
+var
+  newSerials: string;
+  Code: String;
+  aStart: String;
+  aStop: String;
 begin
   if not Assigned(Self) then
     begin
@@ -62,14 +67,37 @@ begin
   if Result then
     begin
       result := False;
-      if not Data.Numbers.Locate('NAME',Numberset,[]) then
+      if not Data.Numbers.Locate('TABLENAME',Numberset,[]) then
         begin
           Data.Numbers.Insert;
-          Data.Numbers.FieldByName('NAME').AsString:=Numberset;
+          Data.Numbers.FieldByName('TABLENAME').AsString:=Numberset;
           Data.Numbers.FieldByName('TYPE').AsString:='N';
-
-          Data.Numbers.Post;
+          Data.Numbers.FieldByName('INCR').AsString:='1';
+        end
+      else
+        Data.Numbers.Edit;
+      newSerials := eNumber.Text;
+      if newSerials<>'' then
+        begin
+          try
+            Code  := DecodeStringBase64(newSerials);
+            if pos(':',Code)>0 then
+              begin
+                aStart:=copy(Code,0,pos(':',Code)-1);
+                Code := copy(Code,pos(':',Code)+1,length(Code));
+                aStop:=Code;
+              end
+            else raise Exception.Create('');
+            Data.Numbers.FieldByName('ACTUAL').AsString:=aStart;
+            Data.Numbers.FieldByName('STOP').AsString:=aStop;
+            Data.Numbers.Post;
+            data.Users.History.AddItem(nil,'Numberset updated:'+Numberset+' Start:'+aStart+' Stop:'+aStop);
+            Result:=True;
+          except
+            Result := False;
+          end;
         end;
+
     end;
 end;
 

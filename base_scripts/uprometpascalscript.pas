@@ -861,7 +861,11 @@ end;
 function TPrometPascalScript.InternalGetNumberFromNumberset(Numberset: string
   ): string;
 begin
-  Result := Data.Numbers.GetNewNumber(Numberset);
+  try
+    Result := Data.Numbers.GetNewNumber(Numberset);
+  except
+    Result := '';
+  end;
   if Result='' then
     if Assigned(OnNumbersetEmpty) then
       if OnNumbersetEmpty(Numberset) then

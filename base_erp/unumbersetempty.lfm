@@ -3,6 +3,7 @@ object fNumbersetEmpty: TfNumbersetEmpty
   Height = 131
   Top = 412
   Width = 412
+  ActiveControl = eNumber
   Caption = 'Nummernkreis erschöpft'
   ClientHeight = 131
   ClientWidth = 412
