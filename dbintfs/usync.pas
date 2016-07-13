@@ -754,5 +754,7 @@ begin
   FTables.CreateTable;
 end;
 
+initialization
+  RegisterdataSetClass('SYNCSTAMPS',TSyncStamps);
 end.
 

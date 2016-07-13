@@ -1566,5 +1566,12 @@ initialization
   DispatchTypes := nil;
   PriceTypes := nil;
   RepairProblems := nil;
+  RegisterdataSetClass('COUNTRIES',TCountries);
+  RegisterdataSetClass('STORAGETYPE',TStorageTypes);
+  RegisterdataSetClass('CURRENCY',TCurrency);
+  RegisterdataSetClass('PAYMENTTARGETS',TPaymentTargets);
+  RegisterdataSetClass('TEXTTYP',TTextTypes);
+  RegisterdataSetClass('REPAIRPROBLEMS',TRepairProblems);
+  RegisterdataSetClass('CATEGORY',TCategory);
 end.
 

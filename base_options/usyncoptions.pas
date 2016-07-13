@@ -197,7 +197,7 @@ begin
   AddTable('ACCOUNTEXCHANGE');
   AddTable('ACCOUNTINGJOURNAL');
   AddTable('PAYMENTTARGETS');
-  AddTable('COUNTRYS');
+  AddTable('COUNTRIES');
   AddTable('CITIES');
   AddTable('DISPATCHTYPES');
   AddTable('INVENTORY');
