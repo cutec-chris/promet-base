@@ -1088,6 +1088,7 @@ inherited fDocumentFrame: TfDocumentFrame
       Category = 'Documents'
       Caption = 'zu Revision auschecken'
       DisableIfNoHandler = False
+      OnExecute = acCheckoutToRevisionExecute
     end
     object acRemoveDocument: TAction
       Category = 'Documents'

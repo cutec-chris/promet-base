@@ -263,6 +263,7 @@ resourcestring
   strNoValidCommand                          = 'Sie haben einen ungültigen befehl in den Dateiaktionen angegeben. Gültige Befehle müssen mit exec: oder mkdir: beginnen.';
   strNewImage                                = 'Neue Datei';
   strDocumentAdded                           = 'Datei hinzugefügt';
+  strCheckoutFailed                          = 'Fehler beim speichern der Datei';
 {$R *.lfm}
 procedure TfDocumentFrame.bMenue1Click(Sender: TObject);
 begin
@@ -963,7 +964,8 @@ begin
           aID := DataSet.FieldByName('NUMBER').AsVariant;
           aDocument.SelectByNumber(aId);
           aDocument.Open;
-          aDocument.DoCheckout(FolderDialog.FileName,arev);
+          if not aDocument.DoCheckout(FolderDialog.FileName,arev) then
+            ShowMessage(strCheckoutFailed);
           aDocument.Free;
         end;
     end
@@ -979,7 +981,8 @@ begin
           aDocument := TDocument.CreateEx(Self,Data);
           aDocument.SelectByNumber(aId);
           aDocument.Open;
-          aDocument.DoCheckout(ExtractFileDir(DocumentSaveDialog.Filename),arev);
+          if not aDocument.DoCheckout(ExtractFileDir(DocumentSaveDialog.Filename),arev,DocumentSaveDialog.FileName) then
+            ShowMessage(strCheckoutFailed);
           aDocument.Free;
         end;
     end;
@@ -1238,7 +1241,8 @@ begin
           aDocument.SelectByNumber(aId);
           aDocument.Open;
           aDocument.OnCheckCheckOutFile:=@aDocumentCheckCheckOutFile;
-          aDocument.DoCheckout(FolderDialog.FileName);
+          if not aDocument.DoCheckout(FolderDialog.FileName) then
+            ShowMessage(strCheckoutFailed);
           aDocument.Free;
         end;
     end
@@ -1255,7 +1259,8 @@ begin
           aDocument.SelectByNumber(aId);
           aDocument.Open;
           aDocument.OnCheckCheckOutFile:=@aDocumentCheckCheckOutFile;
-          aDocument.DoCheckout(ExtractFileDir(DocumentSaveDialog.Filename));
+          if not aDocument.DoCheckout(ExtractFileDir(DocumentSaveDialog.Filename),-1,ExtractFileName(DocumentSaveDialog.FileName)) then
+            ShowMessage(strCheckoutFailed);
           aDocument.Free;
         end;
     end;
@@ -1429,7 +1434,8 @@ begin
               aDocument := TDocument.Create(nil);
               aDocument.SelectByNumber(DataSet.FieldByName('NUMBER').AsVariant);
               aDocument.Open;
-              aDocument.DoCheckout(copy(aDocument.GetCheckOutPath('',TempID),0,rpos(DirectorySeparator,aDocument.GetCheckOutPath('',TempID))-1));
+              if not aDocument.DoCheckout(copy(aDocument.GetCheckOutPath('',TempID),0,rpos(DirectorySeparator,aDocument.GetCheckOutPath('',TempID))-1)) then
+                ShowMessage(strCheckoutFailed);
               fWaitForm.Hide;
             end
           else
@@ -1437,7 +1443,8 @@ begin
               aDocument := TDocument.Create(nil);
               aDocument.SelectByNumber(DataSet.FieldByName('NUMBER').AsVariant);
               aDocument.Open;
-              aDocument.DoCheckout(copy(aDocument.GetCheckOutPath('',TempID),0,rpos(DirectorySeparator,aDocument.GetCheckOutPath('',TempID))-1));
+              if not aDocument.DoCheckout(copy(aDocument.GetCheckOutPath('',TempID),0,rpos(DirectorySeparator,aDocument.GetCheckOutPath('',TempID))-1)) then
+                ShowMessage(strCheckoutFailed);
 //              aDocument.DoCheckout(aDocument.GetCheckOutPath('',TempID));
             end;
           aDocument.AftercheckInFiles:=FAfterCheckinFiles;
@@ -1523,7 +1530,8 @@ begin
   aDocument.SelectByNumber(DataSet.FieldByName('NUMBER').AsVariant);
   aDocument.Open;
   Filename := aDocument.GetCheckoutPath('',TempID);
-  aDocument.DoCheckout(copy(Filename,0,rpos(DirectorySeparator,Filename)-1));
+  if not aDocument.DoCheckout(copy(Filename,0,rpos(DirectorySeparator,Filename)-1)) then
+    ShowMessage(strCheckoutFailed);
   fWaitForm.Hide;
   DoDelete := True;
   UseStarter := FileExistsUTF8(ExtractFilePath(Application.Exename)+'pstarter'+ExtractFileExt(Application.Exename));
@@ -1608,7 +1616,8 @@ begin
   aDocument.SelectByNumber(aId);
   aDocument.Open;
   aDocument.OnCheckCheckOutFile:=@aDocumentCheckCheckOutFile;
-  aDocument.DoCheckout(aDir);
+  if not aDocument.DoCheckout(aDir) then
+    ShowMessage(strCheckoutFailed);
   aDocument.Free;
 end;
 

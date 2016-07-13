@@ -45,8 +45,8 @@ type
     function DateTimeToFilter(aValue : TDateTime) : string;override;
     function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';AutoInc : Boolean = True) : Variant;override;
     procedure StreamToBlobField(Stream : TStream;DataSet : TDataSet;Fieldname : string);override;
-    procedure BlobFieldToStream(DataSet: TDataSet; Fieldname: string;
-      dStream: TStream;aSize : Integer = -1); override;
+    function BlobFieldToStream(DataSet: TDataSet; Fieldname: string;
+      dStream: TStream;aSize : Integer = -1) : Boolean; override;
     function GetErrorNum(e: EDatabaseError): Integer; override;
     procedure DeleteExpiredSessions;override;
     function GetNewConnection: TComponent;override;
@@ -138,8 +138,8 @@ begin
   inherited StreamToBlobField(Stream, DataSet, Fieldname);
 end;
 
-procedure TDLLDBDM.BlobFieldToStream(DataSet: TDataSet; Fieldname: string;
-  dStream: TStream; aSize: Integer);
+function TDLLDBDM.BlobFieldToStream(DataSet: TDataSet; Fieldname: string;
+  dStream: TStream; aSize: Integer): Boolean;
 begin
   inherited BlobFieldToStream(DataSet, Fieldname, dStream, aSize);
 end;

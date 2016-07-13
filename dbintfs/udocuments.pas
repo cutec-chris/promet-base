@@ -123,8 +123,8 @@ type
     procedure CreateDirectory(aName : string);
     function GetCheckoutPath(Directory: string; TempID: string): string;
     function GetIDCheckoutPath(Directory: string; TempID: string): string;
-    procedure DoCheckout(Directory : string;aRevision : Integer = -1);
-    procedure CheckoutToStream(aStream : TStream;aRevision : Integer = -1;aSize : Integer = -1);
+    function DoCheckout(Directory : string;aRevision : Integer = -1;aNewFileName : string = '') : Boolean;
+    function CheckoutToStream(aStream : TStream;aRevision : Integer = -1;aSize : Integer = -1) : Boolean;
     procedure CheckInFromStream(aStream: TStream; Desc: string='');
     function CollectCheckInFiles(Directory : string) : TStrings;
     function CheckCheckInFiles(aFiles : TStrings;Directory: string) : Boolean;
@@ -1073,7 +1073,8 @@ begin
     TempPath := TempPath+Directory+DirectorySeparator;
   Result := TempPath;
 end;
-procedure TDocument.DoCheckout(Directory: string;aRevision : Integer = -1);
+function TDocument.DoCheckout(Directory: string; aRevision: Integer;
+  aNewFileName: string): Boolean;
 var
   aDocuments: TDocuments;
   aDocument: TDocument;
@@ -1081,6 +1082,7 @@ var
   ss: TStringStream;
   aFile: TFileStream;
 begin
+  Result := False;
   if IsDir then
     begin
       aDocuments := TDocuments.CreateEx(Self,DataModule,Connection);
@@ -1090,13 +1092,14 @@ begin
           aDocuments.Open;
           with aDocuments.DataSet do
             begin
+              Result := True;
               while not EOF do
                 begin
                   aDocument := TDocument.CreateEx(Self,DataModule,Connection);
                   aDocument.OnCheckCheckOutFile:=Self.OnCheckCheckOutFile;
                   aDocument.SelectByNumber(FieldByName('NUMBER').AsVariant);
                   aDocument.Open;
-                  aDocument.DoCheckOut(AppendPathDelim(Directory)+DataSet.FieldByName('NAME').AsString,aRevision);
+                  Result := Result and aDocument.DoCheckOut(AppendPathDelim(Directory)+DataSet.FieldByName('NAME').AsString,aRevision,aNewFileName);
                   aDocument.Free;
                   Next;
                 end;
@@ -1112,13 +1115,14 @@ begin
           aDocuments.Open;
           with aDocuments.DataSet do
             begin
+              Result := True;
               while not EOF do
                 begin
                   aDocument := TDocument.CreateEx(Self,DataModule,Connection);
                   aDocument.OnCheckCheckOutFile:=Self.OnCheckCheckOutFile;
                   aDocument.SelectByNumber(FieldByName('NUMBER').AsVariant);
                   aDocument.Open;
-                  aDocument.DoCheckOut(Directory,aRevision);
+                  Result := Result and aDocument.DoCheckOut(Directory,aRevision,aNewFileName);
                   aDocument.Free;
                   Next;
                 end;
@@ -1129,7 +1133,9 @@ begin
   else
     begin
       DataSet.First;
-      if DataSet.FieldByName('EXTENSION').AsString <> '' then
+      if aNewFileName<>'' then
+        aName := AppendPathDelim(Directory)+aNewFileName
+      else if DataSet.FieldByName('EXTENSION').AsString <> '' then
         aName := AppendPathDelim(Directory)+DataSet.FieldByName('NAME').AsString+'.'+DataSet.FieldByName('EXTENSION').AsString
       else if DataSet.FieldByName('NAME').AsString <> '' then
         aName := AppendPathDelim(Directory)+DataSet.FieldByName('NAME').AsString;
@@ -1145,7 +1151,7 @@ begin
           aDocument.Open;
           try
             if aDocument.Count > 0 then
-              aDocument.DoCheckOut(AppendPathDelim(Directory),aRevision)
+              Result := aDocument.DoCheckOut(AppendPathDelim(Directory),aRevision)
             else raise Exception.Create(strLinkNotFound);
           finally
             aDocument.Free;
@@ -1161,7 +1167,7 @@ begin
               if (Directory <> '') then
                 ForceDirectories(UniToSys(AppendPathDelim(Directory)));
               aFile := TFileStream.Create(UniToSys(aName),fmCreate);
-              CheckoutToStream(aFile,aRevision);
+              Result := CheckoutToStream(aFile,aRevision);
               aFile.Free;
               //generate original Checksum if not there
               if DataSet.FieldByName('CHECKSUM').AsString = '' then
@@ -1177,14 +1183,15 @@ begin
         end;
     end;
 end;
-procedure TDocument.CheckoutToStream(aStream: TStream; aRevision: Integer;
-  aSize: Integer);
+function TDocument.CheckoutToStream(aStream: TStream; aRevision: Integer;
+  aSize: Integer): Boolean;
 var
   aDocument: TDocument;
   ss: TStringStream;
   aFS: TFileStream;
   aRev: Integer;
 begin
+  Result := False;
   if not IsDir then
     begin
       if DataSet.FieldByName('ISLINK').AsString = 'Y' then
@@ -1199,7 +1206,7 @@ begin
           aDocument.Open;
           try
             if aDocument.Count > 0 then
-              aDocument.CheckoutToStream(aStream,aRevision,aSize)
+              Result := aDocument.CheckoutToStream(aStream,aRevision,aSize)
           finally
             aDocument.Free;
           end;
@@ -1209,6 +1216,7 @@ begin
           DataSet.Last;
           if aRevision > -1 then
             begin
+              Result := True;
               //go to the revision
               while (DataSet.FieldByName('REVISION').AsInteger>aRevision) and (not DataSet.BOF) do
                 DataSet.Prior;
@@ -1217,7 +1225,7 @@ begin
                 DataSet.Prior;
               //patch revision by revision till the target rev
               with BaseApplication as IBaseDbInterface,BaseApplication as IBaseApplication do
-                Data.BlobFieldToFile(DataSet,'DOCUMENT',GetInternalTempDir+'prometheusfile.tmp',aSize);//full file
+                Result := Result and Data.BlobFieldToFile(DataSet,'DOCUMENT',GetInternalTempDir+'prometheusfile.tmp',aSize);//full file
               aRev := DataSet.FieldByName('REVISION').AsInteger;
               while (aRev<aRevision) and (not DataSet.EOF)  do
                 begin
@@ -1246,7 +1254,7 @@ begin
             end
           else
             with BaseApplication as IBaseDbInterface do
-              Data.BlobFieldToStream(DataSet,'DOCUMENT',aStream,aSize);
+              Result := Data.BlobFieldToStream(DataSet,'DOCUMENT',aStream,aSize);
         end;
     end;
 end;
