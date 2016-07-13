@@ -34,7 +34,7 @@ implementation
 
 uses usync,uBaseDatasetInterfaces,uData;
 
-function HandleDataRequest(Method, URL: string;Headers : TStringList;Input,Output : TStream): Integer;
+function HandleDataRequest(Sender : TObject;Method, URL: string;Headers : TStringList;Input,Output : TStream): Integer;
 var
   aClassType: TBaseDBDatasetClass;
   aClass: TBaseDBDataset;

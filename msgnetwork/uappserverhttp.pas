@@ -27,7 +27,7 @@ uses
   Classes, SysUtils, synautil, uAppServer, blcksock;
 
 type
-  THTTPHandlerProc = function(Method,URL : string;Headers : TStringList;Input,Output : TStream) : Integer;
+  THTTPHandlerProc = function(Sender : TObject;Method,URL : string;Headers : TStringList;Input,Output : TStream) : Integer;
 
   procedure RegisterHTTPHandler(aHandler : THTTPHandlerProc);
 
@@ -87,7 +87,7 @@ begin
       ResultCode:=500;
       for i := 0 to Length(HTTPHandlers)-1 do
         begin
-          ResultCode := HTTPHandlers[i](aCmd, uri, Headers, InputData, OutputData);
+          ResultCode := HTTPHandlers[i](Sender,aCmd, uri, Headers, InputData, OutputData);
           if ResultCode<>500 then break;
         end;
       TAppNetworkThrd(Sender).sock.SendString('HTTP/1.0 ' + IntTostr(ResultCode) + CRLF);
