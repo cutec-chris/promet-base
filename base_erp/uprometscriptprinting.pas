@@ -5,7 +5,7 @@ unit uprometscriptprinting;
 interface
 
 uses
-  Classes, SysUtils,uprometpascalscript,LR_Class,LR_BarC;
+  Classes, SysUtils,uprometpascalscript,LR_Class,LR_BarC,LR_Prntr;
 
 type
   TFakePrintingObject = class
@@ -43,6 +43,8 @@ begin
       FReport := TfrReport.Create(nil);
     try
       FReport.ShowProgress:=False;
+      if Printer<>'' then
+        Prn.PrinterIndex:=Prn.Printers.IndexOf(Printer);
       Data.Reports.Filter(Data.QuoteField('TYPE')+'='+Data.QuoteValue(aType));
       Result := Data.Reports.DataSet.Locate('NAME',Reportname,[loCaseInsensitive]);
       if Result then
