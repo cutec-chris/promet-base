@@ -54,6 +54,7 @@ begin
       if PubSubHandlers[i].Socket=Sender then
         begin
           PubSub := PubSubHandlers[i];
+          break;
         end;
   except
     PubSub:=nil;
