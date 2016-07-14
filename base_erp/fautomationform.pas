@@ -221,6 +221,7 @@ resourcestring
   strRun                                = 'Ausführen';
   strNotmoreSteps                       = 'Es sind keine (weiteren) Arbeitschritte vorhanden.<br><br>Um einen neuen Auftrag auswählen zu können müssen Sie den Auftrag (ab)schließen';
   strPartiallyProblematic               = 'Achtung Teile des Auftrages sind in nicht freigegebenem Zustand !';
+  strLoading                            = 'Auftragsdaten werden geladen...';
 
 procedure TTCPCommandDaemon.DoData;
 begin
@@ -857,9 +858,10 @@ begin
       TreeData.ShowData;
       if DoCompileScript<>nil then
         begin
-          FAutomation.lStatusProblems.Color:=clHighlight;
-          FAutomation.lStatusProblems.Font.Color:=clHighlightedText;
+          FAutomation.lStatusProblems.Color:=clInfoBk;
+          FAutomation.lStatusProblems.Font.Color:=clInfoText;
           FAutomation.lStatusProblems.Visible:=True;
+          FAutomation.lStatusProblems.Caption:=strLoading;
           Application.QueueAsyncCall(@TreeData.CompileScript,0);
         end;
     end;
