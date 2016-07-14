@@ -149,6 +149,7 @@ type
     nComm : TTreeNode;
     FSocket : TTCPCommandDaemon;
     FCache : TFileCache;
+    DoCompileScript : ^TDataEvent;
     procedure FSocketData(Sender: TObject);
     procedure SetDataSet(AValue: TBaseDBPosition);
     function FindNextStep: Boolean;
@@ -437,6 +438,7 @@ var
   Picture: TPicture;
 begin
   Result := nil;
+  DoCompileScript := nil;
   try
   if Assigned(FAutomation.tvStep.Selected) then
     begin
@@ -853,6 +855,13 @@ begin
   if Result then
     begin
       TreeData.ShowData;
+      if DoCompileScript<>nil then
+        begin
+          FAutomation.lStatusProblems.Color:=clHighlight;
+          FAutomation.lStatusProblems.Font.Color:=clHighlightedText;
+          FAutomation.lStatusProblems.Visible:=True;
+          Application.QueueAsyncCall(@TreeData.CompileScript,0);
+        end;
     end;
 end;
 
@@ -904,6 +913,8 @@ begin
     end
   else if (Script.StatusProblems.Text<>'') and Assigned(FAutomation) then
     begin
+      FAutomation.lStatusProblems.Color:=clred;
+      FAutomation.lStatusProblems.Font.Color:=clWhite;
       FAutomation.lStatusProblems.Caption:=strPartiallyProblematic+LineEnding+trim(Script.StatusProblems.Text);
       FAutomation.lStatusProblems.Visible:=True;
     end;
@@ -1099,8 +1110,7 @@ begin
       Script.Debugln:=@ScriptDebugln;
       if Assigned(Script) then
         begin
-          FAutomation.lStatusProblems.Visible:=False;
-          Application.QueueAsyncCall(@CompileScript,0);
+          FAutomation.DoCompileScript:=@Self;
         end;
     end;
 end;
