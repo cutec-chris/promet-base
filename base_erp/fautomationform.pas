@@ -674,6 +674,7 @@ var
   nOrder: TOrder;
   aVersion : Variant;
 begin
+  lStatusProblems.Visible:=False;
   if not Assigned(tvStep.Selected) then exit;
   lStep.Caption:=tvStep.Selected.Text;
   Result := False;
@@ -908,10 +909,13 @@ end;
 
 procedure TProdTreeData.CompileScript(Data: PtrInt);
 begin
+  Screen.Cursor:=crHourGlass;
+  Script.Writeln:=@ScriptWriteln;
   if not Script.Compile then
     begin
       FAutomation.lStatusProblems.Caption:='Failed to compile Script !';
       FAutomation.lStatusProblems.Visible:=True;
+      Screen.Cursor:=crDefault;
     end
   else if (Script.StatusProblems.Text<>'') and Assigned(FAutomation) then
     begin
@@ -919,6 +923,12 @@ begin
       FAutomation.lStatusProblems.Font.Color:=clWhite;
       FAutomation.lStatusProblems.Caption:=strPartiallyProblematic+LineEnding+trim(Script.StatusProblems.Text);
       FAutomation.lStatusProblems.Visible:=True;
+      Screen.Cursor:=crDefault;
+    end
+  else
+    begin
+      FAutomation.lStatusProblems.Visible:=False;
+      Screen.Cursor:=crDefault;
     end;
 end;
 
