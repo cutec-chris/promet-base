@@ -31,7 +31,7 @@ uses
   ;
 
 function StartMessageManager(Mandant : string;User : string = '') : TProcess;
-function StartProcessManager(Mandant : string;User : string = '';aProcess : string = 'processmanager') : TProcess;
+function StartProcessManager(Mandant : string;User : string = '';aProcess : string = 'pappserver') : TProcess;
 function ProcessExists(cmd,cmdln: string): Boolean;
 var
   ProcessMandant : string;
@@ -94,7 +94,7 @@ function StartMessageManager(Mandant : string;User : string = '') : TProcess;
 begin
   Result := StartProcessManager(Mandant,User,'messagemanager');
 end;
-function StartProcessManager(Mandant : string;User : string = '';aProcess : string = 'processmanager') : TProcess;
+function StartProcessManager(Mandant : string;User : string = '';aProcess : string = 'pappserver') : TProcess;
 var
   tmp: String;
   aDir: String;
