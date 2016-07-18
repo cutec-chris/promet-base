@@ -106,6 +106,7 @@ end;
 procedure TPrometMainFrame.DoCloseFrame(Data: PtrInt);
 begin
   try
+    CloseConnection;
     TExtMenuPageControl(TTabSheet(Data).PageControl).CloseFrameClick(TTabSheet(Data));
   except
   end;
