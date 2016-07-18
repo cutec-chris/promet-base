@@ -38,6 +38,7 @@ type
     FParent: TBaseDBDataset;
     FSecModified: Boolean;
     FUseIntegrity : Boolean;
+    FWasOpen : Boolean;
     function GetActive: Boolean;
     function GetCanEdit: Boolean;
     function GetCaption: string;
@@ -1856,9 +1857,13 @@ end;
 function TBaseDBDataset.FieldByName(const aFieldName: string): TField;
 begin
   Result := nil;
-  if Assigned(DataSet) and DataSet.Active then
-    if DataSet.FieldDefs.IndexOf(aFieldName)>=0 then
-      Result := DataSet.FieldByName(aFieldname);
+  if Assigned(DataSet) then
+    begin
+      if not DataSet.Active and FWasOpen then
+        Open;
+      if DataSet.FieldDefs.IndexOf(aFieldName)>=0 then
+        Result := DataSet.FieldByName(aFieldname);
+    end;
 end;
 procedure TBaseDBDataset.Assign(Source: TPersistent);
 begin
@@ -3192,6 +3197,7 @@ constructor TBaseDBDataset.CreateExIntegrity(aOwner: TComponent; DM: TComponent;
   aUseIntegrity: Boolean; aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited Create(aOwner);
+  FWasOpen:=False;
   Fparent := nil;
   DataModule := DM;
   if DataModule=nil then
@@ -3274,6 +3280,7 @@ begin
     FDataSet.Open;
   if DataSet.Active and FDisplayLabelsWasSet then
     SetDisplayLabels(DataSet);
+  if FDataSet.Active then FWasOpen:=True;
 end;
 
 procedure TBaseDBDataset.Close;
