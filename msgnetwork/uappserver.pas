@@ -123,10 +123,15 @@ begin
                     ListenOk:=True;
                     listen;
                     if LastError<>0 then
-                      ListenOk:=False;
+                      ListenOk:=False
+                    else
+                      WriteLn('accepting connections on Port 8087')
                   end
                 else
-                  sleep(1000);
+                  begin
+                    WriteLn('listening failed, retrying...');
+                    sleep(5000);
+                  end;
               end;
           end
         else

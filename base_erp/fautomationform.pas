@@ -149,6 +149,7 @@ type
     nComm : TTreeNode;
     FSocket : TTCPCommandDaemon;
     FCache : TFileCache;
+    DoCompileScript : ^TDataEvent;
     procedure FSocketData(Sender: TObject);
     procedure SetDataSet(AValue: TBaseDBPosition);
     function FindNextStep: Boolean;
@@ -220,6 +221,7 @@ resourcestring
   strRun                                = 'Ausführen';
   strNotmoreSteps                       = 'Es sind keine (weiteren) Arbeitschritte vorhanden.<br><br>Um einen neuen Auftrag auswählen zu können müssen Sie den Auftrag (ab)schließen';
   strPartiallyProblematic               = 'Achtung Teile des Auftrages sind in nicht freigegebenem Zustand !';
+  strLoading                            = 'Auftragsdaten werden geladen...';
 
 procedure TTCPCommandDaemon.DoData;
 begin
@@ -437,6 +439,7 @@ var
   Picture: TPicture;
 begin
   Result := nil;
+  DoCompileScript := nil;
   try
   if Assigned(FAutomation.tvStep.Selected) then
     begin
@@ -671,6 +674,7 @@ var
   nOrder: TOrder;
   aVersion : Variant;
 begin
+  lStatusProblems.Visible:=False;
   if not Assigned(tvStep.Selected) then exit;
   lStep.Caption:=tvStep.Selected.Text;
   Result := False;
@@ -853,6 +857,14 @@ begin
   if Result then
     begin
       TreeData.ShowData;
+      if DoCompileScript<>nil then
+        begin
+          FAutomation.lStatusProblems.Color:=clInfoBk;
+          FAutomation.lStatusProblems.Font.Color:=clInfoText;
+          FAutomation.lStatusProblems.Visible:=True;
+          FAutomation.lStatusProblems.Caption:=strLoading;
+          Application.QueueAsyncCall(@TreeData.CompileScript,0);
+        end;
     end;
 end;
 
@@ -897,15 +909,26 @@ end;
 
 procedure TProdTreeData.CompileScript(Data: PtrInt);
 begin
+  Screen.Cursor:=crHourGlass;
+  Script.Writeln:=@ScriptWriteln;
   if not Script.Compile then
     begin
       FAutomation.lStatusProblems.Caption:='Failed to compile Script !';
       FAutomation.lStatusProblems.Visible:=True;
+      Screen.Cursor:=crDefault;
     end
   else if (Script.StatusProblems.Text<>'') and Assigned(FAutomation) then
     begin
+      FAutomation.lStatusProblems.Color:=clred;
+      FAutomation.lStatusProblems.Font.Color:=clWhite;
       FAutomation.lStatusProblems.Caption:=strPartiallyProblematic+LineEnding+trim(Script.StatusProblems.Text);
       FAutomation.lStatusProblems.Visible:=True;
+      Screen.Cursor:=crDefault;
+    end
+  else
+    begin
+      FAutomation.lStatusProblems.Visible:=False;
+      Screen.Cursor:=crDefault;
     end;
 end;
 
@@ -1099,8 +1122,7 @@ begin
       Script.Debugln:=@ScriptDebugln;
       if Assigned(Script) then
         begin
-          FAutomation.lStatusProblems.Visible:=False;
-          Application.QueueAsyncCall(@CompileScript,0);
+          FAutomation.DoCompileScript:=@Self;
         end;
     end;
 end;

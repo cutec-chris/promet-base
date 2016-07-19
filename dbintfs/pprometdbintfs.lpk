@@ -177,6 +177,10 @@
         <UnitName Value="uprometpubsub"/>
       </Item41>
     </Files>
+    <i18n>
+      <EnableI18N Value="True"/>
+      <OutDir Value="..\..\..\languages"/>
+    </i18n>
     <RequiredPkgs Count="4">
       <Item1>
         <PackageName Value="promet_db_lowlevel"/>
