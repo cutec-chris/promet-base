@@ -606,6 +606,7 @@ begin
             Add('SUBDETAIL',ftMemo,0,False);
             Add('STATFIELD',ftString,20,False);
             Add('ISSCRIPT',ftString,1,False);
+            Add('QUERRYBLD',ftBlob,0,False);
             Add('STATNFIELD',ftString,20,False);
             Add('CHARTTYPE',ftString,1,False);
             Add('TREEENTRY',ftLargeint,0,false);
