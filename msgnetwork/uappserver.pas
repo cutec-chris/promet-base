@@ -27,7 +27,8 @@ uses
   Classes, SysUtils, blcksock, synsock;
 
 type
-  TCommandHandlerProc = function(Sender : TObject; Command : string) : string;
+  TAppNetworkThrd = class;
+  TCommandHandlerProc = function(Sender : TAppNetworkThrd; Command : string) : string;
 
   { TPrometNetworkDaemon }
 

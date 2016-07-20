@@ -27,7 +27,7 @@ uses
   Classes, SysUtils, synautil, uAppServer, blcksock;
 
 type
-  THTTPHandlerProc = function(Sender : TObject;Method,URL : string;Headers : TStringList;Input,Output : TStream) : Integer;
+  THTTPHandlerProc = function(Sender : TAppNetworkThrd;Method,URL : string;Headers : TStringList;Input,Output : TMemoryStream) : Integer;
 
   procedure RegisterHTTPHandler(aHandler : THTTPHandlerProc);
 
@@ -36,7 +36,7 @@ implementation
 var
   HTTPHandlers : array of THTTPHandlerProc;
 
-function HandleHTTPCommand(Sender : TObject;FCommand : string) : string;
+function HandleHTTPCommand(Sender : TAppNetworkThrd;FCommand : string) : string;
 var
   aCmd, uri, protocol, s: String;
   headers: TStringList;
@@ -49,7 +49,7 @@ begin
   else aCmd := FCommand;
   Fetch(FCommand,' ');
   case Uppercase(aCmd) of
-  'GET','HEAD','POST','DELETE'://HTTP Request
+  'GET','HEAD','POST','DELETE','OPTIONS','REPORT','PROPFIND','LOCK','UNLOCK','MKCOL'://HTTP Request
     begin
       Timeout := 12000;
       uri := fetch(FCommand, ' ');

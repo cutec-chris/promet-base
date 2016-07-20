@@ -41,7 +41,7 @@ var
 
 implementation
 
-function HandlePubSubCommand(Sender : TObject;FCommand : string) : string;
+function HandlePubSubCommand(Sender : TAppNetworkThrd;FCommand : string) : string;
 var
   aCmd, uri, protocol, s: String;
   headers: TStringList;

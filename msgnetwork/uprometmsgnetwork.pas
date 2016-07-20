@@ -121,7 +121,7 @@ begin
     Sock.Free;
   end;
 end;
-function HandlePrometCommand(Sender : TObject;FCommand : string) : string;
+function HandlePrometCommand(Sender : TAppNetworkThrd;FCommand : string) : string;
 var
   aCmd, uri, protocol, s: String;
   headers: TStringList;

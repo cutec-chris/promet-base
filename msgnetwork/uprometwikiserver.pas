@@ -5,7 +5,7 @@ unit uprometwikiserver;
 interface
 
 uses
-  Classes, SysUtils, uappserverhttp, uWiki, syncobjs;
+  Classes, SysUtils, uappserverhttp, uWiki, syncobjs,uAppServer;
 
 implementation
 
@@ -15,7 +15,7 @@ var
   WikiList : TWikiList;
   CS : TCriticalSection;
 
-function HandleWikiRequest(Sender : TObject;Method, URL: string;Headers : TStringList;Input,Output : TStream): Integer;
+function HandleWikiRequest(Sender : TAppNetworkThrd;Method, URL: string;Headers : TStringList;Input,Output : TMemoryStream): Integer;
 var
   lOut: TStringList;
 begin

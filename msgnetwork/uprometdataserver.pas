@@ -25,7 +25,8 @@ interface
 
 uses
   Classes, SysUtils,fpjson, uBaseDBInterface,uBaseDbClasses,fpsqlparser,
-  fpsqlscanner, fpsqltree,httpsend,OpenSSL, jsonparser, db, uappserverhttp;
+  fpsqlscanner, fpsqltree,httpsend,OpenSSL, jsonparser, db, uappserverhttp,
+  uAppServer;
 
 procedure DataSetToJSON(ADataSet: TDataSet; AJSON: TJSONArray; const ADateAsString: Boolean; Fields: TSQLElementList = nil);
 procedure ObjectToJSON(AObject : TBaseDBDataSet; AJSON: TJSONObject;const ADateAsString: Boolean);
@@ -34,7 +35,7 @@ implementation
 
 uses usync,uBaseDatasetInterfaces,uData;
 
-function HandleDataRequest(Sender : TObject;Method, URL: string;Headers : TStringList;Input,Output : TStream): Integer;
+function HandleDataRequest(Sender : TAppNetworkThrd;Method, URL: string;Headers : TStringList;Input,Output : TMemoryStream): Integer;
 var
   aClassType: TBaseDBDatasetClass;
   aClass: TBaseDBDataset;
