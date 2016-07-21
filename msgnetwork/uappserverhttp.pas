@@ -49,7 +49,7 @@ begin
   else aCmd := FCommand;
   Fetch(FCommand,' ');
   case Uppercase(aCmd) of
-  'GET','HEAD','POST','PUT','DELETE','OPTIONS','REPORT','PROPFIND','LOCK','UNLOCK','MKCOL'://HTTP Request
+  'GET','HEAD','POST','PUT','DELETE','OPTIONS','REPORT','PROPFIND','PROPPATCH','COPY','MOVE','LOCK','UNLOCK','MKCOL'://HTTP Request
     begin
       Timeout := 12000;
       uri := fetch(FCommand, ' ');
