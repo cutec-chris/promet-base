@@ -1010,7 +1010,7 @@ begin
     end
   else
     begin
-      Result := DataSet.Active and DataSet.Locate('NAME',aPath,[]);
+      Result := DataSet.Active and (DataSet.Locate('NAME',aPath,[]) or (aPath=''));
     end;
   tmpDocs.Free;
 end;
