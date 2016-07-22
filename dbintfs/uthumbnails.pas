@@ -53,7 +53,7 @@ var
 
 implementation
 
-uses uBaseApplication,SecureUtils;
+uses uBaseApplication,SecureUtils,usimpleprocess;
 var
   ThumbDir : string;
 
@@ -169,7 +169,6 @@ var
   iOut: TFPMemoryImage;
   wr: TFPWriterJPEG;
   area: TRect;
-  aProcess: TProcess;
   i: Integer;
   sl: TStringList;
   randlinks: Int64;
@@ -191,32 +190,9 @@ var
   label Redo;
   function ConvertExec(aCmd,aExt : string) : Boolean;
   begin
-    aProcess := TProcess.Create(nil);
-    {$IFDEF WINDOWS}
-    aProcess.Options:= [poNoConsole, poWaitonExit,poNewConsole, poNewProcessGroup];
-    {$ELSE}
-    aProcess.Options:= aProcess.Options+[poWaitonExit];
-    {$ENDIF}
-    aProcess.ShowWindow := swoHide;
-    aProcess.CommandLine := aCmd;
-    aProcess.CurrentDirectory := AppendPathDelim(ExtractFileDir(ParamStr(0)))+'tools';
-    with BaseApplication as IBaseApplication do
-      Debug('Generate Thumbnail:'+aCmd);
-    try
-      try
-        aProcess.Execute;
-      except
-        on e : Exception do
-          begin
-            with BaseApplication as IBaseApplication do
-              Error('Convert Error:'+e.Message);
-            result := False;
-          end;
-      end;
-      Result := FileExists(aFileName+aExt);
-    finally
-      aProcess.Free;
-    end;
+    DeleteFile(aFileName+aExt);
+    Result := not pos('errors:',ExecProcessEx(aCmd))>0;
+    Result := FileExists(aFileName+aExt);
     if Result then
       begin
         Img := TFPMemoryImage.Create(0, 0);

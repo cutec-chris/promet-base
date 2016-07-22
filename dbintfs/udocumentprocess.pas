@@ -69,7 +69,11 @@ begin
           Proc := TProcess.Create(BaseApplication);
           if UseStarter then
             {$IFNDEF DARWIN}
-            Proc.CommandLine := AppendPathDelim(ExtractFilePath(BaseApplication.Exename))+'pstarter'+ExtractFileExt(BaseApplication.Exename)+' '+Language+' "'+ACmd+'"'
+              {$IFDEF WINDOWS}
+              Proc.CommandLine := AppendPathDelim(ExtractFilePath(BaseApplication.Exename))+'pstarter'+ExtractFileExt(BaseApplication.Exename)+' '+Language+' "'+ACmd+'"'
+              {$ELSE}
+              Proc.CommandLine := AppendPathDelim(ExtractFilePath(BaseApplication.Exename))+'pstarter'+ExtractFileExt(BaseApplication.Exename)+' '+Language+' '+ACmd
+              {$ENDIF}
             {$ELSE}
             //TODO:add Language
             tmp := BaseApplication.Location
