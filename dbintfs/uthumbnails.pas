@@ -287,7 +287,20 @@ Redo:
           end;
       end;
     if not Result and Assigned(OnGenerateThumb) then
-      Result := OnGenerateThumb(aName,aFileName,aThumbFile,aWidth,aHeight);
+      begin
+        Result := OnGenerateThumb(aName,aFileName,aThumbFile,aWidth,aHeight);
+        if Result then
+          begin
+            Img := TFPMemoryImage.Create(0, 0);
+            Img.UsePalette := false;
+            try
+              Img.LoadFromFile(aThumbFile);
+              SysUtils.DeleteFile(aThumbFile);
+            except
+              FreeAndNil(Img);
+            end;
+          end;
+      end;
     SysUtils.DeleteFile(aFileName);
     if Assigned(Img) then
       begin
@@ -436,22 +449,7 @@ begin
   else if (Uppercase(aExt) = '.PDF') then
     begin
       try
-        aProcess := TProcess.Create(nil);
-        {$IFDEF WINDOWS}
-        aProcess.Options:= [poNoConsole,poNewConsole, poStdErrToOutPut, poNewProcessGroup];
-        {$ELSE}
-        aProcess.Options:= [poNewConsole,poNewProcessGroup,poStdErrToOutPut];
-        {$ENDIF}
-//        aProcess.ShowWindow := swoHide;
-        aProcess.CommandLine := Format('pdftotext'+ExtractFileExt(BaseApplication.ExeName)+' %s %s',[aFileName,aFileName+'.txt']);
-        aProcess.CurrentDirectory := AppendPathDelim(AppendPathDelim(BaseApplication.Location)+'tools');
-        {$IFDEF WINDOWS}
-        aProcess.CommandLine := aProcess.CurrentDirectory+aProcess.CommandLine;
-        {$ENDIF}
-        aProcess.Execute;
-        while aProcess.Active do
-          sleep(100);
-        aProcess.Free;
+        ExecProcess(Format('pdftotext'+ExtractFileExt(BaseApplication.ExeName)+' %s %s',[aFileName,aFileName+'.txt']),AppendPathDelim(AppendPathDelim(BaseApplication.Location)+'tools'));
         SysUtils.DeleteFile(aFileName);
         if FileExists(aFileName+'.txt') then
           begin
