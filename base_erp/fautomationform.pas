@@ -1110,6 +1110,11 @@ begin
   Func:='';
   if not Assigned(Script) then
     Script := TBaseScript.Create(nil);
+  if aScript='' then
+    begin
+      Script.Close;
+      exit;
+    end;
   Script.SelectByName(aScript);
   Script.Open;
   if (not Script.Locate('VERSION',aVersion,[]))
