@@ -1012,12 +1012,18 @@ begin
     begin
       if not DataSet.FieldByName('PARENT').IsNull then
         begin
-          aParent := TTask.CreateEx(Self,DataModule,Connection);
-          aParent.Select(DataSet.FieldByName('PARENT').AsVariant);
-          aParent.Open;
-          if aParent.Count > 0 then
-            aParent.CheckChilds;
-          aParent.Free;
+          try
+            try
+              aParent := TTask.CreateEx(Self,DataModule,Connection);
+              aParent.Select(DataSet.FieldByName('PARENT').AsVariant);
+              aParent.Open;
+              if aParent.Count > 0 then
+                aParent.CheckChilds;
+            except
+            end;
+          finally
+            aParent.Free;
+          end;
         end;
       CheckDependTasks;
       DoCheckTask := False;
