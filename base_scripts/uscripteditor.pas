@@ -41,6 +41,13 @@ type
     Line : Integer;
   end;
 
+  { TOwnLiemark }
+
+  TOwnLinemark = class(TSynEditMark)
+  public
+    destructor Destroy; override;
+  end;
+
   { TfScriptEditor }
 
   TfScriptEditor = class(TForm)
@@ -312,6 +319,13 @@ begin
     Application.ProcessMessages;
 end;
 
+{ TOwnLiemark }
+
+destructor TOwnLinemark.Destroy;
+begin
+  inherited Destroy;
+end;
+
 procedure TfScriptEditor.DoSearchReplaceText(AReplace: boolean; ABackwards: boolean);
 var
   Options: TSynSearchOptions;
@@ -366,7 +380,7 @@ begin
   FSynCompletion.OnUTF8KeyPress:=@FSynCompletionUTF8KeyPress;
   FSynCompletion.OnSearchPosition:=@FSynCompletionSearchPosition;
   genpascalscript.DoSleep:=@DoSleep;
-  Linemark := TSynEditMark.Create(ed);
+  Linemark := TOwnLinemark.Create(ed);
   Linemark.ImageList:=GutterImages;
   Linemark.ImageIndex:=8;
   ed.Marks.Add(Linemark);
@@ -458,7 +472,7 @@ begin
           i := 0;
           while i<ed.Marks.Count do
             begin
-              if ed.Marks[i].Line=Line then
+              if (ed.Marks[i].Line=Line) and (ed.Marks[i] <> Linemark) then
                 ed.Marks[i].Free
               else inc(i);
             end;
@@ -692,6 +706,7 @@ var
   i: Integer;
 begin
   Linemark.Visible:=False;
+  Application.Processmessages;
   if Assigned(Fscript) and (Fscript.Status<>ssNone) then
     begin
       FActiveLine := 0;
