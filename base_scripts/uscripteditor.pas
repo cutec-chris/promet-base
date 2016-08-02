@@ -706,6 +706,7 @@ var
   i: Integer;
 begin
   Linemark.Visible:=False;
+  Linemark.Line:=0;
   Application.Processmessages;
   if Assigned(Fscript) and (Fscript.Status<>ssNone) then
     begin
