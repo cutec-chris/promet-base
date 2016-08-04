@@ -168,6 +168,7 @@ type
     property Matchcode: TField read GetMatchcode;
     function SelectFromLink(aLink : string) : Boolean;virtual;
     function SelectFromNumber(aNumber : string) : Boolean;virtual;
+    function SelectFromTreeEntry(aParent : LargeInt) : Boolean;virtual;
     function ChangeStatus(aNewStatus : string) : Boolean;virtual;
     function Duplicate : Boolean;virtual;
   end;
@@ -1744,6 +1745,15 @@ begin
     with DataSet as IBaseDBFilter do
       begin
         Filter := TBaseDBModule(DataModule).QuoteField(GetNumberFieldName)+'='+TBaseDBModule(DataModule).QuoteValue(aNumber);
+      end;
+end;
+
+function TBaseDbList.SelectFromTreeEntry(aParent: LargeInt): Boolean;
+begin
+  with BaseApplication as IBaseDBInterface do
+    with DataSet as IBaseDBFilter do
+      begin
+        Filter := TBaseDBModule(DataModule).QuoteField('TREEENTRY')+'='+TBaseDBModule(DataModule).QuoteValue(IntToStr(aParent));
       end;
 end;
 
