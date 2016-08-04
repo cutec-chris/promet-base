@@ -107,9 +107,11 @@ begin
       Result := StringReplace(Result,'DAY(','EXTRACT(DAY FROM ',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'DAYOFWEEK(','EXTRACT(DOW FROM ',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'GETDATE()','CURRENT_DATE',[rfReplaceAll,rfIgnoreCase]);
+      Result := StringReplace(Result,'LEN(','LENGTH(',[rfReplaceAll,rfIgnoreCase]);
     end
   else if Data.GetDBType='mssql' then
     begin
+      Result := StringReplace(Result,'LENGTH(','LEN(',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'JULIANDAY(','2415020.5+CONVERT(FLOAT,',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'IFNULL(','ISNULL(',[rfReplaceAll,rfIgnoreCase]);
       if pos('limit ',lowercase(Str))>0 then
@@ -126,6 +128,7 @@ begin
     end
   else if Data.GetDBType='sqlite' then
     begin
+      Result := StringReplace(Result,'LEN(','LENGTH(',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'CHARINDEX(','instr(',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'MONTH(','strftime("%m",',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'YEAR(','strftime("%Y",',[rfReplaceAll,rfIgnoreCase]);
