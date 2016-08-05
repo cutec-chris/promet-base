@@ -33,6 +33,14 @@ uses
 function StartMessageManager(Mandant : string;User : string = '') : TProcess;
 function StartProcessManager(Mandant : string;User : string = '';aProcess : string = 'pappserver') : TProcess;
 function ProcessExists(cmd,cmdln: string): Boolean;
+type
+
+  { TPProcess }
+
+  TPProcess = class(TProcess)
+  public
+    destructor Destroy; override;
+  end;
 var
   ProcessMandant : string;
   ProcessUser : string;
@@ -119,7 +127,7 @@ begin
       aDir := GetCurrentDir+DirectorySeparator;
       if not FileExists(UniToSys(aDir+aProcess+ExtractFileExt(BaseApplication.ExeName))) then exit;
     end;
-  Result := TProcess.Create(nil);
+  Result := TPProcess.Create(nil);
   Result.Options:=[poNoConsole,poStderrToOutPut,poNewProcessGroup];
   Result.CommandLine:=aDir+aProcess+ExtractFileExt(BaseApplication.ExeName)+' '+cmdln;
   try
@@ -133,6 +141,13 @@ begin
       Result := nil;
     end;
   end;
+end;
+
+{ TPProcess }
+
+destructor TPProcess.Destroy;
+begin
+  inherited Destroy;
 end;
 
 end.

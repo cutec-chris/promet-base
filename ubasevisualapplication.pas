@@ -63,7 +63,7 @@ type
     FDBInterface: IBaseDBInterface;
     FOnUserTabAdded: TNotifyEvent;
     Properties: TXMLPropStorage;
-    Processmanager: TProcess;
+    FProcessmanager: TProcess;
     FMessagehandler : TMessageHandler;
     FActualName : string;
     FProps : TStringList;
@@ -74,6 +74,7 @@ type
     FAppRevision : Integer;
     aParent: TWinControl;
     FQuickHelp : Boolean;
+    procedure SetProcessmanager(AValue: TProcess);
     procedure UserTabAdded(Sender : TObject);
     function HandleSystemCommand(Sender : TObject;aCommand : string) : Boolean;
     procedure StartProcessManager(DoCloseIt : Boolean = False);
@@ -133,6 +134,7 @@ type
     procedure LoginDone;
     property Data : IBaseDbInterface read FDBInterface implements IBaseDBInterface;
     property MessageHandler : TMessageHandler read FMessageHandler;
+    property Processmanager : TProcess read FProcessmanager write SetProcessmanager;
     property OnUserTabAdded : TNotifyEvent read FOnUserTabAdded write FOnUserTabAdded;
   end;
   TTreeAddCallback = procedure(NewNode : TTreeNode) of object;
@@ -832,8 +834,10 @@ end;
 
 procedure TBaseVisualApplication.StartProcessManager(DoCloseIt: Boolean);
 begin
-  //FMessagehandler := TMessageHandler.Create(Data.Data);
-  //FMessageHandler.RegisterCommandHandler(@HandleSystemCommand);
+  if Assigned(ProcessManager) and ProcessManager.Active then
+    begin
+      exit;
+    end;
   with Application as IBaseDBInterface do
     begin
       if Data.Users.DataSet.Active then
@@ -1001,6 +1005,13 @@ begin
           end;
     end;
 end;
+
+procedure TBaseVisualApplication.SetProcessmanager(AValue: TProcess);
+begin
+  if FProcessmanager=AValue then Exit;
+  FProcessmanager:=AValue;
+end;
+
 function TBaseVisualApplication.Login: Boolean;
 var
   aID: LongInt;
@@ -1058,7 +1069,7 @@ begin
                     begin
                       Data.DeleteExpiredSessions;
                       uData.Data := Data;
-                      StartProcessManager(False);
+                      StartProcessManager(Self.HasOption('t','terminateprocesses'));
                       udata.Data.OnConnectionLost:=@DataDataConnectionLost;
                       udata.Data.OnDisconnectKeepAlive:=@DataDataDisconnectKeepAlive;
                       udata.Data.OnConnect:=@DataDataConnect;
@@ -1113,7 +1124,7 @@ begin
                 Debug('Logged in with User '+Data.Users.Id.AsString);
                 Data.DeleteExpiredSessions;
                 uData.Data := Data;
-                StartProcessManager;
+                StartProcessManager(Self.HasOption('t','terminateprocesses'));
                 fPassword.ePasswort.Text := '';
               end
             else
@@ -1196,7 +1207,7 @@ begin
   if Assigned(Processmanager) and (Self.HasOption('t','terminateprocesses') or (Processmanager.Tag=100)) then
     if Processmanager.Active then Processmanager.Terminate(1);
   if Assigned(Processmanager) then
-    FreeAndNil(ProcessManager);
+    FreeAndNil(FProcessManager);
 end;
 
 procedure TBaseVisualApplication.LoginDone;
