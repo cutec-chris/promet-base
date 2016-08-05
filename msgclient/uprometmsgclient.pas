@@ -37,7 +37,7 @@ constructor TPrometMsgClient.Create;
 begin
   Sock := TTCPBlockSocket.Create;
   Sock.ConnectionTimeout:=200;
-  Sock.Connect('127.0.0.1','8087');
+  Sock.Connect('127.0.0.1','8085');
   FName := GetSystemName; //Sock.ResolveName(Sock.LocalName);
   inherited Create(False);
 end;
@@ -54,7 +54,7 @@ begin
   while not Terminated do
     begin
       if Sock.LastError<>0 then
-        Sock.Connect('127.0.0.1','8087');
+        Sock.Connect('127.0.0.1','8085');
       sleep(500);
     end;
 end;
