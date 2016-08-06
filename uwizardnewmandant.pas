@@ -166,6 +166,7 @@ type
     procedure rbSqliteChange(Sender: TObject);
     procedure SilentTimerTimer(Sender: TObject);
   private
+    FSilent: Boolean;
     { private declarations }
     Steps : array of Integer;
     procedure CollectProfiles(Node : TTreeNode);
@@ -175,6 +176,7 @@ type
     function DoSave : Boolean;
     function  DoExecStep(Step : Integer) : Integer;
     procedure InitWizard;
+    property IsSilent : Boolean read FSilent write FSilent;
   end;
 var
   fWizardNewMandant: TfWizardNewMandant;
@@ -348,6 +350,7 @@ end;
 
 procedure TfWizardNewMandant.FormCreate(Sender: TObject);
 begin
+  FSilent:=False;
   SetLanguage;
   InitWizard;
 end;
@@ -363,7 +366,7 @@ begin
       cbSQLType.Text:='firebirdd-2.1';
       cbSQLTypeSelect(nil);
     end;
-  if Application.HasOption('silent') then
+  if Application.HasOption('silent') or IsSilent then
     begin
       SilentTimer.Enabled := True;
     end;
@@ -824,7 +827,7 @@ begin
       with Application as IBaseDBInterface do
         if FileExists(AppendPathDelim(MandantPath)+eMandantname.Text+MandantExtension) then
           Result := 5;
-      if Application.HasOption('silent') then
+      if Application.HasOption('silent') or IsSilent then
         Result := 6;
     end;
   2:

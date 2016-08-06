@@ -1,39 +1,104 @@
-TFWIZARDNEWMANDANT.FWIZARDNEWMANDANT.CAPTION=Neuen Mandanten erstellen
-TFWIZARDNEWMANDANT.LDESCRIPTION1.CAPTION=Wählen Sie hier ein Profil mit Vorgabewerten aus
-TFWIZARDNEWMANDANT.LPROFILE.CAPTION=Profil
-TFWIZARDNEWMANDANT.BNEXT1.CAPTION=bNext0
-TFWIZARDNEWMANDANT.BPREV1.CAPTION=bPrev0
-TFWIZARDNEWMANDANT.BABORT1.CAPTION=bAbort0
-TFWIZARDNEWMANDANT.LDESCRIPTION2.CAPTION=Geben Sie hier den Datenbanktyp an
-TFWIZARDNEWMANDANT.DATENBANKTYP.CAPTION=Datenbanktyp
+TFWIZARDNEWMANDANT.CAPTION=Neuen Mandanten erstellen
+TFWIZARDNEWMANDANT.LCREATINGDATABASE.CAPTION=erstelle Tabellen (wenn nötig)
+TFWIZARDNEWMANDANT.LFILLINGDEFAULTVALUES.CAPTION=Vorgabewerte einsetzen
+TFWIZARDNEWMANDANT.LUPDATINGDATABASE.CAPTION=Hilfe einsetzen
+TFWIZARDNEWMANDANT.BUTTON1.CAPTION=Mandanteneinstellungen
+TFWIZARDNEWMANDANT.LABEL2.CAPTION=Das erstellen der Datenbank wurde beendet, Sie können 
+nun wenn gewünscht noch Details zum Mandanten 
+eingeben (Name,Adresse,Telefonnummern u.ä.). 
+Die dann auf allen Druckbelegen mitverwendet werden.
+
+Auch andere Gelobale Einstellungen sind direkt von 
+hier möglich (Benutzerverwaltung,Prozesse). 
+Sie können die Einstellungen auch jederzeit in den 
+Optionen nachholen
+TFWIZARDNEWMANDANT.BABORT6.CAPTION=Schliessen
+TFWIZARDNEWMANDANT.LDESCRIPTION2.CAPTION=Um Daten abzulegen wird eine Datenbank benötigt. Dafür werden verschiedene große Datenbanksysteme unterstützt. Wähen Sie zunächst zwischen:
 TFWIZARDNEWMANDANT.BNEXT2.CAPTION=bNext0
 TFWIZARDNEWMANDANT.BPREV2.CAPTION=bPrev0
 TFWIZARDNEWMANDANT.BABORT2.CAPTION=bAbort0
-TFWIZARDNEWMANDANT.LDESCRIPTION3.CAPTION=Geben Sie hier das Datenbankverzeichnis an
-TFWIZARDNEWMANDANT.LDATABASEDIRECTORY.CAPTION=Datenbankverzeichnis
-TFWIZARDNEWMANDANT.BNEXT3.CAPTION=bNext0
-TFWIZARDNEWMANDANT.BPREV3.CAPTION=bPrev0
-TFWIZARDNEWMANDANT.BABORT3.CAPTION=bAbort0
-TFWIZARDNEWMANDANT.LDESCRIPTION4.CAPTION=Setzen sie hier die Datenbankeinstellungen, damit sich das Programm erfolgreich mit dem Datenbankserver und der Datenbank verbinden kann.
-TFWIZARDNEWMANDANT.LDBTYPE.CAPTION=Datenbanktyp
-TFWIZARDNEWMANDANT.LDBSERVER.CAPTION=Server
-TFWIZARDNEWMANDANT.LDATABASE.CAPTION=Datenbank
-TFWIZARDNEWMANDANT.LUSERNAME.CAPTION=Benutzername
-TFWIZARDNEWMANDANT.LPASSWORD.CAPTION=Passwort
-TFWIZARDNEWMANDANT.BNEXT4.CAPTION=bNext0
-TFWIZARDNEWMANDANT.BPREV4.CAPTION=bPrev0
-TFWIZARDNEWMANDANT.BABORT4.CAPTION=bAbort0
-TFWIZARDNEWMANDANT.CBSQLTYPE.TEXT=sqlite-3
-TFWIZARDNEWMANDANT.ESQLSERVER.TEXT=localhost
-TFWIZARDNEWMANDANT.LCREATINGDATABASE.CAPTION=erstelle Tabellen (wenn nötig)
-TFWIZARDNEWMANDANT.LFILLINGDEFAULTVALUES.CAPTION=Vorgabewerte einsetzen
-TFWIZARDNEWMANDANT.LUPDATINGDATABASE.CAPTION=Datenbankstruktur updaten
+TFWIZARDNEWMANDANT.LABEL3.CAPTION=Persönliche Datenbank: Die Daten werden nur auf Ihrem Computer gespeichert und sind nicht aus dem Netzwerk zugänglich. Benutzen Sie diese version wenn Sie hauptsächlich allein arbeiten möchten oder das Programm testen. 
+TFWIZARDNEWMANDANT.LABEL4.CAPTION=Datenbankserver: Für diese Option müssen Sie einen Datenbankserver haben/einrichten. Dafür können Sie dann aber mit mehreren Nutzern im Netzwerk am selben Datenbestand gleichzeitig arbeiten.
 TFWIZARDNEWMANDANT.LDESCRIPTION0.CAPTION=Mit diesem Assistenten können Sie einen neuen Mandanten erstellen, wählen Sie dazu im ersten Schritt eine Sprache für den mandanten aus, und geben Sie darunter einen Namen an. Weiterhin müssen Sie hier auswählen ob die Datenbank mit Vorgabedaten gefüllt werden soll oder nicht.
 TFWIZARDNEWMANDANT.LMANDANTNAME.CAPTION=Mandantenname
 TFWIZARDNEWMANDANT.LLANGUAGE.CAPTION=Sprache
 TFWIZARDNEWMANDANT.BNEXT0.CAPTION=bNext0
 TFWIZARDNEWMANDANT.BPREV0.CAPTION=bPrev0
 TFWIZARDNEWMANDANT.BABORT0.CAPTION=bAbort0
-TFWIZARDNEWMANDANT.CBLANGUAGE.TEXT=cbLanguage
-TFWIZARDNEWMANDANT.CBNEWDATABASE.CAPTION=Neue Datenbank (mit Vorgabewerten füllen)
-TFWIZARDNEWMANDANT.CBEXISTINGDATABASE.CAPTION=exitierende Datenbank (keine Vorgabewerte einfügen)
+TFWIZARDNEWMANDANT.CBLANGUAGE.TEXT=Deutsch
+TFWIZARDNEWMANDANT.CBNEWDATABASE.HINT=Benutzen Sie diese Einstellung, wenn sie eine neue Datenbank anlegen möchten
+Im folgenden Dialog können Sie ein Profil mit Standardeinstellungen für diese
+Datenbank wählen
+TFWIZARDNEWMANDANT.CBNEWDATABASE.CAPTION=Neue Datenbank (mit Einstellungen füllen)
+TFWIZARDNEWMANDANT.CBEXISTINGDATABASE.HINT=wählen Sie diese Einstellung, wenn Sie eine Datenbankverknüpfung
+zu einer schon existierenden Datenbank anlegen möchten,
+z.b. wenn Sie einen weiteren Client-PC einrichten möchten.
+TFWIZARDNEWMANDANT.CBEXISTINGDATABASE.CAPTION=exitierende Datenbank (keine Einstellungen einfügen)
+TFWIZARDNEWMANDANT.RBDELETE.HINT=Mit deiser Einstellung können Sie eine Datenbankverknüpfung löschen
+(löscht nicht die Datenbank !!)
+TFWIZARDNEWMANDANT.RBDELETE.CAPTION=Datenbankverknüpfung löschen
+TFWIZARDNEWMANDANT.RBFROMFILE.HINT=Mit dieser Einstellung können Sie die Datenbankeinstellungen aus einer Datei (.perml) laden.
+Sie finden diese Dateien nach einer Einrichrung mit diesem Assistenten
+unter Windows in
+Benuterprofil\Lokale Einstellungen\Anwendungsdaten\prometerp\*.perml
+Unter Unix in
+Benuterprofil\.prometerp\*.perml
+TFWIZARDNEWMANDANT.RBFROMFILE.CAPTION=aus Datei erstellen
+TFWIZARDNEWMANDANT.LDESCRIPTION1.CAPTION=Wählen Sie hier ein Profil mit Vorgabewerten aus
+TFWIZARDNEWMANDANT.LPROFILE.CAPTION=Profil
+TFWIZARDNEWMANDANT.BNEXT1.CAPTION=bNext0
+TFWIZARDNEWMANDANT.BPREV1.CAPTION=bPrev0
+TFWIZARDNEWMANDANT.BABORT1.CAPTION=bAbort0
+TFWIZARDNEWMANDANT.CBSYNCHELP.HINT=Wenn Diese Option gesetzt ist, 
+wird auf der Datenbank ein Synchronisationseintrag
+für eine mitgelieferte Hilfe Datenbank erstellt
+Bei Updates der Hilfedatenbank werden die Änderungen
+automatisch synchronisiert.
+TFWIZARDNEWMANDANT.CBSYNCHELP.CAPTION=Hilfe und Scripte in Datenbank synchronisieren
+TFWIZARDNEWMANDANT.LDESCRIPTION3.CAPTION=wählen Sie hier eine Datenbank
+TFWIZARDNEWMANDANT.BNEXT3.CAPTION=bNext0
+TFWIZARDNEWMANDANT.BPREV3.CAPTION=bPrev0
+TFWIZARDNEWMANDANT.BABORT3.CAPTION=bAbort0
+TFWIZARDNEWMANDANT.RBSQLITE.CAPTION=SQLite
+TFWIZARDNEWMANDANT.RBFBE.CAPTION=Firebird embedded
+TFWIZARDNEWMANDANT.LDESCRIPTION6.CAPTION=Daten werden in einer einzigen Datei gespeichert. Ist auf vielen Plattformen verfügbar und das Datenformat ist auf allen Plattfomen gleich. So können Datendateien über alle Plattformen hinweg benutzt werden.
+TFWIZARDNEWMANDANT.LDESCRIPTION7.CAPTION=Firebird embedded speichert die Daten ebenso in einer einzigen Datenbankdatei. Diese ist dabei kompatibel zum Firebird SQL Server und könnte dort direkt weiterbenutzt werden. Ist allerdings nur auf Windows und Linux verfügbar.
+TFWIZARDNEWMANDANT.LDESCRIPTION11.CAPTION=Dateipfad
+TFWIZARDNEWMANDANT.LDESCRIPTION4.CAPTION=Hier finden Sie die Einstellungen nocheinmal in der Übersicht, oder können erweiterte Einstellungen vornehmen.
+TFWIZARDNEWMANDANT.LDBTYPE.CAPTION=Datenbanktyp
+TFWIZARDNEWMANDANT.LDBSERVER.CAPTION=Server
+TFWIZARDNEWMANDANT.LDATABASE.CAPTION=Datenbank
+TFWIZARDNEWMANDANT.LUSERNAME.CAPTION=Benutzername
+TFWIZARDNEWMANDANT.LPASSWORD.CAPTION=Passwort
+TFWIZARDNEWMANDANT.BNEXT5.CAPTION=bNext0
+TFWIZARDNEWMANDANT.BPREV4.CAPTION=bPrev0
+TFWIZARDNEWMANDANT.BABORT4.CAPTION=bAbort0
+TFWIZARDNEWMANDANT.CBSQLTYPE.TEXT=sqlite-3
+TFWIZARDNEWMANDANT.ESQLSERVER.TEXT=localhost
+TFWIZARDNEWMANDANT.BCOPYCONNECTIONSTRING.HINT=Mit diesem Knopf können Sie den Datenbankverbindungsstring
+in die Zwischenablage kopieren um ihn z.b. für die Synchronisationseinstellungen 
+parat zu haben.
+TFWIZARDNEWMANDANT.LABEL1.CAPTION=Sync ID
+TFWIZARDNEWMANDANT.SESYNCID.HINT=Die SyncID sollte bei Synchronisierten Datenbanken
+zwischen den Datenbanken unterschiedlich sein
+damit werden dann unterschiedliche Nummernkreise 
+für die Datensatznummern (SQL_ID) verwendet 
+damit es keine Überschneidungen gibt
+TFWIZARDNEWMANDANT.LDESCRIPTION5.CAPTION=wählen Sie hier eine Datenbank aus. Installieren Sie entsprechend der Auswahl einen Datenbankserver (falls nicht vorhanden)
+TFWIZARDNEWMANDANT.BNEXT4.CAPTION=bNext0
+TFWIZARDNEWMANDANT.BPREV5.CAPTION=bPrev0
+TFWIZARDNEWMANDANT.BABORT5.CAPTION=bAbort0
+TFWIZARDNEWMANDANT.RBPQ.CAPTION=PostgresSQL
+TFWIZARDNEWMANDANT.RBFB.CAPTION=Firebird
+TFWIZARDNEWMANDANT.LDESCRIPTION8.CAPTION=ist eine gute Open Source Datenbank, die auf vielen Systemen verfügbar ist
+TFWIZARDNEWMANDANT.LDESCRIPTION9.CAPTION=Firebird ist auf nicht soviel Systemen wie PostgreSQL verfügbar aber sehr schnell.
+TFWIZARDNEWMANDANT.RBMS.CAPTION=Microsoft SQL Server
+TFWIZARDNEWMANDANT.LDESCRIPTION10.CAPTION=ein sehr schnelles kommerzielles Datenbanksystem
+TFWIZARDNEWMANDANT.ESQLDATABASE2.TEXT=promet-erp
+TFWIZARDNEWMANDANT.LDESCRIPTION12.CAPTION=Datenbankname
+TFWIZARDNEWMANDANT.EDBSERVER.TEXT=localhost
+TFWIZARDNEWMANDANT.LDESCRIPTION13.CAPTION=Datenbankserver
+TFWIZARDNEWMANDANT.LUSERNAME1.CAPTION=Benutzername
+TFWIZARDNEWMANDANT.LPASSWORD1.CAPTION=Passwort
+TFWIZARDNEWMANDANT.LDESCRIPTION14.CAPTION=MySQL ist auf Webservern sehr beliebt und stark verbreitet
+TFWIZARDNEWMANDANT.RBMYS.CAPTION=MySQL/MariaDB
