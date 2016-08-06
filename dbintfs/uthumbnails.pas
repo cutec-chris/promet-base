@@ -295,10 +295,10 @@ Redo:
             Img.UsePalette := false;
             try
               Img.LoadFromFile(aThumbFile);
-              SysUtils.DeleteFile(aThumbFile);
             except
               FreeAndNil(Img);
             end;
+            SysUtils.DeleteFile(aThumbFile);
           end;
       end;
     SysUtils.DeleteFile(aFileName);
