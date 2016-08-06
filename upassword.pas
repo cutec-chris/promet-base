@@ -194,7 +194,7 @@ end;
 
 procedure TfPassword.lFirstLoginResize(Sender: TObject);
 begin
-  Height := ((ePasswort.Height+8)*3)+ButtonPanel1.Height+lFirstLogin.Height+35{$ifdef LCLGTK2}+5{$endif};
+  Height := ((ePasswort.Height+8)*3)+ButtonPanel1.Height+lFirstLogin.Height+36{$ifdef LCLGTK2}+5{$endif};
 end;
 
 procedure TfPassword.MenuItem1Click(Sender: TObject);
@@ -226,6 +226,10 @@ procedure TfPassword.StartWizardMandant;
 begin
   with TfWizardNewMandant.Create(Application) do
     begin
+      if Application.HasOption('database') then
+        begin
+          IsSilent:=True;
+        end;
       ShowModal;
       RefreshList;
     end;
