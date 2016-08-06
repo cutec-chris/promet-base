@@ -378,5 +378,6 @@ begin
 end;
 
 initialization
+  RegisterdataSetClass('WIKI',TWikiList);
 end.
 
