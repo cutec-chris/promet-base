@@ -30,7 +30,7 @@ uses
   ComCtrls, uExtControls, db, Grids, ActnList, Menus, uBaseDBClasses,
   uBaseDbInterface, StdCtrls, Graphics, types, Clipbrd, LMessages, kmemo,
   kfunctions, ubasevisualapplicationtools, ZVDateTimePicker, Dialogs, DbCtrls,
-  EditBtn, uBaseDatasetInterfaces,keditcommon,kcontrols;
+  EditBtn, uBaseDatasetInterfaces,keditcommon,kcontrols,LazUTF8;
 type
   TUnprotectedGrid = class(TCustomGrid);
 
