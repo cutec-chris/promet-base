@@ -1755,7 +1755,7 @@ begin
           aSStream := TStringStream.Create('');
           extn :=  AnsiString(AnsiLowerCase(ExtractFileExt(aDocument.filename)));
           GetContentText(aFullStream,extn,aText);
-          if GenerateThumbNail(ExtractFileExt(aDocument.FileName),aFullStream,aStream,aText) then
+          if GenerateThumbNail(aDocument.FileName,aFullStream,aStream,aText) then
             begin
               if aStream.Size>0 then
                 begin
