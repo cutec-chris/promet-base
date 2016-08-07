@@ -1,4 +1,11 @@
-﻿Build 429
+﻿Build 430
+      - Statistik:QueryBuilder implementiert um SQL zu generieren
+      - Avad: separater Dialog zum Produktionsauftrag erstellen
+      - Avad: nur Atikel mit Stücklisten werden angezeigt
+      - Avad: Scripte werden ansynchron kompiliert damit ein Schritt sofort angezeigt werden kann
+      - Processmanager: heisst jetzt PAppServer und vereint DAVServer und Processmanager
+                        zugriff nun auch auf Artikel und Projektdaten über WebDAV
+Build 429
       - Suche:Drag&Drop + Multiselect funktioniert nun
 Build 428
       - Optionen:Tab Datenbankeinstellungen hinzugefügt
