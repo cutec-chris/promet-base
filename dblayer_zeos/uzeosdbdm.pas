@@ -713,12 +713,31 @@ begin
         on e : Exception do
           begin
             InternalClose;
-            if TZeosDBDM(Owner).Ping(Connection) then
-              raise
+            if TZeosDBDM(Owner).CheckedTables.IndexOf(Self.GetTableName)>-1 then
+              begin
+                TZeosDBDM(Owner).CheckedTables.Delete(TZeosDBDM(Owner).Tables.IndexOf(GetTableName));
+                CreateTable;
+                try
+                  inherited InternalOpen;
+                except
+                  if TZeosDBDM(Owner).Ping(Connection) then
+                    raise
+                  else
+                    begin
+                      WaitForLostConnection;
+                      inherited InternalOpen;
+                    end;
+                end;
+              end
             else
               begin
-                WaitForLostConnection;
-                inherited InternalOpen;
+                if TZeosDBDM(Owner).Ping(Connection) then
+                  raise
+                else
+                  begin
+                    WaitForLostConnection;
+                    inherited InternalOpen;
+                  end;
               end;
           end;
       end;
@@ -1592,8 +1611,8 @@ begin
     end;
   if Assigned(MandantDetails) then
     begin
-      MandantDetails.Open;
       try
+        MandantDetails.Open;
         DBTables.Open;
         actDir := GetCurrentDir;
         SetCurrentDir(ExtractFileDir(FConnection.Database));

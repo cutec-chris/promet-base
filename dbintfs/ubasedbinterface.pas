@@ -1776,7 +1776,7 @@ begin
   FDB.MandantDetails.Open;
   if aUser <> '' then
     begin
-      with FDB.Users.DataSet do
+      with FDB.Users do
         begin
           Open;
           if not Locate('NAME',aUser,[]) then
@@ -1787,7 +1787,7 @@ begin
         end;
     end
   else
-    with FDB.Users.DataSet do
+    with FDB.Users do
       begin
         FDB.Users.Open;
         try
@@ -1822,6 +1822,7 @@ begin
 
   if AppendToActiveList then
     FDB.AppendUserToActiveList;
+  FDB.Users.CreateTable;
   FDB.Permissions.CreateTable;
   FDB.DeletedItems.CreateTable;
   FDB.Forms.CreateTable;
