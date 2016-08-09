@@ -4,11 +4,10 @@
 
 unit pscripts;
 
-{$warn 5023 off : no warning about unused units}
 interface
 
 uses
-  uScriptEditor, uFrmGotoLine, uscriptimport;
+  uScriptEditor, uFrmGotoLine, uscriptimport, uVideoTest;
 
 implementation
 

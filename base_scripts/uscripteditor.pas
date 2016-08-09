@@ -199,6 +199,8 @@ type
     procedure SpeedButton2Click(Sender: TObject);
     procedure tmDebugTimer(Sender: TObject);
     procedure TPascalScriptToolRegistering(const s: string);
+    function TPascalScriptUses(Sender: TPascalScript; const aName: String;
+      OnlyAdditional: Boolean): Boolean;
   private
     FOpenUnit: TOpenUnitEvent;
     FSearchFromCaret: boolean;
@@ -1275,6 +1277,29 @@ begin
   aButton.OnClick:=@aButtonClick;
 end;
 
+function TfScriptEditor.TPascalScriptUses(Sender: TPascalScript;
+  const aName: String; OnlyAdditional: Boolean): Boolean;
+begin
+   if lowercase(aName) = 'video' then
+     begin
+       Sender.Compiler.AddTypeS('TFPColor','record red : word;green : word;blue : word;alpha : word; end;');
+       Sender.Compiler.AddTypeS('THLSColor','record h : word;l : word;s : word;end;');
+       Sender.AddFunction(@CopyToWorkArea,'procedure CopyToWorkArea(x,y,width,height : Integer);');
+       Sender.AddFunction(@ScaleImage,'procedure ScaleImage(NewWidth : Integer;NewHeight : Integer);');
+       Sender.AddFunction(@ImageWidth,'function ImageWidth : Integer;');
+       Sender.AddFunction(@ImageHeight,'function ImageHeight : Integer;');
+       Sender.AddFunction(@SetPixel,'procedure SetPixel(x,y : Integer; r,g,b : word);');
+       Sender.AddFunction(@SetPixelHLS,'procedure SetPixelHLS(x,y : Integer; h,l,s : word);');
+       Sender.AddFunction(@GetPixel,'function GetPixel(x,y : Integer) : TFPColor;');
+       Sender.AddFunction(@GetPixelHLS,'function GetPixelHLS(x,y : Integer) : THLSColor;');
+       Sender.AddFunction(@RefreshImage,'procedure RefreshImage;');
+       Sender.AddFunction(@LoadImage,'function LoadImage(aFile : PChar) : Boolean;');
+       Sender.AddFunction(@SaveImage,'function SaveImage(aFile : PChar) : Boolean;');
+       Sender.AddFunction(@CaptureImage,'function CaptureImage(dev: PChar): Boolean;');
+       Result := True;
+     end;
+end;
+
 procedure TfScriptEditor.InitEvents;
 var
   aScript: TScript;
@@ -1287,6 +1312,7 @@ begin
       if aScript is TPascalScript then
        begin
          TPascalScript(aScript).OnToolRegistering:=@TPascalScriptToolRegistering;
+         TPascalScript(aScript).OnUses:=@TPascalScriptUses;
        end;
     end;
 end;

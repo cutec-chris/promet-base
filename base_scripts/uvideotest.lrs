@@ -1,0 +1,14 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TfVideoTest','FORMDATA',[
+  'TPF0'#11'TfVideoTest'#10'fVideoTest'#4'Left'#3#228#3#6'Height'#3#196#1#3'Top'
+  +#3#247#0#5'Width'#3'<'#2#7'Caption'#6#10'fVideoTest'#12'ClientHeight'#3#196#1
+  +#11'ClientWidth'#3'<'#2#10'LCLVersion'#6#7'1.4.4.0'#0#6'TImage'#6'Image1'#4
+  +'Left'#2'8'#6'Height'#3#135#1#3'Top'#2#30#5'Width'#3#203#1#0#0#5'TEdit'#5'Ed'
+  +'it1'#4'Left'#3#2#2#6'Height'#2#23#3'Top'#3#142#1#5'Width'#2'2'#8'TabOrder'#2
+  +#0#4'Text'#6#5'Edit1'#0#0#5'TEdit'#5'Edit2'#4'Left'#3#209#1#6'Height'#2#23#3
+  +'Top'#3#164#1#5'Width'#2'2'#8'TabOrder'#2#1#4'Text'#6#5'Edit2'#0#0#5'TEdit'#5
+  +'Edit3'#4'Left'#2#7#6'Height'#2#23#3'Top'#2#30#5'Width'#2'2'#8'TabOrder'#2#2
+  +#4'Text'#6#5'Edit3'#0#0#5'TEdit'#5'Edit4'#4'Left'#2'8'#6'Height'#2#23#3'Top'
+  +#2#8#5'Width'#2'2'#8'TabOrder'#2#3#4'Text'#6#5'Edit4'#0#0#0
+]);
