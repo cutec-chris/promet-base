@@ -261,7 +261,8 @@ implementation
 
 uses
   uFrmGotoLine,uData,uBaseApplication,Utils,uSystemMessage,uStatistic,
-  Clipbrd,uprometpascalscript,uprometpythonscript,uprometcscript,uvideofunctions;
+  Clipbrd,uprometpascalscript,uprometpythonscript,uprometcscript,uvideofunctions,
+  uVideoTest;
 
 {$R *.lfm}
 
@@ -1292,10 +1293,10 @@ begin
        Sender.AddFunction(@SetPixelHLS,'procedure SetPixelHLS(x,y : Integer; h,l,s : word);');
        Sender.AddFunction(@GetPixel,'function GetPixel(x,y : Integer) : TFPColor;');
        Sender.AddFunction(@GetPixelHLS,'function GetPixelHLS(x,y : Integer) : THLSColor;');
-       Sender.AddFunction(@RefreshImage,'procedure RefreshImage;');
-       Sender.AddFunction(@LoadImage,'function LoadImage(aFile : PChar) : Boolean;');
+       Sender.AddFunction(@RefreshImageVT,'procedure RefreshImage;');
+       Sender.AddFunction(@LoadImageVT,'function LoadImage(aFile : PChar) : Boolean;');
        Sender.AddFunction(@SaveImage,'function SaveImage(aFile : PChar) : Boolean;');
-       Sender.AddFunction(@CaptureImage,'function CaptureImage(dev: PChar): Boolean;');
+       Sender.AddFunction(@CaptureImageVT,'function CaptureImage(dev: PChar): Boolean;');
        Result := True;
      end;
 end;
