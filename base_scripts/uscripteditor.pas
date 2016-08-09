@@ -29,7 +29,7 @@ uses
   SynEditHighlighter, SynGutterBase, SynEditMarks, SynEditMarkupSpecialLine,
   SynHighlighterSQL, SynHighlighterPython, SynHighlighterCpp,
   SynHighlighterJScript, uprometscripts, LCLIntf, Buttons, StdActns, genscript,
-  uBaseDbClasses, variants, uIntfStrConsts
+  uBaseDbClasses, variants, uIntfStrConsts,genpascalscript
   ;
 
 type
@@ -172,7 +172,6 @@ type
     procedure edSpecialLineColors(Sender: TObject; Line: Integer; var Special: Boolean; var FG, BG: TColor);
     procedure BreakPointMenuClick(Sender: TObject);
     procedure eSearchCEnter(Sender: TObject);
-    procedure eSearchCExit(Sender: TObject);
     procedure Exit1Click(Sender: TObject);
     procedure FDataSetDataSetAfterScroll(DataSet: TDataSet);
     procedure FDataSetDataSetBeforeScroll(DataSet: TDataSet);
@@ -259,8 +258,8 @@ var
 implementation
 
 uses
-  uFrmGotoLine,uData,uBaseApplication,genpascalscript,Utils,uSystemMessage,uStatistic,
-  Clipbrd,uprometpascalscript,uprometpythonscript,uprometcscript;
+  uFrmGotoLine,uData,uBaseApplication,Utils,uSystemMessage,uStatistic,
+  Clipbrd,uprometpascalscript,uprometpythonscript,uprometcscript,uvideofunctions;
 
 {$R *.lfm}
 
@@ -493,12 +492,14 @@ end;
 
 procedure TfScriptEditor.EditCopy1Execute(Sender: TObject);
 begin
-  ed.CopyToClipboard;
+  if ed.Focused then
+    ed.CopyToClipboard;
 end;
 
 procedure TfScriptEditor.EditPaste1Execute(Sender: TObject);
 begin
-  ed.PasteFromClipboard;
+  if ed.Focused then
+    ed.PasteFromClipboard;
 end;
 
 procedure TfScriptEditor.edShowHint(Sender: TObject; HintInfo: PHintInfo);
@@ -836,14 +837,9 @@ end;
 
 procedure TfScriptEditor.eSearchCEnter(Sender: TObject);
 begin
- eSearchC.Clear;
+ if trim(eSearchC.Text)='<'+strSearch+'>' then
+   eSearchC.Clear;
  eSearchC.Font.Color:=clDefault;
-end;
-
-procedure TfScriptEditor.eSearchCExit(Sender: TObject);
-begin
- eSearchC.Text:=strSearch;
- eSearchC.Font.Color:=clSilver;
 end;
 
 procedure TfScriptEditor.Exit1Click(Sender: TObject);
@@ -1288,6 +1284,10 @@ begin
     begin
       aScript.OnIdle:=@aScriptIdle;
       aScript.OnRunLine:=@aScriptRunLine;
+      if aScript is TPascalScript then
+       begin
+         TPascalScript(aScript).OnToolRegistering:=@TPascalScriptToolRegistering;
+       end;
     end;
 end;
 

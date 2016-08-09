@@ -1,11 +1,11 @@
 object fScriptEditor: TfScriptEditor
-  Left = 354
-  Height = 600
-  Top = 180
-  Width = 1039
+  Left = 321
+  Height = 615
+  Top = 213
+  Width = 1093
   Caption = 'Editor'
-  ClientHeight = 580
-  ClientWidth = 1039
+  ClientHeight = 595
+  ClientWidth = 1093
   Color = clBtnFace
   Font.Color = clWindowText
   Font.Height = -14
@@ -18,8 +18,8 @@ object fScriptEditor: TfScriptEditor
   object StatusBar: TStatusBar
     Left = 0
     Height = 23
-    Top = 557
-    Width = 1039
+    Top = 572
+    Width = 1093
     Panels = <    
       item
         Width = 50
@@ -31,19 +31,19 @@ object fScriptEditor: TfScriptEditor
   end
   object pDetail: TPanel
     Left = 285
-    Height = 557
+    Height = 572
     Top = 0
-    Width = 754
+    Width = 808
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 557
-    ClientWidth = 754
+    ClientHeight = 572
+    ClientWidth = 808
     TabOrder = 1
     inline ed: TSynEdit
       Left = 0
-      Height = 437
+      Height = 452
       Top = 32
-      Width = 754
+      Width = 808
       Align = alClient
       Font.Height = -13
       Font.Name = 'Courier New'
@@ -553,26 +553,26 @@ object fScriptEditor: TfScriptEditor
       Cursor = crVSplit
       Left = 0
       Height = 4
-      Top = 469
-      Width = 754
+      Top = 484
+      Width = 808
       Align = alBottom
       ResizeAnchor = akBottom
     end
     object Panel1: TPanel
       Left = 0
       Height = 84
-      Top = 473
-      Width = 754
+      Top = 488
+      Width = 808
       Align = alBottom
       BevelOuter = bvNone
       ClientHeight = 84
-      ClientWidth = 754
+      ClientWidth = 808
       TabOrder = 2
       object gResults: TDBGrid
         Left = 0
         Height = 84
         Top = 0
-        Width = 754
+        Width = 808
         Align = alClient
         Color = clWindow
         Columns = <>
@@ -588,7 +588,7 @@ object fScriptEditor: TfScriptEditor
         Left = 0
         Height = 84
         Top = 0
-        Width = 754
+        Width = 808
         Align = alClient
         Font.Color = clWindowText
         Font.Height = -14
@@ -607,18 +607,18 @@ object fScriptEditor: TfScriptEditor
       Left = 0
       Height = 32
       Top = 0
-      Width = 754
+      Width = 808
       Align = alTop
       BevelOuter = bvNone
       ClientHeight = 32
-      ClientWidth = 754
+      ClientWidth = 808
       Color = clBtnFace
       ParentColor = False
       TabOrder = 3
       object ToolBar1: TToolBar
         Left = 0
         Top = 0
-        Width = 408
+        Width = 462
         Align = alClient
         ButtonHeight = 30
         Caption = 'ToolBar1'
@@ -751,7 +751,7 @@ object fScriptEditor: TfScriptEditor
         end
       end
       object Panel5: TPanel
-        Left = 408
+        Left = 462
         Height = 32
         Top = 0
         Width = 346
@@ -790,7 +790,6 @@ object fScriptEditor: TfScriptEditor
           Anchors = [akTop, akRight]
           Font.Color = clSilver
           OnEnter = eSearchCEnter
-          OnExit = eSearchCExit
           ParentFont = False
           TabStop = False
           TabOrder = 0
@@ -809,18 +808,18 @@ object fScriptEditor: TfScriptEditor
   end
   object pLeft: TPanel
     Left = 0
-    Height = 557
+    Height = 572
     Top = 0
     Width = 280
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 557
+    ClientHeight = 572
     ClientWidth = 280
     TabOrder = 2
     Visible = False
     object DBGrid1: TDBGrid
       Left = 0
-      Height = 557
+      Height = 572
       Top = 0
       Width = 280
       Align = alClient
@@ -851,7 +850,7 @@ object fScriptEditor: TfScriptEditor
   end
   object Splitter2: TSplitter
     Left = 280
-    Height = 557
+    Height = 572
     Top = 0
     Width = 5
   end
