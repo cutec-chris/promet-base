@@ -33,6 +33,14 @@ function LoadImageVT(aFile : PChar) : Boolean;
 
 implementation
 
+uses
+  {$ifdef WINDOWS}
+  ucapture_win
+  {$ELSE}
+  ucapture_unix
+  {$ENDIF}
+  ;
+
 function CaptureImageVT(dev: PChar): Boolean;
 begin
   if not Assigned(fVideoTest) then
@@ -40,14 +48,16 @@ begin
       Application.CreateForm(TfVideoTest,fVideoTest);
     end;
   fVideoTest.Show;
+  Application.ProcessMessages;
   Result := CaptureImage(dev);
-  fVideoTest.Workimage.Picture.Assign(uvideofunctions.FBitmap);
+  if Result then
+    fVideoTest.Workimage.Picture.Bitmap.LoadFromIntfImage(Image);
 end;
 
 procedure RefreshImageVT;
 begin
   RefreshImage;
-  fVideoTest.Workimage.Picture.Assign(uvideofunctions.FBitmap);
+  fVideoTest.Workimage.Picture.Bitmap.LoadFromIntfImage(Image);
 end;
 
 function LoadImageVT(aFile: PChar): Boolean;
@@ -58,8 +68,10 @@ begin
     end;
   fVideoTest.Show;
   Result := LoadImage(aFile);
-  fVideoTest.Workimage.Picture.Assign(uvideofunctions.FBitmap);
+  fVideoTest.Workimage.Picture.Bitmap.LoadFromIntfImage(Image);
 end;
+
+{ TfVideoTest }
 
 initialization
   {$I uVideoTest.lrs}
