@@ -55,12 +55,7 @@ function LoadImageVT(aFile : PChar) : Boolean;
 implementation
 
 uses
-  {$ifdef WINDOWS}
-  ucapture
-  {$ELSE}
-  ucapture_unix
-  {$ENDIF}
-  ;
+  ucapture;
 
 procedure TfVideoTest.DoScalePreview;
 var

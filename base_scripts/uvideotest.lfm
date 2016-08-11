@@ -1,7 +1,7 @@
 object fVideoTest: TfVideoTest
-  Left = 996
+  Left = 995
   Height = 450
-  Top = 247
+  Top = 222
   Width = 581
   Caption = 'Video Test'
   ClientHeight = 450
@@ -9,11 +9,11 @@ object fVideoTest: TfVideoTest
   FormStyle = fsStayOnTop
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '1.4.4.0'
+  LCLVersion = '1.7'
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 23
-    Top = 427
+    Height = 25
+    Top = 425
     Width = 581
     Panels = <    
       item
@@ -47,8 +47,8 @@ object fVideoTest: TfVideoTest
   end
   object ScrollBar1: TScrollBar
     Left = 8
-    Height = 17
-    Top = 408
+    Height = 14
+    Top = 411
     Width = 552
     Anchors = [akLeft, akRight, akBottom]
     PageSize = 0
@@ -56,10 +56,10 @@ object fVideoTest: TfVideoTest
     OnChange = ScrollBar1Change
   end
   object ScrollBar2: TScrollBar
-    Left = 560
+    Left = 563
     Height = 400
     Top = 8
-    Width = 17
+    Width = 14
     Anchors = [akTop, akRight, akBottom]
     Kind = sbVertical
     PageSize = 0

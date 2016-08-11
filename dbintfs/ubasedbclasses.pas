@@ -1449,7 +1449,7 @@ var
           DataNode := Doc.CreateElement('DATA');
           aData.AppendChild(DataNode);
           aDataSet.Open;
-          aDataSet.Refresh;
+          //aDataSet.Refresh;
           aDataSet.First;
           a := 0;
           while not aDataSet.EOF do

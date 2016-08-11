@@ -915,7 +915,7 @@ begin
             Add('DEFPRICE',ftString,2,False);
             Add('LANGUAGE',ftString,3,False);
             Add('CURRENCY',ftString,5,False);
-            Add('EACCOUNT',ftString,20,False);
+            Add('EACCOUNT',ftString,20,False);//Remote Accountno
             Add('PAYMENTTAR',ftString,2,False);
             Add('TYPE',ftString,1,True);
             Add('INFO',ftMemo,0,False);
