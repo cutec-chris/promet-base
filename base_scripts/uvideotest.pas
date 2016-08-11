@@ -35,7 +35,7 @@ implementation
 
 uses
   {$ifdef WINDOWS}
-  ucapture_win
+  ucapture
   {$ELSE}
   ucapture_unix
   {$ENDIF}
