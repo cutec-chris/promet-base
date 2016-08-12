@@ -48,7 +48,7 @@ type
 var
   fVideoTest: TfVideoTest;
 
-function CaptureImageVT(dev: PChar): Boolean;
+function CaptureImageVT(dev: PChar;Width,Height : Integer): Boolean;
 procedure RefreshImageVT;
 function LoadImageVT(aFile : PChar) : Boolean;
 
@@ -72,7 +72,7 @@ begin
   PaintBox1.Invalidate;
 end;
 
-function CaptureImageVT(dev: PChar): Boolean;
+function CaptureImageVT(dev: PChar; Width, Height: Integer): Boolean;
 begin
   if not Assigned(fVideoTest) then
     begin
@@ -80,7 +80,7 @@ begin
     end;
   fVideoTest.Show;
   Application.ProcessMessages;
-  Result := CaptureImage(dev);
+  Result := CaptureImage(dev,Width,Height);
   if Result then
     begin
       fVideoTest.fImage.LoadFromIntfImage(Image);
@@ -165,6 +165,7 @@ var
   l: Byte;
   s: Byte;
 begin
+  if not Assigned(Image) then exit;
   X := X-ScrollBar1.Position;
   Y := Y-ScrollBar2.Position;
   StatusBar1.Panels.Items[0].Text:='X:'+IntToStr(round(X*FScale));
