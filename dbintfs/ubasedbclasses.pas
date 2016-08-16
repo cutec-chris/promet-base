@@ -22,7 +22,7 @@ unit uBaseDbClasses;
 interface
 uses
   Classes, SysUtils, db, Variants, uIntfStrConsts, DOM,
-  Contnrs,uBaseDatasetInterfaces
+  Contnrs,uBaseDatasetInterfaces,fpjson,jsonparser
   ;
 type
   { TBaseDBDataset }
@@ -55,6 +55,10 @@ type
     function GetState: TDataSetState;
     function GetTableName: string;
     function GetTimestamp: TField;
+    procedure DataSetToJSON(ADataSet: TDataSet; AJSON: TJSONArray;
+      const ADateAsString: Boolean; Fields: TStringList);
+    procedure ObjectToJSON(AObject: TBaseDBDataSet; AJSON: TJSONObject;
+      const ADateAsString: Boolean);
     procedure SetActive(AValue: Boolean);
     procedure SetFilter(AValue: string);
     procedure SetFRows(AValue: Integer);
@@ -87,7 +91,9 @@ type
     function GetLink : string;
     procedure FreeBookmark(aRec : Variant);
     function ExportToXML: string;
+    function ExportToJSON: string;
     procedure ImportFromXML(XML : string;OverrideFields : Boolean = False;ReplaceFieldFunc : TReplaceFieldFunc = nil);virtual;
+    procedure ImportFromJSON(JSON : string;OverrideFields : Boolean = False;ReplaceFieldFunc : TReplaceFieldFunc = nil);virtual;
     procedure DuplicateRecord(DoPost : Boolean = False);virtual;
     property Connection : TComponent read GetConnection;
     property State : TDataSetState read GetState;
@@ -507,7 +513,7 @@ type
 var ImportAble : TClassList;
 implementation
 uses uBaseDBInterface, uBaseApplication, uBaseSearch,XMLRead,XMLWrite,Utils,
-  md5,sha1,uData,uthumbnails,base64,uMeasurement;
+  md5,sha1,uData,uthumbnails,base64,uMeasurement,usync;
 resourcestring
   strNumbersetDontExists        = 'Nummernkreis "%s" existiert nicht !';
   strNumbersetEmpty             = 'Nummernkreis "%s" ist leer !';
@@ -1496,6 +1502,65 @@ begin
   Doc.Free;
   Stream.Free;
 end;
+
+procedure TBaseDBDataset.DataSetToJSON(ADataSet: TDataSet; AJSON: TJSONArray;
+  const ADateAsString: Boolean; Fields: TStringList);
+var
+  VJSON: TJSONObject;
+begin
+  ADataSet.First;
+  while not ADataSet.EOF do
+  begin
+    VJSON := TJSONObject.Create;
+    FieldsToJSON(ADataSet.Fields, VJSON, ADateAsString, Fields);
+    AJSON.Add(VJSON);
+    ADataSet.Next;
+  end;
+end;
+procedure TBaseDBDataset.ObjectToJSON(AObject: TBaseDBDataSet; AJSON: TJSONObject;
+  const ADateAsString: Boolean);
+var
+  aArray: TJSONArray;
+  aNewObj, VJSON: TJSONObject;
+  i: Integer;
+begin
+  VJSON := TJSONObject.Create;
+  FieldsToJSON(AObject.DataSet.Fields, VJSON, ADateAsString);
+  AJSON.Add('Fields',VJSON);
+  with AObject.DataSet as IBaseSubDataSets do
+    for i := 0 to GetCount-1 do
+      begin
+        TBaseDBDataSet(SubDataSet[i]).Open;
+        if not TBaseDBDataSet(SubDataSet[i]).EOF then
+          begin
+            TBaseDBDataSet(SubDataSet[i]).First;
+            aArray := TJSONArray.Create;
+            while not TBaseDBDataSet(SubDataSet[i]).EOF do
+              begin
+                aNewObj := TJSONObject.Create;
+                ObjectToJSON(TBaseDBDataSet(SubDataSet[i]),aNewObj,ADateAsString);
+                aArray.Add(aNewObj);
+                TBaseDBDataSet(SubDataSet[i]).Next;
+              end;
+            AJSON.Add(TBaseDBDataSet(SubDataSet[i]).Caption,aArray);
+          end;
+      end;
+end;
+
+function TBaseDBDataset.ExportToJSON: string;
+var
+  aObj: TJSONObject;
+  aData: TJSONData;
+begin
+  aObj := TJSONObject.Create;
+  try
+    ObjectToJSON(Self,aObj,True);
+    Result := aObj.FormatJSON;
+  finally
+    aObj.Free;
+  end;
+end;
+
 procedure TBaseDBDataset.ImportFromXML(XML: string;OverrideFields : Boolean = False;ReplaceFieldFunc : TReplaceFieldFunc = nil);
 var
   Doc : TXMLDocument;
@@ -1610,6 +1675,12 @@ begin
         end;
   Stream.Free;
   Doc.Free;
+end;
+
+procedure TBaseDBDataset.ImportFromJSON(JSON: string; OverrideFields: Boolean;
+  ReplaceFieldFunc: TReplaceFieldFunc);
+begin
+
 end;
 
 procedure TBaseDbList.OpenItem(AccHistory : Boolean = True);
