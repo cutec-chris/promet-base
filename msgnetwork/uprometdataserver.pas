@@ -28,9 +28,6 @@ uses
   fpsqlscanner, fpsqltree,httpsend,OpenSSL, jsonparser, db, uappserverhttp,
   uAppServer;
 
-procedure DataSetToJSON(ADataSet: TDataSet; AJSON: TJSONArray; const ADateAsString: Boolean; Fields: TSQLElementList = nil);
-procedure ObjectToJSON(AObject : TBaseDBDataSet; AJSON: TJSONObject;const ADateAsString: Boolean);
-
 implementation
 
 uses usync,uBaseDatasetInterfaces,uData;
@@ -88,7 +85,6 @@ begin
             Headers.Clear;
             Headers.Add('ContentType: text/javascript;charset=utf-8');
             Headers.Add('Access-Control-Allow-Origin: *');
-            DataSetToJSON(aClass.DataSet,Json,True,TSQLSelectStatement(aStmt).Fields);
             aClass.Free;
           end;
       except
@@ -118,40 +114,6 @@ begin
       url := copy(url,18,length(url));
     end
   ;
-end;
-
-procedure DataSetToJSON(ADataSet: TDataSet; AJSON: TJSONArray;
-  const ADateAsString: Boolean; Fields: TSQLElementList);
-var
-  VJSON: TJSONObject;
-begin
-  ADataSet.First;
-  while not ADataSet.EOF do
-  begin
-    VJSON := TJSONObject.Create;
-    FieldsToJSON(ADataSet.Fields, VJSON, ADateAsString, Fields);
-    AJSON.Add(VJSON);
-    ADataSet.Next;
-  end;
-end;
-
-procedure ObjectToJSON(AObject: TBaseDBDataSet; AJSON: TJSONObject;
-  const ADateAsString: Boolean);
-var
-  aArray: TJSONArray;
-  aNewObj: TJSONObject;
-  i: Integer;
-begin
-  aArray := TJSONArray.Create;
-  DataSetToJSON(AObject.DataSet,aArray,ADateAsString);
-  AJSON.Add('Fields',aArray);
-  with AObject as IBaseSubDataSets do
-    for i := 0 to GetCount-1 do
-      begin
-        aNewObj := TJSONObject.Create;
-        ObjectToJSON(TBaseDBDataSet(SubDataSet[i]),aNewObj,ADateAsString);
-        AJSON.Add(TBaseDBDataSet(SubDataSet[i]).Caption,aNewObj);
-      end;
 end;
 
 initialization
