@@ -68,7 +68,7 @@ type
   TSyncStamps = class(TBaseDbDataSet)
     procedure DefineFields(aDataSet: TDataSet); override;
   end;
-procedure FieldsToJSON(AFields: TFields; AJSON: TJSONObject; const ADateAsString: Boolean; bFields: TSQLElementList = nil);
+procedure FieldsToJSON(AFields: TFields; AJSON: TJSONObject; const ADateAsString: Boolean; bFields: TStringList = nil);
 function JSONToFields(AJSON: TJSONObject; AFields: TFields; const ADateAsString: Boolean; const AddFields: Boolean = True) : Boolean;
 resourcestring
   strSynchedOut                                      = 'Synchronisation ausgehend %s';
@@ -77,7 +77,7 @@ resourcestring
 implementation
 uses Variants;
 procedure FieldsToJSON(AFields: TFields; AJSON: TJSONObject;
-  const ADateAsString: Boolean; bFields: TSQLElementList);
+  const ADateAsString: Boolean; bFields: TStringList);
 var
   I: Integer;
   VField: TField;
@@ -96,26 +96,10 @@ var
       end;
     if Assigned(bFields) then
       begin
-        for a := 0 to bFields.Count-1 do
-          begin
-            aF := bFields[a];
-            if af is TSQLSelectAsterisk then
-              begin
-                aFName:='*';
-                Result := True;
-                exit;
-              end
-            else if af is TSQLSelectField then
-              aFName := aF.GetAsSQL([],0);
-            if (UpperCase(aName) = Uppercase(aFName))
-            then
-              begin
-                if aName <> '*' then
-                  VFieldName:=aFName;
-                Result := True;
-                exit;
-              end;
-          end;
+        if bFields.IndexOf('*')>-1 then
+          Result := True
+        else if bFields.IndexOf(aName)>-1 then
+          Result:=True;
       end
     else
       begin
@@ -143,8 +127,10 @@ begin
           end
         else if VField.DataType = ftFloat then
           AJSON.Add(lowercase(VFieldName), VField.AsFloat)
-        else if (VField.DataType = ftInteger) or (VField.DataType = ftLargeint) then
+        else if (VField.DataType = ftInteger) then
           AJSON.Add(lowercase(VFieldName), VField.AsInteger)
+        else if (VField.DataType = ftLargeint) then
+          AJSON.Add(lowercase(VFieldName), VField.AsLargeInt)
         else
           AJSON.Add(lowercase(VFieldName), SysToUni(VField.AsString))
       end;
