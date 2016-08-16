@@ -290,7 +290,7 @@ begin
   if Assigned(tvStep.Selected) then
     begin
       TreeData := TProdTreeData(tvStep.Selected.Data);
-      if not acExecuteStep.Checked then
+      if acExecuteStep.Caption=strRun then
         begin
           Application.ProcessMessages;
           acExecuteStep.Checked:=True;
