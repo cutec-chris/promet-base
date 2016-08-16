@@ -1296,6 +1296,8 @@ begin
        Sender.AddFunction(@RefreshImageVT,'procedure RefreshImage;');
        Sender.AddFunction(@LoadImageVT,'function LoadImage(aFile : PChar) : Boolean;');
        Sender.AddFunction(@SaveImage,'function SaveImage(aFile : PChar) : Boolean;');
+       Sender.AddFunction(@ReloadWorkImage,'function ReloadWorkImage(aFile : PChar) : Boolean;');
+       Sender.AddFunction(@SaveWorkImage,'function SaveWorkImage(aFile : PChar) : Boolean;');
        Sender.AddFunction(@CaptureImageVT,'function CaptureImage(dev: PChar;Width,Height : Integer): Boolean;');
        Result := True;
      end;
