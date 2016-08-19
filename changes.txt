@@ -1,4 +1,6 @@
-﻿Build 430
+﻿Build 431
+      - Scripte:dxfwrite Plugin um dxf Dateien per Script zu erzeugen
+Build 430
       - Statistik:QueryBuilder implementiert um SQL zu generieren
       - Avad: separater Dialog zum Produktionsauftrag erstellen
       - Avad: nur Atikel mit Stücklisten werden angezeigt

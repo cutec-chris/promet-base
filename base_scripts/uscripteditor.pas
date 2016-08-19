@@ -1369,5 +1369,6 @@ end;
 initialization
   RegisterPropertyToSkip(TSynEdit, 'MouseTextActions', 'Not available in Laz 1.0', '');
   RegisterPropertyToSkip(TSynEdit, 'VisibleSpecialChars', 'Not available in Laz 1.0', '');
+  DoInputBox:=@InputBox;
 end.
 

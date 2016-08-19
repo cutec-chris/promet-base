@@ -1292,5 +1292,6 @@ initialization
   {$I fautomationform.lrs}
   genscript.DoClearScreen:=@InternalClearScreen;
   genscript.DoBringToFront:=@InternalBringToFront;
+  DoInputBox:=@InputBox;
 end.
 
