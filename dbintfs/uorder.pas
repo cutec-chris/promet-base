@@ -1607,9 +1607,33 @@ end;
 function TOrder.Duplicate: Boolean;
 var
   Copied: String;
+  OldRec: LargeInt;
 begin
+  OldRec := GetBookmark;
+  with DataSet as IBaseDBFilter do
+    Filter := Data.QuoteField('ORDERNO')+'='+Data.QuoteValue(DataSet.FieldByName('ORDERNO').AsString);
+  DataSet.Open;
   Copied := ExportToXML;
-  ImportFromXML(Copied,True,@ReplaceParentFields);
+  Select(DataSet.FieldByName('ORDERNO').AsString);
+  Open;
+  if not GotoBookmark(OldRec) then
+    begin
+      raise Exception.Create('OldRec not found');
+      exit;
+    end;
+  Positions.DisableCalculation;
+  with DataSet do
+    begin
+      Append;
+      FieldByName('DOAFQ').Clear;
+      FieldByName('DWISH').Clear;
+      FieldByName('VATH').Clear;
+      FieldByName('VATF').Clear;
+      FieldByName('NETPRICE').Clear;
+      FieldByName('DISCOUNT').Clear;
+      FieldByName('GROSSPRICE').Clear;
+    end;
+  ImportFromXML(Copied,False,@ReplaceParentFields);
   with DataSet do
     begin
       Edit;
@@ -1618,6 +1642,7 @@ begin
       FieldByName('ODATE').Clear;
       Post;
     end;
+  Positions.EnableCalculation;
 end;
 
 function TOrderPos.GetAccountNo: string;
