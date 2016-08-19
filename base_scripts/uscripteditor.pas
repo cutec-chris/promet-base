@@ -217,6 +217,7 @@ type
     FBreakPoints : TList;
     Fscript : TScript;
     procedure InitEvents;
+    procedure SetScript(AValue: TScript);
     procedure UpdateStatus;
     procedure ButtonStatus(Status : TScriptStatus);
     function Compile: Boolean;
@@ -244,6 +245,7 @@ type
     function SaveCheck: Boolean;
     function Execute(aScript: string;aVersion:Variant; aConnection: TComponent = nil;DefScript : string=''): Boolean;
     property OnOpenUnit : TOpenUnitEvent read FOpenUnit write FOpenUnit;
+    property Script : TScript read FScript write SetScript;
   end;
   TMessageObject = class
   public
@@ -528,9 +530,9 @@ begin
         exit;
       end;
   try
-    if Assigned(Fscript) then
+    if Assigned(Script) then
       begin
-        aCont := FScript.GetVarContents(aWord);
+        aCont := Script.GetVarContents(aWord);
         if aCont<>'' then
           begin
             HintInfo^.HintStr:=aWord+':'+aCont;
@@ -555,8 +557,8 @@ begin
   if FResume then
     begin
       FResume := False;
-      if Assigned(FScript) then
-        FScript.Resume;
+      if Assigned(Script) then
+        Script.Resume;
       FActiveLine := 0;
       Linemark.Visible:=False;
       ed.Refresh;
@@ -571,7 +573,7 @@ begin
  if Module='' then Module:=ActiveFile;
  try
    if Assigned(Data) and (not FDataSet.Active) then exit;
-   if (Module=ActiveFile) and ((FScript.Status<>ssRunning) or HasBreakPoint(Module, Row)) then
+   if (Module=ActiveFile) and ((Script.Status<>ssRunning) or HasBreakPoint(Module, Row)) then
      begin
        Linemark.Visible:=True;
        Linemark.Line:=Row;
@@ -582,9 +584,9 @@ begin
        if HasBreakPoint(Module, Row) then
          begin
            Linemark.ImageIndex:=9;
-           if Assigned(FScript) then
-             if not FScript.Pause then
-               FScript.Stop;
+           if Assigned(Script) then
+             if not Script.Pause then
+               Script.Stop;
            Linemark.Visible:=False;
          end
        else Linemark.ImageIndex:=8;
@@ -597,7 +599,7 @@ begin
        ed.CaretY := FActiveLine;
        ed.CaretX := 1;
        ed.Refresh;
-       ButtonStatus(FScript.Status);
+       ButtonStatus(Script.Status);
        Application.ProcessMessages;
      end
    else
@@ -669,8 +671,8 @@ end;
 
 procedure TfScriptEditor.aButtonClick(Sender: TObject);
 begin
-  if (FDataSet is TBaseScript) and (FScript is TPascalScript) then
-    TPascalScript(FScript).OpenTool(TToolButton(Sender).Caption);
+  if (FDataSet is TBaseScript) and (Script is TPascalScript) then
+    TPascalScript(Script).OpenTool(TToolButton(Sender).Caption);
 end;
 
 procedure TfScriptEditor.acLogoutExecute(Sender: TObject);
@@ -687,15 +689,15 @@ end;
 
 procedure TfScriptEditor.acPauseExecute(Sender: TObject);
 begin
-  if Assigned(Fscript) then
-    if Fscript.Pause then
+  if Assigned(script) then
+    if script.Pause then
       ButtonStatus(ssPaused);
 end;
 
 procedure TfScriptEditor.acResetExecute(Sender: TObject);
 begin
-  if Assigned(FScript) then
-    if FScript.Stop then
+  if Assigned(Script) then
+    if Script.Stop then
       begin
         DoCleanUp;
         ButtonStatus(ssNone);
@@ -712,10 +714,10 @@ begin
   Linemark.Visible:=False;
   Linemark.Line:=0;
   Application.Processmessages;
-  if Assigned(Fscript) and (Fscript.Status<>ssNone) then
+  if Assigned(Script) and (Script.Status<>ssNone) then
     begin
       FActiveLine := 0;
-      Fscript.Resume;
+      Script.Resume;
       ButtonStatus(ssRunning);
     end
   else
@@ -746,17 +748,17 @@ begin
         begin
           TBaseScript(FDataSet).writeln := @FDataSetWriteln;
           TBaseScript(FDataSet).debugln := @FDataSetWriteln;
-          FScript := TBaseScript(FDataSet).Script;
-          if Assigned(Fscript) then
+          Script := TBaseScript(FDataSet).Script;
+          if Assigned(Script) then
             begin
-              Fscript.OnRunLine:=@aScriptRunLine;
-              Fscript.OnIdle:=@aScriptIdle;
-              Fscript.OnCompileMessage:=@FscriptCompileMessage;
+              Script.OnRunLine:=@aScriptRunLine;
+              Script.OnIdle:=@aScriptIdle;
+              Script.OnCompileMessage:=@FscriptCompileMessage;
             end;
           acSave.Execute;
           ButtonStatus(ssRunning);
-          if Fscript is TByteCodeScript then
-            TByteCodeScript(Fscript).ByteCode:='';
+          if Script is TByteCodeScript then
+            TByteCodeScript(Script).ByteCode:='';
           if eRunFunction.Text<>'' then
             TBaseScript(FDataSet).Script.RunScriptFunction([],eRunFunction.Text)
           else if not TBaseScript(FDataSet).Execute(Null,True) then
@@ -797,14 +799,14 @@ end;
 
 procedure TfScriptEditor.acStepintoExecute(Sender: TObject);
 begin
-  if Assigned(FScript) then
-    FScript.StepInto;
+  if Assigned(Script) then
+    Script.StepInto;
 end;
 
 procedure TfScriptEditor.acStepoverExecute(Sender: TObject);
 begin
-  if Assigned(FScript) then
-    FScript.StepOver;
+  if Assigned(Script) then
+    Script.StepOver;
 end;
 
 procedure TfScriptEditor.BreakPointMenuClick(Sender: TObject);
@@ -897,6 +899,7 @@ procedure TfScriptEditor.FDataSetDataSetAfterScroll(DataSet: TDataSet);
 begin
  try
    TBaseScript(FDataSet).ResetScript;
+   Fscript:=nil;
    ed.Lines.Text:=FDataSet.FieldByName('SCRIPT').AsString;
    ActiveFile := FDataSet.FieldByName('NAME').AsString;
    ed.FoldState := FDataSet.FieldByName('FOLDSTATE').AsString;
@@ -998,7 +1001,7 @@ begin
         end
       else
         FDataSetDataSetAfterScroll(FDataSet.DataSet);
-      FScript := TBaseScript(FDataSet).Script;
+      Script := TBaseScript(FDataSet).Script;
     end
   else //File Handling
     begin
@@ -1281,33 +1284,34 @@ end;
 function TfScriptEditor.TPascalScriptUses(Sender: TPascalScript;
   const aName: String; OnlyAdditional: Boolean): Boolean;
 begin
-   if lowercase(aName) = 'video' then
-     begin
-       Sender.Compiler.AddTypeS('TFPColor','record red : word;green : word;blue : word;alpha : word; end;');
-       Sender.Compiler.AddTypeS('THLSColor','record h : word;l : word;s : word;end;');
-       Sender.AddFunction(@CopyToWorkArea,'procedure CopyToWorkArea(x,y,width,height : Integer);');
-       Sender.AddFunction(@ScaleImage,'procedure ScaleImage(NewWidth : Integer;NewHeight : Integer);');
-       Sender.AddFunction(@ImageWidth,'function ImageWidth : Integer;');
-       Sender.AddFunction(@ImageHeight,'function ImageHeight : Integer;');
-       Sender.AddFunction(@SetPixel,'procedure SetPixel(x,y : Integer; r,g,b : word);');
-       Sender.AddFunction(@SetPixelHLS,'procedure SetPixelHLS(x,y : Integer; h,l,s : word);');
-       Sender.AddFunction(@GetPixel,'function GetPixel(x,y : Integer) : TFPColor;');
-       Sender.AddFunction(@GetPixelHLS,'function GetPixelHLS(x,y : Integer) : THLSColor;');
-       Sender.AddFunction(@RefreshImageVT,'procedure RefreshImage;');
-       Sender.AddFunction(@LoadImageVT,'function LoadImage(aFile : PChar) : Boolean;');
-       Sender.AddFunction(@SaveImage,'function SaveImage(aFile : PChar) : Boolean;');
-       Sender.AddFunction(@ReloadWorkImage,'function ReloadWorkImage(aFile : PChar) : Boolean;');
-       Sender.AddFunction(@SaveWorkImage,'function SaveWorkImage(aFile : PChar) : Boolean;');
-       Sender.AddFunction(@CaptureImageVT,'function CaptureImage(dev: PChar;Width,Height : Integer): Boolean;');
-       Result := True;
-     end;
+  Result:=False;
+  if lowercase(aName) = 'video' then
+    begin
+      Sender.Compiler.AddTypeS('TFPColor','record red : word;green : word;blue : word;alpha : word; end;');
+      Sender.Compiler.AddTypeS('THLSColor','record h : word;l : word;s : word;end;');
+      Sender.AddFunction(@CopyToWorkArea,'procedure CopyToWorkArea(x,y,width,height : Integer);');
+      Sender.AddFunction(@ScaleImage,'procedure ScaleImage(NewWidth : Integer;NewHeight : Integer);');
+      Sender.AddFunction(@ImageWidth,'function ImageWidth : Integer;');
+      Sender.AddFunction(@ImageHeight,'function ImageHeight : Integer;');
+      Sender.AddFunction(@SetPixel,'procedure SetPixel(x,y : Integer; r,g,b : word);');
+      Sender.AddFunction(@SetPixelHLS,'procedure SetPixelHLS(x,y : Integer; h,l,s : word);');
+      Sender.AddFunction(@GetPixel,'function GetPixel(x,y : Integer) : TFPColor;');
+      Sender.AddFunction(@GetPixelHLS,'function GetPixelHLS(x,y : Integer) : THLSColor;');
+      Sender.AddFunction(@RefreshImageVT,'procedure RefreshImage;');
+      Sender.AddFunction(@LoadImageVT,'function LoadImage(aFile : PChar) : Boolean;');
+      Sender.AddFunction(@SaveImage,'function SaveImage(aFile : PChar) : Boolean;');
+      Sender.AddFunction(@ReloadWorkImage,'function ReloadWorkImage(aFile : PChar) : Boolean;');
+      Sender.AddFunction(@SaveWorkImage,'function SaveWorkImage(aFile : PChar) : Boolean;');
+      Sender.AddFunction(@CaptureImageVT,'function CaptureImage(dev: PChar;Width,Height : Integer): Boolean;');
+      Result := True;
+    end;
 end;
 
 procedure TfScriptEditor.InitEvents;
 var
   aScript: TScript;
 begin
-  aScript := FScript;
+  aScript := Script;
   if Assigned(aScript) then
     begin
       aScript.OnIdle:=@aScriptIdle;
@@ -1318,6 +1322,12 @@ begin
          TPascalScript(aScript).OnUses:=@TPascalScriptUses;
        end;
     end;
+end;
+
+procedure TfScriptEditor.SetScript(AValue: TScript);
+begin
+  if FScript=AValue then Exit;
+  FScript:=AValue;
 end;
 
 procedure TfScriptEditor.UpdateStatus;
