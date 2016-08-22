@@ -4,9 +4,9 @@ TFARTICLEFRAME.EMATCHCODE.HINT=Hier können Sie einen Suchbegriff angeben,
 um den Eintrag besser zu finden
 TFARTICLEFRAME.GBTREE.CAPTION=Baum
 TFARTICLEFRAME.MSHORTTEXT.HINT=Der Kurztext des Eintrags
+TFARTICLEFRAME.LSHORTTEXT.CAPTION=Kurztext
 TFARTICLEFRAME.CBLANGUAGE.HINT=wählt den Eintrag in einer anderen Sprache aus
 oder erstellt eine neue Sprache für den Eintrag
-TFARTICLEFRAME.LSHORTTEXT.CAPTION=Kurztext
 TFARTICLEFRAME.TSCOMMON.CAPTION=Allgemein
 TFARTICLEFRAME.CBUSESERIAL.HINT=Bei allen Buchungen werden 
 Serienummern abgefragt

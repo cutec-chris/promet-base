@@ -94,7 +94,7 @@ begin
       if protocol <> '' then
       begin
         headers.Add('Content-length: ' + IntTostr(OutputData.Size));
-        headers.Add('Connection: close');
+//        headers.Add('Connection: close');
         headers.Add('Date: ' + Rfc822DateTime(now));
         headers.Add('Server: Avamm Internal Network');
         headers.Add('');

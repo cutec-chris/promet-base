@@ -77,6 +77,7 @@ type
     FLastStmt: string;
     FLastTime: Int64;
     Fmandant: string;
+    FProperies: string;
     FSessionID: LargeInt;
     FTables: TStrings;
     FTriggers: TStrings;
@@ -202,6 +203,7 @@ type
     property OnConnect : TNotifyEvent read FConnect write FConnect;
     property OnDisconnectKeepAlive : TNotifyEvent read FKeepAlive write FKeepAlive;
     property CriticalSection : TCriticalSection read FCS;
+    property Properties : string read FProperies;
   end;
   TBaseDBModuleClass = class of TBaseDBModule;
   IBaseDBInterface = interface['{A2AB4BAB-38DF-4D4E-BCE5-B7D57E115ED5}']
@@ -439,6 +441,7 @@ end;
 function TBaseDBModule.SetProperties(aProp: string; Connection: TComponent
   ): Boolean;
 begin
+  FProperies := aProp;
   FTables.Clear;
   if not Assigned(Users) then
     begin
@@ -468,6 +471,7 @@ begin
 end;
 function TBaseDBModule.CreateDBFromProperties(aProp: string): Boolean;
 begin
+  FProperies := aProp;
   Result := False;
 end;
 
@@ -826,7 +830,7 @@ begin
   Result := '';
   with BaseApplication as IBaseDbInterface do
     begin
-      if not Data.IsSQLDb then exit;
+      if not IsSQLDb then exit;
       if rpos('{',aLink) > 0 then
         aLink := copy(aLink,0,rpos('{',aLink)-1)
       else if rpos('(',aLink) > 0 then
