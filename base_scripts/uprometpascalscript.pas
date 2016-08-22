@@ -189,6 +189,8 @@ begin
             RegisterMethod('procedure Post;');
             RegisterMethod('procedure Edit;');
             RegisterMethod('procedure Cancel;');
+            RegisterMethod('function GetBookmark: Variant;');
+            RegisterMethod('function GotoBookmark(aRec : Variant) : Boolean;');
             RegisterMethod('function Locate(const keyfields: string; const keyvalues: Variant; options: TLocateOptions) : boolean;');
             RegisterMethod('function EOF : Boolean;');
             RegisterMethod('function FieldByName(const aFieldName : string) : TField;');
@@ -220,6 +222,8 @@ begin
             RegisterVirtualMethod(@TBaseDBDataset.FieldByName, 'FIELDBYNAME');
             RegisterVirtualMethod(@TBaseDBDataset.Filter, 'FILTER');
             RegisterVirtualMethod(@TBaseDBDataset.Select, 'SELECT');
+            RegisterVirtualMethod(@TBaseDBDataset.GetBookmark, 'GETBOOKMARK');
+            RegisterVirtualMethod(@TBaseDBDataset.GotoBookmark, 'GOTOBOOKMARK');
             RegisterPropertyHelper(@TBaseDBDatasetPropertyDataSetR,nil,'DATASET');
             RegisterPropertyHelper(@TBaseDBDatasetPropertyCountR,nil,'COUNT');
             RegisterPropertyHelper(@TBaseDBDatasetPropertyCanEditR,nil,'CANEDIT');

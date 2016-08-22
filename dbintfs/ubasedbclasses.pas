@@ -86,7 +86,7 @@ type
     property TimeStamp : TField read GetTimestamp;
     property Count : Integer read GetCount;
     property FullCount : Integer read GetFullCount;
-    function GetBookmark: LargeInt;
+    function GetBookmark: variant;
     function GotoBookmark(aRec : Variant) : Boolean;
     function GetLink : string;
     procedure FreeBookmark(aRec : Variant);
@@ -3591,7 +3591,7 @@ begin
   SetDisplayLabelName(aDataSet,'NEEDSACTION',strNeedsAction);
   SetDisplayLabelName(aDataSet,'COSTCENTRE',strCostcentre);
 end;
-function TBaseDBDataset.GetBookmark: LargeInt;
+function TBaseDBDataset.GetBookmark: variant;
 begin
   if (not Assigned(Id)) or Id.IsNull then
     Result := 0
