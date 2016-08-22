@@ -470,8 +470,9 @@ begin
                 TZeosDBDM(Owner).OnDisconnectKeepAlive(TZeosDBDM(Owner));
             end;
           try
-            if TZeosDBDM(Owner).Ping(Connection) then aConnThere := True
-            else sleep(200);
+            if TZeosDBDM(Owner).Ping(Connection) then
+              aConnThere := True;
+            sleep(2000);
           except
             sleep(200);
           end;
@@ -712,7 +713,6 @@ begin
       except
         on e : Exception do
           begin
-            InternalClose;
             if (TZeosDBDM(Owner).CheckedTables.IndexOf(Self.GetTableName)>-1) and TZeosDBDM(Owner).Ping(Connection) then
               begin
                 TZeosDBDM(Owner).CheckedTables.Delete(TZeosDBDM(Owner).CheckedTables.IndexOf(Self.GetTableName));

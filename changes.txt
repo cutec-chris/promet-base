@@ -1,5 +1,5 @@
 ﻿Build 432
-      -
+      - Verbindung:automatischer reconnect bei ausgefallener Datenbankverbindung funktioniert nun
 Build 431
       - Scripte:dxfwrite Plugin um dxf Dateien per Script zu erzeugen
       - Auftrag:duplizieren funktioniert nun und ist auch immer aktiv (war vorher bei nicht gebuchten Aufträgen nicht aktiv)
