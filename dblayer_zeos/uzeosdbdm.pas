@@ -24,7 +24,7 @@ uses
   Classes, SysUtils, db, ZConnection, ZSqlMetadata,
   ZAbstractRODataset, ZDataset, ZSequence,ZAbstractConnection,
   uModifiedDS,ZSqlMonitor,Utils,uBaseDatasetInterfaces,syncobjs,
-  uBaseDBInterface,uBaseDbClasses,ZCompatibility,dateutils;
+  uBaseDBInterface,uBaseDbClasses,ZCompatibility,dateutils,pingsend;
 type
   TUnprotectedDataSet = class(TDataSet);
 
@@ -713,11 +713,12 @@ begin
         on e : Exception do
           begin
             InternalClose;
-            if TZeosDBDM(Owner).CheckedTables.IndexOf(Self.GetTableName)>-1 then
+            if (TZeosDBDM(Owner).CheckedTables.IndexOf(Self.GetTableName)>-1) and TZeosDBDM(Owner).Ping(Connection) then
               begin
-                TZeosDBDM(Owner).CheckedTables.Delete(TZeosDBDM(Owner).Tables.IndexOf(GetTableName));
-                CreateTable;
+                TZeosDBDM(Owner).CheckedTables.Delete(TZeosDBDM(Owner).CheckedTables.IndexOf(Self.GetTableName));
                 try
+                  if TZeosDBDM(Owner).Ping(Connection) then
+                    CreateTable;
                   inherited InternalOpen;
                 except
                   if TZeosDBDM(Owner).Ping(Connection) then
@@ -1782,11 +1783,10 @@ var
   atime: Integer;
 begin
   Result := True;
-  exit;
   try
     Result := TZConnection(aConnection).Ping;
   except
-    Result := False;
+    Result := PingHost(TZConnection(aConnection).HostName)>-1;//Unsupported
   end;
 end;
 function TZeosDBDM.DateToFilter(aValue: TDateTime): string;
