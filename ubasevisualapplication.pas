@@ -480,6 +480,7 @@ begin
         end;
       except
         DeleteFile(Properties.FileName);
+        Properties.Restore;
       end;
     end;
 end;
