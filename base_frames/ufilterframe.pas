@@ -1273,7 +1273,8 @@ begin
         then if TWinControl(aControl.Components[i]).CanFocus then
           begin
             TWinControl(aControl.Components[i]).SetFocus;
-            TCustomEdit(aControl.Components[i]).SelectAll;
+            if aControl is TCustomEdit then
+              TCustomEdit(aControl.Components[i]).SelectAll;
             exit;
           end;
     end

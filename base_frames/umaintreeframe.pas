@@ -44,6 +44,8 @@ type
                  etAttPlan,
                etMessages,etMessageDir,etMessageBoard,
                etTimeRegistering,
+                 etTimeregisteringSmall,
+                 etTimeRegistration,
                etOrders,
                  etOrderList,
                  etNewOrder,
@@ -1044,10 +1046,13 @@ begin
       aImageIndex := IMAGE_STATISTICS;
       aImageList := fVisualControls.ImageListBig;
     end;
-  etTimeRegistering:
+  etTimeRegistering,etTimeregisteringSmall:
     begin
-      aImageIndex := IMAGE_TIME;
-      aImageList := fVisualControls.ImageListBig;
+      if Node.Height>20 then
+        begin
+          aImageIndex := IMAGE_TIME;
+          aImageList := fVisualControls.ImageListBig;
+        end;
     end;
   etProjects:
     begin
@@ -1102,6 +1107,8 @@ begin
     etMeetings:aImageIndex := 31;
     etTaskPlan,etAttPlan:aImageIndex:=4;
     etClipboardItem:aImageIndex:=111;
+    etTimeRegistration:aImageIndex:=24;
+    etTimeRegistering,etTimeregisteringSmall:aImageIndex:=6;
     end;
   if (aImageIndex <> -1) and (not Assigned(aImageList)) then
     aImageList := fVisualControls.Images;
@@ -2223,7 +2230,8 @@ begin
     etCustomers:Celltext := strCustomers;
     etCustomerList:Celltext := strCustomerList;
     etMasterdata:Celltext := strMasterdata;
-    etTimeRegistering:Celltext := strTimetools;
+    etTimeRegistering,etTimeregisteringSmall:Celltext := strTimetools;
+    etTimeRegistration:CellText:=strTimeRegistration;
     etOrders:Celltext := strOrders;
     etProduction:Celltext := strProduction;
     etProductionList:Celltext := strProductionOrders;

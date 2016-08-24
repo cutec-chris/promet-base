@@ -50,6 +50,7 @@ resourcestring
   strDueDateDeleted             = 'Zieldatum entfernt';
   strCantAccessFile             = 'Auf die Datei "%s" kann nicht zugegriffen werden,'+lineending+'kopieren Sie diese Datei ggf erst auf Ihren Computer oder mounten Sie die Quelle';
   strTimetools                  = 'Zeiterfassung';
+  strTimeregistration           = 'Zeitaufschreibung';
   strCosts                      = 'Kosten';
   strTargetCosts                = 'Zielkosten';
   strFullPercent                = 'Auslastung:%d%%';

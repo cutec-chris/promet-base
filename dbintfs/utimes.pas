@@ -42,16 +42,24 @@ procedure TTimes.FDSDataChange(Sender: TObject; Field: TField);
 var
   aProject: TProject;
 begin
-  if Assigned(Field) and (Field.FieldName='PROJECT') then
+  if Assigned(Field) then
     begin
-      aProject := TProject.Create(nil);
-      aProject.SelectFromLink(Field.AsString);
-      aProject.Open;
-      if aProject.Count>0 then
-        DataSet.FieldByName('PROJECTID').AsVariant:=aProject.Id.AsVariant
-      else
-        DataSet.FieldByName('PROJECTID').Clear;
-      aProject.Free;
+      if (Field.FieldName='PROJECT') then
+        begin
+          aProject := TProject.Create(nil);
+          aProject.SelectFromLink(Field.AsString);
+          aProject.Open;
+          if aProject.Count>0 then
+            DataSet.FieldByName('PROJECTID').AsVariant:=aProject.Id.AsVariant
+          else
+            DataSet.FieldByName('PROJECTID').Clear;
+          aProject.Free;
+        end
+      else if (Field.FieldName='END') then
+        begin
+          if DataSet.FieldByName('END').AsFloat-DataSet.FieldByName('START').AsFloat>0 then
+            DataSet.FieldByName('DURATION').AsFloat:=DataSet.FieldByName('END').AsFloat-DataSet.FieldByName('START').AsFloat;
+        end;
     end;
 end;
 
@@ -87,6 +95,7 @@ begin
           begin
             Add('START',ftDateTime,0,True);
             Add('END',ftDateTime,0,False);
+            Add('DURATION',ftFloat,0,False);
             Add('LINK',ftString,400,False);
             Add('PROJECT',ftString,260,False);
             Add('PROJECTID',ftLargeint,0,False);
