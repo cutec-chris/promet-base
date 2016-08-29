@@ -18,25 +18,44 @@
 *******************************************************************************}
 unit uTimes;
 {$mode objfpc}
+{$H+}
 interface
 uses
   Classes, SysUtils, uBaseDBClasses, db, uBaseDBInterface,uBaseDatasetInterfaces;
 type
+
+  { TTimes }
+
   TTimes = class(TBaseDBDataSet)
+    procedure aFieldGetText(Sender: TField; var aText: string;
+      DisplayText: Boolean);
+    procedure aFieldSetText(Sender: TField; const aText: string);
     procedure FDSDataChange(Sender: TObject; Field: TField);
   private
     FDS: TDataSource;
   public
     constructor CreateEx(aOwner : TComponent;DM : TComponent=nil;aConnection : TComponent = nil;aMasterdata : TDataSet = nil);override;
     destructor Destroy; override;
+    procedure Open; override;
     procedure DefineFields(aDataSet : TDataSet);override;
     procedure FillDefaults(aDataSet : TDataSet);override;
     procedure SetDisplayLabels(aDataSet : TDataSet);override;
   end;
 implementation
-uses uProjects;
+uses uProjects,utask;
 resourcestring
   strEntry                              = 'Eintrag';
+
+procedure TTimes.aFieldGetText(Sender: TField; var aText: string;
+  DisplayText: Boolean);
+begin
+  aText := DayTimeToStr(Sender.AsFloat);
+end;
+
+procedure TTimes.aFieldSetText(Sender: TField; const aText: string);
+begin
+  Sender.AsFloat:=StrToDayTime(aText);
+end;
 
 procedure TTimes.FDSDataChange(Sender: TObject; Field: TField);
 var
@@ -83,6 +102,19 @@ destructor TTimes.Destroy;
 begin
   FDS.Free;
   inherited Destroy;
+end;
+
+procedure TTimes.Open;
+var
+  aField: TDateTimeField;
+begin
+  inherited Open;
+  if Assigned(FieldByName('DURATION')) then
+    begin
+      aField := TDateTimeField(FieldByName('DURATION'));
+      aField.OnGetText:=@aFieldGetText;
+      aField.OnSetText:=@aFieldSetText;
+    end;
 end;
 
 procedure TTimes.DefineFields(aDataSet: TDataSet);
