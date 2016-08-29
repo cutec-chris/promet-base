@@ -30,6 +30,7 @@ type
     procedure aFieldGetText(Sender: TField; var aText: string;
       DisplayText: Boolean);
     procedure aFieldSetText(Sender: TField; const aText: string);
+    procedure aFieldValidate(Sender: TField);
     procedure FDSDataChange(Sender: TObject; Field: TField);
   private
     FDS: TDataSource;
@@ -55,6 +56,10 @@ end;
 procedure TTimes.aFieldSetText(Sender: TField; const aText: string);
 begin
   Sender.AsFloat:=StrToDayTime(aText);
+end;
+
+procedure TTimes.aFieldValidate(Sender: TField);
+begin
 end;
 
 procedure TTimes.FDSDataChange(Sender: TObject; Field: TField);
@@ -114,6 +119,9 @@ begin
       aField := TDateTimeField(FieldByName('DURATION'));
       aField.OnGetText:=@aFieldGetText;
       aField.OnSetText:=@aFieldSetText;
+      aField.EditMask:='';
+      aField.OnValidate:=@aFieldValidate;
+      aField.ValidChars:=aField.ValidChars+['h','m','i','n','s'];
     end;
 end;
 
