@@ -804,7 +804,7 @@ var
   SearchInClear: Boolean = True;
 begin
   FreeAndNil(ActiveSearch);
-  SetLanguage;
+//  SetLanguage; Dont do this here since Allow SearchTypes has no eefect with this
   Options := '';
   with Application as IBaseDbInterface do
     begin
