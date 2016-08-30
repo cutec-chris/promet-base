@@ -13,12 +13,6 @@ TFSYNCOPTIONS.DGTABLES.COLUMNS[2].TITLE.CAPTION=Tabellenname
 TFSYNCOPTIONS.DGTABLES.COLUMNS[3].TITLE.CAPTION=zuletzt synchronisiert
 TFSYNCOPTIONS.DGTABLES.COLUMNS[4].TITLE.CAPTION=gesperrt
 TFSYNCOPTIONS.DGTABLES.COLUMNS[5].TITLE.CAPTION=seit
-TFSYNCOPTIONS.SMIN.HINT=hier können Sie pro Tablle einen Filter hinterlegen
-Dies ist nützlich um nur einen Teil der Tabelle zu synchronisieren
-Er entspricht im wesentlichen der where Bedingung im SQL.
-TFSYNCOPTIONS.SMOUT.HINT=hier können Sie pro Tablle einen Filter hinterlegen
-Dies ist nützlich um nur einen Teil der Tabelle zu synchronisieren
-Er entspricht im wesentlichen der where Bedingung im SQL.
 TFSYNCOPTIONS.LABEL2.CAPTION=In
 TFSYNCOPTIONS.LABEL3.CAPTION=Out
 TFSYNCOPTIONS.ECONNSTRING.HINT=Sie können den Verbindungstring im Mandantenassistenten

@@ -10,6 +10,8 @@ type
 
   TfSyncOptions = class(TOptionsFrame)
     bCheckConnection: TButton;
+    DBMemo1: TDBMemo;
+    DBMemo2: TDBMemo;
     DBNavigator2: TDBNavigator;
     eConnString: TDBMemo;
     DBNavigator1: TDBNavigator;
@@ -22,14 +24,10 @@ type
     Label3: TLabel;
     Label4: TLabel;
     lD: TLabel;
-    smIn: TSynMemo;
-    smOut: TSynMemo;
     sbStandardTables: TSpeedButton;
     SynSQLSyn1: TSynSQLSyn;
     procedure aSyncDbDataSetBeforePost(DataSet: TDataSet);
-    procedure aSyncDbTablesDataSetAfterScroll(DataSet: TDataSet);
     procedure bCheckConnectionClick(Sender: TObject);
-    procedure smInChange(Sender: TObject);
     procedure sbStandardTablesClick(Sender: TObject);
   private
     { private declarations }
@@ -53,11 +51,6 @@ resourcestring
   strConnectionSuccesful                   = 'Verbindungstest erfolgreich !';
   strSyncIddontMatch                       = 'Die SyncID der entfernten Datenbank stimmt nicht mit der eingestellten überein, soll die SyncID übernommen werden ?';
   strInsertTables                          = 'Sollen zum Synchronisieren die Standardtabellen als Vorgabe eingefügt werden ?'+LineEnding+'(Sie müssen alle zu synchronisierenden Tabellen angeben und könenn dann pro tabelle einsetllen in welche Richtungen und unter welchen Umständen synchronisiert werden soll)';
-procedure TfSyncOptions.aSyncDbTablesDataSetAfterScroll(DataSet: TDataSet);
-begin
-  smIn.Lines.Text := dsTables.DataSet.FieldByName('FILTERIN').AsString;
-  smOut.Lines.Text := dsTables.DataSet.FieldByName('FILTEROUT').AsString;
-end;
 
 procedure TfSyncOptions.aSyncDbDataSetBeforePost(DataSet: TDataSet);
 begin
@@ -102,14 +95,6 @@ begin
         end
       else Showmessage(strSetPropertysFailed);
     end;
-end;
-
-procedure TfSyncOptions.smInChange(Sender: TObject);
-begin
-  if not aSyncDB.Tables.CanEdit then
-    aSyncDB.Tables.DataSet.Edit;
-  dsTables.DataSet.FieldByName('FILTERIN').AsString := smIn.Lines.Text;
-  dsTables.DataSet.FieldByName('FILTEROUT').AsString := smOut.Lines.Text;
 end;
 
 procedure TfSyncOptions.sbStandardTablesClick(Sender: TObject);
@@ -221,7 +206,6 @@ begin
   aSyncDb.DataSet.BeforePost:=@aSyncDbDataSetBeforePost;
   dsDatabases.DataSet := aSyncDB.DataSet;
   dsTables.DataSet := aSyncDB.Tables.DataSet;
-  aSyncDB.Tables.DataSet.AfterScroll:=@aSyncDbTablesDataSetAfterScroll;
 end;
 destructor TfSyncOptions.Destroy;
 begin
