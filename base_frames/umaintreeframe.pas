@@ -1827,7 +1827,7 @@ var
     TTreeEntry(Node1.Data).Rec := aList.GetBookmark;
     TTreeEntry(Node1.Data).Link := Data.BuildLink(aList.DataSet);
     with aList.DataSet as IBaseManageDB do
-      TTreeEntry(Node1.Data).Filter:=Data.QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(IntToStr(aList.GetBookmark));
+      TTreeEntry(Node1.Data).Filter:=Data.QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(aList.Id.AsString);
     TTreeEntry(Node1.Data).DataSourceType := TBaseDBDataSetClass(aList.ClassType);
     if aList.Number <> aList.Id then
       TTreeEntry(Node1.Data).Text[0] := aList.Text.AsString+' ('+aList.Number.AsString+')'
@@ -2032,7 +2032,7 @@ begin
               Node1 := tvMain.Items.AddChildObject(Node,'',TTreeEntry.Create);
               TTreeEntry(Node1.Data).Rec := aListL.GetBookmark;
               with aListL.DataSet as IBaseManageDB do
-                TTreeEntry(Node1.Data).Filter:=Data.QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(IntToStr(aListL.GetBookmark));
+                TTreeEntry(Node1.Data).Filter:=Data.QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(aListL.Id.AsString);
               TTreeEntry(Node1.Data).DataSourceType := TLinks;
               TTreeEntry(Node1.Data).Rec := aListL.GetBookmark;
               TTreeEntry(Node1.Data).Text[0] := aListL.FieldByName('NAME').AsString;

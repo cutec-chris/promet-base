@@ -77,7 +77,7 @@ begin
                   TTreeEntry(Node1.Data).Rec := FObject.GetBookmark;
                   Node1.HasChildren:=True;
                   with FObject.DataSet as IBaseManageDB do
-                    TTreeEntry(Node1.Data).Filter:=Data.QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(IntToStr(FObject.GetBookmark));
+                    TTreeEntry(Node1.Data).Filter:=Data.QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(FObject.Id.AsString);
                   TTreeEntry(Node1.Data).DataSourceType := TBaseDBDataSetClass(FObject.ClassType);
                   TTreeEntry(Node1.Data).Text[0] := FObject.Text.AsString+' ('+FObject.Number.AsString+')'+' ['+FObject.Status.AsString+']';
                   case FObject.ClassName of
@@ -131,7 +131,7 @@ begin
                           TTreeEntry(Node1.Data).Rec := FObject.GetBookmark;
                           Node1.HasChildren:=True;
                           with FObject.DataSet as IBaseManageDB do
-                            TTreeEntry(Node1.Data).Filter:=Data.QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(IntToStr(FObject.GetBookmark));
+                            TTreeEntry(Node1.Data).Filter:=Data.QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(FObject.Id.AsString);
                           TTreeEntry(Node1.Data).DataSourceType := TBaseDBDataSetClass(FObject.ClassType);
                           TTreeEntry(Node1.Data).Text[0] := FObject.Text.AsString+' ('+FObject.Number.AsString+')'+' ['+FObject.Status.AsString+']';
                           case FObject.ClassName of
@@ -214,7 +214,7 @@ begin
       TTreeEntry(Node1.Data).Rec := FObject.GetBookmark;
       Node1.HasChildren:=True;
       with FObject.DataSet as IBaseManageDB do
-        TTreeEntry(Node1.Data).Filter:=Data.QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(IntToStr(FObject.GetBookmark));
+        TTreeEntry(Node1.Data).Filter:=Data.QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(FObject.Id.AsString);
       TTreeEntry(Node1.Data).DataSourceType := TBaseDBDataSetClass(FObject.ClassType);
       TTreeEntry(Node1.Data).Text[0] := FObject.Text.AsString+' ('+FObject.Number.AsString+')'+' ['+FObject.Status.AsString+']';
       case FObject.ClassName of
