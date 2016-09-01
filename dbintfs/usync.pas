@@ -116,6 +116,7 @@ begin
     and (not VField.IsNull)
     then
       begin
+        try
         if VField.DataType = ftBoolean then
           AJSON.Add(lowercase(VFieldName), VField.AsBoolean)
         else if VField.DataType = ftDateTime then
@@ -130,9 +131,11 @@ begin
         else if (VField.DataType = ftInteger) then
           AJSON.Add(lowercase(VFieldName), VField.AsInteger)
         else if (VField.DataType = ftLargeint) then
-          AJSON.Add(lowercase(VFieldName), VField.AsLargeInt)
+          AJSON.Add(lowercase(VFieldName), VField.AsString)
         else
           AJSON.Add(lowercase(VFieldName), SysToUni(VField.AsString))
+        except
+        end;
       end;
   end;
 end;

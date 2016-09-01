@@ -123,7 +123,7 @@ var
   Count,LineStart: LongInt;
 begin
   OutputLine:='';
-  if Output.NumBytesAvailable>0 then
+  if (not Active) then
     begin
       SetLength(Buf,Output.NumBytesAvailable);
       repeat
@@ -383,7 +383,7 @@ begin
               Processes.FieldByName('LOG').Clear;
             Processes.FieldByName('CLIENT').AsString:=GetSystemName;
           end;
-        if aProc.ProcOutput<>'' then
+        if (not aProc.Active) and (aProc.ProcOutput<>'') then
           begin
             aLog.Text:=Processes.FieldByName('LOG').AsString;
             aLog.Add(TimeToStr(Now()));
