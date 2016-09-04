@@ -113,6 +113,9 @@ constructor TProcProcess.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   Options := [poUsePipes, poStdErrToOutPut, poNewConsole];
+  {$IFDEF UNIX}
+  Options := Options+[poNoConsole];
+  {$ENDIF}
   ShowWindow:=swoHIDE;
 end;
 
