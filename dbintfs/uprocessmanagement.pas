@@ -112,11 +112,12 @@ end;
 constructor TProcProcess.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Options := [poUsePipes, poStdErrToOutPut, poNewConsole];
   {$IFDEF UNIX}
-  Options := Options+[poNoConsole];
-  {$ENDIF}
+  Options := [poUsePipes, poStdErrToOutPut, poNoConsole];
+  {$ELSE}
+  Options := [poUsePipes, poStdErrToOutPut, poNewConsole];
   ShowWindow:=swoHIDE;
+  {$ENDIF}
 end;
 
 function TProcProcess.GetOutput: string;
