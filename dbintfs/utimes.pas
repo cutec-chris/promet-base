@@ -82,7 +82,7 @@ begin
       else if (Field.FieldName='END') then
         begin
           if DataSet.FieldByName('END').AsFloat-DataSet.FieldByName('START').AsFloat>0 then
-            DataSet.FieldByName('DURATION').AsFloat:=DataSet.FieldByName('END').AsFloat-DataSet.FieldByName('START').AsFloat;
+            DataSet.FieldByName('DURATION').AsFloat:=((DataSet.FieldByName('END').AsFloat-DataSet.FieldByName('START').AsFloat)/8)*24;
         end;
     end;
 end;
