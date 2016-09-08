@@ -28,6 +28,14 @@ uses
   ,uBaseDatasetInterfaces,uBaseERPDBClasses,contnrs,genscript;
 
 type
+
+  { TScriptLinks }
+
+  TScriptLinks = class(TLinks)
+  public
+    procedure FillDefaults(aDataSet: TDataSet); override;
+  end;
+
   { TBaseScript }
 
   TBaseScript = class(TBaseERPList,IBaseHistory)
@@ -38,7 +46,7 @@ type
     FActObject: TBaseDBDataset;
     FDWrFunc: TStrOutFunc;
     FHistory: TBaseHistory;
-    FLinks: TLinks;
+    FLinks: TScriptLinks;
     FDataSource: TDataSource;
     FRlFunc: TStrInFunc;
     FWrFunc: TStrOutFunc;
@@ -79,7 +87,7 @@ type
     property Debugln : TStrOutFunc read FDWrFunc write SetDWRFunc;
     property Readln : TStrInFunc read FRlFunc write SetRlFunc;
     property History : TBaseHistory read FHistory;
-    property Links : TLinks read FLinks;
+    property Links : TScriptLinks read FLinks;
     property Version : TField read GetVersion;
     function Copy(aNewVersion : Variant) : Boolean;
     procedure OpenItem(AccHistory: Boolean=True); override;
@@ -181,6 +189,14 @@ begin
       else Historyrun:=False;
     end;
   aScript.Free;
+end;
+
+{ TScriptLinks }
+
+procedure TScriptLinks.FillDefaults(aDataSet: TDataSet);
+begin
+  inherited FillDefaults(aDataSet);
+  aDataSet.FieldByName('RREF_ID').AsVariant:=(Parent as TBaseScript).Id.AsVariant;
 end;
 
 procedure TSQLScript.SQLConn;
@@ -385,7 +401,7 @@ begin
   FSelectedName := Null;
   FDataSource.DataSet := DataSet;
   FHistory := TBaseHistory.CreateEx(Self,DM,aConnection,DataSet);
-  FLinks := TLinks.CreateEx(Self,DM,aConnection);
+  FLinks := TScriptLinks.CreateEx(Self,DM,aConnection);
   DataSet.AfterScroll:=@DataSetAfterScroll;
 end;
 

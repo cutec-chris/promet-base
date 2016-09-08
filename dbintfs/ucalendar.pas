@@ -151,7 +151,7 @@ end;
 procedure TEventLinks.FillDefaults(aDataSet: TDataSet);
 begin
   inherited FillDefaults(aDataSet);
-  aDataSet.FieldByName('REF_ID').AsVariant:=(Parent as TEvent).Id.AsVariant;
+  aDataSet.FieldByName('RREF_ID').AsVariant:=(Parent as TEvent).Id.AsVariant;
 end;
 
 procedure TCalendar.FDSDataChange(Sender: TObject; Field: TField);

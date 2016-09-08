@@ -128,11 +128,66 @@ inherited fLinkFrame: TfLinkFrame
       end
     end
   end
-  object pmPopup: TPopupMenu[2]
+  object ActionList1: TActionList[2]
+    Images = fVisualControls.Images
+    left = 56
+    top = 40
+    object acFilter: TAction
+      Caption = 'acFilter'
+      ShortCut = 16454
+      left = 65440
+    end
+    object acPasteLinks: TAction
+      Caption = 'Verweis(e) einfügen'
+      ImageIndex = 80
+      OnExecute = acPasteLinksExecute
+    end
+    object acShowInOrder: TAction
+      Caption = 'Im Auftrag anzeigen'
+      Enabled = False
+      ImageIndex = 87
+    end
+    object acCopyToClipboard: TAction
+      Caption = 'Verweis kopieren'
+      ImageIndex = 23
+      OnExecute = acCopyToClipboardExecute
+      ShortCut = 16451
+    end
+    object acDelete: TAction
+      Caption = 'löschen'
+      ImageIndex = 60
+      OnExecute = acDeleteExecute
+    end
+    object acAddLinks: TAction
+      Caption = 'acAddLinks'
+      ImageIndex = 8
+      OnExecute = acAddLinksExecute
+    end
+    object acEditVersion: TAction
+      Caption = 'Version des Artikels ändern'
+      ImageIndex = 67
+      OnExecute = acEditVersionExecute
+    end
+    object acAddFolder: TAction
+      Caption = 'Verzeichnis hinzufügen'
+      Hint = 'Verzeichnis aus Dateisystem verlinken'
+      ImageIndex = 79
+      OnExecute = acAddFolderExecute
+    end
+  end
+  object Datasource: TDataSource[3]
+    left = 96
+    top = 40
+  end
+  object SelectDirectoryDialog1: TSelectDirectoryDialog[4]
+    left = 96
+    top = 80
+  end
+  object pmPopup: TPopupMenu[5]
     Images = fVisualControls.Images
     OnPopup = pmPopupPopup
     left = 56
-    top = 80
+    top = 88
     object miOpen: TMenuItem
       Caption = 'Öffnen'
       Bitmap.Data = {
@@ -368,60 +423,5 @@ inherited fLinkFrame: TfLinkFrame
         0000000000000000000000000000000000000000000000000000
       }
     end
-  end
-  object ActionList1: TActionList[3]
-    Images = fVisualControls.Images
-    left = 56
-    top = 40
-    object acFilter: TAction
-      Caption = 'acFilter'
-      ShortCut = 16454
-      left = 65440
-    end
-    object acPasteLinks: TAction
-      Caption = 'Verweis(e) einfügen'
-      ImageIndex = 80
-      OnExecute = acPasteLinksExecute
-    end
-    object acShowInOrder: TAction
-      Caption = 'Im Auftrag anzeigen'
-      Enabled = False
-      ImageIndex = 87
-    end
-    object acCopyToClipboard: TAction
-      Caption = 'Verweis kopieren'
-      ImageIndex = 23
-      OnExecute = acCopyToClipboardExecute
-      ShortCut = 16451
-    end
-    object acDelete: TAction
-      Caption = 'löschen'
-      ImageIndex = 60
-      OnExecute = acDeleteExecute
-    end
-    object acAddLinks: TAction
-      Caption = 'acAddLinks'
-      ImageIndex = 8
-      OnExecute = acAddLinksExecute
-    end
-    object acEditVersion: TAction
-      Caption = 'Version des Artikels ändern'
-      ImageIndex = 67
-      OnExecute = acEditVersionExecute
-    end
-    object acAddFolder: TAction
-      Caption = 'Verzeichnis hinzufügen'
-      Hint = 'Verzeichnis aus Dateisystem verlinken'
-      ImageIndex = 79
-      OnExecute = acAddFolderExecute
-    end
-  end
-  object Datasource: TDataSource[4]
-    left = 96
-    top = 40
-  end
-  object SelectDirectoryDialog1: TSelectDirectoryDialog[5]
-    left = 96
-    top = 80
   end
 end

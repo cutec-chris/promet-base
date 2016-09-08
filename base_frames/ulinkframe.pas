@@ -47,10 +47,11 @@ type
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     miOpen: TMenuItem;
+    pmPopup: TPopupMenu;
     pToolbar: TPanel;
     Panel2: TPanel;
     pCont: TPanel;
-    pmPopup: TPopupMenu;
+    pmPopup11122: TPopupMenu;
     SelectDirectoryDialog1: TSelectDirectoryDialog;
     SpeedButton1: TSpeedButton;
     SpeedButton2: TSpeedButton;
