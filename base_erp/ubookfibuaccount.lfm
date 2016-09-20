@@ -1,15 +1,15 @@
 object fBookFibuAccount: TfBookFibuAccount
-  Left = 436
+  Left = 435
   Height = 432
-  Top = 225
+  Top = 200
   Width = 568
   Caption = 'Buchhaltungskonto zuordnen'
   ClientHeight = 432
   ClientWidth = 568
-  LCLVersion = '1.3'
+  LCLVersion = '1.7'
   object eAccountno: TEdit
     Left = 8
-    Height = 23
+    Height = 27
     Top = 24
     Width = 136
     OnChange = eAccountnoChange
@@ -17,7 +17,7 @@ object fBookFibuAccount: TfBookFibuAccount
   end
   object eName: TEdit
     Left = 152
-    Height = 23
+    Height = 27
     Top = 24
     Width = 410
     Anchors = [akTop, akLeft, akRight]
@@ -41,7 +41,7 @@ object fBookFibuAccount: TfBookFibuAccount
       end    
       item
         Title.Caption = 'NAME'
-        Width = 394
+        Width = 396
         FieldName = 'NAME'
       end>
     DataSource = Datasource1
@@ -51,7 +51,7 @@ object fBookFibuAccount: TfBookFibuAccount
   end
   object Label1: TLabel
     Left = 8
-    Height = 13
+    Height = 17
     Top = 8
     Width = 34
     Caption = 'Suche'
@@ -74,16 +74,16 @@ object fBookFibuAccount: TfBookFibuAccount
     ShowButtons = [pbOK, pbCancel]
     object cbWholeList: TCheckBox
       Left = 8
-      Height = 24
+      Height = 22
       Hint = 'setzt die gesamte Liste (Filtern Sie um gewünschte Datensätze zu wählen)'#10'auf dieses Konto'
       Top = 8
-      Width = 243
+      Width = 237
       BorderSpacing.Around = 8
       Caption = 'gesamte Liste auf dieses Konto setzen'
       TabOrder = 4
     end
   end
-  object Datasource1: TDatasource
+  object Datasource1: TDataSource
     left = 31
     top = 89
   end

@@ -46,25 +46,28 @@ begin
   First;
   while not EOF do
     begin
-      if (Script is TPascalScript) and TPascalScript(Script).Compile then
-        with Script as TPascalScript do
+      try
+        if (Script is TPascalScript) and TPascalScript(Script).Compile then
           begin
-            try
-              if Assigned(Runtime) then
-                if Runtime.RunProcPN([aSentence],'CHECKSENTENCE') = True then
-                  begin
-                    Result := True;
-                    exit;
-                  end;
-            except
-              on e : Exception do
-                begin
-                  with BaseApplication as IBaseApplication do
-                    debug('Error running script:'+FieldByName('NAME').AsString+':'+e.Message);
-                  Result := false;
-                end;
-            end;
+            with Script as TPascalScript do
+              begin
+                  if Assigned(Runtime) then
+                    if Runtime.RunProcPN([aSentence],'CHECKSENTENCE') = True then
+                      begin
+                        Result := True;
+                        exit;
+                      end;
+              end;
+            ResetScript;
           end;
+      except
+        on e : Exception do
+          begin
+            with BaseApplication as IBaseApplication do
+              debug('Error running script:'+FieldByName('NAME').AsString+':'+e.Message);
+            Result := false;
+          end;
+      end;
       Next;
     end;
 end;

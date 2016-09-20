@@ -1,4 +1,6 @@
-﻿Build 432
+﻿Build 433
+      - Scripte:Zuffallsfunktionen ergänzt
+Build 432
       - Verbindung:automatischer reconnect bei ausgefallener Datenbankverbindung funktioniert nun
       - Zeiterfassung: Zeitaufschreibungsfenster hinzugefügt (Zeiten komfortabel nachtragen)
 Build 431

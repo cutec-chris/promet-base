@@ -3310,7 +3310,7 @@ end;
 
 constructor TBaseDBDataset.Create(aOwner: TComponent);
 begin
-  CreateEx(aOwner,DataModule,nil,nil);
+  CreateEx(aOwner,uData.Data,nil,nil);
 end;
 
 destructor TBaseDBDataset.Destroy;
