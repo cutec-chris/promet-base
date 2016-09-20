@@ -1204,6 +1204,7 @@ var
   aFrame: TTabSheet;
   aDocuments: TDocuments;
   aPosID: String;
+  HasScript: Boolean;
 begin
   if Data.Users.Rights.Right('OPTIONS') > RIGHT_READ then
     begin
@@ -1257,15 +1258,17 @@ begin
           pcTabs.TabIndex:=0;
         end;
       aFrame := pcTabs.GetTab(TfAutomationframe);
-      if (not Assigned(aFrame)) and ((Assigned(TBaseDBPosition(Dataset).FieldByName('SCRIPT')) and (TBaseDBPosition(Dataset).FieldByName('SCRIPT').AsString<>''))
-                                  or (Assigned(TBaseDBPosition(Dataset).FieldByName('WORKTEXT')) and (TBaseDBPosition(Dataset).FieldByName('WORKTEXT').AsString<>''))) then
+      HasScript := (Assigned(TBaseDBPosition(Dataset).FieldByName('SCRIPT')) and (TBaseDBPosition(Dataset).FieldByName('SCRIPT').AsString<>''))
+                or (Assigned(TBaseDBPosition(Dataset).FieldByName('WORKTEXT')) and (TBaseDBPosition(Dataset).FieldByName('WORKTEXT').AsString<>''))
+                or (Assigned(TBaseDBPosition(Dataset).FieldByName('PREPTEXT')) and (TBaseDBPosition(Dataset).FieldByName('PREPTEXT').AsString<>''))
+                or (Assigned(TBaseDBPosition(Dataset).FieldByName('PRSCRIPT')) and (TBaseDBPosition(Dataset).FieldByName('PRSCRIPT').AsString<>''));
+      if (not Assigned(aFrame)) and (HasScript) then
         begin
           pcTabs.AddTab(TfAutomationframe.Create(Self),False);
           aFrame := pcTabs.GetTab(TfAutomationframe);
           AddAutomationTab(aFrame.Controls[0]);
         end
-      else if Assigned(aFrame) and (not ((Assigned(TBaseDBPosition(Dataset).FieldByName('SCRIPT')) and (TBaseDBPosition(Dataset).FieldByName('SCRIPT').AsString=''))
-                                 or (Assigned(TBaseDBPosition(Dataset).FieldByName('WORKTEXT')) and (TBaseDBPosition(Dataset).FieldByName('WORKTEXT').AsString<>'')))) then
+      else if Assigned(aFrame) and (not HasScript) then
         begin
           pcTabs.WillRemoveTab(aFrame);
           aFrame.Free;
