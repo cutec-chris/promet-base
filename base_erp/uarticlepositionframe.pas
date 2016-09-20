@@ -59,7 +59,9 @@ begin
   FPosFrame.Align:=alClient;
   FPosFrame.Show;
   FPosFrame.InplaceFrames[0] := TfDetailPositionFrame.Create(FPosFrame);
+  FPosFrame.InplaceFrames[1] := TfDetailPositionFrame.Create(FPosFrame);
   FPosFrame.InplaceFrames[3] := TfTextPositionFrame.Create(FPosFrame);
+  FPosFrame.InplaceFrames[9] := TfDetailPositionFrame.Create(FPosFrame);
   FPosFrame.BaseName:='MASTERDATA';
   FPosFrame.FormName:='ARP';
   cbPLType.Items.Add(strPieceListTypeList);
