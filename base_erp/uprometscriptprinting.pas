@@ -31,7 +31,7 @@ begin
     ParValue := IntToStr(WeekOfTheYear(Now()))
   else if uppercase(ParName) = 'WEEKDAY' then
     ParValue := IntToStr(DayOfTheWeek(Now()))
-    ;
+  else ParValue:='';
 end;
 
 function PrometScriptPrint(aType,Reportname,Printer : string;Copies : Integer) : Boolean;
