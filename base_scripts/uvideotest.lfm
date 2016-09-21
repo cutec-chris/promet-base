@@ -1,7 +1,7 @@
 object fVideoTest: TfVideoTest
-  Left = 995
+  Left = 534
   Height = 450
-  Top = 222
+  Top = 234
   Width = 581
   Caption = 'Video Test'
   ClientHeight = 450

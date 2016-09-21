@@ -92,6 +92,7 @@ end;
 procedure RefreshImageVT;
 begin
   RefreshImage;
+  if not Assigned(Image) then exit;
   fVideoTest.fImage.LoadFromIntfImage(Image);
   fVideoTest.DoScalePreview;
 end;
@@ -166,18 +167,23 @@ var
   s: Byte;
 begin
   if not Assigned(Image) then exit;
-  X := X-ScrollBar1.Position;
-  Y := Y-ScrollBar2.Position;
+  X := X+ScrollBar1.Position;
+  Y := Y+ScrollBar2.Position;
+
   StatusBar1.Panels.Items[0].Text:='X:'+IntToStr(round(X*FScale));
   StatusBar1.Panels.Items[1].Text:='Y:'+IntToStr(round(Y*FScale));
-  aRGB := ColorToRGB(FImage.Canvas.Pixels[round(X*FScale),round(Y*FScale)]);
-  StatusBar1.Panels.Items[2].Text:=' R:'+IntToStr((aRGB) and $FF)+
-                                   ' G:'+IntToStr((aRGB shr 8) and $FF)+
-                                   ' B:'+IntToStr((aRGB shr 16) and $FF);
-  ColorToHLS(FPColorToTColor(Image.Colors[round(X*FScale),round(Y*FScale)]),h,l,s);
-  StatusBar1.Panels.Items[3].Text:=' H:'+IntToStr(h)+
-                                   ' L:'+IntToStr(l)+
-                                   ' S:'+IntToStr(s);
+
+  if (y<Image.Height) and (x<Image.Width) then
+    begin
+      aRGB := ColorToRGB(FImage.Canvas.Pixels[round(X*FScale),round(Y*FScale)]);
+      StatusBar1.Panels.Items[2].Text:=' R:'+IntToStr((aRGB) and $FF)+
+                                       ' G:'+IntToStr((aRGB shr 8) and $FF)+
+                                       ' B:'+IntToStr((aRGB shr 16) and $FF);
+      ColorToHLS(FPColorToTColor(Image.Colors[round(X*FScale),round(Y*FScale)]),h,l,s);
+      StatusBar1.Panels.Items[3].Text:=' H:'+IntToStr(h)+
+                                       ' L:'+IntToStr(l)+
+                                       ' S:'+IntToStr(s);
+    end;
 end;
 
 procedure TfVideoTest.PaintBox1Paint(Sender: TObject);
