@@ -608,6 +608,7 @@ begin
   FTimeLine.BaseFilter:='';
   FTimeLine.AutoFilter:='';
   FTimeLine.DataSet := AValue;
+  AValue.ActualLimit:=0;
   AValue.ActualFilter:='';
   aButtonClick(nil);
 end;
