@@ -80,7 +80,7 @@ begin
     end;
   fVideoTest.Show;
   Application.ProcessMessages;
-  Result := CaptureImage(dev,Width,Height);
+  Result := DoCaptureImage(dev,Width,Height);
   if Result then
     begin
       fVideoTest.fImage.LoadFromIntfImage(Image);
