@@ -10,6 +10,282 @@ object FAutomation: TFAutomation
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   LCLVersion = '1.4.4.0'
+  object Panel3: TPanel
+    Left = 8
+    Height = 572
+    Top = 60
+    Width = 795
+    Align = alClient
+    BorderSpacing.Around = 8
+    BevelOuter = bvNone
+    Caption = 'Panel3'
+    ClientHeight = 572
+    ClientWidth = 795
+    TabOrder = 1
+    object ipHTML: TIpHtmlPanel
+      Left = 0
+      Height = 258
+      Top = 89
+      Width = 795
+      Align = alClient
+      FixedTypeface = 'Courier New'
+      DefaultTypeFace = 'arial'
+      DefaultFontSize = 11
+      FlagErrors = False
+      PrintSettings.MarginLeft = 0.5
+      PrintSettings.MarginTop = 0.5
+      PrintSettings.MarginRight = 0.5
+      PrintSettings.MarginBottom = 0.5
+      ShowHints = False
+      TabOrder = 0
+      OnHotClick = ipHTMLHotClick
+    end
+    object Panel8: TPanel
+      Left = 0
+      Height = 56
+      Top = 0
+      Width = 795
+      Align = alTop
+      BevelOuter = bvNone
+      ClientHeight = 56
+      ClientWidth = 795
+      TabOrder = 1
+      object BitBtn3: TSpeedButton
+        Left = 0
+        Height = 34
+        Top = 16
+        Width = 232
+        Action = acPrepare
+        AllowAllUp = True
+        Anchors = [akLeft, akBottom]
+        GroupIndex = 112
+      end
+      object BitBtn1: TBitBtn
+        Left = 559
+        Height = 34
+        Top = 16
+        Width = 236
+        Action = acReady
+        Anchors = [akRight, akBottom]
+        TabOrder = 0
+      end
+      object BitBtn5: TSpeedButton
+        Left = 232
+        Height = 34
+        Top = 16
+        Width = 327
+        Action = acProduce
+        AllowAllUp = True
+        Anchors = [akLeft, akRight, akBottom]
+        GroupIndex = 112
+      end
+      object lStep: TLabel
+        Left = 0
+        Height = 17
+        Top = 0
+        Width = 795
+        Align = alTop
+        Alignment = taCenter
+        Caption = 'kein Arbeitsschritt gewählt'
+        Font.Height = -13
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+    end
+    object Panel9: TPanel
+      Left = 0
+      Height = 50
+      Top = 522
+      Width = 795
+      Align = alBottom
+      BevelOuter = bvNone
+      ClientHeight = 50
+      ClientWidth = 795
+      TabOrder = 2
+      object bExecute: TSpeedButton
+        Left = 261
+        Height = 38
+        Top = 8
+        Width = 280
+        Action = acExecuteStep
+        AllowAllUp = True
+        Anchors = [akTop]
+        GroupIndex = 116
+      end
+      object bResults: TSpeedButton
+        AnchorSideLeft.Control = bExecute
+        AnchorSideLeft.Side = asrBottom
+        Left = 549
+        Height = 38
+        Top = 8
+        Width = 246
+        AllowAllUp = True
+        Anchors = [akTop, akLeft, akRight]
+        BorderSpacing.Left = 8
+        Caption = 'BDE/Fehler'
+        GroupIndex = 554
+        OnClick = bResultsClick
+      end
+    end
+    object lStatusProblems: TLabel
+      Left = 8
+      Height = 17
+      Top = 64
+      Width = 779
+      Align = alTop
+      BorderSpacing.Around = 8
+      Caption = 'Achtung Teile des Auftrages sind in nicht freigegebenem Zustand !'
+      Color = clRed
+      Font.Color = clWhite
+      Font.Height = -13
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      Transparent = False
+      Visible = False
+    end
+    object pBDE: TPanel
+      Left = 0
+      Height = 170
+      Top = 352
+      Width = 795
+      Align = alBottom
+      BevelOuter = bvNone
+      ClientHeight = 170
+      ClientWidth = 795
+      TabOrder = 3
+      Visible = False
+      object PageControl1: TPageControl
+        Left = 0
+        Height = 170
+        Top = 0
+        Width = 795
+        ActivePage = tsProblems
+        Align = alClient
+        TabIndex = 1
+        TabOrder = 0
+        object tsBDE: TTabSheet
+          Caption = 'BDE'
+        end
+        object tsProblems: TTabSheet
+          Caption = 'Auschuss/Störungen'
+          ClientHeight = 142
+          ClientWidth = 787
+          object Memo1: TMemo
+            Left = 616
+            Height = 112
+            Top = 24
+            Width = 160
+            Anchors = [akTop, akRight, akBottom]
+            TabOrder = 0
+          end
+          object Label1: TLabel
+            Left = 616
+            Height = 15
+            Top = 8
+            Width = 95
+            Caption = 'Hinweis/Meldung'
+            ParentColor = False
+          end
+          object cbCategory: TComboBox
+            Left = 8
+            Height = 23
+            Top = 9
+            Width = 592
+            ItemHeight = 15
+            TabOrder = 1
+            Text = 'cbCategory'
+          end
+          object ToolBar2: TToolBar
+            Left = 0
+            Height = 102
+            Top = 40
+            Width = 597
+            Align = alBottom
+            Anchors = [akTop, akLeft, akRight, akBottom]
+            BorderSpacing.Right = 190
+            ButtonHeight = 50
+            ButtonWidth = 60
+            Caption = 'ToolBar2'
+            Flat = False
+            ShowCaptions = True
+            TabOrder = 2
+            object ToolButton3: TToolButton
+              Left = 1
+              Top = 2
+              Caption = 'kalte Lötstelle'
+            end
+            object ToolButton4: TToolButton
+              Left = 81
+              Top = 2
+              Caption = 'ToolButton4'
+            end
+            object ToolButton5: TToolButton
+              Left = 155
+              Top = 2
+              Caption = 'ToolButton5'
+            end
+            object ToolButton6: TToolButton
+              Left = 229
+              Top = 2
+              Caption = 'ToolButton6'
+            end
+            object ToolButton7: TToolButton
+              Left = 303
+              Top = 2
+              Caption = 'ToolButton7'
+            end
+            object ToolButton8: TToolButton
+              Left = 377
+              Top = 2
+              Caption = 'ToolButton8'
+            end
+            object ToolButton9: TToolButton
+              Left = 451
+              Top = 2
+              Caption = 'ToolButton9'
+            end
+            object ToolButton10: TToolButton
+              Left = 1
+              Top = 52
+              Caption = 'ToolButton10'
+            end
+            object ToolButton11: TToolButton
+              Left = 81
+              Top = 52
+              Caption = 'ToolButton11'
+            end
+          end
+        end
+        object tsOldProblems: TTabSheet
+          Caption = 'gemeldete Störungen/Auschuss'
+          ClientHeight = 142
+          ClientWidth = 787
+          object DBGrid1: TDBGrid
+            Left = 0
+            Height = 142
+            Top = 0
+            Width = 787
+            Align = alClient
+            Color = clWindow
+            Columns = <>
+            TabOrder = 0
+            TitleStyle = tsNative
+          end
+        end
+      end
+    end
+    object spBDE: TSplitter
+      Cursor = crVSplit
+      Left = 0
+      Height = 5
+      Top = 347
+      Width = 795
+      Align = alBottom
+      ResizeAnchor = akBottom
+    end
+  end
   object ToolBar1: TPanel
     Left = 15
     Height = 52
@@ -315,271 +591,6 @@ object FAutomation: TFAutomation
       TabOrder = 4
       OnSelectionChanged = tvStepSelectionChanged
       Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
-    end
-  end
-  object Panel3: TPanel
-    Left = 8
-    Height = 572
-    Top = 60
-    Width = 795
-    Align = alClient
-    BorderSpacing.Around = 8
-    BevelOuter = bvNone
-    Caption = 'Panel3'
-    ClientHeight = 572
-    ClientWidth = 795
-    TabOrder = 1
-    object ipHTML: TIpHtmlPanel
-      Left = 0
-      Height = 263
-      Top = 89
-      Width = 795
-      Align = alClient
-      FixedTypeface = 'Courier New'
-      DefaultTypeFace = 'arial'
-      DefaultFontSize = 11
-      FlagErrors = False
-      PrintSettings.MarginLeft = 0.5
-      PrintSettings.MarginTop = 0.5
-      PrintSettings.MarginRight = 0.5
-      PrintSettings.MarginBottom = 0.5
-      ShowHints = False
-      TabOrder = 0
-      OnHotClick = ipHTMLHotClick
-    end
-    object Panel8: TPanel
-      Left = 0
-      Height = 56
-      Top = 0
-      Width = 795
-      Align = alTop
-      BevelOuter = bvNone
-      ClientHeight = 56
-      ClientWidth = 795
-      TabOrder = 1
-      object BitBtn3: TSpeedButton
-        Left = 0
-        Height = 34
-        Top = 16
-        Width = 232
-        Action = acPrepare
-        AllowAllUp = True
-        Anchors = [akLeft, akBottom]
-        GroupIndex = 112
-      end
-      object BitBtn1: TBitBtn
-        Left = 559
-        Height = 34
-        Top = 16
-        Width = 236
-        Action = acReady
-        Anchors = [akRight, akBottom]
-        TabOrder = 0
-      end
-      object BitBtn5: TSpeedButton
-        Left = 232
-        Height = 34
-        Top = 16
-        Width = 327
-        Action = acProduce
-        AllowAllUp = True
-        Anchors = [akLeft, akRight, akBottom]
-        GroupIndex = 112
-      end
-      object lStep: TLabel
-        Left = 0
-        Height = 17
-        Top = 0
-        Width = 795
-        Align = alTop
-        Alignment = taCenter
-        Caption = 'kein Arbeitsschritt gewählt'
-        Font.Height = -13
-        Font.Style = [fsBold]
-        ParentColor = False
-        ParentFont = False
-      end
-    end
-    object Panel9: TPanel
-      Left = 0
-      Height = 50
-      Top = 522
-      Width = 795
-      Align = alBottom
-      BevelOuter = bvNone
-      ClientHeight = 50
-      ClientWidth = 795
-      TabOrder = 2
-      object bExecute: TSpeedButton
-        Left = 261
-        Height = 38
-        Top = 8
-        Width = 280
-        Action = acExecuteStep
-        AllowAllUp = True
-        Anchors = [akTop]
-        GroupIndex = 116
-      end
-      object bResults: TSpeedButton
-        AnchorSideLeft.Control = bExecute
-        AnchorSideLeft.Side = asrBottom
-        Left = 549
-        Height = 38
-        Top = 8
-        Width = 246
-        AllowAllUp = True
-        Anchors = [akTop, akLeft, akRight]
-        BorderSpacing.Left = 8
-        Caption = 'BDE/Fehler'
-        Enabled = False
-        GroupIndex = 554
-      end
-    end
-    object lStatusProblems: TLabel
-      Left = 8
-      Height = 17
-      Top = 64
-      Width = 779
-      Align = alTop
-      BorderSpacing.Around = 8
-      Caption = 'Achtung Teile des Auftrages sind in nicht freigegebenem Zustand !'
-      Color = clRed
-      Font.Color = clWhite
-      Font.Height = -13
-      Font.Style = [fsBold]
-      ParentColor = False
-      ParentFont = False
-      Transparent = False
-      Visible = False
-    end
-    object Panel1: TPanel
-      Left = 0
-      Height = 170
-      Top = 352
-      Width = 795
-      Align = alBottom
-      BevelOuter = bvNone
-      ClientHeight = 170
-      ClientWidth = 795
-      TabOrder = 3
-      Visible = False
-      object ToolBar2: TToolBar
-        Left = 0
-        Height = 81
-        Top = 23
-        Width = 795
-        ButtonHeight = 80
-        ButtonWidth = 80
-        Caption = 'ToolBar2'
-        EdgeBorders = []
-        ShowCaptions = True
-        TabOrder = 0
-        Wrapable = False
-        object ToolButton3: TToolButton
-          Left = 1
-          Top = 0
-          Caption = 'Lötfehler'
-          Style = tbsDropDown
-        end
-        object ToolButton13: TToolButton
-          Left = 656
-          Top = 0
-          Caption = 'ToolButton13'
-          Style = tbsDropDown
-        end
-        object ToolButton5: TToolButton
-          Left = 564
-          Top = 0
-          Caption = 'ToolButton5'
-          Style = tbsDropDown
-        end
-        object ToolButton14: TToolButton
-          Left = 472
-          Top = 0
-          Caption = 'ToolButton14'
-          Style = tbsDropDown
-        end
-        object ToolButton15: TToolButton
-          Left = 380
-          Top = 0
-          Caption = 'ToolButton15'
-          Style = tbsDropDown
-        end
-        object ToolButton16: TToolButton
-          Left = 288
-          Top = 0
-          Caption = 'ToolButton16'
-          Style = tbsDropDown
-        end
-        object ToolButton17: TToolButton
-          Left = 196
-          Top = 0
-          Caption = 'ToolButton17'
-          Style = tbsDropDown
-        end
-        object ToolButton18: TToolButton
-          Left = 93
-          Top = 0
-          Caption = 'Grabstein Effekt'
-          Style = tbsDropDown
-        end
-      end
-      object Label1: TLabel
-        Left = 4
-        Height = 15
-        Top = 4
-        Width = 787
-        Align = alTop
-        BorderSpacing.Around = 4
-        Caption = 'Fehler'
-        ParentColor = False
-      end
-      object Label2: TLabel
-        Left = 0
-        Height = 15
-        Top = 104
-        Width = 795
-        Align = alTop
-        Caption = 'BDE'
-        ParentColor = False
-      end
-      object SpinEdit1: TSpinEdit
-        Left = 80
-        Height = 33
-        Top = 128
-        Width = 89
-        Font.Height = -19
-        MaxValue = 100000000
-        ParentFont = False
-        TabOrder = 1
-      end
-      object Label6: TLabel
-        Left = 11
-        Height = 15
-        Top = 136
-        Width = 50
-        Caption = 'Auschuss'
-        ParentColor = False
-      end
-      object SpinEdit2: TSpinEdit
-        Left = 261
-        Height = 33
-        Top = 128
-        Width = 89
-        Font.Height = -19
-        MaxValue = 100000000
-        ParentFont = False
-        TabOrder = 2
-        Value = 1
-      end
-      object Label7: TLabel
-        Left = 192
-        Height = 15
-        Top = 136
-        Width = 58
-        Caption = 'Menge gut'
-        ParentColor = False
-      end
     end
   end
   object sbMenue5: TSpeedButton

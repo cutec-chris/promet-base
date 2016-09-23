@@ -26,7 +26,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, IpHtml, LResources, Forms, Controls, Graphics,
   Dialogs, ExtCtrls, StdCtrls, Buttons, ActnList, ComCtrls, Menus, DbCtrls,
-  Spin, uBaseDbClasses, uBaseERPDBClasses, uprometscripts, uDocuments,
+  Spin, DBGrids, uBaseDbClasses, uBaseERPDBClasses, uprometscripts, uDocuments,
   uprometpascalscript, genpascalscript, genscript, db, simpleipc, blcksock,
   synsock, uprometscriptprinting, uImageCache;
 
@@ -68,16 +68,16 @@ type
     BitBtn3: TSpeedButton;
     BitBtn5: TSpeedButton;
     bResults: TSpeedButton;
+    cbCategory: TComboBox;
+    DBGrid1: TDBGrid;
     ipHTML: TIpHtmlPanel;
     Label1: TLabel;
-    Label2: TLabel;
-    Label6: TLabel;
-    Label7: TLabel;
     lStatusProblems: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
     lStep: TLabel;
+    Memo1: TMemo;
     MenuItem1: TMenuItem;
     MenuItem10: TMenuItem;
     MenuItem2: TMenuItem;
@@ -89,7 +89,8 @@ type
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     miExtended: TMenuItem;
-    Panel1: TPanel;
+    PageControl1: TPageControl;
+    pBDE: TPanel;
     Panel3: TPanel;
     Panel5: TPanel;
     Panel6: TPanel;
@@ -108,20 +109,23 @@ type
     sbMenue4: TSpeedButton;
     sbMenue5: TSpeedButton;
     bNet: TToggleBox;
-    SpinEdit1: TSpinEdit;
-    SpinEdit2: TSpinEdit;
-    ToolBar1: TPanel;
+    spBDE: TSplitter;
     ToolBar2: TToolBar;
-    ToolButton1: TSpeedButton;
-    ToolButton13: TToolButton;
-    ToolButton14: TToolButton;
-    ToolButton15: TToolButton;
-    ToolButton16: TToolButton;
-    ToolButton17: TToolButton;
-    ToolButton18: TToolButton;
-    ToolButton2: TSpeedButton;
+    ToolButton10: TToolButton;
+    ToolButton11: TToolButton;
     ToolButton3: TToolButton;
+    ToolButton4: TToolButton;
     ToolButton5: TToolButton;
+    ToolButton6: TToolButton;
+    ToolButton7: TToolButton;
+    ToolButton8: TToolButton;
+    ToolButton9: TToolButton;
+    tsOldProblems: TTabSheet;
+    tsBDE: TTabSheet;
+    tsProblems: TTabSheet;
+    ToolBar1: TPanel;
+    ToolButton1: TSpeedButton;
+    ToolButton2: TSpeedButton;
     tvStep: TTreeView;
     procedure acDebugLogExecute(Sender: TObject);
     procedure acEditExecute(Sender: TObject);
@@ -132,6 +136,7 @@ type
     procedure acReadyExecute(Sender: TObject);
     procedure acRefreshExecute(Sender: TObject);
     procedure bNetChange(Sender: TObject);
+    procedure bResultsClick(Sender: TObject);
     function FCacheGetFile(URL: string; var NewPath: string): TStream;
     procedure fLogWaitFormbAbortClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -426,6 +431,12 @@ begin
         FSocket.OnData:=@FSocketData;
         FSocket.OnTerminate:=@FSocketTerminate;
       end;
+end;
+
+procedure TFAutomation.bResultsClick(Sender: TObject);
+begin
+  pBDE.Visible:=bResults.Down;
+  spBDE.Visible:=bResults.Down;
 end;
 
 function TFAutomation.FCacheGetFile(URL: string; var NewPath: string): TStream;
