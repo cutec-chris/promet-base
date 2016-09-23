@@ -171,6 +171,8 @@ type
 
   TProdTreeData = class
     procedure CompileScript(Data: PtrInt);
+    procedure DebugCompileMessage(Sender: TScript; Module, Message: string;
+      Position, Row, Col: Integer);
     procedure ScriptDebugln(const s: string);
     procedure ScriptPrepareWriteln(const s: string);
     procedure ScriptWriteln(const s: string);
@@ -911,9 +913,11 @@ procedure TProdTreeData.CompileScript(Data: PtrInt);
 begin
   Screen.Cursor:=crHourGlass;
   Script.Writeln:=@ScriptWriteln;
+  Script.Script.OnCompileMessage:=@DebugCompileMessage;
   if not Script.Compile then
     begin
       FAutomation.lStatusProblems.Caption:='Failed to compile Script !';
+      fLogWaitForm.ShowInfo(Script.Script.Results);
       FAutomation.lStatusProblems.Visible:=True;
       Screen.Cursor:=crDefault;
     end
@@ -930,6 +934,12 @@ begin
       FAutomation.lStatusProblems.Visible:=False;
       Screen.Cursor:=crDefault;
     end;
+end;
+
+procedure TProdTreeData.DebugCompileMessage(Sender: TScript; Module,
+  Message: string; Position, Row, Col: Integer);
+begin
+  fLogWaitForm.ShowInfo(Message);
 end;
 
 procedure TProdTreeData.ScriptDebugln(const s: string);

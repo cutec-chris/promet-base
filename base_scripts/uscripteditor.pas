@@ -762,7 +762,11 @@ begin
           if eRunFunction.Text<>'' then
             TBaseScript(FDataSet).Script.RunScriptFunction([],eRunFunction.Text)
           else if not TBaseScript(FDataSet).Execute(Null,True) then
-            messages.AddItem('failed to Load Compiled Data',nil);
+            begin
+              messages.AddItem('failed to Load Compiled Data',nil);
+              if TBaseScript(FDataSet).Script.Results<>'' then
+                messages.AddItem(TBaseScript(FDataSet).Script.Results,nil);;
+            end;
           ButtonStatus(ssNone);
         end;
       sl.Free;
