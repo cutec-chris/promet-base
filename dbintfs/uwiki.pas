@@ -28,6 +28,9 @@ type
     procedure DefineFields(aDataSet : TDataSet);override;
     procedure Open; override;
   end;
+
+  { TWikiList }
+
   TWikiList = class(TBaseDBList)
     procedure FKeywordsDataSetAfterInsert(aDataSet: TDataSet);
     procedure WikiListWikiLink(Inp: string; var Outp: string; aLevel: Integer=0
@@ -49,6 +52,7 @@ type
     function FindWikiFolder(PageName : string) : Boolean;
     function GetFullPath : string;
     function isDynamic : Boolean;
+    function PageAsHtml : string;
     function PageAsText : string;
     property ActiveTreeID : Variant read FActiveTreeID;
     constructor CreateEx(aOwner: TComponent; DM: TComponent;
@@ -282,9 +286,18 @@ begin
   Result := pos('[[INCLUDE:',Uppercase(FieldByName('DATA').AsString))>0;
 end;
 
+function TWikiList.PageAsHtml: string;
+var
+  aPath: String;
+begin
+  aPath := GetFullPath;
+  aPath := copy(aPath,0,rpos('/',aPath));
+  Result := '<html><body>'+WikiText2HTML(DataSet.FieldByName('DATA').AsString,'',aPath)+'</body></html>';
+end;
+
 function TWikiList.PageAsText: string;
 begin
-  Result := StripHTML(WikiText2HTML(DataSet.FieldByName('DATA').AsString,'',''));
+  Result := StripHTML(PageAsHtml);
 end;
 
 constructor TWikiList.CreateEx(aOwner: TComponent; DM: TComponent;
