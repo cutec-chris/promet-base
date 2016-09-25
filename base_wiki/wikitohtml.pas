@@ -24,7 +24,7 @@ unit wikitohtml;
 interface
 
 uses
-  Classes, SysUtils, Utils,RegExpr,htmltowiki;
+  Classes, SysUtils, Utils,RegExpr,htmltowiki,LazFileUtils;
 
 function WikiText2HTML(input: string;LinkOffset : string = '';RemoveLinkOffset : string = '';IproChanges : Boolean = False;aLevel : Integer = 0): string;
 function StripWikiText(input : string) : string;
@@ -455,8 +455,10 @@ begin
         begin
           linkcontent := copy(istr,0,pos('|',istr)-1);
               aLink := linkoffset+UniToSys(HTMLDecode(linkcontent));
-              if copy(aLink,0,length(RemoveLinkOffset)) = RemoveLinkOffset then
-                aLink := copy(aLink,length(RemoveLinkOffset),length(aLink));
+              if TryCreateRelativePath(aLink,RemoveLinkOffset,False,False,tmp) then
+                aLink := tmp;
+              //if copy(aLink,0,length(RemoveLinkOffset)) = RemoveLinkOffset then
+              //  aLink := copy(aLink,length(RemoveLinkOffset)+1,length(aLink));
               if Assigned(OnWikiLink) then
                 begin
                   tmp := '';

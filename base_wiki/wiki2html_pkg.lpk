@@ -30,11 +30,14 @@
         <UnitName Value="rtf2html"/>
       </Item3>
     </Files>
-    <RequiredPkgs Count="1">
+    <RequiredPkgs Count="2">
       <Item1>
+        <PackageName Value="LazUtils"/>
+      </Item1>
+      <Item2>
         <PackageName Value="general_nogui"/>
         <DefaultFilename Value="..\..\..\..\general\general_nogui.lpk"/>
-      </Item1>
+      </Item2>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

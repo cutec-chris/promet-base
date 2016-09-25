@@ -16,12 +16,17 @@ type
   { TWikiSession }
 
   TWikiSession = class
+  private
+    FSocket: TAppNetworkThrd;
+    procedure CreateWikiList;
+    procedure DestroyWikiList;
+    procedure SetSocket(AValue: TAppNetworkThrd);
   public
     Url : string;
     Code : Integer;
     Result : string;
     WikiList: TWikiList;
-    Socket : TAppNetworkThrd;
+    property Socket : TAppNetworkThrd read FSocket write SetSocket;
 
     constructor Create;
     destructor Destroy; override;
@@ -60,21 +65,38 @@ begin
       lOut.Text:=aSock.Result;
       lOut.SaveToStream(Output);
       lOut.Free;
+      Headers.Clear;
       Headers.Add('Content-Type: '+ 'text/html');
     end;
 end;
 
 { TWikiSession }
 
+procedure TWikiSession.CreateWikiList;
+begin
+  WikiList := TWikiList.Create(nil);
+end;
+
+procedure TWikiSession.DestroyWikiList;
+begin
+  WikiList.Free;
+end;
+
+procedure TWikiSession.SetSocket(AValue: TAppNetworkThrd);
+begin
+  if FSocket=AValue then Exit;
+  FSocket:=AValue;
+  FSocket.Synchronize(FSocket,@CreateWikiList);
+end;
+
 constructor TWikiSession.Create;
 begin
   Code := 500;
-  WikiList := TWikiList.Create(nil);
 end;
 
 destructor TWikiSession.Destroy;
 begin
-  WikiList.Free;
+  FSocket.Synchronize(FSocket,@DestroyWikiList);
   inherited Destroy;
 end;
 
