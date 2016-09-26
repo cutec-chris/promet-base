@@ -455,7 +455,7 @@ begin
         begin
           linkcontent := copy(istr,0,pos('|',istr)-1);
               aLink := linkoffset+UniToSys(HTMLDecode(linkcontent));
-              if TryCreateRelativePath(aLink,RemoveLinkOffset,False,False,tmp) then
+              if TryCreateRelativePath('./'+aLink,'./'+RemoveLinkOffset,False,False,tmp) then
                 aLink := tmp;
               //if copy(aLink,0,length(RemoveLinkOffset)) = RemoveLinkOffset then
               //  aLink := copy(aLink,length(RemoveLinkOffset)+1,length(aLink));

@@ -5,7 +5,8 @@ unit uprometwikiserver;
 interface
 
 uses
-  Classes, SysUtils, uappserverhttp, uWiki, syncobjs,uAppServer;
+  Classes, SysUtils, uappserverhttp, uWiki, syncobjs,uAppServer,uDocuments,
+  Utils;
 
 implementation
 
@@ -24,8 +25,9 @@ type
   public
     Url : string;
     Code : Integer;
-    Result : string;
+    Result : TStream;
     WikiList: TWikiList;
+    Document : TDocument;
     property Socket : TAppNetworkThrd read FSocket write SetSocket;
 
     constructor Create;
@@ -61,10 +63,8 @@ begin
       aSock.Url := copy(url,7,length(url));
       Sender.Synchronize(Sender,@aSock.ProcessWikiRequest);
       Result := aSock.Code;
-      lOut := TStringList.Create;
-      lOut.Text:=aSock.Result;
-      lOut.SaveToStream(Output);
-      lOut.Free;
+      if Assigned(aSock.Result) then
+        Output.CopyFrom(aSock.Result,0);
       Headers.Clear;
       Headers.Add('Content-Type: '+ 'text/html');
     end;
@@ -75,10 +75,12 @@ end;
 procedure TWikiSession.CreateWikiList;
 begin
   WikiList := TWikiList.Create(nil);
+  Document := TDocument.Create(nil);
 end;
 
 procedure TWikiSession.DestroyWikiList;
 begin
+  Document.Free;
   WikiList.Free;
 end;
 
@@ -101,12 +103,56 @@ begin
 end;
 
 procedure TWikiSession.ProcessWikiRequest;
+var
+  Path, tmp: String;
+  sl: TStringList;
+  aNumber: integer;
+  ms: TMemoryStream;
 begin
   Code:=404;
   if WikiList.FindWikiPage(Url) then
     begin
-      Result := WikiList.PageAsHtml;
+      sl := TStringList.Create;
+      sl.Text := WikiList.PageAsHtml;
+      result := TMemoryStream.Create;
+      sl.SaveToStream(result);
+      sl.Free;
       Code := 200;
+    end
+  else
+    begin
+      Path := Url;
+      if copy(uppercase(Path),0,5)='ICON(' then
+        begin
+          if TryStrToInt(copy(Path,6,length(Path)-6),aNumber) then
+            begin
+              ms := TMemoryStream.Create;
+              ms.Position:=0;
+              Result := ms;
+            end;
+        end
+      else if copy(uppercase(Path),0,12)='HISTORYICON(' then
+        begin
+          tmp := copy(Path,13,length(Path)-13);
+          if TryStrToInt(tmp,aNumber) then
+            begin
+              ms := TMemoryStream.Create;
+              ms.Position:=0;
+              Result := ms;
+            end;
+        end
+      else
+        begin
+          Document.Filter(Data.QuoteField('TYPE')+'=''W'' and '+Data.QuoteField('NAME')+'='+Data.QuoteValue(copy(ExtractFileName(Path),0,rpos('.',ExtractFileName(Path))-1)),1);
+          if Document.DataSet.RecordCount > 0 then
+            begin
+              ms := TMemoryStream.Create;
+              Document.CheckoutToStream(ms);
+              ms.Position:=0;
+              Result := ms;
+              Code := 200;
+            end;
+        end;
     end;
 end;
 
