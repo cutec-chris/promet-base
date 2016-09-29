@@ -39,39 +39,39 @@ inherited fQSPositionFrame: TfQSPositionFrame
     Color = clWindow
     Columns = <    
       item
-        Title.Caption = 'STEP'
+        Title.Caption = 'Schritt'
         Width = 40
         FieldName = 'STEP'
       end    
       item
-        Title.Caption = 'EXPECTED'
+        Title.Caption = 'Erwartet'
         Width = 170
         FieldName = 'EXPECTED'
       end    
       item
-        Title.Caption = 'RESULT'
+        Title.Caption = 'Ergebnis'
         Width = 170
         FieldName = 'RESULT'
       end    
       item
-        Title.Caption = 'RESULTSHORT'
+        Title.Caption = 'Ergebnis kurz'
         Width = 30
         FieldName = 'RESULTSHORT'
       end    
       item
-        Title.Caption = 'MODUL'
-        Width = 70
+        Title.Caption = 'Modul'
+        Width = 120
         FieldName = 'MODUL'
       end    
       item
-        Title.Caption = 'NAME'
-        Width = 90
+        Title.Caption = 'Name'
+        Width = 150
         FieldName = 'NAME'
       end    
       item
-        Title.Caption = 'STEP'
-        Width = 20
-        FieldName = 'STEP'
+        Title.Caption = 'Zeitstempel'
+        Width = 100
+        FieldName = 'TIMESTAMPD'
       end>
     DataSource = OrderQMtestDetails
     ReadOnly = True
