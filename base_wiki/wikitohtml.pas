@@ -24,7 +24,7 @@ unit wikitohtml;
 interface
 
 uses
-  Classes, SysUtils, Utils,RegExpr,htmltowiki,LazFileUtils;
+  Classes, SysUtils, Utils,RegExpr,htmltowiki;
 
 function WikiText2HTML(input: string;LinkOffset : string = '';RemoveLinkOffset : string = '';IproChanges : Boolean = False;aLevel : Integer = 0): string;
 function StripWikiText(input : string) : string;
@@ -41,6 +41,310 @@ var
 implementation
 
 uses uminiconvencoding;
+
+function IsUNCPath(const Path: String): Boolean;
+begin
+  Result := false;
+end;
+
+function ExtractUNCVolume(const Path: String): String;
+begin
+  Result := '';
+end;
+
+{
+  Returns
+  - DriveLetter + : + PathDelim on Windows (if present) or
+  - UNC Share on Windows if present or
+  - PathDelim if FileName starts with PathDelim on Unix or Wince or
+  - Empty string of non eof the above applies
+}
+function ExtractFileRoot(FileName: String): String;
+var
+  Len: Integer;
+begin
+  Result := '';
+  Len := Length(FileName);
+  if (Len > 0) then
+  begin
+    if IsUncPath(FileName) then
+    begin
+      Result := ExtractUNCVolume(FileName);
+      // is it like \\?\C:\Directory?  then also include the "C:\" part
+      if (Result = '\\?\') and (Length(FileName) > 6) and
+         (FileName[5] in ['a'..'z','A'..'Z']) and (FileName[6] = ':') and (FileName[7] in AllowDirectorySeparators)
+      then
+        Result := Copy(FileName, 1, 7);
+    end
+    else
+    begin
+      {$if defined(unix) or defined(wince)}
+      if (FileName[1] = PathDelim) then Result := PathDelim;
+      {$else}
+      if (Len > 2) and (FileName[1] in ['a'..'z','A'..'Z']) and (FileName[2] = ':') and (FileName[3] in AllowDirectorySeparators) then
+        Result := UpperCase(Copy(FileName,1,3));
+      {$endif}
+    end;
+  end;
+end;
+
+function CompareFilenames(const Filename1, Filename2: string): integer;
+{$IFDEF darwin}
+var
+  F1: CFStringRef;
+  F2: CFStringRef;
+{$ENDIF}
+begin
+  {$IFDEF darwin}
+  if Filename1=Filename2 then exit(0);
+  if (Filename1='') or (Filename2='') then
+    exit(length(Filename2)-length(Filename1));
+  F1:=CFStringCreateWithCString(nil,Pointer(Filename1),kCFStringEncodingUTF8);
+  F2:=CFStringCreateWithCString(nil,Pointer(Filename2),kCFStringEncodingUTF8);
+  Result:=CFStringCompare(F1,F2,kCFCompareNonliteral
+          {$IFDEF CaseInsensitiveFilenames}+kCFCompareCaseInsensitive{$ENDIF});
+  CFRelease(F1);
+  CFRelease(F2);
+  {$ELSE}
+    {$IFDEF CaseInsensitiveFilenames}
+    Result:=UTF8CompareText(Filename1, Filename2);
+    {$ELSE}
+    Result:=CompareStr(Filename1, Filename2);
+    {$ENDIF}
+  {$ENDIF}
+end;
+
+function ChompPathDelim(const Path: string): string;
+var
+  Len, MinLen: Integer;
+begin
+  Result:=Path;
+  if Path = '' then
+    exit;
+  Len:=length(Result);
+  if (Result[1] in AllowDirectorySeparators) then begin
+    MinLen := 1;
+    {$IFDEF HasUNCPaths}
+    if (Len >= 2) and (Result[2] in AllowDirectorySeparators) then
+      MinLen := 2; // keep UNC '\\', chomp 'a\' to 'a'
+    {$ENDIF}
+  end
+  else begin
+    MinLen := 0;
+    {$IFdef MSWindows}
+    if (Len >= 3) and (Result[1] in ['a'..'z', 'A'..'Z'])  and
+       (Result[2] = ':') and (Result[3] in AllowDirectorySeparators)
+    then
+      MinLen := 3;
+    {$ENDIF}
+  end;
+
+  while (Len > MinLen) and (Result[Len] in AllowDirectorySeparators) do dec(Len);
+  if Len<length(Result) then
+    SetLength(Result,Len);
+end;
+
+{
+  Returns True if it is possible to create a relative path from Source to Dest
+  Function must be thread safe, so no expanding of filenames is done, since this
+  is not threadsafe (at least on Windows platform)
+
+  - Dest and Source must either be both absolute filenames, or relative
+  - Dest and Source cannot contain '..' since no expanding is done by design
+  - Dest and Source must be on same drive or UNC path (Windows)
+  - if both Dest and Source are relative they must at least share their base directory
+  - Double PathDelims are ignored (unless they are part of the UNC convention)
+
+  - if UsePointDirectory is True and Result is True then if RelPath is Empty string, RelPath becomes '.'
+  - if AlwaysRequireSharedBaseFolder is False then Absolute filenames need not share a basefolder
+
+  - if the function succeeds RelPath contains the relative path from Source to Dest,
+    no PathDelimiter is appended to the end of RelPath
+
+  Examples:
+  - Dest = /foo/bar Source = /foo Result = True RelPath = bar
+  - Dest = /foo///bar Source = /foo// Result = True RelPath = bar
+  - Dest = /foo Source = /foo/bar Result = True RelPath = ../
+  - Dest = /foo/bar Source = /bar Result = True RelPath = ../foo/bar
+  - Dest = foo/bar Source = foo/foo Result = True RelPath = ../bar
+  - Dest = foo/bar Source = bar/foo Result = False (no shared base directory)
+  - Dest = /foo Source = bar Result = False (mixed absolute and relative)
+  - Dest = c:foo Source = c:bar Result = False (no expanding)
+  - Dest = c:\foo Source = d:\bar Result is False (different drives)
+  - Dest = \foo Source = foo (Windows) Result is False (too ambiguous to guess what this should mean)
+  - Dest = /foo Source = /bar AlwaysRequireSharedBaseFolder = True Result = False
+  - Dest = /foo Source = /bar AlwaysRequireSharedBaseFolder = False Result = True RelPath = ../foo
+}
+
+function TryCreateRelativePath(const Dest, Source: String; UsePointDirectory: boolean;
+                               AlwaysRequireSharedBaseFolder: Boolean; out RelPath: String): Boolean;
+Const
+  MaxDirs = 129;
+Type
+  TDirArr =  Array[1..MaxDirs] of String;
+
+  function SplitDirs(Dir: String; out Dirs: TDirArr): Integer;
+  var
+    Start, Stop, Len: Integer;
+    S: String;
+  begin
+    Result := 0;
+    Len := Length(Dir);
+    if (Len = 0) then Exit;
+    Start := 1;
+    Stop := 1;
+
+    While Start <= Len do
+    begin
+      if (Dir[Start] in AllowDirectorySeparators) then
+      begin
+        S := Copy(Dir,Stop,Start-Stop);
+        //ignore empty strings, they are caused by double PathDelims, which we just ignore
+        if (S <> '') then
+        begin
+          Inc(Result);
+          if Result>High(Dirs) then
+            raise Exception.Create('too many sub directories');
+          Dirs[Result] := S;
+        end;
+        Stop := Start + 1;
+      end;
+      Inc(Start);
+    end;
+    //If (Len > 0) then
+
+    S := Copy(Dir,Stop,Start-Stop);
+    if (S <> '') then
+    begin
+      Inc(Result);
+      Dirs[Result] := S;
+    end;
+  end;
+
+
+var
+  CompareFunc: function(const Item1, Item2: String): PtrInt;
+  SourceRoot, DestRoot, CmpDest, CmpSource: String;
+  CmpDestLen, CmpSourceLen, DestCount, SourceCount, i,
+  SharedFolders, LevelsBack, LevelsUp: Integer;
+  SourceDirs, DestDirs: Array[1..MaxDirs] of String;
+  IsAbs: Boolean;
+begin
+  Result := False;
+  if (Dest = '') or (Source = '') then Exit;
+  if (Pos('..',Dest) > 0) or (Pos('..',Source) > 0) then Exit;
+  SourceRoot := ExtractFileRoot(Source);
+  DestRoot := ExtractFileRoot(Dest);
+  //debugln('TryCreaterelativePath: DestRoot = "',DestRoot,'"');
+  //debugln('TryCreaterelativePath: SourceRoot = "',SourceRoot,'"');
+  //Root must be same: either both absolute filenames or both relative (and on same drive in Windows)
+  if (CompareFileNames(SourceRoot, DestRoot) <> 0) then Exit;
+  IsAbs := (DestRoot <> '');
+  {$if defined(windows) and not defined(wince)}
+  if not IsAbs then  // relative paths
+  begin
+    //we cannot handle files like c:foo
+    if ((Length(Dest) > 1) and (UpCase(Dest[1]) in ['A'..'Z']) and (Dest[2] = ':')) or
+       ((Length(Source) > 1) and (UpCase(Source[1]) in ['A'..'Z']) and (Source[2] = ':')) then Exit;
+    //we cannot handle combinations like dest=foo source=\bar or the other way around
+    if ((Dest[1] in AllowDirectorySeparators) and not (Source[1] in AllowDirectorySeparators)) or
+       (not (Dest[1] in AllowDirectorySeparators) and (Source[1] in AllowDirectorySeparators)) then Exit;
+  end;
+  {$endif}
+
+  {$IFDEF CaseInsensitiveFilenames}
+  CompareFunc := @UTF8CompareText;
+  {$else CaseInsensitiveFilenames}
+  CompareFunc := @CompareStr;
+  {$endif CaseInsensitiveFilenames}
+
+  CmpSource := Source;
+  CmpDest := Dest;
+  {$IFDEF darwin}
+  CmpSource := GetDarwinSystemFilename(CmpSource);
+  CmpDest := GetDarwinSystemFilename(CmpDest);
+  {$ENDIF}
+
+
+  CmpDest := ChompPathDelim(Dest);
+  CmpSource := ChompPathDelim(Source);
+  if IsAbs then
+  begin
+    System.Delete(CmpSource,1,Length(SourceRoot));
+    System.Delete(CmpDest,1,Length(DestRoot));
+  end;
+
+  //Get rid of excessive trailing PathDelims now after (!) we stripped Root
+  while (Length(CmpDest) > 0) and (CmpDest[Length(CmpDest)] in AllowDirectorySeparators) do System.Delete(CmpDest,Length(CmpDest),1);
+  while (Length(CmpSource) > 0) and (CmpSource[Length(CmpSource)] in AllowDirectorySeparators) do System.Delete(CmpSource,Length(CmpSource),1);
+
+  //debugln('TryCreaterelativePath: CmpDest   = "',cmpdest,'"');
+  //debugln('TryCreaterelativePath: CmpSource = "',cmpsource,'"');
+  CmpDestLen := Length(CmpDest);
+  CmpSourceLen := Length(CmpSource);
+
+  DestCount := SplitDirs(CmpDest, DestDirs);
+  SourceCount :=  SplitDirs(CmpSource, SourceDirs);
+
+  //debugln('TryCreaterelativePath: DestDirs:');
+  //for i := 1 to DestCount do debugln(DbgS(i),' "',DestDirs[i],'"'); debugln;
+  //debugln('TryCreaterelativePath:');
+  //for i := 1 to SourceCount do debugln(DbgS(i),' "',SourceDirs[i],'"'); debugln;
+
+
+  i := 1;
+  SharedFolders := 0;
+  while (i <= DestCount) and (i <= SourceCount) do
+  begin
+    if (CompareFunc(DestDirs[i], SourceDirs[i]) = 0) then
+    begin
+      Inc(SharedFolders);
+      Inc(i);
+    end
+    else
+    begin
+      Break;
+    end;
+  end;
+
+  //debugln('TryCreaterelativePath: SharedFolders = ',DbgS(SharedFolders));
+  if (SharedFolders = 0) and ((not IsAbs) or AlwaysRequireSharedBaseFolder) and not ((CmpDestLen = 0) or (CmpSourceLen = 0)) then
+  begin
+    //debguln('TryCreaterelativePath: FAIL: IsAbs = ',DbgS(IsAs),' AlwaysRequireSharedBaseFolder = ',DbgS(AlwaysRequireSharedBaseFolder),
+    //' SharedFolders = 0, CmpDestLen = ',DbgS(cmpdestlen),' CmpSourceLen = ',DbgS(CmpSourceLen));
+    Exit;
+  end;
+  LevelsBack := SourceCount - SharedFolders;
+  LevelsUp := DestCount - SharedFolders;
+  //debugln('TryCreaterelativePath: LevelsBack = ',DbgS(Levelsback));
+  //debugln('TryCreaterelativePath: LevelsUp   = ',DbgS(LevelsUp));
+  if (LevelsBack > 0) then
+  begin
+    RelPath := '';
+    for i := 1 to LevelsBack do RelPath := '..' + PathDelim + Relpath;
+
+    for i := LevelsUp downto 1 do
+    begin
+      if (RelPath <> '') and not (RelPath[Length(RelPath)] in AllowDirectorySeparators) then RelPath := RelPath + PathDelim;
+      RelPath := RelPath + DestDirs[DestCount + 1 - i];
+    end;
+    RelPath := ChompPathDelim(RelPath);
+  end
+  else
+  begin
+    RelPath := '';
+    for i := LevelsUp downto 1 do
+    begin
+      if (RelPath <> '') then RelPath := RelPath + PathDelim;
+      RelPath := RelPath + DestDirs[DestCount + 1 - i];
+    end;
+  end;
+  if UsePointDirectory and (RelPath = '') then
+    RelPath := '.'; // Dest = Source
+
+  Result := True;
+end;
+
 
 function WikiText2HTML(input: string; LinkOffset: string;
   RemoveLinkOffset: string; IproChanges: Boolean; aLevel: Integer): string;
@@ -570,4 +874,4 @@ end;
 
 
 end.
-
+
