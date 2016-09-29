@@ -372,22 +372,28 @@ var
   i: Integer;
   aId: String;
   aImg: TThreadedImage;
+  tmp: UTF8String;
 begin
-  //if ThumbControl1.ImageLoaderManager.Queue.Count=0 then exit;
+  //if TImageLoaderManager(Sender).Queue.Count=0 then exit;
   FFetchSQL:='';
-  for i := 0 to ThumbControl1.ImageLoaderManager.Queue.Count-1 do
+  i := 0;
+  while i < TImageLoaderManager(Sender).Queue.Count do
     begin
-      aImg := TThreadedImage(ThumbControl1.ImageLoaderManager.Queue[i]);
+      aImg := TThreadedImage(TImageLoaderManager(Sender).Queue[i]);
       try
-        if Assigned(aImg) then
-          if not FileExists(FtempPath+aImg.URL) then
-            begin
-              aId := copy(aImg.URL,0,pos('.',aImg.URL)-1);
-              if IsNumeric(aID) then
-                FFetchSQL:=FFetchSQL+' or '+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(aId);
-            end;
+        if Assigned(aImg) and (aImg.Thread=nil) then
+          begin
+            tmp := aImg.URL;
+            if not FileExists(FtempPath+tmp) then
+              begin
+                aId := copy(tmp,0,pos('.',tmp)-1);
+                if IsNumeric(aID) then
+                  FFetchSQL:=FFetchSQL+' or '+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(aId);
+              end;
+          end;
+        inc(i);
       except
-        ThumbControl1.ImageLoaderManager.Queue.Delete(i);
+        TImageLoaderManager(Sender).Queue.Delete(i);
         break;
       end;
     end;
