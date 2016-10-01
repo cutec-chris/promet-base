@@ -121,7 +121,7 @@ begin
       aField.OnSetText:=@aFieldSetText;
       aField.EditMask:='';
       aField.OnValidate:=@aFieldValidate;
-      {$if ((FPC_VERSION>=3) or ((FPC_VERSION>=2) and (FPC_RELEASE>=6) and (FPC_PATCH>=2))))}
+      {$ifndef CPU_ARM}
       aField.ValidChars:=aField.ValidChars+['h','m','i','n','s'];
       {$endif}
     end;
