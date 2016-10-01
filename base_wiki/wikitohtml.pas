@@ -223,7 +223,11 @@ Type
 
 
 var
+  {$if ((FPC_VERSION>=3) or ((FPC_VERSION>=2) and ((FPC_RELEASE>=5) or ((FPC_RELEASE>=4) and (FPC_PATCH>=1)))))}
+  CompareFunc: function(const Item1, Item2: String): LongInt;
+  {$else}
   CompareFunc: function(const Item1, Item2: String): PtrInt;
+  {$endif}
   SourceRoot, DestRoot, CmpDest, CmpSource: String;
   CmpDestLen, CmpSourceLen, DestCount, SourceCount, i,
   SharedFolders, LevelsBack, LevelsUp: Integer;
@@ -874,4 +878,4 @@ end;
 
 
 end.
-
+
