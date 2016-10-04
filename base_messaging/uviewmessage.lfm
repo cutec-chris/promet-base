@@ -9,8 +9,8 @@ object fViewMessage: TfViewMessage
   OnResize = FrameResize
   ParentColor = False
   TabOrder = 0
-  DesignLeft = 426
-  DesignTop = 183
+  DesignLeft = 434
+  DesignTop = 223
   object ipHTMLContent: TIpHtmlPanel
     Left = 0
     Height = 310
@@ -26,10 +26,6 @@ object fViewMessage: TfViewMessage
     PrintSettings.MarginTop = 0.5
     PrintSettings.MarginRight = 0.5
     PrintSettings.MarginBottom = 0.5
-    PrintSettings.Preview.Left = 480
-    PrintSettings.Preview.Top = 270
-    PrintSettings.Preview.Width = 1440
-    PrintSettings.Preview.Height = 810
     TabOrder = 1
     Visible = False
     OnHotClick = ipHTMLContentHotClick
