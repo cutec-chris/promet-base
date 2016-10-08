@@ -3,8 +3,8 @@ inherited fWikiFrame: TfWikiFrame
   Width = 686
   ClientHeight = 529
   ClientWidth = 686
-  DesignLeft = 327
-  DesignTop = 186
+  DesignLeft = 362
+  DesignTop = 196
   object pTop: TPanel[0]
     Left = 0
     Height = 42
@@ -37,7 +37,6 @@ inherited fWikiFrame: TfWikiFrame
         Caption = 'tbToolBar'
         EdgeInner = esNone
         EdgeOuter = esNone
-        Images = fVisualControls.Images
         TabOrder = 0
         object tbMenue: TToolButton
           Left = 1
@@ -310,7 +309,7 @@ inherited fWikiFrame: TfWikiFrame
       end
       object eName: TDBEdit
         Left = 4
-        Height = 23
+        Height = 28
         Top = 13
         Width = 316
         DataField = 'CAPTION'
@@ -424,7 +423,8 @@ inherited fWikiFrame: TfWikiFrame
         Caption = 'Navigation'
         Font.Color = clMedGray
         Font.Height = 13
-        Font.Orientation = -900
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
@@ -440,7 +440,6 @@ inherited fWikiFrame: TfWikiFrame
         Caption = 'tbToolBar1'
         EdgeInner = esNone
         EdgeOuter = esNone
-        Images = fVisualControls.Images
         TabOrder = 0
         object tbMenue1: TToolButton
           Left = 1
@@ -496,7 +495,8 @@ inherited fWikiFrame: TfWikiFrame
         Caption = 'bearbeiten'
         Font.Color = clMedGray
         Font.Height = 13
-        Font.Orientation = -900
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
@@ -538,17 +538,12 @@ inherited fWikiFrame: TfWikiFrame
       PrintSettings.MarginTop = 0.5
       PrintSettings.MarginRight = 0.5
       PrintSettings.MarginBottom = 0.5
-      PrintSettings.Preview.Left = 480
-      PrintSettings.Preview.Top = 270
-      PrintSettings.Preview.Width = 1440
-      PrintSettings.Preview.Height = 810
       ShowHints = False
       TabOrder = 0
       OnHotClick = ipHTMLHotClick
     end
   end
   object ActionList: TActionList[3]
-    Images = fVisualControls.Images
     left = 368
     top = 56
     object acBack: TAction

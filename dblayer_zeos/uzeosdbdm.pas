@@ -2029,19 +2029,11 @@ begin
       begin
         //Get uncached
         if not Assigned(aConnection) then
-          begin
-            if FMainConnection.DbcConnection<>nil then
-              FMainConnection.DbcConnection.GetMetadata.ClearCache;
-            FMainConnection.GetTableNames('','',Tables);
-            FMainConnection.GetTriggerNames('','',Triggers);
-          end
-        else
-          begin
-            if FMainConnection.DbcConnection<>nil then
-              TZConnection(aConnection).DbcConnection.GetMetadata.ClearCache;
-            TZConnection(aConnection).GetTableNames('','',Tables);
-            FMainConnection.GetTriggerNames('','',Triggers);
-          end;
+          aConnection := FMainConnection;
+        if FMainConnection.DbcConnection<>nil then
+          TZConnection(aConnection).DbcConnection.GetMetadata.ClearCache;
+        TZConnection(aConnection).GetTableNames('','',Tables);
+        TZConnection(aConnection).GetTriggerNames('','',Triggers);
       end;
   except
   end;
