@@ -813,7 +813,7 @@ var
                       for i := 0 to FVariables.Count-1 do
                         begin
                           Inp := StringReplace(Inp,'@VARIABLES.'+FVariables.Names[i]+'@',FVariables.ValueFromIndex[i],[rfReplaceAll,rfIgnoreCase]);
-                          Inp := StringReplace(Inp,'@VARIABLES.'+FVariables.Names[i]+':HTTP@',HTTPEncode(FVariables.ValueFromIndex[i]),[rfReplaceAll,rfIgnoreCase]);
+                          Inp := StringReplace(Inp,'@VARIABLES.'+FVariables.Names[i]+':HTTP@',HTTPEncode(PChar(FVariables.ValueFromIndex[i])),[rfReplaceAll,rfIgnoreCase]);
                         end;
                       Outp:=Outp+WikiText2HTML(Inp,'','',True);
                     end;
@@ -859,7 +859,7 @@ begin
   for i := 0 to FVariables.Count-1 do
     begin
       Inp := StringReplace(Inp,'@VARIABLES.'+FVariables.Names[i]+'@',FVariables.ValueFromIndex[i],[rfReplaceAll,rfIgnoreCase]);
-      Inp := StringReplace(Inp,'@VARIABLES.'+FVariables.Names[i]+':HTTP@',HTTPEncode(FVariables.ValueFromIndex[i]),[rfReplaceAll,rfIgnoreCase]);
+      Inp := StringReplace(Inp,'@VARIABLES.'+FVariables.Names[i]+':HTTP@',HTTPEncode(PChar(FVariables.ValueFromIndex[i])),[rfReplaceAll,rfIgnoreCase]);
     end;
   if Uppercase(copy(Inp,0,6)) = 'BOARD(' then
     begin
