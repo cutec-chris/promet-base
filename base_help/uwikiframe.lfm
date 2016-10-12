@@ -81,18 +81,18 @@ inherited fWikiFrame: TfWikiFrame
       Left = 133
       Height = 42
       Top = 0
-      Width = 51
+      Width = 59
       Align = alLeft
       BorderSpacing.Left = 5
       BevelOuter = bvNone
       ClientHeight = 42
-      ClientWidth = 51
+      ClientWidth = 59
       TabOrder = 1
       object Label4: TLabel
         Left = 0
         Height = 15
         Top = 0
-        Width = 51
+        Width = 59
         Alignment = taCenter
         Anchors = [akLeft, akRight, akBottom]
         AutoSize = False
@@ -150,21 +150,21 @@ inherited fWikiFrame: TfWikiFrame
       end
     end
     object pEdit1: TPanel
-      Left = 189
+      Left = 197
       Height = 42
       Top = 0
-      Width = 59
+      Width = 75
       Align = alLeft
       BorderSpacing.Left = 5
       BevelOuter = bvNone
       ClientHeight = 42
-      ClientWidth = 59
+      ClientWidth = 75
       TabOrder = 2
       object Label5: TLabel
         Left = 0
         Height = 15
         Top = 0
-        Width = 59
+        Width = 75
         Alignment = taCenter
         Anchors = [akLeft, akRight, akBottom]
         AutoSize = False
@@ -274,7 +274,7 @@ inherited fWikiFrame: TfWikiFrame
       end
     end
     object Panel7: TPanel
-      Left = 312
+      Left = 336
       Height = 42
       Top = 0
       Width = 324
@@ -337,7 +337,7 @@ inherited fWikiFrame: TfWikiFrame
       end
     end
     object pEntry: TPanel
-      Left = 248
+      Left = 272
       Height = 42
       Top = 0
       Width = 64
