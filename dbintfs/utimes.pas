@@ -121,7 +121,7 @@ begin
       aField.OnSetText:=@aFieldSetText;
       aField.EditMask:='';
       aField.OnValidate:=@aFieldValidate;
-      {$IF CPUARM FPC_FULLVERSION>20600}
+      {$IF FPC_FULLVERSION>20600}
       aField.ValidChars:=aField.ValidChars+['h','m','i','n','s'];
       {$endif}
     end;
