@@ -4,17 +4,6 @@ unit uPowerState;
 
 interface
 
-uses
-  Classes, SysUtils
-  {$IFDEF WINDOWS}
-  ,windows
-  {$ENDIF}
-  {$IFDEF UNIX}
-  {$ifndef DARWIN}
-  ,dbus
-  {$endif}
-  {$ENDIF}
-  ;
 {$IFDEF UNIX}
 {$ifndef DARWIN}
 {$IF FPC_FULLVERSION>20600}
@@ -22,6 +11,18 @@ uses
 {$ENDIF}
 {$endif}
 {$ENDIF}
+
+uses
+  Classes, SysUtils
+  {$IFDEF WINDOWS}
+  ,windows
+  {$ENDIF}
+  {$IFDEF UNIX}
+  {$ifdef DBUS}
+  ,dbus
+  {$endif}
+  {$ENDIF}
+  ;
 
 type
   TPowerStateMonitor = class(TObject)
