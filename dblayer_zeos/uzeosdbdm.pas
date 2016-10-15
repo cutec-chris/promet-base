@@ -851,8 +851,13 @@ begin
   SetNewIDIfNull;
   if FUpStdFields and Assigned(FOrigTable) {and (FOrigTable.Changed)} then
     begin
+      {$IF FPC_FULLVERSION>20600}
       if (FieldDefs.IndexOf('TIMESTAMPD') > -1) then
         FieldByName('TIMESTAMPD').AsDateTime:=LocalTimeToUniversal(Now());
+      {$ELSE}
+      if (FieldDefs.IndexOf('TIMESTAMPD') > -1) then
+        FieldByName('TIMESTAMPD').AsDateTime:=Now();
+      {$ENDIF}
       with BaseApplication as IBaseDBInterface do
         begin
           if TBaseDBModule(ForigTable.DataModule).Users.DataSet.Active and ((FieldDefs.IndexOf('CREATEDBY') > -1) or (FieldDefs.IndexOf('CHANGEDBY') > -1)) then
