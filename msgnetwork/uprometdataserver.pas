@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils,fpjson, uBaseDBInterface,uBaseDbClasses,fpsqlparser,
-  fpsqlscanner, fpsqltree,httpsend,OpenSSL, jsonparser, db, uappserverhttp,
+  fpsqlscanner, fpsqltree,httpsend, jsonparser, db, uappserverhttp,
   uAppServer;
 
 implementation
