@@ -17,7 +17,9 @@ uses
   ;
 {$IFDEF UNIX}
 {$ifndef DARWIN}
+{$IF FPC_FULLVERSION>20600}
   {$DEFINE DBUS}
+{$ENDIF}
 {$endif}
 {$ENDIF}
 
