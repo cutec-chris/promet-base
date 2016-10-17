@@ -441,6 +441,7 @@ inherited fWikiFrame: TfWikiFrame
         Caption = 'tbToolBar1'
         EdgeInner = esNone
         EdgeOuter = esNone
+        Images = fVisualControls.Images
         TabOrder = 0
         object tbMenue1: TToolButton
           Left = 1
