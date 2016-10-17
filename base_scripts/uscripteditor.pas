@@ -264,7 +264,7 @@ implementation
 uses
   uFrmGotoLine,uData,uBaseApplication,Utils,uSystemMessage,uStatistic,
   Clipbrd,uprometpascalscript,uprometpythonscript,uprometcscript,uvideofunctions,
-  uVideoTest;
+  uVideoTest,uPSUtils;
 
 {$R *.lfm}
 
@@ -1293,20 +1293,20 @@ begin
     begin
       Sender.Compiler.AddTypeS('TFPColor','record red : word;green : word;blue : word;alpha : word; end;');
       Sender.Compiler.AddTypeS('THLSColor','record h : word;l : word;s : word;end;');
-      Sender.AddFunction(@CopyToWorkArea,'procedure CopyToWorkArea(x,y,width,height : Integer);');
-      Sender.AddFunction(@ScaleImage,'procedure ScaleImage(NewWidth : Integer;NewHeight : Integer);');
-      Sender.AddFunction(@ImageWidth,'function ImageWidth : Integer;');
-      Sender.AddFunction(@ImageHeight,'function ImageHeight : Integer;');
-      Sender.AddFunction(@SetPixel,'procedure SetPixel(x,y : Integer; r,g,b : word);');
-      Sender.AddFunction(@SetPixelHLS,'procedure SetPixelHLS(x,y : Integer; h,l,s : word);');
-      Sender.AddFunction(@GetPixel,'function GetPixel(x,y : Integer) : TFPColor;');
-      Sender.AddFunction(@GetPixelHLS,'function GetPixelHLS(x,y : Integer) : THLSColor;');
-      Sender.AddFunction(@RefreshImageVT,'procedure RefreshImage;');
-      Sender.AddFunction(@LoadImageVT,'function LoadImage(aFile : PChar) : Boolean;');
-      Sender.AddFunction(@SaveImage,'function SaveImage(aFile : PChar) : Boolean;');
-      Sender.AddFunction(@ReloadWorkImage,'function ReloadWorkImage(aFile : PChar) : Boolean;');
-      Sender.AddFunction(@SaveWorkImage,'function SaveWorkImage(aFile : PChar) : Boolean;');
-      Sender.AddFunction(@CaptureImageVT,'function CaptureImage(dev: PChar;Width,Height : Integer): Boolean;');
+      Sender.AddFunctionEx(@CopyToWorkArea,'procedure CopyToWorkArea(x,y,width,height : Integer);',cdStdCall);
+      Sender.AddFunctionEx(@ScaleImage,'procedure ScaleImage(NewWidth : Integer;NewHeight : Integer);',cdStdCall);
+      Sender.AddFunctionEx(@ImageWidth,'function ImageWidth : Integer;stdcall;',cdStdCall);
+      Sender.AddFunctionEx(@ImageHeight,'function ImageHeight : Integer;stdcall;',cdStdCall);
+      Sender.AddFunctionEx(@SetPixel,'procedure SetPixel(x,y : Integer; r,g,b : word);',cdStdCall);
+      Sender.AddFunctionEx(@SetPixelHLS,'procedure SetPixelHLS(x,y : Integer; h,l,s : word);',cdStdCall);
+      Sender.AddFunctionEx(@GetPixel,'function GetPixel(x,y : Integer) : TFPColor;stdcall;',cdStdCall);
+      Sender.AddFunctionEx(@GetPixelHLS,'function GetPixelHLS(x,y : Integer) : THLSColor;',cdStdCall);
+      Sender.AddFunctionEx(@RefreshImageVT,'procedure RefreshImage;stdcall;',cdStdCall);
+      Sender.AddFunctionEx(@LoadImageVT,'function LoadImage(aFile : PChar) : Boolean;',cdStdCall);
+      Sender.AddFunctionEx(@SaveImage,'function SaveImage(aFile : PChar) : Boolean;',cdStdCall);
+      Sender.AddFunctionEx(@ReloadWorkImage,'function ReloadWorkImage(aFile : PChar) : Boolean;',cdStdCall);
+      Sender.AddFunctionEx(@SaveWorkImage,'function SaveWorkImage(aFile : PChar) : Boolean;',cdStdCall);
+      Sender.AddFunctionEx(@CaptureImageVT,'function CaptureImage(dev: PChar;Width,Height : Integer): Boolean;',cdStdCall);
       Result := True;
     end;
 end;
