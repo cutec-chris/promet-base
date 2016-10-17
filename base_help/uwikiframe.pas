@@ -332,7 +332,7 @@ var
 begin
   if Assigned(IpHtml.HotNode) and (ipHTML.HotNode is TIpHtmlNodeA) then
     begin
-      aLink := TIpHtmlNodeA(IpHtml.HotNode).HRef;
+      aLink := StringReplace(TIpHtmlNodeA(IpHtml.HotNode).HRef,'\','/',[rfReplaceAll]);//Ipro changes Links from / to \ on windows automatically
       PageName := StringReplace(aLink,' ','_',[rfReplaceAll]);
       for i := 0 to FVariables.Count-1 do
         pageName := StringReplace(PageName,'@VARIABLES.'+FVariables.Names[i]+'@',FVariables.ValueFromIndex[i],[rfReplaceAll,rfIgnoreCase]);
