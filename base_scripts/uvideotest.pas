@@ -177,13 +177,13 @@ begin
   if (y<Image.Height) and (x<Image.Width) then
     begin
       aRGB := ColorToRGB(FImage.Canvas.Pixels[round(X*FScale),round(Y*FScale)]);
-      StatusBar1.Panels.Items[2].Text:=' R:'+IntToStr(((aRGB) and $FF)*255)+
-                                       ' G:'+IntToStr(((aRGB shr 8)*255) and $FF)+
-                                       ' B:'+IntToStr(((aRGB shr 16)*255) and $FF);
+      StatusBar1.Panels.Items[2].Text:=' R:'+IntToStr(((aRGB) and $FF))+
+                                       ' G:'+IntToStr(((aRGB shr 8)) and $FF)+
+                                       ' B:'+IntToStr(((aRGB shr 16)) and $FF);
       ColorToHLS(FPColorToTColor(Image.Colors[round(X*FScale),round(Y*FScale)]),h,l,s);
-      StatusBar1.Panels.Items[3].Text:=' H:'+IntToStr(h*255)+
-                                       ' L:'+IntToStr(l*255)+
-                                       ' S:'+IntToStr(s*255);
+      StatusBar1.Panels.Items[3].Text:=' H:'+IntToStr(h)+
+                                       ' L:'+IntToStr(l)+
+                                       ' S:'+IntToStr(s);
     end;
 end;
 
