@@ -925,14 +925,15 @@ begin
   Screen.Cursor:=crHourGlass;
   Script.Writeln:=@ScriptWriteln;
   Script.Script.OnCompileMessage:=@DebugCompileMessage;
-  if not Script.Compile then
+  if (not Script.Compile) then
     begin
       FAutomation.lStatusProblems.Caption:='Failed to compile Script !';
       fLogWaitForm.ShowInfo(Script.Script.Results);
       FAutomation.lStatusProblems.Visible:=True;
       Screen.Cursor:=crDefault;
-    end
-  else if (Script.StatusProblems.Text<>'') and Assigned(FAutomation) then
+      exit;
+    end;
+  if (Script.StatusProblems.Text<>'') and Assigned(FAutomation) then
     begin
       FAutomation.lStatusProblems.Color:=clred;
       FAutomation.lStatusProblems.Font.Color:=clWhite;

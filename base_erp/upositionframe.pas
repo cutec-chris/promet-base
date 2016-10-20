@@ -67,6 +67,7 @@ type
     MenuItem11: TMenuItem;
     miCopy: TMenuItem;
     miPaste: TMenuItem;
+    pPositions: TPanel;
     pDetail: TPanel;
     pContent: TPanel;
     pDetails: TPanel;
@@ -1374,7 +1375,7 @@ begin
   FGridView.SortField:='POSNO';
   FGridView.ShortTextField:='SHORTTEXT';
   FGridView.TreeField:='PARENT';
-  FGridView.Parent := pContent;
+  FGridView.Parent := pPositions;
   FGridView.Align:=alClient;
   FGridView.FilterRow:=true;
   FGridView.WordWrap:=true;
