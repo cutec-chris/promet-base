@@ -919,20 +919,24 @@ begin
   inherited;
   OnGetImageX:=@SimpleIpHtmlGetImageX;
 end;
-
+var IsCompiling : Boolean;
 procedure TProdTreeData.CompileScript(Data: PtrInt);
 begin
   Screen.Cursor:=crHourGlass;
   Script.Writeln:=@ScriptWriteln;
   Script.Script.OnCompileMessage:=@DebugCompileMessage;
+  if IsCompiling then exit;
+  IsCompiling := True;
   if (not Script.Compile) then
     begin
       FAutomation.lStatusProblems.Caption:='Failed to compile Script !';
       fLogWaitForm.ShowInfo(Script.Script.Results);
       FAutomation.lStatusProblems.Visible:=True;
       Screen.Cursor:=crDefault;
+      IsCompiling := False;
       exit;
     end;
+  IsCompiling := False;
   if (Script.StatusProblems.Text<>'') and Assigned(FAutomation) then
     begin
       FAutomation.lStatusProblems.Color:=clred;
@@ -1315,5 +1319,6 @@ initialization
   genscript.DoClearScreen:=@InternalClearScreen;
   genscript.DoBringToFront:=@InternalBringToFront;
   DoInputBox:=@InputBox;
+  IsCompiling := False;
 end.
 
