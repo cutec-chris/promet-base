@@ -162,16 +162,19 @@ begin
       Self := fOptions;
     end;
   if not Assigned(tvMain) then exit;
-  aParentNode := nil;
-  if aCategory <> '' then
-    begin
-      aParentNode := tvMain.Items.FindTopLvlNode(aCategory);
-      if not Assigned(aParentNode) then
-        aParentNode := tvMain.Items.Add(nil,aCategory);
-    end;
-  aNode := tvMain.Items.AddChildObject(aParentNode,aName,aFrame);
-  FormsList.Add(aFrame);
-  tvMain.FullExpand;
+  try
+    aParentNode := nil;
+    if aCategory <> '' then
+      begin
+        aParentNode := tvMain.Items.FindTopLvlNode(aCategory);
+        if not Assigned(aParentNode) then
+          aParentNode := tvMain.Items.Add(nil,aCategory);
+      end;
+    aNode := tvMain.Items.AddChildObject(aParentNode,aName,aFrame);
+    FormsList.Add(aFrame);
+    tvMain.FullExpand;
+  except
+  end;
 end;
 destructor TfOptions.Destroy;
 begin

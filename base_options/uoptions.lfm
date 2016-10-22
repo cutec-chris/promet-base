@@ -1,7 +1,7 @@
 object fOptions: TfOptions
-  Left = 404
+  Left = 403
   Height = 580
-  Top = 194
+  Top = 169
   Width = 805
   Caption = 'Optionen'
   ClientHeight = 580
@@ -10,15 +10,14 @@ object fOptions: TfOptions
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   Position = poMainFormCenter
-  LCLVersion = '1.5'
+  LCLVersion = '1.7'
   object tvMain: TTreeView
     Left = 8
-    Height = 524
+    Height = 516
     Top = 8
     Width = 216
     Align = alLeft
     BorderSpacing.Around = 8
-    DefaultItemHeight = 16
     ReadOnly = True
     TabOrder = 0
     OnSelectionChanged = tvMainSelectionChanged
@@ -26,13 +25,13 @@ object fOptions: TfOptions
   end
   object pRight: TPanel
     Left = 245
-    Height = 524
+    Height = 516
     Top = 8
     Width = 552
     Align = alClient
     BorderSpacing.Around = 8
     BevelOuter = bvNone
-    ClientHeight = 524
+    ClientHeight = 516
     ClientWidth = 552
     TabOrder = 1
     object pHeader: TPanel
@@ -53,7 +52,7 @@ object fOptions: TfOptions
     end
     object pFrame: TPanel
       Left = 0
-      Height = 500
+      Height = 492
       Top = 24
       Width = 552
       Align = alClient
@@ -64,14 +63,14 @@ object fOptions: TfOptions
   end
   object Splitter1: TSplitter
     Left = 232
-    Height = 534
+    Height = 526
     Top = 0
     Width = 5
   end
   object ButtonPanel1: TButtonPanel
     Left = 6
-    Height = 34
-    Top = 540
+    Height = 42
+    Top = 532
     Width = 793
     OKButton.Name = 'OKButton'
     OKButton.DefaultCaption = True
