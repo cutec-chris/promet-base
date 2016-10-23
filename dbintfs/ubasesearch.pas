@@ -468,7 +468,11 @@ begin
         if Assigned(FBeginSearch) then FBeginSearch(Self);
         if trim(aSQL) <> '' then
           begin
-            aSQL := aSQL+' order by '+Data.QuoteField('TIMESTAMPD')+' desc';
+            if (pos('firebird',Data.Properties)>0)
+            or (pos('interbase',Data.Properties)>0)
+            then //ignore order by on firebird seems not supported for union select
+            else
+              aSQL := aSQL+' order by '+Data.QuoteField('TIMESTAMPD')+' desc';
             if FMaxResults>0 then
               aSQL := uStatistic.AddSQLLimit(aSQL,FMaxResults*length(Lists))+LineEnding;
             with BaseApplication as IBaseApplication do
