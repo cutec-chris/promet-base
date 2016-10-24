@@ -77,9 +77,14 @@ type
       aStorage: string; aQuantity, aReserve: real; QuantityUnit, PosNo: string
   ): real;
   end;
+
+  { TSupplierPrices }
+
   TSupplierPrices = class(TBaseDBDataSet)
   private
   public
+    constructor CreateEx(aOwner: TComponent; DM: TComponent; aConnection: TComponent
+  =nil; aMasterdata: TDataSet=nil); override;
     procedure DefineFields(aDataSet : TDataSet);override;
   end;
   TSupplier = class(TBaseDBDataSet)
@@ -196,6 +201,14 @@ type
 implementation
 uses uBaseDBInterface, uBaseSearch, uBaseApplication, uBaseApplicationTools,
   uData, Utils,uOrder,uthumbnails,uprometscripts;
+
+constructor TSupplierPrices.CreateEx(aOwner: TComponent; DM: TComponent;
+  aConnection: TComponent; aMasterdata: TDataSet);
+begin
+  inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
+  UpdateFloatFields:=True;
+end;
+
 procedure TSupplierPrices.DefineFields(aDataSet: TDataSet);
 begin
   with aDataSet as IBaseManageDB do

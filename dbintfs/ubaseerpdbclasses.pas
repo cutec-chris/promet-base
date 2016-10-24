@@ -70,10 +70,15 @@ type
     procedure DefineFields(aDataSet : TDataSet);override;
   end;
   TBaseDBPosition = class;
+
+  { TPositionCalc }
+
   TPositionCalc = class(TbaseDBDataSet)
   private
     FPosition: TBaseDBPosition;
   published
+    constructor CreateEx(aOwner: TComponent; DM: TComponent;
+      aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
     procedure DefineFields(aDataSet : TDataSet);override;
     property Position : TBaseDBPosition read FPosition;
   end;
@@ -523,6 +528,14 @@ begin
   if DataSet.Locate('SYMBOL', trim(aSymbol), []) then
     Result := StrToIntDef(copy(DataSet.FieldByName('TYPE').AsString, 0, 2), 0);
 end;
+
+constructor TPositionCalc.CreateEx(aOwner: TComponent; DM: TComponent;
+  aConnection: TComponent; aMasterdata: TDataSet);
+begin
+  inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
+  UpdateFloatFields:=True;
+end;
+
 procedure TPositionCalc.DefineFields(aDataSet: TDataSet);
 begin
   with aDataSet as IBaseManageDB do
