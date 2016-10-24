@@ -450,7 +450,7 @@ begin
       ;
     end;
   with Application as IBaseDBInterface do
-    acViewTexts.Checked:= DBConfig.ReadString('RDET'+BaseName,'Y') = 'Y';
+    acViewTexts.Checked:= DBConfig.ReadString('RDET'+BaseName,'N') = 'Y';
   FGridView.UseDefaultRowHeight:=not acViewTexts.Checked;
   FGridView.CalculateRowHeights;
   with Application as IBaseDBInterface do
