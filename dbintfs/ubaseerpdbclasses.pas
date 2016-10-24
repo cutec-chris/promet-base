@@ -904,7 +904,7 @@ var
   APrice : real;
   AMPrice : real;
   EKPrice : real;
-  Rec,CRec,SRec,CSRec : LongInt;
+  Rec,CRec,SRec,CSRec : Variant;
 begin
   DisableCalculation;
   DataSet.DisableControls;
