@@ -265,7 +265,7 @@ var
   tmp: TCaption;
 begin
   Result := False;
-  if Assigned(Field) and (((Field.FieldName='TEXT') and ((FDataSet.FieldByName('IDENT').AsString = '') or (FDataSet.FieldByName('TEXT').AsString = '')) and (length(SearchString)>2) and (pos(#13,SearchString)=0) and (pos(' ',SearchString)=0)) or (Field.FieldName='IDENT')) then
+  if Assigned(Field) and (((Field.FieldName='TEXT') and ((FDataSet.FieldByName('IDENT').AsString = '') or (FDataSet.FieldByName('TEXT').AsString = '')) and ((length(SearchString)>2) and (pos(#13,SearchString)=0) and (pos(' ',SearchString)=0)) or (Field.FieldName='IDENT')) or (SearchString='')) then
     begin
       if SearchString = '' then
         begin
