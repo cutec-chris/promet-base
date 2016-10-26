@@ -181,6 +181,7 @@ type
     procedure ScriptDebugln(const s: string);
     procedure ScriptPrepareWriteln(const s: string);
     procedure ScriptWriteln(const s: string);
+    procedure ShowNewData(Data: PtrInt);
   public
     EditParent : Int64;
     Position : Int64;
@@ -188,6 +189,7 @@ type
     Documents,PrepDocuments : TDocument;
     Func,PrepareFunc : string;
 
+    DataShown: Boolean;
     PreText : TStringList;
     WorkText : TStringList;
     ScriptOutput,PrepareOutput : TStringList;
@@ -320,10 +322,11 @@ begin
                     TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:Scripttyp unbekannt</b>')
                   else
                     TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:'+TreeData.Script.Script.Results+'</b>');
-                  TreeData.ShowData;
-                  FAutomation.ipHTML.Repaint;
-                  FAutomation.ipHTML.Scroll(hsaEnd);
-                  Application.ProcessMessages;
+                  if TreeData.DataShown then
+                    begin
+                      TreeData.DataShown:=False;
+                      Application.QueueAsyncCall(@TreeData.ShowNewData,0);
+                    end;
                 end;
             end;
           acExecuteStep.Checked:=False;
@@ -362,10 +365,11 @@ begin
                   TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:Scripttyp unbekannt</b>')
                 else
                   TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:'+TreeData.Preparescript.Script.Results+'</b>');
-                TreeData.ShowData;
-                FAutomation.ipHTML.Repaint;
-                FAutomation.ipHTML.Scroll(hsaEnd);
-                Application.ProcessMessages;
+                if TreeData.DataShown then
+                  begin
+                    TreeData.DataShown:=False;
+                    Application.QueueAsyncCall(@TreeData.ShowNewData,0);
+                  end;
               end;
           acExecutePrepareStep.Checked:=False;
         end
@@ -396,7 +400,11 @@ begin
     begin
       TreeData := TProdTreeData(tvStep.Selected.Data);
       TreeData.Prepared:=False;
-      TreeData.ShowData;
+      if TreeData.DataShown then
+        begin
+          TreeData.DataShown:=False;
+          Application.QueueAsyncCall(@TreeData.ShowNewData,0);
+        end;
     end;
 end;
 
@@ -408,7 +416,11 @@ begin
     begin
       TreeData := TProdTreeData(tvStep.Selected.Data);
       TreeData.Prepared:=True;
-      TreeData.ShowData;
+      if TreeData.DataShown then
+        begin
+          TreeData.DataShown:=False;
+          Application.QueueAsyncCall(@TreeData.ShowNewData,0);
+        end;
     end;
 end;
 
@@ -869,7 +881,11 @@ begin
     end;
   if Result then
     begin
-      TreeData.ShowData;
+      if TreeData.DataShown then
+        begin
+          TreeData.DataShown:=False;
+          Application.QueueAsyncCall(@TreeData.ShowNewData,0);
+        end;
       if DoCompileScript<>nil then
         begin
           FAutomation.lStatusProblems.Color:=clInfoBk;
@@ -985,12 +1001,11 @@ begin
       PrepareOutput.Add('<img src="ICON(75)"></img><b>'+aTxt+' -> '+copy(s,9,length(s))+'</b><br>')
     end
   else PrepareOutput.Add(s);
-  FAutomation.ipHTML.Visible:=False;
-  ShowData;
-  FAutomation.ipHTML.Visible:=True;
-  FAutomation.ipHTML.Repaint;
-  FAutomation.ipHTML.Scroll(hsaEnd);
-  Application.ProcessMessages;
+  if DataShown then
+    begin
+      DataShown:=False;
+      Application.QueueAsyncCall(@ShowNewData,0);
+    end;
 end;
 
 procedure TProdTreeData.ScriptWriteln(const s: string);
@@ -1015,11 +1030,24 @@ begin
       ScriptOutput.Add('<img src="ICON(75)"></img><b>'+aTxt+' -> '+copy(s,9,length(s))+'</b><br>')
     end
   else ScriptOutput.Add(s);
+  if DataShown then
+    begin
+      DataShown:=False;
+      Application.QueueAsyncCall(@ShowNewData,0);
+    end;
+end;
+
+procedure TProdTreeData.ShowNewData(Data: PtrInt);
+begin
+  FAutomation.ipHTML.Visible:=False;
   ShowData;
+  FAutomation.ipHTML.Visible:=True;
   FAutomation.ipHTML.Repaint;
   FAutomation.ipHTML.Scroll(hsaEnd);
   Application.ProcessMessages;
+  DataShown:= True;
 end;
+
 constructor TProdTreeData.Create;
 begin
   PreText := TStringList.Create;
