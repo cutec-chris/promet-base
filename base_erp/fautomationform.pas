@@ -322,11 +322,7 @@ begin
                     TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:Scripttyp unbekannt</b>')
                   else
                     TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:'+TreeData.Script.Script.Results+'</b>');
-                  if TreeData.DataShown then
-                    begin
-                      TreeData.DataShown:=False;
-                      Application.QueueAsyncCall(@TreeData.ShowNewData,0);
-                    end;
+                  TreeData.ShowNewData(0);
                 end;
             end;
           acExecuteStep.Checked:=False;
@@ -365,11 +361,7 @@ begin
                   TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:Scripttyp unbekannt</b>')
                 else
                   TreeData.ScriptOutput.Add('<b>Ausführung fehlgeschlagen:'+TreeData.Preparescript.Script.Results+'</b>');
-                if TreeData.DataShown then
-                  begin
-                    TreeData.DataShown:=False;
-                    Application.QueueAsyncCall(@TreeData.ShowNewData,0);
-                  end;
+                TreeData.ShowNewData(0);
               end;
           acExecutePrepareStep.Checked:=False;
         end
@@ -400,11 +392,7 @@ begin
     begin
       TreeData := TProdTreeData(tvStep.Selected.Data);
       TreeData.Prepared:=False;
-      if TreeData.DataShown then
-        begin
-          TreeData.DataShown:=False;
-          Application.QueueAsyncCall(@TreeData.ShowNewData,0);
-        end;
+      TreeData.ShowData;
     end;
 end;
 
@@ -416,11 +404,7 @@ begin
     begin
       TreeData := TProdTreeData(tvStep.Selected.Data);
       TreeData.Prepared:=True;
-      if TreeData.DataShown then
-        begin
-          TreeData.DataShown:=False;
-          Application.QueueAsyncCall(@TreeData.ShowNewData,0);
-        end;
+      TreeData.ShowData;
     end;
 end;
 
@@ -881,11 +865,11 @@ begin
     end;
   if Result then
     begin
-      if TreeData.DataShown then
-        begin
-          TreeData.DataShown:=False;
-          Application.QueueAsyncCall(@TreeData.ShowNewData,0);
-        end;
+      FAutomation.ipHTML.Visible:=False;
+      TreeData.ShowData;
+      FAutomation.ipHTML.Visible:=True;
+      FAutomation.ipHTML.Repaint;
+      Application.ProcessMessages;
       if DoCompileScript<>nil then
         begin
           FAutomation.lStatusProblems.Color:=clInfoBk;
