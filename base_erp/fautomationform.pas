@@ -188,8 +188,8 @@ type
     Script,Preparescript : TBaseScript;
     Documents,PrepDocuments : TDocument;
     Func,PrepareFunc : string;
+    actualHtml: String;
 
-    DataShown: Boolean;
     PreText : TStringList;
     WorkText : TStringList;
     ScriptOutput,PrepareOutput : TStringList;
@@ -197,7 +197,7 @@ type
     constructor Create;
     destructor Destroy; override;
     function CheckContent : Boolean;
-    procedure ShowData;
+    function ShowData : Boolean;
     procedure LoadScript(aScript : string;aVersion : Variant);
     procedure LoadPrepareScript(aScript : string;aVersion : Variant);
     procedure LoadDocuments(aID : largeInt;aType : string;aTID : string;aVersion : Variant;aLanguage : Variant);
@@ -985,11 +985,7 @@ begin
       PrepareOutput.Add('<img src="ICON(75)"></img><b>'+aTxt+' -> '+copy(s,9,length(s))+'</b><br>')
     end
   else PrepareOutput.Add(s);
-  if DataShown then
-    begin
-      DataShown:=False;
-      Application.QueueAsyncCall(@ShowNewData,0);
-    end;
+  Application.QueueAsyncCall(@ShowNewData,0);
 end;
 
 procedure TProdTreeData.ScriptWriteln(const s: string);
@@ -1014,22 +1010,21 @@ begin
       ScriptOutput.Add('<img src="ICON(75)"></img><b>'+aTxt+' -> '+copy(s,9,length(s))+'</b><br>')
     end
   else ScriptOutput.Add(s);
-  if DataShown then
-    begin
-      DataShown:=False;
-      Application.QueueAsyncCall(@ShowNewData,0);
-    end;
+  Application.QueueAsyncCall(@ShowNewData,0);
 end;
 
 procedure TProdTreeData.ShowNewData(Data: PtrInt);
 begin
   FAutomation.ipHTML.Visible:=False;
-  ShowData;
-  FAutomation.ipHTML.Visible:=True;
-  FAutomation.ipHTML.Repaint;
-  FAutomation.ipHTML.Scroll(hsaEnd);
-  Application.ProcessMessages;
-  DataShown:= True;
+  if ShowData then
+    begin
+      FAutomation.ipHTML.Visible:=True;
+      FAutomation.ipHTML.Repaint;
+      FAutomation.ipHTML.Scroll(hsaEnd);
+      Application.ProcessMessages;
+    end
+  else
+    FAutomation.ipHTML.Visible:=True;
 end;
 
 constructor TProdTreeData.Create;
@@ -1062,7 +1057,7 @@ begin
   or (Assigned(Script) and (Script.Count>0)) then
     Result := True;
 end;
-procedure TProdTreeData.ShowData;
+function TProdTreeData.ShowData: Boolean;
 var
   aHTML: TSimpleIpHtml;
   ss: TStringStream;
@@ -1071,6 +1066,7 @@ var
   end;
 
 begin
+  result := False;
   FAutomation.FScript := nil;
   FAutomation.acExecuteStep.Enabled:=False;
   FAutomation.acPrepare.Enabled:=PreText.Text<>'';
@@ -1090,19 +1086,23 @@ begin
     end;
   if FAutomation.acPrepare.Checked then
     begin
-      aHTML := TSimpleIPHtml.Create;
       if FAutomation.acExecutePrepareStep.Checked then
         ss := TStringStream.Create(UniToSys(PrepareOutput.Text))
       else
         ss := TStringStream.Create('<body>'+UniToSys(PreText.Text+'<br><br>'+PrepareOutput.Text)+'</body>');
-      aHTML.LoadFromStream(ss);
-      ss.Free;
-      FAutomation.ipHTML.SetHtml(aHTML);
-      FAutomation.bExecute.Action:=FAutomation.acExecutePrepareStep;
+      if actualHtml<>ss.DataString then
+        begin
+          Result := True;
+          actualHtml := ss.DataString;
+          aHTML := TSimpleIPHtml.Create;
+          aHTML.LoadFromStream(ss);
+          ss.Free;
+          FAutomation.ipHTML.SetHtml(aHTML);
+          FAutomation.bExecute.Action:=FAutomation.acExecutePrepareStep;
+        end;
     end
   else
     begin
-      aHTML := TSimpleIPHtml.Create;
       if FAutomation.acExecuteStep.Checked then
         begin
           if pos('<body',lowercase(WorkText.Text))=0 then
@@ -1117,9 +1117,15 @@ begin
           else
             ss := TStringStream.Create(UniToSys(WorkText.Text+ScriptOutput.Text));
         end;
-      aHTML.LoadFromStream(ss);
-      ss.Free;
-      FAutomation.ipHTML.SetHtml(aHTML);
+      if actualHtml<>ss.DataString then
+        begin
+          Result := True;
+          aHTML := TSimpleIPHtml.Create;
+          actualHtml := ss.DataString;
+          aHTML.LoadFromStream(ss);
+          ss.Free;
+          FAutomation.ipHTML.SetHtml(aHTML);
+        end;
       FAutomation.bExecute.Action:=FAutomation.acExecuteStep;
     end;
   if Assigned(Script) and (Script.Count>0) then
