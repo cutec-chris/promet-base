@@ -1930,7 +1930,7 @@ begin
   FGridView.AfterInsert:=@FGridViewAfterInsert;
   FGridView.OnSearchKey:=@FGridViewSearchKey;
   FGridView.OnDrawColumnCell:=@FGridViewDrawColumnCell;
-  FGridView.FilterRow:=True;
+  //FGridView.FilterRow:=True;
   FGridView.OnFilterCell:=@FGridViewFilterCell;
   FGridView.OnAddRow:=@FGridViewAddRow;
   FGridView.OnDelete:=@FGridViewDelete;

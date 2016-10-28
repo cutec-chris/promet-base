@@ -1377,7 +1377,7 @@ begin
   FGridView.TreeField:='PARENT';
   FGridView.Parent := pPositions;
   FGridView.Align:=alClient;
-  FGridView.FilterRow:=true;
+  //FGridView.FilterRow:=true;
   FGridView.WordWrap:=true;
   FGridView.OnSearchKey:=@FGridViewSearchKey;
   FGridView.OnAutoFilterChanged:=@FGridViewAutoFilterChanged;

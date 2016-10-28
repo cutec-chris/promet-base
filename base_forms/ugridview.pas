@@ -109,6 +109,7 @@ type
     ActionList: TActionList;
     ActionList1: TActionList;
     bRowEditor: TSpeedButton;
+    bShowFilter: TSpeedButton;
     dgFake: TDBGrid;
     FDataSource: TDatasource;
     FilterImage: TImage;
@@ -125,6 +126,7 @@ type
     miImport: TMenuItem;
     miOpen: TMenuItem;
     pConfig: TPanel;
+    pConfig1: TPanel;
     pFilter: TPanel;
     Panel2: TPanel;
     bEditRows: TSpeedButton;
@@ -141,6 +143,7 @@ type
     procedure acPastePositionExecute(Sender: TObject);
     procedure acResetFilterExecute(Sender: TObject);
     procedure acSearchExecute(Sender: TObject);
+    procedure bShowFilterClick(Sender: TObject);
     procedure deDateAcceptDate(Sender: TObject; var ADate: TDateTime;
       var AcceptDate: Boolean);
     procedure dgFakeTitleClick(Column: TColumn);
@@ -199,6 +202,7 @@ type
     procedure gListSetEditText(Sender: TObject; ACol, ARow: Integer;
       const Value: string);
     procedure SearchKeyTimerTimer(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
   private
     FFEditPrefix: string;
     procedure ReplacePasteFields(aField: TField; aOldValue: string;
@@ -517,6 +521,11 @@ procedure TfGridView.acSearchExecute(Sender: TObject);
 begin
   if Assigned(OnCellButtonClick) then
     OnCellButtonClick(Self,Point(gList.Selection.Left,gList.Selection.Top),dgFake.Columns[gList.Col-1]);
+end;
+
+procedure TfGridView.bShowFilterClick(Sender: TObject);
+begin
+  FilterRow:=bShowFilter.Down;
 end;
 
 procedure TfGridView.acCopyLinkExecute(Sender: TObject);
@@ -2044,6 +2053,11 @@ begin
     end;
 end;
 
+procedure TfGridView.SpeedButton1Click(Sender: TObject);
+begin
+
+end;
+
 procedure TfGridView.SetEditPrefix(AValue: string);
 begin
   if FFEditPrefix=AValue then Exit;
@@ -2094,6 +2108,8 @@ begin
   pFilter.Visible:=AValue;
   if AValue then gList.FixedRows:=0
   else gList.FixedRows:=1;
+  gHeader.SendToBack;
+  Refresh;
 end;
 function TfGridView.HasChilds(aCol, aRow : Integer): Char;
 var
@@ -2853,7 +2869,10 @@ begin
           end;
     end;
   if Assigned(gList.Objects[0,aRow]) then
-    gList.Objects[0,aRow].Free;
+    begin
+      gList.Objects[0,aRow].Free;
+      gList.Objects[0,aRow]:=nil;
+    end;
   for i := 1 to gList.ColCount-1 do
     if Assigned(gList.Objects[i,aRow]) then
       begin

@@ -578,7 +578,7 @@ begin
       SortField:='TIMESTAMPD';
       TextField:='ACTION';
       ReadOnly:=True;
-      FTimeLine.FilterRow:=True;
+      //FTimeLine.FilterRow:=True;
       WordWrap:=True;
       Show;
     end;
