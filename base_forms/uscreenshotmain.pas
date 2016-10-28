@@ -55,7 +55,7 @@ var
   FScreenDC: HDC;
   FScreen: TBitmap;
 begin
-  sleep(100);
+  sleep(500);//wait for Animation
   FScreenDC := GetDC(0);
   FScreen := TBitmap.Create;
   try
