@@ -140,7 +140,7 @@ inherited fArticleFrame: TfArticleFrame
       ParentColor = False
     end
     object lMatchCode: TLabel
-      Left = 297
+      Left = 282
       Height = 15
       Top = 0
       Width = 61
@@ -570,7 +570,7 @@ inherited fArticleFrame: TfArticleFrame
         BorderSpacing.Left = 5
         Caption = 'Eintrag'
         Font.Color = clMedGray
-        Font.Height = 13
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -605,24 +605,24 @@ inherited fArticleFrame: TfArticleFrame
       Left = 88
       Height = 48
       Top = 0
-      Width = 56
+      Width = 64
       Align = alLeft
       BevelOuter = bvNone
       ClientHeight = 48
-      ClientWidth = 56
+      ClientWidth = 64
       TabOrder = 1
       object Label3: TLabel
         Left = 4
         Height = 15
         Top = -2
-        Width = 48
+        Width = 56
         Alignment = taCenter
         Anchors = [akLeft, akRight, akBottom]
         AutoSize = False
         BorderSpacing.Left = 5
         Caption = 'Erweitert'
         Font.Color = clMedGray
-        Font.Height = 13
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -724,7 +724,7 @@ inherited fArticleFrame: TfArticleFrame
       end
     end
     object Panel7: TPanel
-      Left = 144
+      Left = 152
       Height = 48
       Top = 0
       Width = 156
@@ -743,7 +743,7 @@ inherited fArticleFrame: TfArticleFrame
         BorderSpacing.Left = 5
         Caption = 'Nummer'
         Font.Color = clMedGray
-        Font.Height = 13
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -782,7 +782,7 @@ inherited fArticleFrame: TfArticleFrame
       end
     end
     object Panel8: TPanel
-      Left = 300
+      Left = 308
       Height = 48
       Top = 0
       Width = 142
@@ -801,7 +801,7 @@ inherited fArticleFrame: TfArticleFrame
         BorderSpacing.Left = 5
         Caption = 'Status'
         Font.Color = clMedGray
-        Font.Height = 13
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -828,7 +828,7 @@ inherited fArticleFrame: TfArticleFrame
       end
     end
     object Panel9: TPanel
-      Left = 485
+      Left = 493
       Height = 48
       Top = 0
       Width = 139
@@ -847,7 +847,7 @@ inherited fArticleFrame: TfArticleFrame
         BorderSpacing.Left = 5
         Caption = 'Version'
         Font.Color = clMedGray
-        Font.Height = 13
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -890,7 +890,7 @@ inherited fArticleFrame: TfArticleFrame
       end
     end
     object pNav1: TPanel
-      Left = 442
+      Left = 450
       Height = 48
       Top = 0
       Width = 43
@@ -944,8 +944,8 @@ inherited fArticleFrame: TfArticleFrame
       Height = 76
       Top = 0
       Width = 86
+      AntialiasingMode = amOn
       Align = alClient
-      AutoSize = True
       PopupMenu = pmImage
       Proportional = True
       Stretch = True
