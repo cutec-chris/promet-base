@@ -2008,7 +2008,6 @@ begin
                     FDataSource.DataSet.Edit;
                   DataSet.FieldByName(ShortTextField).AsString:=StringReplace(FInpStringList[0],'¶','',[rfReplaceAll]);
                 end;
-              FInpStringList.Delete(0);
               if FInpStringList.Count>0 then
                 FInpStringList.Delete(0);
             end

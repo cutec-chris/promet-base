@@ -1,6 +1,7 @@
 ﻿Build 433
       - Scripte:Zuffallsfunktionen ergänzt
       - Appserver:Wiki kann nun über Browser aufgerufen werden
+      - 2. Zeile aus Langtexten wurde in den letzten Versionen falsch behandelt - repaiert
 Build 432
       - Verbindung:automatischer reconnect bei ausgefallener Datenbankverbindung funktioniert nun
       - Zeiterfassung: Zeitaufschreibungsfenster hinzugefügt (Zeiten komfortabel nachtragen)
