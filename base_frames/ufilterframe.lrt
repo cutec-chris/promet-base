@@ -1,3 +1,35 @@
+TFFILTER.EXTROTATEDLABEL1.CAPTION=Navigation
+TFFILTER.EXTROTATEDLABEL2.CAPTION=Ansicht/Filter
+TFFILTER.CBFILTER.HINT=hier können Sie eine vordefinierte Ansicht wählen
+Wenn Sie eine spezielle Ansicht/Sortierung benötigen wenden Sie sich an Ihren Administrator
+TFFILTER.BEDITFILTER.HINT=zeigt/verbirgt weitere Einstellungen
+zu den Ansichten
+TFFILTER.TBTOOLBAR.CAPTION=tbToolBar
+TFFILTER.TBMENUE1.HINT=zusätzliche Optionen
+(Menü)
+TFFILTER.TBMENUE1.CAPTION=tbMenue
+TFFILTER.CBMAXRESULTS.CAPTION=Ergebnisse begrenzen auf  
+TFFILTER.SBSAVE.HINT=speichert die Ansicht
+TFFILTER.SBDELETE.HINT=löscht die Ansicht
+TFFILTER.SBSAVEPUBLIC.HINT=setzte die Rechte für die Ansicht
+TFFILTER.LFILTEREDIT.CAPTION=Filterbedingung
+TFFILTER.LFILTERIN.CAPTION=in Tabellen Filtern
+TFFILTER.EFILTERIN.HINT=Wenn Sie über mehrere Tabellen Filtern 
+möchten füllen Sie dieses Feld
+z.b.
+Orders,OrderPos
+TFFILTER.SEMAXRESULTS.HINT=hier können Sie die Zahl der maximalen Filterergebnisse angeben
+TFFILTER.SBSAVE1.HINT=setzt diese Ansicht als Standard
+die Liste wird ab nun mit dieser Ansicht geöffnet
+TFFILTER.SBSAVE1.CAPTION=Standardansicht
+TFFILTER.TOOLBAR.CAPTION=ToolBar
+TFFILTER.PRIGHT.HINT=Mithilfe dieser Zeitleiste können
+Sie einfach einen Filter setzen der 
+nur Einträge vor dem gewählten 
+Datum anzeigt.
+Linksklick setzt den Filter.
+Rechtsklick oder Scrollrad bewegt 
+die Zeitleiste.
 TFFILTER.GHEADER.HINT=hier können Sie die Liste einschränken, 
 Sie können in jeder Spalte einen Wert eingeben 
 den die Einträge haben müssen oder aber mit <>
@@ -6,24 +38,15 @@ Beispiel:
 Wenn Sie in einer Spalte mit Nummern 
 >100 eingeben, werden nur die Einträge angezeigt die 
 als Wert in dieser Spalte > 100 haben.
-TFFILTER.SPEEDBUTTON2.CAPTION=?
-TFFILTER.CBFILTER.HINT=hier können Sie einen Filter wählen um die Liste einzuschränken
-TFFILTER.LFILTER.CAPTION=Filter
-TFFILTER.BEDITFILTER.HINT=zeigt/verbirgt den Filtereditor
-TFFILTER.TOOLBAR.CAPTION=ToolBar
-TFFILTER.CBMAXRESULTS.CAPTION=Filterergebnisse begrenzen auf
-TFFILTER.SEMAXRESULTS.HINT=hier können Sie die Zahl der maximalen Filterergebnisse angeben
-TFFILTER.PRIGHT.HINT=Mithilfe dieser Zeitleiste können
-Sie einfach einen Filter setzen der 
-nur Einträge vor dem gewählten 
-Datum anzeigt.
-Linksklick setzt den Filter.
-Rechtsklick oder Scrollrad bewegt 
-die Zeitleiste.
+TFFILTER.GHEADER.COLUMNS[0].TITLE.CAPTION=Title
+TFFILTER.PBOTTOM.CAPTION=Anzahl: 0
+TFFILTER.BSHOWFILTER.HINT=Filterzeile ein/ausblenden
+TFFILTER.BSHOWFILTER.CAPTION=Sichtbare Spalten konfigurieren
+TFFILTER.MIADMIN.CAPTION=Administration
 TFFILTER.ACSAVEFILTER.CAPTION=acSaveFilter
-TFFILTER.ACSAVEFILTER.HINT=speichert den Filter privat
-TFFILTER.ACSAVEFILTERPUBLIC.CAPTION=acSaveFilterPublic
-TFFILTER.ACSAVEFILTERPUBLIC.HINT=speichert den Filter öffentlich
+TFFILTER.ACSAVEFILTER.HINT=speichert den Filter
+TFFILTER.ACFILTERRIGHTS.CAPTION=acFilterRights
+TFFILTER.ACFILTERRIGHTS.HINT=setzte die Rechte für den Filter
 TFFILTER.ACDELETEFILTER.CAPTION=acDeleteFilter
 TFFILTER.ACDELETEFILTER.HINT=löscht den Filter
 TFFILTER.ACFILTER.CAPTION=Filtern
@@ -31,4 +54,19 @@ TFFILTER.ACFILTER.HINT=aktiviert den gewählten Filter,
 wählen Sie den ersten Eintrag (leereintrag) 
 und klicken Sie hier um nicht zu filtern
 TFFILTER.ACOPEN.CAPTION=Öffnen
-TFFILTER.ACCOPYLINK.CAPTION=als Verknüpfung kopieren
+TFFILTER.ACCOPYLINK.CAPTION=als Verweis kopieren
+TFFILTER.ACIMPORT.CAPTION=Importieren
+TFFILTER.ACEXPORT.CAPTION=Exportieren
+TFFILTER.ACPRINT.CAPTION=Drucken
+TFFILTER.ACPRINT.HINT=Zeigt die Druckbelegliste
+TFFILTER.ACDEFAULTFILTER.CAPTION=Standardfilter
+TFFILTER.ACDEFAULTFILTER.HINT=setzt den Filter für diese Ansicht als Standard
+die Ansicht wird ab nun mit diesem Filter geöffnet
+TFFILTER.ACSAVELINK.CAPTION=als Verweisdatei (.plink) speichern
+TFFILTER.ACCOPYFILTERLINK.CAPTION=acCopyFilterLink
+TFFILTER.ACCOPYFILTERLINK.HINT=Filter als Verweis kopieren
+TFFILTER.ACINFORMWITHEXTERNMAIL.CAPTION=Mit externem e-Mail Programm informieren
+TFFILTER.ACINFORMWITHINTERNMAIL.CAPTION=Mit e-Mail informieren
+TFFILTER.ACDELETE.CAPTION=löschen
+TFFILTER.ACCHANGEROWS.CAPTION=Sichtbare Spalten konfigurieren
+TFFILTER.ACRESETFILTER.CAPTION=Filter zurücksetzen

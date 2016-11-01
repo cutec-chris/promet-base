@@ -62,6 +62,7 @@ type
     Bevel6: TBevel;
     bExecute: TSpeedButton;
     bFilter: TBitBtn;
+    bShowFilter: TSpeedButton;
     cbFilter: TComboBox;
     cbMaxResults: TCheckBox;
     MenuItem2: TMenuItem;
@@ -71,6 +72,7 @@ type
     miAdmin: TMenuItem;
     MenuItem5: TMenuItem;
     pBottom: TPanel;
+    pConfig1: TPanel;
     PHistory: TfrDBDataSet;
     History: TDatasource;
     List: TDatasource;
@@ -105,7 +107,7 @@ type
     pNav: TPanel;
     Panel5: TPanel;
     pmAction: TPopupMenu;
-    Panel3: TPanel;
+    pConfig: TPanel;
     Panel4: TPanel;
     pmPopup: TPopupMenu;
     pNav1: TPanel;
@@ -140,6 +142,7 @@ type
     procedure acSaveLinkExecute(Sender: TObject);
     procedure bEditRowsClick(Sender: TObject);
     procedure bFilterKeyPress(Sender: TObject; var Key: char);
+    procedure bShowFilterClick(Sender: TObject);
     procedure cbFilterSelect(Sender: TObject);
     procedure DatasetAfterScroll(aDataSet: TDataSet);
     procedure DblClickTimerTimer(Sender: TObject);
@@ -688,6 +691,11 @@ procedure TfFilter.bFilterKeyPress(Sender: TObject; var Key: char);
 begin
   if Key=#13 then
     bFilter.Action.Execute;
+end;
+
+procedure TfFilter.bShowFilterClick(Sender: TObject);
+begin
+  //FilterRow:=bShowFilter.Down;
 end;
 
 procedure TfFilter.acSaveFilterExecute(Sender: TObject);
