@@ -978,6 +978,7 @@ begin
                 bMasterdata.FieldByName('ACTIVE').AsString:='N'
               else
                 bMasterdata.FieldByName('ACTIVE').AsString:='Y';
+              bMasterdata.FieldByName('IMAGEREF').AsVariant:=Id.AsVariant;//Versionated Version uses Images from us...
               bMasterdata.Post;
               bMasterdata.Next;
             end;
@@ -1131,6 +1132,7 @@ begin
             Add('PURCHASE',ftFloat,0,False);
             Add('ISTEMPLATE',ftString,1,False);
             Add('CURRENCY',ftString,5,False);
+            Add('IMAGEREF',ftLargeint,0,False);
             Add('SCRIPT',ftString,60,False);
             Add('SCRIPTVER',ftString,8,False);
             Add('SCRIPTFUNC',ftString,60,False);

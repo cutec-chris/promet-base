@@ -371,8 +371,10 @@ begin
               else
                 aRefField := 'SQL_ID';
             end;
-          if aFilter <> '' then
+          if (aFilter <> '') and (pos('REF_ID',aFilter)=0) then
             aFilter := '('+aFilter+') and ('+TZeosDBDM(Owner).QuoteField('REF_ID')+'=:'+TZeosDBDM(Owner).QuoteField(aRefField)+')'
+          else if (aFilter <> '') then //REF_ID in Filter so we use only the Filter
+            aFilter := '('+aFilter+')'
           else
             aFilter := TZeosDBDM(Owner).QuoteField('REF_ID')+'=:'+TZeosDBDM(Owner).QuoteField(aRefField);
         end;

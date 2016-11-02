@@ -94,6 +94,7 @@ type
     procedure FIntDataSourceDataChange(Sender: TObject; Field: TField);
     procedure FIntDataSourceStateChange(Sender: TObject);
   private
+    FImages: TImages;
     FPosFormat: string;
     FPosTyp : TPositionTyp;
     FIntDataSource : TDataSource;
@@ -143,6 +144,7 @@ type
     property PosTyp : TPositionTyp read GetPosTyp;
     property PosTypDec : Integer read GetPosTypDec;
     property PosCalc : TPositionCalc read FPosCalc;
+    property Images : TImages read FImages;
     property Vat : TVat read FVat;
     property Ident : TField read GetIdent;
     property PosFormat : string read FPosFormat write FPosFormat;
@@ -1152,6 +1154,8 @@ begin
   UpdateFloatFields:=True;
   FPosFormat := '%d';
   FPosTyp := TPositionTyp.CreateEx(Owner,DM,aConnection);
+  FImages := TImages.CreateEx(Self,DM,aConnection,DataSet);
+  FImages.ActualFilter := TBaseDBModule(DataModule).QuoteField('REF_ID')+'='+':'+TBaseDBModule(DataModule).QuoteField('IMAGEREF');
   with BaseApplication as IBaseDbInterface do
     begin
       with DataSet as IBaseDBFilter do
@@ -1254,6 +1258,7 @@ begin
             Add('REPAIRTIME',ftFloat,0,False);              //reparaturzeit
             Add('POSPRICE',ftFloat,0,False);                //Gesamtpreis
             Add('GROSSPRICE',ftFloat,0,False);              //Bruttoprice
+            Add('IMAGEREF',ftLargeInt,0,False);
             Add('PARENT',ftLargeInt,0,False);
             Add('OLD_ID',ftLargeInt,0,False);
             Add('SCRIPT',ftString,60,False);
@@ -1313,6 +1318,9 @@ var
     DataSet.FieldByName('LANGUAGE').AsVariant := MasterData.FieldByName('LANGUAGE').AsVariant;
     DataSet.FieldByName('SHORTTEXT').AsString := MasterData.FieldByName('SHORTTEXT').AsString;
     DataSet.FieldByName('MANUFACNR').AsString := MasterData.FieldByName('MANUFACNR').AsString;
+    DataSet.FieldByName('IMAGEREF').AsVariant := MasterData.FieldByName('IMAGEREF').AsVariant;
+    if DataSet.FieldByName('IMAGEREF').IsNull then
+      DataSet.FieldByName('IMAGEREF').AsVariant := MasterData.Id.AsVariant;
     DataSet.FieldByName('PARENT').AsVariant := aParent;
     DataSet.FieldByName('QUANTITY').AsFloat := Quantity;
     DataSet.FieldByName('WEIGHT').AsFloat := MasterData.FieldByName('WEIGHT').AsFloat;
