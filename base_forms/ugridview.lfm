@@ -212,7 +212,7 @@ object fGridView: TfGridView
     end
   end
   object pConfig: TPanel
-    Left = 568
+    Left = 548
     Height = 21
     Top = 1
     Width = 12

@@ -22,7 +22,8 @@ object fCreateProductionOrder: TfCreateProductionOrder
     Width = 100
     Enabled = False
     ItemHeight = 15
-    TabOrder = 0
+    TabOrder = 1
+    TabStop = False
   end
   object Label2: TLabel
     Left = 81
@@ -54,7 +55,7 @@ object fCreateProductionOrder: TfCreateProductionOrder
     CloseButton.DefaultCaption = True
     CancelButton.Name = 'CancelButton'
     CancelButton.DefaultCaption = True
-    TabOrder = 1
+    TabOrder = 2
     ShowButtons = [pbOK, pbCancel]
   end
   object eMasterdata: TEditButton
@@ -70,7 +71,7 @@ object fCreateProductionOrder: TfCreateProductionOrder
     OnButtonClick = eMasterdataButtonClick
     OnExit = eMasterdataExit
     PasswordChar = #0
-    TabOrder = 2
+    TabOrder = 0
     Text = 'eMasterdata'
   end
 end
