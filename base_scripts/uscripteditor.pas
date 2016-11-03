@@ -629,6 +629,8 @@ begin
   ed.Highlighter := TSynCustomHighlighter(FindComponent('Hig'+cbSyntax.Text));
   acStepinto.Enabled:=(ed.Highlighter=HigPascal) or (ed.Highlighter=HigPython) and (cbClient.Text='');
   acStepover.Enabled:=(ed.Highlighter=HigPascal) or (ed.Highlighter=HigPython) and (cbClient.Text='');
+  TBaseScript(FDataSet).ResetScript;
+  Script := nil;
 end;
 
 procedure TfScriptEditor.edChange(Sender: TObject);
@@ -731,7 +733,9 @@ begin
       i := 0;
       while i<sl.Count do
         begin
-          if copy(sl[i],0,2)='--' then
+          if (copy(sl[i],0,2)='--')
+          or (trim(sl[i])='')
+          then
             sl.Delete(i)
           else inc(i);
         end;
@@ -744,7 +748,16 @@ begin
       messages.Clear;
       acStepinto.Enabled:=False;
       acStepover.Enabled:=False;
-      if (FDataSet is TBaseScript) then
+      if (ed.Highlighter=HigSQL) and (pos('SELECT ',Uppercase(sl[0]))>0) then
+        begin
+          gResults.Visible := True;
+          messages.Visible := false;
+          SelectData.DataSet := Data.GetNewDataSet(ed.Text);
+          ButtonStatus(ssRunning);
+          SelectData.DataSet.Open;
+          ButtonStatus(ssNone);
+        end
+      else if (FDataSet is TBaseScript) then
         begin
           TBaseScript(FDataSet).writeln := @FDataSetWriteln;
           TBaseScript(FDataSet).debugln := @FDataSetWriteln;

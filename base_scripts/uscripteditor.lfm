@@ -568,22 +568,6 @@ object fScriptEditor: TfScriptEditor
       ClientHeight = 84
       ClientWidth = 808
       TabOrder = 2
-      object gResults: TDBGrid
-        Left = 0
-        Height = 84
-        Top = 0
-        Width = 808
-        Align = alClient
-        Color = clWindow
-        Columns = <>
-        DataSource = SelectData
-        TabOrder = 1
-        TitleFont.Color = clWindowText
-        TitleFont.Height = -14
-        TitleFont.Name = 'MS Sans Serif'
-        TitleStyle = tsNative
-        Visible = False
-      end
       object messages: TListBox
         Left = 0
         Height = 84
@@ -601,6 +585,22 @@ object fScriptEditor: TfScriptEditor
         PopupMenu = PopupMenu2
         ScrollWidth = 752
         TabOrder = 0
+      end
+      object gResults: TDBGrid
+        Left = 0
+        Height = 84
+        Top = 0
+        Width = 808
+        Align = alClient
+        Color = clWindow
+        Columns = <>
+        DataSource = SelectData
+        TabOrder = 1
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -14
+        TitleFont.Name = 'MS Sans Serif'
+        TitleStyle = tsNative
+        Visible = False
       end
     end
     object Panel4: TPanel
