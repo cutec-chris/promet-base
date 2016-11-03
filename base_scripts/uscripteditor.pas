@@ -754,7 +754,17 @@ begin
           messages.Visible := false;
           SelectData.DataSet := Data.GetNewDataSet(ed.Text);
           ButtonStatus(ssRunning);
-          SelectData.DataSet.Open;
+          Application.ProcessMessages;
+          try
+            SelectData.DataSet.Open;
+          except
+            on e : Exception do
+              begin
+                gResults.Visible := False;
+                messages.Visible := True;
+                messages.AddItem(e.Message,nil);
+              end;
+          end;
           ButtonStatus(ssNone);
         end
       else if (FDataSet is TBaseScript) then
