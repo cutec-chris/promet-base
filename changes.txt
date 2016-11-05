@@ -2,6 +2,7 @@
       - Scripte:Zuffallsfunktionen ergänzt
       - Appserver:Wiki kann nun über Browser aufgerufen werden
       - 2. Zeile aus Langtexten wurde in den letzten Versionen falsch behandelt - repaiert
+      - Artikelnummer wird automatisch generiert beim "Artikel aus Auftrag anlegen" wenn keine angegeben war
 Build 432
       - Verbindung:automatischer reconnect bei ausgefallener Datenbankverbindung funktioniert nun (leider nicht bei allen Datenbanken möglich)
       - Zeiterfassung: Zeitaufschreibungsfenster hinzugefügt (Zeiten komfortabel nachtragen)

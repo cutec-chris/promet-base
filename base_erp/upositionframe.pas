@@ -599,7 +599,8 @@ begin
                   fMainTreeFrame.pcPages.AddTab(aFrame);
                   aFrame.SetLanguage;
                   aFrame.New;
-                  aFrame.DataSet.FieldByName('ID').AsString:=Dataset.FieldByName('IDENT').AsString;
+                  if Dataset.FieldByName('IDENT').AsString <> '' then
+                    aFrame.DataSet.FieldByName('ID').AsString:=Dataset.FieldByName('IDENT').AsString;
                   aFrame.DataSet.FieldByName('SHORTTEXT').AsString:=Dataset.FieldByName('SHORTTEXT').AsString;
                   aFrame.DataSet.FieldByName('VERSION').AsVariant:=Dataset.FieldByName('VERSION').AsVariant;
                   aFrame.DataSet.FieldByName('QUANTITYU').AsString:=Dataset.FieldByName('QUANTITYU').AsString;
@@ -608,6 +609,8 @@ begin
                   aFrame.DataSet.Post;
                   Dataset.Edit;
                   Dataset.FieldByName('LANGUAGE').AsString:=aFrame.DataSet.FieldByName('LANGUAGE').AsVariant;
+                  if Dataset.FieldByName('IDENT').AsString = '' then
+                    Dataset.FieldByName('IDENT').AsString := aFrame.DataSet.FieldByName('ID').AsString;
                   Dataset.Post;
                   {
                   if Dataset.FieldByName('SELLPRICE').AsFloat<>0 then
