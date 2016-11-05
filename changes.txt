@@ -1,12 +1,12 @@
-﻿Build 433
+﻿Build 433 (nicht veröffentlicht)
       - Scripte:Zuffallsfunktionen ergänzt
       - Appserver:Wiki kann nun über Browser aufgerufen werden
       - 2. Zeile aus Langtexten wurde in den letzten Versionen falsch behandelt - repaiert
       - Artikelnummer wird automatisch generiert beim "Artikel aus Auftrag anlegen" wenn keine angegeben war
-Build 432
+Build 432 (31.08.2016)
       - Verbindung:automatischer reconnect bei ausgefallener Datenbankverbindung funktioniert nun (leider nicht bei allen Datenbanken möglich)
       - Zeiterfassung: Zeitaufschreibungsfenster hinzugefügt (Zeiten komfortabel nachtragen)
-Build 431
+Build 431 (19.08.2016)
       - Scripte:dxfwrite Plugin um dxf Dateien per Script zu erzeugen
       - Auftrag:duplizieren funktioniert nun und ist auch immer aktiv (war vorher bei nicht gebuchten Aufträgen nicht aktiv)
 Build 430
@@ -79,7 +79,7 @@ Build 420
       - Baum:Stücklisten werden unter Artikeln angezeigt
       - Baum:separater Eintrag für Fertigung
       - Wiki:neuer Editor (der auch für die Textbausteine zuständig sein wird)
-Build 419
+Build 419 (03.12.2015)
       - Production:kleine Fixes für das automatische generieren von Aufträgen
 Build 418
       - Thumbnails: werden nun auch erzeugt wenn DLL ungültige Thumbnails zurück gibt (und es ein Standard Bildformat oder PDF ist)
@@ -157,12 +157,12 @@ Build 405
 Build 404
       - Passwortmanager:Passwort generator hinzugefügt
       - Frames:von Überlagerungen zwischen Tab Knöpfen und Controls verschoben
-Build 403
+Build 403 (09.07.2015)
       - Processoptionen:Ansicht verbessert, selbst aktualisiereend
       - pScript:kann nun auch Promet Pascal Files ausführen
       - IMAP Server:mehrere Geschwindigkeits Verbesserungen
       - Layoutanpassung (höhere Tabs)
-Build 402
+Build 402 (05.07.2015)
       - Tabs werden meim neuladen eines Artikels/Projekts/Kontaktes/Auftrages nicht mehr entfernt und neu geladen
       - Vorschau:auf Reports korrigiert
       - Messungen:Navigatorleiste und Optionen erweitert
@@ -218,9 +218,9 @@ Build 393
         Markierung setzen
         Datum setzen
         Thumbnail erneuern
-Build 392
+Build 392 (16.02.2015)
       - Wiki:Startseite hat nun Pfad Wiki/index so das diese auch korrekt synchronisiert werden kann
-Build 391
+Build 391 (15.02.2015)
       - Projekte:Möglichkeit Projekt zu reorganisieren (Abhängigkeiten prüfen, Kosten neu berechnen...)
 Build 390
       - small Bugfixes

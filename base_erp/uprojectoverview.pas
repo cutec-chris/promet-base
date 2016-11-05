@@ -34,7 +34,7 @@ type
 
 implementation
 {$R *.lfm}
-uses uData,uMasterdata;
+uses uData,uMasterdata,Dialogs;
 procedure TfObjectStructureFrame.FrameEnter(Sender: TObject);
 begin
   FrootNode.Expanded:=True;
@@ -154,10 +154,11 @@ begin
                                       while Assigned(Node4) do
                                         begin
                                           if (TTreeEntry(Node4.data).Rec=TTreeEntry(Node3.Data).Rec)
-                                          or (TTreeEntry(Node4.data).Text[0]=TTreeEntry(Node3.Data).Text[0])
+                                          or (copy(TTreeEntry(Node3.data).Text[0],0,length(TTreeEntry(Node4.Data).Text[0]))=TTreeEntry(Node4.Data).Text[0])
                                           then
                                             begin
                                               Node3.MoveTo(Node4,naInsertBehind);
+                                              Node3.Selected:=True;
                                               Node4.Free;
                                               break;
                                             end;
