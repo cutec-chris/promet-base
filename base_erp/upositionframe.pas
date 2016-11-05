@@ -314,9 +314,9 @@ begin
           if not pSearch.Visible then
             begin
               if pToolbar.Align=alLeft then
-                pSearch.Left:=X
+                pSearch.Left:=X-1
               else
-                pSearch.Left:=X;
+                pSearch.Left:=X-1;
               pSearch.Top:=Y;
               pSearch.Width:=pContent.Width-pSearch.Left-10;
             end;

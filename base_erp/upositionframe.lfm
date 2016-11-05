@@ -324,33 +324,31 @@ inherited fPosition: TfPosition
       Width = 655
       Align = alClient
       BevelOuter = bvNone
-      ClientHeight = 248
-      ClientWidth = 655
       TabOrder = 0
-      object pSearch: TPanel
-        Left = 109
-        Height = 72
-        Top = 118
+    end
+    object pSearch: TPanel
+      Left = 109
+      Height = 98
+      Top = 118
+      Width = 536
+      Anchors = [akTop, akRight]
+      BevelOuter = bvNone
+      Caption = 'pSearch'
+      ClientHeight = 98
+      ClientWidth = 536
+      TabOrder = 3
+      Visible = False
+      object lbResults: TListBox
+        Left = 0
+        Height = 98
+        Top = 0
         Width = 536
-        Anchors = [akTop, akRight]
-        BevelOuter = bvNone
-        Caption = 'pSearch'
-        ClientHeight = 72
-        ClientWidth = 536
+        Align = alClient
+        ItemHeight = 0
+        OnDblClick = lbResultsDblClick
+        ScrollWidth = 422
         TabOrder = 0
-        Visible = False
-        object lbResults: TListBox
-          Left = 0
-          Height = 72
-          Top = 0
-          Width = 536
-          Align = alClient
-          ItemHeight = 0
-          OnDblClick = lbResultsDblClick
-          ScrollWidth = 422
-          TabOrder = 0
-          TabStop = False
-        end
+        TabStop = False
       end
     end
   end
