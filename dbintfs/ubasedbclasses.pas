@@ -133,6 +133,7 @@ type
 
   TBaseDbList = class(TBaseDBDataSet)
   private
+    function GetActive: Boolean;
     function GetBookNumber: TField;
     function GetMatchcode: TField;
     function GetBarcode: TField;
@@ -171,6 +172,7 @@ type
     property Commission : TField read GetCommission;
     property Status : TField read GetStatus;
     property Typ : string read GetTyp;
+    property IsActive : Boolean read GetActive;
     property Matchcode: TField read GetMatchcode;
     function SelectFromLink(aLink : string) : Boolean;virtual;
     function SelectFromNumber(aNumber : string) : Boolean;virtual;
@@ -1199,6 +1201,22 @@ begin
           end;
     end;
 end;
+
+function TBaseDbList.GetActive: Boolean;
+var
+  aFound: Boolean = False;
+begin
+  Result := True;
+  if not Assigned(Status) then exit;
+  if not TBaseDBModule(DataModule).States.DataSet.Locate('TYPE;STATUS',VarArrayOf([GetTyp,FDataSet.FieldByName('STATUS').AsString]),[loCaseInsensitive]) then
+    begin
+      TBaseDBModule(DataModule).SetFilter(Data.States,'');
+      aFound := TBaseDBModule(DataModule).States.DataSet.Locate('TYPE;STATUS',VarArrayOf([GetTyp,FDataSet.FieldByName('STATUS').AsString]),[loCaseInsensitive]);
+    end
+  else aFound := True;
+  if aFound then Result := TBaseDBModule(DataModule).States.FieldByName('ACTIVE').AsBoolean;
+end;
+
 function TBaseDbList.GetBookNumber: TField;
 var
   aField: String;

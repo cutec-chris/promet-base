@@ -3,7 +3,7 @@
       - Appserver:Wiki kann nun über Browser aufgerufen werden
       - 2. Zeile aus Langtexten wurde in den letzten Versionen falsch behandelt - repaiert
 Build 432
-      - Verbindung:automatischer reconnect bei ausgefallener Datenbankverbindung funktioniert nun
+      - Verbindung:automatischer reconnect bei ausgefallener Datenbankverbindung funktioniert nun (leider nicht bei allen Datenbanken möglich)
       - Zeiterfassung: Zeitaufschreibungsfenster hinzugefügt (Zeiten komfortabel nachtragen)
 Build 431
       - Scripte:dxfwrite Plugin um dxf Dateien per Script zu erzeugen
