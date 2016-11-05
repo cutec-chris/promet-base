@@ -1034,9 +1034,9 @@ begin
             aIndex := sIndex;
           RenumberRows(aIndex);
         end;
+      Refresh;
     end;
   FDisableEdit:=False;
-  Refresh;
 end;
 procedure TfGridView.gListDblClick(Sender: TObject);
 begin
