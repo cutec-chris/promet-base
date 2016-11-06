@@ -496,7 +496,7 @@ begin
           else
             TStringGrid(Sender).Canvas.Font.Style:=[];
         end;
-      if TryStrToDateTime(NewText,aTime) then
+      if (NewText <> '') and TryStrToDateTime(NewText,aTime) then
         begin
           aCol.Alignment:=taRightJustify;
         end;

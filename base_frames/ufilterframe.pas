@@ -216,6 +216,7 @@ type
     aFullCount: Integer;
     function GetAutoFiltered: Boolean;
     function GetFilterIn: string;
+    function GetFilterRow: Boolean;
     procedure SetBaseFilter(const AValue: string);
     procedure SetDataSet(const AValue: TBaseDBDataSet);override;
     procedure SetDefaultRows(const AValue: string);
@@ -223,6 +224,7 @@ type
     procedure SetEditable(const AValue: Boolean);
     procedure SetFilter(const AValue: string);
     procedure SetFilterIn(const AValue: string);
+    procedure SetFilterRow(AValue: Boolean);
     procedure SetFilterType(const AValue: string);
     procedure SetSortDirecion(const AValue: TSortDirection);
     procedure SetSortField(const AValue: string);
@@ -260,6 +262,7 @@ type
     function ShowHint(var HintStr: string;var CanShow: Boolean; var HintInfo: THintInfo) : Boolean;override;
     property Editable : Boolean read FEditable write SetEditable;
     property Sortable : Boolean read FSortable write FSortable;
+    property FilterRow : Boolean read GetFilterRow write SetFilterRow;
     property DestroyDataSet : Boolean read FDestroyDataSet write FDestroyDataSet;
     property OnGetCellText : TOnGetCellTextEvent read FOnGetCellText write FOnGetCellText;
     property OnDrawColumnCell : TDrawColumnCellEvent read FOnDrawColumnCell write FOnDrawColumnCell;
@@ -567,6 +570,11 @@ begin
     Result := FilterTables;
 end;
 
+function TfFilter.GetFilterRow: Boolean;
+begin
+  Result := dgTitles in gList.Options;
+end;
+
 function TfFilter.GetAutoFiltered: Boolean;
 begin
   Result := FAutoFilter<>'';
@@ -679,7 +687,8 @@ end;
 procedure TfFilter.gHeaderSelectCell(Sender: TObject; aCol, aRow: Integer;
   var CanSelect: Boolean);
 begin
-  gList.SelectedIndex:=aCol-1;
+  if aCol>1 then
+    gList.SelectedIndex:=aCol-1;
   gHeader.EditorMode:=True;
 end;
 procedure TfFilter.gHeaderSetEditText(Sender: TObject; ACol, ARow: Integer;
@@ -695,7 +704,7 @@ end;
 
 procedure TfFilter.bShowFilterClick(Sender: TObject);
 begin
-  //FilterRow:=bShowFilter.Down;
+  FilterRow:=bShowFilter.Down;
 end;
 
 procedure TfFilter.acSaveFilterExecute(Sender: TObject);
@@ -1444,6 +1453,19 @@ begin
   with FDataSet.DataSet as IBaseDBFilter do
     FilterTables := AValue;
 end;
+
+procedure TfFilter.SetFilterRow(AValue: Boolean);
+begin
+  if AValue then
+    gList.Options:=gList.Options-[dgTitles]
+  else
+    gList.Options:=gList.Options+[dgTitles];
+  gHeader.Visible:=not (dgTitles in gList.Options);
+  pConfig.BringToFront;
+  pConfig1.BringToFront;
+  Panel1.Visible:=gHeader.Visible;
+end;
+
 procedure TfFilter.SetDataSet(const AValue: TBaseDBDataSet);
   procedure SetSorting;
   begin
