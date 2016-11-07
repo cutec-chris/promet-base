@@ -799,6 +799,7 @@ begin
   Masterdata.DataSet := FDataSet.DataSet;
   if HasHelp then AddHelp(Self);
   pcPages.TabIndex:=oldIndex;
+  pcPages.Change;
 end;
 function TfArticleFrame.SetRights: Boolean;
 begin
