@@ -1217,8 +1217,11 @@ begin
             end
           else //Modify existing
             begin
-              while aObj.Count>1 do
-                aObj.Delete;
+              try
+                while aObj.Count>1 do
+                  aObj.Delete;
+              except
+              end;
               if aObj.Text.AsString<>Self.Text.AsString then
                 begin
                   aObj.Edit;

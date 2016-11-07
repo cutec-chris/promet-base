@@ -148,6 +148,7 @@ type
     procedure DblClickTimerTimer(Sender: TObject);
     procedure DoAsyncRefresh(Data: PtrInt);
     procedure DoAsyncResize(Data: PtrInt);
+    procedure DoSetActive(Data: PtrInt);
     procedure eFilterEditChange(Sender: TObject);
     function fSearchOpenUserItem(aLink: string): Boolean;
     procedure gHeaderColRowMoved(Sender: TObject; IsColumn: Boolean; sIndex,
@@ -1176,6 +1177,37 @@ begin
   fRowEditor.SetGridSizes('FILTER'+FFilterType,gList.DataSource,gList,cbFilter.Text);
   Asyncrefresh;
 end;
+
+procedure TfFilter.DoSetActive(Data: PtrInt);
+var
+  aFilter: TStringList;
+  i: Integer;
+begin
+  if Visible then
+    begin
+      fRowEditor.GetGridSizes('FILTER'+FFilterType,List,gList,FDefaultRows,not FEditable,cbFilter.Text);
+      aFilter := TStringList.Create;
+      for i := 1 to gHeader.Columns.Count do
+        aFilter.Add(gHeader.Cells[i,1]);
+      gHeader.Columns.Assign(gList.Columns);
+      for i := 1 to gHeader.Columns.Count do
+        begin
+          if aFilter.Count >= i then
+            gHeader.Cells[i,1] := aFilter[i-1]
+          else
+            gHeader.Cells[i,1] := '';
+        end;
+      FAutoFilter := BuildAutoFilter(gList,gHeader);
+      aFilter.Free;
+      UpdateTitle;
+    end;
+  try
+    if gList.CanFocus and gList.IsControlVisible then
+      gList.SetFocus;
+  except
+  end;
+end;
+
 procedure TfFilter.gListColumnMoved(Sender: TObject; FromIndex, ToIndex: Integer
   );
 begin
@@ -1724,33 +1756,8 @@ begin
 end;
 
 procedure TfFilter.SetActive;
-var
-  aFilter: TStringList;
-  i: Integer;
 begin
-  if Visible then
-    begin
-      fRowEditor.GetGridSizes('FILTER'+FFilterType,List,gList,FDefaultRows,not FEditable,cbFilter.Text);
-      aFilter := TStringList.Create;
-      for i := 1 to gHeader.Columns.Count do
-        aFilter.Add(gHeader.Cells[i,1]);
-      gHeader.Columns.Assign(gList.Columns);
-      for i := 1 to gHeader.Columns.Count do
-        begin
-          if aFilter.Count >= i then
-            gHeader.Cells[i,1] := aFilter[i-1]
-          else
-            gHeader.Cells[i,1] := '';
-        end;
-      FAutoFilter := BuildAutoFilter(gList,gHeader);
-      aFilter.Free;
-      UpdateTitle;
-    end;
-  try
-    if gList.CanFocus and gList.IsControlVisible then
-      gList.SetFocus;
-  except
-  end;
+  Application.QueueAsyncCall(@DoSetActive,0);
 end;
 procedure TfFilter.DoBeforeClose;
 begin
