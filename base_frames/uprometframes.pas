@@ -22,7 +22,8 @@ unit uPrometFrames;
 interface
 uses
   Classes, SysUtils, Forms, uBaseDbInterface, uBaseDbClasses, uExtControls,
-  Dialogs, Controls, ExtCtrls,uQuickHelpFrame,LCLProc, ActnList,db,contnrs;
+  Dialogs, Controls, ExtCtrls,uQuickHelpFrame,LCLProc, ActnList,db,contnrs,
+  LMessages;
 type
 
   { TPrometMainFrame }
@@ -47,6 +48,7 @@ type
     procedure DoEnter; override;
     procedure DoExit; override;
     procedure DoOpen;virtual;
+    procedure CMVisibleChanged(var Message: TLMessage); message CM_VISIBLECHANGED;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy;override;
@@ -145,9 +147,10 @@ var
   i: Integer;
 begin
   inherited DoExit;
-  for i := 0 to ComponentCount-1 do
-    if Components[i] is TActionList then
-      TActionList(Components[i]).State:=asSuspended;
+  if not Visible then
+    for i := 0 to ComponentCount-1 do
+      if Components[i] is TActionList then
+        TActionList(Components[i]).State:=asSuspended;
   if Assigned(Parent) and (Parent is TTabSheet) and (TTabSheet(Parent).Visible) and (TTabSheet(Parent).PageControl is TExtMenuPageControl) and Parent.CanFocus then
     TTabSheet(Parent).PageControl.SetFocus;
 end;
@@ -161,6 +164,15 @@ begin
   for i := 0 to ComponentCount-1 do
     if Components[i] is TActionList then
       TActionList(Components[i]).State:=asNormal;
+end;
+
+procedure TPrometMainFrame.CMVisibleChanged(var Message: TLMessage);
+begin
+  inherited;
+  if Visible then
+    DoEnter
+  else
+    DoExit;
 end;
 
 constructor TPrometMainFrame.Create(AOwner: TComponent);
