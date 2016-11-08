@@ -28,7 +28,7 @@ uses
   Dialogs, ExtCtrls, StdCtrls, Buttons, ActnList, ComCtrls, Menus, DbCtrls,
   Spin, DBGrids, uBaseDbClasses, uBaseERPDBClasses, uprometscripts, uDocuments,
   uprometpascalscript, genpascalscript, genscript, db, simpleipc, blcksock,
-  synsock, uprometscriptprinting, uImageCache;
+  synsock, uprometscriptprinting, uImageCache,base64;
 
 type
   TTCPCommandDaemon = class(TThread)
@@ -231,6 +231,8 @@ resourcestring
   strNotmoreSteps                       = 'Es sind keine (weiteren) Arbeitschritte vorhanden.<br><br>Um einen neuen Auftrag auswählen zu können müssen Sie den Auftrag (ab)schließen';
   strPartiallyProblematic               = 'Achtung Teile des Auftrages sind in nicht freigegebenem Zustand !';
   strLoading                            = 'Auftragsdaten werden geladen...';
+  strNumberSetEmpty                     = 'Nummernkreis erschöpft';
+  strNewNumbers                         = 'Code';
 
 procedure TTCPCommandDaemon.DoData;
 begin
@@ -1313,6 +1315,41 @@ begin
     FAutomation.ClearScreen;
 end;
 
+function NumberSetEmpty(aSet : string) : Boolean;
+var
+  newSerials: String;
+  Code: String;
+  aStart: String;
+  aStop: String;
+begin
+  Result := False;
+  newSerials := InputBox(strNumberSetEmpty+' ('+aSet+')',strNewNumbers,'');
+  if newSerials<>'' then
+    begin
+      try
+      Code  := DecodeStringBase64(newSerials);
+      if pos(':',Code)>0 then
+        begin
+          aStart:=copy(Code,0,pos(':',Code)-1);
+          Code := copy(Code,pos(':',Code)+1,length(Code));
+          aStop:=Code;
+          if Data.Numbers.Locate('NAME',aSet,[]) then
+            begin
+              Data.Users.History.AddItemPlain('SERIALS','New Serial Range Old:'+Data.Numbers.FieldByName('ACTUAL').AsString+' New:'+aStart+'-'+aStop);
+              Data.Numbers.Edit;
+              Data.Numbers.FieldByName('ACTUAL').AsString:=aStart;
+              Data.Numbers.FieldByName('STOP').AsString:=aStop;
+              Data.Numbers.Post;
+              Result := True;
+            end;
+        end
+      else raise Exception.Create('');
+      except
+        Result := False;
+      end;
+    end;
+end;
+
 procedure InternalBringToFront(Sender : TObject);
 begin
   if Assigned(FAutomation) then
@@ -1337,6 +1374,7 @@ initialization
   genscript.DoClearScreen:=@InternalClearScreen;
   genscript.DoBringToFront:=@InternalBringToFront;
   DoInputBox:=@InputBox;
+  OnNumbersetEmpty := @NumberSetEmpty;
   IsCompiling := False;
 end.
 
