@@ -36,7 +36,7 @@ inherited fMeetingFrame: TfMeetingFrame
         BorderSpacing.Left = 5
         Caption = 'Eintrag'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -160,7 +160,7 @@ inherited fMeetingFrame: TfMeetingFrame
         BorderSpacing.Left = 5
         Caption = 'Erweitert'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -354,7 +354,7 @@ inherited fMeetingFrame: TfMeetingFrame
         BorderSpacing.Left = 5
         Caption = 'Status'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -522,8 +522,8 @@ inherited fMeetingFrame: TfMeetingFrame
     NewTabImageIndex = 0
     object tsMeeting: TTabSheet
       Caption = 'Besprechung'
-      ClientHeight = 1176
-      ClientWidth = 1396
+      ClientHeight = 588
+      ClientWidth = 698
       object tbLeft: TPanel
         Left = 0
         Height = 588
@@ -794,7 +794,7 @@ inherited fMeetingFrame: TfMeetingFrame
         end
       end
       object pSearch: TPanel
-        Left = -4033
+        Left = -4731
         Height = 72
         Top = 216
         Width = 452

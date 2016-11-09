@@ -36,7 +36,7 @@ inherited fAttPlan: TfAttPlan
         BorderSpacing.Left = 5
         Caption = 'Ansicht'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -317,7 +317,7 @@ inherited fAttPlan: TfAttPlan
         BorderSpacing.Left = 5
         Caption = 'Aktuell'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -395,12 +395,12 @@ inherited fAttPlan: TfAttPlan
       TabOrder = 2
       object ExtRotatedLabel1: TLabel
         Left = 6
-        Height = 11
+        Height = 12
         Top = 0
-        Width = 25
+        Width = 24
         Caption = 'Suche'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 12
         Layout = tlBottom
         ParentColor = False
         ParentFont = False
@@ -416,7 +416,7 @@ inherited fAttPlan: TfAttPlan
       end
       object eSearch: TEdit
         Left = 6
-        Height = 21
+        Height = 23
         Top = 12
         Width = 146
         OnChange = eSearchChange

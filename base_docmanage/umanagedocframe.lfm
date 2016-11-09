@@ -29,12 +29,12 @@ inherited fManageDocFrame: TfManageDocFrame
       TabOrder = 0
       object ExtRotatedLabel1: TLabel
         Left = 6
-        Height = 16
+        Height = 12
         Top = 0
-        Width = 31
+        Width = 24
         Caption = 'Suche'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 12
         Layout = tlBottom
         ParentColor = False
         ParentFont = False
@@ -50,7 +50,7 @@ inherited fManageDocFrame: TfManageDocFrame
       end
       object eSearch: TEdit
         Left = 6
-        Height = 27
+        Height = 23
         Top = 12
         Width = 146
         OnChange = eSearchChange
@@ -80,12 +80,12 @@ inherited fManageDocFrame: TfManageDocFrame
       end
       object ExtRotatedLabel2: TLabel
         Left = 6
-        Height = 16
+        Height = 12
         Top = 0
-        Width = 69
+        Width = 52
         Caption = 'Ansicht/Filter'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 12
         Layout = tlBottom
         ParentColor = False
         ParentFont = False
@@ -93,13 +93,13 @@ inherited fManageDocFrame: TfManageDocFrame
       object cbFilter: TComboBox
         AnchorSideLeft.Side = asrBottom
         Left = 6
-        Height = 31
+        Height = 23
         Hint = 'hier können Sie eine vordefinierte Ansicht wählen'#10'Wenn Sie eine spezielle Ansicht/Sortierung benötigen wenden Sie sich an Ihren Administrator'
         Top = 12
         Width = 230
         Anchors = [akTop, akLeft, akRight]
         BorderSpacing.Left = 8
-        ItemHeight = 0
+        ItemHeight = 15
         Style = csDropDownList
         TabOrder = 0
       end
@@ -164,12 +164,12 @@ inherited fManageDocFrame: TfManageDocFrame
       TabOrder = 2
       object ExtRotatedLabel4: TLabel
         Left = 6
-        Height = 16
+        Height = 12
         Top = 0
-        Width = 57
+        Width = 43
         Caption = 'Navigation'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 12
         Layout = tlBottom
         ParentColor = False
         ParentFont = False
@@ -347,12 +347,12 @@ inherited fManageDocFrame: TfManageDocFrame
       TabOrder = 3
       object ExtRotatedLabel5: TLabel
         Left = 6
-        Height = 16
+        Height = 12
         Top = 0
-        Width = 51
+        Width = 39
         Caption = 'Zusätzlich'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 12
         Layout = tlBottom
         ParentColor = False
         ParentFont = False
@@ -533,12 +533,12 @@ inherited fManageDocFrame: TfManageDocFrame
       TabOrder = 4
       object ExtRotatedLabel6: TLabel
         Left = 6
-        Height = 16
+        Height = 12
         Top = 0
-        Width = 52
+        Width = 39
         Caption = 'Speichern'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 12
         Layout = tlBottom
         ParentColor = False
         ParentFont = False
@@ -660,12 +660,12 @@ inherited fManageDocFrame: TfManageDocFrame
       TabOrder = 5
       object ExtRotatedLabel7: TLabel
         Left = 44
-        Height = 16
-        Top = 4
-        Width = 37
+        Height = 12
+        Top = 0
+        Width = 26
         Caption = 'Import'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 12
         Layout = tlBottom
         ParentColor = False
         ParentFont = False
@@ -746,23 +746,23 @@ inherited fManageDocFrame: TfManageDocFrame
     TabOrder = 2
     object tsDocument: TTabSheet
       Caption = 'Dokument'
-      ClientHeight = 532
-      ClientWidth = 532
+      ClientHeight = 539
+      ClientWidth = 530
       object pThumb: TPanel
         Left = 0
         Height = 50
-        Top = 482
-        Width = 532
+        Top = 489
+        Width = 530
         Align = alBottom
         BevelOuter = bvNone
         ClientHeight = 50
-        ClientWidth = 532
+        ClientWidth = 530
         TabOrder = 0
         object DBZVDateTimePicker1: TDBZVDateTimePicker
           Left = 6
           Height = 23
           Top = 24
-          Width = 147
+          Width = 133
           DataField = 'ORIGDATE'
           DataSource = Documents
           ReadOnly = False
@@ -783,9 +783,9 @@ inherited fManageDocFrame: TfManageDocFrame
         end
         object DBEdit1: TDBEdit
           Left = 184
-          Height = 27
+          Height = 23
           Top = 24
-          Width = 344
+          Width = 342
           DataField = 'TAGS'
           DataSource = Documents
           Anchors = [akTop, akLeft, akRight]
@@ -795,17 +795,17 @@ inherited fManageDocFrame: TfManageDocFrame
         end
         object Label1: TLabel
           Left = 6
-          Height = 17
+          Height = 15
           Top = 5
-          Width = 38
+          Width = 36
           Caption = 'Datum'
           ParentColor = False
         end
         object Label2: TLabel
           Left = 184
-          Height = 17
+          Height = 15
           Top = 5
-          Width = 159
+          Width = 152
           Caption = 'Suchworte (durch , getrennt)'
           ParentColor = False
         end
@@ -1029,7 +1029,8 @@ inherited fManageDocFrame: TfManageDocFrame
             Caption = 'Text'
             Font.Color = clMedGray
             Font.Height = 11
-            Font.Orientation = -900
+            Font.Orientation = 900
+            Layout = tlBottom
             ParentColor = False
             ParentFont = False
           end

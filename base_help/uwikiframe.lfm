@@ -73,7 +73,7 @@ inherited fWikiFrame: TfWikiFrame
         BorderSpacing.Left = 5
         Caption = 'Navigation'
         Font.Color = clMedGray
-        Font.Height = 13
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -100,7 +100,7 @@ inherited fWikiFrame: TfWikiFrame
         BorderSpacing.Left = 5
         Caption = 'export'
         Font.Color = clMedGray
-        Font.Height = 13
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -172,7 +172,7 @@ inherited fWikiFrame: TfWikiFrame
         BorderSpacing.Left = 5
         Caption = 'bearbeiten'
         Font.Color = clMedGray
-        Font.Height = 13
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -294,7 +294,7 @@ inherited fWikiFrame: TfWikiFrame
         BorderSpacing.Left = 5
         Caption = 'Titel'
         Font.Color = clMedGray
-        Font.Height = 13
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -332,7 +332,7 @@ inherited fWikiFrame: TfWikiFrame
         DataField = 'NAME'
         DataSource = Wiki
         Font.Color = clGrayText
-        Font.Height = -9
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -359,7 +359,7 @@ inherited fWikiFrame: TfWikiFrame
         BorderSpacing.Left = 5
         Caption = 'Eintrag'
         Font.Color = clMedGray
-        Font.Height = 13
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end

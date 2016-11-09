@@ -16,7 +16,7 @@ object fMessageEdit: TfMessageEdit
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   ShowInTaskBar = stAlways
-  LCLVersion = '1.7'
+  LCLVersion = '1.4.4.0'
   object pMain: TPanel
     Left = 0
     Height = 330
@@ -78,7 +78,7 @@ object fMessageEdit: TfMessageEdit
         BorderSpacing.Left = 5
         Caption = 'Betreff'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -126,7 +126,7 @@ object fMessageEdit: TfMessageEdit
           BorderSpacing.Left = 5
           Caption = 'An'
           Font.Color = clMedGray
-          Font.Height = 11
+          Font.Height = 12
           ParentColor = False
           ParentFont = False
         end
@@ -176,7 +176,7 @@ object fMessageEdit: TfMessageEdit
           BorderSpacing.Left = 5
           Caption = 'Kopie an (CC)'
           Font.Color = clMedGray
-          Font.Height = 11
+          Font.Height = 12
           ParentColor = False
           ParentFont = False
         end
@@ -305,7 +305,7 @@ object fMessageEdit: TfMessageEdit
         BorderSpacing.Left = 5
         Caption = 'Format'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -355,7 +355,7 @@ object fMessageEdit: TfMessageEdit
         BorderSpacing.Left = 5
         Caption = 'Von'
         Font.Color = clMedGray
-        Font.Height = 11
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end

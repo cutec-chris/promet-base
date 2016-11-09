@@ -36,7 +36,7 @@ inherited fProjectOVFrame: TfProjectOVFrame
         BorderSpacing.Left = 5
         Caption = 'Ansicht'
         Font.Color = clMedGray
-        Font.Height = 13
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -367,7 +367,7 @@ inherited fProjectOVFrame: TfProjectOVFrame
         BorderSpacing.Left = 5
         Caption = 'Aktuell'
         Font.Color = clMedGray
-        Font.Height = 13
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -415,7 +415,7 @@ inherited fProjectOVFrame: TfProjectOVFrame
         BorderSpacing.Left = 5
         Caption = 'Übernehmen'
         Font.Color = clMedGray
-        Font.Height = 13
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -457,7 +457,7 @@ inherited fProjectOVFrame: TfProjectOVFrame
         BorderSpacing.Left = 5
         Caption = 'zusätzlich'
         Font.Color = clMedGray
-        Font.Height = 13
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end
@@ -515,7 +515,7 @@ inherited fProjectOVFrame: TfProjectOVFrame
         BorderSpacing.Left = 5
         Caption = 'Priorität'
         Font.Color = clMedGray
-        Font.Height = 13
+        Font.Height = 12
         ParentColor = False
         ParentFont = False
       end

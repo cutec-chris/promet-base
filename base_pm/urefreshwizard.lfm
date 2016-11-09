@@ -8,12 +8,12 @@ object fRefreshWizard: TfRefreshWizard
   ClientWidth = 600
   Constraints.MinHeight = 543
   Position = poDesktopCenter
-  LCLVersion = '1.5'
+  LCLVersion = '1.4.4.0'
   object rbPlan1: TRadioButton
     Left = 16
-    Height = 17
+    Height = 19
     Top = 18
-    Width = 404
+    Width = 398
     Caption = 'Plan unter Berücksichtigung der Mitarbeiterauslastung aktualisieren'
     Checked = True
     Font.Style = [fsBold]
@@ -23,7 +23,7 @@ object fRefreshWizard: TfRefreshWizard
   end
   object Label1: TLabel
     Left = 32
-    Height = 32
+    Height = 40
     Top = 40
     Width = 558
     Anchors = [akTop, akLeft, akRight, akBottom]
@@ -35,7 +35,7 @@ object fRefreshWizard: TfRefreshWizard
   object Image1: TImage
     Left = 32
     Height = 59
-    Top = 64
+    Top = 72
     Width = 200
     AutoSize = True
     Picture.Data = {
@@ -214,9 +214,9 @@ object fRefreshWizard: TfRefreshWizard
   end
   object rbPlan2: TRadioButton
     Left = 16
-    Height = 17
-    Top = 136
-    Width = 527
+    Height = 19
+    Top = 144
+    Width = 520
     Caption = 'Plan unter Berücksichtigung der Mitarbeiterauslastung aktualisieren ohne Abhängigkeiten'
     Font.Style = [fsBold]
     ParentFont = False
@@ -224,8 +224,8 @@ object fRefreshWizard: TfRefreshWizard
   end
   object Label2: TLabel
     Left = 32
-    Height = 40
-    Top = 160
+    Height = 56
+    Top = 168
     Width = 558
     Anchors = [akTop, akLeft, akRight, akBottom]
     AutoSize = False
@@ -236,7 +236,7 @@ object fRefreshWizard: TfRefreshWizard
   object Image2: TImage
     Left = 32
     Height = 57
-    Top = 208
+    Top = 216
     Width = 200
     AutoSize = True
     Picture.Data = {
@@ -406,9 +406,9 @@ object fRefreshWizard: TfRefreshWizard
   end
   object rbPlan3: TRadioButton
     Left = 16
-    Height = 17
+    Height = 19
     Top = 280
-    Width = 173
+    Width = 170
     Caption = 'Plan vorwärts aktualisieren'
     Font.Style = [fsBold]
     ParentFont = False
@@ -427,9 +427,9 @@ object fRefreshWizard: TfRefreshWizard
   end
   object rbPlan4: TRadioButton
     Left = 20
-    Height = 17
+    Height = 19
     Top = 344
-    Width = 109
+    Width = 111
     Caption = 'Möglich machen'
     Font.Style = [fsBold]
     ParentFont = False
@@ -448,17 +448,17 @@ object fRefreshWizard: TfRefreshWizard
   end
   object mReason: TMemo
     Left = 20
-    Height = 90
-    Top = 408
+    Height = 82
+    Top = 416
     Width = 572
     Anchors = [akTop, akLeft, akRight, akBottom]
     TabOrder = 4
   end
   object lReason: TLabel
     Left = 20
-    Height = 13
-    Top = 392
-    Width = 203
+    Height = 15
+    Top = 400
+    Width = 205
     Caption = 'Grund für die Verschiebung / Verzug'
     Font.Style = [fsBold]
     ParentColor = False

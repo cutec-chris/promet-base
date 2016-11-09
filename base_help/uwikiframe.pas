@@ -333,7 +333,7 @@ begin
   if Assigned(IpHtml.HotNode) and (ipHTML.HotNode is TIpHtmlNodeA) then
     begin
       aLink := StringReplace(TIpHtmlNodeA(IpHtml.HotNode).HRef,'\','/',[rfReplaceAll]);//Ipro changes Links from / to \ on windows automatically
-      PageName := StringReplace(aLink,' ','_',[rfReplaceAll]);
+      PageName := SysToUni(StringReplace(aLink,' ','_',[rfReplaceAll]));
       for i := 0 to FVariables.Count-1 do
         pageName := StringReplace(PageName,'@VARIABLES.'+FVariables.Names[i]+'@',FVariables.ValueFromIndex[i],[rfReplaceAll,rfIgnoreCase]);
       if OpenWikiPage(PageName) or OpenWikiPage(lowercase(PageName)) then
@@ -1128,7 +1128,7 @@ begin
               Found := True;
             end;
         end;
-      if not Found then
+      if (not Found) and Assigned(aScript.Script) then
         begin
           aScript.Script.Source:=Inp;
           if not aScript.Script.Execute(Null) then

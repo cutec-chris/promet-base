@@ -188,7 +188,7 @@ begin
                 aParent := TBaseDBModule(DataModule).Tree.Id.AsVariant
               else aParent:=0;
             end
-          else
+          else if aDocreate then
             begin
               with TBaseDBModule(DataModule).Tree.DataSet do
                 begin
@@ -205,7 +205,8 @@ begin
                     aParent := TBaseDBModule(DataModule).Tree.Id.AsVariant
                   else aParent:=0;
                 end;
-            end;
+            end
+          else break;
         end;
     end;
   TBaseDBModule(DataModule).Tree.DataSet.Filtered := False;
