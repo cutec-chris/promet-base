@@ -131,6 +131,7 @@ function TPrometPascalScript.TPascalScriptUses(Sender: TPascalScript;
   const aName: tbtString; OnlyAdditional: Boolean): Boolean;
 var
   aScript: TBaseScript;
+  aVersion,aIName: String;
 begin
   Result:=False;
   with BaseApplication as IBaseApplication do
@@ -648,11 +649,21 @@ begin
         aScript := TBaseScript.CreateEx(nil,Data);
         try
           Result:=False;
+          aVersion:='';
+          aIName := aName;
+          if pos('_',aIName)>0 then
+            begin
+              aVersion := copy(aIName,pos('_',aIName)+1,length(aIName));
+              aIName := copy(aIName,0,pos('_',aIName)-1);
+            end;
           with BaseApplication as IBaseApplication do
             Debug('Uses get Unit from Database:'+aName);
-          aScript.Filter(Data.ProcessTerm('UPPER('+Data.QuoteField('NAME')+')=UPPER('+Data.QuoteValue(aName)+') AND '+Data.QuoteField('ACTIVE')+'='+Data.QuoteValue('Y')));
+          if aVersion = '' then
+            aScript.Filter(Data.ProcessTerm('UPPER('+Data.QuoteField('NAME')+')=UPPER('+Data.QuoteValue(aIName)+') AND '+Data.QuoteField('ACTIVE')+'='+Data.QuoteValue('Y')))
+          else
+            aScript.Filter(Data.ProcessTerm('UPPER('+Data.QuoteField('NAME')+')=UPPER('+Data.QuoteValue(aIName)+') AND UPPER('+Data.QuoteField('VERSION')+')=UPPER('+Data.QuoteValue(aVersion))+')');
           if aScript.Count>0 then
-            if aScript.Locate('NAME',aName,[loCaseInsensitive]) then
+            if aScript.Locate('NAME',aIName,[loCaseInsensitive]) then
               begin
                 if Assigned(OnCheckModule) then
                   OnCheckModule(aScript);
