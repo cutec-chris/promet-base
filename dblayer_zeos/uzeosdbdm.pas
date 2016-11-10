@@ -1793,7 +1793,8 @@ begin
   try
     Result := TZConnection(aConnection).Ping;
   except
-    Result := PingHost(TZConnection(aConnection).HostName)>-1;//Unsupported
+    if copy(TZConnection(aConnection).Protocol,0,6)<>'sqlite' then
+      Result := PingHost(TZConnection(aConnection).HostName)>-1;//Unsupported
   end;
 end;
 function TZeosDBDM.DateToFilter(aValue: TDateTime): string;

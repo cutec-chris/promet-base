@@ -926,6 +926,7 @@ procedure TProdTreeData.CompileScript(Data: PtrInt);
 begin
   Screen.Cursor:=crHourGlass;
   Script.Writeln:=@ScriptWriteln;
+  if not Assigned(Script.Script) then exit;
   Script.Script.OnCompileMessage:=@DebugCompileMessage;
   if IsCompiling then exit;
   IsCompiling := True;
