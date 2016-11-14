@@ -972,20 +972,26 @@ var
 begin
   fLogWaitForm.ShowInfo(s);
   if copy(s,0,7)='**STEP ' then
-    PrepareOutput.Add('<img src="ICON(22)"></img><i>'+copy(s,8,length(s))+'</i><br>')
+    PrepareOutput.Add('<img src="ICON(22)"></img><span>'+copy(s,8,length(s))+'</span><br>')
   else if copy(s,0,10)='**STEPEND ' then
     begin
+      while (PrepareOutput.Count>0) and (copy(PrepareOutput[PrepareOutput.Count-1],0,15)<>'<img src="ICON(') do
+        PrepareOutput.Delete(PrepareOutput.Count-1);
       aTxt := PrepareOutput[PrepareOutput.Count-1];
-      aTxt := copy(aTxt,30,length(aTxt)-29-8);
+      aTxt := copy(aTxt,pos('<span>',aTxt)+6,length(aTxt));
+      aTxt := copy(aTxt,0,pos('</span>',aTxt)-1);
       PrepareOutput.Delete(PrepareOutput.Count-1);
-      PrepareOutput.Add('<img src="ICON(74)"></img><span>'+aTxt+' -> '+copy(s,11,length(s))+'</span><br>')
+      PrepareOutput.Add('<img src="ICON(74)"></img><span>'+aTxt+'</span> -> '+copy(s,11,length(s))+'<br>')
     end
   else if copy(s,0,8)='**ERROR ' then
     begin
+      while (PrepareOutput.Count>0) and (copy(PrepareOutput[PrepareOutput.Count-1],0,15)<>'<img src="ICON(') do
+        PrepareOutput.Delete(PrepareOutput.Count-1);
       aTxt := PrepareOutput[PrepareOutput.Count-1];
-      aTxt := copy(aTxt,30,length(aTxt)-29-8);
+      aTxt := copy(aTxt,pos('<i>',aTxt)+3,length(aTxt));
+      aTxt := copy(aTxt,0,pos('</i>',aTxt)-1);
       PrepareOutput.Delete(PrepareOutput.Count-1);
-      PrepareOutput.Add('<img src="ICON(75)"></img><b>'+aTxt+' -> '+copy(s,9,length(s))+'</b><br>')
+      PrepareOutput.Add('<img src="ICON(75)"></img><b><span>'+aTxt+'</span> -> '+copy(s,9,length(s))+'</b><br>')
     end
   else PrepareOutput.Add(s);
   Application.QueueAsyncCall(@ShowNewData,0);
@@ -997,20 +1003,26 @@ var
 begin
   fLogWaitForm.ShowInfo(s);
   if copy(s,0,7)='**STEP ' then
-    ScriptOutput.Add('<img src="ICON(22)"></img><i>'+copy(s,8,length(s))+'</i><br>')
+    ScriptOutput.Add('<img src="ICON(22)"></img><i><span>'+copy(s,8,length(s))+'</span></i><br>')
   else if copy(s,0,10)='**STEPEND ' then
     begin
+      while (ScriptOutput.Count>0) and (copy(ScriptOutput[ScriptOutput.Count-1],0,15)<>'<img src="ICON(') do
+        ScriptOutput.Delete(ScriptOutput.Count-1);
       aTxt := ScriptOutput[ScriptOutput.Count-1];
-      aTxt := copy(aTxt,30,length(aTxt)-29-8);
+      aTxt := copy(aTxt,pos('<span>',aTxt)+6,length(aTxt));
+      aTxt := copy(aTxt,0,pos('</span>',aTxt)-1);
       ScriptOutput.Delete(ScriptOutput.Count-1);
-      ScriptOutput.Add('<img src="ICON(74)"></img><span>'+aTxt+' -> '+copy(s,11,length(s))+'</span><br>')
+      ScriptOutput.Add('<img src="ICON(74)"></img><span>'+aTxt+'</span> -> '+copy(s,11,length(s))+'<br>')
     end
   else if copy(s,0,8)='**ERROR ' then
     begin
+      while (ScriptOutput.Count>0) and (copy(ScriptOutput[ScriptOutput.Count-1],0,15)<>'<img src="ICON(') do
+        ScriptOutput.Delete(ScriptOutput.Count-1);
       aTxt := ScriptOutput[ScriptOutput.Count-1];
-      aTxt := copy(aTxt,30,length(aTxt)-29-8);
+      aTxt := copy(aTxt,pos('<i>',aTxt)+3,length(aTxt));
+      aTxt := copy(aTxt,0,pos('</i>',aTxt)-1);
       ScriptOutput.Delete(ScriptOutput.Count-1);
-      ScriptOutput.Add('<img src="ICON(75)"></img><b>'+aTxt+' -> '+copy(s,9,length(s))+'</b><br>')
+      ScriptOutput.Add('<img src="ICON(75)"></img><b><span>'+aTxt+'</span> -> '+copy(s,9,length(s))+'</b><br>')
     end
   else ScriptOutput.Add(s);
   Application.QueueAsyncCall(@ShowNewData,0);
