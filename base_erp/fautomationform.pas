@@ -448,6 +448,8 @@ var
   tmp: String;
   aDoc: TDocument;
   Picture: TPicture;
+  tmpURL: String;
+  pic: TPicture;
 begin
   Result := nil;
   DoCompileScript := nil;
@@ -488,6 +490,20 @@ begin
               ms.Position:=0;
               Result := ms;
               Picture.Free;
+            end;
+        end
+      else if copy(uppercase(Path),0,7)='FILE://' then
+        begin
+          tmpURL := UniToSys(copy(Path,8,length(Path)));
+          if FileExists(tmpURL) then
+            begin
+              pic := TPicture.Create;
+              pic.LoadFromFile(tmpUrl);
+              ms := TMemoryStream.Create;
+              pic.SaveToStreamWithFileExt(ms,'jpg');
+              ms.Position:=0;
+              Result := ms;
+              pic.Free;
             end;
         end
       else
