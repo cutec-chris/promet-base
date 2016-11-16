@@ -38,6 +38,9 @@ resourcestring
   strDiscarded                  = 'entsorgt';
   strWaitingforCustomer         = 'wartet auf Kunden';
   strAssemblyexchanged          = 'Baugruppentausch';
+  strGoodwillRepair             = 'Kulanzreparatur';
+  strGoodwillExchange           = 'Kulanzaustausch';
+  strGoodwillCredit             = 'Kulanzgutschrift';
   strIsNew                      = 'neuwertig';
   strSearchFromMailSelect       = 'Hier könenn Sie einen Benutzer oder Kontakt zum informieren suchen, wenn Sie die Suche abbrechen müssen Sie den zu Informierenden im e-Mail Programm suchen';
   strLocation                   = 'Ort';
