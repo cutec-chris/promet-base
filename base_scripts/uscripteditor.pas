@@ -1190,6 +1190,7 @@ var
   Found: Boolean = False;
 begin
  mo := messages.Items.Objects[messages.ItemIndex];
+ try
  if Assigned(mo) then
    begin
      ed.CaretY:=TMessageObject(mo).Y;
@@ -1205,6 +1206,8 @@ begin
          ed.SetFocus;
        end;
    end;
+ except
+ end;
 end;
 
 procedure TfScriptEditor.Gotolinenumber1Click(Sender: TObject);
