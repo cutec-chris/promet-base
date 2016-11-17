@@ -586,6 +586,9 @@ begin
   FTimeLine.gList.OnDblClick:=@FContListViewDetails;
   FTimeLine.OnGetCellText:=@FTimeLineGetCellText;
   FTimeLine.WordWrap:=true;
+  FTimeLine.acCopyLink.Visible:=False;//makes no sense in History
+  FTimeLine.acCopyPosition.Visible:=False;
+  FTimeLine.acPastePosition.Visible:=False;
   Panel3.Visible:=Data.Users.Rights.Right('HISTORY') > RIGHT_WRITE;
   RestoreButtons;
 end;
