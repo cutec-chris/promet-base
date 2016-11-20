@@ -415,7 +415,7 @@ begin
       FOnNeedId(Self);
   if not Assigned(FDocuments) then exit;
   TfDocumentFrame(Sender).DataSet := FDocuments;
-  TfDocumentFrame(Sender).Refresh(FDocId,FDocTyp,FDocName,Null,Null);
+  TfDocumentFrame(Sender).Refresh(FDocId,FDocTyp,FDocName,Null,Null,0);
 end;
 
 function TfWikiEditor.GetText: string;
@@ -478,7 +478,7 @@ begin
             begin
               aDocFrame := TfDocumentFrame(aDocPage.Controls[0]);
               aDocFrame.DataSet := FDocuments;
-              aDocFrame.Refresh(FDocId,FDocTyp,FDocName,Null,Null);
+              aDocFrame.Refresh(FDocId,FDocTyp,FDocName,Null,Null,0);
             end
           else
             begin

@@ -632,7 +632,7 @@ end;
 procedure TfFilter.gHeaderDrawCell(Sender: TObject; aCol, aRow: Integer;
   aRect: TRect; aState: TGridDrawState);
 begin
-  if aRow < 1 then
+  if (aRow < 1) and (aRow > -1) then
     begin
       gHeader.DefaultDrawCell(aCol,aRow,aRect,aState);
       exit;

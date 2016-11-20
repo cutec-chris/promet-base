@@ -227,8 +227,9 @@ TfDocumentFrame = class(TPrometInplaceDBFrame{$IFDEF WINDOWS},IDropSource{$ENDIF
     function OpenFromLink(aLink : string) : Boolean;override;
     procedure SetLanguage;override;
     function SaveFileToDir(aDir : string) : Boolean;
-    procedure Refresh(RefID: Variant;Typ,ID : string;Version : Variant;Language : Variant;aParent : Integer = 0);overload;
-    procedure Refresh(RefID : Variant;Typ : string;aParent : Integer = 0);overload;
+    procedure Refresh(RefID: Variant; Typ, ID: string; Version: Variant;
+      Language: Variant; aParent: Variant = 0); overload;
+    procedure Refresh(RefID : Variant;Typ : string;aParent : Variant = 0);overload;
     property RefID : Variant read GetFrefID;
     property Typ : string read FTyp;
     property ID : string read FID;
@@ -1380,7 +1381,7 @@ begin
       else
         aNew.ImageIndex := 9;
     end;
-  aNew.SubItems.Add(IntToStr(DataSet.GetBookmark));
+  aNew.SubItems.Add(VarToStr(DataSet.GetBookmark));
 end;
 function TfDocumentFrame.GotoSelected: Boolean;
 var
@@ -1622,7 +1623,7 @@ begin
 end;
 
 procedure TfDocumentFrame.Refresh(RefID: Variant;Typ, ID: string; Version: Variant; Language: Variant;
-  aParent: Integer);
+  aParent: Variant);
 begin
   if not VarISNull(RefID) then
     begin
@@ -1637,7 +1638,7 @@ begin
   FAParent := aParent;
   DoRefresh;
 end;
-procedure TfDocumentFrame.Refresh(RefID: Variant;Typ : string; aParent: Integer);
+procedure TfDocumentFrame.Refresh(RefID: Variant;Typ : string; aParent: Variant);
 begin
   if not VarISNull(RefID) then
     begin
