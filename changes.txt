@@ -1,4 +1,5 @@
-﻿Build 433 (nicht veröffentlicht)
+﻿Build 434 (nicht veröffentlicht)
+Build 433 (19.11.2016)
       - Scripte:Zuffallsfunktionen ergänzt
       - Appserver:Wiki kann nun über Browser aufgerufen werden
       - 2. Zeile aus Langtexten wurde in den letzten Versionen falsch behandelt - repaiert
