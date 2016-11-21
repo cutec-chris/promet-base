@@ -162,6 +162,7 @@ end;
 procedure TfSelectReport.FormShow(Sender: TObject);
 begin
   Data.Reports.Open;
+  Data.Reports.DataSet.Refresh;
   SetupDB;
   bPreview.Enabled := (Data.Reports.Count > 0) and (not Data.Reports.FieldByName('REPORT').IsNull);
   if bPreview.Enabled then
