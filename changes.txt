@@ -1,4 +1,5 @@
 ﻿Build 434 (nicht veröffentlicht)
+      - Gridview: Filterzeile wird ohne Flackern ein/ausgeblendet, Range Error beseitigt
 Build 433 (19.11.2016)
       - Scripte:Zuffallsfunktionen ergänzt
       - Appserver:Wiki kann nun über Browser aufgerufen werden
