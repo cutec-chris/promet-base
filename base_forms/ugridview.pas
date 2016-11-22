@@ -3055,8 +3055,8 @@ begin
                   end
               end;
           end;
-      if (not Found) and AddNotFound and ((gList.RowCount <= gList.Row) or (Assigned(gList.Objects[0,gList.Row]) and (TRowObject(gList.Objects[0,gList.Row]).Rec <> 0))) then
-          if (gList.RowCount <= gList.Row) or (TRowObject(gList.Objects[0,gList.Row]).Rec <> Bookmark) then
+      if (not Found) and AddNotFound and ((gList.RowCount-gList.FixedRows <= gList.Row) or (Assigned(gList.Objects[0,gList.Row]) and (TRowObject(gList.Objects[0,gList.Row]).Rec <> 0))) then
+          if (gList.RowCount-gList.FixedRows <= gList.Row) or (TRowObject(gList.Objects[0,gList.Row]).Rec <> Bookmark) then
             begin
               gList.RowCount:=gList.RowCount+1;
               gList.Objects[0,gList.RowCount-1] := TRowObject.Create;
