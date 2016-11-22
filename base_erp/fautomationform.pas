@@ -1118,9 +1118,9 @@ begin
   if FAutomation.acPrepare.Checked then
     begin
       if FAutomation.acExecutePrepareStep.Checked then
-        ss := TStringStream.Create(UniToSys(PrepareOutput.Text))
+        ss := TStringStream.Create((PrepareOutput.Text))
       else
-        ss := TStringStream.Create('<body>'+UniToSys(PreText.Text+'<br><br>'+PrepareOutput.Text)+'</body>');
+        ss := TStringStream.Create(#$EF+#$BB+#$BF+'<body>'+(PreText.Text+'<br><br>'+PrepareOutput.Text)+'</body>');
       if actualHtml<>ss.DataString then
         begin
           Result := True;
@@ -1137,16 +1137,16 @@ begin
       if FAutomation.acExecuteStep.Checked then
         begin
           if pos('<body',lowercase(WorkText.Text))=0 then
-            ss := TStringStream.Create('<body>'+UniToSys(ScriptOutput.Text)+'</body>')
+            ss := TStringStream.Create(#$EF+#$BB+#$BF+'<body>'+(ScriptOutput.Text)+'</body>')
           else
             ss := TStringStream.Create(UniToSys(ScriptOutput.Text));
         end
       else
         begin
           if pos('<body',lowercase(WorkText.Text))=0 then
-            ss := TStringStream.Create('<body>'+UniToSys(WorkText.Text+'<br><br>'+ScriptOutput.Text)+'</body>')
+            ss := TStringStream.Create(#$EF+#$BB+#$BF+'<body>'+(WorkText.Text+'<br><br>'+ScriptOutput.Text)+'</body>')
           else
-            ss := TStringStream.Create(UniToSys(WorkText.Text+ScriptOutput.Text));
+            ss := TStringStream.Create((WorkText.Text+ScriptOutput.Text));
         end;
       if actualHtml<>ss.DataString then
         begin

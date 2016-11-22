@@ -865,7 +865,7 @@ begin
       ostr := StringReplace(ostr,'</h4><br>','</h4>',[rfReplaceAll]);
       ostr := StringReplace(ostr,'</h5><br>','</h5>',[rfReplaceAll]);
       ostr := StringReplace(ostr,'</h6><br>','</h6>',[rfReplaceAll]);
-      Result := UniToSys(ostr);
+      Result := ostr;
     end
   else
     Result := ostr;
