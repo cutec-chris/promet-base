@@ -1450,10 +1450,10 @@ begin
 end;
 procedure TBaseDBModule.AppendUserToActiveList;
 begin
-  ActiveUsers.Select(FSessionID);
-  ActiveUsers.Open;
-  FUsersFilter:='';
   try
+    ActiveUsers.Select(FSessionID);
+    ActiveUsers.Open;
+    FUsersFilter:='';
     if ActiveUsers.GotoBookmark(FSessionID) then
       begin
         with ActiveUsers.DataSet do

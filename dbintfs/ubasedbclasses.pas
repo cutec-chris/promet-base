@@ -90,8 +90,8 @@ type
     function GotoBookmark(aRec : Variant) : Boolean;
     function GetLink : string;
     procedure FreeBookmark(aRec : Variant);
-    function ExportToXML: string;
-    function ExportToJSON: string;
+    function ExportToXML: string;virtual;
+    function ExportToJSON: string;virtual;
     procedure ImportFromXML(XML : string;OverrideFields : Boolean = False;ReplaceFieldFunc : TReplaceFieldFunc = nil);virtual;
     procedure ImportFromJSON(JSON : string;OverrideFields : Boolean = False;ReplaceFieldFunc : TReplaceFieldFunc = nil);virtual;
     procedure DuplicateRecord(DoPost : Boolean = False);virtual;
