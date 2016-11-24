@@ -133,7 +133,7 @@ begin
             Add('LANGUAGE',ftString,3,False);
             Add('CREATEDBY',ftString,4,False);
             Add('CHANGEDBY',ftString,4,False);
-            Add('DATA',ftMemo,0,False);
+            Add('DATA',ftBlob,0,False);
           end;
     end;
 end;

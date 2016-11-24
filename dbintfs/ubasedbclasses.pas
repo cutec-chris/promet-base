@@ -692,7 +692,7 @@ begin
         with ManagedFieldDefs do
           begin
             Add('NAME',ftString,100,True);
-            Add('TEXT',ftMemo,0,False);
+            Add('TEXT',ftBlob,0,False);
           end;
       if Assigned(ManagedIndexdefs) then
         with ManagedIndexDefs do
