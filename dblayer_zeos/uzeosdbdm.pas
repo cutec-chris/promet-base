@@ -724,7 +724,6 @@ begin
                   inherited InternalOpen;
                 except
                   if TZeosDBDM(Owner).Ping(Connection) then
-                    raise
                   else
                     begin
                       WaitForLostConnection;
