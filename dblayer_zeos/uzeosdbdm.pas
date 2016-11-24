@@ -1791,7 +1791,9 @@ var
 begin
   Result := True;
   try
-    if copy(TZConnection(aConnection).Protocol,0,6)<>'sqlite' then
+    if (copy(TZConnection(aConnection).Protocol,0,6)<>'sqlite')
+    and (copy(TZConnection(aConnection).Protocol,0,5)<>'mssql')
+    then
       Result := TZConnection(aConnection).Ping
     else Result := True;
   except
@@ -2300,8 +2302,6 @@ begin
       if (copy(FMainConnection.Protocol,0,8) = 'firebird')
       or (copy(FMainConnection.Protocol,0,9) = 'interbase') then
         Result := Result+' BLOB SUB_TYPE 1'
-      else  if (FMainConnection.Protocol = 'mssql') then
-        Result := Result+' NTEXT'
       else
         Result := Result+' TEXT';
     end;
