@@ -1791,7 +1791,9 @@ var
 begin
   Result := True;
   try
-    Result := TZConnection(aConnection).Ping;
+    if copy(TZConnection(aConnection).Protocol,0,6)<>'sqlite' then
+      Result := TZConnection(aConnection).Ping
+    else Result := True;
   except
     if copy(TZConnection(aConnection).Protocol,0,6)<>'sqlite' then
       Result := PingHost(TZConnection(aConnection).HostName)>-1;//Unsupported

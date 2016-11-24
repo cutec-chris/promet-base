@@ -246,6 +246,8 @@ begin
             RegisterMethod('function SelectFromNumber(aNumber : string) : Boolean;');
             RegisterMethod('function  ExportToXML : string;');
             RegisterMethod('procedure ImportFromXML(XML : string;OverrideFields : Boolean);');
+            RegisterMethod('function  ExportToJSON : string;');
+            RegisterMethod('procedure ImportFromJSON(JSON : string;OverrideFields : Boolean);');
             RegisterMethod('function ChangeStatus(aNewStatus : string) : Boolean;');
           end;
         with Sender.ClassImporter.Add(TBaseDbList) do
@@ -263,6 +265,8 @@ begin
             RegisterPropertyHelper(@TBaseDbListPropertyMatchCodeR,nil,'MATCHCODE');
             RegisterVirtualMethod(@TBaseDbList.ImportFromXML,'IMPORTFROMXML');
             RegisterVirtualMethod(@TBaseDbList.ExportToXML,'EXPORTTOXML');
+            RegisterVirtualMethod(@TBaseDbList.ImportFromJSON,'IMPORTFROMJSON');
+            RegisterVirtualMethod(@TBaseDbList.ExportToJSON,'EXPORTTOJSON');
             RegisterVirtualMethod(@TBaseDbList.ChangeStatus,'CHANGESTATUS');
           end;
         //TBaseHistory
