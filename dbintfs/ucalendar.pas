@@ -33,6 +33,9 @@ type
     procedure DefineFields(aDataSet : TDataSet);override;
     procedure SetDisplayLabels(aDataSet: TDataSet); override;
   end;
+
+  { TCalendar }
+
   TCalendar = class(TBaseDbList,IBaseHistory)
     procedure FDSDataChange(Sender: TObject; Field: TField);
   private
@@ -60,6 +63,7 @@ type
     function SelectFromLink(aLink: string): Boolean; override;
     property History : TBaseHistory read GetHistory;
     property Users : TMeetingUsers read FUsers;
+    function CreateTable: Boolean; override;
     constructor CreateEx(aOwner: TComponent; DM: TComponent;
       aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
     destructor Destroy; override;
@@ -427,6 +431,12 @@ begin
           Result := True;
         end;
     end;
+end;
+
+function TCalendar.CreateTable: Boolean;
+begin
+  Result:=inherited CreateTable;
+  Users.CreateTable;
 end;
 
 constructor TCalendar.CreateEx(aOwner: TComponent; DM: TComponent;

@@ -23,7 +23,7 @@ interface
 uses
   Classes, SysUtils, db, Utils, uBaseDbInterface, uBaseApplication,uBaseDatasetInterfaces;
 procedure CSVExport(Filename : string;Delemiter : char;DataSet : TDataSet);
-procedure CSVImport(Filename : string;Delemiter : char;DataSet : TDataSet);
+function CSVImport(Filename : string;Delemiter : char;DataSet : TDataSet) : Boolean;
 implementation
 uses uData;
 procedure CSVExport(Filename: string; Delemiter: char; DataSet: TDataSet);
@@ -75,7 +75,7 @@ begin
     end;
   closefile(f);
 end;
-procedure CSVImport(Filename: string; Delemiter: char; DataSet: TDataSet);
+function CSVImport(Filename: string; Delemiter: char; DataSet: TDataSet) : Boolean;
 var
   f : TextFile;
   header : tstringlist;
@@ -85,6 +85,7 @@ var
   intextseparator : Boolean;
   lc: Char;
 begin
+  Result := True;
   DataSet.DisableControls;
   header := TStringList.Create;
   AssignFile(f,Filename);
@@ -156,6 +157,7 @@ begin
   except
     on e : Exception do
       begin
+        Result := False;
         with BaseApplication as IBaseApplication do
           Error('Zeile:'+tmp+' Fehler:'+e.Message);
       end;

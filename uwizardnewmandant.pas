@@ -517,7 +517,17 @@ var
           aTable.CreateTable;
           aTable.Open;
           if aTable.DataSet.IsEmpty then
-            CSVImport(AppendPathDelim(AppendPathDelim(ExtractFilePath(Application.Exename))+'importdata'+DirectorySeparator+'standard')+lowercase(aTableName)+'.csv',';',aTable.DataSet);
+            begin
+              Data.StartTransaction(Data.MainConnection,True);
+              if CSVImport(AppendPathDelim(AppendPathDelim(ExtractFilePath(Application.Exename))+'importdata'+DirectorySeparator+'standard')+lowercase(aTableName)+'.csv',';',aTable.DataSet) then
+                Data.CommitTransaction(Data.MainConnection)
+              else
+                begin
+                  Data.RollbackTransaction(Data.MainConnection);
+                  CSVImport(AppendPathDelim(AppendPathDelim(ExtractFilePath(Application.Exename))+'importdata'+DirectorySeparator+'standard')+lowercase(aTableName)+'.csv',';',aTable.DataSet);
+                end;
+
+            end;
         end;
     except
     end;
