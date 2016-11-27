@@ -1,5 +1,5 @@
 ﻿Build 435 (nicht veröffentlicht)
-      -
+      - neue Rich Text Editor Komponente (KMemo Version aktualisiert)
 Build 434 (25.11.2016)
       - Gridview: Filterzeile wird ohne Flackern ein/ausgeblendet, Range Error beseitigt
 Build 433 (19.11.2016)
