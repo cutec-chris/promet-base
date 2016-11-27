@@ -356,7 +356,7 @@ end;
 procedure TfEditorToolbar.ACParaNumberingExecute(Sender: TObject);
 begin
   if not Assigned(FEditor) then exit;
-  FNumberingForm.Load(Editor.ListTable, Editor.NearestParagraph);
+  FNumberingForm.Load(FEditor, Editor.ListTable, Editor.NearestParagraph);
   if FNumberingForm.ShowModal = mrOk then
     FNumberingForm.Save;
 end;
@@ -370,7 +370,7 @@ end;
 procedure TfEditorToolbar.ACParaStyleExecute(Sender: TObject);
 begin
   if not Assigned(FEditor) then exit;
-  FParaStyleForm.Load(FParaStyle);
+  FParaStyleForm.Load(FEditor,FParaStyle);
   if FParaStyleForm.ShowModal = mrOk then
     FParaStyleForm.Save(FParaStyle);
 end;

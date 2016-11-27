@@ -3,27 +3,27 @@ inherited fWikiFrame: TfWikiFrame
   Width = 686
   ClientHeight = 529
   ClientWidth = 686
-  DesignLeft = 362
-  DesignTop = 196
+  DesignLeft = 360
+  DesignTop = 146
   object pTop: TPanel[0]
     Left = 0
-    Height = 42
+    Height = 43
     Top = 0
     Width = 686
     Align = alTop
     BevelOuter = bvNone
-    ClientHeight = 42
+    ClientHeight = 43
     ClientWidth = 686
     TabOrder = 0
     object pToolbar: TPanel
       Left = 5
-      Height = 42
+      Height = 43
       Top = 0
       Width = 123
       Align = alLeft
       BorderSpacing.Left = 5
       BevelOuter = bvNone
-      ClientHeight = 42
+      ClientHeight = 43
       ClientWidth = 123
       TabOrder = 0
       object tbToolBar: TToolBar
@@ -80,13 +80,13 @@ inherited fWikiFrame: TfWikiFrame
     end
     object pToolbar1: TPanel
       Left = 133
-      Height = 42
+      Height = 43
       Top = 0
       Width = 59
       Align = alLeft
       BorderSpacing.Left = 5
       BevelOuter = bvNone
-      ClientHeight = 42
+      ClientHeight = 43
       ClientWidth = 59
       TabOrder = 1
       object Label4: TLabel
@@ -152,13 +152,13 @@ inherited fWikiFrame: TfWikiFrame
     end
     object pEdit1: TPanel
       Left = 197
-      Height = 42
+      Height = 43
       Top = 0
       Width = 75
       Align = alLeft
       BorderSpacing.Left = 5
       BevelOuter = bvNone
-      ClientHeight = 42
+      ClientHeight = 43
       ClientWidth = 75
       TabOrder = 2
       object Label5: TLabel
@@ -276,19 +276,19 @@ inherited fWikiFrame: TfWikiFrame
     end
     object Panel7: TPanel
       Left = 336
-      Height = 42
+      Height = 43
       Top = 0
-      Width = 324
+      Width = 272
       Align = alLeft
       BevelOuter = bvNone
-      ClientHeight = 42
-      ClientWidth = 324
+      ClientHeight = 43
+      ClientWidth = 272
       TabOrder = 3
       object Label6: TLabel
         Left = 4
         Height = 15
         Top = 0
-        Width = 316
+        Width = 264
         Anchors = [akLeft, akRight, akBottom]
         AutoSize = False
         BorderSpacing.Left = 5
@@ -300,8 +300,8 @@ inherited fWikiFrame: TfWikiFrame
       end
       object Bevel4: TBevel
         Left = 0
-        Height = 22
-        Top = 16
+        Height = 18
+        Top = 21
         Width = 8
         Align = alLeft
         BorderSpacing.Top = 4
@@ -310,11 +310,12 @@ inherited fWikiFrame: TfWikiFrame
       end
       object eName: TDBEdit
         Left = 4
-        Height = 23
+        Height = 27
         Top = 13
-        Width = 316
+        Width = 264
         DataField = 'CAPTION'
         DataSource = Wiki
+        Anchors = [akTop, akLeft, akRight]
         CharCase = ecNormal
         Enabled = False
         MaxLength = 0
@@ -323,9 +324,9 @@ inherited fWikiFrame: TfWikiFrame
       end
       object Label1: TDBText
         Left = 40
-        Height = 12
+        Height = 17
         Top = 0
-        Width = 284
+        Width = 232
         Align = alTop
         Alignment = taRightJustify
         BorderSpacing.Left = 40
@@ -339,12 +340,12 @@ inherited fWikiFrame: TfWikiFrame
     end
     object pEntry: TPanel
       Left = 272
-      Height = 42
+      Height = 43
       Top = 0
       Width = 64
       Align = alLeft
       BevelOuter = bvNone
-      ClientHeight = 42
+      ClientHeight = 43
       ClientWidth = 64
       TabOrder = 4
       Visible = False
@@ -381,15 +382,60 @@ inherited fWikiFrame: TfWikiFrame
         ShowCaption = False
       end
     end
+    object Panel9: TPanel
+      Left = 608
+      Height = 43
+      Top = 0
+      Width = 75
+      Align = alLeft
+      BevelOuter = bvNone
+      ClientHeight = 43
+      ClientWidth = 75
+      TabOrder = 5
+      object Label7: TLabel
+        Left = 4
+        Height = 15
+        Top = 0
+        Width = 67
+        Anchors = [akLeft, akRight, akBottom]
+        AutoSize = False
+        BorderSpacing.Left = 5
+        Caption = 'Sprache'
+        Font.Color = clMedGray
+        Font.Height = 12
+        ParentColor = False
+        ParentFont = False
+      end
+      object Bevel6: TBevel
+        Left = 0
+        Height = 35
+        Top = 4
+        Width = 8
+        Align = alLeft
+        BorderSpacing.Top = 4
+        BorderSpacing.Bottom = 4
+        Shape = bsLeftLine
+      end
+      object cbLanguage: TComboBox
+        Left = 4
+        Height = 29
+        Hint = 'hier können Sie die zu bearbeitende Artikelversion auswählen.'#13#10'Wenn Sie eine neue version eingeben und das Feld verlassen,'#13#10'wird ein Dialog geöffnet in dem abgefragt wird was vom aktuellen'#13#10'Artikel übernommen werden soll, danach existiert der Atikel auch'#13#10'in der neuen Artikelversion.'
+        Top = 12
+        Width = 68
+        ItemHeight = 0
+        TabOrder = 0
+        TabStop = False
+      end
+    end
   end
   object pLeft: TPanel[1]
     Left = 642
-    Height = 487
-    Top = 42
+    Height = 486
+    Top = 43
     Width = 44
     Align = alRight
     BevelOuter = bvNone
-    ClientHeight = 487
+    ClientHeight = 486
     ClientWidth = 44
     TabOrder = 1
     Visible = False
@@ -424,8 +470,7 @@ inherited fWikiFrame: TfWikiFrame
         Caption = 'Navigation'
         Font.Color = clMedGray
         Font.Height = 13
-        Font.Orientation = 900
-        Layout = tlBottom
+        Font.Orientation = -900
         ParentColor = False
         ParentFont = False
       end
@@ -441,7 +486,6 @@ inherited fWikiFrame: TfWikiFrame
         Caption = 'tbToolBar1'
         EdgeInner = esNone
         EdgeOuter = esNone
-        Images = fVisualControls.Images
         TabOrder = 0
         object tbMenue1: TToolButton
           Left = 1
@@ -497,8 +541,7 @@ inherited fWikiFrame: TfWikiFrame
         Caption = 'bearbeiten'
         Font.Color = clMedGray
         Font.Height = 13
-        Font.Orientation = 900
-        Layout = tlBottom
+        Font.Orientation = -900
         ParentColor = False
         ParentFont = False
       end
@@ -517,17 +560,17 @@ inherited fWikiFrame: TfWikiFrame
   end
   object pMiddle: TPanel[2]
     Left = 0
-    Height = 487
-    Top = 42
+    Height = 486
+    Top = 43
     Width = 642
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 487
+    ClientHeight = 486
     ClientWidth = 642
     TabOrder = 2
     object ipHTML: TIpHtmlPanel
       Left = 0
-      Height = 479
+      Height = 478
       Top = 8
       Width = 642
       Anchors = [akTop, akLeft, akRight, akBottom]
@@ -540,13 +583,16 @@ inherited fWikiFrame: TfWikiFrame
       PrintSettings.MarginTop = 0.5
       PrintSettings.MarginRight = 0.5
       PrintSettings.MarginBottom = 0.5
+      PrintSettings.Preview.Left = 480
+      PrintSettings.Preview.Top = 270
+      PrintSettings.Preview.Width = 1440
+      PrintSettings.Preview.Height = 810
       ShowHints = False
       TabOrder = 0
       OnHotClick = ipHTMLHotClick
     end
   end
   object ActionList: TActionList[3]
-    Images = fVisualControls.Images
     left = 368
     top = 56
     object acBack: TAction
@@ -646,7 +692,6 @@ inherited fWikiFrame: TfWikiFrame
     top = 152
   end
   object pmContext: TPopupMenu[9]
-    Images = fVisualControls.Images
     left = 320
     top = 152
     object MenuItem2: TMenuItem

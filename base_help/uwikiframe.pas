@@ -64,7 +64,9 @@ type
     Bevel1: TBevel;
     Bevel2: TBevel;
     Bevel4: TBevel;
+    Bevel6: TBevel;
     bTransfer: TSpeedButton;
+    cbLanguage: TComboBox;
     eName: TDBEdit;
     ExtRotatedLabel1: TExtRotatedLabel;
     ExtRotatedLabel2: TExtRotatedLabel;
@@ -75,11 +77,13 @@ type
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
+    Label7: TLabel;
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem6: TMenuItem;
     MenuItem8: TMenuItem;
     miDelete: TMenuItem;
+    Panel9: TPanel;
     pEntry: TPanel;
     Panel7: TPanel;
     pEdit2: TPanel;

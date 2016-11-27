@@ -1,4 +1,6 @@
-﻿Build 434 (nicht veröffentlicht)
+﻿Build 435 (nicht veröffentlicht)
+      -
+Build 434 (25.11.2016)
       - Gridview: Filterzeile wird ohne Flackern ein/ausgeblendet, Range Error beseitigt
 Build 433 (19.11.2016)
       - Scripte:Zuffallsfunktionen ergänzt
