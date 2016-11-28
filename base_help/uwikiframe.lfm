@@ -1,19 +1,19 @@
 inherited fWikiFrame: TfWikiFrame
-  Height = 529
-  Width = 686
-  ClientHeight = 529
-  ClientWidth = 686
+  Height = 537
+  Width = 689
+  ClientHeight = 537
+  ClientWidth = 689
   DesignLeft = 359
   DesignTop = 121
   object pTop: TPanel[0]
     Left = 0
     Height = 43
     Top = 0
-    Width = 686
+    Width = 689
     Align = alTop
     BevelOuter = bvNone
     ClientHeight = 43
-    ClientWidth = 686
+    ClientWidth = 689
     TabOrder = 0
     object pToolbar: TPanel
       Left = 5
@@ -300,8 +300,8 @@ inherited fWikiFrame: TfWikiFrame
       end
       object Bevel4: TBevel
         Left = 0
-        Height = 18
-        Top = 21
+        Height = 23
+        Top = 16
         Width = 8
         Align = alLeft
         BorderSpacing.Top = 4
@@ -310,7 +310,7 @@ inherited fWikiFrame: TfWikiFrame
       end
       object eName: TDBEdit
         Left = 4
-        Height = 27
+        Height = 23
         Top = 13
         Width = 264
         DataField = 'CAPTION'
@@ -324,7 +324,7 @@ inherited fWikiFrame: TfWikiFrame
       end
       object Label1: TDBText
         Left = 40
-        Height = 17
+        Height = 12
         Top = 0
         Width = 232
         Align = alTop
@@ -418,24 +418,24 @@ inherited fWikiFrame: TfWikiFrame
       end
       object cbLanguage: TComboBox
         Left = 4
-        Height = 29
+        Height = 23
         Hint = 'hier können Sie die zu bearbeitende Artikelversion auswählen.'#13#10'Wenn Sie eine neue version eingeben und das Feld verlassen,'#13#10'wird ein Dialog geöffnet in dem abgefragt wird was vom aktuellen'#13#10'Artikel übernommen werden soll, danach existiert der Atikel auch'#13#10'in der neuen Artikelversion.'
         Top = 12
         Width = 68
-        ItemHeight = 0
+        ItemHeight = 15
         TabOrder = 0
         TabStop = False
       end
     end
   end
   object pLeft: TPanel[1]
-    Left = 642
-    Height = 486
+    Left = 645
+    Height = 494
     Top = 43
     Width = 44
     Align = alRight
     BevelOuter = bvNone
-    ClientHeight = 486
+    ClientHeight = 494
     ClientWidth = 44
     TabOrder = 1
     Visible = False
@@ -470,7 +470,8 @@ inherited fWikiFrame: TfWikiFrame
         Caption = 'Navigation'
         Font.Color = clMedGray
         Font.Height = 13
-        Font.Orientation = -900
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
@@ -486,6 +487,7 @@ inherited fWikiFrame: TfWikiFrame
         Caption = 'tbToolBar1'
         EdgeInner = esNone
         EdgeOuter = esNone
+        Images = fVisualControls.Images
         TabOrder = 0
         object tbMenue1: TToolButton
           Left = 1
@@ -541,7 +543,8 @@ inherited fWikiFrame: TfWikiFrame
         Caption = 'bearbeiten'
         Font.Color = clMedGray
         Font.Height = 13
-        Font.Orientation = -900
+        Font.Orientation = 900
+        Layout = tlBottom
         ParentColor = False
         ParentFont = False
       end
@@ -560,19 +563,19 @@ inherited fWikiFrame: TfWikiFrame
   end
   object pMiddle: TPanel[2]
     Left = 0
-    Height = 486
+    Height = 494
     Top = 43
-    Width = 642
+    Width = 645
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 486
-    ClientWidth = 642
+    ClientHeight = 494
+    ClientWidth = 645
     TabOrder = 2
     object ipHTML: TIpHtmlPanel
       Left = 0
-      Height = 478
+      Height = 486
       Top = 8
-      Width = 642
+      Width = 645
       Anchors = [akTop, akLeft, akRight, akBottom]
       FixedTypeface = 'Courier New'
       DefaultTypeFace = 'arial'
@@ -583,10 +586,6 @@ inherited fWikiFrame: TfWikiFrame
       PrintSettings.MarginTop = 0.5
       PrintSettings.MarginRight = 0.5
       PrintSettings.MarginBottom = 0.5
-      PrintSettings.Preview.Left = 480
-      PrintSettings.Preview.Top = 270
-      PrintSettings.Preview.Width = 1440
-      PrintSettings.Preview.Height = 810
       ShowHints = False
       TabOrder = 0
       OnHotClick = ipHTMLHotClick
@@ -669,6 +668,7 @@ inherited fWikiFrame: TfWikiFrame
     top = 152
   end
   object pmHistory: TPopupMenu[5]
+    Images = fVisualControls.Images
     OnPopup = pmHistoryPopup
     left = 328
     top = 56
@@ -693,6 +693,7 @@ inherited fWikiFrame: TfWikiFrame
     top = 152
   end
   object pmContext: TPopupMenu[9]
+    Images = fVisualControls.Images
     left = 320
     top = 152
     object MenuItem2: TMenuItem
@@ -712,6 +713,42 @@ inherited fWikiFrame: TfWikiFrame
     end
     object miDelete: TMenuItem
       Action = acDelete
+      Bitmap.Data = {
+        36040000424D3604000000000000360000002800000010000000100000000100
+        2000000000000004000064000000640000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000A46534CCA46534FFA46534FFA46534FFA46534FFA46534FFA46534FFA465
+        34FFA46534FFA46534FFA46534FFA46534CC0000000000000000000000000000
+        0000A46534FFE5CCB4FFDBB795FFDBB694FFDAB492FFDAB390FFD9AD86FFD8AA
+        83FFD7A87FFFD7A67DFFE0BE9FFFA46534FF0000000000000000000000000000
+        0000A46534FFE8D3C0FFE7D1BBFFE7D1BCFFE6CEB7FFE6CEB7FFE6CEB7FFE6CE
+        B7FFE6CDB6FFE6CCB5FFE6CCB6FFA46534FF0000000000000000000000000000
+        0000A46534CCA46534FFA46534FFA46534FFA46534FFA46534FFA46534FFA465
+        34FFA46534FFA46534FFA46534FFA46534CC0000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000
+      }
     end
   end
 end

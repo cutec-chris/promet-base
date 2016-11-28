@@ -1282,7 +1282,7 @@ begin
     end
   else if CreateIfNotExists then
     begin
-      TWikiList(DataSet).FindWikiPage(PageName);
+      TWikiList(DataSet).FindWikiPage(PageName,True);
       aParent := TWikiList(DataSet).ActiveTreeID;
       DataSet.Insert;
       DataSet.FieldByName('NAME').AsString := copy(PageName,rpos('/',PageName)+1,length(PageName));

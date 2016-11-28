@@ -148,6 +148,7 @@ type
     procedure tvStepSelectionChanged(Sender: TObject);
     function ExecuteServerFunction(aFunc : string) : Variant;
   private
+    FActNode: TIpHtmlNode;
     FDataSet: TBaseDBPosition;
     FSelStep: TNotifyEvent;
     fScript : TBaseScript;
@@ -523,8 +524,8 @@ begin
             end
           else if Assigned(TreeData.PrepDocuments) then
             begin
-                TreeData.PrepDocuments.Open;
-                if TreeData.PrepDocuments.Locate('NAME',aURL,[loCaseInsensitive]) then
+              TreeData.PrepDocuments.Open;
+              if TreeData.PrepDocuments.Locate('NAME',aURL,[loCaseInsensitive]) then
                 begin
                   ms := TMemoryStream.Create;
                   aDoc := TDocument.Create(nil);
@@ -541,6 +542,41 @@ begin
   except
     Result := nil;
   end;
+  if not Assigned(Result) then
+    begin
+      aURL := copy(URL,0,rpos('.',URL)-1);
+      aDoc := TDocument.Create(nil);
+      aDoc.Filter(Data.QuoteField('TYPE')+'='+Data.QuoteValue('W')+' AND '+Data.QuoteField('NAME')+'='+Data.QuoteValue(aURL));
+      if aDoc.Count>0 then
+       begin
+         ms := TMemoryStream.Create;
+         aDoc.CheckoutToStream(ms);
+         ms.Position:=0;
+         if TIpHtmlNodeIMG(FActNode).Width.LengthType = hlAbsolute then
+           begin
+             try
+               aPicture := TPicture.Create;
+               aPicture.LoadFromStreamWithFileExt(ms,aDoc.FieldByName('EXTENSION').AsString);
+               Picture := TPicture.Create;
+               Picture.Bitmap.Width := TIpHtmlNodeIMG(FActNode).Width.LengthValue;
+               Aspect := aPicture.Height/aPicture.Width;
+               Picture.Bitmap.Height := round(TIpHtmlNodeIMG(FActNode).Width.LengthValue*Aspect);
+               Picture.Bitmap.Canvas.AntialiasingMode:= amOn;
+               Picture.Bitmap.Canvas.StretchDraw(Classes.Rect(0,0,Picture.Width,Picture.Height),aPicture.Graphic);
+               aPicture.Free;
+               ms.Free;
+               ms := TMemoryStream.Create;
+               Picture.SaveToStreamWithFileExt(ms,'png');
+               NewPath := Copy(Path,0,length(path)-length(ExtractFileExt(Path)))+'.png';
+               ms.Position:=0;
+               Picture.Free;
+             except
+             end;
+           end;
+         Result := ms;
+       end;
+      aDoc.Free;
+    end;
 end;
 
 procedure TFAutomation.fLogWaitFormbAbortClick(Sender: TObject);
@@ -917,9 +953,8 @@ var
   aPicture: TPicture = nil;
   aFile: TMemoryStream = nil;
   NewURL : string = '';
-  FActNode: TIpHtmlNode;
 begin
-  FActNode := Sender;
+  FAutomation.FActNode := Sender;
   aFile := FAutomation.FCache.GetFile(URL,NewURL);
   if Assigned(aFile) then
     begin
