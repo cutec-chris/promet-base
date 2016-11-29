@@ -141,6 +141,7 @@ type
     procedure acRefreshExecute(Sender: TObject);
     procedure bNetChange(Sender: TObject);
     procedure bResultsClick(Sender: TObject);
+    procedure cbCategoryChange(Sender: TObject);
     function FCacheGetFile(URL: string; var NewPath: string): TStream;
     procedure fLogWaitFormbAbortClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -223,7 +224,7 @@ var
 implementation
 
 uses Utils,uBaseVisualControls,uMasterdata,uData,uOrder,variants,uLogWait,
-  uautomationframe,wikitohtml,LCLIntf,uBaseApplication,uBaseDBInterface
+  uautomationframe,wikitohtml,LCLIntf,uBaseApplication,ubaseconfig
   {$IFDEF WINDOWS}
   ,Windows
   {$ENDIF}
@@ -459,6 +460,12 @@ begin
        end;
      aImages.Free;
     end;
+end;
+
+procedure TFAutomation.cbCategoryChange(Sender: TObject);
+begin
+  with BaseApplication as IBaseConfig do
+    Config.WriteString('FA_CATEGORY',cbCategory.Text);
 end;
 
 function TFAutomation.FCacheGetFile(URL: string; var NewPath: string): TStream;
@@ -716,8 +723,7 @@ begin
   if FDataSet=AValue then Exit;
   FDataSet:=AValue;
   with BaseApplication as IBaseConfig do
-    TempPath := Config.ReadString('TEMPPATH','');
-  cbCategory.Text:=(BaseApplication as IBasecon).;
+    cbCategory.Text:=Config.ReadString('FA_CATEGORY','');
 end;
 
 function TFAutomation.FindNextStep: Boolean;
