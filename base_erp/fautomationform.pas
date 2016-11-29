@@ -72,6 +72,9 @@ type
     DBGrid1: TDBGrid;
     ipHTML: TIpHtmlPanel;
     Label1: TLabel;
+    Label2: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
     lStatusProblems: TLabel;
     Label3: TLabel;
     Label4: TLabel;
@@ -110,7 +113,8 @@ type
     sbMenue5: TSpeedButton;
     bNet: TToggleBox;
     spBDE: TSplitter;
-    ToolBar2: TToolBar;
+    seProblemTime: TSpinEdit;
+    tbButtons: TToolBar;
     ToolButton10: TToolButton;
     ToolButton11: TToolButton;
     ToolButton3: TToolButton;
@@ -219,7 +223,7 @@ var
 implementation
 
 uses Utils,uBaseVisualControls,uMasterdata,uData,uOrder,variants,uLogWait,
-  uautomationframe,wikitohtml,LCLIntf
+  uautomationframe,wikitohtml,LCLIntf,uBaseApplication,uBaseDBInterface
   {$IFDEF WINDOWS}
   ,Windows
   {$ENDIF}
@@ -433,9 +437,28 @@ begin
 end;
 
 procedure TFAutomation.bResultsClick(Sender: TObject);
+var
+  aImages: TOrderRepairImages;
+  aButton: TToolButton;
 begin
   pBDE.Visible:=bResults.Down;
   spBDE.Visible:=bResults.Down;
+  if pBDE.Visible then
+    begin
+      while tbButtons.ButtonCount>0 do
+        tbButtons.Buttons[0].Free;
+     TOrderPos(FDataSet).Repair.Open;
+     aImages := TOrderRepairImages.Create(nil);
+     aImages.Filter(Data.QuoteField('CATEGORY')+'='+Data.QuoteValue(cbCategory.Text));
+     while not aImages.EOF do
+       begin
+         aButton := TToolButton.Create(tbButtons);
+         aButton.Caption:=aImages.FieldByName('NAME').AsString;
+         aButton.Parent:=tbButtons;
+         aImages.Next;
+       end;
+     aImages.Free;
+    end;
 end;
 
 function TFAutomation.FCacheGetFile(URL: string; var NewPath: string): TStream;
@@ -692,6 +715,9 @@ procedure TFAutomation.SetDataSet(AValue: TBaseDBPosition);
 begin
   if FDataSet=AValue then Exit;
   FDataSet:=AValue;
+  with BaseApplication as IBaseConfig do
+    TempPath := Config.ReadString('TEMPPATH','');
+  cbCategory.Text:=(BaseApplication as IBasecon).;
 end;
 
 function TFAutomation.FindNextStep: Boolean;

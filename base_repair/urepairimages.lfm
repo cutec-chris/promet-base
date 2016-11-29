@@ -10,7 +10,7 @@ object fRepairImages: TfRepairImages
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   Position = poMainFormCenter
-  LCLVersion = '1.3'
+  LCLVersion = '1.4.4.0'
   object gList: TDBGrid
     Left = 8
     Height = 398
@@ -31,7 +31,7 @@ object fRepairImages: TfRepairImages
   end
   object eFilter: TEdit
     Left = 8
-    Height = 21
+    Height = 23
     Top = 8
     Width = 176
     OnChange = eFilterEnter
@@ -58,30 +58,30 @@ object fRepairImages: TfRepairImages
     Height = 430
     Top = 8
     Width = 507
-    ActivePage = tsAdditional
+    ActivePage = tsCommon
     Anchors = [akTop, akLeft, akRight, akBottom]
     Images = fVisualControls.Images
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 3
     NewTabImageIndex = 59
     object tsCommon: TTabSheet
       Caption = 'Allgemein'
-      ClientHeight = 403
+      ClientHeight = 402
       ClientWidth = 499
       ImageIndex = 14
       object pCommon: TPanel
         Left = 0
-        Height = 403
+        Height = 402
         Top = 0
         Width = 499
         Align = alClient
         BevelOuter = bvNone
-        ClientHeight = 403
+        ClientHeight = 402
         ClientWidth = 499
         TabOrder = 0
         object mSolve: TDBMemo
           Left = 8
-          Height = 175
+          Height = 174
           Top = 216
           Width = 485
           Anchors = [akTop, akLeft, akRight, akBottom]
@@ -91,15 +91,15 @@ object fRepairImages: TfRepairImages
         end
         object Label3: TLabel
           Left = 8
-          Height = 13
+          Height = 15
           Top = 192
-          Width = 78
+          Width = 86
           Caption = 'Fehlerbehebung'
           ParentColor = False
         end
         object mErrordesc: TDBMemo
           Left = 8
-          Height = 120
+          Height = 88
           Top = 64
           Width = 319
           Anchors = [akTop, akLeft, akRight]
@@ -109,15 +109,15 @@ object fRepairImages: TfRepairImages
         end
         object Label2: TLabel
           Left = 8
-          Height = 13
+          Height = 15
           Top = 48
-          Width = 44
+          Width = 51
           Caption = 'Symtome'
           ParentColor = False
         end
         object eName: TDBEdit
           Left = 8
-          Height = 21
+          Height = 23
           Top = 16
           Width = 207
           DataField = 'NAME'
@@ -129,9 +129,9 @@ object fRepairImages: TfRepairImages
         end
         object Label1: TLabel
           Left = 8
-          Height = 13
+          Height = 15
           Top = 0
-          Width = 27
+          Width = 32
           Caption = 'Name'
           ParentColor = False
         end
@@ -157,12 +157,12 @@ object fRepairImages: TfRepairImages
         end
         object cbStatus: TComboBox
           Left = 221
-          Height = 21
+          Height = 23
           Hint = 'hier können Sie den Status des Kontaktes ändern um ihn in neue Zustände zu überführen'
           Top = 16
           Width = 128
           Anchors = [akTop, akRight]
-          ItemHeight = 13
+          ItemHeight = 15
           OnSelect = cbStatusSelect
           Style = csDropDownList
           TabOrder = 4
@@ -302,64 +302,47 @@ object fRepairImages: TfRepairImages
             Top = 104
             Width = 25
             Action = acScreenshot
-            Glyph.Data = {
-              36040000424D3604000000000000360000002800000010000000100000000100
-              2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
-              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-              FF00196B3788196B37F2196B37FF196B37F2196B3788FFFFFF00FFFFFF00FFFF
-              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00196B
-              3784288C53FF64BA8DFF95D2B2FF64BA8DFF288C53FF196B378CFFFFFF00FFFF
-              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF001B6C
-              39F762BA8BFF60BA87FFFFFFFFFF60B987FF67BC8FFF196B37F74747476F3737
-              37F6353535FD464646FE444444FF414141FF3F3F3FFF3C3C3CFF343434FE317B
-              4CFF9CD4B6FFFFFFFFFFFFFFFFFFFFFFFFFF95D2B2FF196B37FF575757FF6F6F
-              6FFF676767FF7A7A7AFF9B9B9BFF989898FF939393FF868686FF585858FF4485
-              5CFF90D3B1FF92D6B1FFFFFFFFFF65BC8CFF67BC8FFF1A6937FF5E5E5EFF7E7E
-              7EFF8B8B8BFFB8A595FFCE9664FFD69A60FFD79B63FFCE9968FFA39383FF5675
-              62FF61AB81FF95D4B4FFBAE6D0FF6ABB8FFF2D8F57FF255235FF606060FF8787
-              87FFB9B9B9FFD09664FFD89A61FFD89C67FFD89D67FFD89C66FFCE9A68FF8C8C
-              8CFF516E5CFF5B9470FF4F8E66FF408158FF4C7059FF353535FF626262FF8E8E
-              8EFFC7C7C7FFD6975EFFD79C65FFD99E69FFD9A06AFFD89D67FFD79A62FF9B9B
-              9BFF505050FF9E9E9EFF858585FF4E4E4EFF6E6E6EFF373737FF656565FF9494
-              94FFD0D0D0FFD6975EFFD99D66FFD99F6AFFD99E69FFD89B65FFD6985FFFA5A5
-              A5FF565656FFA3A3A3FF8B8B8BFF575757FF757575FF393939FF676767FF9B9B
-              9BFFD7D7D7FFD49A6AFFD69962FFD79B66FFD79C64FFD69960FFD09763FFADAD
-              ADFF5E5E5EFFA9A9A9FF929292FF5F5F5FFF7C7C7CFF3B3B3BFF696969FFA6A6
-              A6FFBABABAFFDAC7B7FFD49A69FFD5965EFFD5965CFFD19763FFC5B3A2FF9696
-              96FF717171FFAEAEAEFF989898FF686868FF818181FF3E3E3EFF6C6C6CFFBCBC
-              BCFFA6A6A6FFBCBCBCFFDDDDDDFFD8D8D8FFD5D5D5FFCCCCCCFFA3A3A3FF8484
-              84FF979797FFB4B4B4FF9D9D9DFF8D8D8DFF888888FF404040FF6D6D6DDBAEAE
-              AEFFD2D2D2FFB0B0B0FFA3A3A3FF9F9F9FFFB7B7B7FF989898FF9E9E9EFFC0C0
-              C0FFAAAAAAFF727272FF696969FF6A6A6AFF676767FF535353D89595950F9898
-              98FFC9C9C9FFC8C8C8FFC6C6C6FFC4C4C4FF7F939BFFA4E0F9FF41BEF3FF697C
-              85FF929393FF6D6D6D5E5C5C5CF15C5C5CFF5C5C5CFE5C5C5C35FFFFFF009898
-              9885909090C78B8B8BD0888888D1818181D6787878DC717171E16F6F6FE27676
-              76DC88888890FFFFFF00FFFFFF005C5C5C335C5C5C12FFFFFF00FFFFFF00FFFF
-              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
-            }
             ShowCaption = False
             ShowHint = True
             ParentShowHint = False
           end
         end
+        object lCategory: TLabel
+          Left = 8
+          Height = 15
+          Top = 152
+          Width = 50
+          Caption = 'Kategorie'
+          ParentColor = False
+        end
+        object eCategory: TDBEdit
+          Left = 8
+          Height = 23
+          Top = 168
+          Width = 319
+          DataField = 'CATEGORY'
+          DataSource = RepairImage
+          CharCase = ecNormal
+          MaxLength = 0
+          TabOrder = 6
+        end
       end
     end
     object tsAdditional: TTabSheet
       Caption = 'Zusätzlich'
-      ClientHeight = 403
+      ClientHeight = 402
       ClientWidth = 499
       object lNotesforCustomer1: TLabel
         Left = 8
-        Height = 13
+        Height = 15
         Top = 8
-        Width = 93
+        Width = 100
         Caption = 'betroffene Bauteile'
         ParentColor = False
       end
       object gProblems: TExtDBGrid
         Left = 8
-        Height = 110
+        Height = 109
         Top = 24
         Width = 482
         Anchors = [akTop, akLeft, akRight, akBottom]
@@ -393,7 +376,7 @@ object fRepairImages: TfRepairImages
       end
       object mInternalNotes: TDBMemo
         Left = 8
-        Height = 126
+        Height = 125
         Top = 272
         Width = 482
         Anchors = [akTop, akLeft, akRight, akBottom]
@@ -425,9 +408,9 @@ object fRepairImages: TfRepairImages
       end
       object lNotesforCustomer: TLabel
         Left = 8
-        Height = 13
+        Height = 15
         Top = 136
-        Width = 86
+        Width = 96
         Caption = 'Notizen für Kunde'
         ParentColor = False
       end

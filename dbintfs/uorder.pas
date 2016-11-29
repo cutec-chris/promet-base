@@ -267,6 +267,7 @@ begin
             Add('NAME',ftString,100,True);
             Add('STATUS',ftString,4,false);
             Add('SYMTOMS',ftString,800,False);
+            Add('CATEGORY',ftString,40,False);
             Add('DESC',ftMemo,0,False);
             Add('SOLVE',ftMemo,0,False);
             Add('NOTES',ftMemo,0,False);

@@ -20,6 +20,8 @@ type
     ActionList1: TActionList;
     ButtonPanel1: TButtonPanel;
     cbStatus: TComboBox;
+    eCategory: TDBEdit;
+    lCategory: TLabel;
     RepairImage: TDatasource;
     DBNavigator1: TDBNavigator;
     eName: TDBEdit;
