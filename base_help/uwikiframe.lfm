@@ -575,7 +575,7 @@ inherited fWikiFrame: TfWikiFrame
       Left = 0
       Height = 486
       Top = 8
-      Width = 645
+      Width = 640
       Anchors = [akTop, akLeft, akRight, akBottom]
       FixedTypeface = 'Courier New'
       DefaultTypeFace = 'arial'

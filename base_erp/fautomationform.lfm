@@ -9,7 +9,7 @@ object FAutomation: TFAutomation
   Color = clWindow
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '1.7'
+  LCLVersion = '1.4.4.0'
   object Panel3: TPanel
     Left = 8
     Height = 572
@@ -24,8 +24,8 @@ object FAutomation: TFAutomation
     TabOrder = 1
     object ipHTML: TIpHtmlPanel
       Left = 0
-      Height = 257
-      Top = 90
+      Height = 258
+      Top = 89
       Width = 795
       Align = alClient
       FixedTypeface = 'Courier New'
@@ -36,10 +36,6 @@ object FAutomation: TFAutomation
       PrintSettings.MarginTop = 0.5
       PrintSettings.MarginRight = 0.5
       PrintSettings.MarginBottom = 0.5
-      PrintSettings.Preview.Left = 480
-      PrintSettings.Preview.Top = 270
-      PrintSettings.Preview.Width = 1440
-      PrintSettings.Preview.Height = 810
       ShowHints = False
       TabOrder = 0
       OnHotClick = ipHTMLHotClick
@@ -85,7 +81,7 @@ object FAutomation: TFAutomation
       end
       object lStep: TLabel
         Left = 0
-        Height = 18
+        Height = 17
         Top = 0
         Width = 795
         Align = alTop
@@ -134,7 +130,7 @@ object FAutomation: TFAutomation
     end
     object lStatusProblems: TLabel
       Left = 8
-      Height = 18
+      Height = 17
       Top = 64
       Width = 779
       Align = alTop
@@ -175,39 +171,38 @@ object FAutomation: TFAutomation
         end
         object tsProblems: TTabSheet
           Caption = 'Auschuss/Störungen'
-          ClientHeight = 135
-          ClientWidth = 789
-          object Memo1: TMemo
-            Left = 10
-            Height = 81
+          ClientHeight = 142
+          ClientWidth = 787
+          object mNotes: TMemo
+            Left = 8
+            Height = 80
             Top = 24
             Width = 168
-            Anchors = [akTop, akRight, akBottom]
+            Anchors = [akTop, akLeft, akBottom]
             TabOrder = 0
           end
           object Label1: TLabel
             Left = 8
-            Height = 17
+            Height = 15
             Top = 8
-            Width = 97
+            Width = 95
             Caption = 'Hinweis/Meldung'
             ParentColor = False
           end
           object cbCategory: TComboBox
             Left = 257
-            Height = 29
+            Height = 23
             Top = 7
             Width = 286
-            ItemHeight = 0
+            ItemHeight = 15
             OnChange = cbCategoryChange
             TabOrder = 1
-            Text = 'cbCategory'
           end
           object tbButtons: TToolBar
             Left = 190
-            Height = 95
+            Height = 102
             Top = 40
-            Width = 599
+            Width = 597
             Align = alBottom
             Anchors = [akTop, akLeft, akRight, akBottom]
             BorderSpacing.Left = 190
@@ -223,59 +218,30 @@ object FAutomation: TFAutomation
               Caption = 'kalte Lötstelle'
             end
             object ToolButton4: TToolButton
-              Left = 86
+              Left = 81
               Top = 2
-              Caption = 'ToolButton4'
+              Caption = 'nicht gelötet'
             end
             object ToolButton5: TToolButton
-              Left = 162
+              Left = 156
               Top = 2
-              Caption = 'ToolButton5'
-            end
-            object ToolButton6: TToolButton
-              Left = 238
-              Top = 2
-              Caption = 'ToolButton6'
-            end
-            object ToolButton7: TToolButton
-              Left = 314
-              Top = 2
-              Caption = 'ToolButton7'
-            end
-            object ToolButton8: TToolButton
-              Left = 390
-              Top = 2
-              Caption = 'ToolButton8'
-            end
-            object ToolButton9: TToolButton
-              Left = 466
-              Top = 2
-              Caption = 'ToolButton9'
-            end
-            object ToolButton10: TToolButton
-              Left = 1
-              Top = 52
-              Caption = 'ToolButton10'
-            end
-            object ToolButton11: TToolButton
-              Left = 84
-              Top = 52
-              Caption = 'ToolButton11'
+              Caption = 'Blah'
             end
           end
           object Label2: TLabel
             Left = 192
-            Height = 17
+            Height = 15
             Top = 10
-            Width = 54
+            Width = 50
             Caption = 'Kategorie'
             ParentColor = False
           end
           object seProblemTime: TSpinEdit
             Left = 64
-            Height = 27
+            Height = 23
             Top = 107
             Width = 50
+            Anchors = [akLeft, akBottom]
             MaxValue = 60
             MinValue = 1
             TabOrder = 3
@@ -283,17 +249,19 @@ object FAutomation: TFAutomation
           end
           object Label6: TLabel
             Left = 8
-            Height = 17
+            Height = 15
             Top = 110
-            Width = 43
+            Width = 39
+            Anchors = [akLeft, akBottom]
             Caption = 'Störzeit'
             ParentColor = False
           end
           object Label7: TLabel
             Left = 120
-            Height = 17
+            Height = 15
             Top = 110
             Width = 21
+            Anchors = [akLeft, akBottom]
             Caption = 'min'
             ParentColor = False
           end
@@ -586,25 +554,25 @@ object FAutomation: TFAutomation
       end
       object rbOrder: TRadioButton
         Left = 4
-        Height = 22
+        Height = 19
         Top = 12
-        Width = 66
+        Width = 60
         Caption = 'Auftrag'
         TabOrder = 0
       end
       object rbList: TRadioButton
         Left = 72
-        Height = 22
+        Height = 19
         Top = 12
-        Width = 50
+        Width = 44
         Caption = 'Liste'
         TabOrder = 1
       end
       object rbArticle: TRadioButton
         Left = 128
-        Height = 22
+        Height = 19
         Top = 12
-        Width = 60
+        Width = 54
         Caption = 'Artikel'
         Checked = True
         TabOrder = 2
@@ -612,9 +580,9 @@ object FAutomation: TFAutomation
       end
       object rbNoData: TRadioButton
         Left = 4
-        Height = 22
+        Height = 19
         Top = 32
-        Width = 91
+        Width = 82
         Caption = 'keine Daten'
         TabOrder = 3
       end
@@ -626,6 +594,7 @@ object FAutomation: TFAutomation
       Width = 261
       Align = alRight
       BorderStyle = bsNone
+      DefaultItemHeight = 18
       ReadOnly = True
       ScrollBars = ssAutoVertical
       TabOrder = 4

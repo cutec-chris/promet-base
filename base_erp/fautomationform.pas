@@ -80,7 +80,7 @@ type
     Label4: TLabel;
     Label5: TLabel;
     lStep: TLabel;
-    Memo1: TMemo;
+    mNotes: TMemo;
     MenuItem1: TMenuItem;
     MenuItem10: TMenuItem;
     MenuItem2: TMenuItem;
@@ -115,15 +115,9 @@ type
     spBDE: TSplitter;
     seProblemTime: TSpinEdit;
     tbButtons: TToolBar;
-    ToolButton10: TToolButton;
-    ToolButton11: TToolButton;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
     ToolButton5: TToolButton;
-    ToolButton6: TToolButton;
-    ToolButton7: TToolButton;
-    ToolButton8: TToolButton;
-    ToolButton9: TToolButton;
     tsOldProblems: TTabSheet;
     tsBDE: TTabSheet;
     tsProblems: TTabSheet;
@@ -131,6 +125,7 @@ type
     ToolButton1: TSpeedButton;
     ToolButton2: TSpeedButton;
     tvStep: TTreeView;
+    procedure aButtonClick(Sender: TObject);
     procedure acDebugLogExecute(Sender: TObject);
     procedure acEditExecute(Sender: TObject);
     procedure acExecutePrepareStepExecute(Sender: TObject);
@@ -238,6 +233,7 @@ resourcestring
   strPartiallyProblematic               = 'Achtung Teile des Auftrages sind in nicht freigegebenem Zustand !';
   strLoading                            = 'Auftragsdaten werden geladen...';
   strNumberSetEmpty                     = 'Nummernkreis erschöpft';
+  strNoOrderLoaded                      = 'Es ist kein Auftrag geladen oder das Problem wurde nicht gefunden !';
   strNewNumbers                         = 'Code';
 
 procedure TTCPCommandDaemon.DoData;
@@ -386,6 +382,50 @@ begin
   fLogWaitForm.Show;
 end;
 
+procedure TFAutomation.aButtonClick(Sender: TObject);
+var
+  aImages: TOrderRepairImages;
+begin
+  aImages := TOrderRepairImages.Create(nil);
+  aImages.Open;
+  if aImages.Locate('NAME',TToolButton(Sender).Caption,[]) and Assigned(FDataSet) then
+    begin
+      TOrderPos(DataSet).Repair.Insert;
+      TOrderPos(DataSet).Repair.FieldByName('INTNOTES').AsString:=mNotes.Text;
+      TOrderPos(DataSet).Repair.FieldByName('ERRIMAGE').AsVariant:=aImages.Id.AsVariant;
+      TOrderPos(DataSet).Repair.FieldByName('IMAGENAME').AsString:=aImages.FieldByName('NAME').AsString;
+      TOrderPos(DataSet).Repair.FieldByName('TIME').AsFloat:=seProblemTime.Value/MinsPerDay;
+      TOrderPos(DataSet).Repair.Post;
+      with TOrderPos(DataSet).Repair do
+        begin
+          Details.Open;
+          while Details.Count>0 do Details.Delete;
+          aImages.RepairDetail.First;
+          while not aImages.RepairDetail.EOF do
+            begin
+              Details.Insert;
+              Details.FieldByName('ASSEMBLY').AsString := aImages.RepairDetail.FieldByName('ASSEMBLY').AsString;
+              Details.FieldByName('PART').AsString := aImages.RepairDetail.FieldByName('PART').AsString;
+              Details.FieldByName('ERROR').AsString := aImages.RepairDetail.FieldByName('ERROR').AsString;
+              Details.Post;
+              aImages.RepairDetail.Next;
+            end;
+        end;
+      TOrderPos(DataSet).Repair.Post;
+      try
+        aImages.Edit;
+        aImages.FieldByName('COUNTER').AsInteger:=aImages.FieldByName('COUNTER').AsInteger+1;
+        aImages.Post;
+      except
+      end;
+      mNotes.Clear;
+      seProblemTime.Value:=5;
+    end
+  else
+    Showmessage(strNoOrderLoaded);
+  aImages.Free;
+end;
+
 procedure TFAutomation.acEditExecute(Sender: TObject);
 begin
 
@@ -448,7 +488,10 @@ begin
     begin
       while tbButtons.ButtonCount>0 do
         tbButtons.Buttons[0].Free;
-     TOrderPos(FDataSet).Repair.Open;
+      if Assigned(FDataSet) then
+        begin
+          TOrderPos(FDataSet).Repair.Open;
+        end;
      aImages := TOrderRepairImages.Create(nil);
      aImages.Filter(Data.QuoteField('CATEGORY')+'='+Data.QuoteValue(cbCategory.Text));
      while not aImages.EOF do
@@ -456,6 +499,8 @@ begin
          aButton := TToolButton.Create(tbButtons);
          aButton.Caption:=aImages.FieldByName('NAME').AsString;
          aButton.Parent:=tbButtons;
+         aButton.OnClick:=@aButtonClick;
+         aButton.Tag:=aImages.Id.AsInteger;
          aImages.Next;
        end;
      aImages.Free;
@@ -622,10 +667,14 @@ begin
   bNet.Checked:=True;
   FCache := TFileCache.Create(30);
   FCache.OnGetFile:=@FCacheGetFile;
+  with BaseApplication as IBaseConfig do
+    cbCategory.Text:=Config.ReadString('FA_CATEGORY','');
 end;
 
 procedure TFAutomation.FormDestroy(Sender: TObject);
 begin
+  with Application as IBaseApplication do
+    SaveConfig;
   FCache.Free;
   if Assigned(FSocket) then
     begin
@@ -722,8 +771,6 @@ procedure TFAutomation.SetDataSet(AValue: TBaseDBPosition);
 begin
   if FDataSet=AValue then Exit;
   FDataSet:=AValue;
-  with BaseApplication as IBaseConfig do
-    cbCategory.Text:=Config.ReadString('FA_CATEGORY','');
 end;
 
 function TFAutomation.FindNextStep: Boolean;
