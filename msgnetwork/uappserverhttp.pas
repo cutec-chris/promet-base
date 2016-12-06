@@ -93,19 +93,19 @@ begin
       TAppNetworkThrd(Sender).sock.SendString('HTTP/1.0 ' + IntTostr(ResultCode) + CRLF);
       if protocol <> '' then
       begin
-        headers.Add('Content-length: ' + IntTostr(OutputData.Size));
-//        headers.Add('Connection: close');
+        //headers.Add('Connection: close');
         headers.Add('Date: ' + Rfc822DateTime(now));
         headers.Add('Server: Avamm Internal Network');
-        headers.Add('');
+        headers.Add('Content-length: ' + IntTostr(OutputData.Size));
         for n := 0 to headers.count - 1 do
           TAppNetworkThrd(Sender).sock.sendstring(headers[n] + CRLF);
+        TAppNetworkThrd(Sender).sock.sendstring(CRLF);
       end;
       if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
         Exit;
       TAppNetworkThrd(Sender).Sock.SendBuffer(OutputData.Memory, OutputData.Size);
       headers.Free;
-      Result:=' ';
+      Result:='';
     end;
   end;
 end;
