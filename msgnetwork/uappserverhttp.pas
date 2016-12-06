@@ -105,7 +105,7 @@ begin
         Exit;
       TAppNetworkThrd(Sender).Sock.SendBuffer(OutputData.Memory, OutputData.Size);
       headers.Free;
-      Result:='';
+      Result:=' ';
     end;
   end;
 end;
