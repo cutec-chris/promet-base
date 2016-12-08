@@ -285,9 +285,10 @@ begin
       begin
         cbImage.Clear;
         //if Self.Repair.DataSet = Repair.DataSet then exit;
+        FImages := TOrderRepairImages.Create(nil);
+        FImages.CreateTable;
         fRepairImages.SetLanguage;
         Repair.Open;
-        FImages := TOrderRepairImages.Create(nil);
         Position.DataSet := DataSet;
         RepairDetail.DataSet := Repair.Details.DataSet;
         Repair.Details.DataSet.AfterScroll:=@TfPositionDatasetTOrderPosRepairDetailsDataSetAfterScroll;

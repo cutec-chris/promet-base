@@ -338,7 +338,7 @@ begin
   if aSystem='' then
     aSystem:=GetSystemName;
   Open;
-  Processes.Open;
+  Processes.Filter('',0);
   Processes.Parameters.Open;
   if not Active then exit;
   if Locate('NAME','*',[]) then

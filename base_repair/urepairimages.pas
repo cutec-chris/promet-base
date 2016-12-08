@@ -1,3 +1,21 @@
+{*******************************************************************************
+  Copyright (C) Christian Ulrich info@cu-tec.de
+
+  This source is free software; you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free
+  Software Foundation; either version 2 of the License, or commercial alternative
+  contact us for more information
+
+  This code is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+  details.
+
+  A copy of the GNU General Public License is available on the World Wide Web
+  at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by writing
+  to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+  MA 02111-1307, USA.
+*******************************************************************************}
 unit urepairimages;
 
 {$mode objfpc}{$H+}
@@ -7,7 +25,7 @@ interface
 uses
   Classes, SysUtils, db, FileUtil, Forms, Controls, Graphics, Dialogs, Menus,
   DbCtrls, StdCtrls, DBGrids, ButtonPanel, ComCtrls, ExtCtrls, Buttons,
-  uExtControls, uOrder, variants,ActnList,ExtDlgs,LCLVersion;
+  uExtControls, uOrder, variants,ActnList,ExtDlgs,LCLVersion, EditBtn;
 
 type
 
@@ -21,7 +39,9 @@ type
     ButtonPanel1: TButtonPanel;
     cbStatus: TComboBox;
     eCategory: TDBEdit;
+    eUser: TEditButton;
     lCategory: TLabel;
+    lCategory1: TLabel;
     RepairImage: TDatasource;
     DBNavigator1: TDBNavigator;
     eName: TDBEdit;
@@ -61,6 +81,8 @@ type
     procedure AddHistory(Sender: TObject);
     procedure cbStatusSelect(Sender: TObject);
     procedure DataSetDataSetAfterScroll(DataSet: TDataSet);
+    procedure eUserButtonClick(Sender: TObject);
+    function fSearchOpenUserItem(aLink: string): Boolean;
     procedure RepairImageStateChange(Sender: TObject);
     procedure eFilterEnter(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -86,20 +108,25 @@ var
 
 implementation
 uses uData,uHistoryFrame,uImageFrame,uIntfStrConsts,uDocuments,uDocumentFrame,uLinkFrame,
-  uthumbnails,Clipbrd,uscreenshotmain,uBaseApplication
+  uthumbnails,Clipbrd,uscreenshotmain,uBaseApplication,uSearch,uBaseDbClasses
   {$if lcl_fullversion >= 01070000}
   ,LazFileUtils
   {$endif}
   ;
 {$R *.lfm}
-
+resourcestring
+  strSearchFromTasks                       = 'Mit Öffnen wird der gewählte Nutzer in das Fehlerbild übernommen';
 { TfRepairImages }
 
 procedure TfRepairImages.FormCreate(Sender: TObject);
+var
+  aDataSet: TOrderRepairImages;
 begin
-  DataSet := TOrderRepairImages.Create(nil);
-  DataSet.CreateTable;
-  DataSet.Open;
+  aDataSet := TOrderRepairImages.Create(nil);
+  if not Data.TableExists(aDataSet.TableName) then
+    aDataSet.CreateTable;
+  aDataSet.Open;
+  DataSet := aDataSet;
 end;
 procedure TfRepairImages.acAddImageExecute(Sender: TObject);
 var
@@ -327,6 +354,45 @@ begin
   DoOpen;
 end;
 
+procedure TfRepairImages.eUserButtonClick(Sender: TObject);
+var
+  i :Integer = 0;
+begin
+  fSearch.AllowSearchTypes(strUsers);
+  fSearch.eContains.Clear;
+  fSearch.sgResults.RowCount:=1;
+  fSearch.OnOpenItem:=@fSearchOpenUserItem;
+  fSearch.Execute(True,'TASKSU',strSearchFromTasks);
+  fSearch.SetLanguage;
+end;
+
+function TfRepairImages.fSearchOpenUserItem(aLink: string): Boolean;
+var
+  aCount: Integer;
+  aUser: TUser;
+begin
+  Result := False;
+  aUser := TUser.CreateEx(Self,Data);
+  aUser.SelectFromLink(aLink);
+  aUser.Open;
+  Result := aUser.Count>0;
+  if Result then
+    begin
+      if not FDataSet.CanEdit then
+        FDataSet.DataSet.Edit;
+      FDataSet.FieldByName('USER').AsString := aUser.FieldByName('ACCOUNTNO').AsString;
+      eUser.Text:=aUser.Text.AsString;
+    end
+  else
+    begin
+      if not FDataSet.CanEdit then
+        FDataSet.DataSet.Edit;
+      FDataSet.FieldByName('USER').Clear;
+      eUser.Text:='';
+    end;
+  aUSer.Free;
+end;
+
 procedure TfRepairImages.eFilterEnter(Sender: TObject);
 begin
   DataSet.Filter(Data.ProcessTerm('UPPER('+Data.QuoteField('NAME')+')=UPPER('+Data.QuoteValue('*'+fRepairImages.eFilter.Text+'*'))+') OR UPPER('+Data.ProcessTerm(Data.QuoteField('SYMTOMS')+')=UPPER('+Data.QuoteValue('*'+fRepairImages.eFilter.Text+'*'))+')');
@@ -349,6 +415,7 @@ var
   aThumbnails: TThumbnails;
   tmp: String;
   aStream: TMemoryStream;
+  aUser: TUser;
 begin
   pcPages.CloseAll;
   pcPages.AddTabClass(TfHistoryFrame,strHistory,@AddHistory);
@@ -443,6 +510,14 @@ begin
       acScreenshot.Visible:=True;
     end;
   aThumbnails.Free;
+  if Assigned(FDataSet.FieldByName('USER')) then
+    begin
+      aUser := TUser.Create(nil);
+      aUser.SelectByAccountno(FDataSet.FieldByName('USER').AsString);
+      aUser.Open;
+      eUser.Text:=aUser.FieldByName('NAME').AsString;
+      aUser.Free;
+    end;
 //  pcPages.AddTabClass(TfLinkFrame,strLinks,@AddLinks);
 //  TOrderRepairImages(DataSet).Links.Open;
 //  if TOrderRepairImages(DataSet).Links.Count > 0 then

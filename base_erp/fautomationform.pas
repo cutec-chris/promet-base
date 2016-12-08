@@ -69,18 +69,19 @@ type
     BitBtn5: TSpeedButton;
     bResults: TSpeedButton;
     cbCategory: TComboBox;
+    cbCreateTask: TCheckBox;
     DBGrid1: TDBGrid;
     ipHTML: TIpHtmlPanel;
     Label1: TLabel;
     Label2: TLabel;
     Label6: TLabel;
     Label7: TLabel;
+    lQuit: TLabel;
     lStatusProblems: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
     lStep: TLabel;
-    mNotes: TMemo;
     MenuItem1: TMenuItem;
     MenuItem10: TMenuItem;
     MenuItem2: TMenuItem;
@@ -92,7 +93,9 @@ type
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     miExtended: TMenuItem;
+    mNotes: TMemo;
     PageControl1: TPageControl;
+    Panel1: TPanel;
     pBDE: TPanel;
     Panel3: TPanel;
     Panel5: TPanel;
@@ -112,9 +115,10 @@ type
     sbMenue4: TSpeedButton;
     sbMenue5: TSpeedButton;
     bNet: TToggleBox;
-    spBDE: TSplitter;
     seProblemTime: TSpinEdit;
+    spBDE: TSplitter;
     tbButtons: TToolBar;
+    tmQuit: TTimer;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
     ToolButton5: TToolButton;
@@ -143,6 +147,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FSocketTerminate(Sender: TObject);
     procedure ipHTMLHotClick(Sender: TObject);
+    procedure tmQuitTimer(Sender: TObject);
     procedure TreeDataScriptScriptRunLine(Sender: TScript; Module: string;
       aPosition, aRow, aCol: Integer);
     procedure tvStepSelectionChanged(Sender: TObject);
@@ -219,7 +224,7 @@ var
 implementation
 
 uses Utils,uBaseVisualControls,uMasterdata,uData,uOrder,variants,uLogWait,
-  uautomationframe,wikitohtml,LCLIntf,uBaseApplication,ubaseconfig
+  uautomationframe,wikitohtml,LCLIntf,uBaseApplication,ubaseconfig,utask
   {$IFDEF WINDOWS}
   ,Windows
   {$ENDIF}
@@ -235,6 +240,7 @@ resourcestring
   strNumberSetEmpty                     = 'Nummernkreis erschöpft';
   strNoOrderLoaded                      = 'Es ist kein Auftrag geladen oder das Problem wurde nicht gefunden !';
   strNewNumbers                         = 'Code';
+  strProblemSend                        = 'Die Störung wurde Eingetragen !';
 
 procedure TTCPCommandDaemon.DoData;
 begin
@@ -385,44 +391,62 @@ end;
 procedure TFAutomation.aButtonClick(Sender: TObject);
 var
   aImages: TOrderRepairImages;
+  aTask: TTask;
 begin
   aImages := TOrderRepairImages.Create(nil);
   aImages.Open;
-  if aImages.Locate('NAME',TToolButton(Sender).Caption,[]) and Assigned(FDataSet) then
+  if aImages.Locate('NAME',TToolButton(Sender).Caption,[]) then
     begin
-      TOrderPos(DataSet).Repair.Insert;
-      TOrderPos(DataSet).Repair.FieldByName('INTNOTES').AsString:=mNotes.Text;
-      TOrderPos(DataSet).Repair.FieldByName('ERRIMAGE').AsVariant:=aImages.Id.AsVariant;
-      TOrderPos(DataSet).Repair.FieldByName('IMAGENAME').AsString:=aImages.FieldByName('NAME').AsString;
-      TOrderPos(DataSet).Repair.FieldByName('TIME').AsFloat:=seProblemTime.Value/MinsPerDay;
-      TOrderPos(DataSet).Repair.Post;
-      with TOrderPos(DataSet).Repair do
+      if Assigned(FDataSet) then
         begin
-          Details.Open;
-          while Details.Count>0 do Details.Delete;
-          aImages.RepairDetail.First;
-          while not aImages.RepairDetail.EOF do
+          TOrderPos(DataSet).Repair.Insert;
+          TOrderPos(DataSet).Repair.FieldByName('INTNOTES').AsString:=mNotes.Text;
+          TOrderPos(DataSet).Repair.FieldByName('ERRIMAGE').AsVariant:=aImages.Id.AsVariant;
+          TOrderPos(DataSet).Repair.FieldByName('IMAGENAME').AsString:=aImages.FieldByName('NAME').AsString;
+          TOrderPos(DataSet).Repair.FieldByName('TIME').AsFloat:=seProblemTime.Value/MinsPerDay;
+          TOrderPos(DataSet).Repair.Post;
+          with TOrderPos(DataSet).Repair do
             begin
-              Details.Insert;
-              Details.FieldByName('ASSEMBLY').AsString := aImages.RepairDetail.FieldByName('ASSEMBLY').AsString;
-              Details.FieldByName('PART').AsString := aImages.RepairDetail.FieldByName('PART').AsString;
-              Details.FieldByName('ERROR').AsString := aImages.RepairDetail.FieldByName('ERROR').AsString;
-              Details.Post;
-              aImages.RepairDetail.Next;
+              Details.Open;
+              while Details.Count>0 do Details.Delete;
+              aImages.RepairDetail.Open;
+              aImages.RepairDetail.First;
+              while not aImages.RepairDetail.EOF do
+                begin
+                  Details.Insert;
+                  Details.FieldByName('ASSEMBLY').AsString := aImages.RepairDetail.FieldByName('ASSEMBLY').AsString;
+                  Details.FieldByName('PART').AsString := aImages.RepairDetail.FieldByName('PART').AsString;
+                  Details.FieldByName('ERROR').AsString := aImages.RepairDetail.FieldByName('ERROR').AsString;
+                  Details.Post;
+                  aImages.RepairDetail.Next;
+                end;
             end;
+          TOrderPos(DataSet).Repair.Post;
+          try
+            aImages.Edit;
+            aImages.FieldByName('COUNTER').AsInteger:=aImages.FieldByName('COUNTER').AsInteger+1;
+            aImages.Post;
+          except
+          end;
+          seProblemTime.Value:=5;
+          lQuit.Caption := strProblemSend;
+          lQuit.Visible := True;
+          tmQuit.Enabled:=True;
+        end
+      else
+        Showmessage(strNoOrderLoaded);
+      if cbCreateTask.Checked then
+        begin
+          aTask := TTask.Create(nil);
+          aTask.Append;
+          aTask.Text.AsString:=aImages.FieldByName('NAME').AsString;
+          aTask.FieldByName('DESC').AsString:=mNotes.Text;
+          if aImages.FieldByName('USER').AsString<>'' then
+            aTask.FieldByName('USER').AsString:=aImages.FieldByName('USER').AsString;
+          aTask.Post;
         end;
-      TOrderPos(DataSet).Repair.Post;
-      try
-        aImages.Edit;
-        aImages.FieldByName('COUNTER').AsInteger:=aImages.FieldByName('COUNTER').AsInteger+1;
-        aImages.Post;
-      except
-      end;
       mNotes.Clear;
-      seProblemTime.Value:=5;
-    end
-  else
-    Showmessage(strNoOrderLoaded);
+    end;
   aImages.Free;
 end;
 
@@ -493,7 +517,7 @@ begin
           TOrderPos(FDataSet).Repair.Open;
         end;
      aImages := TOrderRepairImages.Create(nil);
-     aImages.Filter(Data.QuoteField('CATEGORY')+'='+Data.QuoteValue(cbCategory.Text));
+     aImages.Filter(Data.ProcessTerm(Data.QuoteField('CATEGORY')+'='+Data.QuoteValue('*'+cbCategory.Text+'*')));
      while not aImages.EOF do
        begin
          aButton := TToolButton.Create(tbButtons);
@@ -710,6 +734,12 @@ begin
       else if ((Pos('://', aLink) > 0) or (pos('www',lowercase(aLink)) > 0)) then
         OpenURL(aLink);
     end;
+end;
+
+procedure TFAutomation.tmQuitTimer(Sender: TObject);
+begin
+  tmQuit.Enabled:=False;
+  lQuit.Visible:=False;
 end;
 
 procedure TFAutomation.TreeDataScriptScriptRunLine(Sender: TScript;

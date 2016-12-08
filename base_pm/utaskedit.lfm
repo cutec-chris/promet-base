@@ -535,9 +535,9 @@ object fTaskEdit: TfTaskEdit
         TabOrder = 0
         object cbCompleted: TDBCheckBox
           Left = 8
-          Height = 24
+          Height = 19
           Top = 0
-          Width = 109
+          Width = 86
           AutoSize = True
           Caption = 'fertiggestellt'
           DataField = 'COMPLETED'
@@ -548,9 +548,9 @@ object fTaskEdit: TfTaskEdit
         end
         object cbChecked: TDBCheckBox
           Left = 8
-          Height = 24
+          Height = 19
           Top = 24
-          Width = 73
+          Width = 59
           AutoSize = True
           Caption = 'geprüft'
           DataField = 'CHECKED'
@@ -561,10 +561,10 @@ object fTaskEdit: TfTaskEdit
         end
         object cbCompleted1: TDBCheckBox
           Left = 8
-          Height = 24
+          Height = 19
           Hint = 'inaktive Aufgaben werden den Benutzern nicht angezeigt'
           Top = 48
-          Width = 55
+          Width = 45
           AutoSize = True
           Caption = 'aktiv'
           DataField = 'ACTIVE'
@@ -586,10 +586,10 @@ object fTaskEdit: TfTaskEdit
         TabOrder = 1
         object EarlystDate: TDBZVDateTimePicker
           Left = 8
-          Height = 28
+          Height = 23
           Hint = 'Der Termin, an dem die Aufgabe frühestens bearbeitet werden darf.'#13#10'z.b. durch Lieferanten oder Fertigung bedingt'
           Top = 80
-          Width = 146
+          Width = 118
           DataField = 'EARLIEST'
           DataSource = Task
           ReadOnly = False
@@ -610,9 +610,9 @@ object fTaskEdit: TfTaskEdit
         end
         object StartTimeLbl: TLabel
           Left = 8
-          Height = 20
+          Height = 15
           Top = 8
-          Width = 55
+          Width = 42
           Caption = 'Startzeit'
           Font.Color = clWindowText
           ParentColor = False
@@ -620,9 +620,9 @@ object fTaskEdit: TfTaskEdit
         end
         object EndTimeLbl: TLabel
           Left = 288
-          Height = 20
+          Height = 15
           Top = 8
-          Width = 90
+          Width = 72
           Caption = 'Fertigstellung'
           Font.Color = clWindowText
           ParentColor = False
@@ -630,9 +630,9 @@ object fTaskEdit: TfTaskEdit
         end
         object EndTimeLbl2: TLabel
           Left = 8
-          Height = 20
+          Height = 15
           Top = 56
-          Width = 105
+          Width = 86
           Alignment = taRightJustify
           Caption = 'Frühest möglich'
           Font.Color = clWindowText
@@ -642,10 +642,10 @@ object fTaskEdit: TfTaskEdit
         end
         object EndDate: TDBZVDateTimePicker
           Left = 288
-          Height = 28
+          Height = 23
           Hint = 'Der Termin, an dem die Aufgabe erledigt sein soll'#13#10'(nicht der spätest mögliche !)'
           Top = 27
-          Width = 146
+          Width = 118
           DataField = 'DUEDATE'
           DataSource = Task
           ReadOnly = False
@@ -666,10 +666,10 @@ object fTaskEdit: TfTaskEdit
         end
         object StartDate: TDBZVDateTimePicker
           Left = 8
-          Height = 28
+          Height = 23
           Hint = 'Der Termin, an dem die Aufgabe laut Zeitplan starten kann.'
           Top = 27
-          Width = 146
+          Width = 118
           DataField = 'STARTDATE'
           DataSource = Task
           ReadOnly = False
@@ -691,9 +691,9 @@ object fTaskEdit: TfTaskEdit
         end
         object EndTimeLbl1: TLabel
           Left = 160
-          Height = 20
+          Height = 15
           Top = 112
-          Width = 71
+          Width = 58
           Caption = 'Plantermin'
           Font.Color = clWindowText
           ParentColor = False
@@ -701,10 +701,10 @@ object fTaskEdit: TfTaskEdit
         end
         object EndDate1: TDBZVDateTimePicker
           Left = 160
-          Height = 28
+          Height = 23
           Hint = 'Der Termin, zu dem die Aufgabe ursprünglich geplant war.'
           Top = 134
-          Width = 95
+          Width = 79
           DataField = 'PLANED'
           DataSource = Task
           ReadOnly = False
@@ -725,7 +725,7 @@ object fTaskEdit: TfTaskEdit
         end
         object eTime: TEdit
           Left = 160
-          Height = 28
+          Height = 23
           Hint = 'Netto Planzeit der Aufgabe'
           Top = 27
           Width = 52
@@ -734,7 +734,7 @@ object fTaskEdit: TfTaskEdit
         end
         object eBuffer: TEdit
           Left = 216
-          Height = 28
+          Height = 23
           Hint = 'Die Wartezeit gibt an welche Zeit die Aufgabe '#10'zusätzlich zur Nettozeit benötigt z.b. Wartezeit '#10'auf Material'
           Top = 27
           Width = 64
@@ -743,9 +743,9 @@ object fTaskEdit: TfTaskEdit
         end
         object EndTimeLbl3: TLabel
           Left = 160
-          Height = 20
+          Height = 15
           Top = 8
-          Width = 52
+          Width = 41
           Caption = 'Planzeit'
           Font.Color = clWindowText
           ParentColor = False
@@ -753,9 +753,9 @@ object fTaskEdit: TfTaskEdit
         end
         object EndTimeLbl4: TLabel
           Left = 216
-          Height = 20
+          Height = 15
           Top = 8
-          Width = 64
+          Width = 49
           Caption = 'Wartezeit'
           Font.Color = clWindowText
           ParentColor = False
@@ -763,9 +763,9 @@ object fTaskEdit: TfTaskEdit
         end
         object Label8: TLabel
           Left = 160
-          Height = 20
+          Height = 15
           Top = 56
-          Width = 39
+          Width = 30
           Caption = 'Istzeit'
           ParentColor = False
         end
@@ -781,9 +781,9 @@ object fTaskEdit: TfTaskEdit
         end
         object EndTimeLbl5: TLabel
           Left = 288
-          Height = 20
+          Height = 15
           Top = 56
-          Width = 112
+          Width = 89
           Alignment = taRightJustify
           Caption = 'Spätester Termin'
           Font.Color = clWindowText
@@ -793,10 +793,10 @@ object fTaskEdit: TfTaskEdit
         end
         object EarlystDate1: TDBZVDateTimePicker
           Left = 288
-          Height = 28
+          Height = 23
           Hint = 'Der Termin, an dem die Aufgabe frühestens bearbeitet werden darf.'#13#10'z.b. durch Lieferanten oder Fertigung bedingt'
           Top = 80
-          Width = 146
+          Width = 118
           DataField = 'LATEST'
           DataSource = Task
           ReadOnly = False
@@ -834,10 +834,10 @@ object fTaskEdit: TfTaskEdit
         ClientWidth = 447
         TabOrder = 2
         object cbChecked1: TDBCheckBox
-          Left = 298
-          Height = 24
+          Left = 323
+          Height = 19
           Top = 112
-          Width = 136
+          Width = 111
           Anchors = [akTop, akRight]
           AutoSize = True
           Caption = 'Planungsrelevant'
@@ -849,9 +849,9 @@ object fTaskEdit: TfTaskEdit
         end
         object Label12: TLabel
           Left = 8
-          Height = 20
+          Height = 15
           Top = -6
-          Width = 65
+          Width = 50
           BorderSpacing.Left = 5
           Caption = 'Kategorie'
           Font.Color = clWindowText
@@ -872,7 +872,7 @@ object fTaskEdit: TfTaskEdit
         end
         object eOrder: TDBEdit
           Left = 8
-          Height = 28
+          Height = 23
           Top = 64
           Width = 426
           DataField = 'ORDERNO'
@@ -884,9 +884,9 @@ object fTaskEdit: TfTaskEdit
         end
         object Label13: TLabel
           Left = 8
-          Height = 20
+          Height = 15
           Top = 44
-          Width = 50
+          Width = 40
           BorderSpacing.Left = 5
           Caption = 'Auftrag'
           Font.Color = clWindowText
@@ -895,9 +895,9 @@ object fTaskEdit: TfTaskEdit
         end
         object Label11: TLabel
           Left = 8
-          Height = 20
+          Height = 15
           Top = 93
-          Width = 107
+          Width = 85
           BorderSpacing.Left = 5
           Caption = 'bearb. im Status'
           Font.Color = clWindowText
@@ -935,7 +935,7 @@ object fTaskEdit: TfTaskEdit
         TabOrder = 3
         object eUser: TEditButton
           Left = 8
-          Height = 28
+          Height = 23
           Top = 18
           Width = 176
           ButtonWidth = 23
@@ -983,7 +983,7 @@ object fTaskEdit: TfTaskEdit
         end
         object eOwner: TEditButton
           Left = 8
-          Height = 28
+          Height = 23
           Top = 66
           Width = 176
           ButtonWidth = 23
@@ -1031,17 +1031,17 @@ object fTaskEdit: TfTaskEdit
         end
         object Label6: TLabel
           Left = 8
-          Height = 20
+          Height = 15
           Top = 0
-          Width = 69
+          Width = 53
           Caption = 'Bearbeiter'
           ParentColor = False
         end
         object Label9: TLabel
           Left = 8
-          Height = 20
+          Height = 15
           Top = 48
-          Width = 109
+          Width = 87
           Caption = 'Verantwortlicher'
           ParentColor = False
         end

@@ -1,19 +1,19 @@
 object fRepairImages: TfRepairImages
   Left = 665
-  Height = 486
+  Height = 494
   Top = 379
-  Width = 701
+  Width = 700
   ActiveControl = eFilter
   Caption = 'Fehlerbild'
-  ClientHeight = 486
-  ClientWidth = 701
+  ClientHeight = 494
+  ClientWidth = 700
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   Position = poMainFormCenter
   LCLVersion = '1.4.4.0'
   object gList: TDBGrid
     Left = 8
-    Height = 398
+    Height = 406
     Top = 40
     Width = 176
     Anchors = [akTop, akLeft, akBottom]
@@ -40,8 +40,8 @@ object fRepairImages: TfRepairImages
   object ButtonPanel1: TButtonPanel
     Left = 6
     Height = 34
-    Top = 446
-    Width = 689
+    Top = 454
+    Width = 688
     OKButton.Name = 'OKButton'
     OKButton.DefaultCaption = True
     HelpButton.Name = 'HelpButton'
@@ -55,9 +55,9 @@ object fRepairImages: TfRepairImages
   end
   object pcPages: TExtMenuPageControl
     Left = 188
-    Height = 430
+    Height = 438
     Top = 8
-    Width = 507
+    Width = 506
     ActivePage = tsCommon
     Anchors = [akTop, akLeft, akRight, akBottom]
     Images = fVisualControls.Images
@@ -66,24 +66,24 @@ object fRepairImages: TfRepairImages
     NewTabImageIndex = 59
     object tsCommon: TTabSheet
       Caption = 'Allgemein'
-      ClientHeight = 402
-      ClientWidth = 499
+      ClientHeight = 410
+      ClientWidth = 498
       ImageIndex = 14
       object pCommon: TPanel
         Left = 0
-        Height = 402
+        Height = 410
         Top = 0
-        Width = 499
+        Width = 498
         Align = alClient
         BevelOuter = bvNone
-        ClientHeight = 402
-        ClientWidth = 499
+        ClientHeight = 410
+        ClientWidth = 498
         TabOrder = 0
         object mSolve: TDBMemo
           Left = 8
-          Height = 174
-          Top = 216
-          Width = 485
+          Height = 126
+          Top = 272
+          Width = 484
           Anchors = [akTop, akLeft, akRight, akBottom]
           DataField = 'SOLVE'
           DataSource = RepairImage
@@ -92,16 +92,16 @@ object fRepairImages: TfRepairImages
         object Label3: TLabel
           Left = 8
           Height = 15
-          Top = 192
+          Top = 256
           Width = 86
           Caption = 'Fehlerbehebung'
           ParentColor = False
         end
         object mErrordesc: TDBMemo
           Left = 8
-          Height = 88
+          Height = 112
           Top = 64
-          Width = 319
+          Width = 318
           Anchors = [akTop, akLeft, akRight]
           DataField = 'SYMTOMS'
           DataSource = RepairImage
@@ -119,7 +119,7 @@ object fRepairImages: TfRepairImages
           Left = 8
           Height = 23
           Top = 16
-          Width = 207
+          Width = 206
           DataField = 'NAME'
           DataSource = RepairImage
           Anchors = [akTop, akLeft, akRight]
@@ -136,7 +136,7 @@ object fRepairImages: TfRepairImages
           ParentColor = False
         end
         object DBNavigator1: TDBNavigator
-          Left = 364
+          Left = 363
           Height = 25
           Top = 14
           Width = 129
@@ -156,7 +156,7 @@ object fRepairImages: TfRepairImages
           VisibleButtons = [nbInsert, nbEdit, nbPost, nbCancel, nbRefresh]
         end
         object cbStatus: TComboBox
-          Left = 221
+          Left = 220
           Height = 23
           Hint = 'hier können Sie den Status des Kontaktes ändern um ihn in neue Zustände zu überführen'
           Top = 16
@@ -168,7 +168,7 @@ object fRepairImages: TfRepairImages
           TabOrder = 4
         end
         object Label6: TLabel
-          Left = 224
+          Left = 223
           Height = 15
           Top = 4
           Width = 124
@@ -182,7 +182,7 @@ object fRepairImages: TfRepairImages
           ParentFont = False
         end
         object pPreviewImage: TPanel
-          Left = 342
+          Left = 341
           Height = 136
           Top = 48
           Width = 151
@@ -310,7 +310,7 @@ object fRepairImages: TfRepairImages
         object lCategory: TLabel
           Left = 8
           Height = 15
-          Top = 152
+          Top = 176
           Width = 50
           Caption = 'Kategorie'
           ParentColor = False
@@ -318,13 +318,71 @@ object fRepairImages: TfRepairImages
         object eCategory: TDBEdit
           Left = 8
           Height = 23
-          Top = 168
-          Width = 319
+          Top = 192
+          Width = 317
           DataField = 'CATEGORY'
           DataSource = RepairImage
+          Anchors = [akTop, akLeft, akRight]
           CharCase = ecNormal
           MaxLength = 0
           TabOrder = 6
+        end
+        object lCategory1: TLabel
+          Left = 8
+          Height = 15
+          Top = 216
+          Width = 61
+          Caption = 'Aufgabe an'
+          ParentColor = False
+        end
+        object eUser: TEditButton
+          Left = 8
+          Height = 23
+          Top = 232
+          Width = 317
+          Anchors = [akTop, akLeft, akRight]
+          ButtonWidth = 23
+          Glyph.Data = {
+            36040000424D3604000000000000360000002800000010000000100000000100
+            2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF0069A8DF0D847A7E13B3502098A0401FE3AA4522F5AC4622FAAB4422FAA741
+            21F69F3D1FEAB24F24BA806E701669A9E10DFFFFFF00FFFFFF00FFFFFF006DA2
+            D3792579CDFB866161FBBF6035FFFEB961FFFEB962FFFEB962FFFEB962FFFEB9
+            61FFFEB961FFB14924FF7A646DF52E7ECEF86DA2D383FFFFFF00FFFFFF00297D
+            D1FE82BAEEFF9F6658FFF5BB84FFFFAC5BFFFEA85AFFFEA257FFFE9C53FFFFA3
+            55FFFF9F50FFF8AE78FFA45E4AFF83BCEFFF2A77CAFEFFFFFF00FFFFFF00287C
+            CEFC78B3EAFFB39E94FFFFB760FFFFB663FFFEB261FFFEAC5DFFFEA559FFFD9E
+            53FFFE974EFFFF8D43FFBC8F82FF7EB8EDFF2974C7FAFFFFFF00FFFFFF009E53
+            2B508A5444FFFCC8ABFFFFD198FFFEC76DFFFEBF68FFFEB964FFFEB15EFFFEA8
+            59FFFDA054FFFFB77AFFFEA980FF885042FF8B4C2B60FFFFFF00FFFFFF00A949
+            1301A9460D60C44C1FFFF6E4D6FFFFE4A4FFFFD472FFFFC969FFFFC063FFFFB6
+            5FFFFFC180FFF6D7C6FFC5491FFF9E3E0B6997410F04FFFFFF00FFFFFF00FFFF
+            FF00A74A1507A4481369BC481CFFF4E2D4FF4E7BA9FF4D7BA8FF4D7BA8FF4E7B
+            A9FFF3D6C3FFBE461CFF9D42126F9842130AFFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00A54B17056A3C25A2346DA7FF9CCCF8FFAFD4F7FFAFD4F7FFA5CF
+            F6FF3474AEFF683E2DAD9B451509FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF002A5B92C4A6CAEEFFABCCEAFFA7D0F6FFA8D0F6FFABCC
+            EAFFA7CDEEFF2D629ACCFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF001F5E9BEDD9E8F7FF97C5F1FF8EBBE5FF7FA9D1FF89B5
+            DFFFCDDFEEFF2368A7F16AA0D206FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF000C3E87FF7C97B8FF8AB7E4FF719CC8FF15406EFF1944
+            72FF22456BFF113B66FA4D78A207FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF000F4B97FF12589FFF0F4A8AFF0F4B87FF114B87FF154C
+            85FF124175FF0F335CF1FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF0012336777114E96FE12589BFF125899FF115393FF0F4A
+            87FF0E3E71FE132E4B81FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF0014356A7D12488DF4104B90FF0F488AFF1142
+            7DF515335B84FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+            FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
+          }
+          MaxLength = 0
+          NumGlyphs = 1
+          OnButtonClick = eUserButtonClick
+          PasswordChar = #0
+          TabOrder = 7
         end
       end
     end
