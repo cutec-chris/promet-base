@@ -10,8 +10,8 @@ inherited fProcessOptions: TfProcessOptions
   DesignTop = 306
   object gProcesses: TDBGrid[0]
     Left = 8
-    Height = 87
-    Top = 25
+    Height = 85
+    Top = 27
     Width = 436
     Align = alTop
     Anchors = [akTop, akLeft, akRight, akBottom]
@@ -50,7 +50,7 @@ inherited fProcessOptions: TfProcessOptions
   end
   object lProcesses: TLabel[2]
     Left = 4
-    Height = 13
+    Height = 15
     Top = 4
     Width = 444
     Align = alTop
@@ -62,7 +62,7 @@ inherited fProcessOptions: TfProcessOptions
   end
   object lProcesses1: TLabel[3]
     Left = 4
-    Height = 13
+    Height = 15
     Top = 129
     Width = 444
     Align = alTop
@@ -74,8 +74,8 @@ inherited fProcessOptions: TfProcessOptions
   end
   object gProcesses1: TDBGrid[4]
     Left = 8
-    Height = 171
-    Top = 150
+    Height = 169
+    Top = 152
     Width = 436
     Align = alTop
     Anchors = [akTop, akLeft, akRight, akBottom]
@@ -87,7 +87,7 @@ inherited fProcessOptions: TfProcessOptions
         ButtonStyle = cbsCheckboxColumn
         MaxSize = 30
         Title.Caption = 'Aktiv'
-        Width = 60
+        Width = 50
         ValueChecked = 'Y'
         ValueUnchecked = 'N'
         FieldName = 'ACTIVE'
@@ -114,7 +114,7 @@ inherited fProcessOptions: TfProcessOptions
         )
         SizePriority = 2
         Title.Caption = 'Prozess'
-        Width = 60
+        Width = 50
         FieldName = 'NAME'
       end    
       item
@@ -131,18 +131,23 @@ inherited fProcessOptions: TfProcessOptions
       end    
       item
         Title.Caption = 'gestartet'
-        Width = 60
+        Width = 50
         FieldName = 'STARTED'
       end    
       item
         Title.Caption = 'beended'
-        Width = 60
+        Width = 50
         FieldName = 'STOPPED'
       end    
       item
         Title.Caption = 'Client'
-        Width = 63
+        Width = 50
         FieldName = 'CLIENT'
+      end    
+      item
+        Title.Caption = 'Min. Interval'
+        Width = 53
+        FieldName = 'MININTERVAL'
       end>
     DataSource = Processes
     TabOrder = 2
@@ -204,8 +209,8 @@ inherited fProcessOptions: TfProcessOptions
     TabOrder = 5
     object DBGrid1: TDBGrid
       Left = 0
-      Height = 109
-      Top = 21
+      Height = 107
+      Top = 23
       Width = 224
       Align = alLeft
       AutoFillColumns = True
@@ -227,8 +232,8 @@ inherited fProcessOptions: TfProcessOptions
     end
     object DBMemo1: TDBMemo
       Left = 224
-      Height = 109
-      Top = 21
+      Height = 107
+      Top = 23
       Width = 228
       Align = alClient
       DataField = 'LOG'
@@ -239,7 +244,7 @@ inherited fProcessOptions: TfProcessOptions
     end
     object Label1: TLabel
       Left = 4
-      Height = 13
+      Height = 15
       Top = 4
       Width = 444
       Align = alTop
@@ -252,9 +257,9 @@ inherited fProcessOptions: TfProcessOptions
     object Label2: TLabel
       AnchorSideLeft.Control = DBMemo1
       Left = 224
-      Height = 13
+      Height = 15
       Top = 4
-      Width = 80
+      Width = 85
       Caption = '(letzte) Ausgabe'
       ParentColor = False
     end
