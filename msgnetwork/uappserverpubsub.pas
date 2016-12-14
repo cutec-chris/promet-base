@@ -57,6 +57,7 @@ begin
           break;
         end;
   except
+    PubSubHandlers[i] := nil;
     PubSub:=nil;
   end;
   if PubSub=nil then
