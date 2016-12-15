@@ -198,6 +198,7 @@ end;
 procedure TProcesses.Open;
 begin
   inherited Open;
+  Scripts.ActualLimit:=0;
 end;
 
 destructor TProcesses.Destroy;
@@ -536,6 +537,8 @@ var
          or DoAlwasyRun
          //Process should be running on our client but were dont run it
          or ((aNewStatus='R') and (aClient=GetSystemName))
+         //MaxInterval is reached
+         or (Assigned(aMaxInterval) and (aNewStatus='R') and (aNow > aLastStopped+(aMaxInterval.AsInteger/MinsPerDay)))
          then
           begin
             aStartTime := Now();
@@ -649,7 +652,7 @@ var
             if (not aProc.Active) and (aProc.Informed) then
               begin
                 for i := 0 to length(ProcessData)-1 do
-                  if ProcessData[i]=aProc then
+                  if (ProcessData[i]=aProc) and Assigned(aProc) then
                     begin
                       ProcessData[i]:=nil;
                       FreeAndNil(aProc);
