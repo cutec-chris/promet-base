@@ -102,10 +102,10 @@ var
 begin
   with sock do
     begin
-      CreateSocket;
-      setLinger(true,1000);
       ListenOk := False;
       repeat
+        CreateSocket;
+        setLinger(true,1000);
         if not ListenOk then
           begin
             bind('0.0.0.0','8085');
@@ -130,7 +130,8 @@ begin
                   end
                 else
                   begin
-                    WriteLn('listening failed, retrying...');
+                    WriteLn('listening failed ('+LastErrorDesc+'), retrying...');
+                    CloseSocket;
                     sleep(5000);
                   end;
               end;

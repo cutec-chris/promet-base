@@ -3360,6 +3360,7 @@ begin
       FDataSet.Refresh;
       exit;
     end;
+  try
   with FDataSet as IBaseManageDB do
     if (Assigned(DataModule)) and (TBaseDBModule(DataModule).ShouldCheckTable(TableName,True)) then
       begin
@@ -3375,6 +3376,8 @@ begin
               end;
           end;
       end;
+  except
+  end;
   with DataSet as IBaseManageDB do
     FDataSet.Open;
   if DataSet.Active and FDisplayLabelsWasSet then

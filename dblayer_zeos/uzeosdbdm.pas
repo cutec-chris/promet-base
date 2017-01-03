@@ -717,10 +717,13 @@ begin
           begin
             if (TZeosDBDM(Owner).CheckedTables.IndexOf(Self.GetTableName)>-1) and TZeosDBDM(Owner).Ping(Connection) then
               begin
-                TZeosDBDM(Owner).CheckedTables.Delete(TZeosDBDM(Owner).CheckedTables.IndexOf(Self.GetTableName));
                 try
-                  if TZeosDBDM(Owner).Ping(Connection) then
-                    CreateTable;
+                  if pos('exist',e.Message)>0 then
+                    begin
+                      TZeosDBDM(Owner).CheckedTables.Delete(TZeosDBDM(Owner).CheckedTables.IndexOf(Self.GetTableName));
+                      if TZeosDBDM(Owner).Ping(Connection) then
+                        CreateTable;
+                    end;
                   inherited InternalOpen;
                 except
                   if TZeosDBDM(Owner).Ping(Connection) then
