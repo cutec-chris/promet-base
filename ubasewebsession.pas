@@ -364,6 +364,7 @@ begin
         begin
           RemoveVariable('LOGIN');
           AResponse.Code:=500;
+          AResponse.CustomHeaders.Add('Access-Control-Allow-Origin: *');
           AResponse.CodeText:='error';
         end;
     end
@@ -381,6 +382,7 @@ begin
       else
         begin
           RemoveVariable('LOGIN');
+          AResponse.CustomHeaders.Add('Access-Control-Allow-Origin: *');
           AResponse.Code:=500;
           AResponse.CodeText:='error';
         end;

@@ -93,6 +93,7 @@ begin
             if e.Col > 0 then
               begin
                 Result := 401;
+                Headers.Add('Access-Control-Allow-Origin: *');
                 slOutput.Text:='['+IntToStr(e.Line)+':'+IntToStr(e.Col)+'] '+e.Message+','+FSQLParser.CurSource;
                 slOutput.SaveToStream(Output);
               end;
