@@ -224,7 +224,7 @@ var
 implementation
 
 uses Utils,uBaseVisualControls,uMasterdata,uData,uOrder,variants,uLogWait,
-  uautomationframe,wikitohtml,LCLIntf,uBaseApplication,ubaseconfig,utask
+  uautomationframe,wikitohtml,LCLIntf,uBaseApplication,ubaseconfig,utask,uBaseDBInterface
   {$IFDEF WINDOWS}
   ,Windows
   {$ENDIF}
@@ -1040,6 +1040,11 @@ begin
           FAutomation.lStatusProblems.Visible:=True;
           FAutomation.lStatusProblems.Caption:=strLoading;
           Application.QueueAsyncCall(@TreeData.CompileScript,0);
+          if Data.Users.Rights.Right('PRODUCTION')<=RIGHT_WRITE then
+            begin
+              FAutomation.acExecutePrepareStep.Enabled:=FAutomation.acExecutePrepareStep.Enabled and (not FAutomation.lStatusProblems.Visible);
+              FAutomation.acExecuteStep.Enabled:=FAutomation.acExecuteStep.Enabled and (not FAutomation.lStatusProblems.Visible);
+            end;
         end;
     end;
 end;
