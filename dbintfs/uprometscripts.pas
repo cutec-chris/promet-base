@@ -567,7 +567,7 @@ begin
               aHistory.AddItem(DataSet,Format(strItemOpened,[Data.GetLinkDesc(Data.BuildLink(DataSet))]),Data.BuildLink(DataSet));
             end;
         end;
-      if (DataSet.State<>dsInsert) and (Self.FieldByName('ACTIVE').AsString='Y') then
+      if (DataSet.State<>dsInsert) then
         begin
           if not Data.TableExists(aObj.TableName) then
             begin

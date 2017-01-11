@@ -224,7 +224,8 @@ var
 implementation
 
 uses Utils,uBaseVisualControls,uMasterdata,uData,uOrder,variants,uLogWait,
-  uautomationframe,wikitohtml,LCLIntf,uBaseApplication,ubaseconfig,utask,uBaseDBInterface
+  uautomationframe,wikitohtml,LCLIntf,uBaseApplication,ubaseconfig,utask,uBaseDBInterface,
+  uIntfStrConsts
   {$IFDEF WINDOWS}
   ,Windows
   {$ENDIF}
@@ -241,6 +242,7 @@ resourcestring
   strNoOrderLoaded                      = 'Es ist kein Auftrag geladen oder das Problem wurde nicht gefunden !';
   strNewNumbers                         = 'Code';
   strProblemSend                        = 'Die Störung wurde Eingetragen !';
+  strProblemAt                          = 'Störung %s bei %s';
 
 procedure TTCPCommandDaemon.DoData;
 begin
@@ -392,6 +394,7 @@ procedure TFAutomation.aButtonClick(Sender: TObject);
 var
   aImages: TOrderRepairImages;
   aTask: TTask;
+  arec : Variant;
 begin
   aImages := TOrderRepairImages.Create(nil);
   aImages.Open;
@@ -437,13 +440,18 @@ begin
         Showmessage(strNoOrderLoaded);
       if cbCreateTask.Checked then
         begin
+          aRec := DataSet.GetBookmark;
+          DataSet.First;
           aTask := TTask.Create(nil);
           aTask.Append;
-          aTask.Text.AsString:=aImages.FieldByName('NAME').AsString;
+          aTask.Text.AsString:=Format(strProblemAt,[aImages.FieldByName('NAME').AsString,DataSet.FieldByName('IDENT').AsString]);
           aTask.FieldByName('DESC').AsString:=mNotes.Text;
+          aTask.FieldByName('DESC').AsString:=aTask.FieldByName('DESC').AsString+LineEnding+strOrder+':'+TOrderPos(DataSet).Order.Commission.AsString;
           if aImages.FieldByName('USER').AsString<>'' then
             aTask.FieldByName('USER').AsString:=aImages.FieldByName('USER').AsString;
           aTask.Post;
+          DataSet.GotoBookmark(aRec);
+          cbCreateTask.Checked:=False;
         end;
       mNotes.Clear;
     end;
@@ -459,7 +467,6 @@ procedure TFAutomation.acPrepareExecute(Sender: TObject);
 var
   TreeData: TProdTreeData;
 begin
-  FAutomation.lStatusProblems.Visible:=False;
   if Assigned(tvStep.Selected) then
     begin
       TreeData := TProdTreeData(tvStep.Selected.Data);
@@ -1314,6 +1321,11 @@ begin
       FAutomation.FScript := Script;
     end;
   FAutomation.acExecutePrepareStep.Enabled:=Assigned(Preparescript) and (Preparescript.Count>0);
+  if Data.Users.Rights.Right('PRODUCTION')<=RIGHT_WRITE then
+    begin
+      FAutomation.acExecutePrepareStep.Enabled:=FAutomation.acExecutePrepareStep.Enabled and (not FAutomation.lStatusProblems.Visible);
+      FAutomation.acExecuteStep.Enabled:=FAutomation.acExecuteStep.Enabled and (not FAutomation.lStatusProblems.Visible);
+    end;
 end;
 
 procedure TFAutomation.ClearScreen;

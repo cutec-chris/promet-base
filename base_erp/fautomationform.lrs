@@ -81,9 +81,9 @@ LazarusResources.Add('TFAutomation','FORMDATA',[
   +'g.Around'#2#4#7'Caption'#6#5'lQuit'#5'Color'#7#8'clInfoBk'#10'Font.Color'#7
   +#10'clInfoText'#11'ParentColor'#8#10'ParentFont'#8#11'Transparent'#8#7'Visib'
   +'le'#8#0#0#0#9'TTabSheet'#13'tsOldProblems'#7'Caption'#6#29'gemeldete St'#195
-  +#182'rungen/Auschuss'#12'ClientHeight'#3#135#0#11'ClientWidth'#3#21#3#10'Tab'
-  +'Visible'#8#0#7'TDBGrid'#7'DBGrid1'#4'Left'#2#0#6'Height'#3#135#0#3'Top'#2#0
-  +#5'Width'#3#21#3#5'Align'#7#8'alClient'#5'Color'#7#8'clWindow'#7'Columns'#14
+  +#182'rungen/Auschuss'#12'ClientHeight'#3#142#0#11'ClientWidth'#3#19#3#10'Tab'
+  +'Visible'#8#0#7'TDBGrid'#7'DBGrid1'#4'Left'#2#0#6'Height'#3#142#0#3'Top'#2#0
+  +#5'Width'#3#19#3#5'Align'#7#8'alClient'#5'Color'#7#8'clWindow'#7'Columns'#14
   +#0#8'TabOrder'#2#0#10'TitleStyle'#7#8'tsNative'#0#0#0#0#0#9'TSplitter'#5'spB'
   +'DE'#6'Cursor'#7#8'crVSplit'#4'Left'#2#0#6'Height'#2#5#3'Top'#3'['#1#5'Width'
   +#3#27#3#5'Align'#7#8'alBottom'#12'ResizeAnchor'#7#8'akBottom'#0#0#0#6'TPanel'

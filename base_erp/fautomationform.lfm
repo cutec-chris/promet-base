@@ -302,14 +302,14 @@ object FAutomation: TFAutomation
         end
         object tsOldProblems: TTabSheet
           Caption = 'gemeldete Störungen/Auschuss'
-          ClientHeight = 135
-          ClientWidth = 789
+          ClientHeight = 142
+          ClientWidth = 787
           TabVisible = False
           object DBGrid1: TDBGrid
             Left = 0
-            Height = 135
+            Height = 142
             Top = 0
-            Width = 789
+            Width = 787
             Align = alClient
             Color = clWindow
             Columns = <>
