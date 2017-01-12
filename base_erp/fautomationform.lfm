@@ -697,6 +697,7 @@ object FAutomation: TFAutomation
     top = 72
     object acExecuteStep: TAction
       Caption = 'Ausführen'
+      DisableIfNoHandler = False
       Enabled = False
       GroupIndex = 116
       ImageIndex = 128

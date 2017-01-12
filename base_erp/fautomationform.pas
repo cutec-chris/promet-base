@@ -153,6 +153,7 @@ type
     procedure tvStepSelectionChanged(Sender: TObject);
     function ExecuteServerFunction(aFunc : string) : Variant;
   private
+    LastRunLineDate : TDateTime;
     FActNode: TIpHtmlNode;
     FDataSet: TBaseDBPosition;
     FSelStep: TNotifyEvent;
@@ -160,6 +161,7 @@ type
     nComm : TTreeNode;
     FSocket : TTCPCommandDaemon;
     FCache : TFileCache;
+    StepChanged : Boolean;
     DoCompileScript : ^TDataEvent;
     procedure FSocketData(Sender: TObject);
     procedure SetDataSet(AValue: TBaseDBPosition);
@@ -181,9 +183,10 @@ type
   { TProdTreeData }
 
   TProdTreeData = class
-    procedure CompileScript(Data: PtrInt);
+    procedure CompileScript(aData: PtrInt);
     procedure DebugCompileMessage(Sender: TScript; Module, Message: string;
       Position, Row, Col: Integer);
+    procedure ExecuteProduce(Data: PtrInt);
     procedure ScriptDebugln(const s: string);
     procedure ScriptPrepareWriteln(const s: string);
     procedure ScriptWriteln(const s: string);
@@ -752,7 +755,11 @@ end;
 procedure TFAutomation.TreeDataScriptScriptRunLine(Sender: TScript;
   Module: string; aPosition, aRow, aCol: Integer);
 begin
-  Application.ProcessMessages;
+  if Abs(Now()-LastRunLineDate) > 300 then
+    begin
+      LastRunLineDate := Now();
+      Application.ProcessMessages;
+    end;
 end;
 
 procedure TFAutomation.tvStepSelectionChanged(Sender: TObject);
@@ -760,6 +767,7 @@ var
   Res: Boolean;
 begin
   if Assigned(FSelStep) then FSelStep(tvStep);
+  StepChanged := True;
   if Assigned(tvStep.Selected) then
     begin
       acExecuteStep.Enabled:=False;
@@ -854,6 +862,7 @@ var
   aVersion : Variant;
 begin
   lStatusProblems.Visible:=False;
+  lStatusProblems.color := clInfoBk;
   if not Assigned(tvStep.Selected) then exit;
   lStep.Caption:=tvStep.Selected.Text;
   Result := False;
@@ -1049,8 +1058,8 @@ begin
           Application.QueueAsyncCall(@TreeData.CompileScript,0);
           if Data.Users.Rights.Right('PRODUCTION')<=RIGHT_WRITE then
             begin
-              FAutomation.acExecutePrepareStep.Enabled:=FAutomation.acExecutePrepareStep.Enabled and (not FAutomation.lStatusProblems.Visible);
-              FAutomation.acExecuteStep.Enabled:=FAutomation.acExecuteStep.Enabled and (not FAutomation.lStatusProblems.Visible);
+              FAutomation.acExecutePrepareStep.Enabled:=FAutomation.acExecutePrepareStep.Enabled and (not FAutomation.lStatusProblems.Color=clRed);
+              FAutomation.acExecuteStep.Enabled:=FAutomation.acExecuteStep.Enabled and (not FAutomation.lStatusProblems.Color=clRed);
             end;
         end;
     end;
@@ -1058,6 +1067,7 @@ end;
 
 procedure TFAutomation.Clear;
 begin
+  StepChanged:=True;
   fLogWaitForm.SetLanguage;
   fLogWaitForm.Caption:='Debug';
   fLogWaitForm.bAbort.Kind:=bkClose;
@@ -1094,7 +1104,7 @@ begin
   OnGetImageX:=@SimpleIpHtmlGetImageX;
 end;
 var IsCompiling : Boolean;
-procedure TProdTreeData.CompileScript(Data: PtrInt);
+procedure TProdTreeData.CompileScript(aData: PtrInt);
 begin
   Screen.Cursor:=crHourGlass;
   Script.Writeln:=@ScriptWriteln;
@@ -1123,7 +1133,9 @@ begin
   else
     begin
       FAutomation.lStatusProblems.Visible:=False;
+      FAutomation.lStatusProblems.Color:=clInfoBk;
       Screen.Cursor:=crDefault;
+      ShowData;
     end;
 end;
 
@@ -1131,6 +1143,11 @@ procedure TProdTreeData.DebugCompileMessage(Sender: TScript; Module,
   Message: string; Position, Row, Col: Integer);
 begin
   fLogWaitForm.ShowInfo(Message);
+end;
+
+procedure TProdTreeData.ExecuteProduce(Data: PtrInt);
+begin
+  FAutomation.acProduce.Execute;
 end;
 
 procedure TProdTreeData.ScriptDebugln(const s: string);
@@ -1277,7 +1294,7 @@ begin
         ss := TStringStream.Create((PrepareOutput.Text))
       else
         ss := TStringStream.Create(#$EF+#$BB+#$BF+'<body>'+(PreText.Text+'<br><br>'+PrepareOutput.Text)+'</body>');
-      if actualHtml<>ss.DataString then
+      if (actualHtml<>ss.DataString) or FAutomation.StepChanged then
         begin
           Result := True;
           actualHtml := ss.DataString;
@@ -1286,6 +1303,7 @@ begin
           ss.Free;
           FAutomation.ipHTML.SetHtml(aHTML);
           FAutomation.bExecute.Action:=FAutomation.acExecutePrepareStep;
+          FAutomation.StepChanged := False;
         end;
     end
   else
@@ -1304,7 +1322,7 @@ begin
           else
             ss := TStringStream.Create((WorkText.Text+ScriptOutput.Text));
         end;
-      if actualHtml<>ss.DataString then
+      if (actualHtml<>ss.DataString) or FAutomation.StepChanged then
         begin
           Result := True;
           aHTML := TSimpleIPHtml.Create;
@@ -1312,19 +1330,21 @@ begin
           aHTML.LoadFromStream(ss);
           ss.Free;
           FAutomation.ipHTML.SetHtml(aHTML);
+          FAutomation.StepChanged := False;
         end;
       FAutomation.bExecute.Action:=FAutomation.acExecuteStep;
     end;
   if Assigned(Script) and (Script.Count>0) then
     begin
-      FAutomation.acExecuteStep.Enabled:=(Prepared or ((PreText.Text=''))) and (Assigned(Script));
+      FAutomation.acExecuteStep.Enabled:=(Prepared or (PreText.Count=0));
+      FAutomation.acExecuteStep.Enabled:=FAutomation.acExecuteStep.Enabled and (Assigned(Script));
       FAutomation.FScript := Script;
     end;
   FAutomation.acExecutePrepareStep.Enabled:=Assigned(Preparescript) and (Preparescript.Count>0);
   if Data.Users.Rights.Right('PRODUCTION')<=RIGHT_WRITE then
     begin
-      FAutomation.acExecutePrepareStep.Enabled:=FAutomation.acExecutePrepareStep.Enabled and (not FAutomation.lStatusProblems.Visible);
-      FAutomation.acExecuteStep.Enabled:=FAutomation.acExecuteStep.Enabled and (not FAutomation.lStatusProblems.Visible);
+      FAutomation.acExecutePrepareStep.Enabled:=FAutomation.acExecutePrepareStep.Enabled and (FAutomation.lStatusProblems.Color<>clRed);
+      FAutomation.acExecuteStep.Enabled:=FAutomation.acExecuteStep.Enabled and (FAutomation.lStatusProblems.Color<>clRed);
     end;
 end;
 

@@ -309,35 +309,35 @@ LazarusResources.Add('TFAutomation','FORMDATA',[
   +#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#11'ShowCa'
   +'ption'#8#0#0#11'TActionList'#11'ActionList1'#6'Images'#7#22'fVisualControls'
   +'.Images'#4'left'#2#16#3'top'#2'H'#0#7'TAction'#13'acExecuteStep'#7'Caption'
-  +#6#10'Ausf'#195#188'hren'#7'Enabled'#8#10'GroupIndex'#2't'#10'ImageIndex'#3
-  +#128#0#9'OnExecute'#7#20'acExecuteStepExecute'#0#0#7'TAction'#9'acPrepare'#9
-  +'AutoCheck'#9#7'Caption'#6#25'Arbeitschritt Vorbereiten'#18'DisableIfNoHandl'
-  +'er'#8#7'Enabled'#8#10'GroupIndex'#2'p'#10'ImageIndex'#2'~'#9'OnExecute'#7#16
-  +'acPrepareExecute'#0#0#7'TAction'#6'acSave'#7'Caption'#6#9'Speichern'#4'Hint'
-  +#6#9'Speichern'#10'ImageIndex'#2'J'#0#0#7'TAction'#7'acAbort'#7'Caption'#6#9
-  +'Abbrechen'#4'Hint'#6#9'Abbrechen'#10'ImageIndex'#2'K'#0#0#7'TAction'#7'acRe'
-  +'ady'#9'AutoCheck'#9#7'Caption'#6#27'zum n'#195#164'chsten Arbeitschritt'#7
-  +'Enabled'#8#10'GroupIndex'#2'p'#10'ImageIndex'#2'J'#9'OnExecute'#7#14'acRead'
-  +'yExecute'#0#0#7'TAction'#9'acProduce'#9'AutoCheck'#9#7'Caption'#6#26'Arbeit'
-  +'schritt durchf'#195#188'hren'#7'Enabled'#8#10'GroupIndex'#2'p'#10'ImageInde'
-  +'x'#3#128#0#9'OnExecute'#7#16'acProduceExecute'#0#0#7'TAction'#20'acExecuteP'
-  ,'repareStep'#7'Caption'#6#10'Ausf'#195#188'hren'#10'ImageIndex'#3#128#0#9'On'
-  +'Execute'#7#27'acExecutePrepareStepExecute'#0#0#7'TAction'#10'acDebugLog'#7
-  +'Caption'#6#17'Debug Nachrichten'#4'Hint'#6#17'Debug Nachrichten'#10'ImageIn'
-  +'dex'#2'1'#9'OnExecute'#7#17'acDebugLogExecute'#0#0#7'TAction'#6'acEdit'#7'C'
-  +'aption'#6#27'Vorbereitungstext editieren'#4'Hint'#6#27'Vorbereitungstext ed'
-  +'itieren'#10'ImageIndex'#2'C'#9'OnExecute'#7#13'acEditExecute'#0#0#7'TAction'
-  +#9'acRefresh'#7'Caption'#6#9'acRefresh'#4'Hint'#6#31'l'#195#164'dt den aktue'
-  +'llen Schritt neu'#10'ImageIndex'#2'E'#9'OnExecute'#7#16'acRefreshExecute'#0
-  +#0#0#10'TPopupMenu'#10'PopupMenu1'#4'left'#2'H'#3'top'#2'H'#0#9'TMenuItem'#9
-  +'MenuItem1'#7'Caption'#6#7'Eintrag'#0#9'TMenuItem'#9'MenuItem5'#6'Action'#7#6
-  +'acSave'#0#0#9'TMenuItem'#9'MenuItem6'#6'Action'#7#7'acAbort'#0#0#0#9'TMenuI'
-  +'tem'#9'MenuItem2'#7'Caption'#6#9'Erweitert'#0#9'TMenuItem'#10'miExtended'#7
-  +'Caption'#6#4'Menu'#0#0#0#9'TMenuItem'#9'MenuItem3'#7'Caption'#6#5'Ebene'#0#9
-  +'TMenuItem'#9'MenuItem7'#7'Caption'#6#9'New Item9'#9'RadioItem'#9#0#0#9'TMen'
-  +'uItem'#10'MenuItem10'#7'Caption'#6#10'New Item12'#0#0#9'TMenuItem'#9'MenuIt'
-  +'em9'#7'Caption'#6#10'New Item11'#0#0#9'TMenuItem'#9'MenuItem8'#7'Caption'#6
-  +#10'New Item10'#0#0#0#9'TMenuItem'#9'MenuItem4'#7'Caption'#6#10'Bearbeiten'#0
-  +#0#0#6'TTimer'#6'tmQuit'#7'Enabled'#8#8'Interval'#3#184#11#7'OnTimer'#7#11't'
-  +'mQuitTimer'#4'left'#3#186#0#3'top'#3'&'#2#0#0#0
+  +#6#10'Ausf'#195#188'hren'#18'DisableIfNoHandler'#8#7'Enabled'#8#10'GroupInde'
+  +'x'#2't'#10'ImageIndex'#3#128#0#9'OnExecute'#7#20'acExecuteStepExecute'#0#0#7
+  +'TAction'#9'acPrepare'#9'AutoCheck'#9#7'Caption'#6#25'Arbeitschritt Vorberei'
+  +'ten'#18'DisableIfNoHandler'#8#7'Enabled'#8#10'GroupIndex'#2'p'#10'ImageInde'
+  +'x'#2'~'#9'OnExecute'#7#16'acPrepareExecute'#0#0#7'TAction'#6'acSave'#7'Capt'
+  +'ion'#6#9'Speichern'#4'Hint'#6#9'Speichern'#10'ImageIndex'#2'J'#0#0#7'TActio'
+  +'n'#7'acAbort'#7'Caption'#6#9'Abbrechen'#4'Hint'#6#9'Abbrechen'#10'ImageInde'
+  +'x'#2'K'#0#0#7'TAction'#7'acReady'#9'AutoCheck'#9#7'Caption'#6#27'zum n'#195
+  +#164'chsten Arbeitschritt'#7'Enabled'#8#10'GroupIndex'#2'p'#10'ImageIndex'#2
+  +'J'#9'OnExecute'#7#14'acReadyExecute'#0#0#7'TAction'#9'acProduce'#9'AutoChec'
+  +'k'#9#7'Caption'#6#26'Arbeitschritt durchf'#195#188'hren'#7'Enabled'#8#10'Gr'
+  +'oupIndex'#2'p'#10'ImageIndex'#3#128#0#9'OnExecute'#7#16'acProduceExecute'#0
+  ,#0#7'TAction'#20'acExecutePrepareStep'#7'Caption'#6#10'Ausf'#195#188'hren'#10
+  +'ImageIndex'#3#128#0#9'OnExecute'#7#27'acExecutePrepareStepExecute'#0#0#7'TA'
+  +'ction'#10'acDebugLog'#7'Caption'#6#17'Debug Nachrichten'#4'Hint'#6#17'Debug'
+  +' Nachrichten'#10'ImageIndex'#2'1'#9'OnExecute'#7#17'acDebugLogExecute'#0#0#7
+  +'TAction'#6'acEdit'#7'Caption'#6#27'Vorbereitungstext editieren'#4'Hint'#6#27
+  +'Vorbereitungstext editieren'#10'ImageIndex'#2'C'#9'OnExecute'#7#13'acEditEx'
+  +'ecute'#0#0#7'TAction'#9'acRefresh'#7'Caption'#6#9'acRefresh'#4'Hint'#6#31'l'
+  +#195#164'dt den aktuellen Schritt neu'#10'ImageIndex'#2'E'#9'OnExecute'#7#16
+  +'acRefreshExecute'#0#0#0#10'TPopupMenu'#10'PopupMenu1'#4'left'#2'H'#3'top'#2
+  +'H'#0#9'TMenuItem'#9'MenuItem1'#7'Caption'#6#7'Eintrag'#0#9'TMenuItem'#9'Men'
+  +'uItem5'#6'Action'#7#6'acSave'#0#0#9'TMenuItem'#9'MenuItem6'#6'Action'#7#7'a'
+  +'cAbort'#0#0#0#9'TMenuItem'#9'MenuItem2'#7'Caption'#6#9'Erweitert'#0#9'TMenu'
+  +'Item'#10'miExtended'#7'Caption'#6#4'Menu'#0#0#0#9'TMenuItem'#9'MenuItem3'#7
+  +'Caption'#6#5'Ebene'#0#9'TMenuItem'#9'MenuItem7'#7'Caption'#6#9'New Item9'#9
+  +'RadioItem'#9#0#0#9'TMenuItem'#10'MenuItem10'#7'Caption'#6#10'New Item12'#0#0
+  +#9'TMenuItem'#9'MenuItem9'#7'Caption'#6#10'New Item11'#0#0#9'TMenuItem'#9'Me'
+  +'nuItem8'#7'Caption'#6#10'New Item10'#0#0#0#9'TMenuItem'#9'MenuItem4'#7'Capt'
+  +'ion'#6#10'Bearbeiten'#0#0#0#6'TTimer'#6'tmQuit'#7'Enabled'#8#8'Interval'#3
+  +#184#11#7'OnTimer'#7#11'tmQuitTimer'#4'left'#3#186#0#3'top'#3'&'#2#0#0#0
 ]);
