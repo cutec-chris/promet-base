@@ -755,7 +755,7 @@ end;
 procedure TFAutomation.TreeDataScriptScriptRunLine(Sender: TScript;
   Module: string; aPosition, aRow, aCol: Integer);
 begin
-  if Abs(Now()-LastRunLineDate) > 300 then
+  if Now()-LastRunLineDate > ((1/MSecsPerDay)*300) then
     begin
       LastRunLineDate := Now();
       Application.ProcessMessages;
@@ -1067,6 +1067,7 @@ end;
 
 procedure TFAutomation.Clear;
 begin
+  LastRunLineDate := Now();
   StepChanged:=True;
   fLogWaitForm.SetLanguage;
   fLogWaitForm.Caption:='Debug';
