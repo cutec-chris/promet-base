@@ -209,7 +209,7 @@ type
     function ShowData : Boolean;
     procedure LoadScript(aScript : string;aVersion : Variant);
     procedure LoadPrepareScript(aScript : string;aVersion : Variant);
-    procedure LoadDocuments(aID : largeInt;aType : string;aTID : string;aVersion : Variant;aLanguage : Variant);
+    procedure LoadDocuments(aID : variant;aType : string;aTID : string;aVersion : Variant;aLanguage : Variant);
     procedure LoadPrepDocuments(aID : largeInt;aType : string;aTID : string;aVersion : Variant;aLanguage : Variant);
   end;
   TSimpleIpHtml = class(TIpHtml)
@@ -1404,12 +1404,14 @@ begin
     PrepareScript.Close;
 end;
 
-procedure TProdTreeData.LoadDocuments(aID: largeInt; aType: string;
+procedure TProdTreeData.LoadDocuments(aID: variant; aType: string;
   aTID: string; aVersion: Variant; aLanguage: Variant);
 begin
   if not Assigned(Documents) then
     Documents := TDocument.Create(nil);
-  Documents.Select(aID,aType,aTID,aVersion,aLanguage);
+  Documents.Close;
+  if aID<>Null then
+    Documents.Select(aID,aType,aTID,aVersion,aLanguage);
 end;
 
 procedure TProdTreeData.LoadPrepDocuments(aID: largeInt; aType: string;
