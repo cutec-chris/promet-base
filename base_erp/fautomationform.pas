@@ -141,7 +141,7 @@ type
     procedure bNetChange(Sender: TObject);
     procedure bResultsClick(Sender: TObject);
     procedure cbCategoryChange(Sender: TObject);
-    function FCacheGetFile(URL: string; var NewPath: string): TStream;
+    function FCacheGetFile(URL: string; var NewPath: string;var ExpireDate : TDateTime): TStream;
     procedure fLogWaitFormbAbortClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -547,7 +547,8 @@ begin
     Config.WriteString('FA_CATEGORY',cbCategory.Text);
 end;
 
-function TFAutomation.FCacheGetFile(URL: string; var NewPath: string): TStream;
+function TFAutomation.FCacheGetFile(URL: string; var NewPath: string;
+  var ExpireDate: TDateTime): TStream;
 var
   TreeData: TProdTreeData;
   ms: TMemoryStream;
@@ -562,6 +563,7 @@ var
   pic: TPicture;
 begin
   Result := nil;
+  ExpireDate:=0;
   DoCompileScript := nil;
   try
   if Assigned(FAutomation.tvStep.Selected) then
@@ -607,6 +609,7 @@ begin
           tmpURL := UniToSys(copy(Path,8,length(Path)));
           if FileExists(tmpURL) then
             begin
+              ExpireDate:=Now();
               pic := TPicture.Create;
               pic.LoadFromFile(tmpUrl);
               ms := TMemoryStream.Create;

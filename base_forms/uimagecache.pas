@@ -7,14 +7,19 @@ interface
 uses
   Classes, SysUtils, CacheCls;
 type
-  TGetFileEvent = function(Path : string;var NewPath : string) : TStream of object;
+  TGetFileEvent = function(Path : string;var NewPath : string;var ExpireDate : TDateTime = 0) : TStream of object;
+
+  { TFileCache }
+
   TFileCache = class(TCache)
     procedure FileCacheFreeSlot(ACache: TCache; SlotIndex: Integer);
   private
     FGetFile: TGetFileEvent;
     FURLList: TStringList;
     FNewURLList: TStringList;
-    function GetStream(Path : string;var NewPath: string) : TStream;
+    FExpires : TStringList;
+    function GetStream(Path: string; var NewPath: string; var aExpireDate: TDateTime
+      ): TStream;
   public
     constructor Create(ASlotCount: Integer);
     destructor Destroy; override;
@@ -27,17 +32,18 @@ procedure TFileCache.FileCacheFreeSlot(ACache: TCache; SlotIndex: Integer);
 begin
 //  TMemoryStream(ACache.Slots[SlotIndex]).Free;
 end;
-function TFileCache.GetStream(Path: string;var NewPath: string): TStream;
+function TFileCache.GetStream(Path: string; var NewPath: string; var aExpireDate : TDateTime): TStream;
 begin
   Result := nil;
   if Assigned(FGetFile) then
-    Result := FGetFile(path,newpath);
+    Result := FGetFile(path,newpath,aExpireDate);
 end;
 constructor TFileCache.Create(ASlotCount: Integer);
 begin
   inherited Create(ASlotCount);
   FURLList := TStringList.Create;
   FNewURLList := TStringList.Create;
+  FExpires := TStringList.Create;
   Self.OnFreeSlot:=@FileCacheFreeSlot;
 end;
 destructor TFileCache.Destroy;
@@ -48,6 +54,7 @@ begin
     FURLList.Objects[i].Free;
   FURLList.Destroy;
   FNewURLList.Destroy;
+  FExpires.Destroy;
   inherited Destroy;
 end;
 function TFileCache.GetFile(Path: string;var NewPath : string): TMemoryStream;
@@ -55,13 +62,14 @@ var
   aMem: TMemoryStream;
   aFile: TStream;
   aIdx: Integer;
+  aExpireDate: TDateTime;
 begin
   NewPath:=Path;
   Result := nil;
   aIdx := FURLList.IndexOf(Path);
-  if aIdx = -1 then
+  if (aIdx = -1) or (StrToDateTimeDef(FExpires[FExpires.IndexOfObject(FURLList.Objects[aIdx])],0)>Now()) then
     begin
-      aFile := GetStream(Path,NewPath);
+      aFile := GetStream(Path,NewPath,aExpireDate);
       if Assigned(aFile) then
         begin
           aMem := TMemoryStream.Create;
@@ -69,6 +77,7 @@ begin
             aMem.CopyFrom(aFile,aFile.Size);
             FUrlList.AddObject(Path,aMem);
             FNewURLList.Add(NewPath);
+            FExpires.AddObject(DateTimeToStr(aExpireDate),aMem);
 //            Add(aMem);
             Result := aMem;
           except

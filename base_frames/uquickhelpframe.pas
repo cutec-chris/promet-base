@@ -19,7 +19,7 @@ type
     Timer1: TTimer;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
-    function FCacheGetFile(Path: string; var NewPath: string): TStream;
+    function FCacheGetFile(Path: string; var NewPath: string;var ExpireDate : TDateTime): TStream;
     procedure fQuickHelpFrameWikiInclude(Inp: string; var Outp: string;aLevel : Integer);
     procedure ipHTMLHotClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
@@ -143,8 +143,8 @@ begin
   Height := 1;
 end;
 
-function TfQuickHelpFrame.FCacheGetFile(Path: string; var NewPath: string
-  ): TStream;
+function TfQuickHelpFrame.FCacheGetFile(Path: string; var NewPath: string;
+  var ExpireDate: TDateTime): TStream;
 var
   aPicture: TPicture;
   ms: TMemoryStream;

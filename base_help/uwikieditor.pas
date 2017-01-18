@@ -79,7 +79,7 @@ type
     procedure acScreenshotExecute(Sender: TObject);
     procedure acSpellcheckExecute(Sender: TObject);
     procedure AddDocuments(Sender: TObject);
-    function FCacheGetFile(Path: string; var NewPath: string): TStream;
+    function FCacheGetFile(Path: string; var NewPath: string;var ExpireDate : TDateTime): TStream;
     procedure mEditChange(Sender: TObject);
     procedure TSimpleIpHtmlGetImageX(Sender: TIpHtmlNode; const URL: string;
       var Picture: TPicture);
@@ -129,7 +129,8 @@ begin
   inherited;
 end;
 
-function TfWikiEditor.FCacheGetFile(Path: string; var NewPath: string): TStream;
+function TfWikiEditor.FCacheGetFile(Path: string; var NewPath: string;
+  var ExpireDate: TDateTime): TStream;
 var
   aPicture: TPicture;
   ms: TMemoryStream;
@@ -140,6 +141,7 @@ var
   tmp: String;
 begin
   Result := nil;
+  ExpireDate:=0;
   NewPath := Path;
   if copy(uppercase(Path),0,5)='ICON(' then
     begin
