@@ -1149,17 +1149,21 @@ begin
 end;
 procedure TfFilter.DatasetAfterScroll(aDataSet: TDataSet);
 begin
-  if aFullCount > DataSet.Count then
-    pBottom.Caption:=Format(strFullRecordCount,[aFullCount,List.DataSet.RecordCount])
-  else
-    pBottom.Caption:=Format(strRecordCount,[List.DataSet.RecordCount]);
-  if Assigned(FOnScrolled) then
-    begin
-      try
-        FOnScrolled(Self);
-      except
+  try
+    if not Assigned(DataSet) then exit;
+    if aFullCount > DataSet.Count then
+      pBottom.Caption:=Format(strFullRecordCount,[aFullCount,List.DataSet.RecordCount])
+    else
+      pBottom.Caption:=Format(strRecordCount,[List.DataSet.RecordCount]);
+    if Assigned(FOnScrolled) then
+      begin
+        try
+          FOnScrolled(Self);
+        except
+        end;
       end;
-    end;
+  except
+  end;
 end;
 procedure TfFilter.DblClickTimerTimer(Sender: TObject);
 begin
