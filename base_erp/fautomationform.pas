@@ -1112,7 +1112,14 @@ procedure TProdTreeData.CompileScript(aData: PtrInt);
 begin
   Screen.Cursor:=crHourGlass;
   Script.Writeln:=@ScriptWriteln;
-  if not Assigned(Script.Script) then exit;
+  if not Assigned(Script.Script) then
+    begin
+      FAutomation.lStatusProblems.Caption:='Failed to find Script !';
+      FAutomation.lStatusProblems.Visible:=True;
+      Screen.Cursor:=crDefault;
+      IsCompiling := False;
+      exit;
+    end;
   Script.Script.OnCompileMessage:=@DebugCompileMessage;
   if IsCompiling then exit;
   IsCompiling := True;
