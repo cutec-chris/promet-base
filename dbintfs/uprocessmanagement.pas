@@ -277,6 +277,11 @@ begin
             Add('STATUS',ftString,4,True);
             Add('NOTES',ftString,200,False);
           end;
+      if Assigned(ManagedIndexdefs) then
+        with ManagedIndexDefs do
+          begin
+            Add('NAME','NAME',[ixUnique]);
+          end;
     end;
 end;
 
