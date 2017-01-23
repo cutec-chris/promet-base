@@ -141,7 +141,7 @@ type
     property LastTime : Int64 read FLastTime write FLastTime;
     function IsSQLDB : Boolean;virtual;abstract;
     function ProcessTerm(aTerm : string;ForceLike : Boolean = False) : string;virtual;
-    function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';AutoInc : Boolean = True) : Variant;virtual;abstract;
+    function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';Tablename : string = '';AutoInc : Boolean = True) : Variant;virtual;abstract;
     function GetNewDataSet(aTable : TBaseDBDataSet;aConnection : TComponent = nil;MasterData : TDataSet = nil;aTables : string = '') : TDataSet;virtual;abstract;
     function GetNewDataSet(aSQL : string;aConnection : TComponent = nil;MasterData : TDataSet = nil;aOrigtable : TBaseDBDataSet = nil) : TDataSet;virtual;
     procedure DestroyDataSet(DataSet : TDataSet);virtual;abstract;

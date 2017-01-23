@@ -86,6 +86,7 @@ type
   public
     constructor CreateEx(aOwner: TComponent; DM: TComponent;
        aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
+    procedure Open; override;
     destructor Destroy; override;
     function CreateTable : Boolean;override;
     procedure DefineFields(aDataSet: TDataSet); override;
@@ -197,6 +198,13 @@ end;
 
 procedure TProcesses.Open;
 begin
+  with BaseApplication as IBaseDbInterface do
+    begin
+      with DataSet as IBaseDBFilter do
+        begin
+          Limit := 0;
+        end;
+    end;
   inherited Open;
   Scripts.ActualLimit:=0;
 end;
@@ -248,6 +256,18 @@ begin
   inherited;
   FProcesses := TProcesses.CreateEx(Self, DM,aConnection,DataSet);
   Pubsub:=TPubSubClient.Create;
+end;
+
+procedure TProcessClient.Open;
+begin
+  with BaseApplication as IBaseDbInterface do
+    begin
+      with DataSet as IBaseDBFilter do
+        begin
+          Limit := 0;
+        end;
+    end;
+  inherited Open;
 end;
 
 destructor TProcessClient.Destroy;

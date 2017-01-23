@@ -63,7 +63,7 @@ type
     function Ping(aConnection : TComponent) : Boolean;override;
     function DateToFilter(aValue : TDateTime) : string;override;
     function DateTimeToFilter(aValue : TDateTime) : string;override;
-    function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';AutoInc : Boolean = True) : Variant;override;
+    function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';Tablename : string = '';AutoInc : Boolean = True) : Variant;override;
     procedure StreamToBlobField(Stream : TStream;DataSet : TDataSet;Fieldname : string);override;
     function BlobFieldStream(DataSet: TDataSet; Fieldname: string): TStream;
       override;
@@ -236,12 +236,14 @@ procedure TZeosDBDataSet.SetNewIDIfNull;
 begin
   if (FieldDefs.IndexOf('AUTO_ID') = -1) and (FieldDefs.IndexOf('SQL_ID') > -1) and  FieldByName('SQL_ID').IsNull then
     begin
-      FieldByName('SQL_ID').AsVariant:=TBaseDBModule(Self.Owner).GetUniID(Connection);
+      with Self as IBaseManageDB do
+        FieldByName('SQL_ID').AsVariant:=TBaseDBModule(Self.Owner).GetUniID(Connection,'GEN_SQL_ID',TableName);
       FHasNewID:=True;
     end
   else if (FieldDefs.IndexOf('SQL_ID') = -1) and (FieldDefs.IndexOf('AUTO_ID') > -1) and FieldByName('AUTO_ID').IsNull then
     begin
-      FieldByName('AUTO_ID').AsVariant:=TBaseDBModule(Self.Owner).GetUniID(Connection,'GEN_AUTO_ID');
+      with Self as IBaseManageDB do
+        FieldByName('AUTO_ID').AsVariant:=TBaseDBModule(Self.Owner).GetUniID(Connection,'GEN_AUTO_ID',TableName);
       FHasNewID:=True;
     end;
 end;
@@ -1817,12 +1819,14 @@ begin
   else
     Result:=inherited DateTimeToFilter(aValue);
 end;
-function TZeosDBDM.GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';AutoInc : Boolean = True): Variant;
+function TZeosDBDM.GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';Tablename : string = '';AutoInc : Boolean = True): Variant;
 var
   Statement: IZStatement;
   ResultSet: IZResultSet;
   bConnection: TComponent;
+  aId: Int64 = 0;
 begin
+  Result := 0;
   if Assigned(Sequence) then
     begin
       bConnection := MainConnection;
@@ -1836,37 +1840,40 @@ begin
   else
     begin
       try
-        if (copy(FMainConnection.Protocol,0,6) = 'sqlite') and (Assigned(aConnection)) then
-          Statement := TZConnection(aConnection).DbcConnection.CreateStatement //we have global locking in sqlite so we must use the actual connection
-        else
-          Statement := TZConnection(MainConnection).DbcConnection.CreateStatement;
-        if AutoInc then
+        while aId=Result do
           begin
-            if (copy(FMainConnection.Protocol,0,5) = 'mysql') then
-              begin
-                Statement.Execute('update '+QuoteField(Generator)+' set '+QuoteField('ID')+'='+QuoteField('ID')+'+1;')
-              end
+            if (copy(FMainConnection.Protocol,0,6) = 'sqlite') and (Assigned(aConnection)) then
+              Statement := TZConnection(aConnection).DbcConnection.CreateStatement //we have global locking in sqlite so we must use the actual connection
             else
+              Statement := TZConnection(MainConnection).DbcConnection.CreateStatement;
+            if AutoInc then
               begin
-                if LimitAfterSelect then
-                  Statement.Execute('update '+QuoteField(Generator)+' set '+QuoteField('ID')+'=(select '+Format(LimitSTMT,['1'])+' '+QuoteField('ID')+' from '+QuoteField(Generator)+')+1;')
+                if (copy(FMainConnection.Protocol,0,5) = 'mysql') then
+                  begin
+                    Statement.Execute('update '+QuoteField(Generator)+' set '+QuoteField('ID')+'='+QuoteField('ID')+'+1;')
+                  end
                 else
-                  Statement.Execute('update '+QuoteField(Generator)+' set '+QuoteField('ID')+'=(select '+QuoteField('ID')+' from '+QuoteField(Generator)+' '+Format(LimitSTMT,['1'])+')+1;');
+                  begin
+                    if LimitAfterSelect then
+                      Statement.Execute('update '+QuoteField(Generator)+' set '+QuoteField('ID')+'=(select '+Format(LimitSTMT,['1'])+' '+QuoteField('ID')+' from '+QuoteField(Generator)+')+1;')
+                    else
+                      Statement.Execute('update '+QuoteField(Generator)+' set '+QuoteField('ID')+'=(select '+QuoteField('ID')+' from '+QuoteField(Generator)+' '+Format(LimitSTMT,['1'])+')+1;');
+                  end;
               end;
-          end;
-        except
-        end;
-        try
-          ResultSet := Statement.ExecuteQuery('SELECT '+QuoteField('ID')+' FROM '+QuoteField(Generator));
-          if ResultSet.Next then
-            Result := ResultSet.GetLong(1)
-          else
-            begin
-              Statement.Execute('insert into '+QuoteField(GENERATOR)+' ('+QuoteField('SQL_ID')+','+QuoteField('ID')+') VALUES (1,1000);');
-              Result := 1000;
+            try
+              ResultSet := Statement.ExecuteQuery('SELECT '+QuoteField('ID')+' FROM '+QuoteField(Generator));
+              if ResultSet.Next then
+                Result := ResultSet.GetLong(1);
+              ResultSet.Close;
+              Statement.Close;
+              ResultSet := Statement.ExecuteQuery('SELECT '+QuoteField('SQL_ID')+' FROM '+QuoteField(Tablename)+' WHERE '+QuoteField('SQL_ID')+'='+QuoteValue(Result));
+              if ResultSet.Next then
+                aId := ResultSet.GetLong(1);
+              ResultSet.Close;
+              Statement.Close;
+            except
             end;
-          ResultSet.Close;
-          Statement.Close;
+          end;
         except
         end;
     end;

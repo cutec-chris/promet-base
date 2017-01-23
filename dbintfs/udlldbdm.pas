@@ -43,7 +43,7 @@ type
     function Ping(aConnection : TComponent) : Boolean;override;
     function DateToFilter(aValue : TDateTime) : string;override;
     function DateTimeToFilter(aValue : TDateTime) : string;override;
-    function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';AutoInc : Boolean = True) : Variant;override;
+    function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';Tablename : string = '';AutoInc : Boolean = True) : Variant;override;
     procedure StreamToBlobField(Stream : TStream;DataSet : TDataSet;Fieldname : string);override;
     function BlobFieldToStream(DataSet: TDataSet; Fieldname: string;
       dStream: TStream;aSize : Integer = -1) : Boolean; override;
@@ -126,7 +126,7 @@ begin
   Result:=inherited DateTimeToFilter(aValue);
 end;
 
-function TDLLDBDM.GetUniID(aConnection: TComponent; Generator: string;
+function TDLLDBDM.GetUniID(aConnection: TComponent; Generator: string;Tablename : string;
   AutoInc: Boolean): Variant;
 begin
 
