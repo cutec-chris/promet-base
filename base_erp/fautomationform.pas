@@ -1231,15 +1231,18 @@ end;
 procedure TProdTreeData.ShowNewData(Data: PtrInt);
 begin
   FAutomation.ipHTML.Visible:=False;
-  if ShowData then
-    begin
+  try
+    if ShowData then
+      begin
+        FAutomation.ipHTML.Visible:=True;
+        FAutomation.ipHTML.Repaint;
+        FAutomation.ipHTML.Scroll(hsaEnd);
+        Application.ProcessMessages;
+      end
+    else
       FAutomation.ipHTML.Visible:=True;
-      FAutomation.ipHTML.Repaint;
-      FAutomation.ipHTML.Scroll(hsaEnd);
-      Application.ProcessMessages;
-    end
-  else
-    FAutomation.ipHTML.Visible:=True;
+  except
+  end;
 end;
 
 constructor TProdTreeData.Create;

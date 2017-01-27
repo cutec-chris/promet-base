@@ -67,7 +67,7 @@ begin
   NewPath:=Path;
   Result := nil;
   aIdx := FURLList.IndexOf(Path);
-  if (aIdx = -1) or (StrToDateTimeDef(FExpires[FExpires.IndexOfObject(FURLList.Objects[aIdx])],0)>Now()) then
+  if (aIdx = -1) or (StrToDateTimeDef(FExpires[FExpires.IndexOfObject(FURLList.Objects[aIdx])],0)<Now()) then
     begin
       aFile := GetStream(Path,NewPath,aExpireDate);
       if Assigned(aFile) then
