@@ -26,7 +26,7 @@ type
 
   { TTimes }
 
-  TTimes = class(TBaseDBDataSet)
+  TTimes = class(TBaseDbList)
     procedure aFieldGetText(Sender: TField; var aText: string;
       DisplayText: Boolean);
     procedure aFieldSetText(Sender: TField; const aText: string);
