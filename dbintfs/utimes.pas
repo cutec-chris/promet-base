@@ -79,7 +79,7 @@ begin
             DataSet.FieldByName('PROJECTID').Clear;
           aProject.Free;
         end
-      else if (Field.FieldName='END') then
+      else if (Field.FieldName='END') or (Field.FieldName='START') then
         begin
           if DataSet.FieldByName('END').AsFloat-DataSet.FieldByName('START').AsFloat>0 then
             DataSet.FieldByName('DURATION').AsFloat:=((DataSet.FieldByName('END').AsFloat-DataSet.FieldByName('START').AsFloat)/8)*24;
