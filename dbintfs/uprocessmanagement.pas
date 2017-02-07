@@ -710,7 +710,7 @@ begin
             Processes.DataSet.First;
             while not Processes.DataSet.EOF do
               begin
-                if ProcessRow then break;
+                ProcessRow;
                 Processes.DataSet.Next;
               end;
           end;
