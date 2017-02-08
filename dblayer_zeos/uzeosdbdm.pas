@@ -626,7 +626,7 @@ begin
               Changed := True;
               Result := True;
             end
-        else if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name)>-1) and (copy(Connection.Protocol,0,5)<>'mssql') then
+        else if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name)>-1) and ((copy(Connection.Protocol,0,5)<>'mssql') and (FManagedFieldDefs[i].Size>255)) then
           begin
             tmpSize := FieldByName(FManagedFieldDefs[i].Name).Size;
             if tmpSize<FManagedFieldDefs[i].Size then
