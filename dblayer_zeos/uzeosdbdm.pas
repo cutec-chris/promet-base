@@ -606,6 +606,7 @@ var
   GeneralQuery: TZQuery;
   Changed: Boolean = False;
   aConnection : TZAbstractConnection;
+  tmpSize: Integer;
 begin
   Result := True;
   with BaseApplication as IBaseApplication do
@@ -625,9 +626,10 @@ begin
               Changed := True;
               Result := True;
             end
-        else if FieldDefs.IndexOf(FManagedFieldDefs[i].Name)>-1 then
+        else if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name)>-1) and (copy(Connection.Protocol,0,5)<>'mssql') then
           begin
-            if FieldByName(FManagedFieldDefs[i].Name).Size<FManagedFieldDefs[i].Size then
+            tmpSize := FieldByName(FManagedFieldDefs[i].Name).Size;
+            if tmpSize<FManagedFieldDefs[i].Size then
               begin
                 if (copy(Connection.Protocol,0,8) = 'postgres') then
                   aSQL := 'ALTER TABLE '+GetFullTableName(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' TYPE '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';'
