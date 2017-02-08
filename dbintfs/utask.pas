@@ -1379,6 +1379,7 @@ begin
     begin
       FCompletedChanged := True;
       DoCheckTask := True;
+      DataSet.FieldByName('NEEDSACTION').AsString:='N';
     end
   else if (Field.FieldName='CHECKED') and (Field.AsString='Y') then
     begin
