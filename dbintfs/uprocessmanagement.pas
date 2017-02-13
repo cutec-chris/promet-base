@@ -476,7 +476,7 @@ var
     if BaseApplication.HasOption('c','config-path') then
       cmd := cmd+' "--config-path='+BaseApplication.GetOptionValue('c','config-path')+'"';
   end;
-  function ExecCommand(aClient : string;aNewStatus : string;aLastStopped : TDateTime;aInterval,aMaxInterval : TField) : TProcProcess;
+  function ExecCommand(aClient : string;aNewStatus : string;aLastStopped,aLastStarted : TDateTime;aInterval,aMaxInterval : TField) : TProcProcess;
   var
     i: Integer;
     a: Integer;
@@ -557,13 +557,14 @@ var
     if not Found then
       begin
         //Process is stopped and Timeout is overdune
-        if (((aNewStatus<>'R') or (Processes.TimeStamp.AsDateTime<(aNow-(1)))) and (aNow > (aLastStopped+(aInterval.AsInteger/MinsPerDay))))
+        if (((aNewStatus<>'R')
+        or (Processes.TimeStamp.AsDateTime<(aNow-(1)))) and (aNow > (aLastStarted+(aInterval.AsInteger/MinsPerDay))))
          //Process should always run
          or DoAlwasyRun
          //Process should be running on our client but were dont run it
          or ((aNewStatus='R') and (aClient=GetSystemName))
          //MaxInterval is reached
-         or (Assigned(aMaxInterval) and (aNewStatus='R') and (aNow > aLastStopped+(aMaxInterval.AsInteger/MinsPerDay)))
+         or (Assigned(aMaxInterval) and (aNewStatus='R') and (aNow > aLastStarted+(aMaxInterval.AsInteger/MinsPerDay)))
          then
           begin
             aStartTime := Now();
@@ -607,7 +608,7 @@ var
             Found := False;
             cmd := AppendPathDelim(BaseApplication.Location)+aProcess+ExtractFileExt(BaseApplication.ExeName);
             cmd := cmd+BuildCmdLine;
-            aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL'),Processes.FieldByName('MAXINTERVAL'));
+            aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('STARTED').AsDateTime,Processes.FieldByName('INTERVAL'),Processes.FieldByName('MAXINTERVAL'));
             Result := True;
           end
         else if FileExists(aProcess+ExtractFileExt(BaseApplication.ExeName)) then
@@ -615,7 +616,7 @@ var
             Found := False;
             cmd := aProcess+ExtractFileExt(BaseApplication.ExeName);
             cmd := cmd+BuildCmdLine;
-            aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL'),Processes.FieldByName('MAXINTERVAL'));
+            aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('STARTED').AsDateTime,Processes.FieldByName('INTERVAL'),Processes.FieldByName('MAXINTERVAL'));
             Result := True;
           end
         else if FileExists('/usr/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName)) then
@@ -623,7 +624,7 @@ var
             Found := False;
             cmd := '/usr/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName);
             cmd := cmd+BuildCmdLine;
-            aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL'),Processes.FieldByName('MAXINTERVAL'));
+            aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('STARTED').AsDateTime,Processes.FieldByName('INTERVAL'),Processes.FieldByName('MAXINTERVAL'));
             Result := True;
           end
         else if FileExists('/usr/local/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName)) then
@@ -631,7 +632,7 @@ var
             Found := False;
             cmd := '/usr/local/bin/'+aProcess+ExtractFileExt(BaseApplication.ExeName);
             cmd := cmd+BuildCmdLine;
-            aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL'),Processes.FieldByName('MAXINTERVAL'));
+            aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('STARTED').AsDateTime,Processes.FieldByName('INTERVAL'),Processes.FieldByName('MAXINTERVAL'));
             Result := True;
           end
         else if Processes.Scripts.Locate('NAME',aProcess,[loCaseInsensitive]) then
@@ -643,7 +644,7 @@ var
               begin
                 cmd := cmd+BuildCmdLine;
                 cmd := cmd+' '+aProcess;
-                aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('INTERVAL'),Processes.FieldByName('MAXINTERVAL'));
+                aProc := ExecCommand(Processes.FieldByName('CLIENT').AsString,Processes.FieldByName('STATUS').AsString,Processes.FieldByName('STOPPED').AsDateTime,Processes.FieldByName('STARTED').AsDateTime,Processes.FieldByName('INTERVAL'),Processes.FieldByName('MAXINTERVAL'));
               end
             else
               begin
