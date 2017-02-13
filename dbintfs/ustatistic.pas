@@ -93,6 +93,7 @@ resourcestring
   strYQLFail                = 'YQL Abfrage fehlgeschlagen:';
 { TSQLStatement }
 
+
 function ReplaceSQLFunctions(Str : string) : string;
 var
   aLmt: String;
@@ -100,7 +101,7 @@ begin
   Result := Str;
   if Data.GetDBType='postgres' then
     begin
-      Result := StringReplace(Result,'JULIANDAY(','2415020.5+CONVERT(FLOAT,',[rfReplaceAll,rfIgnoreCase]);
+      Result := StringReplace(Result,'JULIANDAY(','cast(''17 may 1970'' as timestamp)+(',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'CHARINDEX(','strpos(',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'MONTH(','EXTRACT(MONTH FROM ',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'YEAR(','EXTRACT(YEAR FROM ',[rfReplaceAll,rfIgnoreCase]);

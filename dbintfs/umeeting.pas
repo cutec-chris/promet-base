@@ -306,10 +306,12 @@ begin
                 FreeAndNil(aDataSet);
                 FreeAndNil(aProject);
                 aLink := FieldByName('LINK').AsString;
-                TBaseDBModule(DataModule).DataSetFromLink(aLink,aDataSetClass);
-                aDataSet := aDataSetClass.CreateEx(nil,DataModule,Connection);
-                TBaseDbList(aDataSet).SelectFromLink(aLink);
-                aDataSet.Open;
+                if TBaseDBModule(DataModule).DataSetFromLink(aLink,aDataSetClass) then
+                  begin
+                    aDataSet := aDataSetClass.CreateEx(nil,DataModule,Connection);
+                    TBaseDbList(aDataSet).SelectFromLink(aLink);
+                    aDataSet.Open;
+                  end;
                 if ProjectLink <> '' then
                   begin
                     aProject := TProject.CreateEx(nil,DataModule,Connection);
