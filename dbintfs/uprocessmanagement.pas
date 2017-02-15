@@ -557,15 +557,14 @@ var
     if not Found then
       begin
         //Process is stopped and Timeout is overdune
-        if (((aNewStatus<>'R')
-        or (Processes.TimeStamp.AsDateTime<(aNow-(1)))) and (aNow > (aLastStarted+(aInterval.AsInteger/MinsPerDay))))
-         //Process should always run
-         or DoAlwasyRun
-         //Process should be running on our client but were dont run it
-         or ((aNewStatus='R') and (aClient=GetSystemName))
-         //MaxInterval is reached
-         or (Assigned(aMaxInterval) and (aNewStatus='R') and (aNow > aLastStarted+(aMaxInterval.AsInteger/MinsPerDay)))
-         then
+        if ((aNow > (aLastStarted+(aInterval.AsInteger/MinsPerDay))))
+        //Process should always run
+        or DoAlwasyRun
+        //Process should be running on our client but were dont run it
+        or ((aNewStatus='R') and (aClient=GetSystemName))
+        //MaxInterval is reached
+        or (Assigned(aMaxInterval) and (aNewStatus='R') and (aNow > aLastStarted+(aMaxInterval.AsInteger/MinsPerDay)))
+        then
           begin
             aStartTime := Now();
             aLog.Clear;
@@ -687,7 +686,10 @@ var
                   if (ProcessData[i]=aProc) and Assigned(aProc) then
                     begin
                       ProcessData[i]:=nil;
-                      FreeAndNil(aProc);
+                      try
+                        FreeAndNil(aProc);
+                      except
+                      end;
                     end;
               end;
             if Assigned(aProc) and (not aProc.Informed) then
