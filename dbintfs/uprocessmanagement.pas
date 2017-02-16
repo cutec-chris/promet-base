@@ -563,7 +563,7 @@ var
         //Process should be running on our client but were dont run it
         or ((aNewStatus='R') and (aClient=GetSystemName))
         //MaxInterval is reached
-        or (Assigned(aMaxInterval) and (aNewStatus='R') and (aNow > aLastStarted+(aMaxInterval.AsInteger/MinsPerDay)))
+        or (Assigned(aMaxInterval) and (aNow > aLastStarted+(aMaxInterval.AsInteger/MinsPerDay)))
         then
           begin
             aStartTime := Now();

@@ -101,7 +101,8 @@ end;
 
 procedure TPubSubHandler.AfterPublished(const s1, s2: string);
 begin
-  TAppNetworkThrd(Socket).Sock.SendString('PUB '+s1+' '+s2+CRLF);
+  if Assigned(Socket) then
+    TAppNetworkThrd(Socket).Sock.SendString('PUB '+s1+' '+s2+CRLF);
 end;
 
 initialization
