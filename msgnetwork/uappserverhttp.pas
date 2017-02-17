@@ -42,6 +42,8 @@ var
   headers: TStringList;
   size, Timeout, x, ResultCode, n, i: Integer;
   InputData, OutputData: TMemoryStream;
+  aPath: String;
+  aStream: TFileStream;
 begin
   Result := '';
   if pos(' ',FCommand)>0 then
@@ -85,10 +87,30 @@ begin
       end;
       OutputData := TMemoryStream.Create;
       ResultCode:=500;
-      for i := 0 to Length(HTTPHandlers)-1 do
+      if ((Uppercase(aCmd)='GET') or (Uppercase(aCmd)='HEAD'))  then
         begin
-          ResultCode := HTTPHandlers[i](Sender,aCmd, uri, Headers, InputData, OutputData);
-          if ResultCode<>500 then break;
+          aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web'+DirectorySeparator+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll]);
+          if pos('?',aPath)>0 then
+            aPath := copy(aPath,0,pos('?',aPath)-1);
+          if FileExists(aPath) then
+            begin
+              try
+                aStream := TFileStream.Create(aPath,fmOpenRead);
+                OutputData.CopyFrom(aStream,0);
+                OutputData.Position:=0;
+                aStream.Free;
+                ResultCode:=200;
+              except
+              end;
+            end;
+        end;
+      if ResultCode<>200 then
+        begin
+          for i := 0 to Length(HTTPHandlers)-1 do
+            begin
+              ResultCode := HTTPHandlers[i](Sender,aCmd, uri, Headers, InputData, OutputData);
+              if ResultCode<>500 then break;
+            end;
         end;
       TAppNetworkThrd(Sender).sock.SendString('HTTP/1.0 ' + IntTostr(ResultCode) + CRLF);
       if protocol <> '' then
