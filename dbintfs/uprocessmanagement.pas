@@ -114,9 +114,9 @@ constructor TProcProcess.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   {$IFDEF UNIX}
-  Options := [poUsePipes, poStdErrToOutPut, poNoConsole];
+  Options := [poStdErrToOutPut, poNoConsole];
   {$ELSE}
-  Options := [poUsePipes, poStdErrToOutPut, poNewConsole];
+  Options := [poStdErrToOutPut, poNewConsole];
   ShowWindow:=swoHIDE;
   {$ENDIF}
 end;
@@ -130,7 +130,7 @@ begin
   OutputLine:='';
   if (not Active) then
     begin
-      SetLength(Buf,Output.NumBytesAvailable);
+{      SetLength(Buf,Output.NumBytesAvailable);
       repeat
         if (Output<>nil) then
           begin
@@ -139,6 +139,7 @@ begin
         else Count:=0;
         FOutput:=FOutput+copy(Buf,0,Count);
       until (Count=0);
+}
     end;
   Result := FOutput;
 end;
