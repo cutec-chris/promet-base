@@ -87,21 +87,37 @@ begin
       end;
       OutputData := TMemoryStream.Create;
       ResultCode:=500;
-      if ((Uppercase(aCmd)='GET') or (Uppercase(aCmd)='HEAD'))  then
+      if ((Uppercase(aCmd)='GET') or (Uppercase(aCmd)='HEAD') or (Uppercase(aCmd)='OPTIONS'))  then
         begin
           aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web'+DirectorySeparator+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll]);
           if pos('?',aPath)>0 then
             aPath := copy(aPath,0,pos('?',aPath)-1);
           if FileExists(aPath) then
             begin
-              try
-                aStream := TFileStream.Create(aPath,fmOpenRead);
-                OutputData.CopyFrom(aStream,0);
-                OutputData.Position:=0;
-                aStream.Free;
+              writeln('HTTP:'+aCmd+' '+uri);
+              if Uppercase(aCmd)='OPTIONS' then
+                begin
+                  headers.Add('Allow: GET,HEAD,OPTIONS');
+                  if (ExtractFileExt(aPath)='.html')
+                  or (ExtractFileExt(aPath)='.htm')
+                  then
+                    headers.Add('Content-Type: text/html')
+                  else
+                    headers.Add('Content-Type: text/plain');
+                end
+              else if Uppercase(aCmd)='GET' then
+                begin
+                  try
+                    aStream := TFileStream.Create(aPath,fmOpenRead);
+                    OutputData.CopyFrom(aStream,0);
+                    OutputData.Position:=0;
+                    aStream.Free;
+                    ResultCode:=200;
+                  except
+                  end;
+                end
+              else if Uppercase(aCmd)='HEAD' then
                 ResultCode:=200;
-              except
-              end;
             end;
         end;
       if ResultCode<>200 then
