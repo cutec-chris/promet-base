@@ -1927,7 +1927,7 @@ begin
         GeneralQuery.Open;
       except
       end;
-      if (not FEData) then //Save File to Database
+      if (not FEData) or (Tablename<>'DOCUMENTS') then //Save File to Database
         begin
           GeneralQuery.Edit;
           dStream := GeneralQuery.CreateBlobStream(GeneralQuery.FieldByName(Fieldname),bmWrite);
@@ -1992,7 +1992,7 @@ begin
         if TZeosDBDataSet(DataSet).FieldByName('TYPE').AsString<>'' then
           aFName:=aFName+TZeosDBDataSet(DataSet).FieldByName('TYPE').AsString+DirectorySeparator;
       aFName:=aFName+DataSet.FieldByName('SQL_ID').AsString+'.'+Fieldname+'.dat';
-      if (not FEData) or (not FileExists(aFName)) then //get File from Database
+      if (not FEData) or (Tablename<>'DOCUMENTS') or (not FileExists(aFName)) then //get File from Database
         begin
           GeneralQuery := TZQuery.Create(Self);
           GeneralQuery.Connection := TZQuery(DataSet).Connection;
