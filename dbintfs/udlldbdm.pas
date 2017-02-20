@@ -44,7 +44,7 @@ type
     function DateToFilter(aValue : TDateTime) : string;override;
     function DateTimeToFilter(aValue : TDateTime) : string;override;
     function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';Tablename : string = '';AutoInc : Boolean = True) : Variant;override;
-    procedure StreamToBlobField(Stream : TStream;DataSet : TDataSet;Fieldname : string);override;
+    procedure StreamToBlobField(Stream : TStream;DataSet : TDataSet;Fieldname : string;Tablename : string = '');override;
     function BlobFieldToStream(DataSet: TDataSet; Fieldname: string;
       dStream: TStream;aSize : Integer = -1) : Boolean; override;
     function GetErrorNum(e: EDatabaseError): Integer; override;
@@ -133,7 +133,7 @@ begin
 end;
 
 procedure TDLLDBDM.StreamToBlobField(Stream: TStream; DataSet: TDataSet;
-  Fieldname: string);
+  Fieldname: string; Tablename: string);
 begin
   inherited StreamToBlobField(Stream, DataSet, Fieldname);
 end;

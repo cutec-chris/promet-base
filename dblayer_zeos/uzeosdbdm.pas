@@ -42,6 +42,7 @@ type
     FDBTyp : string;
     FProperties : string;
     FPassword : string;
+    FEData : Boolean;
     Monitor : TZSQLMonitor;
     function GetConnection: TComponent;override;
     function DBExists : Boolean;
@@ -64,8 +65,8 @@ type
     function DateToFilter(aValue : TDateTime) : string;override;
     function DateTimeToFilter(aValue : TDateTime) : string;override;
     function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';Tablename : string = '';AutoInc : Boolean = True) : Variant;override;
-    procedure StreamToBlobField(Stream : TStream;DataSet : TDataSet;Fieldname : string);override;
-    function BlobFieldStream(DataSet: TDataSet; Fieldname: string): TStream;
+    procedure StreamToBlobField(Stream : TStream;DataSet : TDataSet;Fieldname : string;Tablename : string = '');override;
+    function BlobFieldStream(DataSet: TDataSet; Fieldname: string;Tablename : string = ''): TStream;
       override;
     function GetErrorNum(e: EDatabaseError): Integer; override;
     procedure DeleteExpiredSessions;override;
@@ -1428,6 +1429,7 @@ begin
     end
   else Monitor:=nil;
   Sequence := nil;
+  FEData := False;
   inherited Create(AOwner);
 end;
 destructor TZeosDBDM.Destroy;
@@ -1477,7 +1479,13 @@ begin
     FConnection.HostName:='';
     FConnection.Database:='';
     FConnection.Properties.Clear;
-    FConnection.Protocol:=copy(tmp,0,pos(';',tmp)-1);
+    if copy(tmp,0,pos(';',tmp)-1) <> 'sqlite-3-edata' then
+      FConnection.Protocol:=copy(tmp,0,pos(';',tmp)-1)
+    else
+      begin
+        FConnection.Protocol:='sqlite-3';
+        FEData:=True;
+      end;
     Assert(FConnection.Protocol<>'',strUnknownDbType);
     tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
     FConnection.HostName := copy(tmp,0,pos(';',tmp)-1);
@@ -1883,7 +1891,7 @@ end;
 const
   ChunkSize: Longint = 16384; { copy in 8K chunks }
 procedure TZeosDBDM.StreamToBlobField(Stream: TStream; DataSet: TDataSet;
-  Fieldname: string);
+  Fieldname: string; Tablename: string);
 var
   Posted: Boolean;
   GeneralQuery: TZQuery;
@@ -1891,66 +1899,113 @@ var
   cnt: LongInt;
   dStream: TStream;
   totCnt: LongInt;
+  aFName: String;
+  aFStream: TFileStream;
+  tmp: String;
 begin
   totCnt := 0;
-  if DataSet.Fielddefs.IndexOf(FieldName) = -1 then
+  if Tablename = '' then
+    Tablename := TZeosDBDataSet(DataSet).DefaultTableName;
+  if (DataSet.Fielddefs.IndexOf(FieldName) = -1) or (FEData and (Tablename='DOCUMENTS')) then
     begin
       if DataSet.State = dsInsert then
         begin
           Posted := True;
           DataSet.Post;
         end;
+      aFName := ExtractFileDir(TZConnection(MainConnection).Database)+DirectorySeparator+'edata'+DirectorySeparator;
+      aFName:=aFName+Tablename+DirectorySeparator;
+      if (DataSet.Fielddefs.IndexOf('TYPE')<>-1) then
+        if TZeosDBDataSet(DataSet).FieldByName('TYPE').AsString<>'' then
+          aFName:=aFName+TZeosDBDataSet(DataSet).FieldByName('TYPE').AsString+DirectorySeparator;
+      aFName:=aFName+DataSet.FieldByName('SQL_ID').AsString+'.'+Tablename+'.'+Fieldname+'.dat';
       GeneralQuery := TZQuery.Create(Self);
       GeneralQuery.Connection := TZQuery(DataSet).Connection;
-      GeneralQuery.SQL.Text := 'select * from '+GetFullTableName(TZeosDBDataSet(DataSet).DefaultTableName)+' where '+QuoteField('SQL_ID')+'='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
-      GeneralQuery.Open;
-      GeneralQuery.Edit;
-      dStream := GeneralQuery.CreateBlobStream(GeneralQuery.FieldByName(Fieldname),bmWrite);
+      tmp := 'select * from '+GetFullTableName(Tablename)+' where '+QuoteField('SQL_ID')+'='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
+      GeneralQuery.SQL.Text := tmp;
       try
-        GetMem(pBuf, ChunkSize);
-        try
-          cnt := Stream.Read(pBuf^, ChunkSize);
-          cnt := dStream.Write(pBuf^, cnt);
-          totCnt := totCnt + cnt;
-          {Loop the process of reading and writing}
-          while (cnt > 0) do
-            begin
-              {Read bufSize bytes from source into the buffer}
-              cnt := Stream.Read(pBuf^, ChunkSize);
-              {Now write those bytes into destination}
-              cnt := dStream.Write(pBuf^, cnt);
-              {Increment totCnt for progress and do arithmetic to update the gauge}
-              totcnt := totcnt + cnt;
-            end;
-        finally
-          FreeMem(pBuf, ChunkSize);
-        end;
-      finally
-        dStream.Free;
+        GeneralQuery.Open;
+      except
       end;
-      GeneralQuery.Post;
+      if (not FEData) then //Save File to Database
+        begin
+          GeneralQuery.Edit;
+          dStream := GeneralQuery.CreateBlobStream(GeneralQuery.FieldByName(Fieldname),bmWrite);
+          try
+            GetMem(pBuf, ChunkSize);
+            try
+              cnt := Stream.Read(pBuf^, ChunkSize);
+              cnt := dStream.Write(pBuf^, cnt);
+              totCnt := totCnt + cnt;
+              {Loop the process of reading and writing}
+              while (cnt > 0) do
+                begin
+                  {Read bufSize bytes from source into the buffer}
+                  cnt := Stream.Read(pBuf^, ChunkSize);
+                  {Now write those bytes into destination}
+                  cnt := dStream.Write(pBuf^, cnt);
+                  {Increment totCnt for progress and do arithmetic to update the gauge}
+                  totcnt := totcnt + cnt;
+                end;
+            finally
+              FreeMem(pBuf, ChunkSize);
+            end;
+          finally
+            dStream.Free;
+          end;
+          GeneralQuery.Post;
+        end
+      else
+        begin
+          ForceDirectories(ExtractFileDir(aFName));
+          aFStream := TFileStream.Create(aFName,fmCreate);
+          aFStream.CopyFrom(Stream,0);
+          aFStream.Free;
+          if GeneralQuery.Active and (GeneralQuery.FieldByName(Fieldname) <> nil) then
+            begin
+              GeneralQuery.Edit;
+              GeneralQuery.FieldByName(Fieldname).Clear;
+              GeneralQuery.Post;
+            end;
+        end;
       GeneralQuery.Free;
       if Posted then DataSet.Edit;
     end
   else inherited;
 end;
 
-function TZeosDBDM.BlobFieldStream(DataSet: TDataSet; Fieldname: string
-  ): TStream;
+function TZeosDBDM.BlobFieldStream(DataSet: TDataSet; Fieldname: string;
+  Tablename: string): TStream;
 var
   GeneralQuery: TZQuery;
   aSql: String;
+  aFName: String;
 begin
   Result := nil;
-  if DataSet.Fielddefs.IndexOf(FieldName) = -1 then
+  if Tablename = '' then
+    Tablename := TZeosDBDataSet(DataSet).DefaultTableName;
+  if (DataSet.Fielddefs.IndexOf(FieldName) = -1) or (FEData and (Tablename='DOCUMENTS')) then
     begin
-      GeneralQuery := TZQuery.Create(Self);
-      GeneralQuery.Connection := TZQuery(DataSet).Connection;
-      aSql := 'select '+QuoteField(Fieldname)+' from '+GetFullTableName(TZeosDBDataSet(DataSet).DefaultTableName)+' where '+QuoteField('SQL_ID')+'='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
-      GeneralQuery.SQL.Text := aSql;
-      GeneralQuery.Open;
-      result := GeneralQuery.CreateBlobStream(GeneralQuery.FieldByName(Fieldname),bmRead);
-      GeneralQuery.Free;
+      aFName := ExtractFileDir(TZConnection(MainConnection).Database)+DirectorySeparator+'edata'+DirectorySeparator;
+      aFName:=aFName+Tablename+DirectorySeparator;
+      if (DataSet.Fielddefs.IndexOf('TYPE')<>-1) then
+        if TZeosDBDataSet(DataSet).FieldByName('TYPE').AsString<>'' then
+          aFName:=aFName+TZeosDBDataSet(DataSet).FieldByName('TYPE').AsString+DirectorySeparator;
+      aFName:=aFName+DataSet.FieldByName('SQL_ID').AsString+'.'+Fieldname+'.dat';
+      if (not FEData) or (not FileExists(aFName)) then //get File from Database
+        begin
+          GeneralQuery := TZQuery.Create(Self);
+          GeneralQuery.Connection := TZQuery(DataSet).Connection;
+          aSql := 'select '+QuoteField(Fieldname)+' from '+GetFullTableName(Tablename)+' where '+QuoteField('SQL_ID')+'='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
+          GeneralQuery.SQL.Text := aSql;
+          GeneralQuery.Open;
+          result := GeneralQuery.CreateBlobStream(GeneralQuery.FieldByName(Fieldname),bmRead);
+          GeneralQuery.Free;
+        end
+      else
+        begin
+          Result := TFileStream.Create(aFName,fmOpenRead);
+        end;
     end
   else Result := inherited;
 end;

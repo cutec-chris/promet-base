@@ -148,10 +148,10 @@ type
     function Ping(aConnection : TComponent) : Boolean;virtual;abstract;
     function BlobFieldToFile(DataSet : TDataSet;Fieldname : string;Filename : string;aSize : Integer = -1) : Boolean;virtual;
     procedure FileToBlobField(Filename : string;DataSet : TDataSet;Fieldname : string);virtual;
-    procedure StreamToBlobField(Stream : TStream;DataSet : TDataSet;Fieldname : string);virtual;
+    procedure StreamToBlobField(Stream : TStream;DataSet : TDataSet;Fieldname : string;Tablename : string = '');virtual;
     function BlobFieldToStream(DataSet: TDataSet; Fieldname: string;
       dStream: TStream;aSize : Integer = -1) : Boolean; virtual;
-    function BlobFieldStream(DataSet: TDataSet; Fieldname: string) : TStream; virtual;
+    function BlobFieldStream(DataSet: TDataSet; Fieldname: string;Tablename : string = '') : TStream; virtual;
     function QuoteField(aField : string) : string;virtual;
     function QuoteValue(aValue : string) : string;virtual;
     function EscapeString(aValue : string) : string;virtual;
@@ -592,7 +592,7 @@ end;
 const
   ChunkSize: Longint = 16384; { copy in 8K chunks }
 procedure TBaseDBModule.StreamToBlobField(Stream: TStream; DataSet: TDataSet;
-  Fieldname: string);
+  Fieldname: string; Tablename: string);
 var
   Edited: Boolean;
   dStream: TStream;
@@ -676,8 +676,8 @@ begin
   end;
 end;
 
-function TBaseDBModule.BlobFieldStream(DataSet: TDataSet; Fieldname: string
-  ): TStream;
+function TBaseDBModule.BlobFieldStream(DataSet: TDataSet; Fieldname: string;
+  Tablename: string): TStream;
 begin
   Result := DataSet.CreateBlobStream(DataSet.FieldByName(Fieldname),bmRead);
 end;

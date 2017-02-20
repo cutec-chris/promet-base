@@ -56,6 +56,7 @@ type
     cbNewdatabase: TRadioButton;
     cbSQLType: TComboBox;
     cbSyncHelp: TCheckBox;
+    cbEData: TCheckBox;
     DirectoryEdit1: TFileNameEdit;
     eMandantname: TComboBox;
     eSQLdatabase1: TFileNameEdit;
@@ -415,6 +416,8 @@ begin
     begin
       if cbSQLType.Text='sqlite-3' then exit;
       cbSQLType.Text:='sqlite-3';
+      if cbEData.Checked then
+        cbSQLType.Text:='sqlite-3-edata';
     end;
   cbSQLTypeSelect(cbSQLType);
   eSQLdatabase1.Text:=eSQLdatabase.Text;
