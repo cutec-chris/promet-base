@@ -1918,7 +1918,7 @@ begin
       if (DataSet.Fielddefs.IndexOf('TYPE')<>-1) then
         if TZeosDBDataSet(DataSet).FieldByName('TYPE').AsString<>'' then
           aFName:=aFName+TZeosDBDataSet(DataSet).FieldByName('TYPE').AsString+DirectorySeparator;
-      aFName:=aFName+DataSet.FieldByName('SQL_ID').AsString+'.'+Tablename+'.'+Fieldname+'.dat';
+      aFName:=aFName+DataSet.FieldByName('SQL_ID').AsString+'.'+Fieldname+'.dat';
       GeneralQuery := TZQuery.Create(Self);
       GeneralQuery.Connection := TZQuery(DataSet).Connection;
       tmp := 'select * from '+GetFullTableName(Tablename)+' where '+QuoteField('SQL_ID')+'='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
