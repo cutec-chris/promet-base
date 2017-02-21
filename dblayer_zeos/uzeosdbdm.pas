@@ -1592,6 +1592,7 @@ begin
       Result := False;
     end;
   end;
+  CheckedTables.Clear;
   if Result then
     begin
       if not DBExists then //Create generators
@@ -1629,21 +1630,24 @@ begin
               Result := False;
             end;
           end;
-        end;
-    end;
-  if Assigned(MandantDetails) then
-    begin
-      try
-        MandantDetails.Open;
-        DBTables.Open;
-        actDir := GetCurrentDir;
-        SetCurrentDir(ExtractFileDir(FConnection.Database));
-        if Assigned(MandantDetails.FieldByName('DBSTATEMENTS')) and (MandantDetails.FieldByName('DBSTATEMENTS').AsString<>'') then
-          FConnection.ExecuteDirect(MandantDetails.FieldByName('DBSTATEMENTS').AsString);
-        SetCurrentDir(actDir);
-      except
+        end
+      else
+        begin
+          if Assigned(MandantDetails) then
+            begin
+              try
+                MandantDetails.Open;
+                DBTables.Open;
+                actDir := GetCurrentDir;
+                SetCurrentDir(ExtractFileDir(FConnection.Database));
+                if Assigned(MandantDetails.FieldByName('DBSTATEMENTS')) and (MandantDetails.FieldByName('DBSTATEMENTS').AsString<>'') then
+                  FConnection.ExecuteDirect(MandantDetails.FieldByName('DBSTATEMENTS').AsString);
+                SetCurrentDir(actDir);
+              except
 
-      end;
+              end;
+            end;
+        end;
     end;
 end;
 function TZeosDBDM.CreateDBFromProperties(aProp: string): Boolean;
@@ -1873,12 +1877,15 @@ begin
             try
               ResultSet := Statement.ExecuteQuery('SELECT '+QuoteField('ID')+' FROM '+QuoteField(Generator));
               if ResultSet.Next then
-                Result := ResultSet.GetLong(1);
-              ResultSet.Close;
-              Statement.Close;
-              ResultSet := Statement.ExecuteQuery('SELECT '+QuoteField('SQL_ID')+' FROM '+QuoteField(Tablename)+' WHERE '+QuoteField('SQL_ID')+'='+QuoteValue(Result));
-              if ResultSet.Next then
-                aId := ResultSet.GetLong(1);
+                Result := ResultSet.GetLong(1)
+              else
+                begin
+                  Statement.Execute('insert into '+QuoteField(GENERATOR)+' ('+QuoteField('SQL_ID')+','+QuoteField('ID')+') VALUES (1,1000);');
+                  Result := 1000;
+                  ResultSet.Close;
+                  Statement.Close;
+                  break;
+                end;
               ResultSet.Close;
               Statement.Close;
             except

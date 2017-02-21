@@ -1453,6 +1453,7 @@ begin
   try
     ActiveUsers.Select(FSessionID);
     ActiveUsers.Open;
+    if ActiveUsers.IsReadOnly then exit;
     FUsersFilter:='';
     if ActiveUsers.GotoBookmark(FSessionID) then
       begin
