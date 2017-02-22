@@ -47,7 +47,11 @@ type
   TMasterdataHistory = class(TBaseHistory)
   end;
   TMasterdata = class;
+
+  { TMDPos }
+
   TMDPos = class(TBaseDBPosition)
+    procedure DataSetAfterPost(aDataSet: TDataSet);
   private
     FMasterdata: TMasterdata;
   protected
@@ -142,6 +146,7 @@ type
   end;
   TMasterdata = class(TMasterdataList,IBaseHistory)
     procedure FDSDataChange(Sender: TObject; Field: TField);
+    procedure FSupplierDataSetAfterPost(aDataSet: TDataSet);
   private
     FAssembly: TRepairAssembly;
     FHistory: TMasterdataHistory;
@@ -730,6 +735,12 @@ begin
       History.AddItem(Self.DataSet,Format(strNumberChanged,[Field.AsString]),'','',DataSet,ACICON_EDITED);
     end;
 end;
+
+procedure TMasterdata.FSupplierDataSetAfterPost(aDataSet: TDataSet);
+begin
+  Change;
+end;
+
 function TMasterdata.GetHistory: TBaseHistory;
 begin
   Result := History;
@@ -766,6 +777,7 @@ begin
   FDS := TDataSource.Create(Self);
   FDS.DataSet := DataSet;
   FDS.OnDataChange:=@FDSDataChange;
+  FSupplier.DataSet.AfterPost:=@FSupplierDataSetAfterPost;
 end;
 destructor TMasterdata.Destroy;
 begin
@@ -1025,6 +1037,11 @@ begin
   aThumbnail.Free;
 end;
 
+procedure TMDPos.DataSetAfterPost(aDataSet: TDataSet);
+begin
+  FMasterdata.Change;
+end;
+
 function TMDPos.GetCurrency: string;
 begin
   Result:=Masterdata.FieldByName('CURRENCY').AsString;
@@ -1044,6 +1061,7 @@ constructor TMDPos.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM,aConnection, aMasterdata);
+  DataSet.AfterPost:=@DataSetAfterPost;
 end;
 procedure TMDPos.DefineFields(aDataSet: TDataSet);
 begin
