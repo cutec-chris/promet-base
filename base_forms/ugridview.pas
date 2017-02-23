@@ -2278,6 +2278,7 @@ procedure TfGridView.SetBaseFilter(AValue: string);
 var
   aFilter: String;
 begin
+  if not Assigned(FDataSet) then exit;
   if (FbaseFilter=AValue)
   and ((FAutoFilter=FActAutoFilter) and FApplyAutoFilter)
   and (FSortDirection=FActSortDirection)
