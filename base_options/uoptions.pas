@@ -166,7 +166,8 @@ begin
     aParentNode := nil;
     if aCategory <> '' then
       begin
-        aParentNode := tvMain.Items.FindTopLvlNode(aCategory);
+        if Assigned(tvMain.Items.GetFirstNode) then
+          aParentNode := tvMain.Items.FindTopLvlNode(aCategory);
         if not Assigned(aParentNode) then
           aParentNode := tvMain.Items.Add(nil,aCategory);
       end;
