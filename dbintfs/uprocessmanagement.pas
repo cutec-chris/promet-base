@@ -603,6 +603,7 @@ var
     aProcess := Processes.FieldByName('NAME').AsString;
     if Processes.FieldByName('ACTIVE').AsString<>'N' then
       begin
+        Pubsub.Publish('/processes/'+aProcess,'Checking startup');
         if FileExists(ExpandFileName(AppendPathDelim(BaseApplication.Location)+aProcess+ExtractFileExt(BaseApplication.ExeName))) then
           begin
             Found := False;
@@ -677,8 +678,8 @@ var
         //RefreshStatus
         if Assigned(aProc) then
           begin
-            //if not aProc.Informed then
-            //  DoLog(aprocess+':'+strExitted,aLog,True);
+            if not aProc.Informed then
+              Pubsub.Publish('/processes/'+aProcess,'Process done.');
             aProc.CheckStatus;
             RefreshStatus(aProc,aLog);
             if (not aProc.Active) and (aProc.Informed) then

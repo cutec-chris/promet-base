@@ -50,12 +50,16 @@ var
   PubSub : TPubSubHandler = nil;
 begin
   try
-    for i := 0 to Length(PubSubHandlers)-1 do
-      if PubSubHandlers[i].Socket=Sender then
-        begin
-          PubSub := PubSubHandlers[i];
-          break;
-        end;
+    i := 0;
+    while i < Length(PubSubHandlers) do
+      begin
+        if Assigned(PubSubHandlers[i]) and (PubSubHandlers[i].Socket=Sender) then
+          begin
+            PubSub := PubSubHandlers[i];
+            break;
+          end;
+        inc(i);
+      end;
   except
     PubSubHandlers[i] := nil;
     PubSub:=nil;
