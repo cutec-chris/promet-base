@@ -1274,7 +1274,7 @@ begin
   DoView;
   if Result then
     begin
-      TWikiList(DataSet).FindWikiPage(PageName);
+      TWikiList(DataSet).FindWikiPage(PageName,True);
       aParent := TWikiList(DataSet).ActiveTreeID;
       Screen.Cursor := crHourglass;
       DoOpen;
@@ -1286,7 +1286,7 @@ begin
       TWikiList(DataSet).FindWikiPage(PageName,True);
       aParent := TWikiList(DataSet).ActiveTreeID;
       DataSet.Insert;
-      DataSet.FieldByName('NAME').AsString := copy(PageName,rpos('/',PageName)+1,length(PageName));
+      DataSet.FieldByName('NAME').AsString := copy(Utils.HTMLDecode(PageName),rpos('/',Utils.HTMLDecode(PageName))+1,length(Utils.HTMLDecode(PageName)));
       DataSet.FieldByName('TREEENTRY').AsVariant := aParent;
       DoEdit;
    end;

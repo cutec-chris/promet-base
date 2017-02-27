@@ -20,7 +20,7 @@ unit uWiki;
 {$mode objfpc}{$H+}
 interface
 uses
-  Classes, SysUtils, uBaseDbClasses, db, uBaseDBInterface, uDocuments,
+  Classes, SysUtils, uBaseDbClasses, db, uBaseDBInterface, uDocuments,uhttputil,
   uBaseApplication, uBaseSearch, uIntfStrConsts,WikiToHtml,uBaseDatasetInterfaces;
 type
   TKeywords = class(TBaseDbDataSet)
@@ -162,6 +162,7 @@ begin
     Filter := '';
   aParent := 0;
   FActiveTreeID := aParent;
+  PageName := Utils.HTMLDecode(PageName);
   TBaseDBModule(DataModule).Tree.DataSet.Filter := TBaseDBModule(DataModule).QuoteField('TYPE')+'='+TBaseDBModule(DataModule).QuoteValue('W');
   TBaseDBModule(DataModule).Tree.DataSet.Filtered := True;
   if pos('://',PageName) > 0 then exit;
