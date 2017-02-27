@@ -600,6 +600,8 @@ inherited fWikiFrame: TfWikiFrame
       Columns = <>
       DataSource = Wiki
       TabOrder = 1
+      TitleStyle = tsNative
+      Visible = False
     end
   end
   object ActionList: TActionList[3]
