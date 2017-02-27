@@ -67,6 +67,7 @@ type
     Bevel6: TBevel;
     bTransfer: TSpeedButton;
     cbLanguage: TComboBox;
+    DBGrid1: TDBGrid;
     eName: TDBEdit;
     ExtRotatedLabel1: TExtRotatedLabel;
     ExtRotatedLabel2: TExtRotatedLabel;
@@ -1286,6 +1287,7 @@ begin
       aParent := TWikiList(DataSet).ActiveTreeID;
       DataSet.Insert;
       DataSet.FieldByName('NAME').AsString := copy(PageName,rpos('/',PageName)+1,length(PageName));
+      DataSet.FieldByName('TREEENTRY').AsVariant := aParent;
       DoEdit;
    end;
   with BaseApplication as IBaseApplication do

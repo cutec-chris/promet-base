@@ -590,6 +590,17 @@ inherited fWikiFrame: TfWikiFrame
       TabOrder = 0
       OnHotClick = ipHTMLHotClick
     end
+    object DBGrid1: TDBGrid
+      Left = 0
+      Height = 100
+      Top = 394
+      Width = 645
+      Align = alBottom
+      Color = clWindow
+      Columns = <>
+      DataSource = Wiki
+      TabOrder = 1
+    end
   end
   object ActionList: TActionList[3]
     Images = fVisualControls.Images
