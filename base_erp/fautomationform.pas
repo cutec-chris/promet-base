@@ -738,6 +738,7 @@ begin
     begin
       aLink := TIpHtmlNodeA(IpHtml.HotNode).HRef;
       PageName := StringReplace(aLink,' ','_',[rfReplaceAll]);
+      PageName := StringReplace(aLink,'\','/',[rfReplaceAll]);
       for i := 0 to FVariables.Count-1 do
         pageName := StringReplace(PageName,'@VARIABLES.'+FVariables.Names[i]+'@',FVariables.ValueFromIndex[i],[rfReplaceAll,rfIgnoreCase]);
       if Data.GotoLink('WIKI@'+PageName) then
