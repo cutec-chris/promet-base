@@ -901,9 +901,15 @@ begin
           aMasterdata.Open;
           aMasterdata.Positions.Open;
           Node1.HasChildren := aMasterdata.Positions.Count>0;
+          if aMasterdata.Count=0 then
+            begin
+              aMasterdata.SelectFromLinkwoVersion(TTreeEntry(Node1.Data).Link);
+              aMasterdata.Open;
+              Node1.HasChildren := aMasterdata.Positions.Count>0;
+            end;
           aMasterdata.Free;
         end
-      else if Assigned(Node1) and Assigned(Node1.TreeView) then
+      else if Assigned(Node1) and (Node1 is TTreeNode) then
         Node1.HasChildren := False;
       if ((Now()-FAsyncTime)*MSecsPerDay)>300 then
         begin
@@ -2090,6 +2096,11 @@ begin
       else
         aMasterdata.SelectFromLink(DataT.Link);
       aMasterdata.Open;
+      if aMasterdata.Count=0 then
+        begin
+          aMasterdata.SelectFromLinkwoVersion(DataT.Link);
+          aMasterdata.Open;
+        end;
       aMasterdata.Positions.Open;
       if aMasterdata.Positions.Count>0 then
         begin
@@ -2105,21 +2116,6 @@ begin
                   TTreeEntry(Node1.Data).Typ := etArticle;
                   TTreeEntry(Node1.Data).Rec:=0;
                   Node1.HasChildren:=GetHasChildren(Node1);
-                 {
-                  bMasterdata.Select(aMasterdata.Positions.FieldByName('IDENT').AsString,aMasterdata.Positions.FieldByName('VERSION').AsString,aMasterdata.Positions.FieldByName('LANGUAGE').AsString);
-                  bMasterdata.Open;
-                  if bMasterdata.Count=0 then
-                    begin
-                      bMasterdata.Select(aMasterdata.Positions.FieldByName('IDENT').AsString,aMasterdata.Positions.FieldByName('VERSION').AsString);
-                      bMasterdata.Open;
-                    end;
-                  if bMasterdata.Count>0 then
-                    begin
-                      aList := bMasterdata;
-                      AddEntry;
-                      Node1.HasChildren:=True;
-                    end;
-                  }
                 end;
               aMasterdata.Positions.Next;
             end;

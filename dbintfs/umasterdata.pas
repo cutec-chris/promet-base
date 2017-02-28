@@ -43,6 +43,7 @@ type
     procedure Select(aID : string;aVersion : Variant;aLanguage : Variant);overload;
     procedure Select(aID : string;aVersion : Variant);overload;
     function SelectFromLink(aLink: string): Boolean; override;
+    function SelectFromLinkwoVersion(aLink: string): Boolean;
   end;
   TMasterdataHistory = class(TBaseHistory)
   end;
@@ -1341,6 +1342,37 @@ begin
       if tmp2 <> '' then tmp2v := tmp2;
       if tmp3 <> '' then tmp3v := tmp3;
       Select(tmp1,tmp2v,tmp3v);
+      Result := True;
+    end;
+end;
+
+function TMasterdataList.SelectFromLinkwoVersion(aLink: string): Boolean;
+var
+  tmp1: String;
+  tmp2: String;
+  tmp3: String;
+  tmp2v : Variant;
+  tmp3v : Variant;
+begin
+  Result := inherited SelectFromLink(aLink);
+  if not Result then
+    begin
+      tmp2v := Null;
+      tmp3v := Null;
+      if not (copy(aLink,0,pos('@',aLink)-1) = 'MASTERDATA') then exit;
+      if rpos('{',aLink) > 0 then
+        aLink := copy(aLink,0,rpos('{',aLink)-1)
+      else if rpos('(',aLink) > 0 then
+        aLink := copy(aLink,0,rpos('(',aLink)-1);
+      aLink   := copy(aLink, pos('@', aLink) + 1, length(aLink));
+      tmp1 := copy(aLink, 0, pos('&&', aLink) - 1);
+      aLink   := copy(aLink, pos('&&', aLink) + 2, length(aLink));
+      tmp2 := copy(aLink, 0, pos('&&', aLink) - 1);
+      aLink   := copy(aLink, pos('&&', aLink) + 2, length(aLink));
+      tmp3 := aLink;
+      if tmp2 <> '' then tmp2v := tmp2;
+      if tmp3 <> '' then tmp3v := tmp3;
+      Select(tmp1,tmp2v);
       Result := True;
     end;
 end;

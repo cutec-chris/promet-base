@@ -679,7 +679,7 @@ begin
     DataSet.DataSet.EnableControls;
   TMasterdata(DataSet).Positions.Open;
   pcPages.NewFrame(TfArticlePositionFrame,(TMasterdata(DataSet).Positions.Count>0),strPiecelist,@AddPositions);
-  pcPages.NewFrame(TfObjectStructureFrame,TMasterdata(DataSet).Positions.Count>0,strStructure,@AddOverview);
+  pcPages.NewFrame(TfObjectStructureFrame,True,strStructure,@AddOverview);
   if WasDisabled then
     DataSet.DataSet.DisableControls;
 
@@ -1012,6 +1012,12 @@ begin
   TBaseDbList(DataSet).SelectFromLink(aLink);
   Dataset.Open;
   Result := DataSet.Count>0;
+  if (not Result) and (DataSet is TMasterdataList) then
+    begin
+      TMasterdataList(DataSet).SelectFromLinkwoVersion(aLink);
+      Dataset.Open;
+      Result := DataSet.Count>0;
+    end;
   if Result then
     DoOpen;
 end;
