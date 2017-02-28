@@ -241,7 +241,11 @@ begin
                   Result := TBaseScript(aScripts).Script.RunScriptFunction([eDataSource.Text],'DOEXPORT');
                 if not Result then
                   begin
-                    tmp := TBaseScript(aScripts).Script.RunScriptFunction([],'LASTERROR');
+                    try
+                      tmp := TBaseScript(aScripts).Script.RunScriptFunction([],'LASTERROR');
+                    except
+                      tmp := 'Function fails and no LastError Function exists.'
+                    end;
                   end;
               except
                 on e : Exception do
