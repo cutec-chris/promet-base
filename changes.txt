@@ -1,5 +1,10 @@
-﻿Build 435 (nicht veröffentlicht)
+﻿Build 436 (nicht veröffentlicht)
+Build 435 (2.3.2017)
       - neue Rich Text Editor Komponente (KMemo Version aktualisiert)
+      - sync_db: hat mehrere neue Optionen
+      - pappserver: arbeitet nun mit aktuellen Ständen der Apps zusammen
+      - pappserver: kann auch selbst statische Webseiten aufliefern
+      - SQLite DB: Datein können nun auch in ein separates Verzeichnis ausserhalb der Datenbank abgelegt werden so das Backups oder Synchronisation besser nach Änderungen aortieren können
 Build 434 (25.11.2016)
       - Gridview: Filterzeile wird ohne Flackern ein/ausgeblendet, Range Error beseitigt
 Build 433 (19.11.2016)
