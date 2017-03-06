@@ -642,6 +642,7 @@ var
 begin
   Result := False;
   Stream := BlobFieldStream(DataSet,Fieldname);
+  if not Assigned(Stream) then exit;
   try
     try
     GetMem(pBuf, ChunkSize);

@@ -1999,7 +1999,7 @@ begin
         if TZeosDBDataSet(DataSet).FieldByName('TYPE').AsString<>'' then
           aFName:=aFName+TZeosDBDataSet(DataSet).FieldByName('TYPE').AsString+DirectorySeparator;
       aFName:=aFName+DataSet.FieldByName('SQL_ID').AsString+'.'+Fieldname+'.dat';
-      if (not FEData) or (Tablename<>'DOCUMENTS') or (not FileExists(aFName)) then //get File from Database
+      if (not FEData) or (Tablename<>'DOCUMENTS') then //get File from Database
         begin
           GeneralQuery := TZQuery.Create(Self);
           GeneralQuery.Connection := TZQuery(DataSet).Connection;
@@ -2009,7 +2009,7 @@ begin
           result := GeneralQuery.CreateBlobStream(GeneralQuery.FieldByName(Fieldname),bmRead);
           GeneralQuery.Free;
         end
-      else
+      else if (FileExists(aFName)) then
         begin
           Result := TFileStream.Create(aFName,fmOpenRead);
         end;
