@@ -917,10 +917,9 @@ begin
       aDocument.SelectByNumber(aDocuments.FieldByName('NUMBER').AsVariant);
       aDocument.Open;
       aStream := TFileStream.Create(OutPath,fmCreate);
-      aDocument.CheckoutToStream(aStream);
+      Result := aDocument.CheckoutToStream(aStream);
       aStream.Free;
       aDocument.Free;
-      Result := True;
     end;
   aDocuments.Free;
 end;
