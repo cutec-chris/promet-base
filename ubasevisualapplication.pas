@@ -59,6 +59,7 @@ type
     procedure SenderTFrameReaderReadStringProperty(Sender: TObject;
       const Instance: TPersistent; PropInfo: PPropInfo; var Content: string);
   private
+    FMessagemanager: TProcess;
     miLanguage : TMenuItem;
     FDBInterface: IBaseDBInterface;
     FOnUserTabAdded: TNotifyEvent;
@@ -74,6 +75,7 @@ type
     FAppRevision : Integer;
     aParent: TWinControl;
     FQuickHelp : Boolean;
+    procedure SetMessagemanager(AValue: TProcess);
     procedure SetProcessmanager(AValue: TProcess);
     procedure UserTabAdded(Sender : TObject);
     function HandleSystemCommand(Sender : TObject;aCommand : string) : Boolean;
@@ -134,6 +136,7 @@ type
     procedure LoginDone;
     property Data : IBaseDbInterface read FDBInterface implements IBaseDBInterface;
     property MessageHandler : TMessageHandler read FMessageHandler;
+    property Messagemanager : TProcess read FMessagemanager write SetMessagemanager;
     property Processmanager : TProcess read FProcessmanager write SetProcessmanager;
     property OnUserTabAdded : TNotifyEvent read FOnUserTabAdded write FOnUserTabAdded;
   end;
@@ -843,11 +846,17 @@ begin
     begin
       if Data.Users.DataSet.Active then
         begin
-          ProcessManager := uProcessManager.StartMessageManager(MandantName,Data.Users.DataSet.FieldByName('NAME').AsString);
+          MessageManager := uProcessManager.StartMessageManager(MandantName,Data.Users.DataSet.FieldByName('NAME').AsString);
+          if DoCloseIt and Assigned(MessageManager) then
+            begin
+              MessageManager.Tag:=100;
+              Info('closing messagemanager on exit');
+            end;
+          Processmanager := uProcessManager.StartProcessManager(MandantName,Data.Users.DataSet.FieldByName('NAME').AsString);
           if DoCloseIt and Assigned(Processmanager) then
             begin
               Processmanager.Tag:=100;
-              Info('closing messagemanager on exit');
+              Info('closing processmanager on exit');
             end;
         end;
     end;
@@ -1011,6 +1020,12 @@ procedure TBaseVisualApplication.SetProcessmanager(AValue: TProcess);
 begin
   if FProcessmanager=AValue then Exit;
   FProcessmanager:=AValue;
+end;
+
+procedure TBaseVisualApplication.SetMessagemanager(AValue: TProcess);
+begin
+  if FMessagemanager=AValue then Exit;
+  FMessagemanager:=AValue;
 end;
 
 function TBaseVisualApplication.Login: Boolean;
@@ -1209,6 +1224,10 @@ begin
     if Processmanager.Active then Processmanager.Terminate(1);
   if Assigned(Processmanager) then
     FreeAndNil(FProcessManager);
+  if Assigned(Messagemanager) and (Self.HasOption('t','terminateprocesses') or (Messagemanager.Tag=100)) then
+    if Messagemanager.Active then Messagemanager.Terminate(1);
+  if Assigned(Messagemanager) then
+    FreeAndNil(FMessagemanager);
 end;
 
 procedure TBaseVisualApplication.LoginDone;
