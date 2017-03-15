@@ -93,14 +93,20 @@ end;
 
 procedure TWikiSession.CreateWikiList;
 begin
-  WikiList := TWikiList.Create(nil);
-  Document := TDocument.Create(nil);
+  if Assigned(uData.Data) then
+    begin
+      WikiList := TWikiList.Create(nil);
+      Document := TDocument.Create(nil);
+    end;
 end;
 
 procedure TWikiSession.DestroyWikiList;
 begin
-  Document.Free;
-  WikiList.Free;
+  if Assigned(WikiList) then
+    begin
+      Document.Free;
+      WikiList.Free;
+    end;
 end;
 
 procedure TWikiSession.SetSocket(AValue: TAppNetworkThrd);
