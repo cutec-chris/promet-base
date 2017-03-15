@@ -64,6 +64,9 @@ TFWIZARDNEWMANDANT.RBFBE.CAPTION=Firebird embedded
 TFWIZARDNEWMANDANT.LDESCRIPTION6.CAPTION=Daten werden in einer einzigen Datei gespeichert. Ist auf vielen Plattformen verfügbar und das Datenformat ist auf allen Plattfomen gleich. So können Datendateien über alle Plattformen hinweg benutzt werden.
 TFWIZARDNEWMANDANT.LDESCRIPTION7.CAPTION=Firebird embedded speichert die Daten ebenso in einer einzigen Datenbankdatei. Diese ist dabei kompatibel zum Firebird SQL Server und könnte dort direkt weiterbenutzt werden. Ist allerdings nur auf Windows und Linux verfügbar.
 TFWIZARDNEWMANDANT.LDESCRIPTION11.CAPTION=Dateipfad
+TFWIZARDNEWMANDANT.CBEDATA.HINT=speichert Dateien die in der Datenbank abgelegt sind 
+als Datein im Datenbankpfad unter "edata"
+TFWIZARDNEWMANDANT.CBEDATA.CAPTION=Dateien extern speichern (im Dateisystem)
 TFWIZARDNEWMANDANT.LDESCRIPTION4.CAPTION=Hier finden Sie die Einstellungen nocheinmal in der Übersicht, oder können erweiterte Einstellungen vornehmen.
 TFWIZARDNEWMANDANT.LDBTYPE.CAPTION=Datenbanktyp
 TFWIZARDNEWMANDANT.LDBSERVER.CAPTION=Server
