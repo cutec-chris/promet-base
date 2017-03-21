@@ -643,7 +643,8 @@ begin
         end
       else
         begin
-          TreeData.Documents.Open;
+          if TreeData.Documents.ActualFilter<>'' then
+            TreeData.Documents.Open;
           aURL := copy(URL,0,rpos('.',URL)-1);
           if TreeData.Documents.Locate('NAME',aURL,[loCaseInsensitive]) then
             begin
@@ -658,7 +659,8 @@ begin
             end
           else if Assigned(TreeData.PrepDocuments) then
             begin
-              TreeData.PrepDocuments.Open;
+              if TreeData.PrepDocuments.ActualFilter<>'' then
+                TreeData.PrepDocuments.Open;
               if TreeData.PrepDocuments.Locate('NAME',aURL,[loCaseInsensitive]) then
                 begin
                   ms := TMemoryStream.Create;

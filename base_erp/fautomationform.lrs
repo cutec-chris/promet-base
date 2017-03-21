@@ -1,8 +1,8 @@
 { This is an automatically generated lazarus resource file }
 
 LazarusResources.Add('TFAutomation','FORMDATA',[
-  'TPF0'#12'TFAutomation'#11'FAutomation'#4'Left'#3#167#1#6'Height'#3#128#2#3'T'
-  +'op'#3#177#0#5'Width'#3'+'#3#7'Caption'#6#10'Automation'#12'ClientHeight'#3
+  'TPF0'#12'TFAutomation'#11'FAutomation'#4'Left'#3#159#1#6'Height'#3#128#2#3'T'
+  +'op'#3#252#0#5'Width'#3'+'#3#7'Caption'#6#10'Automation'#12'ClientHeight'#3
   +#128#2#11'ClientWidth'#3'+'#3#5'Color'#7#8'clWindow'#8'OnCreate'#7#10'FormCr'
   +'eate'#9'OnDestroy'#7#11'FormDestroy'#10'LCLVersion'#6#7'1.4.4.0'#0#6'TPanel'
   +#6'Panel3'#4'Left'#2#8#6'Height'#3'<'#2#3'Top'#2'<'#5'Width'#3#27#3#5'Align'

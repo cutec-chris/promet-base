@@ -1,7 +1,7 @@
 object FAutomation: TFAutomation
-  Left = 423
+  Left = 415
   Height = 640
-  Top = 177
+  Top = 252
   Width = 811
   Caption = 'Automation'
   ClientHeight = 640
