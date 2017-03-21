@@ -372,12 +372,13 @@ begin
                 if (not Added) and Assigned(aDataSet) and (aDataSet.Count>0) then
                   begin
                     Added := True;
+                    aHist := nil;
                     if aDataSet is TMasterdata then
                       aHist := TMasterdata(aDataSet).History
                     else if aDataSet is TProject then
                       aHist := TProject(aDataSet).History;
-                     if Assigned(aHist) then
-                      aHist.AddItem(Data.Users.DataSet,FieldByName('DESC').AsString,Data.BuildLink(Self.DataSet),Self.DataSet.FieldByName('NAME').AsString,nil,ACICON_USEREDITED,'',True,True)
+                    if Assigned(aHist) and Assigned(FieldByName('DESC')) and Assigned(Self.FieldByName('NAME')) then
+                      aHist.AddItem(Data.Users.DataSet,FieldByName('DESC').AsString,Data.BuildLink(Self.DataSet),Self.FieldByName('NAME').AsString,nil,ACICON_USEREDITED,'',True,True)
                   end;
               end;
             if (not Added) and ((FieldByName('OWNER').AsString <> '') or (FieldByName('USER').AsString <> '')) and (Entrys.FieldByName('LINK').AsString='') then
