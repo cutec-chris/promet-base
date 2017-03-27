@@ -2352,6 +2352,7 @@ begin
   ftDateTime:
     begin
       if (FMainConnection.Protocol = 'mssql')
+      or (copy(FMainConnection.Protocol,0,5) = 'mysql')
       or (copy(FMainConnection.Protocol,0,6) = 'sqlite')
       then
         Result := Result+' DATETIME'
@@ -2371,6 +2372,8 @@ begin
         Result := Result+' IMAGE'
       else if (copy(FMainConnection.Protocol,0,10) = 'postgresql') then
         Result := Result+' BYTEA'
+      else if (copy(FMainConnection.Protocol,0,5) = 'mysql') then
+        Result := Result+' LONGBLOB'
       else
         Result := Result+' BLOB';
     end;
@@ -2379,6 +2382,8 @@ begin
       if (copy(FMainConnection.Protocol,0,8) = 'firebird')
       or (copy(FMainConnection.Protocol,0,9) = 'interbase') then
         Result := Result+' BLOB SUB_TYPE 1'
+      else if (copy(FMainConnection.Protocol,0,5) = 'mysql') then
+        Result := Result+' LONGTEXT'
       else
         Result := Result+' TEXT';
     end;
