@@ -1,18 +1,4 @@
 TFWIZARDNEWMANDANT.CAPTION=Neuen Mandanten erstellen
-TFWIZARDNEWMANDANT.LCREATINGDATABASE.CAPTION=erstelle Tabellen (wenn nötig)
-TFWIZARDNEWMANDANT.LFILLINGDEFAULTVALUES.CAPTION=Vorgabewerte einsetzen
-TFWIZARDNEWMANDANT.LUPDATINGDATABASE.CAPTION=Hilfe einsetzen
-TFWIZARDNEWMANDANT.BUTTON1.CAPTION=Mandanteneinstellungen
-TFWIZARDNEWMANDANT.LABEL2.CAPTION=Das erstellen der Datenbank wurde beendet, Sie können 
-nun wenn gewünscht noch Details zum Mandanten 
-eingeben (Name,Adresse,Telefonnummern u.ä.). 
-Die dann auf allen Druckbelegen mitverwendet werden.
-
-Auch andere Gelobale Einstellungen sind direkt von 
-hier möglich (Benutzerverwaltung,Prozesse). 
-Sie können die Einstellungen auch jederzeit in den 
-Optionen nachholen
-TFWIZARDNEWMANDANT.BABORT6.CAPTION=Schliessen
 TFWIZARDNEWMANDANT.LDESCRIPTION2.CAPTION=Um Daten abzulegen wird eine Datenbank benötigt. Dafür werden verschiedene große Datenbanksysteme unterstützt. Wähen Sie zunächst zwischen:
 TFWIZARDNEWMANDANT.BNEXT2.CAPTION=bNext0
 TFWIZARDNEWMANDANT.BPREV2.CAPTION=bPrev0
@@ -105,3 +91,17 @@ TFWIZARDNEWMANDANT.LUSERNAME1.CAPTION=Benutzername
 TFWIZARDNEWMANDANT.LPASSWORD1.CAPTION=Passwort
 TFWIZARDNEWMANDANT.LDESCRIPTION14.CAPTION=MySQL ist auf Webservern sehr beliebt und stark verbreitet
 TFWIZARDNEWMANDANT.RBMYS.CAPTION=MySQL/MariaDB
+TFWIZARDNEWMANDANT.LCREATINGDATABASE.CAPTION=erstelle Tabellen (wenn nötig)
+TFWIZARDNEWMANDANT.LFILLINGDEFAULTVALUES.CAPTION=Vorgabewerte einsetzen
+TFWIZARDNEWMANDANT.LUPDATINGDATABASE.CAPTION=Hilfe einsetzen
+TFWIZARDNEWMANDANT.BUTTON1.CAPTION=Mandanteneinstellungen
+TFWIZARDNEWMANDANT.LABEL2.CAPTION=Das erstellen der Datenbank wurde beendet, Sie können 
+nun wenn gewünscht noch Details zum Mandanten 
+eingeben (Name,Adresse,Telefonnummern u.ä.). 
+Die dann auf allen Druckbelegen mitverwendet werden.
+
+Auch andere Gelobale Einstellungen sind direkt von 
+hier möglich (Benutzerverwaltung,Prozesse). 
+Sie können die Einstellungen auch jederzeit in den 
+Optionen nachholen
+TFWIZARDNEWMANDANT.BABORT6.CAPTION=Schliessen
