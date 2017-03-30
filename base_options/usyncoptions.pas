@@ -162,6 +162,7 @@ begin
   AddTable('MDQUANTITIES');
   AddTable('MDPRICES');
   AddTable('MDPOSITIONS');
+  AddTable('MEASUREMENTS');
   AddTable('MEASDATA');
   AddTable('STORAGETYPE');
   AddTable('STORAGE');
@@ -176,8 +177,6 @@ begin
   AddTable('ORDERREPAIR');
   AddTable('ORDERREPAIRDETAIL');
   AddTable('ORDERREPAIRIMAGE');
-  AddTable('QMTEST');
-  AddTable('QMTESTDETAIL');
   AddTable('REPAIRPROBLEMS');
   AddTable('REPAIRASSEMBLY');
   AddTable('REPAIRPARTS');
