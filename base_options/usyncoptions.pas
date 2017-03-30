@@ -102,16 +102,19 @@ procedure TfSyncOptions.sbStandardTablesClick(Sender: TObject);
   begin
     with dsTables.DataSet do
       begin
-        Append;
-        FieldByName('NAME').AsString := aName;
-        if Active then
-          FieldByName('ACTIVE').AsString := 'Y'
-        else
-          FieldByName('ACTIVE').AsString := 'N';
-        if ActiveOut then
-          FieldByName('ACTIVEOUT').AsString := 'Y'
-        else
-          FieldByName('ACTIVEOUT').AsString := 'N';
+        if not Locate('NAME',aName,[]) then
+          begin
+            Append;
+            FieldByName('NAME').AsString := aName;
+            if Active then
+              FieldByName('ACTIVE').AsString := 'Y'
+            else
+              FieldByName('ACTIVE').AsString := 'N';
+            if ActiveOut then
+              FieldByName('ACTIVEOUT').AsString := 'Y'
+            else
+              FieldByName('ACTIVEOUT').AsString := 'N';
+          end;
       end;
   end;
 begin
@@ -159,6 +162,7 @@ begin
   AddTable('MDQUANTITIES');
   AddTable('MDPRICES');
   AddTable('MDPOSITIONS');
+  AddTable('MEASDATA');
   AddTable('STORAGETYPE');
   AddTable('STORAGE');
   AddTable('SERIALS');
@@ -171,6 +175,7 @@ begin
   AddTable('ORDERPOSCALC');
   AddTable('ORDERREPAIR');
   AddTable('ORDERREPAIRDETAIL');
+  AddTable('ORDERREPAIRIMAGE');
   AddTable('QMTEST');
   AddTable('QMTESTDETAIL');
   AddTable('REPAIRPROBLEMS');
