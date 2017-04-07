@@ -182,6 +182,8 @@ begin
   AddTable('REPAIRPARTS');
   AddTable('ORDERQMTEST');
   AddTable('ORDERQMTESTDETAIL');
+  AddTable('MEETINGS');
+  AddTable('MEETINGENTRYS');
   AddTable('ACCOUNTS');
   AddTable('ACCOUNTEXCHANGE');
   AddTable('ACCOUNTINGJOURNAL');
@@ -198,6 +200,7 @@ begin
   AddTable('UNITS');
   AddTable('LISTS');
   AddTable('LISTENTRYS');
+  AddTable('DOCPAGES');
   AddTable('DELETEDITEMS');
 end;
 

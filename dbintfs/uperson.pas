@@ -340,7 +340,7 @@ begin
       if Assigned(ManagedFieldDefs) then
         with ManagedFieldDefs do
           begin
-            Add('ADDRNO',ftString,2,True);
+            Add('ADDRNO',ftString,15,True);
             Add('DESCR',ftString,30,False);
             Add('ACTIVE',ftString,1,False);
           end;
