@@ -1920,7 +1920,10 @@ begin
       if DataSet.State = dsInsert then
         begin
           Posted := True;
-          DataSet.Post;
+          try
+            DataSet.Post;
+          except
+          end;
         end;
       aFName := FDatabaseDir+DirectorySeparator+'edata'+DirectorySeparator;
       aFName:=aFName+Tablename+DirectorySeparator;
@@ -1970,12 +1973,15 @@ begin
           aFStream := TFileStream.Create(UniToSys(aFName),fmCreate);
           aFStream.CopyFrom(Stream,0);
           aFStream.Free;
-          if GeneralQuery.Active and (GeneralQuery.FieldByName(Fieldname) <> nil) then
-            begin
-              GeneralQuery.Edit;
-              GeneralQuery.FieldByName(Fieldname).Clear;
-              GeneralQuery.Post;
-            end;
+          try
+            if GeneralQuery.Active and (GeneralQuery.FieldByName(Fieldname) <> nil) then
+              begin
+                GeneralQuery.Edit;
+                GeneralQuery.FieldByName(Fieldname).Clear;
+                GeneralQuery.Post;
+              end;
+          except
+          end;
         end;
       GeneralQuery.Free;
       if Posted then DataSet.Edit;
