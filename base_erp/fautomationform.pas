@@ -974,8 +974,8 @@ begin
               aMasterdata.Positions.Open;
               //Position in Stückliste finden
               if aMasterdata.Positions.Locate('POSNO;SHORTTEXT',VarArrayOf([DataSet.FieldByName('TPOSNO').AsString,DataSet.FieldByName('SHORTTEXT').AsString]),[])
-              or aMasterdata.Positions.Locate('ID;SHORTTEXT',VarArrayOf([DataSet.FieldByName('ID').AsString,DataSet.FieldByName('SHORTTEXT').AsString]),[])
-              or aMasterdata.Positions.Locate('ID',VarArrayOf([DataSet.FieldByName('ID').AsString]),[])
+              or aMasterdata.Positions.Locate('IDENT;SHORTTEXT',VarArrayOf([DataSet.FieldByName('IDENT').AsString,DataSet.FieldByName('SHORTTEXT').AsString]),[])
+              or aMasterdata.Positions.Locate('IDENT',VarArrayOf([DataSet.FieldByName('IDENT').AsString]),[])
               or aMasterdata.Positions.Locate('SHORTTEXT',VarArrayOf([DataSet.FieldByName('SHORTTEXT').AsString]),[])
               then
                 begin
