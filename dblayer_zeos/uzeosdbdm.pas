@@ -1888,6 +1888,15 @@ begin
                   Statement.Close;
                   break;
                 end;
+              try
+                if Tablename<>'' then
+                  begin
+                    ResultSet := Statement.ExecuteQuery('SELECT '+QuoteField('SQL_ID')+' FROM '+QuoteField(Tablename)+' WHERE '+QuoteField('SQL_ID')+'='+QuoteValue(IntToStr(Result)));
+                    if ResultSet.Next then
+                      aId := ResultSet.GetLong(1)
+                  end;
+              except
+              end;
               ResultSet.Close;
               Statement.Close;
             except
