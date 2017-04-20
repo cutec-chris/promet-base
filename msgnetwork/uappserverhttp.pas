@@ -98,6 +98,10 @@ begin
               if pos('?',aPath)>0 then
                 aPath := copy(aPath,0,pos('?',aPath)-1);
             end;
+          if (not FileExists(aPath)) and (FileExists(aPath+DirectorySeparator+'index.html')) then
+            begin
+              aPath := aPath+DirectorySeparator+'index.html';
+            end;
           if FileExists(aPath) then
             begin
               writeln('HTTP:'+aCmd+' '+uri);
