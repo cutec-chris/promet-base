@@ -1,5 +1,18 @@
-﻿Build 435 (nicht veröffentlicht)
+﻿Build 436 (nicht veröffentlicht)
+      - Configurations Webapp um Datenbankverbindung bei reinen Server Paketen einzurichten
+      - Basis Aufgaben App
+      - Basis Zeiterfassungs App
+Build 435 (13.04.2017)
       - neue Rich Text Editor Komponente (KMemo Version aktualisiert)
+      - Appserver ausgebaut
+      - Appserver wird direkt von Promet basierter App gestartet
+      - sync_db:--syncblocks synct in Transaktion dadurch wesentlich schneller
+      - DB:SQLite3 unterstützt nun externes speichern von Dateien in Dateiverwaltung und erlaubt damit effizientere inkrementelle Backups oder gar speichern der Datenbank in Versionsmanagement Systemen oder snychronisation auf Dateiebene
+      - Anchors für diverse Formulare überarbeitet ("zusammenkleben" von Controls)
+      - Qualitätssicherungsdaten aus Aufträgen können gedruckt werden
+      - Optionen:Auftragstypen Formular überarbeitet
+      - Avad:Startseite für Avad
+      - Zeiterfassung:erlaubnis für "externes" editieren der Zeiten in Optionen
 Build 434 (25.11.2016)
       - Gridview: Filterzeile wird ohne Flackern ein/ausgeblendet, Range Error beseitigt
 Build 433 (19.11.2016)
