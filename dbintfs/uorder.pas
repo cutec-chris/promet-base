@@ -760,6 +760,7 @@ begin
   OrderType.DataSet.Locate('STATUS',DataSet.FieldByName('STATUS').AsString,[]);
   if FieldByName('ACTIVE').IsNull then
     RefreshActive;
+  Address.Open;
   SelectCurrency;
 end;
 

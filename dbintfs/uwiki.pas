@@ -20,7 +20,7 @@ unit uWiki;
 {$mode objfpc}{$H+}
 interface
 uses
-  Classes, SysUtils, uBaseDbClasses, db, uBaseDBInterface, uDocuments,uhttputil,
+  Classes, SysUtils, uBaseDbClasses, db, uBaseDBInterface, uDocuments,
   uBaseApplication, uBaseSearch, uIntfStrConsts,WikiToHtml,uBaseDatasetInterfaces;
 type
   TKeywords = class(TBaseDbDataSet)

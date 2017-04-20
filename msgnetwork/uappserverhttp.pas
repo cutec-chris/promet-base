@@ -92,6 +92,16 @@ begin
           aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web'+DirectorySeparator+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll]);
           if pos('?',aPath)>0 then
             aPath := copy(aPath,0,pos('?',aPath)-1);
+          if not FileExists(aPath) then
+            begin
+              aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+DirectorySeparator+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll]);
+              if pos('?',aPath)>0 then
+                aPath := copy(aPath,0,pos('?',aPath)-1);
+            end;
+          if (not FileExists(aPath)) and (FileExists(aPath+DirectorySeparator+'index.html')) then
+            begin
+              aPath := aPath+DirectorySeparator+'index.html';
+            end;
           if FileExists(aPath) then
             begin
               writeln('HTTP:'+aCmd+' '+uri);

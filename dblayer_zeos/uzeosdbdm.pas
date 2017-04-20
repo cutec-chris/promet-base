@@ -43,6 +43,7 @@ type
     FProperties : string;
     FPassword : string;
     FEData : Boolean;
+    FDatabaseDir : Ansistring;
     Monitor : TZSQLMonitor;
     function GetConnection: TComponent;override;
     function DBExists : Boolean;
@@ -1501,6 +1502,7 @@ begin
       end;
     tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
     FConnection.Database:=copy(tmp,0,pos(';',tmp)-1);
+    FDatabaseDir:=ExtractFileDir(ExpandFileName(FConnection.Database));
     tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
     FConnection.User := copy(tmp,0,pos(';',tmp)-1);
     tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
@@ -1886,6 +1888,15 @@ begin
                   Statement.Close;
                   break;
                 end;
+              try
+                if Tablename<>'' then
+                  begin
+                    ResultSet := Statement.ExecuteQuery('SELECT '+QuoteField('SQL_ID')+' FROM '+QuoteField(Tablename)+' WHERE '+QuoteField('SQL_ID')+'='+QuoteValue(IntToStr(Result)));
+                    if ResultSet.Next then
+                      aId := ResultSet.GetLong(1)
+                  end;
+              except
+              end;
               ResultSet.Close;
               Statement.Close;
             except
@@ -1918,9 +1929,12 @@ begin
       if DataSet.State = dsInsert then
         begin
           Posted := True;
-          DataSet.Post;
+          try
+            DataSet.Post;
+          except
+          end;
         end;
-      aFName := ExtractFileDir(TZConnection(MainConnection).Database)+DirectorySeparator+'edata'+DirectorySeparator;
+      aFName := FDatabaseDir+DirectorySeparator+'edata'+DirectorySeparator;
       aFName:=aFName+Tablename+DirectorySeparator;
       if (DataSet.Fielddefs.IndexOf('TYPE')<>-1) then
         if TZeosDBDataSet(DataSet).FieldByName('TYPE').AsString<>'' then
@@ -1964,16 +1978,19 @@ begin
         end
       else
         begin
-          ForceDirectories(ExtractFileDir(aFName));
-          aFStream := TFileStream.Create(aFName,fmCreate);
+          ForceDirectories(ExtractFileDir(UniToSys(aFName)));
+          aFStream := TFileStream.Create(UniToSys(aFName),fmCreate);
           aFStream.CopyFrom(Stream,0);
           aFStream.Free;
-          if GeneralQuery.Active and (GeneralQuery.FieldByName(Fieldname) <> nil) then
-            begin
-              GeneralQuery.Edit;
-              GeneralQuery.FieldByName(Fieldname).Clear;
-              GeneralQuery.Post;
-            end;
+          try
+            if GeneralQuery.Active and (GeneralQuery.FieldByName(Fieldname) <> nil) then
+              begin
+                GeneralQuery.Edit;
+                GeneralQuery.FieldByName(Fieldname).Clear;
+                GeneralQuery.Post;
+              end;
+          except
+          end;
         end;
       GeneralQuery.Free;
       if Posted then DataSet.Edit;
@@ -1993,13 +2010,13 @@ begin
     Tablename := TZeosDBDataSet(DataSet).DefaultTableName;
   if (DataSet.Fielddefs.IndexOf(FieldName) = -1) or (FEData and (Tablename='DOCUMENTS')) then
     begin
-      aFName := ExtractFileDir(TZConnection(MainConnection).Database)+DirectorySeparator+'edata'+DirectorySeparator;
+      aFName := FDatabaseDir+DirectorySeparator+'edata'+DirectorySeparator;
       aFName:=aFName+Tablename+DirectorySeparator;
       if (DataSet.Fielddefs.IndexOf('TYPE')<>-1) then
         if TZeosDBDataSet(DataSet).FieldByName('TYPE').AsString<>'' then
           aFName:=aFName+TZeosDBDataSet(DataSet).FieldByName('TYPE').AsString+DirectorySeparator;
       aFName:=aFName+DataSet.FieldByName('SQL_ID').AsString+'.'+Fieldname+'.dat';
-      if (not FEData) or (Tablename<>'DOCUMENTS') or (not FileExists(aFName)) then //get File from Database
+      if (not FEData) or (Tablename<>'DOCUMENTS') then //get File from Database
         begin
           GeneralQuery := TZQuery.Create(Self);
           GeneralQuery.Connection := TZQuery(DataSet).Connection;
@@ -2009,10 +2026,12 @@ begin
           result := GeneralQuery.CreateBlobStream(GeneralQuery.FieldByName(Fieldname),bmRead);
           GeneralQuery.Free;
         end
-      else
+      else if (FileExists(UniToSys(aFName))) then
         begin
-          Result := TFileStream.Create(aFName,fmOpenRead);
-        end;
+          Result := TFileStream.Create(UniToSys(aFName),fmOpenRead);
+        end
+      else with BaseApplication as IBaseApplication do
+        Debug('File '+UniToSys(aFName)+' dont exists ?!');
     end
   else Result := inherited;
 end;
@@ -2348,6 +2367,7 @@ begin
   ftDateTime:
     begin
       if (FMainConnection.Protocol = 'mssql')
+      or (copy(FMainConnection.Protocol,0,5) = 'mysql')
       or (copy(FMainConnection.Protocol,0,6) = 'sqlite')
       then
         Result := Result+' DATETIME'
@@ -2367,6 +2387,8 @@ begin
         Result := Result+' IMAGE'
       else if (copy(FMainConnection.Protocol,0,10) = 'postgresql') then
         Result := Result+' BYTEA'
+      else if (copy(FMainConnection.Protocol,0,5) = 'mysql') then
+        Result := Result+' LONGBLOB'
       else
         Result := Result+' BLOB';
     end;
@@ -2375,6 +2397,8 @@ begin
       if (copy(FMainConnection.Protocol,0,8) = 'firebird')
       or (copy(FMainConnection.Protocol,0,9) = 'interbase') then
         Result := Result+' BLOB SUB_TYPE 1'
+      else if (copy(FMainConnection.Protocol,0,5) = 'mysql') then
+        Result := Result+' LONGTEXT'
       else
         Result := Result+' TEXT';
     end;

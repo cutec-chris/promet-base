@@ -309,6 +309,9 @@ procedure TFAutomation.acExecuteStepExecute(Sender: TObject);
 var
   TreeData: TProdTreeData;
   aRes : Variant;
+  tmp: String;
+  aParams : array of Variant;
+  tmp1: String;
 begin
   fLogWaitForm.Clear;
   if Assigned(tvStep.Selected) then
@@ -329,7 +332,26 @@ begin
               tvStep.Enabled:=False;
               if TreeData.Func<>'' then
                 begin
-                  aRes := FScript.Script.RunScriptFunction([],TreeData.Func);
+                  tmp := TreeData.Func;
+                  if pos('(',tmp)>0 then
+                    begin
+                      tmp1 := copy(tmp,0,pos('(',tmp)-1);
+                      tmp := copy(tmp,pos('(',tmp)+1,length(tmp)-(pos('(',tmp)+1));
+                      while pos(',',tmp)>0 do
+                        begin
+                          Setlength(aParams,length(aparams)+1);
+                          aParams[length(aParams)-1]:=copy(tmp,0,pos(',',tmp)-1);
+                          tmp := copy(tmp,pos(',',tmp)+1,length(tmp));
+                        end;
+                      if tmp<>'' then
+                        begin
+                          Setlength(aParams,length(aparams)+1);
+                          aParams[length(aParams)-1]:=tmp;
+                        end;
+                      aRes := FScript.Script.RunScriptFunction(aParams,tmp1);
+                    end
+                  else
+                    aRes := FScript.Script.RunScriptFunction([],TreeData.Func);
                 end
               else if not FScript.Execute(Null) then
                 begin
@@ -621,7 +643,8 @@ begin
         end
       else
         begin
-          TreeData.Documents.Open;
+          if TreeData.Documents.ActualFilter<>'' then
+            TreeData.Documents.Open;
           aURL := copy(URL,0,rpos('.',URL)-1);
           if TreeData.Documents.Locate('NAME',aURL,[loCaseInsensitive]) then
             begin
@@ -636,7 +659,8 @@ begin
             end
           else if Assigned(TreeData.PrepDocuments) then
             begin
-              TreeData.PrepDocuments.Open;
+              if TreeData.PrepDocuments.ActualFilter<>'' then
+                TreeData.PrepDocuments.Open;
               if TreeData.PrepDocuments.Locate('NAME',aURL,[loCaseInsensitive]) then
                 begin
                   ms := TMemoryStream.Create;
@@ -950,6 +974,8 @@ begin
               aMasterdata.Positions.Open;
               //Position in Stückliste finden
               if aMasterdata.Positions.Locate('POSNO;SHORTTEXT',VarArrayOf([DataSet.FieldByName('TPOSNO').AsString,DataSet.FieldByName('SHORTTEXT').AsString]),[])
+              or aMasterdata.Positions.Locate('IDENT;SHORTTEXT',VarArrayOf([DataSet.FieldByName('IDENT').AsString,DataSet.FieldByName('SHORTTEXT').AsString]),[])
+              or aMasterdata.Positions.Locate('IDENT',VarArrayOf([DataSet.FieldByName('IDENT').AsString]),[])
               or aMasterdata.Positions.Locate('SHORTTEXT',VarArrayOf([DataSet.FieldByName('SHORTTEXT').AsString]),[])
               then
                 begin

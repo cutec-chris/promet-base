@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, genpascalscript, uprometscripts,uPSRuntime,uPSCompiler,uPSUtils,
-  Utils,db,uBaseDBInterface,genscript,uBaseDbClasses;
+  Utils,db,uBaseDBInterface,genscript,uBaseDbClasses,sha1,base64,md5;
 
 type
   TScriptInternalPrint = function (aType,Reportname,Printer : string;Copies : Integer) : Boolean;
@@ -62,6 +62,11 @@ type
     procedure InternalExecuteScriptFuncionPS(aScript, aFunc, aParam: string);
     function InternalExecuteScriptFuncionPSRS(aScript, aFunc, aParam: string) : string;
     function InternalExecuteScriptFuncionRS(aScript, aFunc : string) : string;
+
+    function InternalSHA1(aInput : string) : string;
+    function InternalMD5(aInput : string) : string;
+    function InternalBase64Encode(aInput : string) : string;
+    function InternalBase64Decode(aInput : string) : string;
 
     function InternalPrint(aType,Reportname,Printer : string;Copies : Integer) : Boolean;
     procedure InternalSetReportVariable(aName,Value : string);
@@ -157,6 +162,22 @@ begin
       Sender.AddMethod(Self,@TPrometPascalScript.InternalExecuteScriptFuncionPS,'procedure ExecuteScriptFunctionPS(aScript, aFunc, aParam: string);');
       Sender.AddMethod(Self,@TPrometPascalScript.InternalExecuteScriptFuncionPSRS,'function ExecuteScriptFunctionPSRS(aScript, aFunc, aParam: string) : string;');
       Sender.AddMethod(Self,@TPrometPascalScript.InternalExecuteScriptFuncionRS,'function ExecuteScriptFunctionRS(aScript, aFunc : string) : string;');
+    end
+  else if aName = 'MD5' then
+    begin
+      Result := True;
+      Sender.AddMethod(Self,@TPrometPascalScript.InternalMD5,'function MD5(aInput : string) : string;');
+    end
+  else if aName = 'SHA1' then
+    begin
+      Result := True;
+      Sender.AddMethod(Self,@TPrometPascalScript.InternalSHA1,'function SHA1(aInput : string) : string;');
+    end
+  else if aName = 'BASE64' then
+    begin
+      Result := True;
+      Sender.AddMethod(Self,@TPrometPascalScript.InternalBase64Encode,'function Base64Encode(aInput : string) : string;');
+      Sender.AddMethod(Self,@TPrometPascalScript.InternalBase64Decode,'function Base64Decode(aInput : string) : string;');
     end
   else if aName = 'PROMET' then
     begin
@@ -862,6 +883,26 @@ begin
   bScript.Free;
 end;
 
+function TPrometPascalScript.InternalSHA1(aInput: string): string;
+begin
+  Result := SHA1Print(SHA1String(aInput));
+end;
+
+function TPrometPascalScript.InternalMD5(aInput: string): string;
+begin
+  Result := md5.MD5Print(MD5String(aInput));
+end;
+
+function TPrometPascalScript.InternalBase64Encode(aInput: string): string;
+begin
+  Result := base64.EncodeStringBase64(aInput);
+end;
+
+function TPrometPascalScript.InternalBase64Decode(aInput: string): string;
+begin
+  Result := base64.DecodeStringBase64(aInput);
+end;
+
 function TPrometPascalScript.InternalPrint(aType, Reportname, Printer: string;
   Copies: Integer): Boolean;
 begin
@@ -917,10 +958,9 @@ begin
       aDocument.SelectByNumber(aDocuments.FieldByName('NUMBER').AsVariant);
       aDocument.Open;
       aStream := TFileStream.Create(OutPath,fmCreate);
-      aDocument.CheckoutToStream(aStream);
+      Result := aDocument.CheckoutToStream(aStream);
       aStream.Free;
       aDocument.Free;
-      Result := True;
     end;
   aDocuments.Free;
 end;

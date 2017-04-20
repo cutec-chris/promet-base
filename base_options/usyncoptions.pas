@@ -102,16 +102,19 @@ procedure TfSyncOptions.sbStandardTablesClick(Sender: TObject);
   begin
     with dsTables.DataSet do
       begin
-        Append;
-        FieldByName('NAME').AsString := aName;
-        if Active then
-          FieldByName('ACTIVE').AsString := 'Y'
-        else
-          FieldByName('ACTIVE').AsString := 'N';
-        if ActiveOut then
-          FieldByName('ACTIVEOUT').AsString := 'Y'
-        else
-          FieldByName('ACTIVEOUT').AsString := 'N';
+        if not Locate('NAME',aName,[]) then
+          begin
+            Append;
+            FieldByName('NAME').AsString := aName;
+            if Active then
+              FieldByName('ACTIVE').AsString := 'Y'
+            else
+              FieldByName('ACTIVE').AsString := 'N';
+            if ActiveOut then
+              FieldByName('ACTIVEOUT').AsString := 'Y'
+            else
+              FieldByName('ACTIVEOUT').AsString := 'N';
+          end;
       end;
   end;
 begin
@@ -159,6 +162,8 @@ begin
   AddTable('MDQUANTITIES');
   AddTable('MDPRICES');
   AddTable('MDPOSITIONS');
+  AddTable('MEASUREMENTS');
+  AddTable('MEASDATA');
   AddTable('STORAGETYPE');
   AddTable('STORAGE');
   AddTable('SERIALS');
@@ -171,13 +176,14 @@ begin
   AddTable('ORDERPOSCALC');
   AddTable('ORDERREPAIR');
   AddTable('ORDERREPAIRDETAIL');
-  AddTable('QMTEST');
-  AddTable('QMTESTDETAIL');
+  AddTable('ORDERREPAIRIMAGE');
   AddTable('REPAIRPROBLEMS');
   AddTable('REPAIRASSEMBLY');
   AddTable('REPAIRPARTS');
   AddTable('ORDERQMTEST');
   AddTable('ORDERQMTESTDETAIL');
+  AddTable('MEETINGS');
+  AddTable('MEETINGENTRYS');
   AddTable('ACCOUNTS');
   AddTable('ACCOUNTEXCHANGE');
   AddTable('ACCOUNTINGJOURNAL');
@@ -194,6 +200,7 @@ begin
   AddTable('UNITS');
   AddTable('LISTS');
   AddTable('LISTENTRYS');
+  AddTable('DOCPAGES');
   AddTable('DELETEDITEMS');
 end;
 

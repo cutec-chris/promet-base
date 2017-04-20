@@ -1447,7 +1447,7 @@ var
   Doc: TXMLDocument;
   RootNode: TDOMElement;
 
-  procedure RecourseTables(aNode : TDOMNode;aDataSet : TDataSet);
+  procedure RecourseTables(aNode : TDOMNode;aDataSet : TBaseDBDataset);
   var
     i: Integer;
     aData: TDOMElement;
@@ -1460,15 +1460,16 @@ var
     if Assigned(aDataSet) then
       begin
         try
-          if not Supports(aDataset,IBaseManageDB) then exit;
-          with aDataSet as IBaseManageDB do
+          if not (aDataSet is TBaseDBDataset) then exit;
+          if not Supports(aDataset.DataSet,IBaseManageDB) then exit;
+          with aDataSet.DataSet as IBaseManageDB do
             begin
               if pos('HISTORY',uppercase(TableName)) > 0 then exit;
               if Uppercase(TableName) = 'STORAGE' then exit;
             end;
           aData := Doc.CreateElement('TABLE');
           aNode.AppendChild(aData);
-          with aDataSet as IBaseManageDB do
+          with aDataSet.DataSet as IBaseManageDB do
             aData.SetAttribute('NAME',TableName);
           DataNode := Doc.CreateElement('DATA');
           aData.AppendChild(DataNode);
@@ -1481,27 +1482,27 @@ var
               inc(a);
               Row := Doc.CreateElement('ROW.'+IntToStr(a));
               DataNode.AppendChild(Row);
-              for i := 0 to aDataSet.Fields.Count-1 do
+              for i := 0 to aDataSet.DataSet.Fields.Count-1 do
                 begin
-                  tmp := aDataSet.Fields[i].FieldName;
+                  tmp := aDataSet.DataSet.Fields[i].FieldName;
                   if (tmp <> '')
                   and (tmp <> 'REF_ID')
                   then
                     begin
-                      tmp1 :=  aDataSet.Fields[i].AsString;
-                      if (not aDataSet.Fields[i].IsNull) then
+                      tmp1 :=  aDataSet.DataSet.Fields[i].AsString;
+                      if (not aDataSet.DataSet.Fields[i].IsNull) then
                         begin
-                          if aDataSet.Fields[i].IsBlob then
-                            Row.SetAttribute(tmp,EncodeStringBase64(aDataSet.Fields[i].AsString))
+                          if aDataSet.DataSet.Fields[i].IsBlob then
+                            Row.SetAttribute(tmp,EncodeStringBase64(aDataSet.DataSet.Fields[i].AsString))
                           else
                             Row.SetAttribute(tmp,tmp1);
                         end;
                     end;
                 end;
-              with aDataSet as IBaseSubDataSets do
+              with aDataSet.DataSet as IBaseSubDataSets do
                 begin
-                  for i := 0 to GetCount-1 do
-                    RecourseTables(Row,TBaseDBDataset(SubDataSet[i]).DataSet);
+                  for i := 0 to (aDataSet.DataSet as IBaseSubDataSets).GetCount-1 do
+                    RecourseTables(Row,TBaseDBDataset(SubDataSet[i]));
                 end;
               aDataSet.Next;
             end;
@@ -1513,7 +1514,7 @@ begin
   Doc := TXMLDocument.Create;
   RootNode := Doc.CreateElement('TABLES');
   Doc.AppendChild(RootNode);
-  RecourseTables(RootNode,DataSet);
+  RecourseTables(RootNode,Self);
   Stream := TStringStream.Create('');
   WriteXMLFile(Doc,Stream);
   Result := Stream.DataString;
@@ -2171,7 +2172,7 @@ begin
       then
         Delete;
     end;
-  DataSet.Append;
+  Append;
   if aLink <> '' then
     FieldByName('LINK').AsString      := aLink;
   if aObject<>'' then

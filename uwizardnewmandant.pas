@@ -568,16 +568,9 @@ begin
       if not Res then
         begin
           DBTyp:=aType;
-          try
-            Data.CreateDBFromProperties(aSettings);
+          Res := Data.CreateDBFromProperties(aSettings);
+          if Res then
             Res := DBLogin(eMandantname.Text,'');
-          except
-            on e : exception do
-              begin
-                LastError := e.Message;
-                Res := False;
-              end;
-          end;
         end
       else if Application.HasOption('silent') then //Db existiert schon und silent installation
         begin
@@ -766,6 +759,7 @@ begin
       with BaseApplication as IBaseDbInterface do
         Showmessage(LastError);
       Application.Processmessages;
+      pResult.Visible:=False;
       bPrev0Click(nil);
     end;
   Result := Res;
@@ -865,6 +859,10 @@ begin
       eSQLPassword.Text:=eSQLPassword1.Text;
       rbPQChange(rbPQ);
       Result := 5;
+    end;
+  5:
+    begin
+      Result := 6;
     end;
   end;
 end;

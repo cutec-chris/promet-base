@@ -1,18 +1,4 @@
 TFWIZARDNEWMANDANT.CAPTION=Neuen Mandanten erstellen
-TFWIZARDNEWMANDANT.LCREATINGDATABASE.CAPTION=erstelle Tabellen (wenn nötig)
-TFWIZARDNEWMANDANT.LFILLINGDEFAULTVALUES.CAPTION=Vorgabewerte einsetzen
-TFWIZARDNEWMANDANT.LUPDATINGDATABASE.CAPTION=Hilfe einsetzen
-TFWIZARDNEWMANDANT.BUTTON1.CAPTION=Mandanteneinstellungen
-TFWIZARDNEWMANDANT.LABEL2.CAPTION=Das erstellen der Datenbank wurde beendet, Sie können 
-nun wenn gewünscht noch Details zum Mandanten 
-eingeben (Name,Adresse,Telefonnummern u.ä.). 
-Die dann auf allen Druckbelegen mitverwendet werden.
-
-Auch andere Gelobale Einstellungen sind direkt von 
-hier möglich (Benutzerverwaltung,Prozesse). 
-Sie können die Einstellungen auch jederzeit in den 
-Optionen nachholen
-TFWIZARDNEWMANDANT.BABORT6.CAPTION=Schliessen
 TFWIZARDNEWMANDANT.LDESCRIPTION2.CAPTION=Um Daten abzulegen wird eine Datenbank benötigt. Dafür werden verschiedene große Datenbanksysteme unterstützt. Wähen Sie zunächst zwischen:
 TFWIZARDNEWMANDANT.BNEXT2.CAPTION=bNext0
 TFWIZARDNEWMANDANT.BPREV2.CAPTION=bPrev0
@@ -64,6 +50,9 @@ TFWIZARDNEWMANDANT.RBFBE.CAPTION=Firebird embedded
 TFWIZARDNEWMANDANT.LDESCRIPTION6.CAPTION=Daten werden in einer einzigen Datei gespeichert. Ist auf vielen Plattformen verfügbar und das Datenformat ist auf allen Plattfomen gleich. So können Datendateien über alle Plattformen hinweg benutzt werden.
 TFWIZARDNEWMANDANT.LDESCRIPTION7.CAPTION=Firebird embedded speichert die Daten ebenso in einer einzigen Datenbankdatei. Diese ist dabei kompatibel zum Firebird SQL Server und könnte dort direkt weiterbenutzt werden. Ist allerdings nur auf Windows und Linux verfügbar.
 TFWIZARDNEWMANDANT.LDESCRIPTION11.CAPTION=Dateipfad
+TFWIZARDNEWMANDANT.CBEDATA.HINT=speichert Dateien die in der Datenbank abgelegt sind 
+als Datein im Datenbankpfad unter "edata"
+TFWIZARDNEWMANDANT.CBEDATA.CAPTION=Dateien extern speichern (im Dateisystem)
 TFWIZARDNEWMANDANT.LDESCRIPTION4.CAPTION=Hier finden Sie die Einstellungen nocheinmal in der Übersicht, oder können erweiterte Einstellungen vornehmen.
 TFWIZARDNEWMANDANT.LDBTYPE.CAPTION=Datenbanktyp
 TFWIZARDNEWMANDANT.LDBSERVER.CAPTION=Server
@@ -102,3 +91,17 @@ TFWIZARDNEWMANDANT.LUSERNAME1.CAPTION=Benutzername
 TFWIZARDNEWMANDANT.LPASSWORD1.CAPTION=Passwort
 TFWIZARDNEWMANDANT.LDESCRIPTION14.CAPTION=MySQL ist auf Webservern sehr beliebt und stark verbreitet
 TFWIZARDNEWMANDANT.RBMYS.CAPTION=MySQL/MariaDB
+TFWIZARDNEWMANDANT.LCREATINGDATABASE.CAPTION=erstelle Tabellen (wenn nötig)
+TFWIZARDNEWMANDANT.LFILLINGDEFAULTVALUES.CAPTION=Vorgabewerte einsetzen
+TFWIZARDNEWMANDANT.LUPDATINGDATABASE.CAPTION=Hilfe einsetzen
+TFWIZARDNEWMANDANT.BUTTON1.CAPTION=Mandanteneinstellungen
+TFWIZARDNEWMANDANT.LABEL2.CAPTION=Das erstellen der Datenbank wurde beendet, Sie können 
+nun wenn gewünscht noch Details zum Mandanten 
+eingeben (Name,Adresse,Telefonnummern u.ä.). 
+Die dann auf allen Druckbelegen mitverwendet werden.
+
+Auch andere Gelobale Einstellungen sind direkt von 
+hier möglich (Benutzerverwaltung,Prozesse). 
+Sie können die Einstellungen auch jederzeit in den 
+Optionen nachholen
+TFWIZARDNEWMANDANT.BABORT6.CAPTION=Schliessen
