@@ -102,6 +102,10 @@ begin
             begin
               aPath := aPath+DirectorySeparator+'index.html';
             end;
+          if (not FileExists(aPath)) and (FileExists(ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+DirectorySeparator+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll])+'index.html')) then
+            begin
+              aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+DirectorySeparator+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll])+'index.html';
+            end;
           if FileExists(aPath) then
             begin
               writeln('HTTP:'+aCmd+' '+uri);
