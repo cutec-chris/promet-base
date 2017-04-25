@@ -89,22 +89,22 @@ begin
       ResultCode:=500;
       if ((Uppercase(aCmd)='GET') or (Uppercase(aCmd)='HEAD') or (Uppercase(aCmd)='OPTIONS'))  then
         begin
-          aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web'+DirectorySeparator+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll]);
+          aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web'+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll]);
           if pos('?',aPath)>0 then
             aPath := copy(aPath,0,pos('?',aPath)-1);
           if not FileExists(aPath) then
             begin
-              aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+DirectorySeparator+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll]);
+              aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll]);
               if pos('?',aPath)>0 then
                 aPath := copy(aPath,0,pos('?',aPath)-1);
             end;
-          if (not FileExists(aPath)) and (FileExists(aPath+DirectorySeparator+'index.html')) then
+          if (not FileExists(aPath)) and (FileExists(aPath+'index.html')) then
             begin
-              aPath := aPath+DirectorySeparator+'index.html';
+              aPath := aPath+'index.html';
             end;
-          if (not FileExists(aPath)) and (FileExists(ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+DirectorySeparator+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll])+'index.html')) then
+          if (not FileExists(aPath)) and (FileExists(ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll])+'index.html')) then
             begin
-              aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+DirectorySeparator+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll])+'index.html';
+              aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll])+'index.html';
             end;
           if FileExists(aPath) then
             begin
