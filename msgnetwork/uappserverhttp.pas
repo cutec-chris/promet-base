@@ -98,7 +98,7 @@ begin
               if pos('?',aPath)>0 then
                 aPath := copy(aPath,0,pos('?',aPath)-1);
             end;
-          if (not FileExists(aPath)) and (FileExists(aPath+'index.html')) then
+          if ((not FileExists(aPath)) or DirectoryExists(aPath)) and (FileExists(aPath+'index.html')) then
             begin
               aPath := aPath+'index.html';
             end;
