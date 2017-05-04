@@ -39,7 +39,7 @@ var
 function HandleHTTPCommand(Sender : TAppNetworkThrd;FCommand : string) : string;
 var
   aCmd, uri, protocol, s: String;
-  headers: TStringList;
+  headers, sl: TStringList;
   size, Timeout, x, ResultCode, n, i: Integer;
   InputData, OutputData: TMemoryStream;
   aPath: String;
@@ -100,7 +100,10 @@ begin
             end;
           if ((not FileExists(aPath)) or DirectoryExists(aPath)) and (FileExists(aPath+'index.html')) then
             begin
-              aPath := aPath+'index.html';
+              //aPath := aPath+'index.html';
+              ResultCode := 301;
+              headers.Clear;
+              headers.Add('Location: '+uri+'index.html');
             end;
           if (not FileExists(aPath)) and (FileExists(ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll])+'index.html')) then
             begin
@@ -126,7 +129,8 @@ begin
                     OutputData.CopyFrom(aStream,0);
                     OutputData.Position:=0;
                     aStream.Free;
-                    ResultCode:=200;
+                    if ResultCode=500 then
+                      ResultCode:=200;
                   except
                   end;
                 end
@@ -134,7 +138,7 @@ begin
                 ResultCode:=200;
             end;
         end;
-      if ResultCode<>200 then
+      if (ResultCode<>200) and (ResultCode<>301) then
         begin
           for i := 0 to Length(HTTPHandlers)-1 do
             begin
