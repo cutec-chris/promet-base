@@ -100,6 +100,7 @@ begin
             end;
           if ((not FileExists(aPath)) or DirectoryExists(aPath)) and (FileExists(aPath+'index.html')) then
             begin
+              writeln('HTTP: redirecting to '+uri+'index.html');
               //aPath := aPath+'index.html';
               ResultCode := 301;
               headers.Clear;
@@ -111,7 +112,7 @@ begin
             end;
           if FileExists(aPath) then
             begin
-              writeln('HTTP:'+aCmd+' '+uri);
+              writeln('HTTP:'+aCmd+' '+uri+' ('+aPath+')');
               if Uppercase(aCmd)='OPTIONS' then
                 begin
                   headers.Add('Allow: GET,HEAD,OPTIONS');
@@ -125,7 +126,7 @@ begin
               else if Uppercase(aCmd)='GET' then
                 begin
                   try
-                    aStream := TFileStream.Create(aPath,fmOpenRead);
+                    aStream := TFileStream.Create(aPath,fmOpenRead or fmShareDenyNone);
                     OutputData.CopyFrom(aStream,0);
                     OutputData.Position:=0;
                     aStream.Free;
@@ -136,7 +137,9 @@ begin
                 end
               else if Uppercase(aCmd)='HEAD' then
                 ResultCode:=200;
-            end;
+            end
+          //else writeln('HTTP:'+aCmd+' '+uri+' not found')
+            ;
         end;
       if (ResultCode<>200) and (ResultCode<>301) then
         begin
