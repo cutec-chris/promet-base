@@ -92,7 +92,7 @@ begin
           aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web'+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll]);
           if pos('?',aPath)>0 then
             aPath := copy(aPath,0,pos('?',aPath)-1);
-          if not FileExists(aPath) then
+          if (not FileExists(aPath)) or (DirectoryExists(aPath) and (not (FileExists(aPath+'index.html'))))  then
             begin
               aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll]);
               if pos('?',aPath)>0 then
