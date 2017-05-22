@@ -645,14 +645,8 @@ begin
         end;
       dec(i);
     end;
-  i := Addr.Count-1;
-  if i > -1 then
-    begin
-      DataSet.FieldByName('ADDRESS').AsString := Addr[i];
-      Addr.Delete(i);
-    end;
-  if Addr.Count > 0 then
-    DataSet.FieldByName('ADDITIONAL').AsString := Addr[0];
+
+  DataSet.FieldByName('ADDRESS').AsString := Addr.Text;
   Addr.Free;
 end;
 procedure TPerson.FDSDataChange(Sender: TObject; Field: TField);
