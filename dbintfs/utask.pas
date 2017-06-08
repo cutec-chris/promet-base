@@ -33,6 +33,7 @@ type
   //In memory class to hold an task during calculations
   TBaseInterval = class
   private
+    FResource: string;
   protected
     FName: string;
     FProject: string;
@@ -45,6 +46,7 @@ type
     property PlanTime : Double read FPlan write FPlan;
     property Name : string read FName write FName;
     property Project : string read FProject write FProject;
+    property Resource : string read FResource write FResource;
   end;
   TTaskList = class(TBaseERPList,IBaseHistory)
     procedure DataSetAfterCancel(aDataSet: TDataSet);
@@ -718,6 +720,8 @@ begin
       aStartDate:=FieldByName('EARLIEST').AsDateTime;
   if aStartDate<aEarliest then
     aStartDate:=aEarliest;
+  with BaseApplication as IBaseApplication do
+    debug('Earliest Task Start: '+DateToStr(aStartDate));
   //Calculate duration
   aUser := TUser.CreateEx(nil,Data);
   aUser.SelectByAccountno(FieldByName('USER').AsString);
@@ -985,7 +989,9 @@ begin
   Result.StartDate:=FieldByName('STARTDATE').AsDateTime;
   Result.DueDate:=FieldByName('DUEDATE').AsDateTime;
   Result.PlanTime := FieldByName('PLANTIME').AsFloat;
-  Result.Name := Text.AsString+' - '+FieldByName('PROJECT').AsString;
+  Result.Name := Text.AsString;
+  Result.Project:=FieldByName('PROJECT').AsString;
+  Result.Project:=FieldByName('PROJECT').AsString;
 end;
 procedure TTaskList.DisableDS;
 begin

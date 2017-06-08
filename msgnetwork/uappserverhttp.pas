@@ -104,6 +104,8 @@ begin
               //aPath := aPath+'index.html';
               ResultCode := 301;
               headers.Clear;
+              if copy(uri,length(uri),1)<>'/' then
+                uri := uri+'/';
               headers.Add('Location: '+uri+'index.html');
             end;
           if (not FileExists(aPath)) and (FileExists(ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll])+'index.html')) then
