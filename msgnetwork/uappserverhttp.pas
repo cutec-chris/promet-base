@@ -44,6 +44,7 @@ var
   InputData, OutputData: TMemoryStream;
   aPath: String;
   aStream: TFileStream;
+  uriparam: String;
 begin
   Result := '';
   if pos(' ',FCommand)>0 then
@@ -100,13 +101,18 @@ begin
             end;
           if ((not FileExists(aPath)) or DirectoryExists(aPath)) and (FileExists(aPath+'index.html')) then
             begin
-              writeln('HTTP: redirecting to '+uri+'index.html');
               //aPath := aPath+'index.html';
               ResultCode := 301;
               headers.Clear;
+              if pos('?',uri)>0 then
+                begin
+                  uriparam := copy(uri,pos('?',uri),length(uri));
+                  uri := copy(uri,0,pos('?',uri)-1);
+                end;
               if copy(uri,length(uri),1)<>'/' then
                 uri := uri+'/';
               headers.Add('Location: '+uri+'index.html');
+              writeln('HTTP: redirecting to '+uri+'index.html');
             end;
           if (not FileExists(aPath)) and (FileExists(ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+Stringreplace(uri,'/',DirectorySeparator,[rfReplaceAll])+'index.html')) then
             begin
