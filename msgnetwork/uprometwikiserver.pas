@@ -135,6 +135,7 @@ var
   ms: TMemoryStream;
 begin
   Code:=404;
+  if Url = '' then Url := 'index';
   if WikiList.FindWikiPage(Url) then
     begin
       sl := TStringList.Create;
