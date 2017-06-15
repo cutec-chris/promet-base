@@ -166,7 +166,7 @@ begin
               Result := ms;
             end;
         end
-      else
+      else if Assigned(Document) then
         begin
           Document.Filter(Data.QuoteField('TYPE')+'=''W'' and '+Data.QuoteField('NAME')+'='+Data.QuoteValue(copy(ExtractFileName(Path),0,rpos('.',ExtractFileName(Path))-1)),1);
           if Document.DataSet.RecordCount > 0 then

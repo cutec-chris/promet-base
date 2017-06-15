@@ -158,7 +158,8 @@ var
   tmp: String;
 begin
   Result := False;
-  with Keywords.DataSet as IBaseDbFilter do
+  if not Assigned(Self) then exit;
+  with FKeywords.DataSet as IBaseDbFilter do
     Filter := '';
   aParent := 0;
   FActiveTreeID := aParent;
