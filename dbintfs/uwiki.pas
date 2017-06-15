@@ -52,7 +52,7 @@ type
     function FindWikiFolder(PageName : string) : Boolean;
     function GetFullPath : string;
     function isDynamic : Boolean;
-    function PageAsHtml : string;
+    function PageAsHtml(OnlyBody: Boolean=False): string;
     function PageAsText : string;
     property ActiveTreeID : Variant read FActiveTreeID;
     constructor CreateEx(aOwner: TComponent; DM: TComponent;
@@ -288,13 +288,15 @@ begin
   Result := pos('[[INCLUDE:',Uppercase(FieldByName('DATA').AsString))>0;
 end;
 
-function TWikiList.PageAsHtml: string;
+function TWikiList.PageAsHtml(OnlyBody : Boolean = False): string;
 var
   aPath: String;
 begin
   aPath := GetFullPath;
   aPath := copy(aPath,0,rpos('/',aPath));
-  Result := '<html><body>'+WikiText2HTML(DataSet.FieldByName('DATA').AsString,'',aPath)+'</body></html>';
+  Result := WikiText2HTML(DataSet.FieldByName('DATA').AsString,'',aPath);
+  if not OnlyBody then
+    Result := '<html><body>'+Result+'</body></html>';
 end;
 
 function TWikiList.PageAsText: string;
