@@ -75,6 +75,7 @@ type
     procedure Open;virtual;
     procedure Close;virtual;
     function CreateTable : Boolean;virtual;
+    procedure DefineFields(aDataSet: TDataSet); override;
     procedure DefineDefaultFields(aDataSet : TDataSet;HasMasterSource : Boolean);override;
     procedure DefineUserFields(aDataSet: TDataSet);override;
     procedure FillDefaults(aDataSet : TDataSet);override;
@@ -3409,6 +3410,22 @@ begin
         end;
     end;
 end;
+
+procedure TBaseDBDataset.DefineFields(aDataSet: TDataSet);
+begin
+  with aDataSet as IBaseManageDB do
+    begin
+      if Assigned(ManagedFieldDefs) then
+        begin
+          ManagedFieldDefs.Add('DELETED',ftString,1);
+        end;
+      if Assigned(ManagedIndexdefs) then
+        begin
+          ManagedIndexDefs.Add('DELETED','DELETED',[]);
+        end;
+    end;
+end;
+
 procedure TBaseDBDataset.DefineDefaultFields(aDataSet: TDataSet;
   HasMasterSource: Boolean);
 begin
