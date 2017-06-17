@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, uappserverhttp, uWiki, syncobjs,uAppServer,uDocuments,
-  Utils;
+  Utils,IniFiles;
 
 implementation
 
@@ -46,12 +46,15 @@ type
     Code : Integer;
     Result : TStream;
     WikiList: TWikiList;
+    Config : TIniFile;
     Document : TDocument;
+    Template : TStringList;
     property Socket : TAppNetworkThrd read FSocket write SetSocket;
 
     constructor Create;
     destructor Destroy; override;
     procedure ProcessWikiRequest;
+    procedure OpenConfig;
   end;
 
 function HandleWikiRequest(Sender : TAppNetworkThrd;Method, URL: string;Headers : TStringList;Input,Output : TMemoryStream): Integer;
@@ -119,11 +122,14 @@ end;
 constructor TWikiSession.Create;
 begin
   Code := 500;
+  Template := TStringList.Create;
 end;
 
 destructor TWikiSession.Destroy;
 begin
   FSocket.Synchronize(FSocket,@DestroyWikiList);
+  if Assigned(Config) then Config.Free;
+  Template.Free;
   inherited Destroy;
 end;
 
@@ -135,10 +141,23 @@ var
   ms: TMemoryStream;
 begin
   Code:=404;
+  OpenConfig;
+  if (Url = '')
+  or (Url = '/') then
+    begin
+      if Assigned(Config) then
+        url := Config.ReadString('wiki','index','index');
+    end;
   if WikiList.FindWikiPage(Url) then
     begin
       sl := TStringList.Create;
-      sl.Text := WikiList.PageAsHtml;
+      if pos('%CONTENT%',Template.Text)>0 then
+        begin
+          sl.Text := StringReplace(Template.Text,'%CONTENT%',WikiList.PageAsHtml(True),[]);
+          sl.Text := StringReplace(sl.Text,'%TIME%',DateTimeToStr(Now()),[]);
+        end
+      else
+        sl.Text := WikiList.PageAsHtml;
       result := TMemoryStream.Create;
       sl.SaveToStream(result);
       sl.Free;
@@ -176,6 +195,32 @@ begin
               ms.Position:=0;
               Result := ms;
               Code := 200;
+            end;
+        end;
+    end;
+end;
+
+procedure TWikiSession.OpenConfig;
+var
+  aPath: String;
+begin
+  if not Assigned(Config) then
+    begin
+      aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web'+DirectorySeparator;
+      if FileExists(aPath+'wiki-config.ini') then
+        begin
+          Config := TIniFile.Create(aPath+'wiki-config.ini');
+          if FileExists(aPath+'wiki-template.html') then
+            Template.LoadFromFile(aPath+'wiki-template.html');
+        end;
+      if not Assigned(Config) then
+        begin
+          aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+DirectorySeparator;
+          if FileExists(aPath+'wiki-config.ini') then
+            begin
+              Config := TIniFile.Create(aPath+'wiki-config.ini');
+              if FileExists(aPath+'wiki-template.html') then
+                Template.LoadFromFile(aPath+'wiki-template.html');
             end;
         end;
     end;
