@@ -627,9 +627,12 @@ begin
               with BaseApplication as IBaseApplication do
                 Debug(aSQL);
               aConnection := Connection;
-              TZConnection(aConnection).ExecuteDirect(aSQL);
-              Changed := True;
-              Result := True;
+              try
+                TZConnection(aConnection).ExecuteDirect(aSQL);
+                Changed := True;
+                Result := True;
+              except
+              end;
             end
         else if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name)>-1) and ((copy(Connection.Protocol,0,5)<>'mssql') and (FManagedFieldDefs[i].Size>255)) then
           begin
@@ -648,9 +651,12 @@ begin
                   begin
                     with BaseApplication as IBaseApplication do
                       Debug(aSQL);
-                    TZConnection(aConnection).ExecuteDirect(aSQL);
-                    Changed := True;
-                    Result := True;
+                    try
+                      TZConnection(aConnection).ExecuteDirect(aSQL);
+                      Changed := True;
+                      Result := True;
+                    except
+                    end;
                   end;
               end;
           end;
