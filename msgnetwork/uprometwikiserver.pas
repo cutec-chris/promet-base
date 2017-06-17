@@ -44,6 +44,7 @@ type
   public
     Url : string;
     Code : Integer;
+    NewHeaders : string;
     Result : TStream;
     WikiList: TWikiList;
     Config : TIniFile;
@@ -89,6 +90,8 @@ begin
         Output.CopyFrom(aSock.Result,0);
       Headers.Clear;
       Headers.Add('Content-Type: '+ 'text/html');
+      if aSock.NewHeaders<>'' then
+        Headers.Add(aSock.NewHeaders);
     end;
 end;
 
@@ -142,11 +145,13 @@ var
 begin
   Code:=404;
   OpenConfig;
+  NewHeaders:='';
   if (Url = '')
   or (Url = '/') then
     begin
-      if Assigned(Config) then
-        url := Config.ReadString('wiki','index','index');
+      Code := 301;
+      NewHeaders:='Location: '+Config.ReadString('wiki','index','index');
+      exit;
     end;
   if WikiList.FindWikiPage(Url) then
     begin
