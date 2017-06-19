@@ -381,9 +381,12 @@ begin
             aFilter := '('+aFilter+')'
           else
             aFilter := TZeosDBDM(Owner).QuoteField('REF_ID')+'=:'+TZeosDBDM(Owner).QuoteField(aRefField);
-          if aFilter <> '' then
-            aFilter += ' AND ';
-          aFilter += TZeosDBDM(Owner).QuoteField('DELETED')+'<>'+TZeosDBDM(Owner).QuoteValue('Y');
+          if FieldDefs.IndexOf('DELETED')>-1 then
+            begin
+              if aFilter <> '' then
+                aFilter += ' AND ';
+              aFilter += TZeosDBDM(Owner).QuoteField('DELETED')+'<>'+TZeosDBDM(Owner).QuoteValue('Y');
+            end;
         end;
       if (FManagedFieldDefs.IndexOf('AUTO_ID') = -1) and (TZeosDBDM(Owner).UsersFilter <> '') and FUsePermissions and TZeosDBDM(Owner).TableExists('PERMISSIONS') then
         Result += 'FROM '+BuildJoins+' LEFT JOIN '+TZeosDBDM(Owner).QuoteField('PERMISSIONS')+' ON ('+TZeosDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TZeosDBDM(Owner).QuoteField('REF_ID_ID')+'='+TZeosDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TZeosDBDM(Owner).QuoteField('SQL_ID')+') WHERE ('+aFilter+') AND (('+TZeosDBDM(Owner).UsersFilter+') OR '+TZeosDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TZeosDBDM(Owner).QuoteField('USER')+' is NULL)'
