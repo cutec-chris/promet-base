@@ -146,8 +146,10 @@ begin
   Code:=404;
   OpenConfig;
   NewHeaders:='';
-  if (Url = '')
-  or (Url = '/') then
+  if ((Url = '')
+  or (Url = '/'))
+  and Assigned(Config)
+  then
     begin
       Code := 301;
       NewHeaders:='Location: '+Config.ReadString('wiki','index','index');
