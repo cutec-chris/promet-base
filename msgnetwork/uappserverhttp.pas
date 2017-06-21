@@ -194,7 +194,7 @@ begin
       if pos('?',aPath)>0 then
         aPath := copy(aPath,0,pos('?',aPath)-1);
       if (not FileExists(aPath))
-      or (DirectoryExists(aPath) and (not (FileExists(aPath+'index.html'))))  then
+      and (not (DirectoryExists(aPath) and (FileExists(aPath+'index.html'))))  then
         begin
           aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+Stringreplace(url,'/',DirectorySeparator,[rfReplaceAll]);
           if pos('?',aPath)>0 then
