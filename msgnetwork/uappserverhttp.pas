@@ -200,7 +200,7 @@ begin
           if pos('?',aPath)>0 then
             aPath := copy(aPath,0,pos('?',aPath)-1);
         end;
-      if ((not FileExists(aPath)) or DirectoryExists(aPath)) and (FileExists(aPath+'index.html')) then
+      if ((Uppercase(Command)='GET') or (Uppercase(Command)='HEAD')) and ((not FileExists(aPath)) or DirectoryExists(aPath)) and (FileExists(aPath+'index.html')) then
         begin
           //aPath := aPath+'index.html';
           Code := 301;
@@ -214,12 +214,8 @@ begin
             url := url+'/';
           headers.Add('Location: '+url+'index.html');
           writeln('HTTP: redirecting to '+url+'index.html');
-        end;
-      if (not FileExists(aPath)) and (FileExists(ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+Stringreplace(url,'/',DirectorySeparator,[rfReplaceAll])+'index.html')) then
-        begin
-          aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+Stringreplace(url,'/',DirectorySeparator,[rfReplaceAll])+'index.html';
-        end;
-      if FileExists(aPath) then
+        end
+      else if FileExists(aPath) then
         begin
           writeln('HTTP:'+Command+' '+url+' ('+aPath+')');
           Headers.Clear;
