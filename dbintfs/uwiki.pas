@@ -505,14 +505,14 @@ begin
   if Uppercase(copy(Inp,0,6)) = 'BOARD(' then
     begin
       Inp := copy(Inp,7,length(Inp));
-      TBaseDBModule(DataModule).SetFilter(TBaseDBModule(DataModule).Tree,'',0,'','ASC',False,True,True);
+      TBaseDBModule(DataModule).SetFilter(TBaseDBModule(DataModule).Tree,'',0,'','ASC',False,True,False);
       if TBaseDBModule(DataModule).Tree.DataSet.Locate('NAME',copy(Inp,0,pos(',',Inp)-1),[loCaseInsensitive]) then
         begin
           Inp := copy(Inp,pos(',',Inp)+1,length(Inp));
           Inp := copy(Inp,0,pos(')',Inp)-1);
           if not  TryStrToInt(Inp,aCount) then aCount := 30;
           aList := TMessageList.Create(nil);
-          TBaseDBModule(DataModule).SetFilter(aList,TBaseDBModule(DataModule).QuoteField('TREEENTRY')+'='+TBaseDBModule(DataModule).QuoteValue(VarToStr(TBaseDBModule(DataModule).Tree.Id.AsVariant)));
+          TBaseDBModule(DataModule).SetFilter(aList,TBaseDBModule(DataModule).QuoteField('TREEENTRY')+'='+TBaseDBModule(DataModule).QuoteValue(VarToStr(TBaseDBModule(DataModule).Tree.Id.AsVariant)),aCount);
           while not aList.DataSet.EOF do
             begin
               if aCount <= 0 then break;
