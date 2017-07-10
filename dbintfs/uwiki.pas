@@ -43,7 +43,8 @@ type
     FKeywordDS : TDataSource;
     FOutDir,FOutSub,FOutExt : string;
     FOutTodo: TStringList;
-    Variables : TStringList;
+    FVariables : TStringList;
+    aDataThere : Boolean;
   protected
   public
     function GetTyp: string;override;
@@ -64,6 +65,7 @@ type
     function CreateTable: Boolean; override;
     property Keywords : TKeywords read FKeywords;
     function ExportToHTML(aFile: string; aInclude: TWikiIncludeFunc): Boolean;
+    property Variables : TStringList read FVariables;
   end;
 implementation
 uses Variants,htmltowiki,Utils,uMessages,sqlparser,
@@ -147,7 +149,6 @@ var
   nInp: String;
   ConvertRTF: Boolean = False;
   //aScript: TBaseScript;
-  aDataThere : Boolean;
   bScript: String;
   Found: Boolean;
   procedure BuildLinkRow(aBDS : TDataSet);
@@ -783,6 +784,7 @@ begin
   else
     begin
       aNewList := TWikiList.CreateEx(Self,TBaseDBModule(DataModule));
+      aNewList.Variables.Assign(FVariables);
       nInp := Inp;
       if pos('|',nInp) > 0 then nInp := copy(nInp,0,pos('|',nInp)-1);
       nInp := StringReplace(nInp,'%username%',TBaseDBModule(DataModule).Users.Text.AsString,[]);
@@ -1005,14 +1007,14 @@ constructor TWikiList.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  Variables := TStringList.Create;
+  FVariables := TStringList.Create;
   FKeywords := TKeywords.CreateEx(Self,DM,aConnection);
   FKeywords.DataSet.AfterInsert:=@FKeywordsDataSetAfterInsert;
 end;
 
 destructor TWikiList.Destroy;
 begin
-  FreeAndNil(Variables);
+  FreeAndNil(FVariables);
   FreeAndNil(FKeywords);
   inherited Destroy;
 end;

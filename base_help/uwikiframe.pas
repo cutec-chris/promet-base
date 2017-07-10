@@ -541,6 +541,7 @@ end;
 
 procedure TfWikiFrame.DoOpen;
 begin
+  TWikiList(DataSet).Variables.Assign(FVariables);
   ipHTML.SetHtml(FEditor.GetHTML(TWikiList(DataSet).PageAsHtml(True,False)));
 end;
 
@@ -606,6 +607,7 @@ var
   aCanvas: TBitmap;
 begin
   if (not Assigned(DataSet)) or (not DataSet.DataSet.Active) then exit;
+  TWikiList(dataSet).Variables.Assign(FVariables);
   aHTML := FEditor.GetHTML(TWikiList(dataSet).PageAsHtml(True,False));
   ipHTML.SetHtml(aHTML);
   aCanvas := TBitmap.Create;
