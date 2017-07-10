@@ -1469,7 +1469,8 @@ begin
   nComm := nil;
   while not DataSet.EOF do
     begin
-      DoAddPosition;
+      if DataSet.FieldByName('ACTIVE').AsString<>'N' then
+        DoAddPosition;
       DataSet.Next;
     end;
   Application.ProcessMessages;
