@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, uappserverhttp, uWiki, syncobjs,uAppServer,uDocuments,
-  Utils,IniFiles,wikitohtml;
+  Utils,IniFiles,wikitohtml,synautil,blcksock;
 
 implementation
 
@@ -44,7 +44,7 @@ type
   public
     Url : string;
     Code : Integer;
-    NewHeaders : string;
+    NewHeaders : TStringList;
     Result : TStream;
     WikiList: TWikiList;
     Config : TIniFile;
@@ -89,9 +89,8 @@ begin
       if Assigned(aSock.Result) then
         Output.CopyFrom(aSock.Result,0);
       Headers.Clear;
-      Headers.Add('Content-Type: '+ 'text/html');
-      if aSock.NewHeaders<>'' then
-        Headers.Add(aSock.NewHeaders);
+      if aSock.NewHeaders.Count>0 then
+        Headers.AddStrings(aSock.NewHeaders);
     end;
 end;
 
@@ -124,6 +123,7 @@ constructor TWikiSession.Create;
 begin
   Code := 500;
   Template := TStringList.Create;
+  NewHeaders:=TStringList.Create;
 end;
 
 destructor TWikiSession.Destroy;
@@ -131,6 +131,7 @@ begin
   FSocket.Synchronize(FSocket,@DestroyWikiList);
   if Assigned(Config) then Config.Free;
   Template.Free;
+  NewHeaders.Free;
   inherited Destroy;
 end;
 
@@ -143,14 +144,14 @@ var
 begin
   Code:=404;
   OpenConfig;
-  NewHeaders:='';
+  NewHeaders.Clear;
   if ((Url = '')
   or (Url = '/'))
   and Assigned(Config)
   then
     begin
       Code := 301;
-      NewHeaders:='Location: '+Config.ReadString('wiki','index','index');
+      NewHeaders.Add('Location: '+Config.ReadString('wiki','index','index'));
       exit;
     end;
   if WikiList.FindWikiPage(Url) then
@@ -166,6 +167,8 @@ begin
       result := TMemoryStream.Create;
       sl.SaveToStream(result);
       sl.Free;
+      NewHeaders.Add('Last-Modified: '+Rfc822DateTime(WikiList.TimeStamp.AsDateTime));
+      NewHeaders.Add('ETag: '+Rfc822DateTime(WikiList.TimeStamp.AsDateTime));
       Code := 200;
     end
   else
@@ -199,6 +202,10 @@ begin
               Document.CheckoutToStream(ms);
               ms.Position:=0;
               Result := ms;
+              NewHeaders.Add('Last-Modified: '+Rfc822DateTime(Document.TimeStamp.AsDateTime));
+              NewHeaders.Add('ETag: '+Rfc822DateTime(Document.TimeStamp.AsDateTime));
+              if Document.TimeStamp.AsDateTime = Document.FieldByName('DATE').AsDateTime then
+                NewHeaders.Add('Cache-Control: max-age=31536000');
               Code := 200;
             end;
         end;

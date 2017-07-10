@@ -103,14 +103,15 @@ begin
               if aSock.Code<>500 then break;
             end;
         end;
-      TAppNetworkThrd(Sender).sock.SendString('HTTP/1.0 ' + IntTostr(aSock.Code) + CRLF);
+      TAppNetworkThrd(Sender).sock.SendString('HTTP/1.1 ' + IntTostr(aSock.Code) + CRLF);
       if aSock.protocol <> '' then
       begin
         aSock.headers.Add('Date: ' + Rfc822DateTime(now));
         aSock.headers.Add('Server: Avamm Internal Network');
         aSock.headers.Add('Content-length: ' + IntTostr(aSock.OutputData.Size));
         for n := 0 to aSock.headers.count - 1 do
-          TAppNetworkThrd(Sender).sock.sendstring(aSock.headers[n] + CRLF);
+          if aSock.headers[n]<>'' then
+            TAppNetworkThrd(Sender).sock.sendstring(aSock.headers[n] + CRLF);
         TAppNetworkThrd(Sender).sock.sendstring(CRLF);
       end;
       if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
@@ -218,8 +219,10 @@ begin
       else if FileExists(aPath) then
         begin
           writeln('HTTP:'+Command+' '+url+' ('+aPath+')');
+          headers.Add('Last-Modified: '+Rfc822DateTime(FileDateToDateTime(FileAge(aPath))));
+          headers.Add('ETag: '+Rfc822DateTime(FileDateToDateTime(FileAge(aPath))));
           Headers.Clear;
-          headers.Add('Connection: close');
+//          headers.Add('Connection: close');
           if Uppercase(Command)='OPTIONS' then
             begin
               headers.Add('Allow: GET,HEAD,OPTIONS');

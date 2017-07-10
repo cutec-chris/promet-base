@@ -196,7 +196,10 @@ begin
   except
   end;
   inherited Destroy;
-  NetworkDaemon.Sockets.Remove(Self);
+  try
+    NetworkDaemon.Sockets.Remove(Self);
+  except
+  end;
 end;
 
 procedure TAppNetworkThrd.Execute;
