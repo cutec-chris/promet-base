@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, uappserverhttp, uWiki, syncobjs,uAppServer,uDocuments,
-  Utils,IniFiles;
+  Utils,IniFiles,wikitohtml;
 
 implementation
 
@@ -94,8 +94,6 @@ begin
         Headers.Add(aSock.NewHeaders);
     end;
 end;
-
-{ TWikiSession }
 
 procedure TWikiSession.CreateWikiList;
 begin
