@@ -203,6 +203,7 @@ begin
               Document.CheckoutToStream(ms);
               ms.Position:=0;
               Result := ms;
+              NewHeaders.Add('Content-Type: '+GetContentType('.'+Document.FieldByName('EXTENSION').AsString));
               NewHeaders.Add('Last-Modified: '+Rfc822DateTime(Document.TimeStamp.AsDateTime));
               NewHeaders.Add('ETag: '+Rfc822DateTime(Document.TimeStamp.AsDateTime));
               if Document.TimeStamp.AsDateTime = Document.FieldByName('DATE').AsDateTime then

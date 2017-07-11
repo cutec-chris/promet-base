@@ -1,4 +1,5 @@
 ﻿Build 437 (nicht veröffentlicht)
+      - Wiki:diverse verbesserungen für PAppserver wenn dieser das Wiki per HTTP ausliefert
 Build 436 (7.7.2017)
       - Configurations Webapp um Datenbankverbindung bei reinen Server Paketen einzurichten
       - Basis Aufgaben App

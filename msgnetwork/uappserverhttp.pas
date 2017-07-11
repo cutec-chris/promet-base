@@ -53,6 +53,7 @@ type
   end;
 
 procedure RegisterHTTPHandler(aHandler : THTTPHandlerProc);
+function GetContentType(Extension : string) : string;
 
 implementation
 
@@ -119,6 +120,18 @@ begin
       TAppNetworkThrd(Sender).Sock.SendBuffer(aSock.OutputData.Memory, aSock.OutputData.Size);
       Result:=' ';
     end;
+  end;
+end;
+
+function GetContentType(Extension : string) : string;
+begin
+  case Extension of
+  '.html','.htm':Result := 'text/html';
+  '.txt':Result := 'text/plain';
+  '.css':Result := 'text/css';
+  '.js':Result := 'application/javascript';
+  '.png','.jpg','.jpeg','.tga','.gif','.bmp':Result := 'image/'+copy(Extension,2,length(Extension));
+  else Result := 'application/'+copy(Extension,2,length(Extension));
   end;
 end;
 
@@ -224,12 +237,6 @@ begin
           if Uppercase(Command)='OPTIONS' then
             begin
               headers.Add('Allow: GET,HEAD,OPTIONS');
-              if (ExtractFileExt(aPath)='.html')
-              or (ExtractFileExt(aPath)='.htm')
-              then
-                headers.Add('Content-Type: text/html')
-              else
-                headers.Add('Content-Type: text/plain');
             end
           else if Uppercase(Command)='GET' then
             begin
@@ -245,6 +252,7 @@ begin
             end
           else if Uppercase(Command)='HEAD' then
             Code:=200;
+          headers.Add('Content-Type:'+GetContentType(ExtractFileExt(aPath)));
           headers.Add('Last-Modified: '+Rfc822DateTime(FileDateToDateTime(FileAge(aPath))));
           headers.Add('ETag: '+Rfc822DateTime(FileDateToDateTime(FileAge(aPath))));
         end
