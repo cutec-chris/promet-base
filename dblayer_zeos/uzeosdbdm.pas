@@ -1903,7 +1903,7 @@ begin
               try
                 if Tablename<>'' then
                   begin
-                    ResultSet := Statement.ExecuteQuery('SELECT '+QuoteField('SQL_ID')+' FROM '+QuoteField(Tablename)+' WHERE '+QuoteField('SQL_ID')+'='+QuoteValue(IntToStr(Result)));
+                    ResultSet := Statement.ExecuteQuery('SELECT '+QuoteField('SQL_ID')+' FROM '+QuoteField(Tablename)+' WHERE '+QuoteField('SQL_ID')+'='+QuoteValue(Format('%d',[Int64(Result)])));
                     if ResultSet.Next then
                       aId := ResultSet.GetLong(1)
                   end;
