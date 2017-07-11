@@ -1454,6 +1454,7 @@ var
             begin
               if pos('HISTORY',uppercase(TableName)) > 0 then exit;
               if pos('MEASDATA',uppercase(TableName)) > 0 then exit;
+              if pos('TASKSNAPSHOTS',uppercase(TableName)) > 0 then exit;
               if Uppercase(TableName) = 'STORAGE' then exit;
             end;
           aData := Doc.CreateElement('TABLE');
