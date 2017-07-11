@@ -219,8 +219,6 @@ begin
       else if FileExists(aPath) then
         begin
           writeln('HTTP:'+Command+' '+url+' ('+aPath+')');
-          headers.Add('Last-Modified: '+Rfc822DateTime(FileDateToDateTime(FileAge(aPath))));
-          headers.Add('ETag: '+Rfc822DateTime(FileDateToDateTime(FileAge(aPath))));
           Headers.Clear;
 //          headers.Add('Connection: close');
           if Uppercase(Command)='OPTIONS' then
@@ -247,6 +245,8 @@ begin
             end
           else if Uppercase(Command)='HEAD' then
             Code:=200;
+          headers.Add('Last-Modified: '+Rfc822DateTime(FileDateToDateTime(FileAge(aPath))));
+          headers.Add('ETag: '+Rfc822DateTime(FileDateToDateTime(FileAge(aPath))));
         end
       //else writeln('HTTP:'+aCmd+' '+uri+' not found')
         ;
