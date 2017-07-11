@@ -1434,6 +1434,7 @@ var
   Stream: TStringStream;
   Doc: TXMLDocument;
   RootNode: TDOMElement;
+  UsedTables : TStringList;
 
   procedure RecourseTables(aNode : TDOMNode;aDataSet : TBaseDBDataset);
   var
@@ -1456,11 +1457,13 @@ var
               if pos('MEASDATA',uppercase(TableName)) > 0 then exit;
               if pos('TASKSNAPSHOTS',uppercase(TableName)) > 0 then exit;
               if Uppercase(TableName) = 'STORAGE' then exit;
+              if UsedTables.IndexOf(TableName) > -1 then exit;
+              UsedTables.Add(TableName);
+              aData := Doc.CreateElement('TABLE');
+              aNode.AppendChild(aData);
+              with aDataSet.DataSet as IBaseManageDB do
+                aData.SetAttribute('NAME',TableName);
             end;
-          aData := Doc.CreateElement('TABLE');
-          aNode.AppendChild(aData);
-          with aDataSet.DataSet as IBaseManageDB do
-            aData.SetAttribute('NAME',TableName);
           DataNode := Doc.CreateElement('DATA');
           aData.AppendChild(DataNode);
           aDataSet.Open;
@@ -1501,6 +1504,7 @@ var
       end;
   end;
 begin
+  UsedTables := TStringList.Create;
   Doc := TXMLDocument.Create;
   RootNode := Doc.CreateElement('TABLES');
   Doc.AppendChild(RootNode);
@@ -1510,6 +1514,7 @@ begin
   Result := Stream.DataString;
   Doc.Free;
   Stream.Free;
+  UsedTables.Free;
 end;
 
 procedure TBaseDBDataset.DataSetToJSON(ADataSet: TDataSet; AJSON: TJSONArray;
@@ -1595,6 +1600,8 @@ var
       with ThisDataSet as IBaseManageDB do
         if (TableName = aNode.Attributes.GetNamedItem('NAME').NodeValue) then
           begin
+            with BaseApplication as IBaseApplication do
+              debug('Importing from: '+TableName);
             ThisDataSet.Open;
             ThisDataSet.Tag:=111;
             cNode := aNode.ChildNodes[i];
@@ -3153,8 +3160,10 @@ end;
 
 function TBaseDBDataset.GetTableName: string;
 begin
-  with FDataSet as IBaseManageDB do
-    Result := GetTableName;
+  Result := '';
+  if Supports(FDataSet,IBaseManageDB) then
+    with FDataSet as IBaseManageDB do
+      Result := GetTableName;
 end;
 
 function TBaseDBDataset.GetConnection: TComponent;

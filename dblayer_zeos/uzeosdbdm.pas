@@ -1276,7 +1276,11 @@ begin
         Result := TBaseDBDataSet(FSubDataSets[i]);
 end;
 procedure TZeosDBDataSet.RegisterSubDataSet(aDataSet: TComponent);
+var
+  i: Integer;
 begin
+  for i := 0 to FSubDataSets.Count-1 do
+    if TBaseDbDataSet(aDataSet).TableName = TBaseDbDataSet(FSubDataSets.Items[i]).TableName then exit;
   FSubDataSets.Add(aDataSet);
 end;
 function TZeosDBDataSet.GetCount: Integer;
