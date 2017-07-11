@@ -241,10 +241,6 @@ type
     function GetParentField : string;
     function GetStructureElements(aIndex : Integer) : TBaseDbDataSet;
   end;
-  TAccessHistory = class(TBaseHistory)
-  public
-    procedure DefineFields(aDataSet : TDataSet);override;
-  end;
   TImages = class;
   TLinks = class;
   TMeasurement = class;
@@ -912,15 +908,6 @@ begin
     end;
 end;
 
-procedure TAccessHistory.DefineFields(aDataSet: TDataSet);
-begin
-  inherited DefineFields(aDataSet);
-  with aDataSet as IBaseManageDB do
-    begin
-      TableName := 'ACCHISTORY';
-    end;
-end;
-
 function TFollowers.GetLink: TField;
 begin
   result := FieldByName('LINK');
@@ -1466,6 +1453,7 @@ var
           with aDataSet.DataSet as IBaseManageDB do
             begin
               if pos('HISTORY',uppercase(TableName)) > 0 then exit;
+              if pos('MEASDATA',uppercase(TableName)) > 0 then exit;
               if Uppercase(TableName) = 'STORAGE' then exit;
             end;
           aData := Doc.CreateElement('TABLE');
@@ -1705,27 +1693,14 @@ end;
 
 procedure TBaseDbList.OpenItem(AccHistory : Boolean = True);
 var
-  aHistory: TAccessHistory;
   aObj: TObjects;
 begin
   if ((Self.Count=0) and (State<>dsInsert)) or (not Assigned(Id)) then exit;
   try
     try
-      aHistory := TAccessHistory.Create(nil);
       aObj := TObjects.Create(nil);
       with aObj.DataSet as IBaseDbFilter do
         UsePermissions:= False;
-      if AccHistory then
-        begin
-          if DataSet.State<>dsInsert then
-            begin
-              if not TBaseDBModule(DataModule).TableExists(aHistory.TableName) then
-                aHistory.CreateTable;
-              aHistory.Free;
-              aHistory := TAccessHistory.CreateEx(nil,DataModule,nil,DataSet);
-              aHistory.AddItem(DataSet,Format(strItemOpened,[TBaseDBModule(DataModule).GetLinkDesc(TBaseDBModule(DataModule).BuildLink(DataSet))]),TBaseDBModule(DataModule).BuildLink(DataSet));
-            end;
-        end;
       if DataSet.State<>dsInsert then
         begin
         if not TBaseDBModule(DataModule).TableExists(aObj.TableName) then
@@ -1781,7 +1756,6 @@ begin
         end;
     finally
       aObj.Free;
-      aHistory.Free;
     end;
   except
   end;

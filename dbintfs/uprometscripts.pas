@@ -546,7 +546,6 @@ end;
 
 procedure TBaseScript.OpenItem(AccHistory: Boolean);
 var
-  aHistory: TAccessHistory;
   aObj: TObjects;
   aID: String;
   aFilter: String;
@@ -554,19 +553,7 @@ begin
   if Self.Count=0 then exit;
   try
     try
-      aHistory := TAccessHistory.Create(nil);
       aObj := TObjects.Create(nil);
-      if AccHistory then
-        begin
-          if DataSet.State<>dsInsert then
-            begin
-              if not Data.TableExists(aHistory.TableName) then
-                aHistory.CreateTable;
-              aHistory.Free;
-              aHistory := TAccessHistory.CreateEx(nil,Data,nil,DataSet);
-              aHistory.AddItem(DataSet,Format(strItemOpened,[Data.GetLinkDesc(Data.BuildLink(DataSet))]),Data.BuildLink(DataSet));
-            end;
-        end;
       if (DataSet.State<>dsInsert) then
         begin
           if not Data.TableExists(aObj.TableName) then
@@ -643,7 +630,6 @@ begin
         end;
     finally
       aObj.Free;
-      aHistory.Free;
     end;
   except
   end;

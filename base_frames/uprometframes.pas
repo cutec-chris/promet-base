@@ -157,7 +157,6 @@ end;
 
 procedure TPrometMainFrame.DoOpen;
 var
-  aHistory: TAccessHistory;
   i: Integer;
 begin
   if HasHelp then AddHelp(Self);
