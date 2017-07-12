@@ -200,8 +200,15 @@ var
                '" COLOR="'+state.collst.strings[Color]+
                '" SIZE="'+IntToStr(FontSize)+'">';
           }
-          s:=s+'<FONT COLOR="'+state.collst.strings[Color]+
-               '" SIZE="'+IntToStr(FontSize)+'">';
+          if state.collst.Count>Color then
+            begin
+              s:=s+'<FONT COLOR="'+state.collst.strings[Color]+
+                   '" SIZE="'+IntToStr(FontSize)+'">';
+            end
+          else
+            begin
+             s:=s+'<FONT SIZE="'+IntToStr(FontSize)+'">';
+            end;
           ChangeF:=FALSE;
         end;
         // If any textattr's should be written - do it
@@ -290,10 +297,10 @@ var
         repeat
           keyword:=keyword+rtf[i];
           inc(i);
-        until (rtf[i] in ['{','\','}',' ',';','-','0'..'9']);
+        until (rtf[i] in ['{','\','}',' ',';','-','0'..'9',#13,#10]);
         // Second - get any value following ...
         Value  :='';
-        While (rtf[i] in ['a'..'z','-','0'..'9']) do begin
+        While (rtf[i] in ['a'..'z','-','0'..'9',#13,#10]) do begin
           value:=value+rtf[i];
           inc(i);
         end;
@@ -365,13 +372,20 @@ var
           WriteChar(#9);
         end else if keyword='\ul' then with TXTFMT do begin  // Set underline
           Written:=FALSE;
-          if underline=0 then Underline:=1;
+          if underline=0 then Underline:=1
+          else if Value='0' then
+            underline := 3;
         end else if keyword='\b' then with TXTFMT do begin   // Set bold
           Written:=FALSE;
-          if bold=0 then Bold:=1;
+          if bold=0 then
+            Bold:=1
+          else if Value='0' then
+            Bold := 3;
         end else if keyword='\i' then with TXTFMT do begin   // Set italics
           Written:=FALSE;
-          if italics=0 then Italics:=1;
+          if italics=0 then Italics:=1
+          else if Value='0' then
+            Italics := 3;
         end else if keyword='\cf' then with TXTFMT do begin  // Change fontcolor
           a:=StrToIntDef(value,0);
           If Color<>a then begin
@@ -439,7 +453,10 @@ var
             Written   :=false;
           end;
           state.coltbl:=True;                        // Update is finished
-        end; { last if then   }
+        end { last if then   }
+      else begin
+        state.fnttbl:=false;
+      end;
       end;  { case else }
     end;
   end;  { collectcode }
@@ -448,6 +465,17 @@ var
   var
     a : integer;
   begin
+    with TXTFMT do begin                 // Zero textattr's
+     If bold=2 then Bold:=3;
+     If Italics=2 then Italics:=3;
+     If Underline=2 then Underline:=3;
+     if (bold=3) or (italics=3) or (underline=3) or (Color<>0) then begin
+       color:=0;
+       Written:=FALSE;
+       WriteChar(#0);
+     end;
+    end;
+
     // Nice up any empty <P>aragraph statements
     While pos(#13#10'<P>'#13#10'<P',s)>0 do begin
       a:=pos(#13#10'<P>'#13#10'<P',s);
@@ -463,22 +491,28 @@ begin
   FillChar(TxtFmt,sizeof(TxtFmt),0);
   Group:=0;
   try
+    try
     State.FntLst:=TstringList.Create;    // Create fontlist
     State.ColLst:=TstringList.Create;    // Create colorlist
     indx:=0;
     result:='';
+    if length(rtf)<1 then exit;
     repeat
       inc(indx);
       case rtf[indx] of
         #0..#31 : ;                      // Ascii ctrl-char - ignorre
         '{' : Inc(group);
-        '}' : Dec(group);
+        '}' :
+          begin
+            Dec(group);
+            if state.fnttbl then state.fnttbl := False;
+          end;
         '\' : indx:=collectcode(indx);   // Code found - the fun starts ...
         else begin
           WriteChar(rtf[indx]);         // Write char and any pending html-codes ...
           Inc(indx);                    // Speedwrite normal chars till next special one
           while (indx<length(rtf)) and
-                not (rtf[indx] in ['{','}','\','<','>',#00..#31]) do begin
+                not (rtf[indx] in ['{','}','\','<','>',#0..#31]) do begin
             result:=result+rtf[indx];
             inc(indx);
           end;
@@ -487,8 +521,10 @@ begin
 
       end;
     until indx>=length(rtf);
+    except
+    end;
   finally
-    result:=cleanup('<p>'+result+'</p>');		  // Return the HTML document
+    result:=cleanup(result);		  // Return the HTML document
     State.FntLst.free;
     State.ColLst.free;
   end;
