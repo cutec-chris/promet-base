@@ -93,7 +93,7 @@ interface
 
 implementation
 uses
-  Classes, SysUtils;
+  Classes, SysUtils, Utils;
 
 function RtfToHtml(const rtf:string):string;
 
@@ -297,13 +297,25 @@ var
         repeat
           keyword:=keyword+rtf[i];
           inc(i);
-        until (rtf[i] in ['{','\','}',' ',';','-','0'..'9',#13,#10]);
+        until (rtf[i] in ['&','{','\','}',' ',';','-','0'..'9',#13,#10]);
         // Second - get any value following ...
         Value  :='';
-        While (rtf[i] in ['a'..'z','-','0'..'9',#13,#10]) do begin
-          value:=value+rtf[i];
-          inc(i);
-        end;
+        if (keyword = '\') and (rtf[i]='&') then
+          begin
+            inc(i,5);
+            value := '$'+rtf[i]+rtf[i+1];
+            value := HTMLEncodeTagless(chr(StrToInt(value)));
+            for a := 1 to length(value) do
+              WriteChar(value[a]);
+            inc(i,2);
+          end
+        else
+          begin
+            While (rtf[i] in ['a'..'z','-','0'..'9',#13,#10]) do begin
+              value:=value+rtf[i];
+              inc(i);
+            end;
+          end;
         if rtf[i]=' ' then inc(i);
         while (rtf[i] in ['{','}',';']) do inc(i);
         result:=i-1;
@@ -482,6 +494,7 @@ var
       system.delete(s,a,6);
       system.insert('</P>',s,a);
     end;
+    Result := StringReplace(result,'#1310</P>','</P>',[rfReplaceAll]);
     result:=s;
   end; { cleanup }
 var
