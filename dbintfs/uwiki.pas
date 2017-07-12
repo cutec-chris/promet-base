@@ -21,7 +21,8 @@ unit uWiki;
 interface
 uses
   Classes, SysUtils, uBaseDbClasses, db, uBaseDBInterface, uDocuments,
-  uBaseApplication, uBaseSearch, uIntfStrConsts,WikiToHtml,uBaseDatasetInterfaces;
+  uBaseApplication, uBaseSearch, uIntfStrConsts,WikiToHtml,uBaseDatasetInterfaces,
+  rtf2html;
 type
   TKeywords = class(TBaseDbDataSet)
   public
@@ -205,15 +206,13 @@ var
                   end
                 else if copy(uppercase(aName),0,4)='RTF(' then
                   begin
-                    {
                     aName := copy(aName,5,length(aName)-5);
                     if pos('(',aName)>0 then
                       begin
                         aName := copy(aName,pos('(',aName)+1,length(aname));
                         aName := copy(aName,0,length(aName)-1);
                       end;
-                    Result+='<td align="left">'+HTMLEncode(RTF2Plain(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString))+'</td>';
-                    }
+                    Result+='<td align="left">'+HTMLEncode(RtfToHtml(aBDS.Fields[aBDS.FieldDefs.IndexOf(aName)].AsString))+'</td>';
                   end
                 else if copy(uppercase(aName),0,5)='ICON(' then
                   begin
@@ -800,7 +799,7 @@ begin
     end;
   if ConvertRTF then
     begin
-      //Outp:=RTF2Plain(OutP);
+      Outp:=RtfToHtml(OutP);
     end;
 end;
 

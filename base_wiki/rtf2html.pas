@@ -87,6 +87,7 @@ Troels S Eriksen, Denmark
 
 *)
 interface
+ {$mode objfpc}{$H+}
 
  function RtfToHtml(const rtf:string):string;
 
@@ -245,7 +246,6 @@ var
         else  result:=result+s+c;        // Writes a character
       end;
     end; { WriteChar }
-
   function Resolve(c:char):integer;
   { Convert char to integer value - used to decode \'## to an ansi-value }
   begin
@@ -255,7 +255,6 @@ var
       else     Result:=0;
     end;
   end; { resolve }
-
   function CollectCode(i:integer):integer;
   var
     Value,
@@ -273,7 +272,7 @@ var
             '}' : dec(group);
           end;
           inc(i);
-        until (group+1)=a;
+        until ((group+1)=a) or (i>length(rtf));
         result:=i-1;
       end;
       #39 : begin  // Decode hex value 
@@ -310,9 +309,9 @@ var
         end else if keyword='\f' then case state.fnttbl of
           true : begin                        // Make fontlist
             fnt:='';
-            While rtf[i]<>' ' do inc(i);      // Ignore fontfamily info etc
+            While (rtf[i]<>' ') do inc(i);      // Ignore fontfamily info etc
             inc(i);
-            While rtf[i]<>';' do begin        // Read font name
+            While (rtf[i]<>';') do begin        // Read font name
               Fnt:=Fnt+rtf[i];
               inc(i);
             end;
@@ -326,6 +325,16 @@ var
               ChangeF:=TRUE;
               Written:=FALSE;
               FONT   :=a;
+            end;
+            with TXTFMT do begin                 // Zero textattr's
+             If bold=2 then Bold:=3;
+             If Italics=2 then Italics:=3;
+             If Underline=2 then Underline:=3;
+             if (bold=3) or (italics=3) or (underline=3) or (Color<>0) then begin
+               color:=0;
+               Written:=FALSE;
+               WriteChar(#0);
+             end;
             end;
           end; { false }
         end else if keyword='\plain' then
@@ -411,6 +420,7 @@ var
         end else if keyword='\fonttbl' then begin
           state.fnttbl:=true;                        // Create font-list
         end else if keyword='\colortbl' then begin
+          state.fnttbl:=false;
           state.coltbl:=true;                        // Create color-list
         end else if keyword='\deflang' then begin
           state.fnttbl:=False;                       // Update is finished
@@ -433,7 +443,6 @@ var
       end;  { case else }
     end;
   end;  { collectcode }
-
   function CleanUp(s:string):string;
   // This could be done without, but - hey - it's nice
   var
@@ -447,12 +456,12 @@ var
     end;
     result:=s;
   end; { cleanup }
-
 var
   crsr : integer;
 
 begin
   FillChar(TxtFmt,sizeof(TxtFmt),0);
+  Group:=0;
   try
     State.FntLst:=TstringList.Create;    // Create fontlist
     State.ColLst:=TstringList.Create;    // Create colorlist
@@ -477,9 +486,9 @@ begin
         end;
 
       end;
-    until indx=length(rtf);
+    until indx>=length(rtf);
   finally
-    result:=cleanup(result);		  // Return the HTML document
+    result:=cleanup('<p>'+result+'</p>');		  // Return the HTML document
     State.FntLst.free;
     State.ColLst.free;
   end;
