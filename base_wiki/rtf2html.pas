@@ -106,7 +106,7 @@ type
   end;
 
   TPARFMT = record
-    Alignment : TAlignment;  { højre, venstre, centreret tekst }
+    Alignment : TAlignment;  { hÃ¸jre, venstre, centreret tekst }
     Bullets   : integer;	   { Skriv bulletliste   <UL>  = 1
                                      Skriv element       <LI>  = 2
                                      Skriv element slut  </LI> = 3
@@ -135,6 +135,11 @@ var
   Group  : integer;
   Col    : string[10];
   Fnt    : string[63];
+
+  procedure WritePlain(c:string);
+  begin
+    Result := Result+c;
+  end;
 
   procedure WriteChar(c:Char);
     var
@@ -302,11 +307,11 @@ var
         Value  :='';
         if (keyword = '\') and (rtf[i]='&') then
           begin
+            if (not TxtFmt.Written) or (not ParFmt.Written) then
+              WriteChar(#0);
             inc(i,5);
             value := '$'+rtf[i]+rtf[i+1];
-            value := HTMLEncodeTagless(chr(StrToInt(value)));
-            for a := 1 to length(value) do
-              WriteChar(value[a]);
+            WritePlain(AnsiToUtf8(chr(StrToInt(value))));
             inc(i,2);
           end
         else
@@ -494,7 +499,7 @@ var
       system.delete(s,a,6);
       system.insert('</P>',s,a);
     end;
-    Result := StringReplace(result,'#1310</P>','</P>',[rfReplaceAll]);
+    Result := StringReplace(result,'#13#10</P>','</P>',[rfReplaceAll]);
     result:=s;
   end; { cleanup }
 var
@@ -502,6 +507,7 @@ var
 
 begin
   FillChar(TxtFmt,sizeof(TxtFmt),0);
+  FillChar(ParFmt,sizeof(ParFmt),0);
   Group:=0;
   try
     try
