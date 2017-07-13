@@ -1434,7 +1434,6 @@ var
   Stream: TStringStream;
   Doc: TXMLDocument;
   RootNode: TDOMElement;
-  UsedTables : TStringList;
 
   procedure RecourseTables(aNode : TDOMNode;aDataSet : TBaseDBDataset);
   var
@@ -1457,8 +1456,6 @@ var
               if pos('MEASDATA',uppercase(TableName)) > 0 then exit;
               if pos('TASKSNAPSHOTS',uppercase(TableName)) > 0 then exit;
               if Uppercase(TableName) = 'STORAGE' then exit;
-              if UsedTables.IndexOf(TableName) > -1 then exit;
-              UsedTables.Add(TableName);
               aData := Doc.CreateElement('TABLE');
               aNode.AppendChild(aData);
               with aDataSet.DataSet as IBaseManageDB do
@@ -1504,7 +1501,6 @@ var
       end;
   end;
 begin
-  UsedTables := TStringList.Create;
   Doc := TXMLDocument.Create;
   RootNode := Doc.CreateElement('TABLES');
   Doc.AppendChild(RootNode);
@@ -1514,7 +1510,6 @@ begin
   Result := Stream.DataString;
   Doc.Free;
   Stream.Free;
-  UsedTables.Free;
 end;
 
 procedure TBaseDBDataset.DataSetToJSON(ADataSet: TDataSet; AJSON: TJSONArray;
