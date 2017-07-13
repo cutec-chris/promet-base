@@ -246,7 +246,7 @@ function TfWikiEditor.GetHTML(aHTML : String): TSimpleIpHtml;
 var
   ss: TStringStream;
 begin
-  ss:=TStringStream.Create(#$EF+#$BB+#$BF+'<html><head><title>'+FCaption+'</title><style>p { margin-top: 0em; margin-bottom: 0em; margin: 0em; }</style></head><body>'+aHTML+'<br><font color="#000000">_</body></html>');
+  ss:=TStringStream.Create(#$EF+#$BB+#$BF+'<html><head><title>'+FCaption+'</title><style>p { margin-top: 0em; margin-bottom: 0em; margin: 0em; }</style></head><body>'+aHTML+'<br><font color="#ffffff">_</body></html>');
   ss.Position := 0;
   try
     Result:=TSimpleIPHtml.Create;
