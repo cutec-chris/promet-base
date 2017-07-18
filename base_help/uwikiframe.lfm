@@ -580,12 +580,15 @@ inherited fWikiFrame: TfWikiFrame
       FixedTypeface = 'Courier New'
       DefaultTypeFace = 'arial'
       DefaultFontSize = 10
+      FactBAParag = 0
       FlagErrors = False
       PopupMenu = pmContext
       PrintSettings.MarginLeft = 0.5
       PrintSettings.MarginTop = 0.5
       PrintSettings.MarginRight = 0.5
       PrintSettings.MarginBottom = 0.5
+      MarginHeight = 2
+      MarginWidth = 2
       ShowHints = False
       TabOrder = 0
       OnHotClick = ipHTMLHotClick
