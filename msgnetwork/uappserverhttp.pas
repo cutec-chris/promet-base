@@ -233,7 +233,6 @@ begin
         begin
           writeln('HTTP:'+Command+' '+url+' ('+aPath+')');
           Headers.Clear;
-//          headers.Add('Connection: close');
           if Uppercase(Command)='OPTIONS' then
             begin
               headers.Add('Allow: GET,HEAD,OPTIONS');
@@ -258,6 +257,7 @@ begin
         end
       //else writeln('HTTP:'+aCmd+' '+uri+' not found')
         ;
+      headers.Add('Connection: keep-alive');
     end;
 end;
 
