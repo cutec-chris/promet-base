@@ -67,6 +67,7 @@ var
   aSock: THTTPSession = nil;
   uri: String;
   n: Integer;
+  aReqTime: TDateTime;
 begin
   Result := '';
   if pos(' ',FCommand)>0 then
@@ -94,10 +95,15 @@ begin
       aSock.ProcessHTTPRequest;
       if (aSock.Code<>200) and (aSock.Code<>301) then
         begin
+          aReqTime := Now();
           for i := 0 to Length(HTTPHandlers)-1 do
             begin
               aSock.Code := HTTPHandlers[i](Sender,aCmd, aSock.Url, aSock.Headers, aSock.InputData, aSock.OutputData);
-              if aSock.Code<>500 then break;
+              if aSock.Code<>500 then
+                begin
+                  writeln(aCmd+' '+aSock.Url+'=>'+IntToStr(aSock.Code)+' in '+IntToStr(round((Now()-aReqTime)*MSecsPerDay))+' ms');
+                  break;
+                end;
             end;
         end;
       TAppNetworkThrd(Sender).sock.SendString('HTTP/1.1 ' + IntTostr(aSock.Code) + CRLF);
@@ -225,7 +231,7 @@ begin
           headers.Add('Location: '+url+'index.html');
           writeln('HTTP: redirecting to '+url+'index.html');
         end
-      else if FileExists(aPath) then
+      else if FileExists(aPath) and (copy(ExtractFileName(aPath),0,1)<>'.') then
         begin
           writeln('HTTP:'+Command+' '+url+' ('+aPath+')');
           Headers.Clear;
