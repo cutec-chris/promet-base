@@ -65,7 +65,6 @@ var
   aCmd: String;
   i: Integer;
   aSock: THTTPSession = nil;
-  aParameters: TStringList;
   uri: String;
   n: Integer;
 begin
@@ -82,9 +81,6 @@ begin
           aSock := THTTPSession(Sender.Objects[i]);
       if not Assigned(aSock) then
         begin
-          aParameters := TStringList.Create;
-          aParameters.NameValueSeparator:=':';
-          aParameters.CaseSensitive:=False;
           aSock := THTTPSession.Create;
           aSock.Socket := Sender;
           Sender.Objects.Add(aSock);

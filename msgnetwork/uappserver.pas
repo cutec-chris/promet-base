@@ -92,7 +92,7 @@ destructor TAppNetworkDaemon.Destroy;
 begin
   Terminate;
   WaitFor;
-  //Sock.free;
+  FreeAndNil(Sock);
   Socks.Free;
 end;
 procedure TAppNetworkDaemon.Execute;

@@ -60,7 +60,7 @@ type
 
 function HandleWikiRequest(Sender : TAppNetworkThrd;Method, URL: string;Headers : TStringList;Input,Output : TMemoryStream): Integer;
 var
-  lOut, aParameters: TStringList;
+  lOut: TStringList;
   i: Integer;
   aSock: TWikiSession = nil;
 begin
@@ -73,9 +73,6 @@ begin
       aSock := TWikiSession(Sender.Objects[i]);
   if not Assigned(aSock) then
     begin
-      aParameters := TStringList.Create;
-      aParameters.NameValueSeparator:=':';
-      aParameters.CaseSensitive:=False;
       aSock := TWikiSession.Create;
       aSock.Socket := Sender;
       Sender.Objects.Add(aSock);
@@ -88,6 +85,8 @@ begin
       Result := aSock.Code;
       if Assigned(aSock.Result) then
         Output.CopyFrom(aSock.Result,0);
+      aSock.Result.Free;
+      aSock.Result := nil;
       Headers.Clear;
       if aSock.NewHeaders.Count>0 then
         Headers.AddStrings(aSock.NewHeaders);
