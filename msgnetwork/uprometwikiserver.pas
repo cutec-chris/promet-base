@@ -160,6 +160,12 @@ begin
         begin
           sl.Text := StringReplace(Template.Text,'%CONTENT%',WikiList.PageAsHtml(True),[]);
           sl.Text := StringReplace(sl.Text,'%TIME%',DateTimeToStr(Now()),[]);
+
+          sl.Text := StringReplace(sl.Text,'%TITLE%',WikiList.FieldByName('CAPTION').AsString,[]);
+          tmp := WikiList.GenerateKeywords;
+          sl.Text := StringReplace(sl.Text,'%KEYWORDS%',tmp,[]);
+          tmp := WikiList.GenerateDescription;
+          sl.Text := StringReplace(sl.Text,'%DESCRIPTION%',tmp,[]);
         end
       else
         sl.Text := WikiList.PageAsHtml;

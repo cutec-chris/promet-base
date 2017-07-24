@@ -58,6 +58,8 @@ type
     function GetFullPath : string;
     function isDynamic : Boolean;
     function PageAsHtml(OnlyBody: Boolean=False;UsePath : Boolean = True): string;
+    function GenerateKeywords : string;
+    function GenerateDescription : string;
     function PageAsText : string;
     property ActiveTreeID : Variant read FActiveTreeID;
     constructor CreateEx(aOwner: TComponent; DM: TComponent;
@@ -987,6 +989,7 @@ end;
 function TWikiList.PageAsHtml(OnlyBody: Boolean; UsePath: Boolean): string;
 var
   aPath: String = '';
+  tmp, MetaTags: String;
 begin
   if UsePath then
     aPath := GetFullPath;
@@ -994,7 +997,39 @@ begin
   aPath := copy(aPath,0,rpos('/',aPath));
   Result := WikiText2HTML(DataSet.FieldByName('DATA').AsString,'',aPath);
   if not OnlyBody then
-    Result := '<html><body>'+Result+'</body></html>';
+    begin
+      tmp := GenerateKeyWords;
+      if tmp <> '' then
+        MetaTags := '<meta name="keywords" content="'+tmp+'">';
+      tmp := GenerateDescription;
+      if tmp <> '' then
+        MetaTags += '<meta name="description" content="'+tmp+'">';
+      Result := '<html><head><title>'+DataSet.FieldByName('CAPTION').AsString+'</title>'+MetaTags+'</head><body>'+Result+'</body></html>';
+    end;
+end;
+
+function TWikiList.GenerateKeywords: string;
+begin
+  Result := '';
+  Keywords.Open;
+  Keywords.First;
+  while not Keywords.EOF do
+    Result := Result+','+Keywords.FieldByName('KEYWORD').AsString;
+  Result := copy(Result,2,length(Result));
+end;
+
+function TWikiList.GenerateDescription: string;
+var
+  ReplaceText: String;
+begin
+  ReplaceText := HTMLEncode(copy(PageAsText,0,200));
+  if rpos('.',ReplaceText) > 100 then
+    ReplaceText := copy(ReplaceText,0,rpos('.',ReplaceText))
+  else if rpos(' ',ReplaceText) > 100 then
+    ReplaceText := copy(ReplaceText,0,rpos(' ',ReplaceText))
+  else
+    ReplaceText := copy(ReplaceText,0,120);
+  Result := ReplaceText;
 end;
 
 function TWikiList.PageAsText: string;
