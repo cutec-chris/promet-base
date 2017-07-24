@@ -106,12 +106,13 @@ begin
                 end;
             end;
         end;
-      TAppNetworkThrd(Sender).sock.SendString('HTTP/1.1 ' + IntTostr(aSock.Code) + CRLF);
+      TAppNetworkThrd(Sender).sock.SendString('HTTP/1.0 ' + IntTostr(aSock.Code) + CRLF);
       if aSock.protocol <> '' then
       begin
         aSock.headers.Add('Date: ' + Rfc822DateTime(now));
         aSock.headers.Add('Server: Avamm Internal Network');
         aSock.headers.Add('Content-length: ' + IntTostr(aSock.OutputData.Size));
+        aSock.headers.Add('Connection: close');
         for n := 0 to aSock.headers.count - 1 do
           if aSock.headers[n]<>'' then
             TAppNetworkThrd(Sender).sock.sendstring(aSock.headers[n] + CRLF);
@@ -259,7 +260,6 @@ begin
         end
       //else writeln('HTTP:'+aCmd+' '+uri+' not found')
         ;
-      headers.Add('Connection: keep-alive');
     end;
 end;
 
