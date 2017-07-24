@@ -231,7 +231,7 @@ begin
           headers.Add('Location: '+url+'index.html');
           writeln('HTTP: redirecting to '+url+'index.html');
         end
-      else if FileExists(aPath) and (copy(ExtractFileName(aPath),0,1)<>'.') then
+      else if FileExists(aPath) and (pos('/.',aPath)=0) then
         begin
           writeln('HTTP:'+Command+' '+url+' ('+aPath+')');
           Headers.Clear;
