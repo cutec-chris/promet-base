@@ -998,9 +998,12 @@ begin
   Result := WikiText2HTML(DataSet.FieldByName('DATA').AsString,'',aPath);
   if not OnlyBody then
     begin
-      tmp := GenerateKeyWords;
-      if tmp <> '' then
-        MetaTags := '<meta name="keywords" content="'+tmp+'">';
+      try
+        tmp := GenerateKeyWords;
+        if tmp <> '' then
+          MetaTags := '<meta name="keywords" content="'+tmp+'">';
+      except
+      end;
       tmp := GenerateDescription;
       if tmp <> '' then
         MetaTags += '<meta name="description" content="'+tmp+'">';
@@ -1034,7 +1037,7 @@ end;
 
 function TWikiList.PageAsText: string;
 begin
-  Result := StripHTML(PageAsHtml);
+  Result := StripHTML(PageAsHtml(true));
 end;
 
 constructor TWikiList.CreateEx(aOwner: TComponent; DM: TComponent;
