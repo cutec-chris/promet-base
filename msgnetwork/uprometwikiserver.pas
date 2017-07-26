@@ -162,11 +162,13 @@ begin
           sl.Text := StringReplace(sl.Text,'%TIME%',DateTimeToStr(Now()),[]);
 
           sl.Text := StringReplace(sl.Text,'%TITLE%',WikiList.FieldByName('CAPTION').AsString,[]);
+{
           try
             tmp := WikiList.GenerateKeywords;
             sl.Text := StringReplace(sl.Text,'%KEYWORDS%',tmp,[]);
           except
           end;
+}
           tmp := WikiList.GenerateDescription;
           sl.Text := StringReplace(sl.Text,'%DESCRIPTION%',tmp,[]);
         end

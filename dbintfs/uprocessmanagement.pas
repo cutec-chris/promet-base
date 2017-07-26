@@ -599,6 +599,7 @@ var
     i: Integer;
   begin
     Result := False;
+    CheckSynchronize(100);
     aLog.Clear;
     aProcess := Processes.FieldByName('NAME').AsString;
     if Processes.FieldByName('ACTIVE').AsString<>'N' then
