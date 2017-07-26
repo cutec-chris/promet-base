@@ -92,8 +92,9 @@ begin
       aSock.Url:=uri;
       aSock.protocol := fetch(FCommand, ' ');
       aSock.Command := aCmd;
-      aSock.ProcessHTTPRequest;
-      if (aSock.Code<>200) and (aSock.Code<>301) then
+      aSock.FSocket.Synchronize(aSock.FSocket,@aSock.ProcessHTTPRequest);
+      //aSock.ProcessHTTPRequest;
+      if (aSock.Code<>200) and (aSock.Code<>301) and (aSock.Code<>304) then
         begin
           aReqTime := Now();
           for i := 0 to Length(HTTPHandlers)-1 do
@@ -106,7 +107,7 @@ begin
                 end;
             end;
         end;
-      TAppNetworkThrd(Sender).sock.SendString('HTTP/1.0 ' + IntTostr(aSock.Code) + CRLF);
+      TAppNetworkThrd(Sender).sock.SendString('HTTP/1.1 ' + IntTostr(aSock.Code) + CRLF);
       if aSock.protocol <> '' then
       begin
         aSock.headers.Add('Date: ' + Rfc822DateTime(now));
@@ -175,10 +176,12 @@ var
   aPath: String;
   uriparam: String;
   i: Integer;
+  ModifiedSince : TDateTime;
 const
   Timeout = 12000;
 begin
   OutputData.Clear;
+  ModifiedSince:=Now();
   size := -1;
   //read request headers
   if protocol <> '' then
@@ -193,6 +196,8 @@ begin
         Headers.add(s);
       if Pos('CONTENT-LENGTH:', Uppercase(s)) = 1 then
         Size := StrToIntDef(SeparateRight(s, ' '), -1);
+      if Pos('IF-MODIFIED-SINCE:', Uppercase(s)) = 1 then
+        ModifiedSince := synautil.DecodeRfcDateTime(SeparateRight(s, ' '));
     until s = '';
   end;
   Code:=500;
@@ -242,15 +247,24 @@ begin
             end
           else if Uppercase(Command)='GET' then
             begin
-              try
-                Result := TFileStream.Create(aPath,fmOpenRead or fmShareDenyNone);
-                OutputData.CopyFrom(Result,0);
-                OutputData.Position:=0;
-                Result.Free;
-                if Code=500 then
-                  Code:=200;
-              except
-              end;
+              if (FileDateToDateTime(FileAge(aPath)) < ModifiedSince)
+              then
+                begin
+                  Code := 304;//not modified
+                  Result.Free;
+                end
+              else
+                begin
+                  try
+                    Result := TFileStream.Create(aPath,fmOpenRead or fmShareDenyNone);
+                    OutputData.CopyFrom(Result,0);
+                    OutputData.Position:=0;
+                    Result.Free;
+                    if Code=500 then
+                      Code:=200;
+                  except
+                  end;
+                end;
             end
           else if Uppercase(Command)='HEAD' then
             Code:=200;
