@@ -141,87 +141,99 @@ var
   aNumber: integer;
   ms: TMemoryStream;
 begin
-  Code:=404;
-  OpenConfig;
-  NewHeaders.Clear;
-  if ((Url = '')
-  or (Url = '/'))
-  and Assigned(Config)
-  then
-    begin
-      Code := 301;
-      NewHeaders.Add('Location: '+Config.ReadString('wiki','index','index'));
-      exit;
-    end;
-  if WikiList.FindWikiPage(Url) then
-    begin
-      sl := TStringList.Create;
-      if pos('%CONTENT%',Template.Text)>0 then
-        begin
-          sl.Text := StringReplace(Template.Text,'%CONTENT%',WikiList.PageAsHtml(True),[]);
-          sl.Text := StringReplace(sl.Text,'%TIME%',DateTimeToStr(Now()),[]);
+  try
+    Code:=404;
+    OpenConfig;
+    NewHeaders.Clear;
+    if ((Url = '')
+    or (Url = '/'))
+    and Assigned(Config)
+    then
+      begin
+        Code := 301;
+        NewHeaders.Add('Location: '+Config.ReadString('wiki','index','index'));
+        exit;
+      end;
+    if WikiList.FindWikiPage(Url) then
+      begin
+        sl := TStringList.Create;
+        if pos('%CONTENT%',Template.Text)>0 then
+          begin
+            sl.Text := StringReplace(Template.Text,'%CONTENT%',WikiList.PageAsHtml(True),[]);
+            sl.Text := StringReplace(sl.Text,'%TIME%',DateTimeToStr(Now()),[]);
 
-          sl.Text := StringReplace(sl.Text,'%TITLE%',WikiList.FieldByName('CAPTION').AsString,[]);
-{
-          try
-            tmp := WikiList.GenerateKeywords;
-            sl.Text := StringReplace(sl.Text,'%KEYWORDS%',tmp,[]);
-          except
+            sl.Text := StringReplace(sl.Text,'%TITLE%',WikiList.FieldByName('CAPTION').AsString,[]);
+            try
+              tmp := WikiList.GenerateKeywords;
+              sl.Text := StringReplace(sl.Text,'%KEYWORDS%',tmp,[]);
+            except
+            end;
+            tmp := WikiList.GenerateDescription;
+            sl.Text := StringReplace(sl.Text,'%DESCRIPTION%',tmp,[]);
+          end
+        else
+          sl.Text := WikiList.PageAsHtml;
+        result := TMemoryStream.Create;
+        sl.SaveToStream(result);
+        sl.Free;
+        NewHeaders.Add('Content-Type: text/html');
+        NewHeaders.Add('Last-Modified: '+Rfc822DateTime(WikiList.TimeStamp.AsDateTime));
+        NewHeaders.Add('ETag: '+Rfc822DateTime(WikiList.TimeStamp.AsDateTime));
+        Code := 200;
+      end
+    else
+      begin
+        Path := Url;
+        if copy(uppercase(Path),0,5)='ICON(' then
+          begin
+            if TryStrToInt(copy(Path,6,length(Path)-6),aNumber) then
+              begin
+                ms := TMemoryStream.Create;
+                ms.Position:=0;
+                Result := ms;
+              end;
+          end
+        else if copy(uppercase(Path),0,12)='HISTORYICON(' then
+          begin
+            tmp := copy(Path,13,length(Path)-13);
+            if TryStrToInt(tmp,aNumber) then
+              begin
+                ms := TMemoryStream.Create;
+                ms.Position:=0;
+                Result := ms;
+              end;
+          end
+        else if Assigned(Document) then
+          begin
+            Document.Filter(Data.QuoteField('TYPE')+'=''W'' and '+Data.QuoteField('NAME')+'='+Data.QuoteValue(copy(ExtractFileName(Path),0,rpos('.',ExtractFileName(Path))-1)),1);
+            if Document.DataSet.RecordCount > 0 then
+              begin
+                ms := TMemoryStream.Create;
+                Document.CheckoutToStream(ms);
+                ms.Position:=0;
+                Result := ms;
+                NewHeaders.Add('Content-Type: '+GetContentType('.'+Document.FieldByName('EXTENSION').AsString));
+                NewHeaders.Add('Last-Modified: '+Rfc822DateTime(Document.TimeStamp.AsDateTime));
+                NewHeaders.Add('ETag: '+Rfc822DateTime(Document.TimeStamp.AsDateTime));
+                if Document.TimeStamp.AsDateTime = Document.FieldByName('DATE').AsDateTime then
+                  NewHeaders.Add('Cache-Control: max-age=31536000');
+                Code := 200;
+              end;
           end;
-}
-          tmp := WikiList.GenerateDescription;
-          sl.Text := StringReplace(sl.Text,'%DESCRIPTION%',tmp,[]);
-        end
-      else
-        sl.Text := WikiList.PageAsHtml;
-      result := TMemoryStream.Create;
-      sl.SaveToStream(result);
-      sl.Free;
-      NewHeaders.Add('Content-Type: text/html');
-      NewHeaders.Add('Last-Modified: '+Rfc822DateTime(WikiList.TimeStamp.AsDateTime));
-      NewHeaders.Add('ETag: '+Rfc822DateTime(WikiList.TimeStamp.AsDateTime));
-      Code := 200;
-    end
-  else
-    begin
-      Path := Url;
-      if copy(uppercase(Path),0,5)='ICON(' then
-        begin
-          if TryStrToInt(copy(Path,6,length(Path)-6),aNumber) then
-            begin
-              ms := TMemoryStream.Create;
-              ms.Position:=0;
-              Result := ms;
-            end;
-        end
-      else if copy(uppercase(Path),0,12)='HISTORYICON(' then
-        begin
-          tmp := copy(Path,13,length(Path)-13);
-          if TryStrToInt(tmp,aNumber) then
-            begin
-              ms := TMemoryStream.Create;
-              ms.Position:=0;
-              Result := ms;
-            end;
-        end
-      else if Assigned(Document) then
-        begin
-          Document.Filter(Data.QuoteField('TYPE')+'=''W'' and '+Data.QuoteField('NAME')+'='+Data.QuoteValue(copy(ExtractFileName(Path),0,rpos('.',ExtractFileName(Path))-1)),1);
-          if Document.DataSet.RecordCount > 0 then
-            begin
-              ms := TMemoryStream.Create;
-              Document.CheckoutToStream(ms);
-              ms.Position:=0;
-              Result := ms;
-              NewHeaders.Add('Content-Type: '+GetContentType('.'+Document.FieldByName('EXTENSION').AsString));
-              NewHeaders.Add('Last-Modified: '+Rfc822DateTime(Document.TimeStamp.AsDateTime));
-              NewHeaders.Add('ETag: '+Rfc822DateTime(Document.TimeStamp.AsDateTime));
-              if Document.TimeStamp.AsDateTime = Document.FieldByName('DATE').AsDateTime then
-                NewHeaders.Add('Cache-Control: max-age=31536000');
-              Code := 200;
-            end;
-        end;
-    end;
+      end;
+  except
+    on e : Exception do
+      begin
+        Code := 500;
+        sl := TStringList.Create;
+        sl.Add(e.Message);
+        ms := TMemoryStream.Create;
+        sl.SaveToStream(ms);
+        ms.Position:=0;
+        Result := ms;
+        sl.Free;
+      end;
+  end;
 end;
 
 procedure TWikiSession.OpenConfig;

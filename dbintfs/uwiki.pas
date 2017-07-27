@@ -97,21 +97,11 @@ begin
         begin
         if Assigned(Parent) then
           begin
-            if Filter <> '' then
-              begin
-                if not Parent.Id.IsNull then
-                  Filter := Filter+' AND '+Data.QuoteField('REF_ID_ID')+'='+Data.QuoteValue(Parent.Id.AsString)
-                else
-                  Filter := Filter+' AND '+Data.QuoteField('REF_ID_ID')+'= 0';
-              end
+            if not Parent.Id.IsNull then
+              Filter := Data.QuoteField('REF_ID_ID')+'='+Data.QuoteValue(Parent.Id.AsString)
             else
-              begin
-              if not Parent.Id.IsNull then
-                Filter := Data.QuoteField('REF_ID_ID')+'='+Data.QuoteValue(Parent.Id.AsString)
-              else
-                Filter := Data.QuoteField('REF_ID_ID')+'= 0';
-              end;
-          end;
+              Filter := Data.QuoteField('REF_ID_ID')+'= 0';
+            end;
         end;
     end;
   inherited Open;
@@ -1017,7 +1007,10 @@ begin
   Keywords.Open;
   Keywords.First;
   while not Keywords.EOF do
-    Result := Result+','+Keywords.FieldByName('KEYWORD').AsString;
+    begin
+      Result := Result+','+Keywords.FieldByName('KEYWORD').AsString;
+      Keywords.Next;
+    end;
   Result := copy(Result,2,length(Result));
 end;
 

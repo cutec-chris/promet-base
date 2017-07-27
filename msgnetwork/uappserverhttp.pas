@@ -177,104 +177,116 @@ var
   uriparam: String;
   i: Integer;
   ModifiedSince : TDateTime;
+  sl: TStringList;
 const
   Timeout = 12000;
 begin
-  OutputData.Clear;
-  ModifiedSince:=Now();
-  size := -1;
-  //read request headers
-  if protocol <> '' then
-  begin
-    if pos('HTTP/', protocol) <> 1 then
-      Exit;
-    repeat
-      s := Socket.sock.RecvString(Timeout);
+  try
+    OutputData.Clear;
+    ModifiedSince:=MinDateTime;
+    size := -1;
+    //read request headers
+    if protocol <> '' then
+    begin
+      if pos('HTTP/', protocol) <> 1 then
+        Exit;
+      repeat
+        s := Socket.sock.RecvString(Timeout);
+        if Socket.sock.lasterror <> 0 then
+          Exit;
+        if s <> '' then
+          Headers.add(s);
+        if Pos('CONTENT-LENGTH:', Uppercase(s)) = 1 then
+          Size := StrToIntDef(SeparateRight(s, ' '), -1);
+        if Pos('IF-MODIFIED-SINCE:', Uppercase(s)) = 1 then
+          ModifiedSince := synautil.DecodeRfcDateTime(SeparateRight(s, ' '));
+      until s = '';
+    end;
+    Code:=500;
+    //recv document...
+    if size >= 0 then
+    begin
+      InputData.SetSize(Size);
+      x := Socket.Sock.RecvBufferEx(InputData.Memory, Size, Timeout);
+      InputData.SetSize(x);
       if Socket.sock.lasterror <> 0 then
         Exit;
-      if s <> '' then
-        Headers.add(s);
-      if Pos('CONTENT-LENGTH:', Uppercase(s)) = 1 then
-        Size := StrToIntDef(SeparateRight(s, ' '), -1);
-      if Pos('IF-MODIFIED-SINCE:', Uppercase(s)) = 1 then
-        ModifiedSince := synautil.DecodeRfcDateTime(SeparateRight(s, ' '));
-    until s = '';
-  end;
-  Code:=500;
-  //recv document...
-  if size >= 0 then
-  begin
-    InputData.SetSize(Size);
-    x := Socket.Sock.RecvBufferEx(InputData.Memory, Size, Timeout);
-    InputData.SetSize(x);
-    if Socket.sock.lasterror <> 0 then
-      Exit;
-  end;
-  if ((Uppercase(Command)='GET') or (Uppercase(Command)='HEAD') or (Uppercase(Command)='OPTIONS'))  then
-    begin
-      aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web'+Stringreplace(url,'/',DirectorySeparator,[rfReplaceAll]);
-      if pos('?',aPath)>0 then
-        aPath := copy(aPath,0,pos('?',aPath)-1);
-      if (not FileExists(aPath))
-      and (not (DirectoryExists(aPath) and (FileExists(aPath+'index.html'))))  then
-        begin
-          aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+Stringreplace(url,'/',DirectorySeparator,[rfReplaceAll]);
-          if pos('?',aPath)>0 then
-            aPath := copy(aPath,0,pos('?',aPath)-1);
-        end;
-      if ((Uppercase(Command)='GET') or (Uppercase(Command)='HEAD')) and ((not FileExists(aPath)) or DirectoryExists(aPath)) and (FileExists(aPath+'index.html')) then
-        begin
-          //aPath := aPath+'index.html';
-          Code := 301;
-          headers.Clear;
-          if pos('?',url)>0 then
-            begin
-              uriparam := copy(url,pos('?',url),length(url));
-              url := copy(url,0,pos('?',url)-1);
-            end;
-          if copy(url,length(url),1)<>'/' then
-            url := url+'/';
-          headers.Add('Location: '+url+'index.html');
-          writeln('HTTP: redirecting to '+url+'index.html');
-        end
-      else if FileExists(aPath) and (pos('/.',aPath)=0) then
-        begin
-          writeln('HTTP:'+Command+' '+url+' ('+aPath+')');
-          Headers.Clear;
-          if Uppercase(Command)='OPTIONS' then
-            begin
-              headers.Add('Allow: GET,HEAD,OPTIONS');
-            end
-          else if Uppercase(Command)='GET' then
-            begin
-              if (FileDateToDateTime(FileAge(aPath)) < ModifiedSince)
-              then
-                begin
-                  Code := 304;//not modified
-                  Result.Free;
-                end
-              else
-                begin
-                  try
-                    Result := TFileStream.Create(aPath,fmOpenRead or fmShareDenyNone);
-                    OutputData.CopyFrom(Result,0);
-                    OutputData.Position:=0;
-                    Result.Free;
-                    if Code=500 then
-                      Code:=200;
-                  except
-                  end;
-                end;
-            end
-          else if Uppercase(Command)='HEAD' then
-            Code:=200;
-          headers.Add('Content-Type:'+GetContentType(ExtractFileExt(aPath)));
-          headers.Add('Last-Modified: '+Rfc822DateTime(FileDateToDateTime(FileAge(aPath))));
-          headers.Add('ETag: '+Rfc822DateTime(FileDateToDateTime(FileAge(aPath))));
-        end
-      //else writeln('HTTP:'+aCmd+' '+uri+' not found')
-        ;
     end;
+    if ((Uppercase(Command)='GET') or (Uppercase(Command)='HEAD') or (Uppercase(Command)='OPTIONS'))  then
+      begin
+        aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web'+Stringreplace(url,'/',DirectorySeparator,[rfReplaceAll]);
+        if pos('?',aPath)>0 then
+          aPath := copy(aPath,0,pos('?',aPath)-1);
+        if (not FileExists(aPath))
+        and (not (DirectoryExists(aPath) and (FileExists(aPath+'index.html'))))  then
+          begin
+            aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+Stringreplace(url,'/',DirectorySeparator,[rfReplaceAll]);
+            if pos('?',aPath)>0 then
+              aPath := copy(aPath,0,pos('?',aPath)-1);
+          end;
+        if ((Uppercase(Command)='GET') or (Uppercase(Command)='HEAD')) and ((not FileExists(aPath)) or DirectoryExists(aPath)) and (FileExists(aPath+'index.html')) then
+          begin
+            //aPath := aPath+'index.html';
+            Code := 301;
+            headers.Clear;
+            if pos('?',url)>0 then
+              begin
+                uriparam := copy(url,pos('?',url),length(url));
+                url := copy(url,0,pos('?',url)-1);
+              end;
+            if copy(url,length(url),1)<>'/' then
+              url := url+'/';
+            headers.Add('Location: '+url+'index.html');
+            writeln('HTTP: redirecting to '+url+'index.html');
+          end
+        else if FileExists(aPath) and (pos('/.',aPath)=0) then
+          begin
+            writeln('HTTP:'+Command+' '+url+' ('+aPath+')');
+            Headers.Clear;
+            if Uppercase(Command)='OPTIONS' then
+              begin
+                headers.Add('Allow: GET,HEAD,OPTIONS');
+              end
+            else if Uppercase(Command)='GET' then
+              begin
+                if (FileDateToDateTime(FileAge(aPath)) < ModifiedSince)
+                then
+                  begin
+                    Code := 304;//not modified
+                    Result.Free;
+                  end
+                else
+                  begin
+                    try
+                      Result := TFileStream.Create(aPath,fmOpenRead or fmShareDenyNone);
+                      OutputData.CopyFrom(Result,0);
+                      OutputData.Position:=0;
+                      Result.Free;
+                      if Code=500 then
+                        Code:=200;
+                    except
+                    end;
+                  end;
+              end
+            else if Uppercase(Command)='HEAD' then
+              Code:=200;
+            headers.Add('Content-Type:'+GetContentType(ExtractFileExt(aPath)));
+            headers.Add('Last-Modified: '+Rfc822DateTime(FileDateToDateTime(FileAge(aPath))));
+            headers.Add('ETag: '+Rfc822DateTime(FileDateToDateTime(FileAge(aPath))));
+          end
+        //else writeln('HTTP:'+aCmd+' '+uri+' not found')
+          ;
+      end;
+  except
+    on e : Exception do
+      begin
+        Code := 500;
+        sl := TStringList.Create;
+        sl.Add(e.Message);
+        sl.SaveToStream(OutputData);
+        sl.Free;
+      end;
+  end;
 end;
 
 initialization
