@@ -112,7 +112,8 @@ begin
       begin
         aSock.headers.Add('Date: ' + Rfc822DateTime(now));
         aSock.headers.Add('Server: Avamm Internal Network');
-        aSock.headers.Add('Content-length: ' + IntTostr(aSock.OutputData.Size));
+        if aSock.Code<>304 then
+          aSock.headers.Add('Content-length: ' + IntTostr(aSock.OutputData.Size));
         aSock.headers.Add('Connection: keep-alive');
         for n := 0 to aSock.headers.count - 1 do
           if aSock.headers[n]<>'' then
