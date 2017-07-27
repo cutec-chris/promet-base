@@ -64,22 +64,23 @@ var
   i: Integer;
   aSock: TWikiSession = nil;
 begin
+  Result := 500;
   {
   http://www.odata.org/
   /wiki/folder1/page2
   }
-  for i := 0 to Sender.Objects.Count-1 do
-    if TObject(Sender.Objects[i]) is TWikiSession then
-      aSock := TWikiSession(Sender.Objects[i]);
-  if not Assigned(aSock) then
-    begin
-      aSock := TWikiSession.Create;
-      aSock.Socket := Sender;
-      Sender.Objects.Add(aSock);
-    end;
-  Result := 500;
   if copy(lowercase(url),0,6)='/wiki/' then
     begin
+      Result := 400;
+      for i := 0 to Sender.Objects.Count-1 do
+        if TObject(Sender.Objects[i]) is TWikiSession then
+          aSock := TWikiSession(Sender.Objects[i]);
+      if not Assigned(aSock) then
+        begin
+          aSock := TWikiSession.Create;
+          aSock.Socket := Sender;
+          Sender.Objects.Add(aSock);
+        end;
       aSock.Url := copy(url,7,length(url));
       Sender.Synchronize(Sender,@aSock.ProcessWikiRequest);
       Result := aSock.Code;
@@ -224,7 +225,7 @@ begin
   except
     on e : Exception do
       begin
-        Code := 500;
+        Code := 400;
         sl := TStringList.Create;
         sl.Add(e.Message);
         ms := TMemoryStream.Create;

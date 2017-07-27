@@ -280,7 +280,7 @@ begin
   except
     on e : Exception do
       begin
-        Code := 500;
+        Code := 400;
         sl := TStringList.Create;
         sl.Add(e.Message);
         sl.SaveToStream(OutputData);
