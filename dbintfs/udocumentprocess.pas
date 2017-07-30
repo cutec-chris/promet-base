@@ -70,7 +70,7 @@ begin
           if UseStarter then
             {$IFNDEF DARWIN}
               {$IFDEF WINDOWS}
-              Proc.CommandLine := AppendPathDelim(ExtractFilePath(BaseApplication.Exename))+'pstarter'+ExtractFileExt(BaseApplication.Exename)+' '+Language+' "'+ACmd+'"'
+              Proc.CommandLine := '"'+AppendPathDelim(ExtractFilePath(BaseApplication.Exename))+'pstarter'+ExtractFileExt(BaseApplication.Exename)+'" "'+Language+'" "'+ACmd+'"'
               {$ELSE}
               Proc.CommandLine := AppendPathDelim(ExtractFilePath(BaseApplication.Exename))+'pstarter'+ExtractFileExt(BaseApplication.Exename)+' '+Language+' '+ACmd
               {$ENDIF}
