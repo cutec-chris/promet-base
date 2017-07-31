@@ -74,8 +74,8 @@ begin
   Clients := TStringList.Create;
   Sock := TUDPBlockSocket.Create;
   Sock.Family := SF_IP4;
-  FreeOnTerminate := False;
-  Priority := tpNormal;
+  FreeOnTerminate := false;
+  Priority := tpLower;
   inherited Create(False);
 end;
 destructor TPrometDiscoveryDaemon.Destroy;
@@ -195,7 +195,7 @@ initialization
 finalization
   Discovery.Terminate;
   NetworkDaemon.Terminate;
-  //Discovery.Free;
-  //NetworkDaemon.Free;
+  Discovery.WaitFor;
+  NetworkDaemon.WaitFor;
 end.
 

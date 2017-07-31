@@ -150,7 +150,7 @@ begin
                   Socks.Add(TAppNetworkThrd.create(ClientSock));
               end;
           end;
-      until false;
+      until Terminated;
     end;
 end;
 

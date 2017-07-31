@@ -35,6 +35,7 @@ type
   public
     constructor CreateEx(aOwner: TComponent; DM: TComponent=nil; aConnection: TComponent=
       nil; aMasterdata: TDataSet=nil); override;
+    destructor Destroy; override;
     procedure DefineFields(aDataSet : TDataSet);override;
     procedure SelectByID(aID : string);overload; //Select by ID
     procedure SelectByDir(aDir : Variant);
@@ -381,6 +382,12 @@ begin
   FDS := TDataSource.Create(nil);
   FDS.DataSet := DataSet;
   FDS.OnDataChange:=@FDSDataChange;
+end;
+
+destructor TMessageList.Destroy;
+begin
+  FDS.Free;
+  inherited Destroy;
 end;
 
 procedure TMessageList.DefineFields(aDataSet: TDataSet);
