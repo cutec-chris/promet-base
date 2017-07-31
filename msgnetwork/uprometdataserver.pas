@@ -32,7 +32,7 @@ implementation
 
 uses usync,uBaseDatasetInterfaces,uData;
 
-function HandleDataRequest(Sender : TAppNetworkThrd;Method, URL: string;Headers : TStringList;Input,Output : TMemoryStream): Integer;
+function HandleDataRequest(Sender : TAppNetworkThrd;Method, URL: string;Headers : TStringList;Input,Output : TMemoryStream; ResultStatusText : string): Integer;
 var
   aClassType: TBaseDBDatasetClass;
   aClass: TBaseDBDataset;
@@ -55,7 +55,8 @@ begin
   http://www.odata.org/
   /wiki/folder1/page2
   }
-  Result := 500;
+  Result := 404;
+  ResultStatusText := '';
   if (copy(lowercase(url),0,15)='/api/pds/lists/') and (UpperCase(Method)='GET') then
     begin
       url := copy(url,16,length(url));

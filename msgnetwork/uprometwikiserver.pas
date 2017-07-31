@@ -58,39 +58,51 @@ type
     procedure OpenConfig;
   end;
 
-function HandleWikiRequest(Sender : TAppNetworkThrd;Method, URL: string;Headers : TStringList;Input,Output : TMemoryStream): Integer;
+function HandleWikiRequest(Sender : TAppNetworkThrd;Method, URL: string;Headers : TStringList;Input,Output : TMemoryStream;ResultStatusText : string): Integer;
 var
   lOut: TStringList;
   i: Integer;
   aSock: TWikiSession = nil;
+  sl: TStringList;
 begin
-  Result := 500;
+  Result := 404;
+  ResultStatusText := '';
   {
   http://www.odata.org/
   /wiki/folder1/page2
   }
   if copy(lowercase(url),0,6)='/wiki/' then
     begin
-      Result := 400;
-      for i := 0 to Sender.Objects.Count-1 do
-        if TObject(Sender.Objects[i]) is TWikiSession then
-          aSock := TWikiSession(Sender.Objects[i]);
-      if not Assigned(aSock) then
-        begin
-          aSock := TWikiSession.Create;
-          aSock.Socket := Sender;
-          Sender.Objects.Add(aSock);
-        end;
-      aSock.Url := copy(url,7,length(url));
-      Sender.Synchronize(Sender,@aSock.ProcessWikiRequest);
-      Result := aSock.Code;
-      if Assigned(aSock.Result) then
-        Output.CopyFrom(aSock.Result,0);
-      aSock.Result.Free;
-      aSock.Result := nil;
-      Headers.Clear;
-      if aSock.NewHeaders.Count>0 then
-        Headers.AddStrings(aSock.NewHeaders);
+      try
+        for i := 0 to Sender.Objects.Count-1 do
+          if TObject(Sender.Objects[i]) is TWikiSession then
+            aSock := TWikiSession(Sender.Objects[i]);
+        if not Assigned(aSock) then
+          begin
+            aSock := TWikiSession.Create;
+            aSock.Socket := Sender;
+            Sender.Objects.Add(aSock);
+          end;
+        aSock.Url := copy(url,7,length(url));
+        Sender.Synchronize(Sender,@aSock.ProcessWikiRequest);
+        Result := aSock.Code;
+        if Assigned(aSock.Result) then
+          Output.CopyFrom(aSock.Result,0);
+        aSock.Result.Free;
+        aSock.Result := nil;
+        Headers.Clear;
+        if aSock.NewHeaders.Count>0 then
+          Headers.AddStrings(aSock.NewHeaders);
+      except
+        on e : Exception do
+          begin
+            Result := 500;
+            sl := TStringList.Create;
+            sl.Add(e.Message);
+            sl.SaveToStream(Output);
+            sl.Free;
+          end;
+      end;
     end;
 end;
 

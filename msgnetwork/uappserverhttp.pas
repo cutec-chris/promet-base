@@ -27,7 +27,7 @@ uses
   Classes, SysUtils, synautil, uAppServer, blcksock;
 
 type
-  THTTPHandlerProc = function(Sender : TAppNetworkThrd;Method,URL : string;Headers : TStringList;Input,Output : TMemoryStream) : Integer;
+  THTTPHandlerProc = function(Sender : TAppNetworkThrd;Method,URL : string;Headers : TStringList;Input,Output : TMemoryStream;StatusText : string) : Integer;
 
   { THTTPSession }
 
@@ -68,6 +68,7 @@ var
   uri: String;
   n: Integer;
   aReqTime: TDateTime;
+  ResultStatusText : string;
 begin
   Result := '';
   if pos(' ',FCommand)>0 then
@@ -99,15 +100,18 @@ begin
           aReqTime := Now();
           for i := 0 to Length(HTTPHandlers)-1 do
             begin
-              aSock.Code := HTTPHandlers[i](Sender,aCmd, aSock.Url, aSock.Headers, aSock.InputData, aSock.OutputData);
-              if aSock.Code<>500 then
+              aSock.Code := HTTPHandlers[i](Sender,aCmd, aSock.Url, aSock.Headers, aSock.InputData, aSock.OutputData, ResultStatusText);
+              if aSock.Code<>404 then
                 begin
                   writeln(aCmd+' '+aSock.Url+'=>'+IntToStr(aSock.Code)+' in '+IntToStr(round((Now()-aReqTime)*MSecsPerDay))+' ms');
                   break;
                 end;
             end;
         end;
-      TAppNetworkThrd(Sender).sock.SendString('HTTP/1.1 ' + IntTostr(aSock.Code) + CRLF);
+      if ResultStatusText <> '' then
+        TAppNetworkThrd(Sender).sock.SendString('HTTP/1.1 ' + IntTostr(aSock.Code) + ' '+ ResultStatusText + CRLF)
+      else
+        TAppNetworkThrd(Sender).sock.SendString('HTTP/1.1 ' + IntTostr(aSock.Code) + CRLF);
       if aSock.protocol <> '' then
       begin
         aSock.headers.Add('Date: ' + Rfc822DateTime(now));
