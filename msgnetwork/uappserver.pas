@@ -105,7 +105,7 @@ begin
       ListenOk := False;
       repeat
         CreateSocket;
-        setLinger(true,1000);
+        setLinger(true,500);
         if not ListenOk then
           begin
             bind('0.0.0.0','8085');
@@ -132,14 +132,14 @@ begin
                   begin
                     WriteLn('listening failed ('+LastErrorDesc+'), retrying...');
                     CloseSocket;
-                    sleep(5000);
+                    sleep(1000);
                   end;
               end;
           end
         else
           begin
             if terminated then break;
-            if canread(1000) then
+            if canread(500) then
               begin
                 try
                   ClientSock:=accept;
@@ -151,6 +151,7 @@ begin
               end;
           end;
       until Terminated;
+      Sock.CloseSocket;
     end;
 end;
 
@@ -210,6 +211,7 @@ begin
   try
     Sock.socket:=CSock;
     sock.GetSins;
+    Sock.SSLAcceptConnection;
     with sock do
       begin
         repeat

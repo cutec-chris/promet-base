@@ -68,7 +68,7 @@ var
   uri: String;
   n: Integer;
   aReqTime: TDateTime;
-  ResultStatusText : string;
+  ResultStatusText , tmp: string;
 begin
   Result := '';
   if pos(' ',FCommand)>0 then
@@ -108,10 +108,12 @@ begin
                 end;
             end;
         end;
+      tmp := aSock.protocol;
+      tmp := copy(tmp,0,pos('/',tmp)-1);
       if ResultStatusText <> '' then
-        TAppNetworkThrd(Sender).sock.SendString('HTTP/1.1 ' + IntTostr(aSock.Code) + ' '+ ResultStatusText + CRLF)
+        TAppNetworkThrd(Sender).sock.SendString(tmp+'/1.1 ' + IntTostr(aSock.Code) + ' '+ ResultStatusText + CRLF)
       else
-        TAppNetworkThrd(Sender).sock.SendString('HTTP/1.1 ' + IntTostr(aSock.Code) + CRLF);
+        TAppNetworkThrd(Sender).sock.SendString(tmp+'/1.1 ' + IntTostr(aSock.Code) + CRLF);
       if aSock.protocol <> '' then
       begin
         aSock.headers.Add('Date: ' + Rfc822DateTime(now));
