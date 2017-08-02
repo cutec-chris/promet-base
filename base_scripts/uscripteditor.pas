@@ -785,26 +785,35 @@ begin
           acSave.Execute;
           if Script is TByteCodeScript then
             TByteCodeScript(Script).ByteCode:='';
+          Setlength(aParams,0);
           try
             TBaseScript(FDataSet).Compile;
             ButtonStatus(ssRunning);
             if eRunFunction.Text<>'' then
               begin
-                  tmp := eRunFunction.Text;
-                  tmp1 := copy(tmp,0,pos('(',tmp)-1);
-                  tmp := copy(tmp,pos('(',tmp)+1,length(tmp)-(pos('(',tmp)+1));
-                  while pos(',',tmp)>0 do
-                    begin
-                      Setlength(aParams,length(aparams)+1);
-                      aParams[length(aParams)-1]:=copy(tmp,0,pos(',',tmp)-1);
-                      tmp := copy(tmp,pos(',',tmp)+1,length(tmp));
-                    end;
-                  if tmp<>'' then
-                    begin
-                      Setlength(aParams,length(aparams)+1);
-                      aParams[length(aParams)-1]:=tmp;
-                    end;
-                  TBaseScript(FDataSet).Script.RunScriptFunction([aParams],tmp1);
+                tmp := eRunFunction.Text;
+                if pos('(',tmp) > 0 then
+                  begin
+                    tmp1 := copy(tmp,0,pos('(',tmp)-1);
+                    tmp := copy(tmp,pos('(',tmp)+1,length(tmp)-(pos('(',tmp)+1));
+                  end
+                else
+                  begin
+                    tmp1 := tmp;
+                    tmp := '';
+                  end;
+                while pos(',',tmp)>0 do
+                  begin
+                    Setlength(aParams,length(aparams)+1);
+                    aParams[length(aParams)-1]:=copy(tmp,0,pos(',',tmp)-1);
+                    tmp := copy(tmp,pos(',',tmp)+1,length(tmp));
+                  end;
+                if tmp<>'' then
+                  begin
+                    Setlength(aParams,length(aparams)+1);
+                    aParams[length(aParams)-1]:=tmp;
+                  end;
+                TBaseScript(FDataSet).Script.RunScriptFunction(aParams,tmp1);
               end
             else if not TBaseScript(FDataSet).Execute(Null,True) then
               begin
