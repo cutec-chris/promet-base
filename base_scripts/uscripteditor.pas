@@ -138,7 +138,7 @@ type
     tmDebug: TTimer;
     ToolBar1: TToolBar;
     tbTools: TToolBar;
-    ToolButton2: TToolButton;
+    bRun: TToolButton;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
     ToolButton5: TToolButton;
@@ -712,6 +712,9 @@ procedure TfScriptEditor.acRunExecute(Sender: TObject);
 var
   sl: TStringList;
   i: Integer;
+  tmp: TCaption;
+  tmp1: String;
+  aParams : array of Variant;
 begin
   Linemark.Visible:=False;
   Linemark.Line:=0;
@@ -724,6 +727,7 @@ begin
     end
   else
     begin
+      ButtonStatus(ssCompiling);
       LastStepTime := GetTickCount;
       gResults.Visible := False;
       messages.Visible := True;
@@ -779,18 +783,39 @@ begin
               Script.OnCompileMessage:=@FscriptCompileMessage;
             end;
           acSave.Execute;
-          ButtonStatus(ssRunning);
           if Script is TByteCodeScript then
             TByteCodeScript(Script).ByteCode:='';
-          if eRunFunction.Text<>'' then
-            TBaseScript(FDataSet).Script.RunScriptFunction([],eRunFunction.Text)
-          else if not TBaseScript(FDataSet).Execute(Null,True) then
-            begin
-              messages.AddItem('failed to Load Compiled Data',nil);
-              if TBaseScript(FDataSet).Script.Results<>'' then
-                messages.AddItem(TBaseScript(FDataSet).Script.Results,nil);;
-            end;
-          ButtonStatus(ssNone);
+          try
+            TBaseScript(FDataSet).Compile;
+            ButtonStatus(ssRunning);
+            if eRunFunction.Text<>'' then
+              begin
+                  tmp := eRunFunction.Text;
+                  tmp1 := copy(tmp,0,pos('(',tmp)-1);
+                  tmp := copy(tmp,pos('(',tmp)+1,length(tmp)-(pos('(',tmp)+1));
+                  while pos(',',tmp)>0 do
+                    begin
+                      Setlength(aParams,length(aparams)+1);
+                      aParams[length(aParams)-1]:=copy(tmp,0,pos(',',tmp)-1);
+                      tmp := copy(tmp,pos(',',tmp)+1,length(tmp));
+                    end;
+                  if tmp<>'' then
+                    begin
+                      Setlength(aParams,length(aparams)+1);
+                      aParams[length(aParams)-1]:=tmp;
+                    end;
+                  TBaseScript(FDataSet).Script.RunScriptFunction([aParams],tmp1);
+              end
+            else if not TBaseScript(FDataSet).Execute(Null,True) then
+              begin
+                messages.AddItem('failed to Load Compiled Data',nil);
+                if TBaseScript(FDataSet).Script.Results<>'' then
+                  messages.AddItem(TBaseScript(FDataSet).Script.Results,nil);;
+              end;
+          finally
+            ButtonStatus(ssNone);
+            TBaseScript(FDataSet).Script.Stop;
+          end;
         end;
       sl.Free;
     end;
@@ -1369,8 +1394,19 @@ end;
 procedure TfScriptEditor.ButtonStatus(Status: TScriptStatus);
 begin
   case Status of
+  ssCompiling:
+    begin
+      bRun.Action:=acSyntaxcheck;
+      acSyntaxcheck.Enabled:=False;
+      acPause.Enabled:=False;
+      acReset.Enabled:=False;
+      acStepinto.Enabled:=False;
+      acStepover.Enabled:=False;
+    end;
   ssRunning:
     begin
+      acSyntaxcheck.Enabled:=True;
+      bRun.Action:=acRun;
       acPause.Enabled:=True;
       acReset.Enabled:=True;
       acRun.Enabled:=False;
@@ -1379,6 +1415,8 @@ begin
     end;
   ssPaused:
     begin
+      acSyntaxcheck.Enabled:=True;
+      bRun.Action:=acRun;
       acPause.Enabled:=False;
       acReset.Enabled:=True;
       acRun.Enabled:=True;
@@ -1387,6 +1425,8 @@ begin
     end;
   ssNone:
     begin
+      acSyntaxcheck.Enabled:=True;
+      bRun.Action:=acRun;
       acPause.Enabled:=False;
       acReset.Enabled:=False;
       acRun.Enabled:=True;
@@ -1394,6 +1434,7 @@ begin
       acStepover.Enabled:=False;
     end;
   end;
+  Application.ProcessMessages;
 end;
 
 initialization

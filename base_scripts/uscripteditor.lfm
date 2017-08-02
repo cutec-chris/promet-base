@@ -625,7 +625,7 @@ object fScriptEditor: TfScriptEditor
         EdgeBorders = []
         Images = ilImageList
         TabOrder = 0
-        object ToolButton2: TToolButton
+        object bRun: TToolButton
           Left = 34
           Top = 0
           Action = acRun
