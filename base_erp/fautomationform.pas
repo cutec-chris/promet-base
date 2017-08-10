@@ -246,6 +246,7 @@ resourcestring
   strNewNumbers                         = 'Code';
   strProblemSend                        = 'Die Störung wurde Eingetragen !';
   strProblemAt                          = 'Störung %s bei %s';
+  strAbortWarning                       = 'Achtung das Abbrechen des Ablaufes kann zu unerwünschten Nebenwirkungen führen, wirklich abbrechen ?';
 
 procedure TTCPCommandDaemon.DoData;
 begin
@@ -368,8 +369,11 @@ begin
         end
       else
         begin
-          TreeData.Script.Script.Stop;
-          acExecuteStep.Caption:=strRun;
+          if MessageDlg(strAbort,strAbortWarning,mtWarning,[mbYes,mbNo],0) = mrYes then
+            begin
+              TreeData.Script.Script.Stop;
+              acExecuteStep.Caption:=strRun;
+            end;
         end;
     end;
 end;
