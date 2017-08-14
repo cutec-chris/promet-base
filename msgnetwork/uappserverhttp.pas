@@ -185,6 +185,7 @@ var
   i: Integer;
   ModifiedSince : TDateTime;
   sl: TStringList;
+  FileLastModified: TDateTime;
 const
   Timeout = 12000;
 begin
@@ -256,7 +257,8 @@ begin
               end
             else if Uppercase(Command)='GET' then
               begin
-                if (FileDateToDateTime(FileAge(aPath)) < ModifiedSince)
+                if (FileAge(aPath,FileLastModified)) and
+                   (FileLastModified < ModifiedSince)
                 then
                   begin
                     Code := 304;//not modified
@@ -278,8 +280,11 @@ begin
             else if Uppercase(Command)='HEAD' then
               Code:=200;
             headers.Add('Content-Type:'+GetContentType(ExtractFileExt(aPath)));
-            headers.Add('Last-Modified: '+Rfc822DateTime(FileDateToDateTime(FileAge(aPath))));
-            headers.Add('ETag: '+Rfc822DateTime(FileDateToDateTime(FileAge(aPath))));
+            if FileAge(aPath,FileLastModified) then
+              begin
+                headers.Add('Last-Modified: '+Rfc822DateTime(FileLastModified));
+                headers.Add('ETag: '+Rfc822DateTime(FileLastModified));
+              end;
           end
         //else writeln('HTTP:'+aCmd+' '+uri+' not found')
           ;
