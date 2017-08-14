@@ -24,7 +24,7 @@ unit uappserverhttp;
 interface
 
 uses
-  Classes, SysUtils, synautil, uAppServer, blcksock;
+  Classes, SysUtils, synautil, uAppServer, blcksock, uhttputil;
 
 type
   THTTPHandlerProc = function(Sender : TAppNetworkThrd;Method,URL : string;Headers : TStringList;Input,Output : TMemoryStream;StatusText : string) : Integer;
@@ -116,7 +116,7 @@ begin
         TAppNetworkThrd(Sender).sock.SendString(tmp+'/1.1 ' + IntTostr(aSock.Code) + CRLF);
       if aSock.protocol <> '' then
       begin
-        aSock.headers.Add('Date: ' + Rfc822DateTime(now));
+        aSock.headers.Add('Date: ' + Rfc822DateTime(LocalTimeToGMT(now)));
         aSock.headers.Add('Server: Avamm Internal Network');
         if aSock.Code<>304 then
           aSock.headers.Add('Content-length: ' + IntTostr(aSock.OutputData.Size));
