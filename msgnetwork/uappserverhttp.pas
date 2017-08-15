@@ -24,7 +24,7 @@ unit uappserverhttp;
 interface
 
 uses
-  Classes, SysUtils, synautil, uAppServer, blcksock, uhttputil;
+  Classes, SysUtils, synautil, uAppServer, blcksock, uhttputil, uBaseApplication;
 
 type
   THTTPHandlerProc = function(Sender : TAppNetworkThrd;Method,URL : string;Headers : TStringList;Input,Output : TMemoryStream;StatusText : string) : Integer;
@@ -280,7 +280,7 @@ begin
             else if Uppercase(Command)='HEAD' then
               Code:=200;
             headers.Add('Content-Type:'+GetContentType(ExtractFileExt(aPath)));
-            if FileAge(aPath,FileLastModified) then
+            if FileAge(aPath,FileLastModified) and (not BaseApplication.HasOption('nocache')) then
               begin
                 headers.Add('Last-Modified: '+Rfc822DateTime(FileLastModified));
                 headers.Add('ETag: '+Rfc822DateTime(FileLastModified));
