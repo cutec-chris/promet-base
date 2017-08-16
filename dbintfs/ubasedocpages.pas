@@ -29,7 +29,7 @@ type
 
   { TDocPages }
 
-  TDocPages = class(TBaseDBDataset)
+  TDocPages = class(TBaseDbList)
   private
     FTyp: string;
     FUsedFields : string;
@@ -229,7 +229,7 @@ begin
       SetParamsFromExif(extn,aFullStream);
       aSStream := TStringStream.Create('');
       Data.BlobFieldToStream(aDocument.DataSet,'FULLTEXT',aSStream);
-      GenerateThumbNail(ExtractFileExt(aDocument.FileName),aFullStream,aStream,aSStream.DataString);
+      uthumbnails.GenerateThumbNail(ExtractFileExt(aDocument.FileName),aFullStream,aStream,aSStream.DataString);
       aSStream.Free;
       if FieldByName('ORIGDATE').IsNull then
         FieldByName('ORIGDATE').AsDateTime:=aDocument.FieldByName('DATE').AsDateTime;
@@ -342,7 +342,7 @@ begin
         FieldByName('ORIGDATE').AsDateTime:=Now();
       GetContentText(aFullStream,extn,aText);
       aFullStream.Position:=0;
-      GenerateThumbNail(ExtractFileExt(aDocument.FileName),aFullStream,aStream,aText);
+      uthumbnails.GenerateThumbNail(ExtractFileExt(aDocument.FileName),aFullStream,aStream,aText);
       Self.Post;
       if aText<>'' then
         begin
@@ -367,6 +367,7 @@ begin
       aDocument.Free;
     end;
 end;
-
+initialization
+  RegisterdataSetClass('DOCPAGES',TDocPages);
 end.
 
