@@ -28,7 +28,7 @@ uses
 
 type
   TAppNetworkThrd = class;
-  TCommandHandlerProc = function(Sender : TAppNetworkThrd; Command : string) : string;
+  TCommandHandlerProc = function(Sender : TAppNetworkThrd; Command : string) : Boolean;
 
   { TPrometNetworkDaemon }
 
@@ -38,6 +38,7 @@ type
   private
     Socks : TList;
     Sock:TTCPBlockSocket;
+    ActId : Integer;
     function GetConnections: Integer;
   public
     Constructor Create;
@@ -54,13 +55,14 @@ type
   TAppNetworkThrd = class(TThread)
   private
     CSock: TSocket;
-    FResult : string;
     FObjects : TList;
-    procedure DoCommand(FCommand : string);
+    function DoCommand(FCommand : string) : Boolean;
   protected
   public
     Sock:TTCPBlockSocket;
-    Constructor Create (hsock:tSocket);
+    Id : Integer;
+    Close : Boolean;
+    Constructor Create (hsock:tSocket;aId : Integer);
     destructor Destroy; override;
     procedure Execute; override;
     property Objects : TList read FObjects;
@@ -87,6 +89,7 @@ begin
   sock:=TTCPBlockSocket.create;
   Socks := TList.Create;
   FreeOnTerminate:=true;
+  ActId := 0;
 end;
 destructor TAppNetworkDaemon.Destroy;
 begin
@@ -139,7 +142,7 @@ begin
         else
           begin
             if terminated then break;
-            if canread(500) then
+            if canread(100) then
               begin
                 try
                   ClientSock:=accept;
@@ -147,7 +150,10 @@ begin
                   Terminate;
                 end;
                 if lastError=0 then
-                  Socks.Add(TAppNetworkThrd.create(ClientSock));
+                  begin
+                    Socks.Add(TAppNetworkThrd.create(ClientSock,ActId));
+                    inc(ActId);
+                  end;
               end;
           end;
       until Terminated;
@@ -162,26 +168,26 @@ begin
   CommandHandlers[Length(CommandHandlers)-1] := aHandler;
 end;
 
-procedure TAppNetworkThrd.DoCommand(FCommand: string);
+function TAppNetworkThrd.DoCommand(FCommand: string): Boolean;
 var
   i: Integer;
 begin
   for i := 0 to Length(CommandHandlers)-1 do
     begin
-      FResult := CommandHandlers[i](Self,FCommand);
-      if FResult <>'' then break;
+      Result := CommandHandlers[i](Self,FCommand);
+      if Result then break;
     end;
-  if FResult='' then
-    FResult:='ERROR: failed!';
 end;
 
-constructor TAppNetworkThrd.Create(hsock: tSocket);
+constructor TAppNetworkThrd.Create(hsock: tSocket; aId: Integer);
 var
   LoggedIn: Boolean;
 begin
   inherited create(false);
+  Id := aId;
   FObjects := TList.Create;
   Csock := Hsock;
+  Close:=False;
   FreeOnTerminate:=true;
 end;
 
@@ -206,30 +212,39 @@ end;
 procedure TAppNetworkThrd.Execute;
 var
   s: string;
+  CmdIndex : Integer = 0;
 begin
   sock:=TTCPBlockSocket.create;
+  writeln(IntToStr(Id)+':New Socket');
   try
     Sock.socket:=CSock;
     sock.GetSins;
-    Sock.SSLAcceptConnection;
     with sock do
       begin
         repeat
           if terminated then break;
-          s := RecvTerminated(2000,CRLF);
+          if Close then break;
+          s := RecvTerminated(5000,CRLF);
           if (lastError<>0) and (LastError<>WSAETIMEDOUT) then
-            break;
+            begin
+              writeln(IntToStr(Id)+':Socket Error1:'+LastErrorDesc);
+              break;
+            end;
           if s <> '' then
             begin
+              if CmdIndex=1 then
+                begin
+                  writeln('will this crash ??');
+                end;
               DoCommand(s);
-              SendString(FResult+CRLF);
-              if lastError<>0 then break;
+              inc(CmdIndex);
             end;
         until false;
       end;
   finally
     Sock.Free;
   end;
+  writeln(IntToStr(Id)+':Socket closed');
 end;
 
 

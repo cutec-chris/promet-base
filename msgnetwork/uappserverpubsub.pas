@@ -41,7 +41,7 @@ var
 
 implementation
 
-function HandlePubSubCommand(Sender : TAppNetworkThrd;FCommand : string) : string;
+function HandlePubSubCommand(Sender : TAppNetworkThrd;FCommand : string) : Boolean;
 var
   aCmd, uri, protocol, s: String;
   headers: TStringList;
@@ -49,6 +49,7 @@ var
   InputData, OutputData: TMemoryStream;
   PubSub : TPubSubHandler = nil;
 begin
+  Result:=False;
   try
     i := 0;
     while i < Length(PubSubHandlers) do
@@ -74,7 +75,6 @@ begin
       PubSubHandlers[length(PubSubHandlers)-1] := Pubsub;
       TAppNetworkThrd(Sender).Objects.Add(Pubsub);
     end;
-  Result := '';
   if pos(' ',FCommand)>0 then
     aCmd := copy(FCommand,0,pos(' ',FCommand)-1)
   else aCmd := FCommand;
@@ -85,17 +85,24 @@ begin
       //Check if we have someone to forward this message
       //Check if we should do something with it (Scripts,Measurements)
       if Pubsub.Pubsub.DirectPublish(copy(FCommand,0,pos(' ',FCommand)-1),copy(FCommand,pos(' ',FCommand)+1,length(FCommand))) then
-        Result:='OK';
+        begin
+          Sender.Sock.SendString('OK'+CRLF);
+          Result := True;
+        end;
     end;
   'SUB'://Subscribe to Topic [TOPIC]
     begin
       Pubsub.Pubsub.Subscribe(FCommand);
-      Result:='OK';
+      Sender.Sock.SendString('OK'+CRLF);
+      Result := True;
     end;
   'UNSUB'://Unsubscribe from Topic [TOPIC]
     begin
       if Pubsub.Pubsub.UnSubscribe(FCommand) then
-        Result:='OK';
+        begin
+          Sender.Sock.SendString('OK'+CRLF);
+          Result := True;
+        end;
     end;
   end;
 

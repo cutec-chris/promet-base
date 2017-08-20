@@ -121,14 +121,14 @@ begin
     Sock.Free;
   end;
 end;
-function HandlePrometCommand(Sender : TAppNetworkThrd;FCommand : string) : string;
+function HandlePrometCommand(Sender : TAppNetworkThrd;FCommand : string) : Boolean;
 var
   aCmd, uri, protocol, s: String;
   headers: TStringList;
   size, Timeout, x, ResultCode, n, i: Integer;
   InputData, OutputData: TMemoryStream;
 begin
-  Result := '';
+  Result := False;
   if pos(' ',FCommand)>0 then
     aCmd := copy(FCommand,0,pos(' ',FCommand)-1)
   else aCmd := FCommand;
@@ -136,7 +136,7 @@ begin
   case Uppercase(aCmd) of
   'EXIT','QUIT'://Quit Connection
     begin
-      Result:='OK:Bye!';
+      TAppNetworkThrd(Sender).Sock.SendString('OK:Bye!'+CRLF);
       TAppNetworkThrd(Sender).Terminate;
     end;
   'LOGIN':
@@ -154,21 +154,25 @@ begin
         TAppNetworkThrd(Sender).Sock.SendString('This Connection is insecure.'+CRLF)
       else
         TAppNetworkThrd(Sender).Sock.SendString('This Connection is secure now.'+CRLF);
+      Result := True;
     end;
   'PING':
     begin
-      Result:='PONG';
+      TAppNetworkThrd(Sender).Sock.SendString('PONG'+CRLF);
+      Result := True;
     end;
   'SHUTDOWN':
     begin
-      Result:='OK';
+      TAppNetworkThrd(Sender).Sock.SendString('OK'+CRLF);
       BaseApplication.Terminate;
+      Result := True;
     end
   else
     begin
       if (copy(aCmd,0,1)='<') and IsNumeric(copy(aCmd,2,pos('>',aCmd)-2)) then
         begin //Syslog Message
-          Result:='ERROR: Syslog at time not implemented';
+          TAppNetworkThrd(Sender).Sock.SendString('ERROR: Syslog at time not implemented'+CRLF);
+          Result := True;
         end;
     end;
   end;

@@ -41,6 +41,7 @@ type
     Command : string;
     Protocol : string;
     NewHeaders : string;
+    Close : Boolean;
     Result : TFileStream;
     headers: TStringList;
     InputData: TMemoryStream;
@@ -60,7 +61,7 @@ implementation
 var
   HTTPHandlers : array of THTTPHandlerProc;
 
-function HandleHTTPCommand(Sender : TAppNetworkThrd;FCommand : string) : string;
+function HandleHTTPCommand(Sender : TAppNetworkThrd;FCommand : string) : Boolean;
 var
   aCmd: String;
   i: Integer;
@@ -69,8 +70,10 @@ var
   n: Integer;
   aReqTime: TDateTime;
   ResultStatusText , tmp: string;
+  ProtocolVersion: Extended;
+  Close : Boolean = False;
 begin
-  Result := '';
+  Result := False;
   if pos(' ',FCommand)>0 then
     aCmd := copy(FCommand,0,pos(' ',FCommand)-1)
   else aCmd := FCommand;
@@ -93,10 +96,12 @@ begin
       aSock.Url:=uri;
       aSock.protocol := fetch(FCommand, ' ');
       aSock.Command := aCmd;
-      aSock.FSocket.Synchronize(aSock.FSocket,@aSock.ProcessHTTPRequest);
-      //aSock.ProcessHTTPRequest;
+      //aSock.FSocket.Synchronize(aSock.FSocket,@aSock.ProcessHTTPRequest);
+      writeln('Processing HTTP Request in Thread');
+      aSock.ProcessHTTPRequest;
       if (aSock.Code<>200) and (aSock.Code<>301) and (aSock.Code<>304) then
         begin
+          writeln('Processing HHTP Handlers');
           aReqTime := Now();
           for i := 0 to Length(HTTPHandlers)-1 do
             begin
@@ -109,27 +114,58 @@ begin
             end;
         end;
       tmp := aSock.protocol;
+      ProtocolVersion := StrToFloatDef(StringReplace(copy(aSock.Protocol,pos('/',aSock.Protocol)+1,length(aSock.Protocol)),'.',DecimalSeparator,[]),0.9);
       tmp := copy(tmp,0,pos('/',tmp)-1);
+      writeln('Sending Headers');
       if ResultStatusText <> '' then
         TAppNetworkThrd(Sender).sock.SendString(tmp+'/1.1 ' + IntTostr(aSock.Code) + ' '+ ResultStatusText + CRLF)
       else
         TAppNetworkThrd(Sender).sock.SendString(tmp+'/1.1 ' + IntTostr(aSock.Code) + CRLF);
       if aSock.protocol <> '' then
       begin
+        aSock.Close:=True;//TODO:find keep-alive bug and remove this
         aSock.headers.Add('Date: ' + Rfc822DateTime(LocalTimeToGMT(now)));
         aSock.headers.Add('Server: Avamm Internal Network');
         if aSock.Code<>304 then
           aSock.headers.Add('Content-length: ' + IntTostr(aSock.OutputData.Size));
-        aSock.headers.Add('Connection: keep-alive');
+        if (ProtocolVersion < 1.1) or aSock.close then
+          aSock.headers.Add('Connection: close')
+        else
+          aSock.headers.Add('Connection: keep-alive');
         for n := 0 to aSock.headers.count - 1 do
           if aSock.headers[n]<>'' then
-            TAppNetworkThrd(Sender).sock.sendstring(aSock.headers[n] + CRLF);
+            begin
+              TAppNetworkThrd(Sender).sock.sendstring(aSock.headers[n] + CRLF);
+              if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
+                begin
+                  writeln(IntToStr(TAppNetworkThrd(Sender).Id)+':Sock.LastError is '+TAppNetworkThrd(Sender).sock.LastErrorDesc);
+                  Exit;
+                end;
+            end;
         TAppNetworkThrd(Sender).sock.sendstring(CRLF);
-      end;
+      end
+      else writeln('No protocoll ?! ...');
       if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
-        Exit;
+        begin
+          writeln(IntToStr(TAppNetworkThrd(Sender).Id)+':Sock.LastError is '+TAppNetworkThrd(Sender).sock.LastErrorDesc);
+          Exit;
+        end;
+      writeln('Sending Body');
       TAppNetworkThrd(Sender).Sock.SendBuffer(aSock.OutputData.Memory, aSock.OutputData.Size);
-      Result:=' ';
+      if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
+        begin
+          writeln(IntToStr(TAppNetworkThrd(Sender).Id)+':Sock.LastError is '+TAppNetworkThrd(Sender).sock.LastErrorDesc);
+          Exit;
+        end;
+      TAppNetworkThrd(Sender).Sock.SendString(CRLF);
+      if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
+        begin
+          writeln(IntToStr(TAppNetworkThrd(Sender).Id)+':Sock.LastError is '+TAppNetworkThrd(Sender).sock.LastErrorDesc);
+          Exit;
+        end;
+      TAppNetworkThrd(Sender).Close:=aSock.Close;
+      writeln('done.');
+      Result:=True;
     end;
   end;
 end;
@@ -165,6 +201,7 @@ begin
   Headers := TStringList.Create;
   InputData := TMemoryStream.Create;
   OutputData := TMemoryStream.Create;
+  Close:=False;
 end;
 
 destructor THTTPSession.Destroy;
@@ -208,6 +245,8 @@ begin
           Size := StrToIntDef(SeparateRight(s, ' '), -1);
         if Pos('IF-MODIFIED-SINCE:', Uppercase(s)) = 1 then
           ModifiedSince := synautil.DecodeRfcDateTime(SeparateRight(s, ' '));
+        if Pos('CONNECTION:CLOSE', Uppercase(StringReplace(s,' ','',[rfReplaceAll]))) = 1 then
+          Close := True;
       until s = '';
     end;
     Code:=500;
