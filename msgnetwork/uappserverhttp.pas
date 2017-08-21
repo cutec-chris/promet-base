@@ -95,6 +95,8 @@ begin
         Exit;
       aSock.Url:=uri;
       aSock.protocol := fetch(FCommand, ' ');
+      if aSock.protocol = '' then
+        aSock.protocol := 'HTTP/1.1'; //direct command handler ??
       aSock.Command := aCmd;
       //aSock.FSocket.Synchronize(aSock.FSocket,@aSock.ProcessHTTPRequest);
       writeln('Processing HTTP Request in Thread');
@@ -123,7 +125,7 @@ begin
         TAppNetworkThrd(Sender).sock.SendString(tmp+'/1.1 ' + IntTostr(aSock.Code) + CRLF);
       if aSock.protocol <> '' then
       begin
-        aSock.Close:=True;//TODO:find keep-alive bug and remove this
+        //aSock.Close:=True;//TODO:find keep-alive bug and remove this
         aSock.headers.Add('Date: ' + Rfc822DateTime(LocalTimeToGMT(now)));
         aSock.headers.Add('Server: Avamm Internal Network');
         if aSock.Code<>304 then
@@ -214,7 +216,7 @@ end;
 
 procedure THTTPSession.ProcessHTTPRequest;
 var
-  size: Integer;
+  size: Integer = 0;
   s: String;
   x: Integer;
   aPath: String;
@@ -224,6 +226,7 @@ var
   sl: TStringList;
   FileLastModified: TDateTime;
 const
+  HeaderTimeout = 100;
   Timeout = 12000;
 begin
   try
@@ -236,7 +239,7 @@ begin
       if pos('HTTP/', protocol) <> 1 then
         Exit;
       repeat
-        s := Socket.sock.RecvString(Timeout);
+        s := Socket.sock.RecvString(HeaderTimeout);
         if Socket.sock.lasterror <> 0 then
           Exit;
         if s <> '' then
