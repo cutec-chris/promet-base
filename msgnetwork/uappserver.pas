@@ -234,7 +234,7 @@ begin
             begin
               if CmdIndex=1 then
                 begin
-                  writeln('will this crash ??');
+                  writeln(IntToStr(Id)+':will this crash ??');
                 end;
               DoCommand(s);
               inc(CmdIndex);
