@@ -24,7 +24,7 @@ unit uAppServer;
 interface
 
 uses
-  Classes, SysUtils, blcksock, synsock;
+  Classes, SysUtils, blcksock, synsock, uBaseApplication;
 
 type
   TAppNetworkThrd = class;
@@ -215,7 +215,8 @@ var
   CmdIndex : Integer = 0;
 begin
   sock:=TTCPBlockSocket.create;
-  writeln(IntToStr(Id)+':New Socket');
+  with BaseApplication as IBaseApplication do
+    Debug(IntToStr(Id)+':New Socket');
   try
     Sock.socket:=CSock;
     sock.GetSins;
@@ -227,14 +228,16 @@ begin
           s := RecvTerminated(5000,CRLF);
           if (lastError<>0) and (LastError<>WSAETIMEDOUT) then
             begin
-              writeln(IntToStr(Id)+':Socket Error1:'+LastErrorDesc);
+              with BaseApplication as IBaseApplication do
+                 Debug(IntToStr(Id)+':Socket Error1:'+LastErrorDesc);
               break;
             end;
           if s <> '' then
             begin
               if CmdIndex=1 then
                 begin
-                  writeln(IntToStr(Id)+':will this crash ??');
+                  with BaseApplication as IBaseApplication do
+                    Debug(IntToStr(Id)+':will this crash ??');
                 end;
               DoCommand(s);
               inc(CmdIndex);
@@ -244,7 +247,8 @@ begin
   finally
     Sock.Free;
   end;
-  writeln(IntToStr(Id)+':Socket closed');
+  with BaseApplication as IBaseApplication do
+    Debug(IntToStr(Id)+':Socket closed');
 end;
 
 

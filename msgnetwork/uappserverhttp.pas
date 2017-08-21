@@ -99,11 +99,13 @@ begin
         aSock.protocol := 'HTTP/1.1'; //direct command handler ??
       aSock.Command := aCmd;
       //aSock.FSocket.Synchronize(aSock.FSocket,@aSock.ProcessHTTPRequest);
-      writeln('Processing HTTP Request in Thread');
+      with BaseApplication as IBaseApplication do
+        Debug('Processing HTTP Request in Thread');
       aSock.ProcessHTTPRequest;
       if (aSock.Code<>200) and (aSock.Code<>301) and (aSock.Code<>304) then
         begin
-          writeln('Processing HHTP Handlers');
+          with BaseApplication as IBaseApplication do
+            Debug('Processing HHTP Handlers');
           aReqTime := Now();
           for i := 0 to Length(HTTPHandlers)-1 do
             begin
@@ -118,7 +120,8 @@ begin
       tmp := aSock.protocol;
       ProtocolVersion := StrToFloatDef(StringReplace(copy(aSock.Protocol,pos('/',aSock.Protocol)+1,length(aSock.Protocol)),'.',DecimalSeparator,[]),0.9);
       tmp := copy(tmp,0,pos('/',tmp)-1);
-      writeln('Sending Headers');
+      with BaseApplication as IBaseApplication do
+        Debug('Sending Headers');
       if ResultStatusText <> '' then
         TAppNetworkThrd(Sender).sock.SendString(tmp+'/1.1 ' + IntTostr(aSock.Code) + ' '+ ResultStatusText + CRLF)
       else
@@ -146,27 +149,27 @@ begin
             end;
         TAppNetworkThrd(Sender).sock.sendstring(CRLF);
       end
-      else writeln('No protocoll ?! ...');
+      else
+        with BaseApplication as IBaseApplication do
+          Error('No protocoll ?! ...');
       if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
         begin
-          writeln(IntToStr(TAppNetworkThrd(Sender).Id)+':Sock.LastError is '+TAppNetworkThrd(Sender).sock.LastErrorDesc);
+          with BaseApplication as IBaseApplication do
+            Debug(IntToStr(TAppNetworkThrd(Sender).Id)+':Sock.LastError is '+TAppNetworkThrd(Sender).sock.LastErrorDesc);
           Exit;
         end;
-      writeln('Sending Body');
+      with BaseApplication as IBaseApplication do
+        Debug('Sending Body');
       TAppNetworkThrd(Sender).Sock.SendBuffer(aSock.OutputData.Memory, aSock.OutputData.Size);
       if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
         begin
-          writeln(IntToStr(TAppNetworkThrd(Sender).Id)+':Sock.LastError is '+TAppNetworkThrd(Sender).sock.LastErrorDesc);
-          Exit;
-        end;
-      TAppNetworkThrd(Sender).Sock.SendString(CRLF);
-      if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
-        begin
-          writeln(IntToStr(TAppNetworkThrd(Sender).Id)+':Sock.LastError is '+TAppNetworkThrd(Sender).sock.LastErrorDesc);
+          with BaseApplication as IBaseApplication do
+            Debug(IntToStr(TAppNetworkThrd(Sender).Id)+':Sock.LastError is '+TAppNetworkThrd(Sender).sock.LastErrorDesc);
           Exit;
         end;
       TAppNetworkThrd(Sender).Close:=aSock.Close;
-      writeln('done.');
+      with BaseApplication as IBaseApplication do
+        Debug('done.');
       Result:=True;
     end;
   end;
@@ -287,11 +290,13 @@ begin
             if copy(url,length(url),1)<>'/' then
               url := url+'/';
             headers.Add('Location: '+url+'index.html');
-            writeln('HTTP: redirecting to '+url+'index.html');
+            with BaseApplication as IBaseApplication do
+              Info('HTTP: redirecting to '+url+'index.html');
           end
         else if FileExists(aPath) and (pos('/.',aPath)=0) then
           begin
-            writeln('HTTP:'+Command+' '+url+' ('+aPath+')');
+            with BaseApplication as IBaseApplication do
+              Info('HTTP:'+Command+' '+url+' ('+aPath+')');
             Headers.Clear;
             if Uppercase(Command)='OPTIONS' then
               begin
@@ -328,7 +333,9 @@ begin
                 headers.Add('ETag: '+Rfc822DateTime(FileLastModified));
               end;
           end
-        //else writeln('HTTP:'+aCmd+' '+uri+' not found')
+        else
+//          with BaseApplication as IBaseApplication do
+//            Info('HTTP:'+aCmd+' '+uri+' not found')
           ;
       end;
   except
