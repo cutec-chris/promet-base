@@ -324,19 +324,23 @@ end;
 
 procedure TfRepairImageFrame.SetArticle(aMasterdata: TMasterdata);
 begin
-  if not aMasterdata.FieldByName('REPAIRTIME').IsNull then
-    begin
-      Position.Edit;
-      Position.DataSet.FieldByName('REPAIRTIME').AsVariant:=aMasterdata.FieldByName('REPAIRTIME').AsVariant;
-      Repairtime := aMasterdata.FieldByName('REPAIRTIME').value;
-      Timer1.Enabled := True;
-      lInfo.Visible := True;
-      Timer2.Enabled := False;
-      lInfo.Font.Color := clGreen;
-      lInfo.Color := clInfoBk;
-      lInfo.Caption := 'Reparaturzeit: '+Format(' %d m',[Repairtime]);
-    end
-  else lInfo.Visible := False;
+  try
+    if not aMasterdata.FieldByName('REPAIRTIME').IsNull and Assigned(Position.DataSet) then
+      begin
+        Position.Edit;
+        Position.DataSet.FieldByName('REPAIRTIME').AsVariant:=aMasterdata.FieldByName('REPAIRTIME').AsVariant;
+        Repairtime := aMasterdata.FieldByName('REPAIRTIME').value;
+        Timer1.Enabled := True;
+        lInfo.Visible := True;
+        Timer2.Enabled := False;
+        lInfo.Font.Color := clGreen;
+        lInfo.Color := clInfoBk;
+        lInfo.Caption := 'Reparaturzeit: '+Format(' %d m',[Repairtime]);
+      end
+    else lInfo.Visible := False;
+  except
+    lInfo.Visible := False;
+  end;
 end;
 
 destructor TfRepairImageFrame.Destroy;
