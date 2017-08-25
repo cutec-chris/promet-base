@@ -234,11 +234,6 @@ begin
             end;
           if s <> '' then
             begin
-              if CmdIndex=1 then
-                begin
-                  with BaseApplication as IBaseApplication do
-                    Debug(IntToStr(Id)+':will this crash ??');
-                end;
               DoCommand(s);
               inc(CmdIndex);
             end;
