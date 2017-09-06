@@ -327,16 +327,20 @@ begin
             else if Uppercase(Command)='HEAD' then
               Code:=200;
             headers.Add('Content-Type:'+GetContentType(ExtractFileExt(aPath)));
-            if FileAge(aPath,FileLastModified) and (not BaseApplication.HasOption('nocache') and (not BaseApplication.HasOption('debug'))) then
+            if Code = 200 then
               begin
-                headers.Add('Last-Modified: '+Rfc822DateTime(FileLastModified));
-                headers.Add('ETag: '+Rfc822DateTime(FileLastModified));
-                headers.Add('Expires: '+Rfc822DateTime(Now()+(Now()-FileLastModified)));
-              end
-            else
-              begin
-                headers.Add('Cache-Control: no-cache');
-                headers.Add('Expires: '+Rfc822DateTime(Now()));
+                if FileAge(aPath,FileLastModified) and (not BaseApplication.HasOption('nocache') and (not BaseApplication.HasOption('debug'))) then
+                  begin
+                    headers.Add('Last-Modified: '+Rfc822DateTime(FileLastModified));
+                    headers.Add('ETag: '+Rfc822DateTime(FileLastModified));
+                    headers.Add('Expires: '+Rfc822DateTime(Now()+(Now()-FileLastModified)));
+                    headers.Add('Cache-Control: public');
+                  end
+                else
+                  begin
+                    headers.Add('Cache-Control: no-cache');
+                    headers.Add('Expires: '+Rfc822DateTime(Now()));
+                  end;
               end;
           end
         else
