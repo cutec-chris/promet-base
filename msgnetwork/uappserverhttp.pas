@@ -181,27 +181,20 @@ begin
           aSock.headers.Add('Connection: close')
         else
           aSock.headers.Add('Connection: keep-alive');
+        tmp := '';
         for n := 0 to aSock.headers.count - 1 do
           if aSock.headers[n]<>'' then
-            begin
-              TAppNetworkThrd(Sender).sock.sendstring(aSock.headers[n] + CRLF);
-              if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
-                begin
-                  writeln(IntToStr(TAppNetworkThrd(Sender).Id)+':Sock.LastError is '+TAppNetworkThrd(Sender).sock.LastErrorDesc);
-                  Exit;
-                end;
-            end;
-        TAppNetworkThrd(Sender).sock.sendstring(CRLF);
+            tmp := tmp+aSock.headers[n] + CRLF;
+        TAppNetworkThrd(Sender).sock.sendstring(tmp+CRLF);
+        if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
+          begin
+            writeln(IntToStr(TAppNetworkThrd(Sender).Id)+':Sock.LastError is '+TAppNetworkThrd(Sender).sock.LastErrorDesc);
+            Exit;
+          end;
       end
       else
         with BaseApplication as IBaseApplication do
           Error('No protocoll ?! ...');
-      if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
-        begin
-          with BaseApplication as IBaseApplication do
-            Debug(IntToStr(TAppNetworkThrd(Sender).Id)+':Sock.LastError is '+TAppNetworkThrd(Sender).sock.LastErrorDesc);
-          Exit;
-        end;
       with BaseApplication as IBaseApplication do
         Debug('Sending Body');
       TAppNetworkThrd(Sender).Sock.SendBuffer(aSock.OutputData.Memory, aSock.OutputData.Size);
