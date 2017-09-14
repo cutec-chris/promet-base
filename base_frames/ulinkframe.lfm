@@ -151,7 +151,6 @@ inherited fLinkFrame: TfLinkFrame
       Caption = 'Verweis kopieren'
       ImageIndex = 23
       OnExecute = acCopyToClipboardExecute
-      ShortCut = 16451
     end
     object acDelete: TAction
       Caption = 'löschen'

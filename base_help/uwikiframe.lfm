@@ -714,7 +714,6 @@ inherited fWikiFrame: TfWikiFrame
     top = 152
     object MenuItem2: TMenuItem
       Action = acCopy
-      ShortCut = 16451
     end
   end
   object pmAction: TPopupMenu[10]
