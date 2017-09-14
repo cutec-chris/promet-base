@@ -122,10 +122,54 @@ begin
       tmp := copy(tmp,0,pos('/',tmp)-1);
       with BaseApplication as IBaseApplication do
         Debug('Sending Headers');
-      if ResultStatusText <> '' then
-        TAppNetworkThrd(Sender).sock.SendString(tmp+'/1.1 ' + IntTostr(aSock.Code) + ' '+ ResultStatusText + CRLF)
-      else
-        TAppNetworkThrd(Sender).sock.SendString(tmp+'/1.1 ' + IntTostr(aSock.Code) + CRLF);
+      if ResultStatusText = '' then
+        begin
+          case aSock.Code of
+          100:ResultStatusText := 'Continue';
+          101:ResultStatusText := 'Switching Protocols';
+          200:ResultStatusText := 'OK';
+          201:ResultStatusText := 'Created';
+          202:ResultStatusText := 'Accepted';
+          203:ResultStatusText := 'Non-Authoritative Information';
+          204:ResultStatusText := 'No Content';
+          205:ResultStatusText := 'Reset Content';
+          206:ResultStatusText := 'Partial Content';
+          300:ResultStatusText := 'Multiple Choices';
+          301:ResultStatusText := 'Moved Permanently';
+          302:ResultStatusText := 'Found';
+          303:ResultStatusText := 'See Other';
+          304:ResultStatusText := 'Not Modified';
+          305:ResultStatusText := 'Use Proxy';
+          307:ResultStatusText := 'Temporary Redirect';
+          400:ResultStatusText := 'Bad Request';
+          401:ResultStatusText := 'Unauthorized';
+          402:ResultStatusText := 'Payment Required';
+          403:ResultStatusText := 'Forbidden';
+          404:ResultStatusText := 'Not Found';
+          405:ResultStatusText := 'Method Not Allowed';
+          406:ResultStatusText := 'Not Acceptable';
+          407:ResultStatusText := 'Proxy Authentication Required';
+          408:ResultStatusText := 'Request Time-out';
+          409:ResultStatusText := 'Conflict';
+          410:ResultStatusText := 'Gone';
+          411:ResultStatusText := 'Length Required';
+          412:ResultStatusText := 'Precondition Failed';
+          413:ResultStatusText := 'Request Entity Too Large';
+          414:ResultStatusText := 'Request-URI Too Large';
+          415:ResultStatusText := 'Unsupported Media Type';
+          416:ResultStatusText := 'Requested range not satisfiable';
+          417:ResultStatusText := 'Expectation Failed';
+          500:ResultStatusText := 'Internal Server Error';
+          501:ResultStatusText := 'Not Implemented';
+          502:ResultStatusText := 'Bad Gateway';
+          503:ResultStatusText := 'Service Unavailable';
+          504:ResultStatusText := 'Gateway Time-out';
+          505:ResultStatusText := 'HTTP Version not supported';
+          else
+            ResultStatusText := 'WTF';
+          end;
+        end;
+      TAppNetworkThrd(Sender).sock.SendString(tmp+'/1.1 ' + IntTostr(aSock.Code) + ' '+ ResultStatusText + CRLF);
       if aSock.protocol <> '' then
       begin
         //aSock.Close:=True;//TODO:find keep-alive bug and remove this
