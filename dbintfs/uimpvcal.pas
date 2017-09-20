@@ -454,6 +454,8 @@ begin
           else
             vOut.Add('UID:'+FieldByName('ORIGIDS').AsString);
           vOut.Add('DTSTAMP:'+BuildISODate(FieldByName('TIMESTAMPD').AsDateTime));
+          if FieldByName('PROJECT').AsString<>'' then
+            vOut.Add('LOCATION:'+SetValue(FieldByName('PROJECT').AsString));
           if FieldByName('STARTDATE').AsString<>'' then
             vOut.Add('DTSTART:'+BuildISODate(LocalTimeToGMT(FieldByName('STARTDATE').AsDateTime)));
           if FieldByName('DUEDATE').AsString<>'' then
