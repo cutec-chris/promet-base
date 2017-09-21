@@ -982,7 +982,7 @@ begin
           aDocument := TDocument.CreateEx(Self,Data);
           aDocument.SelectByNumber(aId);
           aDocument.Open;
-          if not aDocument.DoCheckout(ExtractFileDir(DocumentSaveDialog.Filename),arev,DocumentSaveDialog.FileName) then
+          if not aDocument.DoCheckout(ExtractFileDir(DocumentSaveDialog.Filename),arev,ExtractFileName(DocumentSaveDialog.FileName)) then
             ShowMessage(strCheckoutFailed);
           aDocument.Free;
         end;
