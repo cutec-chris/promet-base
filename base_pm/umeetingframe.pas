@@ -1097,7 +1097,7 @@ begin
     begin
       aDocuments := TDocuments.CreateEx(Self,Data);
       TfDocumentFrame(Sender).DataSet := aDocuments;
-      TfDocumentFrame(Sender).Refresh(DataSet.Id.AsVariant,'E',DataSet.Id.AsString,Null,Null);
+      TfDocumentFrame(Sender).Refresh(DataSet.Id.AsVariant,'E',DataSet.Id.AsString,Null,Null,0);
     end;
   TPrometInplaceFrame(Sender).SetRights(FEditable);
 end;

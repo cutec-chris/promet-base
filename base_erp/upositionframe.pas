@@ -1299,9 +1299,9 @@ begin
   else
     aPosID := DataSet.FieldByName('SQL_ID').AsString+DataSet.FieldByName('POSNO').AsString;
   if TfDocumentFrame(Sender).DataSet.DataSet.FieldDefs.IndexOf('TYPE') <> -1 then
-    TfDocumentFrame(Sender).Refresh(DataSet.Id.AsVariant,'P',aPosID,Null,Null)
+    TfDocumentFrame(Sender).Refresh(DataSet.Id.AsVariant,'P',aPosID,Null,Null,0)
   else
-    TfDocumentFrame(Sender).Refresh(DataSet.Id.AsVariant,'P');
+    TfDocumentFrame(Sender).Refresh(DataSet.Id.AsVariant,'P',0);
   TfDocumentFrame(Sender).SetRights(FEditable);
 end;
 

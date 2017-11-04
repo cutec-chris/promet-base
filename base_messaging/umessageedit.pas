@@ -1087,7 +1087,7 @@ begin
       TfDocumentFrame(Sender).DataSet := aDocuments;
 //      aDocuments.Select(DataSet.Id.AsVariant,'N',DataSet.FieldByName('ID').AsString,Null,Null);
 //      aDocuments.Open;
-      TfDocumentFrame(Sender).Refresh(DataSet.Content.Id.AsVariant,'N',DataSet.FieldByName('ID').AsString,Null,Null);
+      TfDocumentFrame(Sender).Refresh(DataSet.Content.Id.AsVariant,'N',DataSet.FieldByName('ID').AsString,Null,Null,0);
     end;
   FDocumentFrame := TfDocumentFrame(Sender);
   aItem := TMenuItem.Create(TfDocumentFrame(Sender).pmDocumentAction);

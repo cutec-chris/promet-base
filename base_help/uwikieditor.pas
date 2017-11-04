@@ -487,7 +487,7 @@ begin
               aDocFrame := TfDocumentFrame.Create(Self);
               aDocFrame.DataSet := FDocuments;
               aPageIndex := pcPages.AddTab(aDocFrame,False,strFiles);
-              aDocFrame.Refresh(FDocId,FDocTyp,FDocName,Null,Null);
+              aDocFrame.Refresh(FDocId,FDocTyp,FDocName,Null,Null,0);
             end;
         end;
     end;

@@ -1,0 +1,5 @@
+{"version":1,"strings":[
+{"hash":128999902,"name":"tfoptions.caption","sourcebytes":[79,112,116,105,111,110,101,110],"value":"Optionen"},
+{"hash":35928766,"name":"tfoptions.pheader.caption","sourcebytes":[72,105,101,114,32,107,195,182,110,110,116,101,32,73,104,114,32,84,101,120,116,32,115,116,101,104,101,110],"value":"Hier k\u00F6nnte Ihr Text stehen"},
+{"hash":46875125,"name":"tfoptions.pframe.caption","sourcebytes":[87,195,164,104,108,101,110,32,83,105,101,32,101,105,110,101,32,75,97,116,101,103,111,114,105,101],"value":"W\u00E4hlen Sie eine Kategorie"}
+]}

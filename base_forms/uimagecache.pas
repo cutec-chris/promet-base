@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, CacheCls;
 type
-  TGetFileEvent = function(Path : string;var NewPath : string;var ExpireDate : TDateTime = 0) : TStream of object;
+  TGetFileEvent = function(Path : string;var NewPath : string;var ExpireDate : TDateTime) : TStream of object;
 
   { TFileCache }
 

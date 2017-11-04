@@ -1,0 +1,8 @@
+{"version":1,"strings":[
+{"hash":235523694,"name":"tfbookfibuaccount.caption","sourcebytes":[66,117,99,104,104,97,108,116,117,110,103,115,107,111,110,116,111,32,122,117,111,114,100,110,101,110],"value":"Buchhaltungskonto zuordnen"},
+{"hash":139099743,"name":"tfbookfibuaccount.gaccounts.columns[0].title.caption","sourcebytes":[65,67,67,79,85,78,84,78,79],"value":"ACCOUNTNO"},
+{"hash":337429,"name":"tfbookfibuaccount.gaccounts.columns[1].title.caption","sourcebytes":[78,65,77,69],"value":"NAME"},
+{"hash":5945829,"name":"tfbookfibuaccount.label1.caption","sourcebytes":[83,117,99,104,101],"value":"Suche"},
+{"hash":228100223,"name":"tfbookfibuaccount.cbwholelist.hint","sourcebytes":[115,101,116,122,116,32,100,105,101,32,103,101,115,97,109,116,101,32,76,105,115,116,101,32,40,70,105,108,116,101,114,110,32,83,105,101,32,117,109,32,103,101,119,195,188,110,115,99,104,116,101,32,68,97,116,101,110,115,195,164,116,122,101,32,122,117,32,119,195,164,104,108,101,110,41,10,97,117,102,32,100,105,101,115,101,115,32,75,111,110,116,111],"value":"setzt die gesamte Liste (Filtern Sie um gew\u00FCnschte Datens\u00E4tze zu w\u00E4hlen)\nauf dieses Konto"},
+{"hash":62018046,"name":"tfbookfibuaccount.cbwholelist.caption","sourcebytes":[103,101,115,97,109,116,101,32,76,105,115,116,101,32,97,117,102,32,100,105,101,115,101,115,32,75,111,110,116,111,32,115,101,116,122,101,110],"value":"gesamte Liste auf dieses Konto setzen"}
+]}

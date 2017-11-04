@@ -228,8 +228,8 @@ TfDocumentFrame = class(TPrometInplaceDBFrame{$IFDEF WINDOWS},IDropSource{$ENDIF
     procedure SetLanguage;override;
     function SaveFileToDir(aDir : string) : Boolean;
     procedure Refresh(RefID: Variant; Typ, ID: string; Version: Variant;
-      Language: Variant; aParent: Variant = 0); overload;
-    procedure Refresh(RefID : Variant;Typ : string;aParent : Variant = 0);overload;
+      Language: Variant; aParent: Variant); overload;
+    procedure Refresh(RefID : Variant;Typ : string;aParent : Variant);overload;
     property RefID : Variant read GetFrefID;
     property Typ : string read FTyp;
     property ID : string read FID;

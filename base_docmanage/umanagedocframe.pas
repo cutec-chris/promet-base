@@ -429,7 +429,7 @@ var
 begin
   SelectedItem := Item;
   if Item=nil then exit;
-  FDocFrame.Refresh(copy(Item.URL,0,pos('.',Item.URL)-1),'S');
+  FDocFrame.Refresh(copy(Item.URL,0,pos('.',Item.URL)-1),'S',0);
   aItem := ThumbControl1.ItemFromPoint(point(ThumbControl1.Left+(ThumbControl1.ThumbWidth div 2),ThumbControl1.Top+(ThumbControl1.ThumbHeight div 2)));
   if Assigned(aItem) then
     begin
@@ -1333,7 +1333,7 @@ begin
     begin
       Item := TThreadedImage(ThumbControl1.SelectedList[i]);
       DataSet.DataSet.Locate('SQL_ID',copy(Item.URL,0,pos('.',Item.URL)-1),[]);
-      FDocFrame.Refresh(copy(Item.URL,0,pos('.',Item.URL)-1),'S');
+      FDocFrame.Refresh(copy(Item.URL,0,pos('.',Item.URL)-1),'S',0);
       RebuidThumb;
     end;
   acRefresh.Execute;
