@@ -851,6 +851,7 @@ begin
   aParent := 0;
   FActiveTreeID := aParent;
   PageName := Utils.HTMLDecode(PageName);
+  PageName := Utils.HTTPDecode(PageName);
   TBaseDBModule(DataModule).Tree.DataSet.Filter := TBaseDBModule(DataModule).QuoteField('TYPE')+'='+TBaseDBModule(DataModule).QuoteValue('W');
   TBaseDBModule(DataModule).Tree.DataSet.Filtered := True;
   if pos('://',PageName) > 0 then exit;
