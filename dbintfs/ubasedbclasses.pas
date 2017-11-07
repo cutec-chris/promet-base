@@ -1551,7 +1551,7 @@ begin
                 aArray.Add(aNewObj);
                 TBaseDBDataSet(SubDataSet[i]).Next;
               end;
-            AJSON.Add(TBaseDBDataSet(SubDataSet[i]).Caption,aArray);
+            AJSON.Add(TBaseDBDataSet(SubDataSet[i]).TableName,aArray);
           end;
       end;
 end;
@@ -1690,8 +1690,15 @@ end;
 
 procedure TBaseDBDataset.ImportFromJSON(JSON: string; OverrideFields: Boolean;
   ReplaceFieldFunc: TReplaceFieldFunc);
+var
+  aJParser: TJSONParser;
+  aData: TJSONData;
 begin
+  aJParser := TJSONParser.Create(JSON);
+  aData := aJParser.Parse;
 
+  aData.Free;
+  aJParser.Free;
 end;
 
 procedure TBaseDbList.OpenItem(AccHistory : Boolean = True);
