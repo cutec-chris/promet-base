@@ -1536,13 +1536,14 @@ begin
   VJSON := TJSONObject.Create;
   FieldsToJSON(AObject.DataSet.Fields, VJSON, ADateAsString);
   AJSON.Add('Fields',VJSON);
+  if not Supports(AObject.DataSet,IBaseManageDB) then exit;
   with AObject.DataSet as IBaseSubDataSets do
     for i := 0 to GetCount-1 do
       begin
         TBaseDBDataSet(SubDataSet[i]).Open;
+        TBaseDBDataSet(SubDataSet[i]).First;
         if not TBaseDBDataSet(SubDataSet[i]).EOF then
           begin
-            TBaseDBDataSet(SubDataSet[i]).First;
             aArray := TJSONArray.Create;
             while not TBaseDBDataSet(SubDataSet[i]).EOF do
               begin
@@ -1577,14 +1578,14 @@ var
   RootNode: TDOMNode;
   i: Integer;
 
-  procedure RecourseTables(aNode : TDOMNode;aDataSet : TDataSet);
+  procedure RecourseTables(aNode : TDOMNode;aDataSet : TBaseDBDataset);
   var
     i: Integer;
     a: Integer;
     bNode: TDOMNode;
     cNode: TDOMNode;
     ThisDataSet: TDataSet;
-    function ProcessDataSet(ThisDataSet : TDataSet) : Boolean;
+    function ProcessDataSet(ThisDataSet : TBaseDBDataset) : Boolean;
     var
       c,d: Integer;
       b: Integer;
@@ -1611,8 +1612,8 @@ var
                   for d := 0 to bNode.Attributes.Length-1 do
                     begin
                       aFieldName := bNode.Attributes.Item[d].NodeName;
-                    if ((ThisDataSet.FieldDefs.IndexOf(aFieldName) <> -1) or (aFieldName='SQL_ID')) then
-                      if (ThisDataSet.FieldByName(aFieldName).IsNull or (OverrideFields) or (aFieldName='SQL_ID'))
+                    if ((ThisDataSet.dataSet.FieldDefs.IndexOf(aFieldName) <> -1) or (aFieldName='SQL_ID')) then
+                      if (ThisDataSet.dataSet.FieldByName(aFieldName).IsNull or (OverrideFields) or (aFieldName='SQL_ID'))
                       or (bNode.Attributes.Item[d].NodeName = 'QUANTITY')
                       or (bNode.Attributes.Item[d].NodeName = 'POSNO')
                       or (bNode.Attributes.Item[d].NodeName = 'VAT')
@@ -1631,12 +1632,12 @@ var
                             ReplaceFieldFunc(ThisDataSet.FieldByName(aFieldName),bNode.Attributes.Item[d].NodeValue,aNewValue);
                           if aFieldName='SQL_ID' then
                             begin
-                              if ThisDataSet.FieldDefs.IndexOf('OLD_ID')>-1 then
-                                ThisDataSet.FieldByName('OLD_ID').AsString := aNewValue;
+                              if ThisDataSet.dataSet.FieldDefs.IndexOf('OLD_ID')>-1 then
+                                ThisDataSet.dataSet.FieldByName('OLD_ID').AsString := aNewValue;
                             end
                           else if ThisDataSet.FieldByName(aFieldName).IsBlob then
                             ThisDataSet.FieldByName(aFieldName).AsString := DecodeStringBase64(aNewValue)
-                          else if ThisDataSet.FieldDefs.IndexOf(aFieldName)>-1 then
+                          else if ThisDataSet.dataSet.FieldDefs.IndexOf(aFieldName)>-1 then
                             ThisDataSet.FieldByName(aFieldName).AsString := aNewValue;
                         end;
                     end;
@@ -1659,11 +1660,11 @@ var
         if aNode.ChildNodes[i].NodeName = 'DATA' then
           begin
             if not ProcessDataSet(aDataSet) then
-              with aDataSet as IBaseSubDataSets do
+              with aDataSet.DataSet as IBaseSubDataSets do
                 begin
                   for a := 0 to GetCount-1 do
                     begin
-                      if ProcessDataSet(TBaseDbDataSet(SubDataSet[a]).DataSet) then break;
+                      if ProcessDataSet(TBaseDbDataSet(SubDataSet[a])) then break;
                     end;
                 end;
           end;
@@ -1682,7 +1683,7 @@ begin
            if RootNode.ChildNodes[i].Attributes.GetNamedItem('NAME').NodeValue <> TableName then
              raise Exception.Create(strPasteToanWrongDataSet)
            else
-             RecourseTables(RootNode.ChildNodes[i],DataSet);
+             RecourseTables(RootNode.ChildNodes[i],Self);
         end;
   Stream.Free;
   Doc.Free;
@@ -1693,10 +1694,79 @@ procedure TBaseDBDataset.ImportFromJSON(JSON: string; OverrideFields: Boolean;
 var
   aJParser: TJSONParser;
   aData: TJSONData;
+  i: Integer;
+
+  procedure RecourseTables(aNode : TJSONData;aDataSet : TBaseDBDataset);
+  var
+    i: Integer;
+    a: Integer;
+    bNode: TDOMNode;
+    cNode: TDOMNode;
+    ThisDataSet: TDataSet;
+    aField: TField;
+    Found: Boolean;
+    begin
+      if aNode.JSONType = jtArray then
+        begin
+          for i := 0 to aNode.Count-1 do
+            RecourseTables(aNode.Items[i],aDataSet);
+          exit;
+        end
+      else if aNode.JSONType = jtObject then
+        begin
+          for i := 0 to aNode.Count-1 do
+            begin
+              if TJSONObject(aNode).Names[i]='Fields' then
+                begin
+                  if TJSONObject(TJSONObject(aNode).Items[i]).FindPath('id') <> nil then
+                    begin
+                      aDataSet.Select(TJSONObject(TJSONObject(aNode).Items[i]).FindPath('id').AsInt64);
+                      aDataSet.Open;
+                      adataSet.Edit;
+                    end
+                  else
+                    begin
+                      aDataSet.Append;
+                    end;
+                  for a := 0 to TJSONObject(TJSONObject(aNode).Items[i]).Count-1 do
+                    begin
+                      aField := aDataSet.FieldByName(TJSONObject(TJSONObject(aNode).Items[i]).Names[a]);
+                      if Assigned(aField) then
+                        begin
+                          aField.AsString:=TJSONObject(TJSONObject(aNode).Items[i]).Items[a].AsString;
+                        end
+                      else
+                        begin
+                          raise Exception.Create('Field "'+TJSONObject(TJSONObject(aNode).Items[i]).Names[a]+'" not found !');
+                        end;
+                    end;
+                  aDataSet.Post;
+                end
+              else
+                begin
+                  with aDataSet.DataSet as IBaseSubDataSets do
+                    begin
+                      Found := False;
+                      for a := 0 to (aDataSet.DataSet as IBaseSubDataSets).GetCount-1 do
+                        begin
+                          if lowercase(TBaseDbDataSet(SubDataSet[a]).TableName) = lowercase(TJSONObject(aNode).Names[i]) then
+                            begin
+                              RecourseTables(aNode.Items[i],TBaseDbDataSet(SubDataSet[a]));
+                              Found := True;
+                              break;
+                            end;
+                        end;
+                      if not Found then
+                        raise Exception.Create('Table "'+TJSONObject(aNode).Names[i]+'" not found !');
+                    end;
+                end;
+            end;
+        end;
+    end;
 begin
   aJParser := TJSONParser.Create(JSON);
   aData := aJParser.Parse;
-
+  RecourseTables(aData,Self);
   aData.Free;
   aJParser.Free;
 end;
