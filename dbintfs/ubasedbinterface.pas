@@ -1764,6 +1764,8 @@ var
   aNumHelper: TNumberHelper;
 begin
   Result := False;
+  with BaseApplication as IBaseApplication do
+    Info('Login to Mandant '+aMandant+' as '+aUser);
   //Check if FDB already is our Mandant
   if FMandantFile <> AppendPathDelim(FConfigPath)+aMandant+MandantExtension then
     if not FileExists(UniToSys(AppendPathDelim(FConfigPath)+aMandant+MandantExtension)) then
