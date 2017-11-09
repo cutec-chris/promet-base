@@ -117,6 +117,8 @@ begin
                 end;
             end;
         end;
+      if aSock.Code=404 then
+        writeln(aCmd+' '+aSock.Url+'=>'+IntToStr(aSock.Code)+' in '+IntToStr(round((Now()-aReqTime)*MSecsPerDay))+' ms');
       tmp := aSock.protocol;
       ProtocolVersion := StrToFloatDef(StringReplace(copy(aSock.Protocol,pos('/',aSock.Protocol)+1,length(aSock.Protocol)),'.',DecimalSeparator,[]),0.9);
       tmp := copy(tmp,0,pos('/',tmp)-1);
