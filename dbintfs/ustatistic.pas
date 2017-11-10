@@ -85,7 +85,7 @@ type
   end;
 
   function ReplaceSQLFunctions(Str : string) : string;
-  function AddSQLLimit(Str : string;aLimit : Integer) : string;
+  function AddSQLLimit(Str : string;aLimit : Integer;DM : TBaseDBModule = nil) : string;
 
 implementation
 uses uBaseApplication,uData,usync,RegExpr;
@@ -141,12 +141,13 @@ begin
     end;
 end;
 
-function AddSQLLimit(Str: string; aLimit: Integer): string;
+function AddSQLLimit(Str: string; aLimit: Integer;DM : TBaseDBModule = nil): string;
 begin
-  if Data.LimitAfterSelect then
-    Result := StringReplace(Str,'select','SELECT '+Format(Data.LimitSTMT,[IntToStr(aLimit)]),[rfReplaceAll,rfIgnoreCase])
+  if not Assigned(DM) then DM := Data;
+  if DM.LimitAfterSelect then
+    Result := StringReplace(Str,'select','SELECT '+Format(DM.LimitSTMT,[IntToStr(aLimit)]),[rfReplaceAll,rfIgnoreCase])
   else
-    Result := StringReplace(Str,';','',[rfReplaceAll])+' '+Format(Data.LimitSTMT,[IntToStr(aLimit)]);
+    Result := StringReplace(Str,';','',[rfReplaceAll])+' '+Format(DM.LimitSTMT,[IntToStr(aLimit)]);
 end;
 
 procedure TSQLStatemnt.SetSQL(AValue: string);
