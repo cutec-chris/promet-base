@@ -873,7 +873,8 @@ begin
       else
         begin
           with BaseApplication as IBaseApplication do
-            Debug('Parent not found, re-filter');
+            Debug('Parent not found, re-filter ('+copy(PageName,0,pos('/',PageName)-1)+','+IntToStr(aParent)+',W)');
+          TBaseDBModule(DataModule).Tree.DataSet.Filtered := False;
           if (TBaseDBModule(DataModule).Tree.ActualFilter<>'') or (not TBaseDBModule(DataModule).Tree.Active) then
             TBaseDBModule(DataModule).SetFilter(TBaseDBModule(DataModule).Tree,'',0,'','ASC',False,True,True);
           if TBaseDBModule(DataModule).Tree.DataSet.Locate('NAME;PARENT;TYPE',VarArrayOf([copy(PageName,0,pos('/',PageName)-1),aParent,'W']),[])
