@@ -2661,6 +2661,9 @@ begin
             Add('ICON',ftInteger,0,False);
             Add('DESC',ftString,200,False);
           end;
+      if Assigned(ManagedIndexdefs) then
+        with ManagedIndexDefs do
+          Add('NAME','TYPE;NAME;PARENT',[ixUnique]);
     end;
 end;
 
