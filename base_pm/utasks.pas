@@ -1987,6 +1987,7 @@ var
   Node1: TTreeNode;
   aDataSet: TTaskList;
   aOwnUser: String;
+  aAbtUser: TUser;
   procedure CollectUsers(aParent : Variant);
   var
     aUsers: TUser;
@@ -2041,6 +2042,16 @@ begin
       if Data.Users.FieldByName('POSITION').AsString = 'LEADER' then
         begin
           CollectUsers(Data.Users.FieldByName('PARENT').AsVariant);
+        end;
+      Node1 := fMainTreeFrame.tvMain.Items.AddChildObject(Node,'',TTreeEntry.Create);
+      aAbtUser:= TUser.Create(nil);
+      Data.SetFilter(aAbtUser,Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(Data.Users.FieldByName('PARENT').AsVariant));
+      if aAbtUser.Count>0 then
+        begin
+          TTreeEntry(Node1.Data).Typ := etTaskUser;
+          TTreeEntry(Node1.Data).Text[0] := aAbtUser.FieldByName('NAME').AsString;
+          TTreeEntry(Node1.Data).Rec := aAbtUser.GetBookmark;
+          TTreeEntry(Node1.Data).DataSource := Data.Users;
         end;
     end;
 end;
