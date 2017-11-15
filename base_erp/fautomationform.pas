@@ -596,22 +596,22 @@ begin
   tmp := copy(cbStatus.text,pos('(',cbStatus.text)+1,length(cbStatus.text));
   tmp := copy(tmp,0,pos(')',tmp)-1);
   fChangeStatus.SetLanguage;
-  fChangeStatus.lOrder.Caption := Format(strOrdertochange,[TOrder(DataSet).FieldByName('STATUS').AsString,TOrder(DataSet).FieldByName('ORDERNO').AsString]);
-  if tmp = TOrder(DataSet).FieldByName('STATUS').AsString then exit;
-  if not TOrder(DataSet).OrderType.DataSet.Locate('STATUS',tmp,[loCaseInsensitive]) then
-    Data.SetFilter(TOrder(DataSet).OrderType,'');
-  if TOrder(DataSet).OrderType.DataSet.Locate('STATUS',tmp,[loCaseInsensitive]) then
+  fChangeStatus.lOrder.Caption := Format(strOrdertochange,[TOrderPos(FDataSet).Order.FieldByName('STATUS').AsString,TOrderPos(FDataSet).Order.FieldByName('ORDERNO').AsString]);
+  if tmp = TOrderPos(FDataSet).Order.FieldByName('STATUS').AsString then exit;
+  if not TOrderPos(FDataSet).Order.OrderType.DataSet.Locate('STATUS',tmp,[loCaseInsensitive]) then
+    Data.SetFilter(TOrderPos(FDataSet).Order.OrderType,'');
+  if TOrderPos(FDataSet).Order.OrderType.DataSet.Locate('STATUS',tmp,[loCaseInsensitive]) then
     begin
-      OrderType := StrToIntDef(trim(copy(TOrder(DataSet).OrderType.FieldByName('TYPE').AsString,0,2)),0);
-      if trim(TOrder(DataSet).OrderType.FieldByName('TYPE').AsString) = '' then
+      OrderType := StrToIntDef(trim(copy(TOrderPos(FDataSet).Order.OrderType.FieldByName('TYPE').AsString,0,2)),0);
+      if trim(TOrderPos(FDataSet).Order.OrderType.FieldByName('TYPE').AsString) = '' then
         begin
           fError.ShowError(strNoOrderTypeSelected);
           RestoreStatus;
           exit;
         end;
       fChangeStatus.lChange.Caption := strChangeIn;
-      fChangeStatus.lTarget.Caption := Format(strChangeOrderIn,[tmp,TOrder(DataSet).FieldByName('ORDERNO').AsString]);
-      if TOrder(DataSet).OrderType.FieldByName('ISDERIVATE').AsString = 'Y' then
+      fChangeStatus.lTarget.Caption := Format(strChangeOrderIn,[tmp,TOrderPos(FDataSet).Order.FieldByName('ORDERNO').AsString]);
+      if TOrderPos(FDataSet).Order.OrderType.FieldByName('ISDERIVATE').AsString = 'Y' then
         begin
           fChangeStatus.lChange.Caption := strDerivate;
           fChangeStatus.lTarget.Caption := Format(strChangeOrderIn,[tmp,newnumber]);
@@ -624,7 +624,7 @@ begin
               with Application as IBaseDbInterface do
                 Data.CommitTransaction(Connection);
             end;}
-          TOrder(DataSet).ChangeStatus(tmp);
+          TOrderPos(FDataSet).Order.ChangeStatus(tmp);
           {if UseTransactions then
             begin
               with Application as IBaseDbInterface do
@@ -1176,6 +1176,9 @@ begin
   tvStep.Items.Clear;
   ipHTML.SetHtml(nil);
   nComm := nil;
+  cbStatus.Clear;
+  cbStatus.Enabled:=False;
+  cbStatus.Text:='';
   bExecute.Enabled:=False;
 end;
 

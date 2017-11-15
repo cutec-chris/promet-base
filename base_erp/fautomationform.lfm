@@ -675,6 +675,7 @@ object FAutomation: TFAutomation
         Hint = 'hier können Sie den Status des vorgangs ändern um ihn in neue Zustände zu überführen'
         Top = 17
         Width = 268
+        Enabled = False
         ItemHeight = 15
         OnSelect = cbStatusSelect
         Style = csDropDownList
