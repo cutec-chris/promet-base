@@ -538,12 +538,9 @@ begin
   if Data.GotoBookmark(Data.Tree,DataT.Rec) then
     begin
       s := InputBox(strRename,strNewName,Data.Tree.FieldByName('NAME').AsString);
-      aTree := TTree.CreateEx(Self,Data);
-      Data.SetFilter(aTree,'');
-      aTree.DataSet.Edit;
-      aTree.FieldByName('NAME').AsString := S;
-      aTree.DataSet.Post;
-      aTree.Free;
+      Data.Tree.DataSet.Edit;
+      Data.Tree.FieldByName('NAME').AsString:=s;
+      Data.Tree.DataSet.Post;
       DataT.Text[0] := S;
     end;
 end;
