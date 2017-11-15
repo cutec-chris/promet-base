@@ -11,7 +11,7 @@ uses
   uarticlesupplierframe, uArticleText, uautomationframe, ubookfibuaccount, 
   ucalcframe, uCopyArticleData, uDetailPositionFrame, ufinance, 
   uPosGotoArticle, uPositionFrame, uprojectoverview, uprometscriptprinting, 
-  utextpositionframe, unumbersetempty, uCreateProductionOrder, 
+  utextpositionframe, unumbersetempty, uCreateProductionOrder, uChangeStatus, 
   LazarusPackageIntf;
 
 implementation

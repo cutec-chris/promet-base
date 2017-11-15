@@ -28,7 +28,7 @@ uses
   Dialogs, ExtCtrls, StdCtrls, Buttons, ActnList, ComCtrls, Menus, DbCtrls,
   Spin, DBGrids, uBaseDbClasses, uBaseERPDBClasses, uprometscripts, uDocuments,
   uprometpascalscript, genpascalscript, genscript, db, simpleipc, blcksock,
-  synsock, uprometscriptprinting, uImageCache,base64;
+  synsock, uprometscriptprinting, uImageCache,base64,uChangeStatus;
 
 type
   TTCPCommandDaemon = class(TThread)
@@ -62,6 +62,7 @@ type
     ActionList1: TActionList;
     Bevel3: TBevel;
     Bevel4: TBevel;
+    Bevel5: TBevel;
     Bevel7: TBevel;
     BitBtn1: TBitBtn;
     bExecute: TSpeedButton;
@@ -70,12 +71,14 @@ type
     bResults: TSpeedButton;
     cbCategory: TComboBox;
     cbCreateTask: TCheckBox;
+    cbStatus: TComboBox;
     DBGrid1: TDBGrid;
     ipHTML: TIpHtmlPanel;
     Label1: TLabel;
     Label2: TLabel;
     Label6: TLabel;
     Label7: TLabel;
+    Label8: TLabel;
     lQuit: TLabel;
     lStatusProblems: TLabel;
     Label3: TLabel;
@@ -96,6 +99,7 @@ type
     mNotes: TMemo;
     PageControl1: TPageControl;
     Panel1: TPanel;
+    Panel10: TPanel;
     pBDE: TPanel;
     Panel3: TPanel;
     Panel5: TPanel;
@@ -141,6 +145,7 @@ type
     procedure bNetChange(Sender: TObject);
     procedure bResultsClick(Sender: TObject);
     procedure cbCategoryChange(Sender: TObject);
+    procedure cbStatusSelect(Sender: TObject);
     function FCacheGetFile(URL: string; var NewPath: string;var ExpireDate : TDateTime): TStream;
     procedure fLogWaitFormbAbortClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -228,7 +233,7 @@ implementation
 
 uses Utils,uBaseVisualControls,uMasterdata,uData,uOrder,variants,uLogWait,
   uautomationframe,wikitohtml,LCLIntf,uBaseApplication,ubaseconfig,utask,uBaseDBInterface,
-  uIntfStrConsts
+  uIntfStrConsts,uError
   {$IFDEF WINDOWS}
   ,Windows
   {$ENDIF}
@@ -571,6 +576,67 @@ procedure TFAutomation.cbCategoryChange(Sender: TObject);
 begin
   with BaseApplication as IBaseConfig do
     Config.WriteString('FA_CATEGORY',cbCategory.Text);
+end;
+
+procedure TFAutomation.cbStatusSelect(Sender: TObject);
+var
+  tmp,
+  newnumber: String;
+  OrderType: LongInt;
+  Rec: String;
+
+  procedure RestoreStatus;
+  begin
+    TOrder(DataSet).OrderType.DataSet.Locate('STATUS',TOrder(DataSet).FieldByName('STATUS').AsString,[loCaseInsensitive]);
+    cbStatus.Text := TOrder(DataSet).OrderType.FieldByName('STATUSNAME').AsString+' ('+TOrder(DataSet).OrderType.FieldByName('STATUS').AsString+')';
+  end;
+
+begin
+  newnumber := '';
+  tmp := copy(cbStatus.text,pos('(',cbStatus.text)+1,length(cbStatus.text));
+  tmp := copy(tmp,0,pos(')',tmp)-1);
+  fChangeStatus.SetLanguage;
+  fChangeStatus.lOrder.Caption := Format(strOrdertochange,[TOrder(DataSet).FieldByName('STATUS').AsString,TOrder(DataSet).FieldByName('ORDERNO').AsString]);
+  if tmp = TOrder(DataSet).FieldByName('STATUS').AsString then exit;
+  if not TOrder(DataSet).OrderType.DataSet.Locate('STATUS',tmp,[loCaseInsensitive]) then
+    Data.SetFilter(TOrder(DataSet).OrderType,'');
+  if TOrder(DataSet).OrderType.DataSet.Locate('STATUS',tmp,[loCaseInsensitive]) then
+    begin
+      OrderType := StrToIntDef(trim(copy(TOrder(DataSet).OrderType.FieldByName('TYPE').AsString,0,2)),0);
+      if trim(TOrder(DataSet).OrderType.FieldByName('TYPE').AsString) = '' then
+        begin
+          fError.ShowError(strNoOrderTypeSelected);
+          RestoreStatus;
+          exit;
+        end;
+      fChangeStatus.lChange.Caption := strChangeIn;
+      fChangeStatus.lTarget.Caption := Format(strChangeOrderIn,[tmp,TOrder(DataSet).FieldByName('ORDERNO').AsString]);
+      if TOrder(DataSet).OrderType.FieldByName('ISDERIVATE').AsString = 'Y' then
+        begin
+          fChangeStatus.lChange.Caption := strDerivate;
+          fChangeStatus.lTarget.Caption := Format(strChangeOrderIn,[tmp,newnumber]);
+        end;
+      if fChangeStatus.Execute then
+        begin
+          {Save;
+          if UseTransactions then
+            begin
+              with Application as IBaseDbInterface do
+                Data.CommitTransaction(Connection);
+            end;}
+          TOrder(DataSet).ChangeStatus(tmp);
+          {if UseTransactions then
+            begin
+              with Application as IBaseDbInterface do
+                Data.StartTransaction(Connection);
+            end;}
+          DoOpen;
+        end
+      else
+        Restorestatus;
+    end
+  else
+    RestoreStatus;
 end;
 
 function TFAutomation.FCacheGetFile(URL: string; var NewPath: string;
@@ -1467,9 +1533,39 @@ begin
 end;
 
 procedure TFAutomation.DoOpen;
+var
+  tmp: String;
+  OrderTyp: Integer;
 begin
   Screen.Cursor:=crHourGlass;
   Application.ProcessMessages;
+  cbStatus.Items.Clear;
+  cbStatus.Text := '';
+  if Assigned(TOrderPos(FDataSet).Order) and (TOrderPos(FDataSet).Order.Active) then
+    begin
+      if not TOrderPos(FDataSet).Order.OrderType.DataSet.Locate('STATUS',TOrderPos(FDataSet).Order.FieldByName('STATUS').AsString,[loCaseInsensitive]) then
+        begin
+          Data.SetFilter(TOrderPos(FDataSet).Order.OrderType,'');
+          TOrderPos(FDataSet).Order.OrderType.DataSet.Locate('STATUS',TOrderPos(FDataSet).Order.FieldByName('STATUS').AsString,[loCaseInsensitive]);
+        end;
+      cbStatus.Items.Add(TOrderPos(FDataSet).Order.OrderType.FieldByName('STATUSNAME').AsString+' ('+TOrderPos(FDataSet).Order.OrderType.FieldByName('STATUS').AsString+')');
+      cbStatus.Text := TOrderPos(FDataSet).Order.OrderType.FieldByName('STATUSNAME').AsString+' ('+TOrderPos(FDataSet).Order.OrderType.FieldByName('STATUS').AsString+')';
+      tmp := trim(TOrderPos(FDataSet).Order.OrderType.FieldByName('DERIVATIVE').AsString);
+      OrderTyp := StrToIntDef(trim(copy(TOrderPos(FDataSet).Order.OrderType.FieldByName('TYPE').AsString,0,2)),0);
+      if (length(tmp) = 0) or (tmp[length(tmp)] <> ';') then
+        tmp := tmp+';';
+      while pos(';',tmp) > 0 do
+        begin
+          if TOrderPos(FDataSet).Order.OrderType.DataSet.Locate('STATUS',copy(tmp,0,pos(';',tmp)-1),[loCaseInsensitive]) then
+            cbStatus.Items.Add(TOrderPos(FDataSet).Order.OrderType.FieldByName('STATUSNAME').AsString+' ('+TOrderPos(FDataSet).Order.OrderType.FieldByName('STATUS').AsString+')');
+          tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
+        end;
+      cbStatus.Enabled:=True;
+    end
+  else
+    begin
+      cbStatus.Enabled:=False;
+    end;
   nComm := nil;
   while not DataSet.EOF do
     begin
