@@ -889,13 +889,15 @@ begin
           else
             aRowObject.QuantityColor:=clRed;
         end;
+      aMasterdata.Free;
     end;
   FChecks[aData].Checked := True;
-  aMasterdata.Free;
+  Application.ProcessMessages;
   if aData=Length(FChecks)-1 then
     Setlength(FChecks,0)
-  else Application.QueueAsyncCall(@DoCheckIdent,0);
-  FGridView.Invalidate;
+  else Application.QueueAsyncCall(@DoCheckIdent,PtrInt(Self));
+  if Assigned(FGridView) then
+    FGridView.Invalidate;
   except
     Setlength(FChecks,0);
   end;
@@ -1399,6 +1401,7 @@ begin
     lbResults.Items.Objects[i].Free;
   if Assigned(ActiveSearch) then ActiveSearch.Free;
   FGridView.Free;
+  Application.RemoveAsyncCalls(Self);
   inherited Destroy;
 end;
 procedure TfPosition.DisableCalculation;
