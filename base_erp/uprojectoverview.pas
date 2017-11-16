@@ -5,18 +5,26 @@ unit uprojectoverview;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, ComCtrls, Menus, ActnList,
-  uprometframesinplace, uMainTreeFrame, uIntfStrConsts, uProjects,
-  uBaseDBInterface, uBaseDbClasses, uBaseDatasetInterfaces, db;
+  Classes, SysUtils, FileUtil, TreeFilterEdit, Forms, Controls, ComCtrls, Menus,
+  ActnList, ExtCtrls, uprometframesinplace, uMainTreeFrame, uIntfStrConsts,
+  uProjects, uBaseDBInterface, uBaseDbClasses, uBaseDatasetInterfaces, db,
+  EditBtn, StdCtrls;
 
 type
+
+  { TfObjectStructureFrame }
+
   TfObjectStructureFrame = class(TPrometInplaceFrame)
     acAddLevel: TAction;
     ActionList1: TActionList;
+    eFilter: TEdit;
     MenuItem1: TMenuItem;
+    Panel1: TPanel;
     ToolBar1: TToolBar;
     ToolButton1: TToolButton;
+    ToolButton2: TToolButton;
     procedure acAddLevelExecute(Sender: TObject);
+    procedure eFilterChange(Sender: TObject);
     procedure FrameEnter(Sender: TObject);
     function FTreeOpen(aEntry: TTreeEntry): Boolean;
   private
@@ -25,6 +33,7 @@ type
     { private declarations }
     FTree : TfMainTree;
     procedure SetObject(AValue: TBaseDbList);
+    procedure DoFilterItems(aNode : TTreeNode);
   public
     { public declarations }
     property ParentObject : TBaseDbList read FObject write SetObject;
@@ -179,6 +188,18 @@ begin
     end;
 end;
 
+procedure TfObjectStructureFrame.eFilterChange(Sender: TObject);
+var
+  aItem: TTreeNode;
+begin
+  aItem := FTree.tvMain.TopItem;
+  while Assigned(aItem) do
+    begin
+      DoFilterItems(FTree.tvMain.TopItem);
+      aItem := aItem.GetNextSibling;
+    end;
+end;
+
 function TfObjectStructureFrame.FTreeOpen(aEntry: TTreeEntry): Boolean;
 var
   aDataSet: TBaseDBDataset;
@@ -217,14 +238,47 @@ begin
       with FObject.DataSet as IBaseManageDB do
         TTreeEntry(Node1.Data).Filter:=Data.QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(FObject.Id.AsString);
       TTreeEntry(Node1.Data).DataSourceType := TBaseDBDataSetClass(FObject.ClassType);
-      TTreeEntry(Node1.Data).Text[0] := FObject.Text.AsString+' ('+FObject.Number.AsString+')'+' ['+FObject.Status.AsString+']';
       case FObject.ClassName of
-      'TProject':TTreeEntry(Node1.Data).Typ := etProject;
-      'TMasterdata':TTreeEntry(Node1.Data).Typ := etArticle;
+      'TProject':
+        begin
+          TTreeEntry(Node1.Data).Typ := etProject;
+          TTreeEntry(Node1.Data).Text[0] := FObject.Text.AsString+' ('+FObject.Number.AsString+')'+' ['+FObject.Status.AsString+']';
+        end;
+      'TMasterdata':
+        begin
+          TTreeEntry(Node1.Data).Typ := etArticle;
+          TTreeEntry(Node1.Data).Text[0] := FObject.Text.AsString+' ('+FObject.Number.AsString+')';
+          if FObject.FieldByName('VERSION').AsString<>'' then
+            TTreeEntry(Node1.Data).Text[0] := TTreeEntry(Node1.Data).Text[0] + ' ['+FObject.FieldByName('VERSION').AsString+']';
+          TTreeEntry(Node1.Data).Rec:=FObject.Id.AsVariant;
+        end;
       end;
       Node1.HasChildren:=True;
       FrootNode := Node1;
     end;
+end;
+
+procedure TfObjectStructureFrame.DoFilterItems(aNode: TTreeNode);
+var
+  aSubNode: TTreeNode;
+begin
+  try
+    if not Assigned(aNode) then exit;
+    aNode.Visible := aNode.HasChildren;
+    if not aNode.Visible then
+      begin
+        aNode.Visible:=not Assigned(aNode.Data);
+        if not aNode.Visible then
+          aNode.Visible:=(trim(eFilter.Text)='') or (pos(lowercase(eFilter.Text),lowercase(TTreeEntry(aNode.Data).Text[0]))>0);
+      end;
+    aSubNode := aNode.GetFirstChild;
+    while Assigned(aSubNode) do
+      begin
+        DoFilterItems(aSubNode);
+        aSubNode := aSubNode.GetNextSibling;
+      end;
+  except
+  end;
 end;
 
 constructor TfObjectStructureFrame.Create(AOwner: TComponent);

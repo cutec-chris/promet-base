@@ -29,6 +29,34 @@ inherited fObjectStructureFrame: TfObjectStructureFrame
       AutoSize = True
       Caption = 'Ebene höher (Verwendung)'
     end
+    object Panel1: TPanel
+      Left = 163
+      Height = 32
+      Top = 0
+      Width = 296
+      BevelOuter = bvNone
+      ClientHeight = 32
+      ClientWidth = 296
+      TabOrder = 0
+      object eFilter: TEdit
+        Left = 4
+        Height = 24
+        Top = 4
+        Width = 288
+        Align = alClient
+        BorderSpacing.Around = 4
+        OnChange = eFilterChange
+        TabOrder = 0
+      end
+    end
+    object ToolButton2: TToolButton
+      Left = 153
+      Height = 32
+      Top = 0
+      Width = 10
+      Caption = 'ToolButton2'
+      Style = tbsSeparator
+    end
   end
   object ActionList1: TActionList[1]
     Images = fVisualControls.Images

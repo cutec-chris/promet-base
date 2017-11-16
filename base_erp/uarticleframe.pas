@@ -678,8 +678,8 @@ begin
   if WasDisabled then
     DataSet.DataSet.EnableControls;
   TMasterdata(DataSet).Positions.Open;
-  pcPages.NewFrame(TfArticlePositionFrame,(TMasterdata(DataSet).Positions.Count>0),strPiecelist,@AddPositions);
   pcPages.NewFrame(TfObjectStructureFrame,True,strStructure,@AddOverview);
+  pcPages.NewFrame(TfArticlePositionFrame,(TMasterdata(DataSet).Positions.Count>0),strPiecelist,@AddPositions);
   if WasDisabled then
     DataSet.DataSet.DisableControls;
 
