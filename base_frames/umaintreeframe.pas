@@ -2112,6 +2112,8 @@ begin
                   Node1 := tvMain.Items.AddChildObject(Node,'',TTreeEntry.Create);
                   TTreeEntry(Node1.Data).Link := 'MASTERDATA@'+aMasterdata.Positions.FieldByName('IDENT').AsString+'&&'+aMasterdata.Positions.FieldByName('VERSION').AsString+'&&'+aMasterdata.Positions.FieldByName('LANGUAGE').AsString;
                   TTreeEntry(Node1.Data).Text[0] := aMasterdata.Positions.FieldByName('SHORTTEXT').AsString+' ('+aMasterdata.Positions.FieldByName('IDENT').AsString+')';
+                  if trim(aMasterdata.Positions.FieldByName('VERSION').AsString) <> '' then
+                    TTreeEntry(Node1.Data).Text[0] := TTreeEntry(Node1.Data).Text[0]+' ['+aMasterdata.Positions.FieldByName('VERSION').AsString+']';
                   case aMasterdata.Positions.PosTyp.FieldByName('TYPE').AsInteger of
                   0,1,2:TTreeEntry(Node1.Data).Typ := etArticle;
                   3:TTreeEntry(Node1.Data).Typ := etArticleText;
