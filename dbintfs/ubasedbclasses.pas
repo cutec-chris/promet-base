@@ -1593,7 +1593,7 @@ var
       aFieldName: DOMString;
     begin
       Result := False;
-      with ThisDataSet as IBaseManageDB do
+      with ThisDataSet.DataSet as IBaseManageDB do
         if (TableName = aNode.Attributes.GetNamedItem('NAME').NodeValue) then
           begin
             with BaseApplication as IBaseApplication do
