@@ -1656,7 +1656,7 @@ begin
   case DataSet.PosTyp.FieldByName('TYPE').AsInteger of
   0,1,2:
     begin
-      nNode.ImageIndex:=14;//Artikel
+      nNode.ImageIndex:=0;//Artikel
       nNode.Text:=nNode.Text+' ['+DataSet.FieldByName('VERSION').AsString+']';
     end;
   3:nNode.ImageIndex:=49;//Text
