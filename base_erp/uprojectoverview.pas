@@ -184,7 +184,7 @@ var
   aDataSet: TBaseDBDataset;
 begin
   case aEntry.Typ of
-  etCustomer,etEmployee,etArticle,etProject,etProcess:
+  etCustomer,etEmployee,etArticle,etArticleText,etArticleActivity,etProject,etProcess:
     begin
       if (aEntry.Link<>'') then
         fMainTreeFrame.OpenLink(aEntry.Link,Self)
@@ -235,6 +235,7 @@ begin
   FTree.Align := alClient;
   FTree.OnOpen:=@FTreeOpen;
   Caption:=strStructure;
+  FTree.tvMain.Font.Height := 18;
 end;
 
 destructor TfObjectStructureFrame.Destroy;

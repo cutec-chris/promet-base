@@ -4,30 +4,40 @@ inherited fObjectStructureFrame: TfObjectStructureFrame
   ClientHeight = 460
   ClientWidth = 730
   OnEnter = FrameEnter
+  ParentShowHint = False
+  ShowHint = True
   DesignLeft = 397
   DesignTop = 245
   object ToolBar1: TToolBar[0]
     Left = 0
-    Height = 26
     Top = 0
     Width = 730
+    ButtonHeight = 32
     Caption = 'ToolBar1'
+    EdgeBorders = []
     EdgeInner = esNone
     EdgeOuter = esNone
+    Images = fVisualControls.Images
+    ParentShowHint = False
     ShowCaptions = True
+    ShowHint = True
     TabOrder = 0
     object ToolButton1: TToolButton
       Left = 1
       Top = 0
       Action = acAddLevel
       AutoSize = True
+      Caption = 'Ebene höher (Verwendung)'
     end
   end
   object ActionList1: TActionList[1]
+    Images = fVisualControls.Images
     left = 40
     top = 58
     object acAddLevel: TAction
-      Caption = 'Ebene höher'
+      Caption = 'Ebene höher (verwendung)'
+      Hint = 'Stellt alle Elemente die das aktuelle verwenden, dar'
+      ImageIndex = 121
       OnExecute = acAddLevelExecute
     end
   end

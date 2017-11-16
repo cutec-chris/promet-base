@@ -27,7 +27,7 @@ type
                etFavourites,etLink,
                etMasterdata,
                etCustomer,etSupplier,etCustomers,etCustomerList,etEmployee,etDepartment,
-               etArticle,
+               etArticle,etArticleText,etArticleActivity,
                  etArticleList,etFile,etFileDir,
                etProjects,
                  etProject,etProcess,
@@ -327,7 +327,7 @@ begin
           acPasteLink.Enabled:=(Clipboard.HasFormat(LinkClipboardFormat) or (pos('://',tmp) > 0));
         end;
       case DataT.Typ of
-      etArticle,
+      etArticle,etArticleText,etArticleActivity,
       etProject,etProcess,
       etCustomer,etSupplier,
       etStatistic,
@@ -891,7 +891,7 @@ begin
           Node1.HasChildren := aProject.Count>0;
           aProject.Free;
         end
-      else if (TTreeEntry(Node1.Data).Typ=etArticle) then
+      else if (TTreeEntry(Node1.Data).Typ=etArticle) or (TTreeEntry(Node1.Data).Typ=etArticleText) or (TTreeEntry(Node1.Data).Typ=etArticleActivity) then
         begin
           aMasterdata := TMasterdata.Create(nil);
           aMasterdata.SelectFromLink(TTreeEntry(Node1.Data).Link);
@@ -1086,6 +1086,8 @@ begin
     etCalendarUser,etMyCalendar,etCalendarDir:aImageIndex:=105;
     etTaskUser:aImageIndex:=IMAGE_TASK;
     etArticle:aImageIndex := IMAGE_MASTERDATA;
+    etArticleText:aImageIndex:=49;
+    etArticleActivity:aImageIndex:=22;
     etSupplier:aImageIndex := IMAGE_SUPPLIER;
     etAction:aImageIndex := aData.Action.ImageIndex;
     etMessageDir:aImageIndex := IMAGE_MESSAGEOPEN;
@@ -1247,7 +1249,7 @@ begin
       etCustomer,
       etSupplier,
       etLink,
-      etArticle,
+      etArticle,etArticleText,etArticleActivity,
       etProject,
       etProcess,
       etStatistic,
@@ -1260,7 +1262,7 @@ begin
                 case DataT.Typ of
                 etCustomer,
                 etSupplier,
-                etArticle,
+                etArticle,etArticleText,etArticleActivity,
                 etLink,
                 etProject,
                 etProcess,
@@ -1649,7 +1651,7 @@ begin
       case DataT.Typ of
       etCustomer,
       etSupplier,
-      etArticle,
+      etArticle,etArticleText,etArticleActivity,
       etProject,
       etProcess,
       etDir,etDocumentDir,etMessageDir,
@@ -2110,7 +2112,11 @@ begin
                   Node1 := tvMain.Items.AddChildObject(Node,'',TTreeEntry.Create);
                   TTreeEntry(Node1.Data).Link := 'MASTERDATA@'+aMasterdata.Positions.FieldByName('IDENT').AsString+'&&'+aMasterdata.Positions.FieldByName('VERSION').AsString+'&&'+aMasterdata.Positions.FieldByName('LANGUAGE').AsString;
                   TTreeEntry(Node1.Data).Text[0] := aMasterdata.Positions.FieldByName('SHORTTEXT').AsString+' ('+aMasterdata.Positions.FieldByName('IDENT').AsString+')';
-                  TTreeEntry(Node1.Data).Typ := etArticle;
+                  case aMasterdata.Positions.PosTyp.FieldByName('TYPE').AsInteger of
+                  0,1,2:TTreeEntry(Node1.Data).Typ := etArticle;
+                  3:TTreeEntry(Node1.Data).Typ := etArticleText;
+                  9,6:TTreeEntry(Node1.Data).Typ := etArticleActivity;
+                  end;
                   TTreeEntry(Node1.Data).Rec:=0;
                   Node1.HasChildren:=GetHasChildren(Node1);
                 end;
