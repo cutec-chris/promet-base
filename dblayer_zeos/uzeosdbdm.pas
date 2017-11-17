@@ -1366,7 +1366,7 @@ begin
         else if BaseApplication.HasOption('debug-sql') then
           Debug(Event.AsString)
         else if (LastTime)>50 then
-          Debug('Long running Query:'+IntToStr(round(LastTime))+' '+Event.AsString);
+          Warning('Long running Query:'+IntToStr(round(LastTime))+' '+Event.AsString);
         LastTime:=0;
         LastStatement:='';
       end;
@@ -1436,7 +1436,7 @@ constructor TZeosDBDM.Create(AOwner: TComponent);
 begin
   FDataSetClass := TZeosDBDataSet;
   FMainConnection := TZConnection.Create(AOwner);
-  if {BaseApplication.HasOption('debug') or} BaseApplication.HasOption('debug-sql') then
+  if BaseApplication.HasOption('debug') or BaseApplication.HasOption('debug-sql') then
     begin
       Monitor := TZSQLMonitor.Create(FMainConnection);
       Monitor.Active:=True;
@@ -1486,8 +1486,8 @@ begin
       FConnection.Disconnect;
     FConnection.Port:=0;
     FConnection.Properties.Clear;
-    FConnection.Properties.Add('timeout=2');
-    FConnection.ClientCodepage:='UTF8';
+    FConnection.Properties.Add('timeout=5');
+    //FConnection.ClientCodepage:='UTF8';
     FConnection.Protocol:='';
     FConnection.User:='';
     FConnection.Password:='';
@@ -1546,19 +1546,15 @@ begin
       end
     else if (copy(FConnection.Protocol,0,8) = 'firebird')
     or (copy(FConnection.Protocol,0,9) = 'interbase')
-    or (copy(FConnection.Protocol,0,5) = 'mysql')
     then
       begin
         FConnection.TransactIsolationLevel:=tiReadCommitted;
       end
     else if (copy(FConnection.Protocol,0,5) = 'mssql') then
       begin
-        FConnection.TransactIsolationLevel:=tiReadUnCommitted;
+        FConnection.TransactIsolationLevel:=tiNone;
         FConnection.ClientCodepage:='utf8';
         FConnection.AutoEncodeStrings:=true;
-      end;
-    if (copy(FConnection.Protocol,0,5) = 'mysql') then
-      begin
         FConnection.Properties.Add('ValidateUpdateCount=-1');
         FConnection.Properties.Add('MYSQL_OPT_RECONNECT=TRUE');
       end;

@@ -33,11 +33,13 @@ type
 
   TfCreateProductionOrder = class(TForm)
     ButtonPanel1: TButtonPanel;
+    eCommission: TEdit;
     eMasterdata: TEditButton;
     cbVersion: TComboBox;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
+    Label4: TLabel;
     procedure eMasterdataButtonClick(Sender: TObject);
     procedure eMasterdataExit(Sender: TObject);
     function SetOrderfromSearch(aLink: string): Boolean;
@@ -140,6 +142,7 @@ begin
     end;
   eMasterdata.Text:=aID;
   eMasterdataExit(nil);
+  eCommission.Text:='';
   if aVersion<>Null then
     cbVersion.Text:=aVersion;
   Result := ShowModal=mrOK;
@@ -166,6 +169,8 @@ begin
           FOrder.Positions.Insert;
           //FOrder.Status.AsString:=FOrder.OrderType.FieldByName('STATUS').AsString;
           FOrder.Positions.Assign(aMasterdata);
+          FOrder.Edit;
+          FOrder.FieldByName('COMMISSION').AsString:=eCommission.Text;
           FOrder.Positions.Post;
           FOrder.Post;
         end;
