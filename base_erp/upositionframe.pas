@@ -790,6 +790,7 @@ begin
     with Application as IBaseDbInterface do
       DBConfig.WriteString('DVIS'+BaseName,'N');
   acViewDetails.Enabled:=True;
+  TabTimer.Enabled:=True;
 end;
 
 procedure TfPosition.acViewTextsExecute(Sender: TObject);

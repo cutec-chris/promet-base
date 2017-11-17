@@ -1364,8 +1364,8 @@ begin
         if Event.Error<>'' then
           Error(Event.AsString+'('+LastStatement+')')
         else if BaseApplication.HasOption('debug-sql') then
-          Debug(Event.AsString)
-        else if (LastTime)>50 then
+          Debug(Event.AsString);
+        if (LastTime)>50 then
           Warning('Long running Query:'+IntToStr(round(LastTime))+' '+Event.AsString);
         LastTime:=0;
         LastStatement:='';
@@ -1486,8 +1486,7 @@ begin
       FConnection.Disconnect;
     FConnection.Port:=0;
     FConnection.Properties.Clear;
-    FConnection.Properties.Add('timeout=5');
-    //FConnection.ClientCodepage:='UTF8';
+    FConnection.Properties.Add('timeout=3');
     FConnection.Protocol:='';
     FConnection.User:='';
     FConnection.Password:='';
@@ -1538,6 +1537,7 @@ begin
     if (copy(FConnection.Protocol,0,8) = 'postgres')
     then
       begin
+        FConnection.Properties.Add('compression=true');
         {$IFDEF CPUARM}
         FConnection.Properties.Add('sslmode=disable');
         {$ENDIF}
@@ -1550,13 +1550,20 @@ begin
       begin
         FConnection.TransactIsolationLevel:=tiReadCommitted;
       end
-    else if (copy(FConnection.Protocol,0,5) = 'mssql') then
+    else if (copy(FConnection.Protocol,0,5) = 'mysql') then
       begin
-        FConnection.TransactIsolationLevel:=tiNone;
-        FConnection.ClientCodepage:='utf8';
-        FConnection.AutoEncodeStrings:=true;
+        FConnection.TransactIsolationLevel:=tiReadUncommitted;
+        FConnection.Properties.Clear;
+        FConnection.Properties.Add('compression=true');
+        //FConnection.Properties.Add('codepage=UTF8');
+        //FConnection.Properties.Add('timeout=0');
         FConnection.Properties.Add('ValidateUpdateCount=-1');
         FConnection.Properties.Add('MYSQL_OPT_RECONNECT=TRUE');
+      end
+    else if (copy(FConnection.Protocol,0,5) = 'mssql') then
+      begin
+        FConnection.TransactIsolationLevel:=tiReadUncommitted;
+        FConnection.AutoEncodeStrings:=true;
       end;
     FConnection.Properties.Add('Undefined_Varchar_AsString_Length= 255');
 

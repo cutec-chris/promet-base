@@ -4,6 +4,8 @@
       - Passwörter:möglichkeit zum Filtern und Passwort in die Zwischenablage zu kopieren
       - Avad:Auftragsübersicht (und Auswahl) hinzugefügt
       - Avad:Status des Auftrages kann im Avad geändert werden
+      - Avad:Auftragskommision kann beim anlegen des Auftrages mit angegeben werden
+      -
 Build 436 (7.7.2017)
       - Configurations Webapp um Datenbankverbindung bei reinen Server Paketen einzurichten
       - Basis Aufgaben App
