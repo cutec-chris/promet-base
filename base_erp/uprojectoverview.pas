@@ -27,6 +27,7 @@ type
     procedure eFilterChange(Sender: TObject);
     procedure FrameEnter(Sender: TObject);
     function FTreeOpen(aEntry: TTreeEntry): Boolean;
+    procedure FTreetvMainExpanded(Sender: TObject; Node: TTreeNode);
   private
     FObject: TBaseDbList;
     FrootNode : TTreeNode;
@@ -62,6 +63,7 @@ var
   aPos: TMDPos;
   aMS: TMasterdata;
   DoMove: Boolean = True;
+  Found: Boolean;
 begin
   with FTree do
     begin
@@ -149,8 +151,9 @@ begin
                           Node1.HasChildren:=True;
                           if DoMove then
                             begin
+                              Found := False;
                               Node1.Expanded:=True;
-                              Node2 := tvMain.Items[0];
+                              Node2 := tvMain.Items.GetFirstNode;
                               while Assigned(Node2) do
                                 begin
                                   Node3 := Node2;
@@ -158,8 +161,7 @@ begin
                                   if Node3<>Node1 then
                                     begin
                                       Node4 := nil;
-                                      if Node1.Count>0 then
-                                        Node4 := Node1.Items[0];
+                                      Node4 := Node1.GetFirstChild;
                                       while Assigned(Node4) do
                                         begin
                                           if (TTreeEntry(Node4.data).Rec=TTreeEntry(Node3.Data).Rec)
@@ -168,6 +170,7 @@ begin
                                             begin
                                               Node3.MoveTo(Node4,naInsertBehind);
                                               Node3.Selected:=True;
+                                              Found := True;
                                               Node4.Free;
                                               break;
                                             end;
@@ -176,6 +179,14 @@ begin
                                     end;
                                 end;
                               DoMove := False;
+                              if not Found then
+                                begin
+                                  Node1.Visible:=False;
+                                  Application.RemoveAsyncCalls(Node1);
+                                  fMainTreeFrame.FNode := Node1;
+                                  Application.QueueAsyncCall(@fMainTreeFrame.DeleteNodeCall,PtrInt(@fMainTreeFrame.FNode));
+                                  eFilterChange(eFilter);
+                                end;
                             end;
                         end;
                       Next;
@@ -192,7 +203,7 @@ procedure TfObjectStructureFrame.eFilterChange(Sender: TObject);
 var
   aItem: TTreeNode;
 begin
-  aItem := FTree.tvMain.TopItem;
+  aItem := FTree.tvMain.Items.GetFirstNode;
   while Assigned(aItem) do
     begin
       DoFilterItems(FTree.tvMain.TopItem);
@@ -221,6 +232,12 @@ begin
         end;
     end;
   end;
+end;
+
+procedure TfObjectStructureFrame.FTreetvMainExpanded(Sender: TObject;
+  Node: TTreeNode);
+begin
+  eFilterChange(eFilter);
 end;
 
 procedure TfObjectStructureFrame.SetObject(AValue: TBaseDbList);
@@ -290,6 +307,7 @@ begin
   FTree.OnOpen:=@FTreeOpen;
   Caption:=strStructure;
   FTree.tvMain.Font.Height := 18;
+  FTree.tvMain.OnExpanded:=@FTreetvMainExpanded;
 end;
 
 destructor TfObjectStructureFrame.Destroy;

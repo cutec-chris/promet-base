@@ -30,7 +30,6 @@ object fMainTree: TfMainTree
     OnDragOver = tvMainDragOver
     OnEdited = tvMainEdited
     OnEditing = tvMainEditing
-    OnExpanded = tvMainExpanded
     OnExpanding = tvMainExpanding
     OnKeyDown = tvMainKeyDown
     OnSelectionChanged = tvMainSelectionChanged

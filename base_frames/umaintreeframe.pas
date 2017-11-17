@@ -89,6 +89,7 @@ type
     DataSource : TBaseDbDataSet;
     DataSourceType : TBaseDbDataSetClass;
     Typ : TEntryTyp;
+    ChildsChecked : Boolean;
     Text : array[0..2] of string;
     SubText : TStrings;
     Obj : TObject;
@@ -135,7 +136,6 @@ type
     procedure acRightsExecute(Sender: TObject);
     procedure acSearchExecute(Sender: TObject);
     procedure DblClickTimerTimer(Sender: TObject);
-    procedure DeleteNodeCall(Data: PtrInt);
     procedure GetTreeChildren(Data: PtrInt);
     procedure tvMainAdvancedCustomDrawItem(Sender: TCustomTreeView;
       Node: TTreeNode; State: TCustomDrawState; Stage: TCustomDrawStage;
@@ -149,7 +149,6 @@ type
     procedure tvMainEdited(Sender: TObject; Node: TTreeNode; var S: string);
     procedure tvMainEditing(Sender: TObject; Node: TTreeNode;
       var AllowEdit: Boolean);
-    procedure tvMainExpanded(Sender: TObject; Node: TTreeNode);
     procedure tvMainExpanding(Sender: TObject; Node: TTreeNode;
       var AllowExpansion: Boolean);
     procedure tvMainKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -157,7 +156,6 @@ type
     procedure tvMainStartDrag(Sender: TObject; var DragObject: TDragObject);
   private
     FDragDrop: TDragDropEvent;
-    FNode : TTreeNode;
     FDragOver: TDragOverEvent;
     FLinkNew: TNewLinkEvent;
     FLinkOpen: TLinkEvent;
@@ -170,10 +168,12 @@ type
     { private declarations }
   public
     { public declarations }
+    FNode : TTreeNode;
     StartupTypes : TStringList;
     pcPages : TExtMenuPageControl;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure DeleteNodeCall(Data: PtrInt);
     function OpenLink(aLink: string; Sender: TObject): Boolean;
     function NewFromLink(aLink: string; Sender: TObject): TBaseDBdataSet;
     function GetTreeEntry : Variant;
@@ -208,6 +208,7 @@ begin
   Action := nil;
   SubText := nil;
   LinkIcon:=-1;
+  ChildsChecked:=False;
 end;
 destructor TTreeEntry.Destroy;
 begin
@@ -879,7 +880,8 @@ var
 begin
   try
   Node1 := TTreeNode(Pointer(Data));
-  if Assigned(Node1.Data) then
+  if Node1 = nil then exit;
+  if Assigned(Node1.Data) and (not TTreeEntry(Node1.Data).ChildsChecked) and (Node1.GetFirstChild=nil) then
     begin
       if (TTreeEntry(Node1.Data).Typ=etProject) or (TTreeEntry(Node1.Data).Typ=etProcess) or (TTreeEntry(Node1.Data).Typ=etProcess) then
         begin
@@ -913,7 +915,9 @@ begin
           Application.ProcessMessages;
           FAsyncTime := Now();
         end;
+      TTreeEntry(Node1.Data).ChildsChecked := True;
     end;
+    Application.QueueAsyncCall(@GetTreeChildren,PtrInt(Node1.GetNext));
   except
   end;
 end;
@@ -1792,11 +1796,6 @@ begin
   Node.Text:=DataT.Text[0];
 end;
 
-procedure TfMainTree.tvMainExpanded(Sender: TObject; Node: TTreeNode);
-begin
-  if Node.Level=0 then SaveTreeOptions;
-end;
-
 procedure TfMainTree.tvMainExpanding(Sender: TObject; Node: TTreeNode;
   var AllowExpansion: Boolean);
 var
@@ -1816,7 +1815,6 @@ var
   function GetHasChildren(aNode : TTreeNode) : Boolean;
   begin
     Result := True;
-    Application.QueueAsyncCall(@GetTreeChildren,PtrInt(aNode));
     FAsyncTime := Now();
   end;
   procedure AddEntry;
@@ -2130,6 +2128,8 @@ begin
     end;
   Screen.Cursor:=crDefault;
   tvMain.EndUpdate;
+  Application.QueueAsyncCall(@GetTreeChildren,PtrInt(Node));
+  if Node.Level=0 then SaveTreeOptions;
 end;
 function TfMainTree.GetTreeEntry: Variant;
 var
