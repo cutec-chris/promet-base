@@ -53,6 +53,7 @@ type
     function GetStatusIcon: Integer; override;
     procedure Open; override;
     procedure Select(aID : string);overload;
+    function GetTyp: string; override;
     function SelectFromCommission(aNumber : string) : Boolean;
     procedure OpenItem(AccHistory: Boolean=True); override;
     procedure DefineFields(aDataSet : TDataSet);override;
@@ -736,6 +737,11 @@ begin
       FOrigID := aID;
       Limit := 99;
     end;
+end;
+
+function TOrderList.GetTyp: string;
+begin
+  Result:='O';
 end;
 
 function TOrderList.SelectFromCommission(aNumber: string): Boolean;
