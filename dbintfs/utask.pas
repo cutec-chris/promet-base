@@ -27,6 +27,7 @@ uses
   uBaseDatasetInterfaces;
 type
   TDependencies = class;
+  TTaskWorkflow = class;
   TTaskSnapshots = class(TBaseDbDataSet)
     procedure DefineFields(aDataSet : TDataSet);override;
   end;
@@ -48,6 +49,9 @@ type
     property Project : string read FProject write FProject;
     property Resource : string read FResource write FResource;
   end;
+
+  { TTaskList }
+
   TTaskList = class(TBaseERPList,IBaseHistory)
     procedure DataSetAfterCancel(aDataSet: TDataSet);
     procedure DataSetAfterPost(aDataSet: TDataSet);
@@ -68,6 +72,7 @@ type
     FDS: TDataSource;
     DoCheckTask : Boolean;
     FUserID: String;
+    FWorkflow: TTaskWorkflow;
     function GetownerName: string;
     function GetProject: TField;
     function GetUserName: string;
@@ -122,6 +127,7 @@ type
     property UserID : String read FUserID write FUserID;
     property Snapshots : TTaskSnapshots read FSnapshots;
     property Dependencies : TDependencies read FDependencies;
+    property Workflow : TTaskWorkflow read FWorkflow;
   end;
 
   { TTaskLinks }
@@ -149,6 +155,20 @@ type
     procedure Add(aLink : string);
     procedure SelectByLink(aLink : string);
     procedure SelectByRefIDID(aId : variant);
+  end;
+
+  { TTaskWorkflow }
+
+  TTaskWorkflow = class(TBaseDBDataset)
+  private
+    Ref_Id : Variant;
+    FTask: TTaskList;
+  protected
+    property Task : TTaskList read FTask write FTask;
+  public
+    constructor CreateEx(aOwner: TComponent; DM: TComponent;
+       aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
+    procedure DefineFields(aDataSet : TDataSet);override;
   end;
   TTask = class(TTaskList)
   private
@@ -228,6 +248,30 @@ begin
   else
     if (TBaseInterval(Item1)).StartDate < (TBaseInterval(Item2)).StartDate then
       Result:= -1
+end;
+
+constructor TTaskWorkflow.CreateEx(aOwner: TComponent; DM: TComponent;
+  aConnection: TComponent; aMasterdata: TDataSet);
+begin
+  inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
+  FTask:=nil;
+end;
+
+procedure TTaskWorkflow.DefineFields(aDataSet: TDataSet);
+begin
+  with aDataSet as IBaseManageDB do
+    begin
+      TableName := 'TASKWORKFLOW';
+      if Assigned(ManagedFieldDefs) then
+        with ManagedFieldDefs do
+          begin
+            Add('STATUS',ftString,4,True);
+            Add('USER',ftString,20,False);
+            Add('PLANTIME',ftFloat,0,False); //geplante Zeit
+            Add('TIME',ftFloat,0,False);     //benötigte Zeit
+            Add('BUFFERTIME',ftFloat,0,False);//Wartezeit (wann darf nächste Aufgabe frühestens starten)
+          end;
+    end;
 end;
 
 procedure TTaskSnapshots.DefineFields(aDataSet: TDataSet);
@@ -1510,6 +1554,7 @@ begin
             Add('COMPLETED',ftString,1,True);
             Add('ACTIVE',ftString,1,True);
             Add('NEEDSACTION',ftString,1,False);
+            Add('STATUS',ftString,4,True);
             Add('CHECKED',ftString,1,True);
             Add('HASCHILDS',ftString,1,True);
             Add('SEEN',ftString,1,False);
@@ -1518,8 +1563,8 @@ begin
             Add('LPRIORITY',ftInteger,0,False);
             Add('PLANTIME',ftFloat,0,False); //geplante Zeit
             Add('TIME',ftFloat,0,False);     //benötigte Zeit
-            Add('PLANTASK',ftString,1,False);
             Add('BUFFERTIME',ftFloat,0,False);//Wartezeit (wann darf nächste Aufgabe frühestens starten)
+            Add('PLANTASK',ftString,1,False);
             Add('CATEGORY',ftString,60,False);
             Add('PERCENT',ftInteger,0,False);
             Add('OWNER',ftString,20,True);
@@ -1577,6 +1622,7 @@ begin
       FieldByName('DEPDONE').AsString := 'Y';
       FieldByName('CHECKED').AsString := 'N';
       FieldByName('HASCHILDS').AsString := 'N';
+      FieldByName('STATUS').AsString := 'A';
       FieldByName('CLASS').AsString := 'T';
       FieldByName('PERCENT').AsInteger := 0;
       FieldByName('PARENT').AsInteger := 0;
@@ -1747,6 +1793,7 @@ begin
   FSnapshots := TTaskSnapshots.CreateEx(Self,DM,aConnection,DataSet);
   FDependencies := TDependencies.CreateEx(Self,DM,aConnection,DataSet);
   FDependencies.FTask:=Self;
+  FWorkflow := TTaskWorkflow.CreateEx(Self,DM,aConnection,Self.DataSet);
 end;
 
 destructor TTaskList.Destroy;

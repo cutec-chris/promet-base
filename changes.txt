@@ -5,7 +5,9 @@
       - Avad:Auftragsübersicht (und Auswahl) hinzugefügt
       - Avad:Status des Auftrages kann im Avad geändert werden
       - Avad:Auftragskommision kann beim anlegen des Auftrages mit angegeben werden
-      -
+      - Aufgaben:haben nun einen Worflow pro Aufgabe, Aufgaben können im rahmen ihres Workflows mehrere Status und mehrere benutzer "durchleben"
+      - PAppserver:Reports für Artikel,Projekte,Aufträge als PDF verfügbar
+      - PAppserver:einfache SQL Abfragen (müssen aus Sicherheitsgründen von Avamm selbst geparst werden können) mit mehreren Joins möglich
 Build 436 (7.7.2017)
       - Configurations Webapp um Datenbankverbindung bei reinen Server Paketen einzurichten
       - Basis Aufgaben App
