@@ -433,6 +433,7 @@ begin
   inherited Open;
   FStatus := Status.AsString;
   FTarget := DataSet.FieldByName('TARGET').AsString;
+  FTasks.Open;
 end;
 
 procedure TProject.Recalculate;
