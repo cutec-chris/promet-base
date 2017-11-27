@@ -481,6 +481,7 @@ begin
           aTask.Text.AsString:=Format(strProblemAt,[aImages.FieldByName('NAME').AsString,DataSet.FieldByName('IDENT').AsString]);
           aTask.FieldByName('DESC').AsString:=mNotes.Text;
           aTask.FieldByName('DESC').AsString:=aTask.FieldByName('DESC').AsString+LineEnding+strOrder+':'+TOrderPos(DataSet).Order.Commission.AsString;
+          aTask.FieldByName('ORDERNO').AsString:=TOrderPos(DataSet).Order.Number.AsString;
           if aImages.FieldByName('USER').AsString<>'' then
             aTask.FieldByName('USER').AsString:=aImages.FieldByName('USER').AsString;
           aTask.Post;
