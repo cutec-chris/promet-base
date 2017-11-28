@@ -461,6 +461,7 @@ begin
     begin
       aAddress := Source as TBaseDbAddress;
       Order.FieldByName('CUSTNAME').AsString := aAddress.FieldByName('NAME').AsString;
+      Order.FieldByName('CUSTZIP').AsString := aAddress.FieldByName('ZIP').AsString;
     end
   else if Source is TPerson then
     begin
@@ -1976,6 +1977,8 @@ begin
             Add('NUMBER',ftString,20,False);
             Add('CUSTNO',ftString,20,False);
             Add('CUSTNAME',ftString,200,False);
+            Add('CUSTZIP',ftString,8,False);
+            Add('EMAIL',ftString,200,False);                //Vorgangsmail z.b. bei Angabe im Webshop oder RMA System
             Add('DOAFQ',ftDate,0,False);                    //Anfragedatum
             Add('DWISH',ftDate,0,False);                    //Wunschdatum
             Add('DAPPR',ftDate,0,False);                    //Bestätigt (Approved)
