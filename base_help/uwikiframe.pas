@@ -573,6 +573,7 @@ var
   aDocPage: TTabSheet;
   aWiki: TWikiList;
 begin
+  PageName:=HTMLDecode(PageName);
   with BaseApplication as IBaseApplication do
     Debug('OpenWikiPage:'+PageName);
   aWiki := TWikiList.Create(nil);
