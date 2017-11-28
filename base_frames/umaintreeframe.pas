@@ -908,6 +908,7 @@ begin
             end;
           aMasterdata.Free;
         end
+      else if (TTreeEntry(Node1.Data).Typ=etDir) then
       else if Assigned(Node1) and (Node1 is TTreeNode) then
         Node1.HasChildren := False;
       if ((Now()-FAsyncTime)*MSecsPerDay)>300 then
