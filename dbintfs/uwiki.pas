@@ -845,6 +845,7 @@ var
   tmp: String;
 begin
   Result := False;
+  PageName:=HTMLDecode(PageName);
   if not Assigned(Self) then exit;
   with FKeywords.DataSet as IBaseDbFilter do
     Filter := '';
