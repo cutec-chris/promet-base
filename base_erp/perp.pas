@@ -12,7 +12,7 @@ uses
   ucalcframe, uCopyArticleData, uDetailPositionFrame, ufinance, 
   uPosGotoArticle, uPositionFrame, uprojectoverview, uprometscriptprinting, 
   utextpositionframe, unumbersetempty, uCreateProductionOrder, uChangeStatus, 
-  LazarusPackageIntf;
+  uwebreports, LazarusPackageIntf;
 
 implementation
 

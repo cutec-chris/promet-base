@@ -2462,6 +2462,7 @@ begin
           begin
             Add('TYPE',ftString,6,True);
             Add('NAME',ftString,60,True);
+            Add('STANDARD',ftString,1,False);
             Add('CHANGEDBY',ftString,4,False);
             Add('LANGUAGE',ftString,3,True);
             Add('REPORT',ftBlob,0,False);

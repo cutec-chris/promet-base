@@ -6,10 +6,11 @@
     <CompilerOptions>
       <Version Value="11"/>
       <SearchPaths>
+        <OtherUnitFiles Value="../../webservers"/>
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="25">
+    <Files Count="26">
       <Item1>
         <Filename Value="fautomationform.pas"/>
         <UnitName Value="fautomationform"/>
@@ -110,31 +111,38 @@
         <Filename Value="uchangestatus.pas"/>
         <UnitName Value="uChangeStatus"/>
       </Item25>
+      <Item26>
+        <Filename Value="../../webservers/uwebreports.pas"/>
+        <UnitName Value="uwebreports"/>
+      </Item26>
     </Files>
     <i18n>
       <EnableI18N Value="True"/>
       <OutDir Value="../../../languages"/>
       <EnableI18NForLFM Value="True"/>
     </i18n>
-    <RequiredPkgs Count="5">
+    <RequiredPkgs Count="6">
       <Item1>
-        <PackageName Value="pvisualframes"/>
-        <DefaultFilename Value="../base_frames/pvisualframes.lpk"/>
+        <PackageName Value="lr_extexp"/>
       </Item1>
       <Item2>
-        <PackageName Value="pdocuments"/>
-        <DefaultFilename Value="../base_documents/pdocuments.lpk"/>
+        <PackageName Value="pvisualframes"/>
+        <DefaultFilename Value="../base_frames/pvisualframes.lpk"/>
       </Item2>
       <Item3>
-        <PackageName Value="pPrometDBIntfs"/>
-        <DefaultFilename Value="../base/dbintfs/pprometdbintfs.lpk"/>
+        <PackageName Value="pdocuments"/>
+        <DefaultFilename Value="../base_documents/pdocuments.lpk"/>
       </Item3>
       <Item4>
-        <PackageName Value="LCL"/>
+        <PackageName Value="pPrometDBIntfs"/>
+        <DefaultFilename Value="../base/dbintfs/pprometdbintfs.lpk"/>
       </Item4>
       <Item5>
-        <PackageName Value="FCL"/>
+        <PackageName Value="LCL"/>
       </Item5>
+      <Item6>
+        <PackageName Value="FCL"/>
+      </Item6>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

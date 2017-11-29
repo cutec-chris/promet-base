@@ -233,7 +233,7 @@ implementation
 
 uses Utils,uBaseVisualControls,uMasterdata,uData,uOrder,variants,uLogWait,
   uautomationframe,wikitohtml,LCLIntf,uBaseApplication,ubaseconfig,utask,uBaseDBInterface,
-  uIntfStrConsts,uError
+  uIntfStrConsts,uError,uwebreports
   {$IFDEF WINDOWS}
   ,Windows
   {$ENDIF}
@@ -662,7 +662,6 @@ begin
   if Assigned(FAutomation.tvStep.Selected) then
     begin
       TreeData := TProdTreeData(FAutomation.tvStep.Selected.Data);
-      if not Assigned(TreeData.Documents) then exit;
       Path := URL;
       if copy(uppercase(Path),0,5)='ICON(' then
         begin
@@ -706,13 +705,13 @@ begin
               pic := TPicture.Create;
               pic.LoadFromFile(tmpUrl);
               ms := TMemoryStream.Create;
-              pic.SaveToStreamWithFileExt(ms,'jpg');
+              pic.SaveToStreamWithFileExt(ms,ExtractFileExt(Path));
               ms.Position:=0;
               Result := ms;
               pic.Free;
             end;
         end
-      else
+      else if Assigned(TreeData.Documents) then
         begin
           if TreeData.Documents.ActualFilter<>'' then
             TreeData.Documents.Open;
@@ -959,6 +958,7 @@ var
   aTexts: TBoilerplate;
   nOrder: TOrder;
   aVersion : Variant;
+  aReportType: String;
 begin
   lStatusProblems.Visible:=False;
   lStatusProblems.color := clInfoBk;
@@ -974,6 +974,51 @@ begin
   FreeAndNil(TreeData.Documents);
   FreeAndNil(TreeData.Preparescript);
   FreeAndNil(TreeData.Script);
+  if tvStep.Selected.Parent=nil then //Order Information
+    begin
+      if DataSet is TOrderPos then
+        begin
+          FAutomation.ipHTML.Visible:=False;
+          aReportType := 'OR'+TorderPos(DataSet).Order.FieldByName('STATUS').AsString;
+          Data.Reports.Filter(Data.QuoteField('TYPE')+'='+Data.QuoteValue(aReportType));
+          Data.Reports.DataSet.Refresh;
+          if Data.Reports.Locate('STANDARD','Y',[]) and (aReportType<>'') then
+            begin
+              fWebReports := TfWebReports.Create(nil);
+              try
+                with Data.Reports.FieldByName('REPORT') as TBlobField do
+                  if not Data.Reports.FieldByName('REPORT').IsNull then
+                    begin
+                      with BaseApplication as IBaseApplication do
+                        begin
+                          Data.BlobFieldToFile(Data.Reports.DataSet,'REPORT',GetInternalTempDir+'preport.lrf');
+                          fWebReports.Report.LoadFromFile(GetInternalTempDir+'preport.lrf');
+                          SysUtils.DeleteFile(UniToSys(GetInternalTempDir+'preport.lrf'));
+                          Result := True;
+                        end;
+                    end;
+                if Result then
+                  begin
+                    fWebReports.RegisterDataSet(TOrderPos(DataSet).Order.DataSet,False);
+                    fWebReports.RegisterDataSet(Data.Users.DataSet,False);
+                    fWebReports.RegisterDataSet(Data.PaymentTargets.DataSet,False);
+                    fWebReports.RegisterDataSet(Data.MandantDetails.DataSet,False);
+                    if fWebReports.ExportToPNG(GetTempDir+'preport.png') then
+                    //TreeData.WorkText.Text:='<pre>'+fWebReports.ExportToText+'</pre>';
+                    TreeData.WorkText.Text:='<img src="file://'+GetTempDir+'preport.png'+'">';
+                    TreeData.ShowData;
+                    FAutomation.ipHTML.Visible:=True;
+                    FAutomation.ipHTML.Repaint;
+                    Result := True;
+                    exit;
+                  end;
+              finally
+                fWebReports.Free;
+              end;
+            end;
+        end;
+    end
+  else
   //Information in Order
   if (Assigned(DataSet.FieldByName('PRSCRIPT')) and (DataSet.FieldByName('PRSCRIPT').AsString<>''))
   or (DataSet.FieldByName('SCRIPT').AsString<>'')
@@ -1592,7 +1637,8 @@ begin
     begin
       tvStep.Selected:=tvStep.Items[0];
       tvStep.Items[0].Expanded:=True;
-      FindNextStep;
+      if not LoadStep then
+        FindNextStep;
     end
   else if tvStep.Items.Count=1 then
     begin
