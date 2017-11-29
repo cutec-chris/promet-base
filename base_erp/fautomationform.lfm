@@ -18,7 +18,6 @@ object FAutomation: TFAutomation
     Align = alClient
     BorderSpacing.Around = 8
     BevelOuter = bvNone
-    Caption = 'Panel3'
     ClientHeight = 572
     ClientWidth = 928
     TabOrder = 1

@@ -976,6 +976,14 @@ begin
   FreeAndNil(TreeData.Script);
   if tvStep.Selected.Parent=nil then //Order Information
     begin
+      if TreeData.WorkText.Text<>'' then
+        begin
+          Result := True;
+          TreeData.ShowData;
+          FAutomation.ipHTML.Visible:=True;
+          FAutomation.ipHTML.Repaint;
+          exit;
+        end;
       if DataSet is TOrderPos then
         begin
           FAutomation.ipHTML.Visible:=False;
