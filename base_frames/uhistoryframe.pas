@@ -457,7 +457,7 @@ begin
         if fTimeline.dgFake.Columns[i].FieldName='OBJECT' then
           FHasObject := True;
       NewText := StripWikiText(NewText);
-      if (not fHasObject) and (aRow>=fTimeLine.gList.FixedRows) then
+      if (not fHasObject) and (aRow>=fTimeLine.gList.FixedRows) and (FTimeLine.DataSet.Count>0) then
         begin
           aObj := fTimeline.gList.Objects[aCol.Index+1,aRow];
           if not Assigned(aObj) then
