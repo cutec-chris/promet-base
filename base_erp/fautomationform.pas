@@ -59,6 +59,7 @@ type
     acDebugLog: TAction;
     acEdit: TAction;
     acRefresh: TAction;
+    acCheckPrepare: TAction;
     ActionList1: TActionList;
     Bevel3: TBevel;
     Bevel4: TBevel;
@@ -134,8 +135,8 @@ type
     ToolButton2: TSpeedButton;
     tvStep: TTreeView;
     procedure aButtonClick(Sender: TObject);
+    procedure acCheckPrepareExecute(Sender: TObject);
     procedure acDebugLogExecute(Sender: TObject);
-    procedure acEditExecute(Sender: TObject);
     procedure acExecutePrepareStepExecute(Sender: TObject);
     procedure acExecuteStepExecute(Sender: TObject);
     procedure acPrepareExecute(Sender: TObject);
@@ -493,9 +494,16 @@ begin
   aImages.Free;
 end;
 
-procedure TFAutomation.acEditExecute(Sender: TObject);
+procedure TFAutomation.acCheckPrepareExecute(Sender: TObject);
+var
+  TreeData: TProdTreeData;
 begin
-
+  if Assigned(tvStep.Selected) then
+    begin
+      TreeData := TProdTreeData(tvStep.Selected.Data);
+      if Treedata.Script.Script.RunScriptFunction([],'checkprepare') then
+        acProduce.Execute;
+    end;
 end;
 
 procedure TFAutomation.acPrepareExecute(Sender: TObject);
@@ -974,7 +982,7 @@ begin
   FreeAndNil(TreeData.Documents);
   FreeAndNil(TreeData.Preparescript);
   FreeAndNil(TreeData.Script);
-  if tvStep.Selected.Parent=nil then //Order Information
+  if (tvStep.Selected.Parent=nil) and (tvStep.Selected.ImageIndex=0) then //Order Information
     begin
       if TreeData.WorkText.Text<>'' then
         begin
@@ -1471,6 +1479,11 @@ begin
           ss.Free;
           FAutomation.ipHTML.SetHtml(aHTML);
           FAutomation.bExecute.Action:=FAutomation.acExecutePrepareStep;
+          if not FAutomation.acExecutePrepareStep.Enabled then
+            begin
+              if Script.Script.FindScriptFunction('checkprepare') then
+                FAutomation.bExecute.Action:=FAutomation.acCheckPrepare;
+            end;
           FAutomation.StepChanged := False;
         end;
     end

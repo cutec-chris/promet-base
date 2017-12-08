@@ -339,18 +339,20 @@ LazarusResources.Add('TFAutomation','FORMDATA',[
   +'ction'#10'acDebugLog'#7'Caption'#6#17'Debug Nachrichten'#4'Hint'#6#17'Debug'
   +' Nachrichten'#10'ImageIndex'#2'1'#9'OnExecute'#7#17'acDebugLogExecute'#0#0#7
   +'TAction'#6'acEdit'#7'Caption'#6#27'Vorbereitungstext editieren'#4'Hint'#6#27
-  +'Vorbereitungstext editieren'#10'ImageIndex'#2'C'#9'OnExecute'#7#13'acEditEx'
-  +'ecute'#0#0#7'TAction'#9'acRefresh'#7'Caption'#6#9'acRefresh'#4'Hint'#6#31'l'
-  +#195#164'dt den aktuellen Schritt neu'#10'ImageIndex'#2'E'#9'OnExecute'#7#16
-  +'acRefreshExecute'#0#0#0#10'TPopupMenu'#10'PopupMenu1'#4'left'#2'H'#3'top'#2
-  +'H'#0#9'TMenuItem'#9'MenuItem1'#7'Caption'#6#7'Eintrag'#0#9'TMenuItem'#9'Men'
-  +'uItem5'#6'Action'#7#6'acSave'#0#0#9'TMenuItem'#9'MenuItem6'#6'Action'#7#7'a'
-  +'cAbort'#0#0#0#9'TMenuItem'#9'MenuItem2'#7'Caption'#6#9'Erweitert'#0#9'TMenu'
-  +'Item'#10'miExtended'#7'Caption'#6#4'Menu'#0#0#0#9'TMenuItem'#9'MenuItem3'#7
-  +'Caption'#6#5'Ebene'#0#9'TMenuItem'#9'MenuItem7'#7'Caption'#6#9'New Item9'#9
-  +'RadioItem'#9#0#0#9'TMenuItem'#10'MenuItem10'#7'Caption'#6#10'New Item12'#0#0
-  +#9'TMenuItem'#9'MenuItem9'#7'Caption'#6#10'New Item11'#0#0#9'TMenuItem'#9'Me'
-  +'nuItem8'#7'Caption'#6#10'New Item10'#0#0#0#9'TMenuItem'#9'MenuItem4'#7'Capt'
-  +'ion'#6#10'Bearbeiten'#0#0#0#6'TTimer'#6'tmQuit'#7'Enabled'#8#8'Interval'#3
-  +#184#11#7'OnTimer'#7#11'tmQuitTimer'#4'left'#3#186#0#3'top'#3'&'#2#0#0#0
+  +'Vorbereitungstext editieren'#10'ImageIndex'#2'C'#0#0#7'TAction'#9'acRefresh'
+  +#7'Caption'#6#9'acRefresh'#4'Hint'#6#31'l'#195#164'dt den aktuellen Schritt '
+  +'neu'#10'ImageIndex'#2'E'#9'OnExecute'#7#16'acRefreshExecute'#0#0#7'TAction'
+  +#14'acCheckPrepare'#7'Caption'#6#13'R'#195#188'stpr'#195#188'fung'#10'ImageI'
+  +'ndex'#2#8#9'OnExecute'#7#21'acCheckPrepareExecute'#0#0#0#10'TPopupMenu'#10
+  +'PopupMenu1'#4'left'#2'H'#3'top'#2'H'#0#9'TMenuItem'#9'MenuItem1'#7'Caption'
+  +#6#7'Eintrag'#0#9'TMenuItem'#9'MenuItem5'#6'Action'#7#6'acSave'#0#0#9'TMenuI'
+  +'tem'#9'MenuItem6'#6'Action'#7#7'acAbort'#0#0#0#9'TMenuItem'#9'MenuItem2'#7
+  +'Caption'#6#9'Erweitert'#0#9'TMenuItem'#10'miExtended'#7'Caption'#6#4'Menu'#0
+  +#0#0#9'TMenuItem'#9'MenuItem3'#7'Caption'#6#5'Ebene'#0#9'TMenuItem'#9'MenuIt'
+  +'em7'#7'Caption'#6#9'New Item9'#9'RadioItem'#9#0#0#9'TMenuItem'#10'MenuItem1'
+  +'0'#7'Caption'#6#10'New Item12'#0#0#9'TMenuItem'#9'MenuItem9'#7'Caption'#6#10
+  +'New Item11'#0#0#9'TMenuItem'#9'MenuItem8'#7'Caption'#6#10'New Item10'#0#0#0
+  +#9'TMenuItem'#9'MenuItem4'#7'Caption'#6#10'Bearbeiten'#0#0#0#6'TTimer'#6'tmQ'
+  +'uit'#7'Enabled'#8#8'Interval'#3#184#11#7'OnTimer'#7#11'tmQuitTimer'#4'left'
+  +#3#186#0#3'top'#3'&'#2#0#0#0
 ]);

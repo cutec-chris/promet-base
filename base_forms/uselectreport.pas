@@ -832,8 +832,8 @@ begin
       with Data.Reports.DataSet as IBaseDbFilter do
         Filter := Data.QuoteField('TYPE')+'='+Data.QuoteValue(AValue);
       if Data.Users.Options.DataSet.ControlsDisabled then exit;
-      if not Data.Reports.DataSet.Active then
-        Data.Reports.DataSet.Open;
+      if not Data.Reports.Active then
+        Data.Reports.Open;
       ApplicationIBaseDBInterfaceReportsDataSetAfterScroll(Data.Reports.DataSet);
       fType:=AValue;
     end;

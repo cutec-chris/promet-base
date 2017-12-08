@@ -799,13 +799,17 @@ object FAutomation: TFAutomation
       Caption = 'Vorbereitungstext editieren'
       Hint = 'Vorbereitungstext editieren'
       ImageIndex = 67
-      OnExecute = acEditExecute
     end
     object acRefresh: TAction
       Caption = 'acRefresh'
       Hint = 'lädt den aktuellen Schritt neu'
       ImageIndex = 69
       OnExecute = acRefreshExecute
+    end
+    object acCheckPrepare: TAction
+      Caption = 'Rüstprüfung'
+      ImageIndex = 8
+      OnExecute = acCheckPrepareExecute
     end
   end
   object PopupMenu1: TPopupMenu
