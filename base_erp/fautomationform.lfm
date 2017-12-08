@@ -807,7 +807,7 @@ object FAutomation: TFAutomation
       OnExecute = acRefreshExecute
     end
     object acCheckPrepare: TAction
-      Caption = 'Rüstprüfung'
+      Caption = 'Rüstkontrolle'
       ImageIndex = 8
       OnExecute = acCheckPrepareExecute
     end

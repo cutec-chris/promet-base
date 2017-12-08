@@ -501,8 +501,11 @@ begin
   if Assigned(tvStep.Selected) then
     begin
       TreeData := TProdTreeData(tvStep.Selected.Data);
-      if Treedata.Script.Script.RunScriptFunction([],'checkprepare') then
+      TreeData.Script.Script.Writeln:=@TreeData.ScriptPrepareWriteln;
+      if Treedata.Script.Script.RunScriptFunction([],'CHECKPREPARE') then
         acProduce.Execute;
+      TreeData.Script.Script.Writeln:=@TreeData.ScriptWriteln;
+      bExecute.Down:=false;
     end;
 end;
 
@@ -982,7 +985,7 @@ begin
   FreeAndNil(TreeData.Documents);
   FreeAndNil(TreeData.Preparescript);
   FreeAndNil(TreeData.Script);
-  if (tvStep.Selected.Parent=nil) and (tvStep.Selected.ImageIndex=0) then //Order Information
+  if (tvStep.Selected.Parent=nil) and ((tvStep.Selected.ImageIndex=0) or (tvStep.Selected.ImageIndex=8)) then //Order Information
     begin
       if TreeData.WorkText.Text<>'' then
         begin
@@ -1479,12 +1482,12 @@ begin
           ss.Free;
           FAutomation.ipHTML.SetHtml(aHTML);
           FAutomation.bExecute.Action:=FAutomation.acExecutePrepareStep;
-          if not FAutomation.acExecutePrepareStep.Enabled then
-            begin
-              if Script.Script.FindScriptFunction('checkprepare') then
-                FAutomation.bExecute.Action:=FAutomation.acCheckPrepare;
-            end;
           FAutomation.StepChanged := False;
+        end;
+      if not FAutomation.acExecutePrepareStep.Enabled then
+        begin
+          if Script.Script.FindScriptFunction('CHECKPREPARE') then
+            FAutomation.bExecute.Action:=FAutomation.acCheckPrepare;
         end;
     end
   else
@@ -1728,7 +1731,8 @@ begin
       nNode.Text:=nNode.Text+' ['+DataSet.FieldByName('VERSION').AsString+']';
     end;
   3:nNode.ImageIndex:=49;//Text
-  9,6:nNode.ImageIndex:=22;//Montage/Argeitsgang
+  9:nNode.ImageIndex:=22;//Montage/Argeitsgang
+  6:nNode.ImageIndex:=8;//Quality check
   end;
   nNode.SelectedIndex:=nNode.ImageIndex;
   TProdTreeData(nNode.Data).Position:=DataSet.Id.AsVariant;
