@@ -54,7 +54,7 @@ type
   end;
 
 implementation
-uses uData,uBaseApplication,dEXIF,Process,
+uses uData,uBaseApplication,dEXIF,Process,dMetadata,
   uthumbnails;
 
 function TDocPagesList.GetUsedFields: string;
@@ -69,11 +69,11 @@ var
   exif: TImgData;
   aTime: TDateTime;
 begin
-  exif := TImgData.Create;
+  exif := TImgData.Create();
   aFullStream.Position:=0;
   if (extn = '.jpg') or (extn = '.jpeg') or (extn = '.jpe') then
     begin
-      exif.ReadJpegSections(tStream(aFullStream));
+      exif. ReadJpegSections(tStream(aFullStream));
     end;
   if (extn = '.tif') or (extn = '.tiff') or (extn = '.nef') then
     begin
@@ -81,10 +81,7 @@ begin
     end;
   if Assigned(exif.ExifObj) then
     begin
-      if exif.ExifObj.dt_orig_oset > 0 then
-        aTime := exif.ExifObj.ExtrDateTime(exif.ExifObj.dt_orig_oset)
-      else
-        aTime := exif.ExifObj.GetImgDateTime;
+      aTime := exif.ExifObj.GetImgDateTime;
       if aTime > 0 then
         FieldByName('ORIGDATE').AsDateTime:=aTime;
     end;
