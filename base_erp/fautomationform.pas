@@ -974,6 +974,7 @@ begin
   lStatusProblems.Visible:=False;
   lStatusProblems.color := clInfoBk;
   if not Assigned(tvStep.Selected) then exit;
+  Screen.Cursor:=crHourGlass;
   lStep.Caption:=tvStep.Selected.Text;
   Result := False;
   acExecuteStep.Enabled:=False;
@@ -993,6 +994,7 @@ begin
           TreeData.ShowData;
           FAutomation.ipHTML.Visible:=True;
           FAutomation.ipHTML.Repaint;
+          Screen.Cursor:=crDefault;
           exit;
         end;
       if DataSet is TOrderPos then
@@ -1029,6 +1031,7 @@ begin
                     FAutomation.ipHTML.Visible:=True;
                     FAutomation.ipHTML.Repaint;
                     Result := True;
+                    Screen.Cursor:=crDefault;
                     exit;
                   end;
               finally
@@ -1228,6 +1231,7 @@ begin
             end;
         end;
     end;
+  Screen.Cursor:=crDefault;
 end;
 
 procedure TFAutomation.Clear;
