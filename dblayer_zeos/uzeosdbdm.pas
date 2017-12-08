@@ -624,42 +624,48 @@ begin
     with TBaseDBModule(Owner) do
       begin
         for i := 0 to FManagedFieldDefs.Count-1 do
-          if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name) = -1) and (FManagedFieldDefs[i].Name <> 'AUTO_ID') then
-            begin
-              aSQL := 'ALTER TABLE '+GetFullTableName(FDefaultTableName)+' ADD '+TZeosDBDM(Self.Owner).FieldToSQL(FManagedFieldDefs[i].Name,FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
-              with BaseApplication as IBaseApplication do
-                Debug(aSQL);
-              aConnection := Connection;
-              try
-                TZConnection(aConnection).ExecuteDirect(aSQL);
-                Changed := True;
-                Result := True;
-              except
-              end;
-            end
-        else if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name)>-1) and ((copy(Connection.Protocol,0,5)<>'mssql') and (FManagedFieldDefs[i].Size>255)) then
           begin
-            tmpSize := FieldByName(FManagedFieldDefs[i].Name).Size;
-            if tmpSize<FManagedFieldDefs[i].Size then
+            if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name) = -1) and (FManagedFieldDefs[i].Name <> 'AUTO_ID') then
               begin
-                if (copy(Connection.Protocol,0,8) = 'postgres') then
-                  aSQL := 'ALTER TABLE '+GetFullTableName(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' TYPE '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';'
-                else if (copy(Connection.Protocol,0,6) = 'sqlite') then
-                else
-                  aSQL := 'ALTER TABLE '+GetFullTableName(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
+                aSQL := 'ALTER TABLE '+GetFullTableName(FDefaultTableName)+' ADD '+TZeosDBDM(Self.Owner).FieldToSQL(FManagedFieldDefs[i].Name,FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
                 with BaseApplication as IBaseApplication do
                   Debug(aSQL);
                 aConnection := Connection;
-                if aSQL<>'' then
+                try
+                  TZConnection(aConnection).ExecuteDirect(aSQL);
+                  Changed := True;
+                  Result := True;
+                except
+                end;
+              end
+            else if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name)>-1) then
+              begin
+                tmpSize := FieldByName(FManagedFieldDefs[i].Name).DisplayWidth;
+                if (tmpSize<FManagedFieldDefs[i].Size)
+                and (tmpSize<>255) //mssql workaround we have no field that has 255 chars size
+                then
                   begin
                     with BaseApplication as IBaseApplication do
+                      Debug(FManagedFieldDefs[i].Name+': ist '+IntToStr(tmpSize)+' soll '+IntToStr(FManagedFieldDefs[i].Size));
+                    if (copy(Connection.Protocol,0,8) = 'postgres') then
+                      aSQL := 'ALTER TABLE '+GetFullTableName(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' TYPE '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';'
+                    else if (copy(Connection.Protocol,0,6) = 'sqlite') then
+                    else
+                      aSQL := 'ALTER TABLE '+GetFullTableName(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
+                    with BaseApplication as IBaseApplication do
                       Debug(aSQL);
-                    try
-                      TZConnection(aConnection).ExecuteDirect(aSQL);
-                      Changed := True;
-                      Result := True;
-                    except
-                    end;
+                    aConnection := Connection;
+                    if aSQL<>'' then
+                      begin
+                        with BaseApplication as IBaseApplication do
+                          Debug(aSQL);
+                        try
+                          TZConnection(aConnection).ExecuteDirect(aSQL);
+                          Changed := True;
+                          Result := True;
+                        except
+                        end;
+                      end;
                   end;
               end;
           end;
@@ -704,7 +710,10 @@ begin
       end;
     end;
   if Changed then
-    TBaseDBModule(Self.Owner).UpdateTableVersion(Self.FDefaultTableName);
+    begin
+      TBaseDBModule(Self.Owner).UpdateTableVersion(Self.FDefaultTableName);
+      Self.Unprepare;
+    end;
 end;
 
 procedure TZeosDBDataSet.InternalOpen;
