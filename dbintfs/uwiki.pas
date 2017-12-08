@@ -879,8 +879,8 @@ begin
           if (TBaseDBModule(DataModule).Tree.ActualFilter<>'') or (not TBaseDBModule(DataModule).Tree.Active) then
             TBaseDBModule(DataModule).SetFilter(TBaseDBModule(DataModule).Tree,'',0,'','ASC',False,True,True);
           TBaseDBModule(DataModule).Tree.Cancel;
-          if TBaseDBModule(DataModule).Tree.DataSet.Locate('NAME;PARENT;TYPE',VarArrayOf([copy(PageName,0,rpos('/',PageName)-1),aParent,'W']),[])
-          or TBaseDBModule(DataModule).Tree.DataSet.Locate('NAME;PARENT;TYPE',VarArrayOf([copy(PageName,0,rpos('/',PageName)-1),aParent,'W']),[loCaseInSensitive]) then
+          if TBaseDBModule(DataModule).Tree.DataSet.Locate('NAME;PARENT;TYPE',VarArrayOf([copy(PageName,0,pos('/',PageName)-1),aParent,'W']),[])
+          or TBaseDBModule(DataModule).Tree.DataSet.Locate('NAME;PARENT;TYPE',VarArrayOf([copy(PageName,0,pos('/',PageName)-1),aParent,'W']),[loCaseInSensitive]) then
             begin
               PageName := copy(PageName,pos('/',PageName)+1,length(PageName));
               if TBaseDBModule(DataModule).Tree.Id.AsVariant<>Null then
