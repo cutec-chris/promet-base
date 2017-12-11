@@ -1490,8 +1490,9 @@ begin
         end;
       if not FAutomation.acExecutePrepareStep.Enabled then
         begin
-          if Script.Script.FindScriptFunction('CHECKPREPARE') then
-            FAutomation.bExecute.Action:=FAutomation.acCheckPrepare;
+          if Assigned(Script.Script) then
+            if Script.Script.FindScriptFunction('CHECKPREPARE') then
+              FAutomation.bExecute.Action:=FAutomation.acCheckPrepare;
         end;
     end
   else
