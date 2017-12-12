@@ -199,6 +199,7 @@ type
     property Address : TOrderAddress read FOrderAddress;
     property Positions : TOrderPos read FOrderPos;
     property Links : TOrderLinks read FLinks;
+    function CombineItems(aRemoteLink: string): Boolean; override;
     property OnGetStorage : TOnGetStorageEvent read FOnGetStorage write FOnGetStorage;
     property OnGetSerial : TOnGetSerialEvent read FOnGetSerial write FOnGetSerial;
     property Currency : TCurrency read FCurrency;
@@ -232,7 +233,7 @@ resourcestring
 
 { TRepairImageLinks }
 
-procedure Torder.ReplaceParentFields(aField: TField; aOldValue: string;
+procedure TOrder.ReplaceParentFields(aField: TField; aOldValue: string;
   var aNewValue: string);
 var
   aRec: Variant;
@@ -826,6 +827,52 @@ begin
   FOrderPos.CascadicCancel;
   FLinks.CascadicCancel;
   inherited CascadicCancel;
+end;
+
+function TOrder.CombineItems(aRemoteLink: string): Boolean;
+var
+  newnumber: String;
+  aClass: TBaseDBDatasetClass;
+  aObject: TBaseDBDataset;
+  BM: Variant;
+  tmp: String;
+begin
+  Result := False;
+  Result := True;
+  if TBaseDBModule(DataModule).DataSetFromLink(aRemoteLink,aClass) then
+    begin
+      aObject := aClass.CreateEx(nil,DataModule);
+      if not (aObject is TOrderList) then
+        begin
+          aObject.Free;
+          exit;
+        end;
+      TBaseDbList(aObject).SelectFromLink(aRemoteLink);
+      BM := GetBookmark;
+      DataSet.Last;
+      newnumber := copy(DataSet.FieldByName('ORDERNO').AsString,length(DataSet.FieldByName('ORDERNO').AsString)-1,2);
+      GotoBookmark(BM);
+      if NewNumber = '' then
+        begin
+          raise Exception.Create('NewNumber is NULL');
+          exit;
+        end;
+      aObject.Open;
+      if aObject.Count>0 then
+        begin
+          aObject.First;
+          while not aObject.EOF do
+            begin
+              tmp := copy(DataSet.FieldByName('ORDERNO').AsString,0,length(DataSet.FieldByName('ORDERNO').AsString)-2)+Format('%.2d',[StrToIntDef(newnumber,0)+1]);
+              newnumber:=IntToStr(StrToInt(newnumber)+1);
+              aObject.Edit;
+              aObject.FieldByName('ORDERNO').AsString:=tmp;
+              aObject.Post;
+              aObject.Next;
+            end;
+        end;
+      aObject.Free;
+    end;
 end;
 
 function TOrder.SelectCurrency: Boolean;
