@@ -8,6 +8,7 @@
       - Aufgaben:haben nun einen Worflow pro Aufgabe, Aufgaben können im rahmen ihres Workflows mehrere Status und mehrere benutzer "durchleben"
       - PAppserver:Reports für Artikel,Projekte,Aufträge als PDF verfügbar
       - PAppserver:einfache SQL Abfragen (müssen aus Sicherheitsgründen von Avamm selbst geparst werden können) mit mehreren Joins möglich
+      - Avad:Rüstkontrolle kann in Script hinterlegt werden um Rüstfehler zu vermeiden (Funktion CheckPrepare : Boolean)
 Build 436 (7.7.2017)
       - Configurations Webapp um Datenbankverbindung bei reinen Server Paketen einzurichten
       - Basis Aufgaben App
