@@ -1889,7 +1889,7 @@ begin
   with BaseApplication as IBaseDBInterface do
     with DataSet as IBaseDBFilter do
       begin
-        Filter := TBaseDBModule(DataModule).QuoteField(GetNumberFieldName)+'='+TBaseDBModule(DataModule).QuoteValue(aNumber);
+        Filter := TBaseDBModule(DataModule).QuoteField(TableName)+'.'+TBaseDBModule(DataModule).QuoteField(GetNumberFieldName)+'='+TBaseDBModule(DataModule).QuoteValue(aNumber);
       end;
 end;
 

@@ -76,10 +76,12 @@ type
   public
     procedure Open; override;
     procedure DefineFields(aDataSet : TDataSet);override;
+    function GetTyp: string; override;
     constructor CreateEx(aOwner: TComponent; DM: TComponent;
        aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
     destructor Destroy; override;
     function BuildQuerry(aVariables : TStrings) : string;
+    function BuildSQL(aSQL : string) : string;
     property History : TBaseHistory read FHistory;
     property OnStateChange : TNotifyEvent read FStateChange write FStateChange;
   end;
@@ -581,7 +583,7 @@ var
 begin
   inherited Open;
   if not Active then exit;
-  FStatus:=FieldByName('STATUS').AsString;
+  FStatus:=Status.AsString;
 end;
 
 function TStatistic.GetNumberFieldName: string;
@@ -618,6 +620,11 @@ begin
             Add('CHANGEDBY',ftString,4,false);
           end;
     end;
+end;
+
+function TStatistic.GetTyp: string;
+begin
+  Result:='S';
 end;
 
 constructor TStatistic.CreateEx(aOwner: TComponent; DM: TComponent;
@@ -733,6 +740,11 @@ begin
     end;
   Result := bQuerry;
   result := StringReplace(Result,'@USERID@',TBaseDBModule(DataModule).Users.Id.AsString,[rfReplaceAll]);
+end;
+
+function TStatistic.BuildSQL(aSQL: string): string;
+begin
+  Result := ReplaceSQLFunctions(aSQL);
 end;
 
 end.
