@@ -168,6 +168,7 @@ type
     procedure sbMenueClick(Sender: TObject);
   private
     { private declarations }
+    Reopen: Boolean;
     FEditable : Boolean;
     FMeasurement: TMeasurement;
     procedure AddMeasurement(Sender: TObject);
@@ -715,6 +716,20 @@ begin
   TMasterdata(DataSet).History.Open;
   pcPages.NewFrame(TfHistoryFrame,TMasterdata(DataSet).History.Count > 0,strHistory,@AddHistory);
 
+  pcPages.AddTabClass(TfMeasurementFrame,strMeasurement,@AddMeasurement);
+  if not Reopen then
+    begin
+      FreeAndNil(FMeasurement);
+      try
+        FMeasurement := TMeasurement.CreateEx(nil,Data,DataSet.Connection,DataSet.DataSet);
+        FMeasurement.CreateTable;
+        FMeasurement.Open;
+        if FMeasurement.Count>0 then
+          pcPages.AddTab(TfMeasurementFrame.Create(Self),False);
+      except
+      end;
+    end;
+
   aThumbnails := TThumbnails.Create(nil);
   aThumbnails.SelectByRefId(DataSet.Id.AsVariant);
   aThumbnails.Open;
@@ -937,6 +952,7 @@ var
   aType: string;
 begin
   inherited Create(AOwner);
+  Reopen:=False;
   mShortText.WantTabs:=False;
   if not Assigned(Units) then
     Units := TUnits.Create(nil);
