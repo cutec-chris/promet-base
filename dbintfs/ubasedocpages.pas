@@ -125,17 +125,17 @@ begin
         begin
           with Self.DataSet as IBaseDBFilter,Self.DataSet as IBaseManageDB do
             begin
-              Filter := Data.ProcessTerm(Data.QuoteField(TableName)+'.'+Data.QuoteField('SQL_ID')+'='+Data.QuoteValue(''));
+              Filter := TBaseDBModule(DataModule).ProcessTerm(TBaseDBModule(DataModule).QuoteField(TableName)+'.'+TBaseDBModule(DataModule).QuoteField('SQL_ID')+'='+TBaseDBModule(DataModule).QuoteValue(''));
               Fields := '';
               aOldLimit := Limit;
               Limit := 1;
               OldUseP := UsePermissions;
               UsePermissions:=False;
-              Open;
+              DataSet.Open;
               for i := 0 to DataSet.FieldDefs.Count-1 do
                 if  (DataSet.FieldDefs[i].Name <> 'THUMBNAIL')
                 then
-                  tmpfields := tmpfields+','+Data.QuoteField(TableName)+'.'+Data.QuoteField(DataSet.FieldDefs[i].Name);
+                  tmpfields := tmpfields+','+TBaseDBModule(DataModule).QuoteField(TableName)+'.'+TBaseDBModule(DataModule).QuoteField(DataSet.FieldDefs[i].Name);
               tmpFields := copy(tmpFields,2,length(tmpFields));
               FUsedFields := tmpFields;
               Limit := aOldLimit;
@@ -159,6 +159,8 @@ end;
 
 procedure TDocPages.Open;
 begin
+  if FUsedFields = '' then
+    PrepareDataSet;
   inherited Open;
 end;
 
@@ -225,7 +227,7 @@ begin
       aFullStream.Position:=0;
       SetParamsFromExif(extn,aFullStream);
       aSStream := TStringStream.Create('');
-      Data.BlobFieldToStream(aDocument.DataSet,'FULLTEXT',aSStream);
+      TBaseDBModule(DataModule).BlobFieldToStream(aDocument.DataSet,'FULLTEXT',aSStream);
       uthumbnails.GenerateThumbNail(ExtractFileExt(aDocument.FileName),aFullStream,aStream,aSStream.DataString);
       aSStream.Free;
       if FieldByName('ORIGDATE').IsNull then
@@ -234,11 +236,11 @@ begin
         FieldByName('ORIGDATE').AsDateTime:=Now();
       Post;
       if aStream.Size>0 then
-        Data.StreamToBlobField(aStream,Self.DataSet,'THUMBNAIL');
+        TBaseDBModule(DataModule).StreamToBlobField(aStream,Self.DataSet,'THUMBNAIL');
       bDocument := TDocument.Create(nil);
       bdocument.Ref_ID:=Id.AsVariant;
       bDocument.BaseTyp:='S';
-      bDocument.AddFromLink(Data.BuildLink(aDocument.DataSet));
+      bDocument.AddFromLink(TBaseDBModule(DataModule).BuildLink(aDocument.DataSet));
       bDocument.Free;
       aStream.Free;
       aFullStream.Free;
@@ -353,12 +355,12 @@ begin
             begin
               ss := TStringStream.Create(aText);
               ss.Position:=0;
-              Data.StreamToBlobField(ss,Self.DataSet,'FULLTEXT');
+              TBaseDBModule(DataModule).StreamToBlobField(ss,Self.DataSet,'FULLTEXT');
               ss.Free;
             end;
         end;
       if aStream.Size>0 then
-        Data.StreamToBlobField(aStream,Self.DataSet,'THUMBNAIL');
+        TBaseDBModule(DataModule).StreamToBlobField(aStream,Self.DataSet,'THUMBNAIL');
       aStream.Free;
       aFullStream.Free;
       aDocument.Free;
