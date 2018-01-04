@@ -306,7 +306,9 @@ begin
   FTree.Align := alClient;
   FTree.OnOpen:=@FTreeOpen;
   Caption:=strStructure;
+  {$ifdef WINDOWS}
   FTree.tvMain.Font.Height := 18;
+  {$ENDIF}
   FTree.tvMain.OnExpanded:=@FTreetvMainExpanded;
 end;
 
