@@ -592,36 +592,31 @@ begin
             end
           else //Modify existing
             begin
+              aObj.Edit;
               while aObj.Count>1 do
                 aObj.Delete;
               if aObj.Text.AsString<>Self.Text.AsString then
                 begin
-                  aObj.Edit;
                   aObj.Text.AsString := Self.Text.AsString;
                 end;
               if aObj.Number.AsString<>Self.Number.AsString then
                 begin
-                  aObj.Edit;
                   aObj.Number.AsString := Self.FieldByName('NAME').AsString;
                 end;
               if Assigned(Self.Status) and (aObj.Status.AsString<>Self.Status.AsString) then
                 begin
-                  aObj.Edit;
                   aObj.Status.AsString := Self.Status.AsString;
                 end;
               if Assigned(Self.Matchcode) and (aObj.Matchcode.AsString<>Self.Matchcode.AsString) then
                 begin
-                  aObj.Edit;
                   aObj.Matchcode.AsString := Self.Matchcode.AsString;
                 end;
               if aObj.FieldByName('LINK').AsString<>Data.BuildLink(Self.DataSet) then
                 begin
-                  aObj.Edit;
                   aObj.FieldByName('LINK').AsString:=Data.BuildLink(Self.DataSet);
                 end;
               if aObj.FieldByName('VERSION').AsString<>Self.FieldByName('VERSION').AsString then
                 begin
-                  aObj.Edit;
                   aObj.FieldByName('VERSION').AsString:=Self.FieldByName('VERSION').AsString;
                 end;
               if aObj.CanEdit then
