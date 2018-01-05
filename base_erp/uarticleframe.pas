@@ -679,7 +679,8 @@ begin
   if WasDisabled then
     DataSet.DataSet.EnableControls;
   TMasterdata(DataSet).Positions.Open;
-  pcPages.NewFrame(TfObjectStructureFrame,True,strStructure,@AddOverview);
+  if (DataSet.State<> dsInsert) and (DataSet.Id.AsVariant<>Null) and (not Assigned(pcPages.GetTab(TfWikiFrame))) then
+    pcPages.NewFrame(TfObjectStructureFrame,True,strStructure,@AddOverview);
   pcPages.NewFrame(TfArticlePositionFrame,(TMasterdata(DataSet).Positions.Count>0),strPiecelist,@AddPositions);
   if WasDisabled then
     DataSet.DataSet.DisableControls;
@@ -815,6 +816,7 @@ begin
   if HasHelp then AddHelp(Self);
   pcPages.TabIndex:=oldIndex;
   pcPages.Change;
+  Reopen:=True;
 end;
 function TfArticleFrame.SetRights: Boolean;
 begin
