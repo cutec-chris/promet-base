@@ -1809,23 +1809,28 @@ begin
           end
         else //Modify existing
           begin
-            aObj.Edit;
+            if CanEdit then
+              aObj.Edit;
             if aObj.Text.AsString<>Self.Text.AsString then
               begin
+                aObj.Edit;
                 aObj.Text.AsString := Self.Text.AsString;
                 aObj.FieldByName('LINK').AsString:=TBaseDBModule(DataModule).BuildLink(Self.DataSet);
               end;
             if aObj.FieldByName('ICON').AsVariant<>TBaseDBModule(DataModule).GetLinkIcon(TBaseDBModule(DataModule).BuildLink(Self.DataSet),True) then
               begin
+                aObj.Edit;
                 aObj.FieldByName('ICON').AsInteger:=TBaseDBModule(DataModule).GetLinkIcon(TBaseDBModule(DataModule).BuildLink(Self.DataSet),True);
               end;
             if aObj.Number.AsString<>Self.Number.AsString then
               begin
+                aObj.Edit;
                 aObj.Number.AsString := Self.Number.AsString;
                 aObj.FieldByName('LINK').AsString:=TBaseDBModule(DataModule).BuildLink(Self.DataSet);
               end;
             if Assigned(Self.Status) and (aObj.Status.AsString<>Self.Status.AsString) then
               begin
+                aObj.Edit;
                 aObj.Status.AsString := Self.Status.AsString;
               end;
             if aObj.CanEdit then
