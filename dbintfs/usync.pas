@@ -132,8 +132,9 @@ begin
           AJSON.Add(lowercase(VFieldName), VField.AsInteger)
         else if (VField.DataType = ftLargeint) then
           AJSON.Add(lowercase(VFieldName), VField.AsString)
+        else if (VField.DataType = ftBlob) then
         else
-          AJSON.Add(lowercase(VFieldName), SysToUni(VField.AsString))
+          AJSON.Add(lowercase(VFieldName), VField.AsString)
         except
         end;
       end;
