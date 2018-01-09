@@ -190,7 +190,7 @@ type
     procedure RefreshUsersFilter;
     procedure ModifyUsersFilter(aNewFilter : string);
     procedure RemoveUserFromActiveList;
-    procedure RegisterLinkHandlers;
+    procedure RegisterLinkHandlers(IgnoreRights : Boolean = False);
     property IgnoreOpenRequests : Boolean read FIgnoreOpenrequests write FIgnoreOpenrequests;
     property Tables : TStrings read FTables;
     property Mandant : string read Fmandant;
@@ -1548,13 +1548,13 @@ begin
   end;
 end;
 
-procedure TBaseDBModule.RegisterLinkHandlers;
+procedure TBaseDBModule.RegisterLinkHandlers(IgnoreRights: Boolean);
 begin
   RegisterLinkHandler('ALLOBJECTS',nil,TObjects);
   //Messages
   RegisterLinkHandler('HISTORY',nil,TBaseHistory);
   //Messages
-  if Users.Rights.Right('MESSAGES') > RIGHT_NONE then
+  if (Users.Rights.Right('MESSAGES') > RIGHT_NONE) or IgnoreRights then
     begin
       try
         RegisterLinkHandler('MESSAGEIDX',nil,TMessage);
@@ -1563,7 +1563,7 @@ begin
       end;
     end;
   //Tasks
-  if (Users.Rights.Right('TASKS') > RIGHT_NONE) then
+  if (Users.Rights.Right('TASKS') > RIGHT_NONE) or IgnoreRights then
     begin
       try
       RegisterLinkHandler('TASKS',nil,TTask,TTaskList);
@@ -1571,7 +1571,7 @@ begin
       end;
     end;
   //Add PIM Entrys
-  if Users.Rights.Right('CALENDAR') > RIGHT_NONE then
+  if (Users.Rights.Right('CALENDAR') > RIGHT_NONE) or IgnoreRights then
     begin
       try
         RegisterLinkHandler('CALENDAR',nil,TTask,TTaskList);
@@ -1579,7 +1579,7 @@ begin
       end;
     end;
   //Orders
-  if Users.Rights.Right('ORDERS') > RIGHT_NONE then
+  if (Users.Rights.Right('ORDERS') > RIGHT_NONE) or IgnoreRights then
     begin
       try
       RegisterLinkHandler('ORDERS',nil,Torder);
@@ -1588,7 +1588,7 @@ begin
       end;
     end;
   //Add Contacts
-  if Users.Rights.Right('CUSTOMERS') > RIGHT_NONE then
+  if (Users.Rights.Right('CUSTOMERS') > RIGHT_NONE) or IgnoreRights then
     begin
       try
       RegisterLinkHandler('CUSTOMERS',nil,TPerson);
@@ -1599,7 +1599,7 @@ begin
       end;
     end;
   //Add Masterdata stuff
-  if (Users.Rights.Right('MASTERDATA') > RIGHT_NONE) then
+  if (Users.Rights.Right('MASTERDATA') > RIGHT_NONE) or IgnoreRights then
     begin
       try
       RegisterLinkHandler('MASTERDATA',nil,TMasterdata);
@@ -1608,7 +1608,7 @@ begin
       end;
     end;
   //Projects
-  if (Users.Rights.Right('PROJECTS') > RIGHT_NONE) then
+  if (Users.Rights.Right('PROJECTS') > RIGHT_NONE) or IgnoreRights then
     begin
       try
       RegisterLinkHandler('PROJECT',nil,TProject);
@@ -1618,7 +1618,7 @@ begin
     end;
   //Wiki
   RegisterLinkHandler('WIKI',nil,TWikiList);
-  if (Users.Rights.Right('WIKI') > RIGHT_NONE) then
+  if (Users.Rights.Right('WIKI') > RIGHT_NONE) or IgnoreRights then
     begin
       try
       AddSearchAbleDataSet(TWikiList);
@@ -1626,7 +1626,7 @@ begin
       end;
     end;
   //Documents
-  if (Users.Rights.Right('DOCUMENTS') > RIGHT_NONE) then
+  if (Users.Rights.Right('DOCUMENTS') > RIGHT_NONE) or IgnoreRights then
     begin
       try
       RegisterLinkHandler('DOCUMENTS',nil,TDocument);
@@ -1635,7 +1635,7 @@ begin
       end;
     end;
   //Lists
-  if (Users.Rights.Right('LISTS') > RIGHT_NONE) then
+  if (Users.Rights.Right('LISTS') > RIGHT_NONE) or IgnoreRights then
     begin
       try
       RegisterLinkHandler('LISTS',nil,TLists);
@@ -1644,7 +1644,7 @@ begin
       end;
     end;
   //Meetings
-  if (Users.Rights.Right('MEETINGS') > RIGHT_NONE) then
+  if (Users.Rights.Right('MEETINGS') > RIGHT_NONE) or IgnoreRights then
     begin
       try
       RegisterLinkHandler('MEETINGS',nil,TMeetings);
@@ -1653,7 +1653,7 @@ begin
       end;
     end;
   //Inventory
-  if (Users.Rights.Right('INVENTORY') > RIGHT_NONE) then
+  if (Users.Rights.Right('INVENTORY') > RIGHT_NONE) or IgnoreRights then
     begin
       try
       RegisterLinkHandler('INVENTORY',nil,TInventorys);
@@ -1661,7 +1661,7 @@ begin
       end;
     end;
   //Statistics
-  if (Users.Rights.Right('STATISTICS') > RIGHT_NONE) then
+  if (Users.Rights.Right('STATISTICS') > RIGHT_NONE) or IgnoreRights then
     begin
       try
       RegisterLinkHandler('STATISTICS',nil,TStatistic);
@@ -1672,7 +1672,7 @@ begin
   //Timeregistering
   AddSearchAbleDataSet(TUser);
   //History
-  if Users.Rights.Right('DOCUMENTS') > RIGHT_NONE then
+  if (Users.Rights.Right('DOCUMENTS') > RIGHT_NONE) or IgnoreRights then
     begin
       try
       AddSearchAbleDataSet(TBaseHistory);
