@@ -1009,6 +1009,7 @@ begin
   WikiToHtml.OnWikiInclude:=@BasicWikiInclude;
   aPath := copy(aPath,0,rpos('/',aPath));
   Result := WikiText2HTML(DataSet.FieldByName('DATA').AsString,'',aPath);
+  Result := '<base target="_blank">'+Result;
   if not OnlyBody then
     begin
       try

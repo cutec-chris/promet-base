@@ -107,6 +107,19 @@ var
         exit;
       end;
   end;
+  function CleanupString(S :string) :string;
+  var
+    i :integer;
+  begin
+    Result := S;
+    for i := 1 to Length(Result) do
+      begin
+        if Result[i] in [#0..#13] then
+          Result[i] := '_';
+        if Result[i] in [#132..#255] then
+          Result[i] := '_';
+      end;
+  end;
 begin
   for I := 0 to Pred(AFields.Count) do
   begin
@@ -134,7 +147,7 @@ begin
           AJSON.Add(lowercase(VFieldName), VField.AsString)
         else if (VField.DataType = ftBlob) then
         else
-          AJSON.Add(lowercase(VFieldName), VField.AsString)
+          AJSON.Add(lowercase(VFieldName), CleanupString(VField.AsString))
         except
         end;
       end;
