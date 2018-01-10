@@ -39,12 +39,15 @@
     <RequiredPkgs Count="5">
       <Item1>
         <PackageName Value="pVisualPrometApp"/>
+        <DefaultFilename Value="../pvisualprometapp.lpk"/>
       </Item1>
       <Item2>
         <PackageName Value="pPrometDBIntfs"/>
+        <DefaultFilename Value="../dbintfs/pprometdbintfs.lpk"/>
       </Item2>
       <Item3>
         <PackageName Value="general_nogui"/>
+        <DefaultFilename Value="../../../../general/general_nogui.lpk"/>
       </Item3>
       <Item4>
         <PackageName Value="laz_synapse"/>
