@@ -114,10 +114,10 @@ var
     Result := S;
     for i := 1 to Length(Result) do
       begin
-        if Result[i] in [#0..#13] then
+        if Result[i] in [#0..#9] then
           Result[i] := '_';
-        if Result[i] in [#132..#255] then
-          Result[i] := '_';
+//        if Result[i] in [#132..#255] then
+//          Result[i] := '_';
       end;
   end;
 begin

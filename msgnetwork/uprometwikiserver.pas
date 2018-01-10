@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, uappserverhttp, uWiki, syncobjs,uAppServer,uDocuments,
-  Utils,IniFiles,wikitohtml,synautil,blcksock;
+  Utils, Graphics,IniFiles,wikitohtml,synautil,blcksock,uBaseVisualControls;
 
 implementation
 
@@ -71,7 +71,7 @@ begin
   http://www.odata.org/
   /wiki/folder1/page2
   }
-  if copy(lowercase(url),0,6)='/wiki/' then
+  if (copy(lowercase(url),0,6)='/wiki/') or (pos('icon(',lowercase(url))>0) or (pos('historyicon(',lowercase(url))>0) then
     begin
       try
         for i := 0 to Sender.Objects.Count-1 do
@@ -153,6 +153,7 @@ var
   sl: TStringList;
   aNumber: integer;
   ms: TMemoryStream;
+  aIcon: TPicture;
 begin
   try
     Code:=404;
@@ -196,7 +197,10 @@ begin
       end
     else
       begin
+        if not Assigned(fVisualControls) then
+          fVisualControls := TfVisualControls.Create(nil);
         Path := Url;
+        Path := copy(Path,rpos('/',Path)+1,length(Path));
         if copy(uppercase(Path),0,5)='ICON(' then
           begin
             if TryStrToInt(copy(Path,6,length(Path)-6),aNumber) then
@@ -204,6 +208,14 @@ begin
                 ms := TMemoryStream.Create;
                 ms.Position:=0;
                 Result := ms;
+                aIcon := TPicture.Create;
+                fVisualControls.Images.GetBitmap(aNumber,aIcon.Bitmap);
+                aIcon.SaveToStreamWithFileExt(ms,'.png');
+                aIcon.Free;
+                NewHeaders.Add('Content-Type: image/png');
+                NewHeaders.Add('Last-Modified: '+Rfc822DateTime(100));
+                NewHeaders.Add('ETag: '+Rfc822DateTime(100));
+                Code := 200;
               end;
           end
         else if copy(uppercase(Path),0,12)='HISTORYICON(' then
@@ -214,6 +226,14 @@ begin
                 ms := TMemoryStream.Create;
                 ms.Position:=0;
                 Result := ms;
+                aIcon := TPicture.Create;
+                fVisualControls.HistoryImages.GetBitmap(aNumber,aIcon.Bitmap);
+                aIcon.SaveToStreamWithFileExt(ms,'.png');
+                aIcon.Free;
+                NewHeaders.Add('Content-Type: image/png');
+                NewHeaders.Add('Last-Modified: '+Rfc822DateTime(100));
+                NewHeaders.Add('ETag: '+Rfc822DateTime(100));
+                Code := 200;
               end;
           end
         else if Assigned(Document) then

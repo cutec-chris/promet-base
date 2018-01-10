@@ -2796,11 +2796,11 @@ end;
 
 function TRights.Right(Element: string; Recursive: Boolean; UseCache: Boolean): Integer;
 var
-  aUser : Int64;
+  aUser : Variant;
 
   procedure RecursiveGetRight(aRec : Integer = 0);
   begin
-    if aRec>10 then
+    if aRec>20 then
       begin
         Result := -1;
         exit;
