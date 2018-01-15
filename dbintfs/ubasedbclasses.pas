@@ -57,8 +57,6 @@ type
     function GetTimestamp: TField;
     procedure DataSetToJSON(ADataSet: TDataSet; AJSON: TJSONArray;
       const ADateAsString: Boolean; Fields: TStringList);
-    procedure ObjectToJSON(AObject: TBaseDBDataSet; AJSON: TJSONObject;
-      const ADateAsString: Boolean);
     procedure SetActive(AValue: Boolean);
     procedure SetFilter(AValue: string);
     procedure SetFRows(AValue: Integer);
@@ -95,6 +93,8 @@ type
     function ExportToJSON: string;virtual;
     procedure ImportFromXML(XML : string;OverrideFields : Boolean = False;ReplaceFieldFunc : TReplaceFieldFunc = nil);virtual;
     procedure ImportFromJSON(JSON : string;OverrideFields : Boolean = False;ReplaceFieldFunc : TReplaceFieldFunc = nil);virtual;
+    procedure ObjectToJSON(AObject: TBaseDBDataSet; AJSON: TJSONObject;
+      const ADateAsString: Boolean);virtual;
     procedure DuplicateRecord(DoPost : Boolean = False);virtual;
     property Connection : TComponent read GetConnection;
     property State : TDataSetState read GetState;

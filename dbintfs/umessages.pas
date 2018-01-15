@@ -21,7 +21,7 @@ unit uMessages;
 interface
 uses
   Classes, SysUtils, uBaseDbClasses, db, uBaseDBInterface, uDocuments,
-  uBaseApplication, uBaseSearch, uIntfStrConsts,uBaseDatasetInterfaces;
+  uBaseApplication, uBaseSearch, uIntfStrConsts,uBaseDatasetInterfaces,fpjson;
 type
 
   { TMessageList }
@@ -83,6 +83,8 @@ type
     function CreateTable : Boolean;override;
     procedure FillDefaults(aDataSet : TDataSet);override;
     function BuildMessageID(aID : Variant) : string;
+    procedure ObjectToJSON(AObject: TBaseDBDataSet; AJSON: TJSONObject;
+  const ADateAsString: Boolean); override;
     property Content : TMessageContent read FMessageContent;
     property Documents : TDocuments read FDocuments;
     property SubMessages : TMessageList read GetSubMessages;
@@ -317,6 +319,31 @@ function TMessage.BuildMessageID(aID: Variant): string;
 begin
 
 end;
+
+procedure TMessage.ObjectToJSON(AObject: TBaseDBDataSet; AJSON: TJSONObject;
+  const ADateAsString: Boolean);
+var
+  aArray: TJSONArray;
+  aNewObj: TJSONObject;
+begin
+  inherited ObjectToJSON(AObject, AJSON, ADateAsString);
+{
+  Content.Select(DataSet.FieldbyName('ID').AsString);
+  if Content.Count>0 then
+    begin
+      aArray := TJSONArray.Create;
+      while not Content.EOF do
+        begin
+          aNewObj := TJSONObject.Create;
+          Content.ObjectToJSON(Content,aNewObj,ADateAsString);
+          aArray.Add(aNewObj);
+          Content.Next;
+        end;
+      AJSON.Add(Content.TableName,aArray);
+    end;
+}
+end;
+
 function TMessage.SelectFromLink(aLink: string): Boolean;
 begin
   Result := inherited SelectFromLink(aLink);
