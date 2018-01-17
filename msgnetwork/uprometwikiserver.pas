@@ -64,6 +64,7 @@ var
   i: Integer;
   aSock: TWikiSession = nil;
   sl: TStringList;
+  aParams: String;
 begin
   Result := 404;
   ResultStatusText := '';
@@ -82,6 +83,11 @@ begin
             aSock := TWikiSession.Create;
             aSock.Socket := Sender;
             Sender.Objects.Add(aSock);
+          end;
+        if pos('?',url)>0 then
+          begin
+            aParams := copy(url,pos('?',url)+1,length(url));
+            url := copy(url,0,pos('?',url)-1);
           end;
         aSock.Url := copy(url,7,length(url));
         Sender.Synchronize(Sender,@aSock.ProcessWikiRequest);
