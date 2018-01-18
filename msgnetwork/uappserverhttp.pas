@@ -105,7 +105,7 @@ begin
       if (aSock.Code<>200) and (aSock.Code<>301) and (aSock.Code<>304) then
         begin
           with BaseApplication as IBaseApplication do
-            Debug('Processing HHTP Handlers');
+            Debug('Processing HTTP Handlers');
           aReqTime := Now();
           for i := 0 to Length(HTTPHandlers)-1 do
             begin

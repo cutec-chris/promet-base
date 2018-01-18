@@ -25,7 +25,8 @@ interface
 
 uses
   Classes, SysUtils, uappserverhttp, uWiki, syncobjs,uAppServer,uDocuments,
-  Utils, Graphics,IniFiles,wikitohtml,synautil,blcksock,uBaseVisualControls;
+  Utils, Graphics,IniFiles,wikitohtml,synautil,blcksock,uBaseVisualControls,
+  uBaseDBInterface;
 
 implementation
 
@@ -37,6 +38,7 @@ type
 
   TWikiSession = class
   private
+    FData: Pointer;
     FSocket: TAppNetworkThrd;
     procedure CreateWikiList;
     procedure DestroyWikiList;
@@ -51,10 +53,12 @@ type
     Document : TDocument;
     Template : TStringList;
     property Socket : TAppNetworkThrd read FSocket write SetSocket;
+    property Data : Pointer read FData write FData;
 
     constructor Create;
     destructor Destroy; override;
     procedure ProcessWikiRequest;
+    procedure CreateDataModule;
     procedure OpenConfig;
   end;
 
@@ -114,11 +118,10 @@ end;
 
 procedure TWikiSession.CreateWikiList;
 begin
-  if Assigned(uData.Data) then
-    begin
-      WikiList := TWikiList.Create(nil);
-      Document := TDocument.Create(nil);
-    end;
+  if not Assigned(Data) then
+    CreateDataModule;
+  WikiList := TWikiList.CreateEx(nil,TBaseDBModule(Data));
+  Document := TDocument.CreateEx(nil,TBaseDBModule(Data));
 end;
 
 procedure TWikiSession.DestroyWikiList;
@@ -140,6 +143,7 @@ end;
 constructor TWikiSession.Create;
 begin
   Code := 500;
+  Data := nil;
   Template := TStringList.Create;
   NewHeaders:=TStringList.Create;
 end;
@@ -244,7 +248,7 @@ begin
           end
         else if Assigned(Document) then
           begin
-            Document.Filter(Data.QuoteField('TYPE')+'=''W'' and '+Data.QuoteField('NAME')+'='+Data.QuoteValue(copy(ExtractFileName(Path),0,rpos('.',ExtractFileName(Path))-1)),1);
+            Document.Filter(TBaseDBModule(Data).QuoteField('TYPE')+'=''W'' and '+TBaseDBModule(Data).QuoteField('NAME')+'='+TBaseDBModule(Data).QuoteValue(copy(ExtractFileName(Path),0,rpos('.',ExtractFileName(Path))-1)),1);
             if Document.DataSet.RecordCount > 0 then
               begin
                 ms := TMemoryStream.Create;
@@ -273,6 +277,32 @@ begin
         sl.Free;
       end;
   end;
+end;
+
+procedure TWikiSession.CreateDataModule;
+var
+  aType: TBaseDBModuleClass;
+begin
+  if Assigned(Data) then exit;
+  {
+  aType := TBaseDBModuleClass(uData.Data.ClassType);
+  Data := aType.Create(aSocket);
+  with TBaseDBModule(aSocket.Data) do
+    begin
+      SetProperties(uData.Data.Properties);
+    end;
+  }
+  Data := uData.Data;
+  //TODO:select rigth User
+  {
+  if not TBaseDBModule(Data).Users.Locate('SQL_ID',aSocket.User,[]) then
+    begin
+      TBaseDBModule(Data).Users.Filter('',0);
+      if not TBaseDBModule(aSocket.Data).Users.Locate('SQL_ID',aSocket.User,[]) then exit;
+    end;
+  TBaseDBModule(Data).RefreshUsersFilter;
+  }
+  TBaseDBModule(Data).RegisterLinkHandlers;
 end;
 
 procedure TWikiSession.OpenConfig;
