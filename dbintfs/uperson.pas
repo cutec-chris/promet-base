@@ -688,7 +688,6 @@ begin
     begin
       with DataSet as IBaseDBFilter do
         begin
-          UsePermissions:=False;
         end;
     end;
   FHistory := TBaseHistory.CreateEx(Self,DM,aConnection,DataSet);

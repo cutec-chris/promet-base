@@ -391,10 +391,6 @@ begin
     begin
       with DataSet as IBaseDBFilter do
         begin
-          SortFields := 'SQL_ID';
-//          BaseSortFields:='SQL_ID';
-//          SortDirection := sdAscending;
-          UsePermissions:=False;
           UpdateFloatFields:=True;
         end;
     end;
