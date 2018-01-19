@@ -62,7 +62,6 @@ uses uData,uDocumentFrame,uBaseDBInterface;
 procedure TfWikiMessage.bSendClick(Sender: TObject);
 begin
   FDataSet.CascadicPost;
-  FDataSet.Content.CascadicPost;
   {with Application as IBaseDbInterface do
     if UseTransactions then
       Data.CommitTransaction(FConnection);}
@@ -112,15 +111,9 @@ begin
       FieldByName('SENDER').AsString := Data.Users.FieldByName('NAME').AsString;
       FieldByName('SENDDATE').AsDateTime := Now();
       FieldByName('TREEENTRY').AsVariant := aDir;
-    end;
-  FDataSet.Content.Insert;
-  with DataSet.Content.DataSet do
-    begin
-      FieldByName('ID').AsString := FDataSet.FieldByName('ID').AsString;
       FieldByName('DATATYP').AsString := 'WIKI';
     end;
   Datasource.DataSet := FDataSet.DataSet;
-  Content.DataSet := FDataSet.Content.DataSet;
   pcTabs.AddTabClass(TfDocumentFrame,strAttatchments,@AddDocuments);
   Show;
 end;

@@ -798,7 +798,7 @@ begin
     begin
       Result := strCall+' '+copy(aLink, pos('@', aLink) + 1, length(aLink));
     end
-  else if copy(aLink, 0, 10) = 'MESSAGEIDX' then
+  else if copy(aLink, 0, 10) = 'MESSAGES' then
     begin
       Result := strMessage+' '+copy(aLink, pos('@', aLink) + 1, length(aLink));
     end
@@ -994,7 +994,7 @@ begin
   else if copy(aLink, 0, 9) = 'DOCUMENTS' then   Result := IMAGE_DOCUMENTS
   else if copy(aLink, 0, 6) = 'ORDERS' then      Result := IMAGE_ORDERS
   else if copy(aLink, 0, 5) = 'CALLS' then       Result := IMAGE_CALLS
-  else if copy(aLink, 0, 10) = 'MESSAGEIDX' then Result := IMAGE_MESSAGE
+  else if copy(aLink, 0, 10) = 'MESSAGES' then Result := IMAGE_MESSAGE
   else if copy(aLink, 0, 8) = 'CALENDAR' then    Result := IMAGE_CALENDAR
   else if copy(aLink, 0, 15) = 'ACCOUNTEXCHANGE' then Result := IMAGE_FINANCIAL
   else if (copy(aLink, 0, 8) = 'PROJECTS') then  Result := IMAGE_PROJECT
@@ -1097,7 +1097,7 @@ begin
     begin
       Result := Result + aDataSet.FieldByName('ID').AsString;
     end
-  else  if (Result = 'MESSAGEIDX@') then
+  else  if (Result = 'MESSAGES@') then
     begin
       if copy(aDataSet.FieldByName('ID').AsString,0,10) = 'DOCUMENTS@' then
         Result := aDataSet.FieldByName('ID').AsString
@@ -1557,7 +1557,7 @@ begin
   if (Users.Rights.Right('MESSAGES') > RIGHT_NONE) or IgnoreRights then
     begin
       try
-        RegisterLinkHandler('MESSAGEIDX',nil,TMessage);
+        RegisterLinkHandler('MESSAGES',nil,TMessage);
         AddSearchAbleDataSet(TMessageList);
       except
       end;

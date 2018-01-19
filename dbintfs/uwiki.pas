@@ -514,14 +514,10 @@ begin
               if aMessage.Count > 0 then
                 begin
                   Outp := Outp+'<b>'+aMessage.FieldByName('SUBJECT').AsString+'</b>';
-                  aMessage.Content.Open;
-                  if aMessage.Content.Count > 0 then
-                    begin
-                      ss := TStringStream.Create('');
-                      TBaseDBModule(DataModule).BlobFieldToStream(aMessage.Content.DataSet,'DATA',ss);
-                      Outp := Outp+'<br>'+WikiText2HTML(ss.DataString,'','',True)+'<br>'+DateTimeToStr(aMessage.FieldByName('SENDDATE').AsDateTime)+'<br>';
-                      ss.Free;
-                    end;
+                  ss := TStringStream.Create('');
+                  TBaseDBModule(DataModule).BlobFieldToStream(aMessage.DataSet,'DATA',ss);
+                  Outp := Outp+'<br>'+WikiText2HTML(ss.DataString,'','',True)+'<br>'+DateTimeToStr(aMessage.FieldByName('SENDDATE').AsDateTime)+'<br>';
+                  ss.Free;
                 end;
               aMessage.Free;
               aList.DataSet.Next;

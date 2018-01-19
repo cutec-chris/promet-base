@@ -333,6 +333,7 @@ begin
   ScrollTimer.Enabled:=False;
   if FList.List.DataSet.ControlsDisabled then exit;
   if not Visible then exit;
+  if not Assigned(FList.List.DataSet.FieldByName('ID')) then exit;
   if VisibleID <> FList.List.DataSet.FieldByName('ID').AsString then
     begin
       VisibleID := FList.List.DataSet.FieldByName('ID').AsString;
@@ -392,7 +393,7 @@ begin
   if (Data.Tree.FieldByName('TYPE').AsString <> 'B')
   and (Data.Tree.Id.AsInteger <> TREE_ID_LOG_MESSAGES)
   then
-    FList.BaseFilter:=Data.QuoteField('TREEENTRY')+'='+Data.QuoteValue(VarToStr(Directory))+' and '+Data.QuoteField('MESSAGEIDX')+'.'+Data.QuoteField('USER')+'='+Data.QuoteValue(Data.Users.FieldByName('ACCOUNTNO').AsString)
+    FList.BaseFilter:=Data.QuoteField('TREEENTRY')+'='+Data.QuoteValue(VarToStr(Directory))+' and '+Data.QuoteField('MESSAGES')+'.'+Data.QuoteField('USER')+'='+Data.QuoteValue(Data.Users.FieldByName('ACCOUNTNO').AsString)
    else
     FList.BaseFilter:=Data.QuoteField('TREEENTRY')+'='+Data.QuoteValue(VarToStr(Directory));
   FList.DataSet.Close;
@@ -433,7 +434,7 @@ begin
     TTreeEntry(FMessageNode.Data).SubText.Free;
   TTreeEntry(FMessageNode.Data).SubText := TStringlist.Create;
   try
-    Data.SetFilter(MsgIndex,Data.QuoteField('TREEENTRY')+'='+Data.QuoteValue(IntToStr(TREE_ID_MESSAGES))+' AND '+Data.QuoteField('MESSAGEIDX')+'.'+Data.QuoteField('READ')+'='+Data.QuoteValue('N')+' and '+Data.QuoteField('MESSAGEIDX')+'.'+Data.QuoteField('USER')+'='+Data.QuoteValue(Data.Users.FieldByName('ACCOUNTNO').AsString),51);
+    Data.SetFilter(MsgIndex,Data.QuoteField('TREEENTRY')+'='+Data.QuoteValue(IntToStr(TREE_ID_MESSAGES))+' AND '+Data.QuoteField('MESSAGES')+'.'+Data.QuoteField('READ')+'='+Data.QuoteValue('N')+' and '+Data.QuoteField('MESSAGES')+'.'+Data.QuoteField('USER')+'='+Data.QuoteValue(Data.Users.FieldByName('ACCOUNTNO').AsString),51);
     if (MsgIndex.Count > 0) and (MsgIndex.Count < 51) then
       TTreeEntry(FMessageNode.Data).SubText.Add(Format(strNewMessageCView,[IntToStr(MsgIndex.Count)]))
     else if (MsgIndex.Count > 0) then
@@ -441,7 +442,7 @@ begin
   except
   end;
   try
-    Data.SetFilter(MsgIndex,Data.QuoteField('TREEENTRY')+'='+Data.QuoteValue(IntToStr(TREE_ID_UNKNOWN_MESSAGES))+' AND '+Data.QuoteField('MESSAGEIDX')+'.'+Data.QuoteField('READ')+'='+Data.QuoteValue('N')+' and '+Data.QuoteField('MESSAGEIDX')+'.'+Data.QuoteField('USER')+'='+Data.QuoteValue(Data.Users.FieldByName('ACCOUNTNO').AsString),51);
+    Data.SetFilter(MsgIndex,Data.QuoteField('TREEENTRY')+'='+Data.QuoteValue(IntToStr(TREE_ID_UNKNOWN_MESSAGES))+' AND '+Data.QuoteField('MESSAGES')+'.'+Data.QuoteField('READ')+'='+Data.QuoteValue('N')+' and '+Data.QuoteField('MESSAGES')+'.'+Data.QuoteField('USER')+'='+Data.QuoteValue(Data.Users.FieldByName('ACCOUNTNO').AsString),51);
     if (MsgIndex.Count > 0) and (MsgIndex.Count < 51) then
       TTreeEntry(FMessageNode.Data).SubText.Add(Format(strNewUnknownMessageCView,[IntToStr(MsgIndex.Count)]))
     else if (MsgIndex.Count > 0) then
@@ -449,7 +450,7 @@ begin
   except
   end;
   try
-    Data.SetFilter(MsgIndex,Data.QuoteField('TREEENTRY')+'='+Data.QuoteValue(IntToStr(TREE_ID_SEND_MESSAGES))+' AND '+Data.QuoteField('MESSAGEIDX')+'.'+Data.QuoteField('READ')+'='+Data.QuoteValue('N')+' and '+Data.QuoteField('MESSAGEIDX')+'.'+Data.QuoteField('USER')+'='+Data.QuoteValue(Data.Users.FieldByName('ACCOUNTNO').AsString),51);
+    Data.SetFilter(MsgIndex,Data.QuoteField('TREEENTRY')+'='+Data.QuoteValue(IntToStr(TREE_ID_SEND_MESSAGES))+' AND '+Data.QuoteField('MESSAGES')+'.'+Data.QuoteField('READ')+'='+Data.QuoteValue('N')+' and '+Data.QuoteField('MESSAGES')+'.'+Data.QuoteField('USER')+'='+Data.QuoteValue(Data.Users.FieldByName('ACCOUNTNO').AsString),51);
     if MsgIndex.Count > 0 then
       TTreeEntry(FMessageNode.Data).SubText.Add(Format(strNewSendMessageCView,[IntToStr(MsgIndex.Count)]));
   except

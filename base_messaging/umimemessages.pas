@@ -79,15 +79,15 @@ begin
                 begin
                   if pos('BEGIN',Uppercase(sl[i])) = 1 then
                     begin
-                      if Content.State = dsInsert then
+                      if State = dsInsert then
                         begin
-                          Content.DataSet.Post;
-                          Content.DataSet.Edit;
+                          DataSet.Post;
+                          DataSet.Edit;
                         end;
                       Document := TDocument.CreateEx(Self,Data);
                       Document.Select(0);
                       Document.Open;
-                      Document.Ref_ID := Content.Id.AsVariant;
+                      Document.Ref_ID := Id.AsVariant;
                       Document.BaseTyp := 'N';
                       Document.BaseID := DataSet.FieldByName('ID').AsString;
                       Document.BaseVersion := Null;
@@ -121,25 +121,25 @@ begin
           else
             s := ReadStrFromStream(Sender.DecodedLines,Sender.DecodedLines.Size);
           ss := TStringStream.Create('');
-          Data.BlobFieldToStream(Content.DataSet,'DATA',ss);
+          Data.BlobFieldToStream(DataSet,'DATA',ss);
           if (UpperCase(Sender.Secondary) = 'PLAIN') then
             s := ss.DataString+lineending+s;
           ss.Free;
           ss := TStringStream.Create(s);
-          if Content.DataSet.FieldByName('DATATYP').AsString = '' then
-            Content.DataSet.FieldByName('DATATYP').AsString := Uppercase(Sender.Secondary);
-          if Content.DataSet.FieldByName('DATATYP').AsString = Uppercase(Sender.Secondary) then
+          if DataSet.FieldByName('DATATYP').AsString = '' then
+            DataSet.FieldByName('DATATYP').AsString := Uppercase(Sender.Secondary);
+          if DataSet.FieldByName('DATATYP').AsString = Uppercase(Sender.Secondary) then
             begin
-              Data.StreamToBlobField(ss,Content.DataSet,'DATA');
+              Data.StreamToBlobField(ss,DataSet,'DATA');
               TextThere := True;
             end
           else if Sender.Secondary = 'HTML' then
             begin //Use HTML if PLAIN+HTML are avalible
-              Content.DataSet.FieldByName('DATATYP').AsString := Uppercase(Sender.Secondary);
-              Data.StreamToBlobField(ss,Content.DataSet,'DATA');
+              DataSet.FieldByName('DATATYP').AsString := Uppercase(Sender.Secondary);
+              Data.StreamToBlobField(ss,DataSet,'DATA');
               ss.Free;
               ss := TStringStream.Create('');
-              Data.BlobFieldToStream(Content.DataSet,'DATA',ss);
+              Data.BlobFieldToStream(DataSet,'DATA',ss);
               s := ss.DataString;
               HtmlThere := True;
             end;
@@ -149,16 +149,15 @@ begin
   else if (Sender.PrimaryCode = MP_BINARY) or (TextThere or HtmlThere) then
     begin
       if copy(ExtractFileName(Sender.Filename),0,rpos('.',ExtractFileName(Sender.FileName))-1) = '' then exit;
-      if not Content.DataSet.Active then Content.Open;
-      if Content.State = dsInsert then
+      if State = dsInsert then
         begin
-          Content.DataSet.Post;
-          Content.DataSet.Edit;
+          DataSet.Post;
+          DataSet.Edit;
         end;
       Document := TDocument.CreateEx(Self,Data);
       Document.Select(0);
       Document.Open;
-      Document.Ref_ID := Content.Id.AsVariant;
+      Document.Ref_ID := Id.AsVariant;
       Document.BaseTyp := 'N';
       Document.BaseID := DataSet.FieldByName('ID').AsString;
       Document.BaseVersion := Null;
@@ -207,9 +206,9 @@ begin
   sl := TStringList.Create;
   if (not HeaderOnly) or (FieldByName('RECEIVERS').IsNull and FieldByName('PRIORITY').IsNull) then
     begin
-      Content.Open;
-      if Content.Count=0 then exit;
-      sl.Text := Content.DataSet.FieldByName('HEADER').AsString;
+      Open;
+      if Count=0 then exit;
+      sl.Text := DataSet.FieldByName('HEADER').AsString;
       if trim(sl.Text)<>'' then
         aMessage.Header.DecodeHeaders(sl);
       if (FieldByName('RECEIVERS').IsNull and FieldByName('PRIORITY').IsNull) then
@@ -254,22 +253,22 @@ begin
   MailAddressesFromString(DataSet.FieldByName('RECEIVERS').AsString,aMessage.Header.ToList);
   if (not HeaderOnly) then
     begin
-      Content.Open;
-      if (Content.Count > 0) then
+      Open;
+      if (Count > 0) then
         begin
           if not Documents.DataSet.Active then
             Documents.CreateTable;
-          if not Content.Id.IsNull then
-            Documents.Select(Content.Id.AsVariant,'N',DataSet.FieldByName('ID').AsString,Null,Null)
+          if not Id.IsNull then
+            Documents.Select(Id.AsVariant,'N',DataSet.FieldByName('ID').AsString,Null,Null)
           else
             Documents.Select(0);
           Documents.Open;
           if aMessage.Header.ToList.Count=0 then;
-            MailAddressesFromString(Content.FieldByName('RECEIVERS').AsString,aMessage.Header.ToList);
-          if (Content.DataSet.FieldByName('DATATYP').AsString = 'PLAIN') and (Documents.Count = 0) then
+            MailAddressesFromString(FieldByName('RECEIVERS').AsString,aMessage.Header.ToList);
+          if (DataSet.FieldByName('DATATYP').AsString = 'PLAIN') and (Documents.Count = 0) then
             begin
               ss := TStringStream.Create('');
-              Data.BlobFieldToStream(Content.DataSet,'DATA',ss);
+              Data.BlobFieldToStream(DataSet,'DATA',ss);
               ss.Position := 0;
               tmp := ss.DataString;
               sl.Text:=tmp;
@@ -280,14 +279,14 @@ begin
           else
             begin
               ss := TStringStream.Create('');
-              Data.BlobFieldToStream(Content.DataSet,'DATA',ss);
+              Data.BlobFieldToStream(DataSet,'DATA',ss);
               ss.Position := 0;
               tmp := ss.DataString;
               sl.Text:=tmp;
               MP := aMessage.AddPartMultipart('mixed', nil);
-              if Content.DataSet.FieldByName('DATATYP').AsString = 'PLAIN' then
+              if DataSet.FieldByName('DATATYP').AsString = 'PLAIN' then
                 aMessage.AddPartTextEx(sl,MP,UTF_8,True,ME_QUOTED_PRINTABLE)
-              else if Content.DataSet.FieldByName('DATATYP').AsString = 'HTML' then
+              else if DataSet.FieldByName('DATATYP').AsString = 'HTML' then
                 begin
                   tmp := ss.DataString;
                   aEncoding := GuessEncoding(tmp);
@@ -419,13 +418,13 @@ begin
       FillHeaderFields(msg);
       Post;
       Edit;
-      Content.Open;
-      with Content.DataSet do
+      Open;
+      with DataSet do
         begin
           Insert;
-          Content.DataSet.FieldByName('ID').AsString := Self.DataSet.FieldByName('ID').AsString;
-          if Content.DataSet.FieldByName('ID').AsString <> Self.DataSet.FieldByName('ID').AsString then
-            Self.DataSet.FieldByName('ID').AsString := Content.DataSet.FieldByName('ID').AsString;
+          DataSet.FieldByName('ID').AsString := Self.DataSet.FieldByName('ID').AsString;
+          if DataSet.FieldByName('ID').AsString <> Self.DataSet.FieldByName('ID').AsString then
+            Self.DataSet.FieldByName('ID').AsString := DataSet.FieldByName('ID').AsString;
           FieldByName('SQL_ID').AsVariant:=Self.DataSet.FieldByName('MSG_ID').AsVariant;
           FieldbyName('REPLYTO').AsString := msg.Header.ReplyTo;
           FieldbyName('RECEIVERS').AsString := msg.Header.ToList.text;
@@ -433,8 +432,8 @@ begin
           FieldByName('TIMESTAMPD').AsDateTime := Now();
           if FieldDefs.IndexOf('TIMESTAMPT') <> -1 then
             FieldByName('TIMESTAMPT').AsFloat := Frac(Now());
-          Content.DataSet.Post;
-          Content.DataSet.Edit;
+          DataSet.Post;
+          DataSet.Edit;
           TextThere := False;
           HtmlThere := False;
           sl := TStringList.Create;
@@ -443,8 +442,8 @@ begin
           sl.Free;
           msg.MessagePart.OnWalkPart:=@DataSetContentDataSetDataSetmsgMessagePartWalkPart;
           msg.MessagePart.WalkPart;
-          if Content.CanEdit then
-            Content.DataSet.Post;
+          if CanEdit then
+            DataSet.Post;
         end;
     end;
 end;

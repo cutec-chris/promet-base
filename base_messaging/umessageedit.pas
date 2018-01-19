@@ -251,32 +251,28 @@ var
     bDataSet.FieldByName('TREEENTRY').AsVariant := TREE_ID_SEND_MESSAGES;
     bDataSet.DataSet.Post;
     bDataSet.DataSet.Edit;
-    bDataSet.Content.Select(tmpID);
-    bDataSet.Content.Open;
-    bDataSet.Content.DataSet.Append;
-    bDataSet.Content.FieldByName('ID').AsString := tmpID;
-    bDataSet.Content.FieldByName('RECEIVERS').AsString := aReceiver;
-    bDataSet.Content.FieldByName('CC').AsString := eCC.Text;
-    bDataSet.Content.FieldByName('TIMESTAMPD').AsDateTime := Now();
+    bDataSet.FieldByName('RECEIVERS').AsString := aReceiver;
+    bDataSet.FieldByName('CC').AsString := eCC.Text;
+    bDataSet.FieldByName('TIMESTAMPD').AsDateTime := Now();
     if cbType.Text = 'HTML' then
       begin
-        bDataSet.Content.FieldByName('DATATYP').AsString := 'HTML';
+        bDataSet.FieldByName('DATATYP').AsString := 'HTML';
         //aStream := TStringStream.Create(RTFToHTML(frichEdit.rmText,''));
         aStream := TStringStream.Create(frichEdit.rmText.Text);
-        Data.StreamToBlobField(aStream,bDataSet.Content.DataSet,'DATA');
+        Data.StreamToBlobField(aStream,bDataSet.DataSet,'DATA');
         aStream.Free;
       end
     else
       begin
-        bDataSet.Content.FieldByName('DATATYP').AsString := 'PLAIN';
+        bDataSet.FieldByName('DATATYP').AsString := 'PLAIN';
         aStream := TStringStream.Create(frichEdit.rmText.Text);
-        Data.StreamToBlobField(aStream,bDataSet.Content.DataSet,'DATA');
+        Data.StreamToBlobField(aStream,bDataSet.DataSet,'DATA');
         aStream.Free;
       end;
-    bDataSet.Content.DataSet.Post;
+    bDataSet.DataSet.Post;
     bDataSet.CascadicPost;
     aDocuments := TDocuments.CreateEx(Self,Data);
-    aDocuments.Select(FDataSet.Content.Id.AsVariant,'N',tmpID,Null,Null);
+    aDocuments.Select(FDataSet.Id.AsVariant,'N',tmpID,Null,Null);
     aDocuments.Open;
     if aDocuments.Count > 0 then
       begin
@@ -285,7 +281,7 @@ var
             while not EOF do
               begin
                 bDocument := TDocument.CreateEx(Self,Data);
-                bDocument.Select(bDataSet.Content.Id.AsVariant,'N',tmpID,Null,Null);
+                bDocument.Select(bDataSet.Id.AsVariant,'N',tmpID,Null,Null);
                 bDocument.AddFromLink(Data.BuildLink(aDocuments.DataSet));
                 bDocument.Free;
                 Next;
@@ -311,15 +307,9 @@ begin
       FieldByName('SENDDATE').AsDateTime := Now();
       FieldbyName('SUBJECT').AsString := eSubject.Text;
       FieldByName('TREEENTRY').AsVariant := TREE_ID_SEND_MESSAGES;
-      if not FDataSet.Content.DataSet.Active then
-        begin
-          FDataSet.Content.Select(FDataSet.FieldByName('ID').AsString);
-          FDataSet.Content.Open;
-        end;
-      with FDataSet.Content.DataSet do
+      with FDataSet.DataSet do
         begin
           Edit;
-          FieldByName('ID').AsString := FDataSet.FieldByName('ID').AsString;
           if not Assigned(aLists) then
             FieldbyName('RECEIVERS').AsString := cbTo.text
           else
@@ -359,14 +349,14 @@ begin
               FieldbyName('DATATYP').AsString := 'HTML';
               //aStream := TStringStream.Create(RTFToHTML(frichEdit.rmText,''));
               aStream := TStringStream.Create(frichEdit.rmText.Text);
-              Data.StreamToBlobField(aStream,FDataSet.Content.DataSet,'DATA');
+              Data.StreamToBlobField(aStream,FDataSet.DataSet,'DATA');
               aStream.Free;
             end
           else
             begin
               FieldbyName('DATATYP').AsString := 'PLAIN';
               aStream := TStringStream.Create(frichEdit.rmText.Text);
-              Data.StreamToBlobField(aStream,FDataSet.Content.DataSet,'DATA');
+              Data.StreamToBlobField(aStream,FDataSet.DataSet,'DATA');
               aStream.Free;
             end;
           Successfulsended := True;
@@ -532,7 +522,7 @@ end;
 procedure TfMessageEdit.acShowHeaderExecute(Sender: TObject);
 begin
   fEditText.SetLanguage;
-  fEditText.mText.Lines.Text:=FDataSet.Content.FieldByName('HEADER').AsString;
+  fEditText.mText.Lines.Text:=FDataSet.FieldByName('HEADER').AsString;
   fEditText.ShowModal;
 end;
 procedure TfMessageEdit.acAddAsOrderExecute(Sender: TObject);
@@ -733,8 +723,7 @@ begin
   pcTabs.ActivePage:=tsContent;
   aRec := '';
   tmpStrLst := TStringList.Create;
-  FDataSet.Content.Open;
-  tmpStrLst.Text:=DataSet.Content.FieldByName('RECEIVERS').AsString;
+  tmpStrLst.Text:=DataSet.FieldByName('RECEIVERS').AsString;
   cbTo.Clear;
   cbTo.Text := '';
   for i := 0 to tmpStrLst.Count-1 do
@@ -743,7 +732,7 @@ begin
         cbTo.Text := cbTo.Text+tmpStrLst[i]
       else
         cbTo.Text := cbTo.Text+','+tmpStrLst[i];
-  tmpStrLst.Text:=FDataSet.Content.FieldByName('CC').AsString;
+  tmpStrLst.Text:=FDataSet.FieldByName('CC').AsString;
   eCC.Text := '';
   for i := 0 to tmpStrLst.Count-1 do
     if i=0 then
@@ -761,9 +750,9 @@ begin
   IsModified := False;
   pcTabs.AddTabClass(TfDocumentFrame,strAttatchments,@AddDocuments);
   aDocuments := TDocuments.CreateEx(Self,Data);
-  if FDataSet.Content.Count > 0 then
+  if FDataSet.Count > 0 then
     begin
-      aDocuments.Select(FDataSet.Content.Id.AsVariant,'N',DataSet.FieldByName('ID').AsString,Null,Null);
+      aDocuments.Select(FDataSet.Id.AsVariant,'N',DataSet.FieldByName('ID').AsString,Null,Null);
       aDocuments.Open;
       if aDocuments.Count = 0 then
         aDocuments.Free
@@ -778,7 +767,7 @@ begin
   DataSet.History.Open;
   if DataSet.History.Count > 0 then
     pcTabs.AddTab(TfHistoryFrame.Create(Self),False);
-  if FDataSet.Content.FieldByName('HEADER').AsString<>'' then
+  if FDataSet.FieldByName('HEADER').AsString<>'' then
     pcTabs.AddTab(TfMessageRoute.Create(Self),False);
   Show;
 end;
@@ -809,7 +798,7 @@ begin
   if not (trim(Answermessage.FieldByName('SENDER').AsString) = '') then
     cbTo.Items.Add(AnswerMessage.FieldByName('SENDER').AsString);
   cbTo.ItemIndex:=0;
-  tmpStrLst.Text:=AnswerMessage.Content.FieldByName('CC').AsString;
+  tmpStrLst.Text:=AnswerMessage.FieldByName('CC').AsString;
   eCC.Text := '';
   for i := 0 to tmpStrLst.Count-1 do
     if i=0 then
@@ -821,7 +810,7 @@ begin
   fRichEdit.Visible:=True;
   fRichEdit.Clear;
   sl := TStringList.Create;
-  sl.Text := Answermessage.Content.AsString;
+  sl.Text := Answermessage.AsString;
   for i := 0 to sl.Count-1 do
     if sl[i] <> '' then
       sl[i] := '>'+sl[i];
@@ -840,7 +829,7 @@ begin
   //TODO:correct
   sl := TStringList.Create;
   sl.Delimiter:=';';
-  sl.DelimitedText:=StringReplace(AnswerMessage.Content.FieldByName('RECEIVERS').AsString,',',';',[rfReplaceAll]);
+  sl.DelimitedText:=StringReplace(AnswerMessage.FieldByName('RECEIVERS').AsString,',',';',[rfReplaceAll]);
   for i := 0 to sl.Count-1 do
     if cbAccount.Items.IndexOf(sl[i]) <> -1 then
       begin
@@ -918,10 +907,6 @@ begin
     end;
   FDataSet.DataSet.Post;
   FDataSet.DataSet.Edit;
-  FDataSet.Content.Select(FDataSet.FieldByName('ID').AsString);
-  FDataSet.Content.Open;
-  FDataSet.Content.DataSet.Edit;
-  FDataSet.Content.DataSet.Post;
   SuccessfulSended := False;
   cbTo.Clear;
   cbTo.Text := receiver;
@@ -934,7 +919,7 @@ begin
   aDocument := TDocument.CreateEx(Self,Data);
   aDocument.Select(0);
   aDocument.Open;
-  aDocument.Ref_ID:=FDataSet.Content.Id.AsVariant;
+  aDocument.Ref_ID:=FDataSet.Id.AsVariant;
   aDocument.BaseID:=FDataSet.FieldByName('ID').AsString;
   aDocument.BaseTyp:='N';
   aDocument.BaseLanguage:=Null;
@@ -947,7 +932,7 @@ begin
 
   pcTabs.AddTabClass(TfDocumentFrame,strAttatchments,@AddDocuments);
   aDocuments := TDocuments.CreateEx(Self,Data);
-  aDocuments.Select(FDataSet.Content.Id.AsVariant,'N',DataSet.FieldByName('ID').AsString,Null,Null);
+  aDocuments.Select(FDataSet.Id.AsVariant,'N',DataSet.FieldByName('ID').AsString,Null,Null);
   aDocuments.Open;
   pcTabs.AddTab(TfDocumentFrame.Create(Self),False);
   TfDocumentFrame(pcTabs.GetTab(TfDocumentFrame).Controls[0]).DataSet := aDocuments;
@@ -1071,23 +1056,13 @@ begin
       DataSet.DataSet.Post;
       DataSet.DataSet.Edit;
     end;
-  if not DataSet.Content.DataSet.Active then
-    begin
-      DataSet.Content.Select(FDataSet.FieldByName('ID').AsString);
-      DataSet.Content.Open;
-      if DataSet.Content.Count = 0 then
-        begin
-          DataSet.Content.DataSet.Edit;
-          DataSet.Content.DataSet.Post;
-        end;
-    end;
   if not Assigned(TfDocumentFrame(Sender).DataSet) then
     begin
       aDocuments := TDocuments.CreateEx(Self,Data);
       TfDocumentFrame(Sender).DataSet := aDocuments;
 //      aDocuments.Select(DataSet.Id.AsVariant,'N',DataSet.FieldByName('ID').AsString,Null,Null);
 //      aDocuments.Open;
-      TfDocumentFrame(Sender).Refresh(DataSet.Content.Id.AsVariant,'N',DataSet.FieldByName('ID').AsString,Null,Null,0);
+      TfDocumentFrame(Sender).Refresh(DataSet.Id.AsVariant,'N',DataSet.FieldByName('ID').AsString,Null,Null,0);
     end;
   FDocumentFrame := TfDocumentFrame(Sender);
   aItem := TMenuItem.Create(TfDocumentFrame(Sender).pmDocumentAction);

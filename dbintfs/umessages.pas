@@ -52,25 +52,10 @@ type
     property Subject : TField read GetSubject;
   end;
 
-  { TMessageContent }
-
-  TMessageContent = class(TBaseDBDataSet)
-  private
-    FMessage: TMessageList;
-    function GetText: string;
-  public
-    procedure DefineFields(aDataSet : TDataSet);override;
-    procedure FillDefaults(aDataSet: TDataSet); override;
-    procedure Select(aId : string);overload;
-    property Message : TMessageList read FMessage write FMessage;
-    property AsString : string read GetText;
-    function ToString: ansistring; override;
-  end;
   TMessage = class(TMessageList,IBaseHistory)
   private
     FDocuments: TDocuments;
     FHistory: TBaseHistory;
-    FMessageContent: TMessageContent;
     FSubMessages : TMessageList;
     function GetSubMessages: TMessageList;
     function GetHistory: TBaseHistory;
@@ -83,9 +68,10 @@ type
     function CreateTable : Boolean;override;
     procedure FillDefaults(aDataSet : TDataSet);override;
     function BuildMessageID(aID : Variant) : string;
+    function GetText: string;
     procedure ObjectToJSON(AObject: TBaseDBDataSet; AJSON: TJSONObject;
   const ADateAsString: Boolean); override;
-    property Content : TMessageContent read FMessageContent;
+    function AsString : string;
     property Documents : TDocuments read FDocuments;
     property SubMessages : TMessageList read GetSubMessages;
     function SelectFromLink(aLink: string) : Boolean; override;
@@ -137,7 +123,7 @@ begin
   inherited Destroy;
 end;
 
-function TMessageContent.GetText: string;
+function TMessage.GetText: string;
 var
   sl: TStringList;
   ss: TStringStream;
@@ -176,51 +162,6 @@ begin
   sl.Free;
 end;
 
-procedure TMessageContent.DefineFields(aDataSet: TDataSet);
-begin
-  with aDataSet as IBaseManageDB do
-    begin
-      TableName := 'MESSAGES';
-      TableCaption := strMessages;
-      if Assigned(ManagedFieldDefs) then
-        with ManagedFieldDefs do
-          begin
-            Add('ID',ftString,120,True);
-            Add('RECEIVERS',ftMemo,0,False);
-            Add('CC',ftMemo,0,False);
-            Add('DATATYP',ftString,6,False);
-            Add('REPLYTO',ftString,100,False);
-            Add('HEADER',ftMemo,0,False);
-            Add('DATA',ftBlob,0,False);
-          end;
-      if Assigned(ManagedIndexdefs) then
-        with ManagedIndexDefs do
-          begin
-            Add('ID','ID',[]);
-          end;
-    end;
-end;
-
-procedure TMessageContent.FillDefaults(aDataSet: TDataSet);
-begin
-  inherited FillDefaults(aDataSet);
-  DataSet.FieldByName('ID').AsVariant:=Message.FieldByName('ID').AsVariant;
-  DataSet.FieldByName('DATATYP').AsString:='PLAIN';
-end;
-procedure TMessageContent.Select(aId: string);
-begin
-  with BaseApplication as IBaseDBInterface,DataSet as IBaseDBFilter, DataSet as IBaseManageDB do
-      begin
-        Filter :=QuoteField('ID')+'='+QuoteValue(aID);
-        Limit := 1;
-      end;
-end;
-
-function TMessageContent.ToString: ansistring;
-begin
-  Result:=AsString;
-end;
-
 function TMessage.GetSubMessages: TMessageList;
 begin
   if not Assigned(FSubMessages) then
@@ -241,8 +182,6 @@ constructor TMessage.CreateEx(aOwner: TComponent; DM: TComponent;
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
   FHistory := TBaseHistory.CreateEx(Self,DM,aConnection,DataSet);
-  FMessageContent := TMessageContent.CreateEx(Owner,DM,aConnection);
-  FMessageContent.Message := Self;
   FDocuments := TDocuments.CreateEx(Owner,DM,aConnection);
   FSubMessages := nil;
 end;
@@ -251,7 +190,6 @@ begin
   FreeAndNil(FHistory);
   FreeAndNil(FSubMessages);
   FDocuments.Free;
-  FMessageContent.Free;
   inherited Destroy;
 end;
 procedure TMessage.Select(aID: Variant);
@@ -259,12 +197,10 @@ begin
   inherited Select(aID);
   if aID <> Null then
     Documents.Select(aID);
-  Content.Select('');
 end;
 procedure TMessage.Open;
 begin
   inherited Open;
-  Content.Select(DataSet.FieldbyName('ID').AsString);
 end;
 procedure TMessage.Delete;
 var
@@ -291,15 +227,11 @@ begin
       end;
   except
   end;
-  Content.Open;
-  while Content.Count > 0 do
-    Content.DataSet.Delete;
   DataSet.Delete;
 end;
 function TMessage.CreateTable : Boolean;
 begin
   Result := inherited CreateTable;
-  Content.CreateTable;
 end;
 procedure TMessage.FillDefaults(aDataSet: TDataSet);
 var
@@ -313,6 +245,7 @@ begin
       CreateGUID(aGUID);
       tmpID := StringReplace(StringReplace(StringReplace(GUIDToString(aGUID),'-','',[rfReplaceAll]),'{','',[rfReplaceAll]),'}','',[rfReplaceAll]);
       FieldByName('ID').AsString:=tmpID+'@inv.local';
+      DataSet.FieldByName('DATATYP').AsString:='PLAIN';
     end;
 end;
 function TMessage.BuildMessageID(aID: Variant): string;
@@ -344,6 +277,11 @@ begin
 }
 end;
 
+function TMessage.AsString: string;
+begin
+  Result := GetText;
+end;
+
 function TMessage.SelectFromLink(aLink: string): Boolean;
 begin
   Result := inherited SelectFromLink(aLink);
@@ -365,17 +303,15 @@ end;
 procedure TMessage.Next;
 begin
   inherited Next;
-  Content.Select(DataSet.FieldbyName('ID').AsString);
 end;
 procedure TMessage.Prior;
 begin
   inherited Prior;
-  Content.Select(DataSet.FieldbyName('ID').AsString);
 end;
 
 function TMessage.ToString: ansistring;
 begin
-  Result := Content.ToString;
+  Result := ToString;
 end;
 
 procedure TMessageList.FDSDataChange(Sender: TObject; Field: TField);
@@ -421,7 +357,7 @@ procedure TMessageList.DefineFields(aDataSet: TDataSet);
 begin
   with aDataSet as IBaseManageDB do
     begin
-      TableName := 'MESSAGEIDX';
+      TableName := 'MESSAGES';
       TableCaption := strMessages;
       if Assigned(ManagedFieldDefs) then
         with ManagedFieldDefs do
@@ -449,6 +385,9 @@ begin
             Add('LINES',ftInteger,0,False);
             Add('GRP_FLAGS',ftInteger,0,False); //Compiled Flags for faster access
             Add('SIZE',ftLargeInt,0,False);
+            Add('DATATYP',ftString,6,False);
+            Add('HEADER',ftMemo,0,False);
+            Add('DATA',ftBlob,0,False);
           end;
       if Assigned(ManagedIndexdefs) then
         with ManagedIndexDefs do

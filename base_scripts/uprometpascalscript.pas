@@ -117,7 +117,6 @@ procedure TBaseDBDatasetPropertyActiveW(Self: TBaseDBDataSet; var T: Boolean); b
 procedure TStoragePropertyJournalR(Self: TStorage; var T: TStorageJournal); begin T := Self.Journal; end;
 procedure TMasterdataPropertyStorageR(Self: TMasterdata; var T: TStorage); begin T := Self.Storage; end;
 procedure TProjectsTasksR(Self: TProject; var T: TProjectTasks); begin T := Self.Tasks; end;
-procedure TMessagePropertyContentR(Self : TMessage;var T : TMessageContent);begin T := Self.Content; end;
 procedure TMessagePropertyDocumentsR(Self : TMessage;var T : TDocuments);begin T := Self.Documents; end;
 procedure TOrderPropertyPositionsR(Self : TOrder;var T : TOrderPos);begin T := Self.Positions; end;
 procedure TOrderPropertyAddressR(Self : TOrder;var T : TOrderAddress);begin T := Self.Address; end;
@@ -340,12 +339,6 @@ begin
             RegisterConstructor(@TDocument.Create,'CREATE');
           end;
         //Messages
-        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBDataSet'),TMessageContent) do
-          begin
-          end;
-        with Sender.ClassImporter.Add(TMessageContent) do
-          begin
-          end;
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBList'),TMessageList) do
           begin
             RegisterMethod('constructor Create(aOwner : TComponent);');
@@ -364,7 +357,6 @@ begin
         with Sender.ClassImporter.Add(TMessage) do
           begin
             RegisterConstructor(@TMessageList.Create,'CREATE');
-            RegisterPropertyHelper(@TMessagePropertyContentR,nil,'CONTENT');
             RegisterPropertyHelper(@TMessagePropertyDocumentsR,nil,'DOCUMENTS');
             RegisterPropertyHelper(@TBaseDbListPropertyHistoryR,nil,'HISTORY');
           end;

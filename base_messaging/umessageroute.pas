@@ -39,7 +39,7 @@ begin
   inherited Create(AOwner);
   TabCaption:=strMessageRoute;
   sl := TStringList.Create;
-  sl.Text := TfMessageEdit(AOwner).DataSet.Content.FieldByName('HEADER').AsString;
+  sl.Text := TfMessageEdit(AOwner).DataSet.FieldByName('HEADER').AsString;
   for i := 0 to sl.Count-1 do
     begin
       atmp := sl[i];

@@ -139,7 +139,6 @@ begin
   AddTable('CURRENCY');
   AddTable('TASKS');
   AddTable('WIKI');
-  AddTable('MESSAGEIDX');
   AddTable('MESSAGES');
   AddTable('CONVERSATIONITEMS');
   AddTable('CALENDAR');

@@ -77,7 +77,7 @@ begin
       Customers.History.Open;
       try
       Customers.History.AddItem(Customers.DataSet,Format(strActionMessageReceived,[aSubject]),
-                                'MESSAGEIDX@'+mID+'{'+aSubject+'}',
+                                'MESSAGES@'+mID+'{'+aSubject+'}',
                                 '',
                                 nil,
                                 ACICON_MAILNEW);

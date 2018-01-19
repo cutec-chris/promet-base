@@ -89,8 +89,8 @@ begin
       try
         try
           aDocument := TDocument.CreateEx(Self,Data);
-          Data.SetFilter(aDocument,Data.QuoteField('TYPE')+'='+Data.QuoteValue('N')+' and '+Data.QuoteField('REF_ID_ID')+'='+Data.QuoteValue(Messages.Content.Id.AsString));
-          if aDocument.DataSet.Locate('TYPE;REF_ID_ID',VarArrayOf(['N',Messages.Content.id.AsString]),[loPartialKey]) then
+          Data.SetFilter(aDocument,Data.QuoteField('TYPE')+'='+Data.QuoteValue('N')+' and '+Data.QuoteField('REF_ID_ID')+'='+Data.QuoteValue(Messages.Id.AsString));
+          if aDocument.DataSet.Locate('TYPE;REF_ID_ID',VarArrayOf(['N',Messages.id.AsString]),[loPartialKey]) then
             begin
               aDocument.DataSet.First;
               while not aDocument.DataSet.EOF do
@@ -134,7 +134,7 @@ begin
       try
         try
           aDocument := TDocument.CreateEx(Self,Data);
-          Data.SetFilter(aDocument,Data.QuoteField('TYPE')+'='+Data.QuoteValue('N')+' and '+Data.QuoteField('REF_ID_ID')+'='+Data.QuoteValue(Messages.Content.Id.AsString));
+          Data.SetFilter(aDocument,Data.QuoteField('TYPE')+'='+Data.QuoteValue('N')+' and '+Data.QuoteField('REF_ID_ID')+'='+Data.QuoteValue(Messages.Id.AsString));
           if aDocument.Count>0 then
             begin
               aDocument.DataSet.First;
@@ -221,14 +221,14 @@ begin
   Messages.Select(ListDataSet.FieldByName('SQL_ID').AsVariant);
   Messages.Open;
   if not Messages.DataSet.Active then exit;
-  Messages.Content.Open;
-  if Data.RecordCount(Messages.Content) > 0 then
+  Messages.Open;
+  if Data.RecordCount(Messages) > 0 then
    begin
-     if Uppercase(Messages.Content.FieldByName('DATATYP').AsString) = 'PLAIN' then
+     if Uppercase(Messages.FieldByName('DATATYP').AsString) = 'PLAIN' then
        begin
          ipHTMLContent.Visible:=false;
          ss := TStringStream.Create('');
-         Data.BlobFieldToStream(Messages.Content.DataSet,'DATA',ss);
+         Data.BlobFieldToStream(Messages.DataSet,'DATA',ss);
          sl := TStringList.Create;
          sl.Text:=SysToUni(ConvertEncoding(ss.DataString,GuessEncoding(ss.DataString),EncodingUTF8));
          sl.TextLineBreakStyle := tlbsCRLF;
@@ -237,12 +237,12 @@ begin
          ss.Free;
          mContent.Visible:=True;
        end
-     else if UpperCase(Messages.Content.FieldByName('DATATYP').AsString) = 'HTML' then
+     else if UpperCase(Messages.FieldByName('DATATYP').AsString) = 'HTML' then
        begin
          mContent.Visible:=false;
          try
            ss:=TStringStream.Create('');
-           Data.BlobFieldToStream(Messages.Content.DataSet,'DATA',ss);
+           Data.BlobFieldToStream(Messages.DataSet,'DATA',ss);
            ss.Position := 0;
            tmp := ss.DataString;
            aEncoding := GuessEncoding(tmp);
@@ -309,7 +309,7 @@ begin
          mContent.Visible:=false;
          try
            ss:=TStringStream.Create('');
-           Data.BlobFieldToStream(Messages.Content.DataSet,'DATA',ss);
+           Data.BlobFieldToStream(Messages.DataSet,'DATA',ss);
            ss.Position := 0;
            tmp := '<html><body>'+WikiText2HTML(ss.DataString,'','',True)+'</body></html>';
 
@@ -359,8 +359,8 @@ begin
        begin
          ipHTMLContent.Visible:=false;
          ss := TStringStream.Create('');
-         Data.BlobFieldToStream(Messages.Content.DataSet,'DATA',ss);
-         mContent.Lines.Text:='Unknown Datatype ('+Messages.Content.FieldByName('DATATYP').AsString+'):'+ss.DataString;
+         Data.BlobFieldToStream(Messages.DataSet,'DATA',ss);
+         mContent.Lines.Text:='Unknown Datatype ('+Messages.FieldByName('DATATYP').AsString+'):'+ss.DataString;
          ss.Free;
          mContent.Visible:=True;
        end;
