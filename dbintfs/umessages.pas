@@ -349,6 +349,7 @@ var
   i: Integer;
   aOldLimit: Integer;
   OldUseP: Boolean;
+  oldFilter: String;
 begin
   if FUsedFields = '' then
     begin
@@ -356,6 +357,7 @@ begin
         begin
           with Self.DataSet as IBaseDBFilter,Self.DataSet as IBaseManageDB do
             begin
+              oldFilter := Filter;
               Filter := TBaseDBModule(DataModule).ProcessTerm(TBaseDBModule(DataModule).QuoteField(TableName)+'.'+TBaseDBModule(DataModule).QuoteField('SQL_ID')+'='+TBaseDBModule(DataModule).QuoteValue(''));
               Fields := '';
               aOldLimit := Limit;
@@ -372,7 +374,7 @@ begin
               FUsedFields := tmpFields;
               Limit := aOldLimit;
               UsePermissions:=OldUseP;
-              Filter := '';
+              Filter := oldFilter;
             end;
         end;
     end;

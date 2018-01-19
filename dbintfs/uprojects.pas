@@ -392,6 +392,7 @@ begin
       with DataSet as IBaseDBFilter do
         begin
           UpdateFloatFields:=True;
+          UsePermissions:=False;
         end;
     end;
   FHistory := TProjectHistory.CreateEx(Self,DM,aConnection,DataSet);
