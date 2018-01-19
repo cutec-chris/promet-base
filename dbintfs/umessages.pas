@@ -30,11 +30,16 @@ type
     procedure FDSDataChange(Sender: TObject; Field: TField);
   private
     FDS: TDataSource;
+    FUsedFields : string;
     function GetMsgID: TField;
     function GetSubject: TField;
+  protected
+    function GetUsedFields : string;virtual;
+    procedure PrepareDataSet;
   public
     constructor CreateEx(aOwner: TComponent; DM: TComponent=nil; aConnection: TComponent=
       nil; aMasterdata: TDataSet=nil); override;
+    procedure Open; override;
     destructor Destroy; override;
     procedure DefineFields(aDataSet : TDataSet);override;
     procedure SelectByID(aID : string);overload; //Select by ID
@@ -338,6 +343,52 @@ begin
   result := FieldByName('SUBJECT');
 end;
 
+function TMessageList.GetUsedFields: string;
+var
+  tmpFields : string = '';
+  i: Integer;
+  aOldLimit: Integer;
+  OldUseP: Boolean;
+begin
+  if FUsedFields = '' then
+    begin
+      with BaseApplication as IBaseDbInterface do
+        begin
+          with Self.DataSet as IBaseDBFilter,Self.DataSet as IBaseManageDB do
+            begin
+              Filter := TBaseDBModule(DataModule).ProcessTerm(TBaseDBModule(DataModule).QuoteField(TableName)+'.'+TBaseDBModule(DataModule).QuoteField('SQL_ID')+'='+TBaseDBModule(DataModule).QuoteValue(''));
+              Fields := '';
+              aOldLimit := Limit;
+              Limit := 1;
+              OldUseP := UsePermissions;
+              UsePermissions:=False;
+              DataSet.Open;
+              for i := 0 to DataSet.FieldDefs.Count-1 do
+                if  (DataSet.FieldDefs[i].Name <> 'DATA')
+                and  (DataSet.FieldDefs[i].Name <> 'HEADER')
+                then
+                  tmpfields := tmpfields+','+TBaseDBModule(DataModule).QuoteField(TableName)+'.'+TBaseDBModule(DataModule).QuoteField(DataSet.FieldDefs[i].Name);
+              tmpFields := copy(tmpFields,2,length(tmpFields));
+              FUsedFields := tmpFields;
+              Limit := aOldLimit;
+              UsePermissions:=OldUseP;
+              Filter := '';
+            end;
+        end;
+    end;
+  Result := FUsedFields;
+end;
+
+procedure TMessageList.PrepareDataSet;
+begin
+  if FUsedFields = '' then
+    GetUsedFields;
+  with DataSet as IBaseDBFilter do
+    begin
+      Fields:=FUsedFields;
+    end;
+end;
+
 constructor TMessageList.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
@@ -345,6 +396,13 @@ begin
   FDS := TDataSource.Create(nil);
   FDS.DataSet := DataSet;
   FDS.OnDataChange:=@FDSDataChange;
+end;
+
+procedure TMessageList.Open;
+begin
+  if FUsedFields = '' then
+    PrepareDataSet;
+  inherited Open;
 end;
 
 destructor TMessageList.Destroy;
