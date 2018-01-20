@@ -226,6 +226,7 @@ begin
       Customers.SelectFromContactData(atmp);
       Customers.Open;
       fullmsg.Free;
+      Edit;
       FieldByName('TREEENTRY').AsInteger := aTreeEntry;
       if (aTreeEntry = TREE_ID_MESSAGES)
       then

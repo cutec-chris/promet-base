@@ -200,6 +200,7 @@ var
   aPart: TMimePart;
   tmp: String;
   aEncoding: String;
+  aStream: TStream;
 begin
   Result := nil;
   aMessage := TMimeMess.Create;
@@ -208,7 +209,8 @@ begin
     begin
       Open;
       if Count=0 then exit;
-      sl.Text := DataSet.FieldByName('HEADER').AsString;
+      aStream := TBaseDBModule(DataModule).BlobFieldStream(DataSet,'HEADER');
+      sl.LoadFromStream(aStream);
       if trim(sl.Text)<>'' then
         aMessage.Header.DecodeHeaders(sl);
       if (FieldByName('RECEIVERS').IsNull and FieldByName('PRIORITY').IsNull) then
@@ -364,6 +366,7 @@ var
   aMsgList: TMessageList;
   aTree: TTree;
   aMessages: TMessageList;
+  Stream: TStringStream;
 begin
   if not CanEdit then
     DataSet.Edit;
@@ -416,29 +419,21 @@ begin
           aMsgList.Destroy;
         end;
       FillHeaderFields(msg);
-      Post;
       Edit;
-      Open;
       with DataSet do
         begin
-          Insert;
-          DataSet.FieldByName('ID').AsString := Self.DataSet.FieldByName('ID').AsString;
-          if DataSet.FieldByName('ID').AsString <> Self.DataSet.FieldByName('ID').AsString then
-            Self.DataSet.FieldByName('ID').AsString := DataSet.FieldByName('ID').AsString;
-          FieldByName('SQL_ID').AsVariant:=Self.DataSet.FieldByName('MSG_ID').AsVariant;
-          FieldbyName('REPLYTO').AsString := msg.Header.ReplyTo;
-          FieldbyName('RECEIVERS').AsString := msg.Header.ToList.text;
-          FieldbyName('CC').AsString := msg.Header.CcList.text;
+          FieldbyName('RECEIVERS').AsString := copy(msg.Header.ToList.text,0,799);
+          FieldbyName('CC').AsString := copy(msg.Header.CcList.text,0,799);
           FieldByName('TIMESTAMPD').AsDateTime := Now();
           if FieldDefs.IndexOf('TIMESTAMPT') <> -1 then
             FieldByName('TIMESTAMPT').AsFloat := Frac(Now());
-          DataSet.Post;
-          DataSet.Edit;
           TextThere := False;
           HtmlThere := False;
           sl := TStringList.Create;
           msg.Header.EncodeHeaders(sl);
-          FieldbyName('HEADER').AsString := sl.Text;
+          Stream := TStringStream.Create(sl.Text);
+          TBaseDBModule(DataModule).StreamToBlobField(Stream,DataSet,'HEADER');
+          Stream.Free;
           sl.Free;
           msg.MessagePart.OnWalkPart:=@DataSetContentDataSetDataSetmsgMessagePartWalkPart;
           msg.MessagePart.WalkPart;
