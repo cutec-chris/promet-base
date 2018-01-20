@@ -690,7 +690,10 @@ procedure TfFilter.gHeaderSelectCell(Sender: TObject; aCol, aRow: Integer;
 begin
   if aCol>1 then
     gList.SelectedIndex:=aCol-1;
-  gHeader.EditorMode:=True;
+  try
+    gHeader.EditorMode:=True;
+  except
+  end;
 end;
 procedure TfFilter.gHeaderSetEditText(Sender: TObject; ACol, ARow: Integer;
   const Value: string);
