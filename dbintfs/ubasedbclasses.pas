@@ -3416,7 +3416,7 @@ var
   aCreated: Boolean = False;
   aOldFilter: String = '';
   aOldLimit: Integer;
-  aErr: String;
+  aErr, OldFields: String;
   OldLimit: Integer;
 begin
   if not Assigned(FDataSet) then exit;
@@ -3431,6 +3431,13 @@ begin
       begin
         if not Self.CreateTable then
           begin
+            with FDataSet as IBaseDbFilter do
+              begin
+                OldFields := Fields;
+                Fields := '';
+                OldLimit := Limit;
+                Limit := 1;
+              end;
             with DataSet as IBaseManageDB do
               FDataSet.Open;
             if (not TBaseDBModule(DataModule).IsTransactionActive(Connection)) and AlterTable then
@@ -3438,6 +3445,11 @@ begin
               begin
                 with BaseApplication as IBaseApplication do
                   Info('Table "'+TableName+'" altering failed ');
+              end;
+            with FDataSet as IBaseDbFilter do
+              begin
+                Fields := OldFields;
+                Limit := OldLimit;
               end;
           end;
       end;

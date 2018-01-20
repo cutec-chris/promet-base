@@ -431,7 +431,7 @@ begin
             Add('READ',ftString,1,True);
             Add('DRAFT',ftString,1,False);
             Add('FLAGGED',ftString,1,False);
-            Add('SENDER',ftString,100,True);
+            Add('SENDER',ftString,800,True);
             Add('REPLYTO',ftMemo,0,False);
             Add('SENDDATE',ftDateTime,0,True);
             Add('ANSWERED',ftDateTime,0,False);

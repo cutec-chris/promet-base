@@ -9,6 +9,7 @@
       - PAppserver:Reports für Artikel,Projekte,Aufträge als PDF verfügbar
       - PAppserver:einfache SQL Abfragen (müssen aus Sicherheitsgründen von Avamm selbst geparst werden können) mit mehreren Joins möglich
       - Avad:Rüstkontrolle kann in Script hinterlegt werden um Rüstfehler zu vermeiden (Funktion CheckPrepare : Boolean)
+      - Nachrichten: organisation der Nachrichtentabelle für einfacheres Handling überarbeitet
 Build 436 (7.7.2017)
       - Configurations Webapp um Datenbankverbindung bei reinen Server Paketen einzurichten
       - Basis Aufgaben App

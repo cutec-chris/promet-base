@@ -333,7 +333,8 @@ begin
   ScrollTimer.Enabled:=False;
   if FList.List.DataSet.ControlsDisabled then exit;
   if not Visible then exit;
-  if not Assigned(FList.List.DataSet.FieldByName('ID')) then exit;
+  if not FList.List.DataSet.Active then exit;
+  if FList.List.DataSet.FieldDefs.IndexOf('ID')=-1 then exit;
   if VisibleID <> FList.List.DataSet.FieldByName('ID').AsString then
     begin
       VisibleID := FList.List.DataSet.FieldByName('ID').AsString;
