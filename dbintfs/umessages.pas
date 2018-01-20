@@ -402,7 +402,7 @@ end;
 
 procedure TMessageList.Open;
 begin
-  if FUsedFields = '' then
+  if (FUsedFields = '') and TBaseDBModule(DataModule).TableExists(TableName) then
     PrepareDataSet;
   inherited Open;
 end;
