@@ -316,10 +316,9 @@ begin
             if pos('?',aPath)>0 then
               aPath := copy(aPath,0,pos('?',aPath)-1);
           end;
-        if ((Uppercase(Command)='GET') or (Uppercase(Command)='HEAD')) and ((not FileExists(aPath)) or DirectoryExists(aPath)) and (FileExists(aPath+'index.html')) then
+        if ((Uppercase(Command)='GET') or (Uppercase(Command)='HEAD')) and (DirectoryExists(aPath)) and (FileExists(aPath+'index.html')) then
           begin
-            aPath := aPath+'index.html';
-            Code := 200;
+            aPath := (aPath)+'index.html';
             headers.Clear;
             if pos('?',url)>0 then
               begin
@@ -335,6 +334,7 @@ begin
             Result.Free;
             with BaseApplication as IBaseApplication do
               Info('HTTP: using '+url+'index.html');
+            Result := 200;
           end
         else if FileExists(aPath) and (pos('/.',aPath)=0) then
           begin
