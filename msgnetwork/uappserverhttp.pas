@@ -309,7 +309,7 @@ begin
         aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web'+Stringreplace(url,'/',DirectorySeparator,[rfReplaceAll]);
         if pos('?',aPath)>0 then
           aPath := copy(aPath,0,pos('?',aPath)-1);
-        if (not FileExists(aPath))
+        if (not (FileExists(aPath) and (not DirectoryExists(aPath))))
         and (not (DirectoryExists(aPath) and (FileExists(aPath+'index.html'))))  then
           begin
             aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+Stringreplace(url,'/',DirectorySeparator,[rfReplaceAll]);
@@ -334,7 +334,7 @@ begin
             Result.Free;
             with BaseApplication as IBaseApplication do
               Info('HTTP: using '+url+'index.html');
-            Result := 200;
+            Code := 200;
           end
         else if FileExists(aPath) and (pos('/.',aPath)=0) then
           begin
