@@ -318,8 +318,8 @@ begin
           end;
         if ((Uppercase(Command)='GET') or (Uppercase(Command)='HEAD')) and ((not FileExists(aPath)) or DirectoryExists(aPath)) and (FileExists(aPath+'index.html')) then
           begin
-            //aPath := aPath+'index.html';
-            Code := 301;
+            aPath := aPath+'index.html';
+            Code := 200;
             headers.Clear;
             if pos('?',url)>0 then
               begin
@@ -328,9 +328,13 @@ begin
               end;
             if copy(url,length(url),1)<>'/' then
               url := url+'/';
-            headers.Add('Location: '+url+'index.html');
+            //headers.Add('Location: '+url+'index.html');
+            Result := TFileStream.Create(aPath,fmOpenRead or fmShareDenyNone);
+            OutputData.CopyFrom(Result,0);
+            OutputData.Position:=0;
+            Result.Free;
             with BaseApplication as IBaseApplication do
-              Info('HTTP: redirecting to '+url+'index.html');
+              Info('HTTP: using '+url+'index.html');
           end
         else if FileExists(aPath) and (pos('/.',aPath)=0) then
           begin
