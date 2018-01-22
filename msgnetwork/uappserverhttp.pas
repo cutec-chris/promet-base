@@ -352,7 +352,6 @@ begin
                 then
                   begin
                     Code := 304;//not modified
-                    Result.Free;
                   end
                 else
                   begin
