@@ -102,21 +102,25 @@ begin
       with BaseApplication as IBaseApplication do
         Debug('Processing HTTP Request in Thread');
       aSock.ProcessHTTPRequest;
-      if (aSock.Code<>200) and (aSock.Code<>301) and (aSock.Code<>304) then
-        begin
-          with BaseApplication as IBaseApplication do
-            Debug('Processing HTTP Handlers');
-          aReqTime := Now();
-          for i := 0 to Length(HTTPHandlers)-1 do
-            begin
-              aSock.Code := HTTPHandlers[i](Sender,aCmd, aSock.Url, aSock.Headers, aSock.InputData, aSock.OutputData, ResultStatusText);
-              if aSock.Code<>404 then
-                begin
-                  writeln(aCmd+' '+aSock.Url+'=>'+IntToStr(aSock.Code)+' in '+IntToStr(round((Now()-aReqTime)*MSecsPerDay))+' ms');
-                  break;
-                end;
-            end;
-        end;
+      //ignore folder icons since they are not included in template
+      if (pos('/favicon.',aSock.Url)=0)
+      and (pos('/folder.',aSock.Url)=0)
+      then
+        if (aSock.Code<>200) and (aSock.Code<>301) and (aSock.Code<>304) then
+          begin
+            with BaseApplication as IBaseApplication do
+              Debug('Processing HTTP Handlers');
+            aReqTime := Now();
+            for i := 0 to Length(HTTPHandlers)-1 do
+              begin
+                aSock.Code := HTTPHandlers[i](Sender,aCmd, aSock.Url, aSock.Headers, aSock.InputData, aSock.OutputData, ResultStatusText);
+                if aSock.Code<>404 then
+                  begin
+                    writeln(aCmd+' '+aSock.Url+'=>'+IntToStr(aSock.Code)+' in '+IntToStr(round((Now()-aReqTime)*MSecsPerDay))+' ms');
+                    break;
+                  end;
+              end;
+          end;
       if aSock.Code=404 then
         writeln(aCmd+' '+aSock.Url+'=>'+IntToStr(aSock.Code)+' in '+IntToStr(round((Now()-aReqTime)*MSecsPerDay))+' ms');
       tmp := aSock.protocol;
