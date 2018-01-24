@@ -1374,8 +1374,9 @@ begin
           Error(Event.AsString+'('+LastStatement+')')
         else if BaseApplication.HasOption('debug-sql') then
           Debug(Event.AsString);
-        if (LastTime)>50 then
-          Warning('Long running Query:'+IntToStr(round(LastTime))+' '+Event.AsString);
+        if BaseApplication.HasOption('debug') then
+          if (LastTime)>100 then
+            Warning('Long running Query:'+IntToStr(round(LastTime))+' '+Event.AsString);
         LastTime:=0;
         LastStatement:='';
       end;

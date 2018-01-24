@@ -2084,7 +2084,10 @@ begin
 end;
 
 initialization
-  RegisterdataSetClass('ORDER',TOrder);
+  RegisterdataSetClass('ORDERS',TOrder);
+  RegisterdataSetClass('ORDERPOS',TOrderPos);
+  RegisterdataSetClass('ORDERQMTEST',TOrderQMTest);
+  RegisterdataSetClass('ORDERREPAIR',TOrderRepair);
   RegisterdataSetClass('ORDERPOSTYP',TOrderPosTyp);
 end.
 

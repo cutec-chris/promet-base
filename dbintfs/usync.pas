@@ -266,6 +266,11 @@ begin
             Add('NAME',ftString,30,True);
             Add('LTIMESTAMP',ftDateTime,0,False);
           end;
+      if Assigned(ManagedIndexdefs) then
+        with ManagedIndexDefs do
+          begin
+            Add('NAME','NAME',[]);
+          end;
     end;
 end;
 
@@ -712,6 +717,7 @@ begin
             Add('FILTEROUT',ftMemo,0,False);
             Add('LOCKEDBY',ftString,60,False);
             Add('LOCKEDAT',ftDateTime,0,False);
+            Add('PARENT',ftLargeint,0,False);
           end;
     end;
 end;
