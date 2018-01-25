@@ -766,8 +766,7 @@ begin
   DataSet.Locate('ORDERNO',FOrigID,[]);
   OrderType.Open;
   OrderType.DataSet.Locate('STATUS',DataSet.FieldByName('STATUS').AsString,[]);
-  if FieldByName('ACTIVE').IsNull then
-    RefreshActive;
+  RefreshActive;
   Address.Open;
   SelectCurrency;
 end;
@@ -776,39 +775,50 @@ procedure TOrder.RefreshActive;
 var
   aRec: TBookmark;
   Found: Boolean = False;
+  MainOrder: TOrderList;
 begin
   if not DataSet.Active then exit;
-  aRec := DataSet.GetBookmark;
-  DataSet.Last;
+  MainOrder := TOrderList.CreateEx(Owner,DataModule,Connection);
+  MainOrder.Select(Self.FieldByName('ORDERNO').AsString);
+  Mainorder.SortDirection:=sdDescending;
+  MainOrder.SortFields:='ORDERNO';
+  MainOrder.Open;
+  MainOrder.First;
   OrderType.Open;
-  while not DataSet.BOF do
+  while not MainOrder.DataSet.EOF do
     begin
-      OrderType.DataSet.Locate('STATUS',DataSet.FieldByName('STATUS').AsString,[]);
+      OrderType.DataSet.Locate('STATUS',MainOrder.FieldByName('STATUS').AsString,[]);
       if (OrderType.FieldByName('ISDERIVATE').AsString<>'Y')
       and not Found then
         begin
-          if DataSet.FieldByName('ACTIVE').AsString<>'Y' then
+          if MainOrder.FieldByName('ACTIVE').AsString<>'Y' then
             begin
-              if not CanEdit then DataSet.Edit;
-              DataSet.FieldByName('ACTIVE').AsString := 'Y';
-              DataSet.Post;
+              if not MainOrder.CanEdit then MainOrder.Edit;
+              MainOrder.FieldByName('ACTIVE').AsString := 'Y';
+              MainOrder.Post;
             end;
           Found := True;
         end
       else
         begin
-          if DataSet.FieldByName('ACTIVE').AsString<>'N' then
+          if MainOrder.FieldByName('ACTIVE').AsString<>'N' then
             begin
-              if not CanEdit then DataSet.Edit;
-              DataSet.FieldByName('ACTIVE').AsString := 'N';
-              DataSet.Post;
+              if not MainOrder.CanEdit then MainOrder.Edit;
+              MainOrder.FieldByName('ACTIVE').AsString := 'N';
+              MainOrder.Post;
             end;
         end;
-      DataSet.Prior;
+      MainOrder.Next;
     end;
-  DataSet.GotoBookmark(aRec);
-  DataSet.FreeBookmark(aRec);
+  if not Found then //no order active ??
+    begin
+      MainOrder.Last;
+      if not MainOrder.CanEdit then MainOrder.Edit;
+      MainOrder.FieldByName('ACTIVE').AsString := 'Y';
+      MainOrder.Post;
+    end;
   OrderType.DataSet.Locate('STATUS',DataSet.FieldByName('STATUS').AsString,[]);
+  MainOrder.Free;
 end;
 
 procedure TOrder.CascadicPost;
