@@ -367,29 +367,29 @@ var
 begin
   CustomQuery := TSQLQuery.Create(Self);
   CustomQuery.Transaction := Transaction;
-  if (copy(TZConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,8) = 'firebird')
-  or (copy(TZConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,9) = 'interbase') then
+  if (copy(TSQLConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,8) = 'firebird')
+  or (copy(TSQLConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,9) = 'interbase') then
     begin
       CustomQuery.SQL.Text := 'select rdb$index_name from rdb$indices where rdb$index_name='+TSqlDBDM(Owner).QuoteValue(indexname);
       CustomQuery.Open;
       Result := CustomQuery.RecordCount > 0;
       CustomQuery.Close;
     end
-  else if (copy(TZConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,6) = 'sqlite') then
+  else if (copy(TSQLConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,6) = 'sqlite') then
     begin
       CustomQuery.SQL.Text := 'select name from SQLITE_MASTER where "TYPE"=''index'' and NAME='+TSqlDBDM(Owner).QuoteValue(indexname);
       CustomQuery.Open;
       Result := CustomQuery.RecordCount > 0;
       CustomQuery.Close;
     end
-  else if (copy(TZConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,5) = 'mssql') then
+  else if (copy(TSQLConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,5) = 'mssql') then
     begin
       CustomQuery.SQL.Text := 'select name from dbo.sysindexes where NAME='+TSqlDBDM(Owner).QuoteValue(indexname);
       CustomQuery.Open;
       Result := CustomQuery.RecordCount > 0;
       CustomQuery.Close;
     end
-  else if (copy(TZConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,8) = 'postgres') then
+  else if (copy(TSQLConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,8) = 'postgres') then
     begin
       CustomQuery.SQL.Text := 'select * from pg_class where relname='+TSqlDBDM(Owner).QuoteValue(indexname);
       CustomQuery.Open;
@@ -433,8 +433,8 @@ var
   aSQL: String;
   i: Integer;
   bConnection: TZAbstractConnection = nil;
-//  bConnection: TZConnection = nil;
-  GeneralQuery: TZQuery;
+//  bConnection: TSQLConnection = nil;
+  GeneralQuery: TSQLQuery;
   RestartTransaction: Boolean = False;
 begin
   Result := False;
@@ -465,7 +465,7 @@ begin
                       else
                         aSQL += ' REFERENCES '+QuoteField(TSqlDBDataSet(MasterSource.DataSet).DefaultTableName)+'('+QuoteField('AUTO_ID')+') ON DELETE CASCADE';
                     end;
-                  if (copy(TZConnection(TBaseDBModule(Self.Owner).MainConnection).Protocol,0,6) = 'sqlite') then
+                  if (copy(TSQLConnection(TBaseDBModule(Self.Owner).MainConnection).Protocol,0,6) = 'sqlite') then
                     aSQL += ' DEFERRABLE INITIALLY DEFERRED';
                 end;
               aSQL+=','+lineending;
@@ -476,7 +476,7 @@ begin
           aSQL += TSqlDBDM(Self.Owner).FieldToSQL('TIMESTAMPD',ftDateTime,0,True)+');';
           try
             try
-              GeneralQuery := TZQuery.Create(Self);
+              GeneralQuery := TSQLQuery.Create(Self);
               GeneralQuery.Connection := bConnection;
               GeneralQuery.SQL.Text := aSQL;
               GeneralQuery.ExecSQL;
@@ -525,7 +525,7 @@ function TSqlDBDataSet.AlterTable: Boolean;
 var
   i: Integer;
   aSQL: String;
-  GeneralQuery: TZQuery;
+  GeneralQuery: TSQLQuery;
   Changed: Boolean;
   aConnection : TZAbstractConnection;
 begin
@@ -539,7 +539,7 @@ begin
             begin
               aSQL := 'ALTER TABLE '+QuoteField(FDefaultTableName)+' ADD '+TSqlDBDM(Self.Owner).FieldToSQL(FManagedFieldDefs[i].Name,FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
               aConnection := Connection;
-              GeneralQuery := TZQuery.Create(Self);
+              GeneralQuery := TSQLQuery.Create(Self);
               try
                 GeneralQuery.Connection := aConnection;
                 GeneralQuery.SQL.Text := aSQL;
@@ -562,7 +562,7 @@ begin
                 if aSQL <> '' then
                   begin
                     try
-                      GeneralQuery := TZQuery.Create(Self);
+                      GeneralQuery := TSQLQuery.Create(Self);
                       GeneralQuery.Connection := Connection;
                       GeneralQuery.SQL.Text := aSQL;
                       GeneralQuery.ExecSQL;
@@ -1217,13 +1217,13 @@ begin
   if Assigned(Sequence) then
     begin
       bConnection := MainConnection;
-      Sequence.Connection := TZConnection(bConnection);
+      Sequence.Connection := TSQLConnection(bConnection);
       Result := Sequence.GetCurrentValue shr 56;
       Sequence.Connection := nil;
     end
   else
     begin
-      Statement := TZConnection(MainConnection).DbcConnection.CreateStatement;
+      Statement := TSQLConnection(MainConnection).DbcConnection.CreateStatement;
       ResultSet := Statement.ExecuteQuery('SELECT "ID" FROM "GEN_SQL_ID"');
       if ResultSet.Next then
         Result := ResultSet.GetLong(1) shr 56
@@ -1245,7 +1245,7 @@ begin
     end
   else
     begin
-      Statement := TZConnection(MainConnection).DbcConnection.CreateStatement;
+      Statement := TSQLConnection(MainConnection).DbcConnection.CreateStatement;
       Statement.Execute('update "GEN_SQL_ID" set "ID"='+IntToStr(aVal));
       Statement.Close;
     end;
@@ -1253,7 +1253,7 @@ end;
 constructor TSqlDBDM.Create(AOwner: TComponent);
 begin
   FDataSetClass := TSqlDBDataSet;
-  FMainConnection := TZConnection.Create(AOwner);
+  FMainConnection := TSQLConnection.Create(AOwner);
   Monitor := TZSQLMonitor.Create(FMainConnection);
   Monitor.Active:=True;
   Monitor.OnTrace:=@MonitorTrace;
@@ -1279,14 +1279,14 @@ end;
 function TSqlDBDM.SetProperties(aProp: string;Connection : TComponent = nil): Boolean;
 var
   tmp: String;
-  FConnection : TZConnection;
+  FConnection : TSQLConnection;
 begin
   inherited;
   if Assigned(BaseApplication) then
     with BaseApplication as IBaseDBInterface do
       LastError := '';
   FProperties := aProp;
-  FConnection := TZConnection(Connection);
+  FConnection := TSQLConnection(Connection);
   if not Assigned(FConnection) then
     begin
       FConnection := FMainConnection;
@@ -1428,13 +1428,13 @@ begin
 end;
 function TSqlDBDM.CreateDBFromProperties(aProp: string): Boolean;
 var
-  FConnection: TZConnection;
+  FConnection: TSQLConnection;
   tmp: String;
   aPassword: String;
   aUser: String;
   aDatabase: String;
 begin
-  FConnection := TZConnection.Create(Self);
+  FConnection := TSQLConnection.Create(Self);
   if Assigned(BaseApplication) then
     with BaseApplication as IBaseDBInterface do
       LastError := '';
@@ -1520,7 +1520,7 @@ begin
     aConnection := MainConnection;
   with TSqlDBDataSet(Result) do
     begin
-      Connection := TZConnection(aConnection);
+      Connection := TSQLConnection(aConnection);
       FTableNames := aTables;
       aTable.DefineFields(Result);
       aTable.DefineDefaultFields(Result,Assigned(Masterdata));
@@ -1548,7 +1548,7 @@ begin
   with TSqlDBDataSet(Result) do
     begin
       FOrigTable := aOrigtable;
-      Connection := TZConnection(aConnection);
+      Connection := TSQLConnection(aConnection);
       SQL.Text := aSQL;
       if Assigned(Masterdata) then
         begin
@@ -1585,7 +1585,7 @@ begin
   Result := True;
   exit;
   try
-    Result := TZConnection(aConnection).Ping;
+    Result := TSQLConnection(aConnection).Ping;
   except
     Result := False;
   end;
@@ -1616,7 +1616,7 @@ begin
       if Assigned(aConnection) then
         bConnection := aConnection;
       Sequence.SequenceName:=Generator;
-      Sequence.Connection := TZConnection(bConnection);
+      Sequence.Connection := TSQLConnection(bConnection);
       Result := Sequence.GetNextValue;
       Sequence.Connection := nil;
     end
@@ -1624,9 +1624,9 @@ begin
     begin
       try
         if (copy(FMainConnection.Protocol,0,6) = 'sqlite') and (Assigned(aConnection)) then
-          Statement := TZConnection(aConnection).DbcConnection.CreateStatement //we have global locking in sqlite so we must use the actual connection
+          Statement := TSQLConnection(aConnection).DbcConnection.CreateStatement //we have global locking in sqlite so we must use the actual connection
         else
-          Statement := TZConnection(MainConnection).DbcConnection.CreateStatement;
+          Statement := TSQLConnection(MainConnection).DbcConnection.CreateStatement;
         if AutoInc then
           begin
             if (copy(FMainConnection.Protocol,0,5) = 'mysql') then
@@ -1664,7 +1664,7 @@ procedure TSqlDBDM.StreamToBlobField(Stream: TStream; DataSet: TDataSet;
   Fieldname: string);
 var
   Posted: Boolean;
-  GeneralQuery: TZQuery;
+  GeneralQuery: TSQLQuery;
   pBuf    : Pointer;
   cnt: LongInt;
   dStream: TStream;
@@ -1678,8 +1678,8 @@ begin
           Posted := True;
           DataSet.Post;
         end;
-      GeneralQuery := TZQuery.Create(Self);
-      GeneralQuery.Connection := TZQuery(DataSet).Connection;
+      GeneralQuery := TSQLQuery.Create(Self);
+      GeneralQuery.Connection := TSQLQuery(DataSet).Connection;
       GeneralQuery.SQL.Text := 'select * from '+QuoteField(TSqlDBDataSet(DataSet).DefaultTableName)+' where "SQL_ID"='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
       GeneralQuery.Open;
       GeneralQuery.Edit;
@@ -1715,7 +1715,7 @@ end;
 procedure TSqlDBDM.BlobFieldToStream(DataSet: TDataSet; Fieldname: string;
   dStream: TStream);
 var
-  GeneralQuery: TZQuery;
+  GeneralQuery: TSQLQuery;
   aSQL : string;
   pBuf    : Pointer;
   cnt: LongInt;
@@ -1724,8 +1724,8 @@ var
 begin
   if DataSet.Fielddefs.IndexOf(FieldName) = -1 then
     begin
-      GeneralQuery := TZQuery.Create(Self);
-      GeneralQuery.Connection := TZQuery(DataSet).Connection;
+      GeneralQuery := TSQLQuery.Create(Self);
+      GeneralQuery.Connection := TSQLQuery(DataSet).Connection;
       aSql := 'select '+QuoteField(Fieldname)+' from '+QuoteField(TSqlDBDataSet(DataSet).DefaultTableName)+' where "SQL_ID"='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
       GeneralQuery.SQL.Text := aSql;
       GeneralQuery.Open;
@@ -1766,9 +1766,9 @@ end;
 
 procedure TSqlDBDM.DeleteExpiredSessions;
 var
-  GeneralQuery: TZQuery;
+  GeneralQuery: TSQLQuery;
 begin
-  GeneralQuery := TZQuery.Create(Self);
+  GeneralQuery := TSQLQuery.Create(Self);
   GeneralQuery.Connection := FMainConnection;
   GeneralQuery.SQL.Text := 'DELETE FROM '+QuoteField('ACTIVEUSERS')+' WHERE ('+QuoteField('EXPIRES')+' < '+Self.DateTimeToFilter(Now)+');';
   GeneralQuery.ExecSQL;
@@ -1776,8 +1776,8 @@ begin
 end;
 function TSqlDBDM.GetNewConnection: TComponent;
 begin
-  Result := TZConnection.Create(Self);
-  with Result as TZConnection do
+  Result := TSQLConnection.Create(Self);
+  with Result as TSQLConnection do
     begin
       Setproperties(FProperties,Result);
     end;
@@ -1786,38 +1786,38 @@ end;
 function TSqlDBDM.QuoteField(aField: string): string;
 begin
   Result:=inherited QuoteField(aField);
-  if (copy(TZConnection(MainConnection).Protocol,0,5) = 'mysql') then
+  if (copy(TSQLConnection(MainConnection).Protocol,0,5) = 'mysql') then
     Result := '`'+aField+'`';
 end;
 
 procedure TSqlDBDM.Disconnect(aConnection: TComponent);
 begin
-  TZConnection(aConnection).Disconnect;
+  TSQLConnection(aConnection).Disconnect;
 end;
 function TSqlDBDM.StartTransaction(aConnection: TComponent;ForceTransaction : Boolean = False): Boolean;
 begin
-  TZConnection(aConnection).Tag := Integer(TZConnection(aConnection).TransactIsolationLevel);
-  if ForceTransaction and (copy(TZConnection(aConnection).Protocol,0,6) = 'sqlite') then
-    TZConnection(aConnection).TransactIsolationLevel:=tiReadCommitted
-  else if (copy(TZConnection(aConnection).Protocol,0,8) = 'postgres') then
-    TZConnection(aConnection).TransactIsolationLevel:=tiReadCommitted
-  else if (copy(TZConnection(aConnection).Protocol,0,5) = 'mssql') then
-    TZConnection(aConnection).TransactIsolationLevel:=tiReadUnCommitted;
-  TZConnection(aConnection).StartTransaction;
+  TSQLConnection(aConnection).Tag := Integer(TSQLConnection(aConnection).TransactIsolationLevel);
+  if ForceTransaction and (copy(TSQLConnection(aConnection).Protocol,0,6) = 'sqlite') then
+    TSQLConnection(aConnection).TransactIsolationLevel:=tiReadCommitted
+  else if (copy(TSQLConnection(aConnection).Protocol,0,8) = 'postgres') then
+    TSQLConnection(aConnection).TransactIsolationLevel:=tiReadCommitted
+  else if (copy(TSQLConnection(aConnection).Protocol,0,5) = 'mssql') then
+    TSQLConnection(aConnection).TransactIsolationLevel:=tiReadUnCommitted;
+  TSQLConnection(aConnection).StartTransaction;
 end;
 function TSqlDBDM.CommitTransaction(aConnection: TComponent): Boolean;
 begin
-  if not TZConnection(aConnection).AutoCommit then
-    TZConnection(aConnection).Commit;
-  if TZTransactIsolationLevel(TZConnection(aConnection).Tag) <> TZConnection(aConnection).TransactIsolationLevel then
-    TZConnection(aConnection).TransactIsolationLevel := TZTransactIsolationLevel(TZConnection(aConnection).Tag);
+  if not TSQLConnection(aConnection).AutoCommit then
+    TSQLConnection(aConnection).Commit;
+  if TZTransactIsolationLevel(TSQLConnection(aConnection).Tag) <> TSQLConnection(aConnection).TransactIsolationLevel then
+    TSQLConnection(aConnection).TransactIsolationLevel := TZTransactIsolationLevel(TSQLConnection(aConnection).Tag);
 end;
 function TSqlDBDM.RollbackTransaction(aConnection: TComponent): Boolean;
 begin
-  if not TZConnection(aConnection).AutoCommit then
-    TZConnection(aConnection).Rollback;
-  if TZTransactIsolationLevel(TZConnection(aConnection).Tag) <> TZConnection(aConnection).TransactIsolationLevel then
-    TZConnection(aConnection).TransactIsolationLevel := TZTransactIsolationLevel(TZConnection(aConnection).Tag);
+  if not TSQLConnection(aConnection).AutoCommit then
+    TSQLConnection(aConnection).Rollback;
+  if TZTransactIsolationLevel(TSQLConnection(aConnection).Tag) <> TSQLConnection(aConnection).TransactIsolationLevel then
+    TSQLConnection(aConnection).TransactIsolationLevel := TZTransactIsolationLevel(TSQLConnection(aConnection).Tag);
 end;
 function TSqlDBDM.TableExists(aTableName: string;aConnection : TComponent = nil;AllowLowercase: Boolean = False): Boolean;
 var
@@ -1838,8 +1838,8 @@ begin
           end
         else
           begin
-            TZConnection(aConnection).DbcConnection.GetMetadata.ClearCache;
-            TZConnection(aConnection).GetTableNames('','',Tables);
+            TSQLConnection(aConnection).DbcConnection.GetMetadata.ClearCache;
+            TSQLConnection(aConnection).GetTableNames('','',Tables);
             FMainConnection.GetTriggerNames('','',Triggers);
           end;
       end;
@@ -1866,12 +1866,12 @@ function TSqlDBDM.TriggerExists(aTriggerName: string; aConnection: TComponent;
 var
   i: Integer;
   tmp: String;
-  GeneralQuery: TZQuery;
+  GeneralQuery: TSQLQuery;
 begin
   if Triggers.Count= 0 then
     begin
-      GeneralQuery := TZQuery.Create(Self);
-      GeneralQuery.Connection:=TZConnection(MainConnection);
+      GeneralQuery := TSQLQuery.Create(Self);
+      GeneralQuery.Connection:=TSQLConnection(MainConnection);
       if (copy(FMainConnection.Protocol,0,10) = 'postgresql') then
         begin
           GeneralQuery.SQL.Text:='select tgname from pg_trigger;';
@@ -1918,7 +1918,7 @@ end;
 
 function TSqlDBDM.GetDBType: string;
 begin
-  Result:=TZConnection(MainConnection).Protocol;
+  Result:=TSQLConnection(MainConnection).Protocol;
   if copy(Result,0,8)='postgres' then Result := 'postgres';
   if Result='interbase' then Result := 'firebird';
   if Result='sqlite-3' then Result := 'sqlite';
@@ -1932,12 +1932,12 @@ end;
 function TSqlDBDM.CreateTrigger(aTriggerName: string; aTableName: string;
   aUpdateOn: string; aSQL: string;aField : string = ''; aConnection: TComponent = nil): Boolean;
 var
-  GeneralQuery: TZQuery;
+  GeneralQuery: TSQLQuery;
 begin
   if TriggerExists(aTableName+'_'+aTriggerName) then exit;
-  GeneralQuery := TZQuery.Create(Self);
-  GeneralQuery.Connection := TZConnection(MainConnection);
-  if Assigned(aConnection) then GeneralQuery.Connection:=TZConnection(aConnection);
+  GeneralQuery := TSQLQuery.Create(Self);
+  GeneralQuery.Connection := TSQLConnection(MainConnection);
+  if Assigned(aConnection) then GeneralQuery.Connection:=TSQLConnection(aConnection);
   if (copy(FMainConnection.Protocol,0,10) = 'postgresql') then
     begin
       if (aField <> '') and (aUpdateOn='UPDATE') then
@@ -1990,10 +1990,10 @@ begin
 end;
 function TSqlDBDM.DropTable(aTableName: string): Boolean;
 var
-  GeneralQuery: TZQuery;
+  GeneralQuery: TSQLQuery;
 begin
-  GeneralQuery := TZQuery.Create(Self);
-  GeneralQuery.Connection := TZConnection(MainConnection);
+  GeneralQuery := TSQLQuery.Create(Self);
+  GeneralQuery.Connection := TSQLConnection(MainConnection);
   GeneralQuery.SQL.Text := 'drop table '+QuoteField(aTableName);
   GeneralQuery.ExecSQL;
   GeneralQuery.Destroy;
