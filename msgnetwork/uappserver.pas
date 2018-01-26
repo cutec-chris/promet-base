@@ -127,13 +127,16 @@ begin
                     ListenOk:=True;
                     listen;
                     if LastError<>0 then
-                      ListenOk:=False
+                      begin
+                        WriteLn('listening failed ('+LastErrorDesc+'), retrying...');
+                        ListenOk:=False
+                      end
                     else
                       WriteLn('accepting connections on Port 8085')
                   end
                 else
                   begin
-                    WriteLn('listening failed ('+LastErrorDesc+'), retrying...');
+                    WriteLn('bind failed ('+LastErrorDesc+'), retrying...');
                     CloseSocket;
                     sleep(1000);
                   end;
