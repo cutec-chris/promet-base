@@ -766,7 +766,8 @@ begin
   DataSet.Locate('ORDERNO',FOrigID,[]);
   OrderType.Open;
   OrderType.DataSet.Locate('STATUS',DataSet.FieldByName('STATUS').AsString,[]);
-  RefreshActive;
+  if not CanEdit then
+    RefreshActive;
   Address.Open;
   SelectCurrency;
 end;
@@ -810,7 +811,7 @@ begin
         end;
       MainOrder.Next;
     end;
-  if not Found then //no order active ??
+  if (not Found) and (MainOrder.Count>0) then //no order active ??
     begin
       MainOrder.Last;
       if not MainOrder.CanEdit then MainOrder.Edit;

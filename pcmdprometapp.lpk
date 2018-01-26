@@ -23,12 +23,12 @@
     </Files>
     <RequiredPkgs Count="3">
       <Item1>
-        <PackageName Value="msgclient"/>
-        <DefaultFilename Value="msgclient/msgclient.lpk"/>
-      </Item1>
-      <Item2>
         <PackageName Value="promet_dblayer_zeos"/>
         <DefaultFilename Value="dblayer_zeos/promet_dblayer_zeos.lpk"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="msgclient"/>
+        <DefaultFilename Value="msgclient/msgclient.lpk"/>
       </Item2>
       <Item3>
         <PackageName Value="pPrometDBIntfs"/>
