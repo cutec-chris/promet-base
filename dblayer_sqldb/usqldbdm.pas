@@ -22,19 +22,26 @@ unit usqldbdm;
 interface
 uses
   Classes, SysUtils, db, uModifiedDS,sqldb,Utils,
-  uBaseDatasetInterfaces,syncobjs,uBaseDBInterface,uBaseDbClasses;
+  uBaseDatasetInterfaces,syncobjs,uBaseDBInterface,uBaseDbClasses,
+  dateutils;
 type
   TUnprotectedDataSet = class(TDataSet);
 
-  { TZeosDBDM }
+  { TSQLDbDBDM }
 
-  TSqlDBDM = class(TBaseDBModule)
+  TSQLDbDBDM = class(TBaseDBModule)
+    procedure FConnectionAfterConnect(Sender: TObject);
+    procedure FConnectionBeforeConnect(Sender: TObject);
   private
     FMainConnection : TSQLConnection;
     FLimitAfterSelect : Boolean;
     FLimitSTMT : string;
     FDBTyp : string;
     FProperties : string;
+    FPassword : string;
+    FEData : Boolean;
+    FDatabaseDir : Ansistring;
+    FProtocol: string;
     function GetConnection: TComponent;override;
     function DBExists : Boolean;
   protected
@@ -45,6 +52,7 @@ type
   public
     constructor Create(AOwner : TComponent);override;
     destructor Destroy;override;
+    property Protocol : string read FProtocol;
     function SetProperties(aProp : string;Connection : TComponent = nil) : Boolean;override;
     function CreateDBFromProperties(aProp: string): Boolean; override;
     function IsSQLDB : Boolean;override;
@@ -54,18 +62,21 @@ type
     function Ping(aConnection : TComponent) : Boolean;override;
     function DateToFilter(aValue : TDateTime) : string;override;
     function DateTimeToFilter(aValue : TDateTime) : string;override;
-    function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';AutoInc : Boolean = True) : Variant;override;
-    procedure StreamToBlobField(Stream : TStream;DataSet : TDataSet;Fieldname : string);override;
-    procedure BlobFieldToStream(DataSet: TDataSet; Fieldname: string;
-      dStream: TStream); override;
+    function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';Tablename : string = '';AutoInc : Boolean = True) : Variant;override;
+    procedure StreamToBlobField(Stream : TStream;DataSet : TDataSet;Fieldname : string;Tablename : string = '');override;
+    function BlobFieldStream(DataSet: TDataSet; Fieldname: string;Tablename : string = ''): TStream;
+      override;
     function GetErrorNum(e: EDatabaseError): Integer; override;
     procedure DeleteExpiredSessions;override;
     function GetNewConnection: TComponent;override;
     function QuoteField(aField: string): string; override;
+    function QuoteValue(aField: string): string; override;
     procedure Disconnect(aConnection : TComponent);override;
+    procedure Connect(aConnection: TComponent); override;
     function StartTransaction(aConnection : TComponent;ForceTransaction : Boolean = False): Boolean;override;
     function CommitTransaction(aConnection : TComponent): Boolean;override;
     function RollbackTransaction(aConnection : TComponent): Boolean;override;
+    function IsTransactionActive(aConnection : TComponent): Boolean;override;
     function TableExists(aTableName : string;aConnection : TComponent = nil;AllowLowercase: Boolean = False) : Boolean;override;
     function TriggerExists(aTriggerName: string; aConnection: TComponent=nil;
        AllowLowercase: Boolean=False): Boolean; override;
@@ -79,13 +90,16 @@ type
     function GetColumns(TableName : string) : TStrings;override;
   end;
 
-  { TSqlDBDataSet }
+  { TSQLDbDBDataSet }
 
-  TSqlDBDataSet = class(TSQLQuery,IBaseDBFilter,IBaseManageDB,IBaseSubDatasets,IBaseModifiedDS)
+  TSQLDbDBDataSet = class(TSQLQuery,IBaseDBFilter,IBaseManageDB,IBaseSubDatasets,IBaseModifiedDS)
+    procedure TDateTimeFieldGetText(Sender: TField; var aText: string;
+      DisplayText: Boolean);
   private
+    FFirstOpen : Boolean;
     FSubDataSets : Tlist;
     FFields : string;
-    FFilter,FBaseFilter : string;
+    FFilter,FBaseFilter,FIntFilter : string;
     FLimit : Integer;
     FMDS: TDataSource;
     FSortDirection : TSortDirection;
@@ -107,12 +121,15 @@ type
     FUseBaseSorting : Boolean;
     FUseIntegrity : Boolean;
     FChangeUni : Boolean;
-    FSQL : string;
+    FSQL,FIntSQL : string;
+    FParams : TStringList;
+    FInBeforePost : Boolean;
     FHasNewID : Boolean;
     procedure SetNewIDIfNull;
     function BuildSQL : string;
     function IndexExists(aIndexName : string) : Boolean;
     procedure WaitForLostConnection;
+    procedure DoUpdateSQL;
   protected
     //Internal DataSet Methods that needs to be changed
     procedure InternalOpen; override;
@@ -179,6 +196,8 @@ type
     procedure SetUpChangedBy(AValue: Boolean);
     function GetUseIntegrity: Boolean;
     procedure SetUseIntegrity(AValue: Boolean);
+    function GetAsReadonly: Boolean;
+    procedure SetAsReadonly(AValue: Boolean);
     //IBaseSubDataSets
     function GetSubDataSet(aName : string): TComponent;
     procedure RegisterSubDataSet(aDataSet : TComponent);
@@ -200,21 +219,38 @@ resourcestring
   strUnknownDbType                = 'Unbekannter Datenbanktyp';
   strDatabaseConnectionLost       = 'Die Datenbankverbindung wurde verlohren !';
 
-procedure TSqlDBDataSet.SetNewIDIfNull;
+procedure TSQLDbDBDataSet.TDateTimeFieldGetText(Sender: TField;
+  var aText: string; DisplayText: Boolean);
+begin
+  if not Sender.IsNull then
+    begin
+      if trunc(Sender.AsDateTime)=Sender.AsDateTime then
+        aText := FormatDateTime(ShortDateFormat,Sender.AsDateTime)
+      else
+        aText := FormatDateTime(ShortDateFormat+' '+ShortTimeFormat,Sender.AsDateTime);
+    end;
+end;
+
+procedure TSQLDbDBDataSet.SetNewIDIfNull;
 begin
   if (FieldDefs.IndexOf('AUTO_ID') = -1) and (FieldDefs.IndexOf('SQL_ID') > -1) and  FieldByName('SQL_ID').IsNull then
     begin
-      FieldByName('SQL_ID').AsVariant:=TBaseDBModule(Self.Owner).GetUniID(Transaction);
+      with Self as IBaseManageDB do
+        FieldByName('SQL_ID').AsVariant:=TBaseDBModule(Self.Owner).GetUniID(DBConnection,'GEN_SQL_ID',TableName);
       FHasNewID:=True;
     end
   else if (FieldDefs.IndexOf('SQL_ID') = -1) and (FieldDefs.IndexOf('AUTO_ID') > -1) and FieldByName('AUTO_ID').IsNull then
     begin
-      FieldByName('AUTO_ID').AsVariant:=TBaseDBModule(Self.Owner).GetUniID(Transaction,'GEN_AUTO_ID');
+      with Self as IBaseManageDB do
+        FieldByName('AUTO_ID').AsVariant:=TBaseDBModule(Self.Owner).GetUniID(DBConnection,'GEN_AUTO_ID',TableName);
       FHasNewID:=True;
     end;
 end;
 
-function TSqlDBDataSet.BuildSQL : string;
+function TSQLDbDBDataSet.BuildSQL : string;
+var
+  DoQuote : Boolean = False;
+
 function BuildJoins : string;
 var
   aDS : string;
@@ -224,8 +260,11 @@ begin
     begin
       Result := FTableNames;
       if Result = '' then
-        Result := FDefaultTableName;
-      Result := TBaseDBModule(Owner).QuoteField(Result);
+        begin
+          Result := TBaseDBModule(Owner).GetFullTableName(GetTableName);
+          DoQuote:=(pos('.',Result)>0) or DoQuote;
+        end
+      else Result := TBaseDBModule(Owner).QuoteField(Result);
       exit;
     end;
   tmp := FTableNames+',';
@@ -251,9 +290,9 @@ var
   procedure BuildSResult;
   begin
     SResult := '';
-    if pos(',',TSqlDBDM(Owner).QuoteField(FSortFields)) = 0 then
+    if pos(',',TSQLDbDBDM(Owner).QuoteField(FSortFields)) = 0 then
       begin
-        sResult += TSqlDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TSqlDBDM(Owner).QuoteField(FSortFields);
+        sResult += TSQLDbDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TSQLDbDBDM(Owner).QuoteField(FSortFields);
         if FSortDirection = sdAscending then
           sResult += ' ASC'
         else if FSortDirection = sdDescending then
@@ -271,7 +310,7 @@ var
         tmp := FSortFields;
         while pos(',',tmp) > 0 do
           begin
-            sResult += TSqlDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TSqlDBDM(Owner).QuoteField(copy(tmp,0,pos(',',tmp)-1));
+            sResult += TSQLDbDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TSQLDbDBDM(Owner).QuoteField(copy(tmp,0,pos(',',tmp)-1));
             tmp := copy(tmp,pos(',',tmp)+1,length(tmp));
             if FSortDirection = sdAscending then
               sResult += ' ASC'
@@ -282,7 +321,7 @@ var
           end;
         if tmp <> '' then
           begin
-            sResult += TSqlDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TSqlDBDM(Owner).QuoteField(tmp);
+            sResult += TSQLDbDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TSQLDbDBDM(Owner).QuoteField(tmp);
             if FSortDirection = sdAscending then
               sResult += ' ASC'
             else
@@ -295,15 +334,15 @@ begin
   if FSQL <> '' then
     begin
       BuildSResult;
-      if (FManagedFieldDefs.IndexOf('AUTO_ID') = -1) and (TSqlDBDM(Owner).UsersFilter <> '') and FUsePermissions then
+      if (FManagedFieldDefs.IndexOf('AUTO_ID') = -1) and (TSQLDbDBDM(Owner).UsersFilter <> '') and FUsePermissions and TSQLDbDBDM(Owner).TableExists('PERMISSIONS') then
         begin
-          PJ := ' LEFT JOIN '+TSqlDBDM(Owner).QuoteField('PERMISSIONS')+' ON ('+TSqlDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TSqlDBDM(Owner).QuoteField('REF_ID_ID')+'='+TSqlDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TSqlDBDM(Owner).QuoteField('SQL_ID')+')';
-          PW := ' AND ('+aFilter+') AND (('+TSqlDBDM(Owner).UsersFilter+') OR '+TSqlDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TSqlDBDM(Owner).QuoteField('USER')+' is NULL)';
+          PJ := ' LEFT JOIN '+TSQLDbDBDM(Owner).QuoteField('PERMISSIONS')+' ON ('+TSQLDbDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TSQLDbDBDM(Owner).QuoteField('REF_ID_ID')+'='+TSQLDbDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TSQLDbDBDM(Owner).QuoteField('SQL_ID')+')';
+          PW := ' AND ('+aFilter+') AND (('+TSQLDbDBDM(Owner).UsersFilter+') OR '+TSQLDbDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TSQLDbDBDM(Owner).QuoteField('USER')+' is NULL)';
         end
-      else if (FManagedFieldDefs.IndexOf('AUTO_ID') = -1) and FUsePermissions then
+      else if (FManagedFieldDefs.IndexOf('AUTO_ID') = -1) and FUsePermissions and TSQLDbDBDM(Owner).TableExists('PERMISSIONS') then
         begin
-          PJ := ' LEFT JOIN '+TSqlDBDM(Owner).QuoteField('PERMISSIONS')+' ON ('+TSqlDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TSqlDBDM(Owner).QuoteField('REF_ID_ID')+'='+TSqlDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TSqlDBDM(Owner).QuoteField('SQL_ID')+')';
-          PW := ' AND ('+TSqlDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TSqlDBDM(Owner).QuoteField('USER')+' is NULL)'
+          PJ := ' LEFT JOIN '+TSQLDbDBDM(Owner).QuoteField('PERMISSIONS')+' ON ('+TSQLDbDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TSQLDbDBDM(Owner).QuoteField('REF_ID_ID')+'='+TSQLDbDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TSQLDbDBDM(Owner).QuoteField('SQL_ID')+')';
+          PW := ' AND ('+TSQLDbDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TSQLDbDBDM(Owner).QuoteField('USER')+' is NULL)'
         end;
       PW := StringReplace(PW,'AND ()','',[rfReplaceAll]);
       Result := StringReplace(StringReplace(StringReplace(FSQL,'@PERMISSIONJOIN@',PJ,[]),'@PERMISSIONWHERE@',PW,[]),'@DEFAULTORDER@',SResult,[]);
@@ -313,13 +352,13 @@ begin
       Result := 'SELECT ';
       if FDistinct then
         Result := Result+'DISTINCT ';
-      if TSqlDBDM(Owner).LimitAfterSelect and ((FLimit > 0)) then
-        Result += Format(TSqlDBDM(Owner).LimitSTMT,[FLimit])+' ';
+      if TSQLDbDBDM(Owner).LimitAfterSelect and ((FLimit > 0)) then
+        Result += Format(TSQLDbDBDM(Owner).LimitSTMT,[':Limit'])+' ';
       if FFields = '' then
-        Result += TSqlDBDM(Owner).QuoteField(FDefaultTableName)+'.'+'* '
+        Result += TSQLDbDBDM(Owner).QuoteField(FDefaultTableName)+'.'+'* '
       else
         Result += FFields+' ';
-      aFilter := FFilter;
+      aFilter := FIntFilter;
       if (FBaseFilter <> '') and (aFilter <> '') then
         aFilter := '('+fBaseFilter+') and ('+aFilter+')'
       else if (FBaseFilter <> '') then
@@ -333,19 +372,29 @@ begin
               else
                 aRefField := 'SQL_ID';
             end;
-          if aFilter <> '' then
-            aFilter := '('+aFilter+') and ('+TSqlDBDM(Owner).QuoteField('REF_ID')+'=:'+TSqlDBDM(Owner).QuoteField(aRefField)+')'
+          if (aFilter <> '') and (pos('REF_ID',aFilter)=0) then
+            aFilter := '('+aFilter+') and ('+TSQLDbDBDM(Owner).QuoteField('REF_ID')+'=:'+TSQLDbDBDM(Owner).QuoteField(aRefField)+')'
+          else if (aFilter <> '') then //REF_ID in Filter so we use only the Filter
+            aFilter := '('+aFilter+')'
           else
-            aFilter := TSqlDBDM(Owner).QuoteField('REF_ID')+'=:'+TSqlDBDM(Owner).QuoteField(aRefField);
+            aFilter := TSQLDbDBDM(Owner).QuoteField('REF_ID')+'=:'+TSQLDbDBDM(Owner).QuoteField(aRefField);
+          if FieldDefs.IndexOf('DELETED')>-1 then
+            begin
+              if aFilter <> '' then
+                aFilter += ' AND ';
+              aFilter += TSQLDbDBDM(Owner).QuoteField('DELETED')+'<>'+TSQLDbDBDM(Owner).QuoteValue('Y');
+            end;
         end;
-      if (FManagedFieldDefs.IndexOf('AUTO_ID') = -1) and (TSqlDBDM(Owner).UsersFilter <> '') and FUsePermissions then
-        Result += 'FROM '+BuildJoins+' LEFT JOIN '+TSqlDBDM(Owner).QuoteField('PERMISSIONS')+' ON ('+TSqlDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TSqlDBDM(Owner).QuoteField('REF_ID_ID')+'='+TSqlDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TSqlDBDM(Owner).QuoteField('SQL_ID')+') WHERE ('+aFilter+') AND (('+TSqlDBDM(Owner).UsersFilter+') OR '+TSqlDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TSqlDBDM(Owner).QuoteField('USER')+' is NULL)'
-      else if (FManagedFieldDefs.IndexOf('AUTO_ID') = -1) and FUsePermissions then
-        Result += 'FROM '+BuildJoins+' LEFT JOIN '+TSqlDBDM(Owner).QuoteField('PERMISSIONS')+' ON ('+TSqlDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TSqlDBDM(Owner).QuoteField('REF_ID_ID')+'='+TSqlDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TSqlDBDM(Owner).QuoteField('SQL_ID')+') WHERE ('+aFilter+') AND ('+TSqlDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TSqlDBDM(Owner).QuoteField('USER')+' is NULL)'
+      if (FManagedFieldDefs.IndexOf('AUTO_ID') = -1) and (TSQLDbDBDM(Owner).UsersFilter <> '') and FUsePermissions and TSQLDbDBDM(Owner).TableExists('PERMISSIONS') then
+        Result += 'FROM '+BuildJoins+' LEFT JOIN '+TSQLDbDBDM(Owner).QuoteField('PERMISSIONS')+' ON ('+TSQLDbDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TSQLDbDBDM(Owner).QuoteField('REF_ID_ID')+'='+TSQLDbDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TSQLDbDBDM(Owner).QuoteField('SQL_ID')+') WHERE ('+aFilter+') AND (('+TSQLDbDBDM(Owner).UsersFilter+') OR '+TSQLDbDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TSQLDbDBDM(Owner).QuoteField('USER')+' is NULL)'
+      else if (FManagedFieldDefs.IndexOf('AUTO_ID') = -1) and FUsePermissions and TSQLDbDBDM(Owner).TableExists('PERMISSIONS') then
+        Result += 'FROM '+BuildJoins+' LEFT JOIN '+TSQLDbDBDM(Owner).QuoteField('PERMISSIONS')+' ON ('+TSQLDbDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TSQLDbDBDM(Owner).QuoteField('REF_ID_ID')+'='+TSQLDbDBDM(Owner).QuoteField(FDefaultTableName)+'.'+TSQLDbDBDM(Owner).QuoteField('SQL_ID')+') WHERE ('+aFilter+') AND ('+TSQLDbDBDM(Owner).QuoteField('PERMISSIONS')+'.'+TSQLDbDBDM(Owner).QuoteField('USER')+' is NULL)'
       else
         Result += 'FROM '+BuildJoins+' WHERE ('+aFilter+')';
       Result := StringReplace(Result,' WHERE () AND ','WHERE ',[]);
       Result := StringReplace(Result,' WHERE ()','',[]);
+      //if (copy(TSQLConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,5) = 'mssql') and DoQuote then
+      //  Result := '('+Result+')';
       if (FSortFields <> '') and ((FSortDirection <> sdIgnored) or (FBaseSortDirection <> sdIgnored)) then
         begin
           BuildSResult;
@@ -354,88 +403,116 @@ begin
           else
             Result += ' ORDER BY '+sResult;
         end;
-      if (FLimit > 0) and (not TSqlDBDM(Owner).LimitAfterSelect) then
-        Result += ' '+Format(TSqlDBDM(Owner).LimitSTMT,[FLimit]);
+      if (FLimit > 0) and (not TSQLDbDBDM(Owner).LimitAfterSelect) then
+        Result += ' '+Format(TSQLDbDBDM(Owner).LimitSTMT,[':Limit']);
     end
   else
     Result := SQL.text;
   if Assigned(FOrigTable) then TBaseDBModule(ForigTable.DataModule).LastStatement := Result;
 end;
-function TSqlDBDataSet.IndexExists(aIndexName: string): Boolean;
+function TSQLDbDBDataSet.IndexExists(aIndexName: string): Boolean;
 var
   CustomQuery: TSQLQuery;
 begin
   CustomQuery := TSQLQuery.Create(Self);
-  CustomQuery.Transaction := Transaction;
-  if (copy(TSQLConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,8) = 'firebird')
-  or (copy(TSQLConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,9) = 'interbase') then
+  CustomQuery.DataBase := DataBase;
+  if (copy(TSQLDbDBDM(Owner).Protocol,0,8) = 'firebird')
+  or (copy(TSQLDbDBDM(Owner).Protocol,0,9) = 'interbase') then
     begin
-      CustomQuery.SQL.Text := 'select rdb$index_name from rdb$indices where rdb$index_name='+TSqlDBDM(Owner).QuoteValue(indexname);
+      CustomQuery.SQL.Text := 'select rdb$index_name from rdb$indices where rdb$index_name='+TSQLDbDBDM(Owner).QuoteValue(indexname);
       CustomQuery.Open;
       Result := CustomQuery.RecordCount > 0;
       CustomQuery.Close;
     end
-  else if (copy(TSQLConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,6) = 'sqlite') then
+  else if (copy(TSQLDbDBDM(Owner).Protocol,0,6) = 'sqlite') then
     begin
-      CustomQuery.SQL.Text := 'select name from SQLITE_MASTER where "TYPE"=''index'' and NAME='+TSqlDBDM(Owner).QuoteValue(indexname);
+      CustomQuery.SQL.Text := 'select name from SQLITE_MASTER where "TYPE"=''index'' and NAME='+TSQLDbDBDM(Owner).QuoteValue(indexname);
       CustomQuery.Open;
       Result := CustomQuery.RecordCount > 0;
       CustomQuery.Close;
     end
-  else if (copy(TSQLConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,5) = 'mssql') then
+  else if (copy(TSQLDbDBDM(Owner).Protocol,0,5) = 'mssql') then
     begin
-      CustomQuery.SQL.Text := 'select name from dbo.sysindexes where NAME='+TSqlDBDM(Owner).QuoteValue(indexname);
+      CustomQuery.SQL.Text := 'select name from dbo.sysindexes where NAME='+TSQLDbDBDM(Owner).QuoteValue(indexname);
       CustomQuery.Open;
       Result := CustomQuery.RecordCount > 0;
       CustomQuery.Close;
     end
-  else if (copy(TSQLConnection(TBaseDBModule(Owner).MainConnection).Protocol,0,8) = 'postgres') then
+  else if (copy(TSQLDbDBDM(Owner).Protocol,0,8) = 'postgres') then
     begin
-      CustomQuery.SQL.Text := 'select * from pg_class where relname='+TSqlDBDM(Owner).QuoteValue(indexname);
+      CustomQuery.SQL.Text := 'select * from pg_class where relname='+TSQLDbDBDM(Owner).QuoteValue(indexname);
       CustomQuery.Open;
       Result := CustomQuery.RecordCount > 0;
       CustomQuery.Close;
     end
-  ;
+  else
+    begin
+      {TODO
+      Metadata := TZSQLMetaData.Create(TSQLConnection(TBaseDBModule(Owner).MainConnection));
+      MetaData.Connection := Connection;
+      MetaData.MetadataType:=mdIndexInfo;
+      Metadata.Catalog:=TSQLConnection(TBaseDBModule(Owner).MainConnection).Catalog;
+      Metadata.TableName:=copy(indexname,0,pos('_',indexname)-1);
+      MetaData.Filter:='INDEX_NAME='+TSQLDbDBDM(Owner).QuoteValue(indexname);
+      MetaData.Filtered:=True;
+      MetaData.Active:=True;
+      Result := MetaData.RecordCount > 0;
+      MetaData.Free;
+      }
+    end;
   CustomQuery.Free;
 end;
 
-procedure TSqlDBDataSet.WaitForLostConnection;
+procedure TSQLDbDBDataSet.WaitForLostConnection;
 var
   aConnThere: Boolean;
 begin
-  if not TSqlDBDM(Owner).Ping(Connection) then
+  if not TSQLDbDBDM(Owner).Ping(DataBase) then
     begin
-      if Assigned(TSqlDBDM(Owner).OnConnectionLost) then
-        TSqlDBDM(Owner).OnConnectionLost(TSqlDBDM(Owner));
+      if Assigned(TSQLDbDBDM(Owner).OnConnectionLost) then
+        TSQLDbDBDM(Owner).OnConnectionLost(TSQLDbDBDM(Owner));
       aConnThere := False;
       while not aConnThere do
         begin
           if GetCurrentThreadID=MainThreadID then
             begin
-              if Assigned(TSqlDBDM(Owner).OnDisconnectKeepAlive) then
-                TSqlDBDM(Owner).OnDisconnectKeepAlive(TSqlDBDM(Owner));
+              if Assigned(TSQLDbDBDM(Owner).OnDisconnectKeepAlive) then
+                TSQLDbDBDM(Owner).OnDisconnectKeepAlive(TSQLDbDBDM(Owner));
             end;
           try
-            if TSqlDBDM(Owner).Ping(Connection) then aConnThere := True
-            else sleep(200);
+            if TSQLDbDBDM(Owner).Ping(DataBase) then
+              aConnThere := True;
+            sleep(2000);
           except
             sleep(200);
           end;
         end;
-      if Assigned(TSqlDBDM(Owner).OnConnect) then
-        TSqlDBDM(Owner).OnConnect(TSqlDBDM(Owner));
+      if Assigned(TSQLDbDBDM(Owner).OnConnect) then
+        TSQLDbDBDM(Owner).OnConnect(TSQLDbDBDM(Owner));
     end;
 end;
 
-function TSqlDBDataSet.CreateTable : Boolean;
+procedure TSQLDbDBDataSet.DoUpdateSQL;
+begin
+  Close;
+  if FSQL<>'' then
+    SetSQL(FSQL)
+  else
+    begin
+      SQL.Text:='';
+      FIntSQL := '';
+      SetFilter(FFilter);
+    end;
+end;
+
+function TSQLDbDBDataSet.CreateTable : Boolean;
 var
   aSQL: String;
   i: Integer;
-  bConnection: TZAbstractConnection = nil;
-//  bConnection: TSQLConnection = nil;
+  bConnection: TSQLConnection = nil;
   GeneralQuery: TSQLQuery;
   RestartTransaction: Boolean = False;
+  NewTableName: String;
 begin
   Result := False;
   with TBaseDBModule(Owner) do
@@ -444,57 +521,56 @@ begin
         begin
           if FFields = '' then
             DoCheck := True;
-          bConnection := Connection;
+          bConnection := TSQLConnection(MainConnection);
           Result := True;
-          aSQL := 'CREATE TABLE '+QuoteField(Uppercase(Self.FDefaultTableName))+' ('+lineending;
-          if FManagedFieldDefs.IndexOf('AUTO_ID') = -1 then
-            aSQL += TSqlDBDM(Self.Owner).FieldToSQL('SQL_ID',ftLargeInt,0,True)+' PRIMARY KEY,'+lineending
-          else
+          NewTableName := GetFullTableName(GetTableName);
+          aSQL := 'CREATE TABLE '+NewTableName+' ('+lineending;
+          if FUpStdFields then
             begin
-              aSQL += TSqlDBDM(Self.Owner).FieldToSQL('AUTO_ID',ftLargeInt,0,True)+' PRIMARY KEY,'+lineending;
-            end;
-          if Assigned(MasterSource) then
-            begin
-              aSQL += TSqlDBDM(Self.Owner).FieldToSQL('REF_ID',ftLargeInt,0,True);
-              if FUseIntegrity then
+              if FManagedFieldDefs.IndexOf('AUTO_ID') = -1 then
+                aSQL += TSQLDbDBDM(Self.Owner).FieldToSQL('SQL_ID',ftLargeInt,0,True)+' PRIMARY KEY,'+lineending
+              else
                 begin
-                  with MasterSource.DataSet as IBaseManageDB do
+                  aSQL += TSQLDbDBDM(Self.Owner).FieldToSQL('AUTO_ID',ftLargeInt,0,True)+' PRIMARY KEY,'+lineending;
+                end;
+            end;
+          if Assigned(DataSource) and (FManagedFieldDefs.IndexOf('REF_ID')=-1) then
+            begin
+              aSQL += TSQLDbDBDM(Self.Owner).FieldToSQL('REF_ID',ftLargeInt,0,True);
+              if FUseIntegrity
+              and (pos('.',NewTableName)=-1) //Wenn eigene Tabelle in externer Datenbank, keine Ref. Intigrität
+              and (pos('.',GetFullTableName(TSQLDbDBDataSet(DataSource.DataSet).DefaultTableName))=-1) then //Wenn übergeordnete Tabelle in externer Datenbank, keine Ref. Intigrität
+                begin
+                  with DataSource.DataSet as IBaseManageDB do
                     begin
                       if ManagedFieldDefs.IndexOf('AUTO_ID') = -1 then
-                        aSQL += ' REFERENCES '+QuoteField(TSqlDBDataSet(MasterSource.DataSet).DefaultTableName)+'('+QuoteField('SQL_ID')+') ON DELETE CASCADE'
+                        aSQL += ' REFERENCES '+QuoteField(TSQLDbDBDataSet(DataSource.DataSet).DefaultTableName)+'('+QuoteField('SQL_ID')+') ON DELETE CASCADE'
                       else
-                        aSQL += ' REFERENCES '+QuoteField(TSqlDBDataSet(MasterSource.DataSet).DefaultTableName)+'('+QuoteField('AUTO_ID')+') ON DELETE CASCADE';
+                        aSQL += ' REFERENCES '+QuoteField(TSQLDbDBDataSet(DataSource.DataSet).DefaultTableName)+'('+QuoteField('AUTO_ID')+') ON DELETE CASCADE';
                     end;
-                  if (copy(TSQLConnection(TBaseDBModule(Self.Owner).MainConnection).Protocol,0,6) = 'sqlite') then
+                  if (copy(TSQLDbDBDM(Self.Owner).Protocol,0,6) = 'sqlite') then
                     aSQL += ' DEFERRABLE INITIALLY DEFERRED';
                 end;
               aSQL+=','+lineending;
             end;
           for i := 0 to FManagedFieldDefs.Count-1 do
             if FManagedFieldDefs[i].Name <> 'AUTO_ID' then
-              aSQL += TSqlDBDM(Self.Owner).FieldToSQL(FManagedFieldDefs[i].Name,FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,FManagedFieldDefs[i].Required)+','+lineending;
-          aSQL += TSqlDBDM(Self.Owner).FieldToSQL('TIMESTAMPD',ftDateTime,0,True)+');';
-          try
-            try
-              GeneralQuery := TSQLQuery.Create(Self);
-              GeneralQuery.Connection := bConnection;
-              GeneralQuery.SQL.Text := aSQL;
-              GeneralQuery.ExecSQL;
-              if bConnection.InTransaction then
-                begin
-                  TSqlDBDM(Self.Owner).CommitTransaction(bConnection);
-                  TSqlDBDM(Self.Owner).StartTransaction(bConnection);
-                end;
-            except
-            end;
-          finally
-            GeneralQuery.Destroy;
-          end;
+              aSQL += TSQLDbDBDM(Self.Owner).FieldToSQL(FManagedFieldDefs[i].Name,FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,FManagedFieldDefs[i].Required)+','+lineending;
+          if FUpStdFields then
+            aSQL += TSQLDbDBDM(Self.Owner).FieldToSQL('TIMESTAMPD',ftDateTime,0,True)+');'
+          else
+            aSql := copy(aSQL,0,length(aSQL)-2)+');';
+          with BaseApplication as IBaseApplication do
+            Debug(aSQL);
+          TSQLConnection(bConnection).ExecuteDirect(aSQL);
+          //TODO:reconnect to DB and reopen all tables that WAS open
+          //TSQLConnection(bConnection).Disconnect;
+          //TSQLConnection(bConnection).Connect;
         end;
     end;
   Close;
 end;
-function TSqlDBDataSet.CheckTable: Boolean;
+function TSQLDbDBDataSet.CheckTable: Boolean;
 var
   i: Integer;
 begin
@@ -504,10 +580,17 @@ begin
       if DoCheck or (FFields = '') then
           begin
             for i := 0 to FManagedFieldDefs.Count-1 do
-              if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name) = -1) and (FManagedFieldDefs[i].Name <> 'AUTO_ID') then
-                begin
-                  Result := True;
-                end;
+              begin
+                if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name) = -1) and (FManagedFieldDefs[i].Name <> 'AUTO_ID') then
+                  begin
+                    Result := True;
+                  end
+                else if FieldDefs.IndexOf(FManagedFieldDefs[i].Name)>-1 then
+                  begin
+                    if FieldByName(FManagedFieldDefs[i].Name).Size<FManagedFieldDefs[i].Size then
+                      Result := True;
+                  end;
+              end;
             if Assigned(FManagedIndexDefs) then
               for i := 0 to FManagedIndexDefs.Count-1 do                                           //Primary key
                 if (not IndexExists(Uppercase(Self.DefaultTableName+'_'+FManagedIndexDefs.Items[i].Name))) and (FManagedIndexDefs.Items[i].Name <>'SQL_ID') then
@@ -521,86 +604,174 @@ begin
         end;
     end;
 end;
-function TSqlDBDataSet.AlterTable: Boolean;
+function TSQLDbDBDataSet.AlterTable: Boolean;
 var
   i: Integer;
   aSQL: String;
   GeneralQuery: TSQLQuery;
-  Changed: Boolean;
-  aConnection : TZAbstractConnection;
+  Changed: Boolean = False;
+  aConnection : TSQLConnection;
+  tmpSize: Integer;
 begin
   Result := True;
+  with BaseApplication as IBaseApplication do
+    Debug('AlterTable:'+FDefaultTableName);
   try
     if FFields <> '' then exit;
     with TBaseDBModule(Owner) do
       begin
         for i := 0 to FManagedFieldDefs.Count-1 do
-          if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name) = -1) and (FManagedFieldDefs[i].Name <> 'AUTO_ID') then
-            begin
-              aSQL := 'ALTER TABLE '+QuoteField(FDefaultTableName)+' ADD '+TSqlDBDM(Self.Owner).FieldToSQL(FManagedFieldDefs[i].Name,FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
-              aConnection := Connection;
-              GeneralQuery := TSQLQuery.Create(Self);
-              try
-                GeneralQuery.Connection := aConnection;
-                GeneralQuery.SQL.Text := aSQL;
-                GeneralQuery.ExecSQL;
-              finally
-                GeneralQuery.Free;
+          begin
+            if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name) = -1) and (FManagedFieldDefs[i].Name <> 'AUTO_ID') then
+              begin
+                aSQL := 'ALTER TABLE '+GetFullTableName(FDefaultTableName)+' ADD '+TSQLDbDBDM(Self.Owner).FieldToSQL(FManagedFieldDefs[i].Name,FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
+                with BaseApplication as IBaseApplication do
+                  Debug(aSQL);
+                aConnection := TSQLConnection(DataBase);
+                try
+                  TSQLConnection(aConnection).ExecuteDirect(aSQL);
+                  Changed := True;
+                  Result := True;
+                except
+                end;
+              end
+            else if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name)>-1) then
+              begin
+                tmpSize := FieldByName(FManagedFieldDefs[i].Name).DisplayWidth;
+                if (tmpSize<FManagedFieldDefs[i].Size)
+                and (tmpSize<>255) //mssql workaround we have no field that has 255 chars size
+                then
+                  begin
+                    with BaseApplication as IBaseApplication do
+                      Debug(FManagedFieldDefs[i].Name+': ist '+IntToStr(tmpSize)+' soll '+IntToStr(FManagedFieldDefs[i].Size));
+                    if (copy(TSQLDbDBDM(Self.Owner).Protocol,0,8) = 'postgres') then
+                      aSQL := 'ALTER TABLE '+GetFullTableName(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' TYPE '+TSQLDbDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';'
+                    else if (copy(TSQLDbDBDM(Self.Owner).Protocol,0,6) = 'sqlite') then
+                    else
+                      aSQL := 'ALTER TABLE '+GetFullTableName(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' '+TSQLDbDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
+                    with BaseApplication as IBaseApplication do
+                      Debug(aSQL);
+                    aConnection := TSQLConnection(DataBase);
+                    if aSQL<>'' then
+                      begin
+                        with BaseApplication as IBaseApplication do
+                          Debug(aSQL);
+                        try
+                          TSQLConnection(aConnection).ExecuteDirect(aSQL);
+                          Changed := True;
+                          Result := True;
+                        except
+                        end;
+                      end;
+                  end;
               end;
-              Changed := True;
-              Result := True;
-            end;
+          end;
         aSQL := '';
         if Assigned(FManagedIndexDefs) then
           for i := 0 to FManagedIndexDefs.Count-1 do                                           //Primary key
-            if (not IndexExists(Uppercase(Self.DefaultTableName+'_'+FManagedIndexDefs.Items[i].Name))) and (FManagedIndexDefs.Items[i].Name <>'SQL_ID') then
-              begin
-                aSQL := aSQL+'CREATE ';
-                if ixUnique in FManagedIndexDefs.Items[i].Options then
-                  aSQL := aSQL+'UNIQUE ';
-                aSQL := aSQL+'INDEX '+QuoteField(Uppercase(Self.DefaultTableName+'_'+FManagedIndexDefs.Items[i].Name))+' ON '+QuoteField(Self.DefaultTableName)+' ('+QuoteField(StringReplace(FManagedIndexDefs.Items[i].Fields,';',QuoteField(','),[rfReplaceAll]))+');'+lineending;
-                if aSQL <> '' then
+            begin
+              try
+                if (not IndexExists(Uppercase(Self.DefaultTableName+'_'+FManagedIndexDefs.Items[i].Name))) and (FManagedIndexDefs.Items[i].Name <>'SQL_ID') and (pos('.',GetFullTableName(Self.DefaultTableName))=0) then
                   begin
-                    try
-                      GeneralQuery := TSQLQuery.Create(Self);
-                      GeneralQuery.Connection := Connection;
-                      GeneralQuery.SQL.Text := aSQL;
-                      GeneralQuery.ExecSQL;
-                    finally
-                      GeneralQuery.Free;
-                      aSQL := '';
-                    end;
+                    aSQL := 'CREATE ';
+                    if ixUnique in FManagedIndexDefs.Items[i].Options then
+                      aSQL := aSQL+'UNIQUE ';
+                    aSQL := aSQL+'INDEX '+QuoteField(Uppercase(Self.DefaultTableName+'_'+FManagedIndexDefs.Items[i].Name))+' ON '+GetFullTableName(Self.DefaultTableName)+' ('+QuoteField(StringReplace(FManagedIndexDefs.Items[i].Fields,';',QuoteField(','),[rfReplaceAll]))+');'+lineending;
+                    if aSQL <> '' then
+                      begin
+                        with BaseApplication as IBaseApplication do
+                          Debug(aSQL);
+                        TSQLConnection(DataBase).ExecuteDirect(aSQL);
+                      end;
+                    Result := True;
                   end;
-                Result := True;
+              except
               end;
+            end;
       end;
   except
-    Result := False;
+    on e : Exception do
+      begin
+        with BaseApplication as IBaseApplication do
+          Error('Altering failed:'+e.Message);
+        Result := False;
+      end;
   end;
-  TBaseDBModule(Self.Owner).UpdateTableVersion(Self.FDefaultTableName);
+  if Result and Changed and (Self.FDefaultTableName<>'TABLEVERSIONS') then
+    begin
+      with BaseApplication as IBaseApplication do
+        Info('Table '+Self.FDefaultTableName+' resetting Metadata Infos...');
+      try
+        //TODO:DataBase.DbcConnection.GetMetadata.ClearCache;
+      except
+      end;
+    end;
+  if Changed then
+    begin
+      TBaseDBModule(Self.Owner).UpdateTableVersion(Self.FDefaultTableName);
+      Self.Unprepare;
+    end;
 end;
-procedure TSqlDBDataSet.InternalOpen;
+
+procedure TSQLDbDBDataSet.InternalOpen;
 var
   a: Integer;
 begin
-  if Assigned(FOrigTable) then
+  if (not Assigned(DataBase)) or (not DataBase.Connected) then exit;
+  //TODO?? if TSQLDbDBDM(Self.Owner).Protocol='mysql' then
+  //  Properties.Values['ValidateUpdateCount'] := 'False';
+  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
     TBaseDBModule(ForigTable.DataModule).LastTime := GetTicks;
-  if TSqlDBDM(Owner).IgnoreOpenRequests then exit;
+  if TSQLDbDBDM(Owner).IgnoreOpenRequests then exit;
+  if FFirstOpen then
+    begin
+      FIntSQL := BuildSQL;
+      SQL.Text := FIntSQL;
+      if (FLimit>0) and Assigned(Params.FindParam('Limit')) and ((FLimit>90))  then
+        ParamByName('Limit').AsInteger:=FLimit;
+      FFirstOpen:=False;
+    end;
+  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
+    TBaseDBModule(ForigTable.DataModule).CriticalSection.Enter;
   try
       try
         inherited InternalOpen;
       except
-        InternalClose;
-        if TSqlDBDM(Owner).Ping(Connection) then
-          inherited InternalOpen
-        else
+        on e : Exception do
           begin
-            WaitForLostConnection;
-            inherited InternalOpen;
+            if (TSQLDbDBDM(Owner).CheckedTables.IndexOf(Self.GetTableName)>-1) and TSQLDbDBDM(Owner).Ping(DataBase) then
+              begin
+                try
+                  if pos('exist',e.Message)>0 then
+                    begin
+                      TSQLDbDBDM(Owner).CheckedTables.Delete(TSQLDbDBDM(Owner).CheckedTables.IndexOf(Self.GetTableName));
+                      if TSQLDbDBDM(Owner).Ping(DataBase) then
+                        CreateTable;
+                    end;
+                  inherited InternalOpen;
+                except
+                  if TSQLDbDBDM(Owner).Ping(DataBase) then
+                  else
+                    begin
+                      WaitForLostConnection;
+                      inherited InternalOpen;
+                    end;
+                end;
+              end
+            else
+              begin
+                if TSQLDbDBDM(Owner).Ping(DataBase) then
+                  raise
+                else
+                  begin
+                    WaitForLostConnection;
+                    inherited InternalOpen;
+                  end;
+              end;
           end;
       end;
       try
-      if Assigned(FOrigTable) then
+      if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
         begin
           FOrigTable.SetDisplayLabels(Self);
           if FOrigTable.UpdateFloatFields then
@@ -624,9 +795,11 @@ begin
                         end;
                     end;
                   if (Fields[a] is TDateTimeField)
-                  or (Fields[a] is TDateField)
                   then
-                    TDateTimeField(Fields[a]).DisplayFormat := ShortDateFormat+' '+ShortTimeFormat;
+                    begin
+                      TDateTimeField(Fields[a]).DisplayFormat := ShortDateFormat+' '+ShortTimeFormat;
+                      TDateTimeField(Fields[a]).OnGetText:=@TDateTimeFieldGetText;
+                    end;
                 end;
               EnableControls;
             end;
@@ -637,20 +810,32 @@ begin
           raise;
         end;
       end;
+      if ReadOnly then
+        with BaseApplication as IBaseApplication do
+          if Assigned(FOrigTable) then
+            begin
+              Warning(FOrigTable.TableName+' Dataset is read Only !');
+              ReadOnly:=False;
+            end;
   finally
+    if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
+      TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
   end;
 end;
 
-procedure TSqlDBDataSet.InternalRefresh;
+procedure TSQLDbDBDataSet.InternalRefresh;
 begin
-  if TSqlDBDM(Owner).IgnoreOpenRequests then exit;
+  if TSQLDbDBDM(Owner).IgnoreOpenRequests then exit;
+  if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
+    TBaseDBModule(ForigTable.DataModule).CriticalSection.Enter;
+  try
   try
     inherited InternalRefresh;
   except
     InternalClose;
     if not Active then
       begin
-        if TSqlDBDM(Owner).Ping(Connection) then
+        if TSQLDbDBDM(Owner).Ping(DataBase) then
           InternalOpen
         else
           begin
@@ -659,76 +844,18 @@ begin
           end;
       end;
   end;
-end;
-
-procedure TSqlDBDataSet.InternalPost;
-var
-  ok : boolean = false;
-  rc : Integer = 0;
-
-  function CheckID : Boolean;
-  var
-    aDs: TDataSet;
-  begin
-    if (FieldDefs.IndexOf('AUTO_ID') = -1) and (FieldDefs.IndexOf('SQL_ID') > -1)  then
-      begin
-        aDs := TBaseDBModule(FOrigTable.DataModule).GetNewDataSet('select '+TBaseDBModule(FOrigTable.DataModule).QuoteField('SQL_ID')+' from '+TBaseDBModule(FOrigTable.DataModule).QuoteField(DefaultTableName)+' where '+TBaseDBModule(FOrigTable.DataModule).QuoteField('SQL_ID')+'='+TBaseDBModule(FOrigTable.DataModule).QuoteValue(FieldByName('SQL_ID').AsVariant));
-      end
-    else if (FieldDefs.IndexOf('SQL_ID') = -1) and (FieldDefs.IndexOf('AUTO_ID') > -1) then
-      begin
-        aDs := TBaseDBModule(FOrigTable.DataModule).GetNewDataSet('select '+TBaseDBModule(FOrigTable.DataModule).QuoteField('AUTO_ID')+' from '+TBaseDBModule(FOrigTable.DataModule).QuoteField(DefaultTableName)+' where '+TBaseDBModule(FOrigTable.DataModule).QuoteField('AUTO_ID')+'='+TBaseDBModule(FOrigTable.DataModule).QuoteValue(FieldByName('AUTO_ID').AsVariant));
-      end;
-    aDs.Open;
-    Result := aDs.RecordCount>0;
-    aDs.Free;
-  end;
-
-  procedure CleanID;
-  begin
-    if (FieldDefs.IndexOf('AUTO_ID') = -1) and (FieldDefs.IndexOf('SQL_ID') > -1)  then
-      begin
-        FieldByName('SQL_ID').AsVariant:=Null
-      end
-    else if (FieldDefs.IndexOf('SQL_ID') = -1) and (FieldDefs.IndexOf('AUTO_ID') > -1) then
-      begin
-        FieldByName('AUTO_ID').AsVariant:=Null;
-      end;
-  end;
-
-begin
-  try
-    while not ok do
-      begin
-        ok := True;
-        try
-          inherited InternalPost;
-        except
-          begin
-            inc(rc);
-            ok := false;
-            if (FHasNewID and (rc<3)) then
-              begin
-                CleanID;
-                SetNewIDIfNull;
-                while CheckID do
-                  begin
-                    CleanID;
-                    SetNewIDIfNull;
-                  end;
-              end
-            else
-              begin
-                raise;
-                exit;
-              end;
-          end;
-        end;
-      end;
   finally
+    if Assigned(FOrigTable) and Assigned(ForigTable.DataModule) then
+      TBaseDBModule(ForigTable.DataModule).CriticalSection.Leave;
   end;
 end;
 
-procedure TSqlDBDataSet.DoAfterInsert;
+procedure TSQLDbDBDataSet.InternalPost;
+begin
+  inherited InternalPost;
+end;
+
+procedure TSQLDbDBDataSet.DoAfterInsert;
 begin
   inherited DoAfterInsert;
   if Assigned(FOrigTable) then
@@ -738,24 +865,31 @@ begin
       FOrigTable.EnableChanges;
     end;
 end;
-procedure TSqlDBDataSet.DoBeforePost;
+procedure TSQLDbDBDataSet.DoBeforePost;
 var
   UserCode: String;
 begin
   inherited DoBeforePost;
+  if FInBeforePost then exit;
+  try
+  FInBeforePost := True;
   if Assigned(Self.FOrigTable) then
     Self.FOrigTable.DisableChanges;
   FHasNewID:=False;
-  try
   SetNewIDIfNull;
   if FUpStdFields and Assigned(FOrigTable) {and (FOrigTable.Changed)} then
     begin
+      {$IF FPC_FULLVERSION>20600}
+      if (FieldDefs.IndexOf('TIMESTAMPD') > -1) then
+        FieldByName('TIMESTAMPD').AsDateTime:=LocalTimeToUniversal(Now());
+      {$ELSE}
       if (FieldDefs.IndexOf('TIMESTAMPD') > -1) then
         FieldByName('TIMESTAMPD').AsDateTime:=Now();
+      {$ENDIF}
       with BaseApplication as IBaseDBInterface do
         begin
-          if Data.Users.DataSet.Active then
-            UserCode := Data.Users.IDCode.AsString
+          if TBaseDBModule(ForigTable.DataModule).Users.DataSet.Active and ((FieldDefs.IndexOf('CREATEDBY') > -1) or (FieldDefs.IndexOf('CHANGEDBY') > -1)) then
+            UserCode := TBaseDBModule(ForigTable.DataModule).Users.IDCode.AsString
           else UserCode := 'SYS';
           if (FieldDefs.IndexOf('CREATEDBY') > -1) and (FieldByName('CREATEDBY').IsNull) then
             FieldByName('CREATEDBY').AsString:=UserCode;
@@ -771,11 +905,12 @@ begin
         FieldbyName('REF_ID').AsVariant:=DataSource.DataSet.FieldByName('SQL_ID').AsVariant;
     end;
   finally
+    FInBeforePost:= False;
     if Assigned(Self.FOrigTable) then
       Self.FOrigTable.EnableChanges;
   end;
 end;
-procedure TSqlDBDataSet.DoBeforeInsert;
+procedure TSQLDbDBDataSet.DoBeforeInsert;
 begin
   if Assigned(DataSource) then
     begin
@@ -792,38 +927,38 @@ begin
   inherited DoBeforeInsert;
 end;
 
-procedure TSqlDBDataSet.DoBeforeEdit;
+procedure TSQLDbDBDataSet.DoBeforeEdit;
 begin
   inherited DoBeforeEdit;
 end;
 
-procedure TSqlDBDataSet.DoBeforeDelete;
+procedure TSQLDbDBDataSet.DoBeforeDelete;
 begin
   inherited DoBeforeDelete;
   if (GetTableName='DELETEDITEMS')
-  or (GetTableName='TABLEVERSIONS')
+  or (GetTableName='DBTABLES')
   then exit;
   try
     if Assigned(FOrigTable) and Assigned(FOrigTable.OnRemove) then FOrigTable.OnRemove(FOrigTable);
     if GetUpStdFields = True then
-      TSqlDBDM(Owner).DeleteItem(FOrigTable);
+      TSQLDbDBDM(Owner).DeleteItem(FOrigTable);
   except
   end;
 end;
-procedure TSqlDBDataSet.DoAfterDelete;
+procedure TSQLDbDBDataSet.DoAfterDelete;
 begin
   inherited DoAfterDelete;
   if Assigned(FOrigTable) then
     FOrigTable.Change;
 end;
-procedure TSqlDBDataSet.DoAfterScroll;
+procedure TSQLDbDBDataSet.DoAfterScroll;
 begin
   inherited DoAfterScroll;
   if Assigned(ForigTable) then
     FOrigTable.UnChange;
 end;
 
-procedure TSqlDBDataSet.DoBeforeCancel;
+procedure TSQLDbDBDataSet.DoBeforeCancel;
 begin
   inherited DoBeforeCancel;
   if State = dsInsert then
@@ -832,112 +967,160 @@ begin
     end;
 end;
 
-function TSqlDBDataSet.GetFields: string;
+function TSQLDbDBDataSet.GetFields: string;
 begin
   Result := FFields;
 end;
-function TSqlDBDataSet.GetFilter: string;
+function TSQLDbDBDataSet.GetFilter: string;
 begin
   Result := FFilter;
 end;
-function TSqlDBDataSet.GetBaseFilter: string;
+function TSQLDbDBDataSet.GetBaseFilter: string;
 begin
   Result := FBaseFilter;
 end;
-function TSqlDBDataSet.GetLimit: Integer;
+function TSQLDbDBDataSet.GetLimit: Integer;
 begin
   Result := FLimit;
 end;
-function TSqlDBDataSet.GetSortDirection: TSortDirection;
+function TSQLDbDBDataSet.GetSortDirection: TSortDirection;
 begin
   Result := FSortDirection;
 end;
-function TSqlDBDataSet.GetSortFields: string;
+function TSQLDbDBDataSet.GetSortFields: string;
 begin
   Result := FSortFields;
 end;
 
-function TSqlDBDataSet.GetLocalSortFields: string;
+function TSQLDbDBDataSet.GetLocalSortFields: string;
 begin
-  Result := SortedFields;
+  Result := '';//SortedFields;
 end;
 
-function TSqlDBDataSet.GetBaseSortFields: string;
+function TSQLDbDBDataSet.GetBaseSortFields: string;
 begin
   Result := FBaseSortFields;
 end;
-function TSqlDBDataSet.GetSortLocal: Boolean;
+function TSQLDbDBDataSet.GetSortLocal: Boolean;
 begin
-  Result := SortType <> stIgnored;
+  Result := False;//SortType <> stIgnored;
 end;
-procedure TSqlDBDataSet.SetFields(const AValue: string);
+procedure TSQLDbDBDataSet.SetFields(const AValue: string);
 begin
-  FFields := AValue;
-  Close;
-  SQL.text := BuildSQL;
-end;
-procedure TSqlDBDataSet.SetFilter(const AValue: string);
-begin
-  if (FFilter=AValue) and (SQL.text<>'') then
+  if FFields<>AValue then
     begin
-      if (AValue<>'') or (pos('where',SQL.Text)=0) then
+      FFields := AValue;
+      DoUpdateSQL;
+    end;
+end;
+procedure TSQLDbDBDataSet.SetFilter(const AValue: string);
+var
+  NewSQL: string;
+  i: Integer;
+  aPar: TParam;
+begin
+  if (FFilter=AValue) and (SQL.text<>'')  then
+    begin
+      if (AValue<>'') or (pos('where',lowercase(SQL.Text))=0) then
         exit;
     end;
-  if TSqlDBDM(Owner).CheckForInjection(AValue) then exit;
-  FFilter := AValue;
-  FSQL := '';
+  TSQLDbDBDM(Owner).DecodeFilter(AValue,FParams,NewSQL);
   Close;
-  SQL.text := BuildSQL;
+  FFilter := AValue;
+  if (FIntFilter<>NewSQL) or (SQL.Text='')  then //Params and SQL has changed
+    begin
+      FSQL := '';
+      if TSQLDbDBDM(Owner).CheckForInjection(AValue) then exit;
+      FIntFilter:=NewSQL;
+      FIntSQL := '';
+      FIntSQL := BuildSQL;
+      Params.Clear;
+      SQL.text := FIntSQL;
+    end;
+  for i := 0 to FParams.Count-1 do
+    begin
+      if Assigned(Params.FindParam(FParams.Names[i])) then
+        begin
+          aPar := ParamByName(FParams.Names[i]);
+          aPar.AsString:=FParams.ValueFromIndex[i];
+        end;
+    end;
+  if (FLimit>0) and Assigned(Params.FindParam('Limit')) then
+    ParamByName('Limit').AsInteger:=FLimit;
 end;
-procedure TSqlDBDataSet.SetBaseFilter(const AValue: string);
+procedure TSQLDbDBDataSet.SetBaseFilter(const AValue: string);
 begin
   FBaseFilter := AValue;
-  Close;
-  SQL.text := BuildSQL;
+  DoUpdateSQL;
 end;
-function TSqlDBDataSet.GetSQL: string;
+function TSQLDbDBDataSet.GetSQL: string;
 begin
   Result := FSQL;
 end;
-procedure TSqlDBDataSet.SetSQL(const AValue: string);
+procedure TSQLDbDBDataSet.SetSQL(const AValue: string);
+var
+  NewSQL: string;
+  i: Integer;
+  aPar: TParam;
 begin
-  FSQL := AValue;
+  if TSQLDbDBDM(Owner).CheckForInjection(AValue) then exit;
+  if AValue=FSQL then exit;
   Close;
-  SQL.text := BuildSQL;
+  Params.Clear;
+  FParams.Clear;
+  FSQL := AValue;
+  FIntSQL := BuildSQL;
+  FFilter := '';
+  FIntFilter:='';
+  SQL.Text := FIntSQL;
+  {
+  TSQLDbDBDM(Owner).DecodeFilter(AValue,FParams,NewSQL);
+  Params.Clear;
+  FSQL := NewSQL;
+  FIntSQL := BuildSQL;
+  FFilter := '';
+  SQL.Text := FIntSQL;
+  for i := 0 to FParams.Count-1 do
+    begin
+      aPar := ParamByName(FParams.Names[i]);
+      aPar.AsString:=FParams.ValueFromIndex[i];
+    end;
+  }
+  if (FLimit>0) and Assigned(Params.FindParam('Limit')) then
+    ParamByName('Limit').AsInteger:=FLimit;
 end;
-procedure TSqlDBDataSet.Setlimit(const AValue: Integer);
+procedure TSQLDbDBDataSet.Setlimit(const AValue: Integer);
 begin
   if FLimit = AValue then exit;
   FLimit := AValue;
-  Close;
-  SQL.text := BuildSQL;
+  DoUpdateSQL;
 end;
-procedure TSqlDBDataSet.SetSortDirection(const AValue: TSortDirection);
+procedure TSQLDbDBDataSet.SetSortDirection(const AValue: TSortDirection);
 begin
   if (FSortDirection=AValue) and Active then exit;
   FSortDirection := AValue;
   if not GetSortLocal then
     begin
-      Close;
-      SQL.text := BuildSQL;
+      DoUpdateSQL;
     end;
 end;
-procedure TSqlDBDataSet.SetSortFields(const AValue: string);
+procedure TSQLDbDBDataSet.SetSortFields(const AValue: string);
 begin
   FSortFields := AValue;
 end;
 
-procedure TSqlDBDataSet.SetLocalSortFields(const AValue: string);
+procedure TSQLDbDBDataSet.SetLocalSortFields(const AValue: string);
 begin
-  SortedFields:=AValue;
+  //TODO??SortedFields:=AValue;
 end;
 
-procedure TSqlDBDataSet.SetBaseSortFields(const AValue: string);
+procedure TSQLDbDBDataSet.SetBaseSortFields(const AValue: string);
 begin
   FBaseSortFields := AValue;
 end;
-procedure TSqlDBDataSet.SetSortLocal(const AValue: Boolean);
+procedure TSQLDbDBDataSet.SetSortLocal(const AValue: Boolean);
 begin
+  {
   if AValue then
     begin
       if FSortDirection = sdAscending then
@@ -949,157 +1132,148 @@ begin
     end
   else
     SortType := stIgnored;
+  }
 end;
-function TSqlDBDataSet.GetFilterTables: string;
+function TSQLDbDBDataSet.GetFilterTables: string;
 begin
   Result := FTableNames;
 end;
-procedure TSqlDBDataSet.SetFilterTables(const AValue: string);
+procedure TSQLDbDBDataSet.SetFilterTables(const AValue: string);
 begin
   if AValue = FTableNames then exit;
   FTableNames := AValue;
-  Close;
-  SQL.text := BuildSQL;
+  DoUpdateSQL;
 end;
-function TSqlDBDataSet.GetUsePermissions: Boolean;
+function TSQLDbDBDataSet.GetUsePermissions: Boolean;
 begin
   Result := FUsePermissions;
 end;
-procedure TSqlDBDataSet.SetUsePermisions(const AValue: Boolean);
+procedure TSQLDbDBDataSet.SetUsePermisions(const AValue: Boolean);
 begin
   if AValue = FUsePermissions then exit;
   FUsePermissions := AValue;
-  Close;
-  SQL.text := BuildSQL;
+  DoUpdateSQL;
 end;
-function TSqlDBDataSet.GetDistinct: Boolean;
+function TSQLDbDBDataSet.GetDistinct: Boolean;
 begin
   Result := FDistinct;
 end;
-procedure TSqlDBDataSet.SetDistinct(const AValue: Boolean);
+procedure TSQLDbDBDataSet.SetDistinct(const AValue: Boolean);
 begin
   if AValue = FDistinct then exit;
   FDistinct := AValue;
-  Close;
-  SQL.text := BuildSQL;
+  DoUpdateSQL;
 end;
-function TSqlDBDataSet.GetBaseSorting: string;
+function TSQLDbDBDataSet.GetBaseSorting: string;
 begin
   Result := FBaseSorting;
 end;
-procedure TSqlDBDataSet.SetBaseSorting(AValue: string);
+procedure TSQLDbDBDataSet.SetBaseSorting(AValue: string);
 begin
   FBaseSorting := AValue;
 end;
 
-function TSqlDBDataSet.GetBaseSortDirection: TSortDirection;
+function TSQLDbDBDataSet.GetBaseSortDirection: TSortDirection;
 begin
   Result := FBaseSortDirection;
 end;
-procedure TSqlDBDataSet.SetBaseSortDirection(AValue: TSortDirection);
+procedure TSQLDbDBDataSet.SetBaseSortDirection(AValue: TSortDirection);
 begin
   FBaseSortDirection := AValue;
 end;
-function TSqlDBDataSet.GetUseBaseSorting: Boolean;
+function TSQLDbDBDataSet.GetUseBaseSorting: Boolean;
 begin
   Result := FUseBaseSorting;
 end;
-procedure TSqlDBDataSet.SetUseBaseSorting(AValue: Boolean);
+procedure TSQLDbDBDataSet.SetUseBaseSorting(AValue: Boolean);
 begin
   FUseBaseSorting := AValue;
-  SQL.text := BuildSQL;
+  DoUpdateSQL;
 end;
-function TSqlDBDataSet.GetfetchRows: Integer;
+function TSQLDbDBDataSet.GetfetchRows: Integer;
 begin
-  result := FetchRow;
+  //TODO:result := FetchRow;
 end;
-procedure TSqlDBDataSet.SetfetchRows(AValue: Integer);
+procedure TSQLDbDBDataSet.SetfetchRows(AValue: Integer);
 begin
-  FetchRow:=AValue;
+  //TODO:FetchRow:=AValue;
 end;
-function TSqlDBDataSet.GetManagedFieldDefs: TFieldDefs;
+function TSQLDbDBDataSet.GetManagedFieldDefs: TFieldDefs;
 begin
   Result := FManagedFieldDefs;
 end;
-function TSqlDBDataSet.GetManagedIndexDefs: TIndexDefs;
+function TSQLDbDBDataSet.GetManagedIndexDefs: TIndexDefs;
 begin
   Result := FManagedIndexDefs;
 end;
-function TSqlDBDataSet.GetTableName: string;
+function TSQLDbDBDataSet.GetTableName: string;
 begin
   Result := FDefaultTableName;
 end;
-procedure TSqlDBDataSet.SetTableName(const AValue: string);
+procedure TSQLDbDBDataSet.SetTableName(const AValue: string);
 begin
   FDefaultTableName := AValue;
 end;
-function TSqlDBDataSet.GetConnection: TComponent;
+function TSQLDbDBDataSet.GetConnection: TComponent;
 begin
-  Result := Connection;
+  Result := DataBase;
 end;
-function TSqlDBDataSet.GetTableCaption: string;
+function TSQLDbDBDataSet.GetTableCaption: string;
 begin
   Result := FTableCaption;
 end;
-procedure TSqlDBDataSet.SetTableCaption(const AValue: string);
+procedure TSQLDbDBDataSet.SetTableCaption(const AValue: string);
 begin
   FTableCaption := AValue;
 end;
-function TSqlDBDataSet.GetUpStdFields: Boolean;
+function TSQLDbDBDataSet.GetUpStdFields: Boolean;
 begin
   Result := FUpStdFields;
 end;
 
-procedure TSqlDBDataSet.SetUpStdFields(AValue: Boolean);
+procedure TSQLDbDBDataSet.SetUpStdFields(AValue: Boolean);
 begin
   FUpStdFields := AValue;
 end;
 
-function TSqlDBDataSet.GetUpChangedBy: Boolean;
+function TSQLDbDBDataSet.GetUpChangedBy: Boolean;
 begin
   Result := FUpChangedBy;
 end;
 
-procedure TSqlDBDataSet.SetUpChangedBy(AValue: Boolean);
+procedure TSQLDbDBDataSet.SetUpChangedBy(AValue: Boolean);
 begin
   FUpChangedBy:=AValue;
 end;
 
-function TSqlDBDataSet.GetUseIntegrity: Boolean;
+function TSQLDbDBDataSet.GetUseIntegrity: Boolean;
 begin
   Result := FUseIntegrity;
 end;
-procedure TSqlDBDataSet.SetUseIntegrity(AValue: Boolean);
+procedure TSQLDbDBDataSet.SetUseIntegrity(AValue: Boolean);
 begin
   FUseIntegrity:=AValue;
 end;
-procedure TSqlDBDataSet.SetFieldData(Field: TField; Buffer: Pointer);
+
+function TSQLDbDBDataSet.GetAsReadonly: Boolean;
+begin
+  result := Self.ReadOnly;
+end;
+
+procedure TSQLDbDBDataSet.SetAsReadonly(AValue: Boolean);
+begin
+  Self.ReadOnly:=AValue;
+end;
+
+procedure TSQLDbDBDataSet.SetFieldData(Field: TField; Buffer: Pointer);
 var
   tmp: String;
 begin
   inherited;
-  {
-  try
-    if ((Field.DataType=ftString)
-    or (Field.DataType=ftWideString)
-    ) and (not FChangeUni)
-    then
-      begin
-        tmp := SysToUni(Field.AsString);
-        if tmp <> Field.AsString then
-          begin
-            FChangeUni := True;
-            Field.AsString:=tmp;
-            FChangeUni := False;
-          end;
-      end;
-  except
-  end;
-  }
   if Assigned(FOrigTable) then
     FOrigTable.Change;
 end;
-function TSqlDBDataSet.GetSubDataSet(aName: string): TComponent;
+function TSQLDbDBDataSet.GetSubDataSet(aName: string): TComponent;
 var
   i: Integer;
 begin
@@ -1109,29 +1283,33 @@ begin
       if TableName = aName then
         Result := TBaseDBDataSet(FSubDataSets[i]);
 end;
-procedure TSqlDBDataSet.RegisterSubDataSet(aDataSet: TComponent);
+procedure TSQLDbDBDataSet.RegisterSubDataSet(aDataSet: TComponent);
+var
+  i: Integer;
 begin
   FSubDataSets.Add(aDataSet);
 end;
-function TSqlDBDataSet.GetCount: Integer;
+function TSQLDbDBDataSet.GetCount: Integer;
 begin
   Result := FSubDataSets.Count;
 end;
-function TSqlDBDataSet.GetSubDataSetIdx(aIdx: Integer): TComponent;
+function TSQLDbDBDataSet.GetSubDataSetIdx(aIdx: Integer): TComponent;
 begin
   Result := nil;
   if aIdx < FSubDataSets.Count then
     Result := TBaseDbDataSet(FSubDataSets[aIdx]);
 end;
-function TSqlDBDataSet.IsChanged: Boolean;
+function TSQLDbDBDataSet.IsChanged: Boolean;
 begin
   Result := Modified;
   if Assigned(FOrigTable) then
     Result := ForigTable.Changed;
 end;
-constructor TSqlDBDataSet.Create(AOwner: TComponent);
+constructor TSQLDbDBDataSet.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FFirstOpen:=True;
+  FSQL := '';
   DoCheck := False;
   fBaseSorting := '%s';
   FChangeUni:=False;
@@ -1141,16 +1319,18 @@ begin
   FManagedIndexDefs := TIndexDefs.Create(Self);
   FSubDataSets := TList.Create;
   FUsePermissions := False;
-  Options:= [doCalcDefaults, doAlwaysDetailResync, doDontSortOnPost, doPreferPrepared{, doPreferPreparedResolver}];
   FOrigTable := nil;
-  SortType := stIgnored;
+  //TODO:SortType := stIgnored;
   FUpStdFields := True;
   FUpChangedBy := True;
   FUseIntegrity:=False;//disable for sync
+  FParams := TStringList.Create;
+  FInBeforePost := False;
 end;
-destructor TSqlDBDataSet.Destroy;
+destructor TSQLDbDBDataSet.Destroy;
 begin
   //TODO: Free Subdatasets ??
+  FParams.Free;
   FManagedFieldDefs.Free;
   FManagedIndexDefs.Free;
   FSubDataSets.Free;
@@ -1160,71 +1340,52 @@ begin
   end;
 end;
 
-procedure TSqlDBDataSet.DoExecSQL;
+procedure TSQLDbDBDataSet.DoExecSQL;
 begin
   ExecSQL;
 end;
 
-function TSqlDBDataSet.NumRowsAffected: Integer;
+function TSQLDbDBDataSet.NumRowsAffected: Integer;
 begin
   Result := RowsAffected;
 end;
 
-procedure TSqlDBDM.MonitorTrace(Sender: TObject; Event: TZLoggingEvent;
-  var LogTrace: Boolean);
+procedure TSQLDbDBDM.FConnectionAfterConnect(Sender: TObject);
 begin
-  if LastTime>0 then
-    LastTime := GetTicks-LastTime;
-  if LastTime<0 then LastTime := 0;
-  if Assigned(BaseApplication) then
-    with BaseApplication as IBaseApplication do
-      begin
-        if Event.Error<>'' then
-          Error(Event.AsString+'('+LastStatement+')')
-        else if BaseApplication.HasOption('debug-sql') then
-          Debug(Event.AsString)
-        else if (LastTime)>50 then
-          Debug('Long running Query:'+IntToStr(round(LastTime))+' '+Event.AsString);
-        LastTime:=0;
-        LastStatement:='';
-      end;
+  TSQLConnection(Sender).Password:=Encrypt(TSQLConnection(Sender).Password,9997);
 end;
-function TSqlDBDM.GetConnection: TComponent;
+
+procedure TSQLDbDBDM.FConnectionBeforeConnect(Sender: TObject);
+begin
+  TSQLConnection(Sender).Password:=Decrypt(TSQLConnection(Sender).Password,9997);
+end;
+
+function TSQLDbDBDM.GetConnection: TComponent;
 begin
   Result := TComponent(FMainConnection);
 end;
-function TSqlDBDM.DBExists: Boolean;
+function TSQLDbDBDM.DBExists: Boolean;
 begin
   Result := TableExists('USERS') and TableExists('GEN_SQL_ID') and TableExists('GEN_AUTO_ID');
 end;
 
-function TSqlDBDM.GetLimitAfterSelect: Boolean;
+function TSQLDbDBDM.GetLimitAfterSelect: Boolean;
 begin
   Result := FLimitAfterSelect;
 end;
 
-function TSqlDBDM.GetLimitSTMT: string;
+function TSQLDbDBDM.GetLimitSTMT: string;
 begin
   Result := FLimitSTMT;
 end;
 
-function TSqlDBDM.GetSyncOffset: Integer;
+function TSQLDbDBDM.GetSyncOffset: Integer;
 var
-  Statement: IZStatement;
-  ResultSet: IZResultSet;
   bConnection: TComponent;
 begin
-  if Assigned(Sequence) then
-    begin
-      bConnection := MainConnection;
-      Sequence.Connection := TSQLConnection(bConnection);
-      Result := Sequence.GetCurrentValue shr 56;
-      Sequence.Connection := nil;
-    end
-  else
-    begin
+  TSQLConnection(MainConnection).
       Statement := TSQLConnection(MainConnection).DbcConnection.CreateStatement;
-      ResultSet := Statement.ExecuteQuery('SELECT "ID" FROM "GEN_SQL_ID"');
+      ResultSet := Statement.ExecuteQuery('SELECT '+QuoteField('ID')+' FROM '+QuoteField('GEN_SQL_ID'));
       if ResultSet.Next then
         Result := ResultSet.GetLong(1) shr 56
       else Result := 0;
@@ -1232,7 +1393,7 @@ begin
       Statement.Close;
     end;
 end;
-procedure TSqlDBDM.SetSyncOffset(const AValue: Integer);
+procedure TSQLDbDBDM.SetSyncOffset(const AValue: Integer);
 var
   Statement: IZStatement;
   aVal: Int64;
@@ -1246,69 +1407,79 @@ begin
   else
     begin
       Statement := TSQLConnection(MainConnection).DbcConnection.CreateStatement;
-      Statement.Execute('update "GEN_SQL_ID" set "ID"='+IntToStr(aVal));
+      Statement.Execute('update '+QuoteField('GEN_SQL_ID')+' set '+QuoteField('ID')+'='+IntToStr(aVal));
       Statement.Close;
     end;
 end;
-constructor TSqlDBDM.Create(AOwner: TComponent);
+constructor TSQLDbDBDM.Create(AOwner: TComponent);
 begin
-  FDataSetClass := TSqlDBDataSet;
+  FDataSetClass := TSQLDbDBDataSet;
   FMainConnection := TSQLConnection.Create(AOwner);
-  Monitor := TZSQLMonitor.Create(FMainConnection);
-  Monitor.Active:=True;
-  Monitor.OnTrace:=@MonitorTrace;
+  //if BaseApplication.HasOption('debug') or BaseApplication.HasOption('debug-sql') then
+    begin
+      Monitor := TZSQLMonitor.Create(FMainConnection);
+      Monitor.Active:=True;
+      Monitor.OnTrace:=@MonitorTrace;
+    end
+  //else Monitor:=nil
+  ;
   Sequence := nil;
+  FEData := False;
   inherited Create(AOwner);
 end;
-destructor TSqlDBDM.Destroy;
+destructor TSQLDbDBDM.Destroy;
 begin
-  if FMainconnection.Connected then
-    FMainConnection.Disconnect;
-  if Assigned(Sequence) then
-    begin
-      Sequence.Connection := nil;
-      FreeAndNil(Sequence);
-    end;
-  Monitor.Free;
-  FMainConnection.Free;
   try
+    if FMainconnection.Connected then
+      FMainConnection.Disconnect;
+    if Assigned(Sequence) then
+      begin
+        Sequence.Connection := nil;
+        FreeAndNil(Sequence);
+      end;
+    try
+      //FMainConnection.Destroy;
+    except
+    end;
     inherited Destroy;
   except
   end;
 end;
-function TSqlDBDM.SetProperties(aProp: string;Connection : TComponent = nil): Boolean;
+function TSQLDbDBDM.SetProperties(aProp: string;Connection : TComponent = nil): Boolean;
 var
   tmp: String;
   FConnection : TSQLConnection;
+  actDir: String;
 begin
-  inherited;
   if Assigned(BaseApplication) then
     with BaseApplication as IBaseDBInterface do
       LastError := '';
   FProperties := aProp;
   FConnection := TSQLConnection(Connection);
   if not Assigned(FConnection) then
-    begin
-      FConnection := FMainConnection;
-      if FConnection.Connected then
-        FConnection.Disconnect;
-    end;
+    FConnection := FMainConnection;
   Result := True;
   tmp := aProp;
   try
+    CleanupSession;
     if FConnection.Connected then
       FConnection.Disconnect;
     FConnection.Port:=0;
     FConnection.Properties.Clear;
-    FConnection.Properties.Add('timeout=2');
-    FConnection.ClientCodepage:='UTF8';
+    FConnection.Properties.Add('timeout=3');
     FConnection.Protocol:='';
     FConnection.User:='';
     FConnection.Password:='';
     FConnection.HostName:='';
     FConnection.Database:='';
     FConnection.Properties.Clear;
-    FConnection.Protocol:=copy(tmp,0,pos(';',tmp)-1);
+    if copy(tmp,0,pos(';',tmp)-1) <> 'sqlite-3-edata' then
+      FProtocol:=copy(tmp,0,pos(';',tmp)-1)
+    else
+      begin
+        FProtocol:='sqlite-3';
+        FEData:=True;
+      end;
     Assert(FConnection.Protocol<>'',strUnknownDbType);
     tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
     FConnection.HostName := copy(tmp,0,pos(';',tmp)-1);
@@ -1324,6 +1495,7 @@ begin
       end;
     tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
     FConnection.Database:=copy(tmp,0,pos(';',tmp)-1);
+    FDatabaseDir:=ExtractFileDir(ExpandFileName(FConnection.Database));
     tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
     FConnection.User := copy(tmp,0,pos(';',tmp)-1);
     tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
@@ -1331,43 +1503,76 @@ begin
       FConnection.Password := Decrypt(copy(tmp,2,length(tmp)),99998)
     else
       FConnection.Password := tmp;
+    FConnection.Password:=Encrypt(FConnection.Password,9997);
+    FConnection.BeforeConnect:=@FConnectionBeforeConnect;
+    FConnection.AfterConnect:=@FConnectionAfterConnect;
     if (copy(FConnection.Protocol,0,6) = 'sqlite')
-    or (copy(FConnection.Protocol,0,8) = 'postgres')
     then
       begin
-        FConnection.TransactIsolationLevel:=tiNone;
-        if (copy(FConnection.Protocol,0,6) = 'sqlite') then
+        if Connection=MainConnection then //Dont check this on attatched db´s (we want to create them on the fly)
           if not FileExists(FConnection.Database) then
             raise Exception.Create('Databasefile dosend exists');
+        FConnection.TransactIsolationLevel:=tiNone;
+      end;
+    if (copy(FConnection.Protocol,0,8) = 'postgres')
+    then
+      begin
+        FConnection.Properties.Add('compression=true');
+        {$IFDEF CPUARM}
+        FConnection.Properties.Add('sslmode=disable');
+        {$ENDIF}
+        FConnection.TransactIsolationLevel:=tiNone;
+        FConnection.AutoEncodeStrings:=true;
       end
-    else if (copy(FConnection.Protocol,0,5) = 'mssql') then
-      FConnection.TransactIsolationLevel:=tiReadUnCommitted
     else if (copy(FConnection.Protocol,0,8) = 'firebird')
     or (copy(FConnection.Protocol,0,9) = 'interbase')
-    or (copy(FConnection.Protocol,0,5) = 'mysql')
     then
       begin
         FConnection.TransactIsolationLevel:=tiReadCommitted;
+      end
+    else if (copy(FConnection.Protocol,0,5) = 'mysql') then
+      begin
+        FConnection.TransactIsolationLevel:=tiReadUncommitted;
+        FConnection.Properties.Clear;
+        FConnection.Properties.Add('compression=true');
+        //FConnection.Properties.Add('codepage=UTF8');
+        //FConnection.Properties.Add('timeout=0');
+        FConnection.Properties.Add('ValidateUpdateCount=-1');
+        FConnection.Properties.Add('MYSQL_OPT_RECONNECT=TRUE');
+      end
+    else if (copy(FConnection.Protocol,0,5) = 'mssql') then
+      begin
+        FConnection.TransactIsolationLevel:=tiReadUncommitted;
+        FConnection.AutoEncodeStrings:=true;
       end;
+    FConnection.Properties.Add('Undefined_Varchar_AsString_Length= 255');
+
+    inherited;
+
+    //*********Connect***********
+
     FConnection.Connected:=True;
+
     FLimitAfterSelect := False;
-    FLimitSTMT := 'LIMIT %d';
+    FLimitSTMT := 'LIMIT %s';
     FDBTyp := FConnection.Protocol;
     if FConnection.Protocol = 'sqlite-3' then
       begin
-//        FConnection.ExecuteDirect('PRAGMA synchronous = NORMAL;');
-//        FConnection.ExecuteDirect('PRAGMA cache_size = 5120;');
-//        FConnection.ExecuteDirect('PRAGMA auto_vacuum = FULL;');
-        FConnection.ExecuteDirect('PRAGMA journal_mode = MEMORY;');
+        //FConnection.ExecuteDirect('PRAGMA synchronous = NORMAL;');
+        FConnection.ExecuteDirect('PRAGMA cache_size = 5120;');
+        //FConnection.ExecuteDirect('PRAGMA auto_vacuum = INCREMENTAL;');
+        //FConnection.ExecuteDirect('PRAGMA journal_mode = TRUNCATE;');
         FConnection.ExecuteDirect('PRAGMA recursive_triggers = ON;');
         FConnection.ExecuteDirect('PRAGMA foreign_keys = ON;');
         FConnection.ExecuteDirect('PRAGMA case_sensitive_like = ON;');
+        //FConnection.ExecuteDirect('PRAGMA secure_delete = ON;');
+        //FConnection.ExecuteDirect('PRAGMA incremental_vacuum(50);');
       end
     else if (copy(FConnection.Protocol,0,8) = 'firebird')
          or (copy(FConnection.Protocol,0,9) = 'interbase') then
       begin
         FDBTyp := 'firebird';
-        FLimitSTMT := 'ROWS 1 TO %d';
+        FLimitSTMT := 'ROWS 1 TO %s';
         if not Assigned(Sequence) then
           begin
             Sequence := TZSequence.Create(Owner);
@@ -1376,7 +1581,7 @@ begin
     else if FConnection.Protocol = 'mssql' then
       begin
         FLimitAfterSelect := True;
-        FLimitSTMT := 'TOP %d';
+        FLimitSTMT := 'TOP %s';
       end;
   except on e : Exception do
     begin
@@ -1386,6 +1591,7 @@ begin
       Result := False;
     end;
   end;
+  CheckedTables.Clear;
   if Result then
     begin
       if not DBExists then //Create generators
@@ -1423,10 +1629,27 @@ begin
               Result := False;
             end;
           end;
+        end
+      else
+        begin
+          if Assigned(MandantDetails) then
+            begin
+              try
+                MandantDetails.Open;
+                DBTables.Open;
+                actDir := GetCurrentDir;
+                SetCurrentDir(ExtractFileDir(FConnection.Database));
+                if Assigned(MandantDetails.FieldByName('DBSTATEMENTS')) and (MandantDetails.FieldByName('DBSTATEMENTS').AsString<>'') then
+                  FConnection.ExecuteDirect(MandantDetails.FieldByName('DBSTATEMENTS').AsString);
+                SetCurrentDir(actDir);
+              except
+
+              end;
+            end;
         end;
     end;
 end;
-function TSqlDBDM.CreateDBFromProperties(aProp: string): Boolean;
+function TSQLDbDBDM.CreateDBFromProperties(aProp: string): Boolean;
 var
   FConnection: TSQLConnection;
   tmp: String;
@@ -1507,18 +1730,18 @@ begin
   Result := FConnection.Connected;
   FConnection.Free;
 end;
-function TSqlDBDM.IsSQLDB: Boolean;
+function TSQLDbDBDM.IsSQLDB: Boolean;
 begin
   Result:=True;
 end;
-function TSqlDBDM.GetNewDataSet(aTable: TBaseDBDataSet;
+function TSQLDbDBDM.GetNewDataSet(aTable: TBaseDBDataSet;
   aConnection: TComponent; MasterData: TDataSet; aTables: string): TDataSet;
 begin
   if IgnoreOpenrequests then exit;
   Result := FDataSetClass.Create(Self);
   if not Assigned(aConnection) then
     aConnection := MainConnection;
-  with TSqlDBDataSet(Result) do
+  with TSQLDbDBDataSet(Result) do
     begin
       Connection := TSQLConnection(aConnection);
       FTableNames := aTables;
@@ -1527,50 +1750,51 @@ begin
       FOrigTable := aTable;
       if Assigned(Masterdata) then
         begin
-          if not Assigned(TSqlDBDataSet(MasterData).MasterDataSource) then
+          if not Assigned(TSQLDbDBDataSet(MasterData).MasterDataSource) then
             begin
-              TSqlDBDataSet(MasterData).MasterDataSource := TDataSource.Create(Self);
-              TSqlDBDataSet(MasterData).MasterDataSource.DataSet := MasterData;
+              TSQLDbDBDataSet(MasterData).MasterDataSource := TDataSource.Create(Self);
+              TSQLDbDBDataSet(MasterData).MasterDataSource.DataSet := MasterData;
             end;
-          DataSource := TSqlDBDataSet(MasterData).MasterDataSource;
-          MasterSource := TSqlDBDataSet(MasterData).MasterDataSource;
+          DataSource := TSQLDbDBDataSet(MasterData).MasterDataSource;
+          MasterSource := TSQLDbDBDataSet(MasterData).MasterDataSource;
           with Masterdata as IBaseSubDataSets do
             RegisterSubDataSet(aTable);
         end;
     end;
 end;
-function TSqlDBDM.GetNewDataSet(aSQL: string; aConnection: TComponent;
+function TSQLDbDBDM.GetNewDataSet(aSQL: string; aConnection: TComponent;
   MasterData : TDataSet = nil;aOrigtable : TBaseDBDataSet = nil): TDataSet;
 begin
   Result := FDataSetClass.Create(Self);
   if not Assigned(aConnection) then
     aConnection := MainConnection;
-  with TSqlDBDataSet(Result) do
+  with TSQLDbDBDataSet(Result) do
     begin
       FOrigTable := aOrigtable;
       Connection := TSQLConnection(aConnection);
       SQL.Text := aSQL;
+      FSQL:=aSQL;
       if Assigned(Masterdata) then
         begin
-          if not Assigned(TSqlDBDataSet(MasterData).MasterDataSource) then
+          if not Assigned(TSQLDbDBDataSet(MasterData).MasterDataSource) then
             begin
-              TSqlDBDataSet(MasterData).MasterDataSource := TDataSource.Create(Self);
-              TSqlDBDataSet(MasterData).MasterDataSource.DataSet := MasterData;
+              TSQLDbDBDataSet(MasterData).MasterDataSource := TDataSource.Create(Self);
+              TSQLDbDBDataSet(MasterData).MasterDataSource.DataSet := MasterData;
             end;
-          DataSource := TSqlDBDataSet(MasterData).MasterDataSource;
-          MasterSource := TSqlDBDataSet(MasterData).MasterDataSource;
+          DataSource := TSQLDbDBDataSet(MasterData).MasterDataSource;
+          MasterSource := TSQLDbDBDataSet(MasterData).MasterDataSource;
         end;
     end;
 end;
 
-procedure TSqlDBDM.DestroyDataSet(DataSet: TDataSet);
+procedure TSQLDbDBDM.DestroyDataSet(DataSet: TDataSet);
 begin
   try
-    if Assigned(DataSet) and Assigned(TSqlDBDataSet(DataSet).MasterSource) then
+    if Assigned(DataSet) and Assigned(TSQLDbDBDataSet(DataSet).MasterSource) then
       begin
-        TSqlDBDataSet(DataSet).MasterSource.DataSet.DataSource.Free;
-        TSqlDBDataSet(DataSet).MasterSource := nil;
-        TSqlDBDataSet(DataSet).DataSource := nil;
+        TSQLDbDBDataSet(DataSet).MasterSource.DataSet.DataSource.Free;
+        TSQLDbDBDataSet(DataSet).MasterSource := nil;
+        TSQLDbDBDataSet(DataSet).DataSource := nil;
       end;
   except
     with BaseApplication as IBaseApplication do
@@ -1578,38 +1802,44 @@ begin
   end;
 end;
 
-function TSqlDBDM.Ping(aConnection: TComponent): Boolean;
+function TSQLDbDBDM.Ping(aConnection: TComponent): Boolean;
 var
   atime: Integer;
 begin
   Result := True;
-  exit;
   try
-    Result := TSQLConnection(aConnection).Ping;
+    if (copy(TSQLConnection(aConnection).Protocol,0,6)<>'sqlite')
+    and (copy(TSQLConnection(aConnection).Protocol,0,5)<>'mssql')
+    then
+      Result := TSQLConnection(aConnection).Ping
+    else Result := True;
   except
-    Result := False;
+    if copy(TSQLConnection(aConnection).Protocol,0,6)<>'sqlite' then
+      Result := PingHost(TSQLConnection(aConnection).HostName)>-1;//Unsupported
   end;
 end;
-function TSqlDBDM.DateToFilter(aValue: TDateTime): string;
+function TSQLDbDBDM.DateToFilter(aValue: TDateTime): string;
 begin
   if FMainConnection.Protocol = 'mssql' then
     Result := QuoteValue(FormatDateTime('YYYYMMDD',aValue))
   else
     Result:=inherited DateToFilter(aValue);
 end;
-function TSqlDBDM.DateTimeToFilter(aValue: TDateTime): string;
+function TSQLDbDBDM.DateTimeToFilter(aValue: TDateTime): string;
 begin
   if FMainConnection.Protocol = 'mssql' then
     Result := QuoteValue(FormatDateTime('YYYYMMDD HH:MM:SS.ZZZZ',aValue))
   else
     Result:=inherited DateTimeToFilter(aValue);
 end;
-function TSqlDBDM.GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';AutoInc : Boolean = True): Variant;
+function TSQLDbDBDM.GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';Tablename : string = '';AutoInc : Boolean = True): Variant;
 var
   Statement: IZStatement;
   ResultSet: IZResultSet;
   bConnection: TComponent;
+  aId: Int64 = 0;
 begin
+  Result := 0;
   if Assigned(Sequence) then
     begin
       bConnection := MainConnection;
@@ -1623,45 +1853,60 @@ begin
   else
     begin
       try
-        if (copy(FMainConnection.Protocol,0,6) = 'sqlite') and (Assigned(aConnection)) then
-          Statement := TSQLConnection(aConnection).DbcConnection.CreateStatement //we have global locking in sqlite so we must use the actual connection
-        else
-          Statement := TSQLConnection(MainConnection).DbcConnection.CreateStatement;
-        if AutoInc then
+        while aId=Result do
           begin
-            if (copy(FMainConnection.Protocol,0,5) = 'mysql') then
-              begin
-                Statement.Execute('update '+QuoteField(Generator)+' set '+QuoteField('ID')+'='+QuoteField('ID')+'+1;')
-              end
+            if (copy(FMainConnection.Protocol,0,6) = 'sqlite') and (Assigned(aConnection)) then
+              Statement := TSQLConnection(aConnection).DbcConnection.CreateStatement //we have global locking in sqlite so we must use the actual connection
             else
+              Statement := TSQLConnection(MainConnection).DbcConnection.CreateStatement;
+            if AutoInc then
               begin
-                if LimitAfterSelect then
-                  Statement.Execute('update '+QuoteField(Generator)+' set '+QuoteField('ID')+'=(select '+Format(LimitSTMT,[1])+' '+QuoteField('ID')+' from '+QuoteField(Generator)+')+1;')
+                if (copy(FMainConnection.Protocol,0,5) = 'mysql') then
+                  begin
+                    Statement.Execute('update '+QuoteField(Generator)+' set '+QuoteField('ID')+'='+QuoteField('ID')+'+1;')
+                  end
                 else
-                  Statement.Execute('update '+QuoteField(Generator)+' set '+QuoteField('ID')+'=(select '+QuoteField('ID')+' from '+QuoteField(Generator)+' '+Format(LimitSTMT,[1])+')+1;');
+                  begin
+                    if LimitAfterSelect then
+                      Statement.Execute('update '+QuoteField(Generator)+' set '+QuoteField('ID')+'=(select '+Format(LimitSTMT,['1'])+' '+QuoteField('ID')+' from '+QuoteField(Generator)+')+1;')
+                    else
+                      Statement.Execute('update '+QuoteField(Generator)+' set '+QuoteField('ID')+'=(select '+QuoteField('ID')+' from '+QuoteField(Generator)+' '+Format(LimitSTMT,['1'])+')+1;');
+                  end;
               end;
-          end;
-        except
-        end;
-        try
-          ResultSet := Statement.ExecuteQuery('SELECT '+QuoteField('ID')+' FROM '+QuoteField(Generator));
-          if ResultSet.Next then
-            Result := ResultSet.GetLong(1)
-          else
-            begin
-              Statement.Execute('insert into '+QuoteField(GENERATOR)+' ('+QuoteField('SQL_ID')+','+QuoteField('ID')+') VALUES (1,1000);');
-              Result := 1000;
+            try
+              ResultSet := Statement.ExecuteQuery('SELECT '+QuoteField('ID')+' FROM '+QuoteField(Generator));
+              if ResultSet.Next then
+                Result := ResultSet.GetLong(1)
+              else
+                begin
+                  Statement.Execute('insert into '+QuoteField(GENERATOR)+' ('+QuoteField('SQL_ID')+','+QuoteField('ID')+') VALUES (1,1000);');
+                  Result := 1000;
+                  ResultSet.Close;
+                  Statement.Close;
+                  break;
+                end;
+              try
+                if Tablename<>'' then
+                  begin
+                    ResultSet := Statement.ExecuteQuery('SELECT '+QuoteField('SQL_ID')+' FROM '+QuoteField(Tablename)+' WHERE '+QuoteField('SQL_ID')+'='+QuoteValue(Format('%d',[Int64(Result)])));
+                    if ResultSet.Next then
+                      aId := ResultSet.GetLong(1)
+                  end;
+              except
+              end;
+              ResultSet.Close;
+              Statement.Close;
+            except
             end;
-          ResultSet.Close;
-          Statement.Close;
+          end;
         except
         end;
     end;
 end;
 const
   ChunkSize: Longint = 16384; { copy in 8K chunks }
-procedure TSqlDBDM.StreamToBlobField(Stream: TStream; DataSet: TDataSet;
-  Fieldname: string);
+procedure TSQLDbDBDM.StreamToBlobField(Stream: TStream; DataSet: TDataSet;
+  Fieldname: string; Tablename: string);
 var
   Posted: Boolean;
   GeneralQuery: TSQLQuery;
@@ -1669,102 +1914,133 @@ var
   cnt: LongInt;
   dStream: TStream;
   totCnt: LongInt;
+  aFName: String;
+  aFStream: TFileStream;
+  tmp: String;
 begin
   totCnt := 0;
-  if DataSet.Fielddefs.IndexOf(FieldName) = -1 then
+  if Tablename = '' then
+    Tablename := TSQLDbDBDataSet(DataSet).DefaultTableName;
+  if (DataSet.Fielddefs.IndexOf(FieldName) = -1) or (FEData and (Tablename='DOCUMENTS')) then
     begin
       if DataSet.State = dsInsert then
         begin
           Posted := True;
-          DataSet.Post;
+          try
+            DataSet.Post;
+          except
+          end;
         end;
+      aFName := FDatabaseDir+DirectorySeparator+'edata'+DirectorySeparator;
+      aFName:=aFName+Tablename+DirectorySeparator;
+      if (DataSet.Fielddefs.IndexOf('TYPE')<>-1) then
+        if TSQLDbDBDataSet(DataSet).FieldByName('TYPE').AsString<>'' then
+          aFName:=aFName+TSQLDbDBDataSet(DataSet).FieldByName('TYPE').AsString+DirectorySeparator;
+      aFName:=aFName+DataSet.FieldByName('SQL_ID').AsString+'.'+Fieldname+'.dat';
       GeneralQuery := TSQLQuery.Create(Self);
       GeneralQuery.Connection := TSQLQuery(DataSet).Connection;
-      GeneralQuery.SQL.Text := 'select * from '+QuoteField(TSqlDBDataSet(DataSet).DefaultTableName)+' where "SQL_ID"='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
-      GeneralQuery.Open;
-      GeneralQuery.Edit;
-      dStream := GeneralQuery.CreateBlobStream(GeneralQuery.FieldByName(Fieldname),bmWrite);
+      tmp := 'select * from '+GetFullTableName(Tablename)+' where '+QuoteField('SQL_ID')+'='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
+      GeneralQuery.SQL.Text := tmp;
       try
-        GetMem(pBuf, ChunkSize);
-        try
-          cnt := Stream.Read(pBuf^, ChunkSize);
-          cnt := dStream.Write(pBuf^, cnt);
-          totCnt := totCnt + cnt;
-          {Loop the process of reading and writing}
-          while (cnt > 0) do
-            begin
-              {Read bufSize bytes from source into the buffer}
-              cnt := Stream.Read(pBuf^, ChunkSize);
-              {Now write those bytes into destination}
-              cnt := dStream.Write(pBuf^, cnt);
-              {Increment totCnt for progress and do arithmetic to update the gauge}
-              totcnt := totcnt + cnt;
-            end;
-        finally
-          FreeMem(pBuf, ChunkSize);
-        end;
-      finally
-        dStream.Free;
+        GeneralQuery.Open;
+      except
       end;
-      GeneralQuery.Post;
+      if (not FEData) or (Tablename<>'DOCUMENTS') then //Save File to Database
+        begin
+          GeneralQuery.Edit;
+          dStream := GeneralQuery.CreateBlobStream(GeneralQuery.FieldByName(Fieldname),bmWrite);
+          try
+            GetMem(pBuf, ChunkSize);
+            try
+              cnt := Stream.Read(pBuf^, ChunkSize);
+              cnt := dStream.Write(pBuf^, cnt);
+              totCnt := totCnt + cnt;
+              {Loop the process of reading and writing}
+              while (cnt > 0) do
+                begin
+                  {Read bufSize bytes from source into the buffer}
+                  cnt := Stream.Read(pBuf^, ChunkSize);
+                  {Now write those bytes into destination}
+                  cnt := dStream.Write(pBuf^, cnt);
+                  {Increment totCnt for progress and do arithmetic to update the gauge}
+                  totcnt := totcnt + cnt;
+                end;
+            finally
+              FreeMem(pBuf, ChunkSize);
+            end;
+          finally
+            dStream.Free;
+          end;
+          GeneralQuery.Post;
+        end
+      else
+        begin
+          ForceDirectories(ExtractFileDir(UniToSys(aFName)));
+          aFStream := TFileStream.Create(UniToSys(aFName),fmCreate);
+          aFStream.CopyFrom(Stream,0);
+          aFStream.Free;
+          try
+            if GeneralQuery.Active and (GeneralQuery.FieldByName(Fieldname) <> nil) then
+              begin
+                GeneralQuery.Edit;
+                GeneralQuery.FieldByName(Fieldname).Clear;
+                GeneralQuery.Post;
+              end;
+          except
+          end;
+        end;
       GeneralQuery.Free;
       if Posted then DataSet.Edit;
     end
   else inherited;
 end;
-procedure TSqlDBDM.BlobFieldToStream(DataSet: TDataSet; Fieldname: string;
-  dStream: TStream);
+
+function TSQLDbDBDM.BlobFieldStream(DataSet: TDataSet; Fieldname: string;
+  Tablename: string): TStream;
 var
   GeneralQuery: TSQLQuery;
-  aSQL : string;
-  pBuf    : Pointer;
-  cnt: LongInt;
-  totCnt: LongInt=0;
-  Stream: TStream;
+  aSql: String;
+  aFName: String;
 begin
-  if DataSet.Fielddefs.IndexOf(FieldName) = -1 then
+  Result := nil;
+  if Tablename = '' then
+    Tablename := TSQLDbDBDataSet(DataSet).DefaultTableName;
+  if (DataSet.Fielddefs.IndexOf(FieldName) = -1) or (FEData and (Tablename='DOCUMENTS')) then
     begin
-      GeneralQuery := TSQLQuery.Create(Self);
-      GeneralQuery.Connection := TSQLQuery(DataSet).Connection;
-      aSql := 'select '+QuoteField(Fieldname)+' from '+QuoteField(TSqlDBDataSet(DataSet).DefaultTableName)+' where "SQL_ID"='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
-      GeneralQuery.SQL.Text := aSql;
-      GeneralQuery.Open;
-      Stream := GeneralQuery.CreateBlobStream(GeneralQuery.FieldByName(Fieldname),bmRead);
-      try
-        GetMem(pBuf, ChunkSize);
-        try
-          cnt := Stream.Read(pBuf^, ChunkSize);
-          cnt := dStream.Write(pBuf^, cnt);
-          totCnt := totCnt + cnt;
-          {Loop the process of reading and writing}
-          while (cnt > 0) do
-            begin
-              {Read bufSize bytes from source into the buffer}
-              cnt := Stream.Read(pBuf^, ChunkSize);
-              {Now write those bytes into destination}
-              cnt := dStream.Write(pBuf^, cnt);
-              {Increment totCnt for progress and do arithmetic to update the gauge}
-              totcnt := totcnt + cnt;
-            end;
-        finally
-          FreeMem(pBuf, ChunkSize);
-        end;
-      finally
-        Stream.Free;
-      end;
-      GeneralQuery.Free;
+      aFName := FDatabaseDir+DirectorySeparator+'edata'+DirectorySeparator;
+      aFName:=aFName+Tablename+DirectorySeparator;
+      if (DataSet.Fielddefs.IndexOf('TYPE')<>-1) then
+        if TSQLDbDBDataSet(DataSet).FieldByName('TYPE').AsString<>'' then
+          aFName:=aFName+TSQLDbDBDataSet(DataSet).FieldByName('TYPE').AsString+DirectorySeparator;
+      aFName:=aFName+DataSet.FieldByName('SQL_ID').AsString+'.'+Fieldname+'.dat';
+      if (not FEData) or (Tablename<>'DOCUMENTS') then //get File from Database
+        begin
+          GeneralQuery := TSQLQuery.Create(Self);
+          GeneralQuery.Connection := TSQLQuery(DataSet).Connection;
+          aSql := 'select '+QuoteField(Fieldname)+' from '+GetFullTableName(Tablename)+' where '+QuoteField('SQL_ID')+'='+QuoteValue(DataSet.FieldByName('SQL_ID').AsString)+';';
+          GeneralQuery.SQL.Text := aSql;
+          GeneralQuery.Open;
+          result := GeneralQuery.CreateBlobStream(GeneralQuery.FieldByName(Fieldname),bmRead);
+          GeneralQuery.Free;
+        end
+      else if (FileExists(UniToSys(aFName))) then
+        begin
+          Result := TFileStream.Create(UniToSys(aFName),fmOpenRead);
+        end
+      else with BaseApplication as IBaseApplication do
+        Debug('File '+UniToSys(aFName)+' dont exists ?!');
     end
-  else inherited;
+  else Result := inherited;
 end;
 
-function TSqlDBDM.GetErrorNum(e: EDatabaseError): Integer;
+function TSQLDbDBDM.GetErrorNum(e: EDatabaseError): Integer;
 begin
   Result:=inherited GetErrorNum(e);
   if e is EZDatabaseError then
     Result := EZDatabaseError(e).ErrorCode;
 end;
 
-procedure TSqlDBDM.DeleteExpiredSessions;
+procedure TSQLDbDBDM.DeleteExpiredSessions;
 var
   GeneralQuery: TSQLQuery;
 begin
@@ -1774,7 +2050,7 @@ begin
   GeneralQuery.ExecSQL;
   GeneralQuery.Free;
 end;
-function TSqlDBDM.GetNewConnection: TComponent;
+function TSQLDbDBDM.GetNewConnection: TComponent;
 begin
   Result := TSQLConnection.Create(Self);
   with Result as TSQLConnection do
@@ -1783,18 +2059,31 @@ begin
     end;
 end;
 
-function TSqlDBDM.QuoteField(aField: string): string;
+function TSQLDbDBDM.QuoteField(aField: string): string;
 begin
   Result:=inherited QuoteField(aField);
   if (copy(TSQLConnection(MainConnection).Protocol,0,5) = 'mysql') then
     Result := '`'+aField+'`';
 end;
 
-procedure TSqlDBDM.Disconnect(aConnection: TComponent);
+function TSQLDbDBDM.QuoteValue(aField: string): string;
+begin
+  Result:=inherited QuoteValue(aField);
+  if (copy(TSQLConnection(MainConnection).Protocol,0,5) = 'mysql') then
+    Result := ''''+aField+'''';
+end;
+
+procedure TSQLDbDBDM.Disconnect(aConnection: TComponent);
 begin
   TSQLConnection(aConnection).Disconnect;
 end;
-function TSqlDBDM.StartTransaction(aConnection: TComponent;ForceTransaction : Boolean = False): Boolean;
+
+procedure TSQLDbDBDM.Connect(aConnection: TComponent);
+begin
+  TSQLConnection(aConnection).Connect;
+end;
+
+function TSQLDbDBDM.StartTransaction(aConnection: TComponent;ForceTransaction : Boolean = False): Boolean;
 begin
   TSQLConnection(aConnection).Tag := Integer(TSQLConnection(aConnection).TransactIsolationLevel);
   if ForceTransaction and (copy(TSQLConnection(aConnection).Protocol,0,6) = 'sqlite') then
@@ -1805,43 +2094,47 @@ begin
     TSQLConnection(aConnection).TransactIsolationLevel:=tiReadUnCommitted;
   TSQLConnection(aConnection).StartTransaction;
 end;
-function TSqlDBDM.CommitTransaction(aConnection: TComponent): Boolean;
+function TSQLDbDBDM.CommitTransaction(aConnection: TComponent): Boolean;
 begin
   if not TSQLConnection(aConnection).AutoCommit then
     TSQLConnection(aConnection).Commit;
   if TZTransactIsolationLevel(TSQLConnection(aConnection).Tag) <> TSQLConnection(aConnection).TransactIsolationLevel then
     TSQLConnection(aConnection).TransactIsolationLevel := TZTransactIsolationLevel(TSQLConnection(aConnection).Tag);
 end;
-function TSqlDBDM.RollbackTransaction(aConnection: TComponent): Boolean;
+function TSQLDbDBDM.RollbackTransaction(aConnection: TComponent): Boolean;
 begin
   if not TSQLConnection(aConnection).AutoCommit then
     TSQLConnection(aConnection).Rollback;
   if TZTransactIsolationLevel(TSQLConnection(aConnection).Tag) <> TSQLConnection(aConnection).TransactIsolationLevel then
     TSQLConnection(aConnection).TransactIsolationLevel := TZTransactIsolationLevel(TSQLConnection(aConnection).Tag);
 end;
-function TSqlDBDM.TableExists(aTableName: string;aConnection : TComponent = nil;AllowLowercase: Boolean = False): Boolean;
+
+function TSQLDbDBDM.IsTransactionActive(aConnection: TComponent): Boolean;
+begin
+  Result := TSQLConnection(aConnection).InTransaction;
+end;
+
+function TSQLDbDBDM.TableExists(aTableName: string;aConnection : TComponent = nil;AllowLowercase: Boolean = False): Boolean;
 var
   aIndex: longint;
   i: Integer;
   tmp: String;
+  aQuerry: TZReadOnlyQuery;
 begin
   Result := False;
+  if not FMainConnection.Connected then exit;
+  aTableName:=GetFullTableName(aTableName);
+  aTableName:=StringReplace(aTableName,copy(QuoteField(''),0,1),'',[rfReplaceAll]);
   try
     if Tables.Count = 0 then
       begin
         //Get uncached
         if not Assigned(aConnection) then
-          begin
-            FMainConnection.DbcConnection.GetMetadata.ClearCache;
-            FMainConnection.GetTableNames('','',Tables);
-            FMainConnection.GetTriggerNames('','',Triggers);
-          end
-        else
-          begin
-            TSQLConnection(aConnection).DbcConnection.GetMetadata.ClearCache;
-            TSQLConnection(aConnection).GetTableNames('','',Tables);
-            FMainConnection.GetTriggerNames('','',Triggers);
-          end;
+          aConnection := FMainConnection;
+        if FMainConnection.DbcConnection<>nil then
+          TSQLConnection(aConnection).DbcConnection.GetMetadata.ClearCache;
+        TSQLConnection(aConnection).GetTableNames('','',Tables);
+        TSQLConnection(aConnection).GetTriggerNames('','',Triggers);
       end;
   except
   end;
@@ -1860,8 +2153,31 @@ begin
           break;
         end;
     end;
+  //Try to open the non existent Table since we dont know if its in another database
+  if not Result then
+    begin
+      aTableName:=GetFullTableName(aTableName);
+      aQuerry := TZReadOnlyQuery.Create(Self);
+      aQuerry.Connection:=TSQLConnection(MainConnection);
+      aQuerry.SQL.Text := 'select count(*) from '+aTableName;
+      if (FMainConnection.Protocol = 'mssql') then
+        aQuerry.SQL.Text := '('+aQuerry.SQL.Text+')';
+      try
+        aQuerry.Open;
+      except
+      end;
+      Result := aQuerry.Active;
+      if Result then
+        begin
+          aTableName:=StringReplace(aTableName,copy(QuoteField(''),0,1),'',[rfReplaceAll]);
+          if Tables.Count>0 then
+            Tables.Add(aTableName);
+        end;
+      aQuerry.Free;
+    end;
 end;
-function TSqlDBDM.TriggerExists(aTriggerName: string; aConnection: TComponent;
+
+function TSQLDbDBDM.TriggerExists(aTriggerName: string; aConnection: TComponent;
   AllowLowercase: Boolean): Boolean;
 var
   i: Integer;
@@ -1916,7 +2232,7 @@ begin
     end;
 end;
 
-function TSqlDBDM.GetDBType: string;
+function TSQLDbDBDM.GetDBType: string;
 begin
   Result:=TSQLConnection(MainConnection).Protocol;
   if copy(Result,0,8)='postgres' then Result := 'postgres';
@@ -1924,12 +2240,12 @@ begin
   if Result='sqlite-3' then Result := 'sqlite';
 end;
 
-function TSqlDBDM.GetDBLayerType: string;
+function TSQLDbDBDM.GetDBLayerType: string;
 begin
   Result := 'SQL';
 end;
 
-function TSqlDBDM.CreateTrigger(aTriggerName: string; aTableName: string;
+function TSQLDbDBDM.CreateTrigger(aTriggerName: string; aTableName: string;
   aUpdateOn: string; aSQL: string;aField : string = ''; aConnection: TComponent = nil): Boolean;
 var
   GeneralQuery: TSQLQuery;
@@ -1988,7 +2304,7 @@ begin
     Result:=inherited CreateTrigger(aTriggerName, aTableName, aUpdateOn, aSQL,aField, aConnection);
   GeneralQuery.Destroy;
 end;
-function TSqlDBDM.DropTable(aTableName: string): Boolean;
+function TSQLDbDBDM.DropTable(aTableName: string): Boolean;
 var
   GeneralQuery: TSQLQuery;
 begin
@@ -2000,10 +2316,12 @@ begin
   Result := True;
   RemoveCheckTable(aTableName);
 end;
-function TSqlDBDM.FieldToSQL(aName: string; aType: TFieldType;aSize : Integer;
+function TSQLDbDBDM.FieldToSQL(aName: string; aType: TFieldType; aSize: Integer;
   aRequired: Boolean): string;
 begin
-  Result := QuoteField(aName);
+  if aName <> '' then
+    Result := QuoteField(aName)
+  else Result:='';
   case aType of
   ftString:
     begin
@@ -2046,6 +2364,7 @@ begin
   ftDateTime:
     begin
       if (FMainConnection.Protocol = 'mssql')
+      or (copy(FMainConnection.Protocol,0,5) = 'mysql')
       or (copy(FMainConnection.Protocol,0,6) = 'sqlite')
       then
         Result := Result+' DATETIME'
@@ -2065,6 +2384,8 @@ begin
         Result := Result+' IMAGE'
       else if (copy(FMainConnection.Protocol,0,10) = 'postgresql') then
         Result := Result+' BYTEA'
+      else if (copy(FMainConnection.Protocol,0,5) = 'mysql') then
+        Result := Result+' LONGBLOB'
       else
         Result := Result+' BLOB';
     end;
@@ -2073,6 +2394,8 @@ begin
       if (copy(FMainConnection.Protocol,0,8) = 'firebird')
       or (copy(FMainConnection.Protocol,0,9) = 'interbase') then
         Result := Result+' BLOB SUB_TYPE 1'
+      else if (copy(FMainConnection.Protocol,0,5) = 'mysql') then
+        Result := Result+' LONGTEXT'
       else
         Result := Result+' TEXT';
     end;
@@ -2085,7 +2408,7 @@ begin
         Result := Result+' NULL'
     end;
 end;
-function TSqlDBDM.GetColumns(TableName: string): TStrings;
+function TSQLDbDBDM.GetColumns(TableName: string): TStrings;
 var
   Metadata: IZDatabaseMetadata;
 begin
