@@ -111,6 +111,7 @@ begin
       Result := StringReplace(Result,'DAYOFWEEK(','EXTRACT(DOW FROM ',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'GETDATE()','CURRENT_DATE',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'LEN(','LENGTH(',[rfReplaceAll,rfIgnoreCase]);
+      Result := StringReplace(Result,'(max)','',[rfReplaceAll,rfIgnoreCase]);
     end
   else if Data.GetDBType='mssql' then
     begin
