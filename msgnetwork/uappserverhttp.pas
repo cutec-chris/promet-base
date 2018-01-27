@@ -274,6 +274,8 @@ var
 const
   HeaderTimeout = 100;
   Timeout = 12000;
+label
+  retry;
 begin
   try
     OutputData.Clear;
@@ -308,6 +310,9 @@ begin
       if Socket.sock.lasterror <> 0 then
         Exit;
     end;
+retry:
+    while copy(url,length(url),1)='/' do
+      url := copy(url,0,length(url)-1);
     if ((Uppercase(Command)='GET') or (Uppercase(Command)='HEAD') or (Uppercase(Command)='OPTIONS'))  then
       begin
         aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web'+Stringreplace(url,'/',DirectorySeparator,[rfReplaceAll]);
@@ -348,6 +353,7 @@ begin
               begin
                 url := tmp;
                 aPath:='';
+                goto retry;
               end
             else
               begin
