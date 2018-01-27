@@ -266,7 +266,7 @@ var
   s: String;
   x: Integer;
   aPath: String;
-  uriparam: String;
+  uriparam, tmp: String;
   i: Integer;
   ModifiedSince : TDateTime;
   sl: TStringList;
@@ -333,12 +333,31 @@ begin
               url := url+'/';
             //headers.Add('Location: '+url+'index.html');
             Result := TFileStream.Create(aPath,fmOpenRead or fmShareDenyNone);
-            OutputData.CopyFrom(Result,0);
-            OutputData.Position:=0;
-            Result.Free;
-            with BaseApplication as IBaseApplication do
-              Info('HTTP: using '+url+'index.html');
-            Code := 200;
+            sl := TStringList.Create;
+            sl.LoadFromStream(result);
+            Result.Position:=0;
+            tmp := '';
+            if pos('<meta http-equiv="refresh"',lowercase(sl.Text))>0 then
+              begin
+                tmp := copy(sl.Text,pos('<meta http-equiv="refresh"',lowercase(sl.Text))+26,length(sl.Text));
+                tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
+                tmp := copy(tmp,0,pos('"',tmp)-1);
+              end;
+            sl.Free;
+            if tmp <> '' then
+              begin
+                url := tmp;
+                aPath:='';
+              end
+            else
+              begin
+                OutputData.CopyFrom(Result,0);
+                OutputData.Position:=0;
+                Result.Free;
+                with BaseApplication as IBaseApplication do
+                  Info('HTTP: using '+url+'index.html');
+                Code := 200;
+              end;
           end
         else if FileExists(aPath) and (pos('/.',aPath)=0) then
           begin
