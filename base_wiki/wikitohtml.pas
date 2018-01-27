@@ -775,7 +775,7 @@ begin
                 end;
               ostr := ostr+'<a href="'+aLink+'"';
               istr := copy(istr,pos('|',istr)+1,length(istr));
-              ostr := ostr+' title="'+copy(istr,0,pos(']]',istr)-1)+'">'+copy(istr,0,pos(']]',istr)-1)+'</a>';
+              ostr := ostr+' title="'+copy(istr,0,pos(']]',istr)-1)+'" alt="'+copy(istr,0,pos(']]',istr)-1)+'">'+copy(istr,0,pos(']]',istr)-1)+'</a>';
               istr := copy(istr,pos(']]',istr)+2,length(istr));
         end
       else
