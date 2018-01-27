@@ -325,9 +325,9 @@ retry:
             if pos('?',aPath)>0 then
               aPath := copy(aPath,0,pos('?',aPath)-1);
           end;
-        if ((Uppercase(Command)='GET') or (Uppercase(Command)='HEAD')) and (DirectoryExists(aPath)) and (FileExists(aPath+'index.html')) then
+        if ((Uppercase(Command)='GET') or (Uppercase(Command)='HEAD')) and (DirectoryExists(aPath)) and (FileExists(aPath+DirectorySeparator+'index.html')) then
           begin
-            aPath := (aPath)+'index.html';
+            aPath := (aPath)+DirectorySeparator+'index.html';
             headers.Clear;
             if pos('?',url)>0 then
               begin
