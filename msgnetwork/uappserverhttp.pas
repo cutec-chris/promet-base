@@ -319,7 +319,7 @@ retry:
         if pos('?',aPath)>0 then
           aPath := copy(aPath,0,pos('?',aPath)-1);
         if (not (FileExists(aPath) and (not DirectoryExists(aPath))))
-        and (not (DirectoryExists(aPath) and (FileExists(aPath+'index.html'))))  then
+        and (not (DirectoryExists(aPath) and (FileExists(aPath+DirectorySeparator+'index.html'))))  then
           begin
             aPath := ExtractFileDir(ParamStr(0))+DirectorySeparator+'web2'+Stringreplace(url,'/',DirectorySeparator,[rfReplaceAll]);
             if pos('?',aPath)>0 then
@@ -342,7 +342,7 @@ retry:
             sl.LoadFromStream(result);
             Result.Position:=0;
             tmp := '';
-            if pos('<meta http-equiv="refresh"',lowercase(sl.Text))>0 then
+            if (pos('<meta http-equiv="refresh"',lowercase(sl.Text))>0) and BaseApplication.HasOption('replace-refresh') then
               begin
                 tmp := copy(sl.Text,pos('<meta http-equiv="refresh"',lowercase(sl.Text))+26,length(sl.Text));
                 tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
