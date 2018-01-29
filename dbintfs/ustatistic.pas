@@ -669,6 +669,13 @@ var
   aName: String;
   aType: String;
   aScript: TBaseScript;
+  function CheckWildgards(Str : string) : string;
+  begin
+    Result := Str;
+    Result := Stringreplace(Result,'*','%',[rfreplaceAll]);
+    result := Stringreplace(Result,'?','_',[rfreplaceAll]);
+  end;
+
 begin
   aQuerry := FieldByName('QUERRY').AsString;
 
@@ -727,8 +734,8 @@ begin
               if copy(aQuerry,0,1)='@' then
                 begin
                   //Auswertung
-                  if aVariables.Values[aName] <> '' then
-                    bQuerry:=bQuerry+aVariables.Values[aName];
+                  if aVariables.Values[lowercase(aName)] <> '' then
+                    bQuerry:=bQuerry+CheckWildgards(aVariables.Values[lowercase(aName)]);
                 end;
             end
           else
