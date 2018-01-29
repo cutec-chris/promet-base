@@ -58,7 +58,8 @@ begin
           begin
             PubSub := PubSubHandlers[i];
             break;
-          end;
+          end
+        else PubSubHandlers[i] :=  nil;
         inc(i);
       end;
   except

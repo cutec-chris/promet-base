@@ -33,7 +33,7 @@ type
     procedure FConnectionAfterConnect(Sender: TObject);
     procedure FConnectionBeforeConnect(Sender: TObject);
   private
-    FMainConnection : TSQLConnection;
+    FMainConnection : TSQLConnector;
     FLimitAfterSelect : Boolean;
     FLimitSTMT : string;
     FDBTyp : string;
@@ -44,6 +44,8 @@ type
     FProtocol: string;
     function GetConnection: TComponent;override;
     function DBExists : Boolean;
+    procedure MonitorTrace(Sender: TSQLConnection; EventType: TDBEventType;
+      const Msg: String);
   protected
     function GetSyncOffset: Integer;override;
     procedure SetSyncOffset(const AValue: Integer);override;
@@ -1369,6 +1371,12 @@ begin
   Result := TableExists('USERS') and TableExists('GEN_SQL_ID') and TableExists('GEN_AUTO_ID');
 end;
 
+procedure TSQLDbDBDM.MonitorTrace(Sender: TSQLConnection;
+  EventType: TDBEventType; const Msg: String);
+begin
+
+end;
+
 function TSQLDbDBDM.GetLimitAfterSelect: Boolean;
 begin
   Result := FLimitAfterSelect;
@@ -1382,48 +1390,38 @@ end;
 function TSQLDbDBDM.GetSyncOffset: Integer;
 var
   bConnection: TComponent;
+  Statement: TSQLQuery;
 begin
-  TSQLConnection(MainConnection).
-      Statement := TSQLConnection(MainConnection).DbcConnection.CreateStatement;
-      ResultSet := Statement.ExecuteQuery('SELECT '+QuoteField('ID')+' FROM '+QuoteField('GEN_SQL_ID'));
-      if ResultSet.Next then
-        Result := ResultSet.GetLong(1) shr 56
-      else Result := 0;
-      ResultSet.Close;
-      Statement.Close;
-    end;
+  Statement := TSQLQuery.Create(Self);
+  Statement.SQL.Text := 'SELECT '+QuoteField('ID')+' FROM '+QuoteField('GEN_SQL_ID');
+  Statement.DataBase := TSQLConnection(MainConnection);
+  Statement.Open;
+  if Statement.RecordCount>0 then
+    Result := Statement.FieldByName('ID').AsLargeInt shr 56
+  else Result := 0;
+  Statement.Free;
 end;
 procedure TSQLDbDBDM.SetSyncOffset(const AValue: Integer);
 var
-  Statement: IZStatement;
   aVal: Int64;
+  Statement: TSQLQuery;
 begin
   aVal := AValue;
   aVal := aVal shl 56;
-  if Assigned(Sequence) then
-    begin
-      raise Exception.Create('Not implemented !!!');
-    end
-  else
-    begin
-      Statement := TSQLConnection(MainConnection).DbcConnection.CreateStatement;
-      Statement.Execute('update '+QuoteField('GEN_SQL_ID')+' set '+QuoteField('ID')+'='+IntToStr(aVal));
-      Statement.Close;
-    end;
+  Statement := TSQLQuery.Create(Self);
+  Statement.SQL.Text := 'update '+QuoteField('GEN_SQL_ID')+' set '+QuoteField('ID')+'='+IntToStr(aVal);
+  Statement.DataBase := TSQLConnection(MainConnection);
+  Statement.ExecSQL;
+  Statement.Free;
 end;
 constructor TSQLDbDBDM.Create(AOwner: TComponent);
 begin
   FDataSetClass := TSQLDbDBDataSet;
-  FMainConnection := TSQLConnection.Create(AOwner);
+  FMainConnection := TSQLConnector.Create(AOwner);
   //if BaseApplication.HasOption('debug') or BaseApplication.HasOption('debug-sql') then
-    begin
-      Monitor := TZSQLMonitor.Create(FMainConnection);
-      Monitor.Active:=True;
-      Monitor.OnTrace:=@MonitorTrace;
-    end
+  FMainConnection.OnLog:=@MonitorTrace;
   //else Monitor:=nil
   ;
-  Sequence := nil;
   FEData := False;
   inherited Create(AOwner);
 end;
@@ -1431,12 +1429,7 @@ destructor TSQLDbDBDM.Destroy;
 begin
   try
     if FMainconnection.Connected then
-      FMainConnection.Disconnect;
-    if Assigned(Sequence) then
-      begin
-        Sequence.Connection := nil;
-        FreeAndNil(Sequence);
-      end;
+      FMainConnection.Close();
     try
       //FMainConnection.Destroy;
     except
@@ -1448,14 +1441,15 @@ end;
 function TSQLDbDBDM.SetProperties(aProp: string;Connection : TComponent = nil): Boolean;
 var
   tmp: String;
-  FConnection : TSQLConnection;
+  FConnection : TSQLConnector;
   actDir: String;
+  aPort: LongInt;
 begin
   if Assigned(BaseApplication) then
     with BaseApplication as IBaseDBInterface do
       LastError := '';
   FProperties := aProp;
-  FConnection := TSQLConnection(Connection);
+  FConnection := TSQLConnector(Connection);
   if not Assigned(FConnection) then
     FConnection := FMainConnection;
   Result := True;
@@ -1463,16 +1457,15 @@ begin
   try
     CleanupSession;
     if FConnection.Connected then
-      FConnection.Disconnect;
-    FConnection.Port:=0;
-    FConnection.Properties.Clear;
-    FConnection.Properties.Add('timeout=3');
-    FConnection.Protocol:='';
-    FConnection.User:='';
+      FConnection.Close();
+    //FConnection.Properties.Clear;
+    //FConnection.Properties.Add('timeout=3');
+    //FConnection.Protocol:='';
+    FConnection.UserName:='';
     FConnection.Password:='';
     FConnection.HostName:='';
-    FConnection.Database:='';
-    FConnection.Properties.Clear;
+    FConnection.DatabaseName:='';
+    //FConnection.Properties.Clear;
     if copy(tmp,0,pos(';',tmp)-1) <> 'sqlite-3-edata' then
       FProtocol:=copy(tmp,0,pos(';',tmp)-1)
     else
@@ -1480,24 +1473,24 @@ begin
         FProtocol:='sqlite-3';
         FEData:=True;
       end;
-    Assert(FConnection.Protocol<>'',strUnknownDbType);
+    Assert(FConnection.ConnectorType<>'',strUnknownDbType);
     tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
     FConnection.HostName := copy(tmp,0,pos(';',tmp)-1);
     if pos(':',FConnection.HostName) > 0 then
       begin
-        FConnection.Port:=StrToInt(copy(FConnection.HostName,pos(':',FConnection.HostName)+1,length(FConnection.HostName)));
-        FConnection.HostName:=copy(FConnection.HostName,0,pos(':',FConnection.HostName)-1);
+        aPort:=StrToInt(copy(FConnection.HostName,pos(':',FConnection.HostName)+1,length(FConnection.HostName)));
+        FConnection.HostName:=copy(FConnection.HostName,0,pos(':',FConnection.HostName)-1)+':'+IntToStr(aPort);
       end
     else if pos('/',FConnection.HostName) > 0 then
       begin
-        FConnection.Port:=StrToInt(copy(FConnection.HostName,pos('/',FConnection.HostName)+1,length(FConnection.HostName)));
-        FConnection.HostName:=copy(FConnection.HostName,0,pos('/',FConnection.HostName)-1);
+        aPort:=StrToInt(copy(FConnection.HostName,pos('/',FConnection.HostName)+1,length(FConnection.HostName)));
+        FConnection.HostName:=copy(FConnection.HostName,0,pos('/',FConnection.HostName)-1)+':'+IntToStr(aPort);
       end;
     tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
-    FConnection.Database:=copy(tmp,0,pos(';',tmp)-1);
-    FDatabaseDir:=ExtractFileDir(ExpandFileName(FConnection.Database));
+    FConnection.DatabaseName:=copy(tmp,0,pos(';',tmp)-1);
+    FDatabaseDir:=ExtractFileDir(ExpandFileName(FConnection.DatabaseName));
     tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
-    FConnection.User := copy(tmp,0,pos(';',tmp)-1);
+    FConnection.UserName := copy(tmp,0,pos(';',tmp)-1);
     tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
     if copy(tmp,0,1) = 'x' then
       FConnection.Password := Decrypt(copy(tmp,2,length(tmp)),99998)
@@ -1506,46 +1499,44 @@ begin
     FConnection.Password:=Encrypt(FConnection.Password,9997);
     FConnection.BeforeConnect:=@FConnectionBeforeConnect;
     FConnection.AfterConnect:=@FConnectionAfterConnect;
-    if (copy(FConnection.Protocol,0,6) = 'sqlite')
+    if (copy(FConnection.ConnectorType,0,6) = 'sqlite')
     then
       begin
         if Connection=MainConnection then //Dont check this on attatched db´s (we want to create them on the fly)
-          if not FileExists(FConnection.Database) then
+          if not FileExists(FConnection.DatabaseName) then
             raise Exception.Create('Databasefile dosend exists');
-        FConnection.TransactIsolationLevel:=tiNone;
+        //FConnection.TransactIsolationLevel:=tiNone;
       end;
-    if (copy(FConnection.Protocol,0,8) = 'postgres')
+    if (copy(FConnection.ConnectorType,0,8) = 'postgres')
     then
       begin
-        FConnection.Properties.Add('compression=true');
+        //FConnection.Properties.Add('compression=true');
         {$IFDEF CPUARM}
-        FConnection.Properties.Add('sslmode=disable');
+        //FConnection.Properties.Add('sslmode=disable');
         {$ENDIF}
-        FConnection.TransactIsolationLevel:=tiNone;
-        FConnection.AutoEncodeStrings:=true;
+        //FConnection.TransactIsolationLevel:=tiNone;
+        //FConnection.AutoEncodeStrings:=true;
       end
-    else if (copy(FConnection.Protocol,0,8) = 'firebird')
-    or (copy(FConnection.Protocol,0,9) = 'interbase')
+    else if (copy(FConnection.ConnectorType,0,8) = 'firebird')
+    or (copy(FConnection.ConnectorType,0,9) = 'interbase')
     then
       begin
-        FConnection.TransactIsolationLevel:=tiReadCommitted;
+        //FConnection.TransactIsolationLevel:=tiReadCommitted;
       end
-    else if (copy(FConnection.Protocol,0,5) = 'mysql') then
+    else if (copy(FConnection.ConnectorType,0,5) = 'mysql') then
       begin
-        FConnection.TransactIsolationLevel:=tiReadUncommitted;
-        FConnection.Properties.Clear;
-        FConnection.Properties.Add('compression=true');
-        //FConnection.Properties.Add('codepage=UTF8');
-        //FConnection.Properties.Add('timeout=0');
-        FConnection.Properties.Add('ValidateUpdateCount=-1');
-        FConnection.Properties.Add('MYSQL_OPT_RECONNECT=TRUE');
+        //FConnection.TransactIsolationLevel:=tiReadUncommitted;
+        //FConnection.Properties.Clear;
+        //FConnection.Properties.Add('compression=true');
+        //FConnection.Properties.Add('ValidateUpdateCount=-1');
+        //FConnection.Properties.Add('MYSQL_OPT_RECONNECT=TRUE');
       end
-    else if (copy(FConnection.Protocol,0,5) = 'mssql') then
+    else if (copy(FConnection.ConnectorType,0,5) = 'mssql') then
       begin
-        FConnection.TransactIsolationLevel:=tiReadUncommitted;
-        FConnection.AutoEncodeStrings:=true;
+        //FConnection.TransactIsolationLevel:=tiReadUncommitted;
+        //FConnection.AutoEncodeStrings:=true;
       end;
-    FConnection.Properties.Add('Undefined_Varchar_AsString_Length= 255');
+    //FConnection.Properties.Add('Undefined_Varchar_AsString_Length= 255');
 
     inherited;
 
@@ -1555,8 +1546,8 @@ begin
 
     FLimitAfterSelect := False;
     FLimitSTMT := 'LIMIT %s';
-    FDBTyp := FConnection.Protocol;
-    if FConnection.Protocol = 'sqlite-3' then
+    FDBTyp := FConnection.ConnectorType;
+    if FConnection.ConnectorType = 'sqlite-3' then
       begin
         //FConnection.ExecuteDirect('PRAGMA synchronous = NORMAL;');
         FConnection.ExecuteDirect('PRAGMA cache_size = 5120;');
@@ -1568,17 +1559,13 @@ begin
         //FConnection.ExecuteDirect('PRAGMA secure_delete = ON;');
         //FConnection.ExecuteDirect('PRAGMA incremental_vacuum(50);');
       end
-    else if (copy(FConnection.Protocol,0,8) = 'firebird')
-         or (copy(FConnection.Protocol,0,9) = 'interbase') then
+    else if (copy(FConnection.ConnectorType,0,8) = 'firebird')
+         or (copy(FConnection.ConnectorType,0,9) = 'interbase') then
       begin
         FDBTyp := 'firebird';
         FLimitSTMT := 'ROWS 1 TO %s';
-        if not Assigned(Sequence) then
-          begin
-            Sequence := TZSequence.Create(Owner);
-          end;
       end
-    else if FConnection.Protocol = 'mssql' then
+    else if FConnection.ConnectorType = 'mssql' then
       begin
         FLimitAfterSelect := True;
         FLimitSTMT := 'TOP %s';
@@ -1597,8 +1584,8 @@ begin
       if not DBExists then //Create generators
         begin
           try
-            if (copy(FConnection.Protocol,0,8) = 'firebird')
-            or (copy(FConnection.Protocol,0,9) = 'interbase') then
+            if (copy(FConnection.ConnectorType,0,8) = 'firebird')
+            or (copy(FConnection.ConnectorType,0,9) = 'interbase') then
               begin
                 FConnection.ExecuteDirect('EXECUTE BLOCK AS BEGIN'+lineending
                                          +'if (not exists(select 1 from rdb$generators where rdb$generator_name = ''GEN_SQL_ID'')) then'+lineending
@@ -1609,7 +1596,7 @@ begin
                                          +'execute statement ''CREATE SEQUENCE GEN_AUTO_ID;'';'+lineending
                                          +'END;');
               end
-            else if copy(FConnection.Protocol,0,6) = 'sqlite' then
+            else if copy(FConnection.ConnectorType,0,6) = 'sqlite' then
               begin
                 FConnection.ExecuteDirect('CREATE TABLE IF NOT EXISTS "GEN_SQL_ID"("SQL_ID" BIGINT NOT NULL PRIMARY KEY,ID BIGINT);');
                 FConnection.ExecuteDirect('CREATE TABLE IF NOT EXISTS "GEN_AUTO_ID"("SQL_ID" BIGINT NOT NULL PRIMARY KEY,ID BIGINT);');
@@ -1638,7 +1625,7 @@ begin
                 MandantDetails.Open;
                 DBTables.Open;
                 actDir := GetCurrentDir;
-                SetCurrentDir(ExtractFileDir(FConnection.Database));
+                SetCurrentDir(ExtractFileDir(FConnection.DatabaseName));
                 if Assigned(MandantDetails.FieldByName('DBSTATEMENTS')) and (MandantDetails.FieldByName('DBSTATEMENTS').AsString<>'') then
                   FConnection.ExecuteDirect(MandantDetails.FieldByName('DBSTATEMENTS').AsString);
                 SetCurrentDir(actDir);
@@ -1651,62 +1638,65 @@ begin
 end;
 function TSQLDbDBDM.CreateDBFromProperties(aProp: string): Boolean;
 var
-  FConnection: TSQLConnection;
+  FConnection: TSQLConnector;
   tmp: String;
   aPassword: String;
   aUser: String;
   aDatabase: String;
+  aPort: LongInt;
 begin
-  FConnection := TSQLConnection.Create(Self);
+  FConnection := TSQLConnector.Create(Self);
   if Assigned(BaseApplication) then
     with BaseApplication as IBaseDBInterface do
       LastError := '';
   tmp := aProp;
-  FConnection.Protocol:=copy(tmp,0,pos(';',tmp)-1);
-  Assert(FConnection.Protocol<>'',strUnknownDbType);
+  FConnection.ConnectorType:=copy(tmp,0,pos(';',tmp)-1);
+  Assert(FConnection.ConnectorType<>'',strUnknownDbType);
   tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
   FConnection.HostName := copy(tmp,0,pos(';',tmp)-1);
   if pos(':',FConnection.HostName) > 0 then
     begin
-      FConnection.Port:=StrToInt(copy(FConnection.HostName,pos(':',FConnection.HostName)+1,length(FConnection.HostName)));
-      FConnection.HostName:=copy(FConnection.HostName,0,pos(':',FConnection.HostName)-1);
+      aPort:=StrToInt(copy(FConnection.HostName,pos(':',FConnection.HostName)+1,length(FConnection.HostName)));
+      FConnection.HostName:=copy(FConnection.HostName,0,pos(':',FConnection.HostName)-1)+':'+IntToStr(aPort);
     end
   else if pos('/',FConnection.HostName) > 0 then
     begin
-      FConnection.Port:=StrToInt(copy(FConnection.HostName,pos('/',FConnection.HostName)+1,length(FConnection.HostName)));
-      FConnection.HostName:=copy(FConnection.HostName,0,pos('/',FConnection.HostName)-1);
+      aPort:=StrToInt(copy(FConnection.HostName,pos('/',FConnection.HostName)+1,length(FConnection.HostName)));
+      FConnection.HostName:=copy(FConnection.HostName,0,pos('/',FConnection.HostName)-1)+':'+IntToStr(aPort);
     end;
   tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
   aDatabase:=copy(tmp,0,pos(';',tmp)-1);
   tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
   aUser := copy(tmp,0,pos(';',tmp)-1);
-  FConnection.User:=aUser;
+  FConnection.UserName:=aUser;
   tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
-  FConnection.Database:=aDatabase;
+  FConnection.DatabaseName:=aDatabase;
   if copy(tmp,0,1) = 'x' then
     aPassword := Decrypt(copy(tmp,2,length(tmp)),99998)
   else
     aPassword := tmp;
   FConnection.Password:=aPassword;
-  if (copy(FConnection.Protocol,0,8) = 'postgres')
+  if (copy(FConnection.ConnectorType,0,8) = 'postgres')
   then
     begin
-      FConnection.Database:='postgres';
+      FConnection.DatabaseName:='postgres';
     end
-    else if (copy(FConnection.Protocol,0,5) = 'mssql') then
-      FConnection.Properties.Add('CreateNewDatabase=CREATE DATABASE "'+aDatabase+'"')
-    else if (copy(FConnection.Protocol,0,8) = 'firebird')
-    or (copy(FConnection.Protocol,0,9) = 'interbase')
+    else if (copy(FConnection.ConnectorType,0,5) = 'mssql') then
+      //FConnection.Properties.Add('CreateNewDatabase=CREATE DATABASE "'+aDatabase+'"')
+    else if (copy(FConnection.ConnectorType,0,8) = 'firebird')
+    or (copy(FConnection.ConnectorType,0,9) = 'interbase')
     then
       begin
+        {
         if FConnection.HostName <> '' then
           FConnection.Properties.Add('CreateNewDatabase=CREATE DATABASE '''+FConnection.HostName+':'+aDatabase+''' USER '''+aUser+''' PASSWORD '''+aPassword+''' PAGE_SIZE = 4096 DEFAULT CHARACTER SET UTF8')
         else
           FConnection.Properties.Add('CreateNewDatabase=CREATE DATABASE '''+aDatabase+''' USER '''+aUser+''' PASSWORD '''+aPassword+''' PAGE_SIZE = 4096 DEFAULT CHARACTER SET UTF8');
+        }
       end
-    else if (copy(FConnection.Protocol,0,6) = 'sqlite') then
+    else if (copy(FConnection.ConnectorType,0,6) = 'sqlite') then
       begin
-        ForceDirectories(ExtractFileDir(FConnection.Database));
+        ForceDirectories(ExtractFileDir(FConnection.DatabaseName));
       end;
   try
     FConnection.Connected:=True;
@@ -1719,12 +1709,12 @@ begin
           //debugln(LastError);
         end;
   end;
-  if (copy(FConnection.Protocol,0,8) = 'postgres')
+  if (copy(FConnection.ConnectorType,0,8) = 'postgres')
   then
     begin
-      Result := FConnection.ExecuteDirect('CREATE DATABASE "'+aDatabase+'" WITH OWNER = "'+aUser+'" ENCODING = ''UTF8'' CONNECTION LIMIT = -1;');
-      FConnection.Disconnect;
-      FConnection.Database:=aDatabase;
+      FConnection.ExecuteDirect('CREATE DATABASE "'+aDatabase+'" WITH OWNER = "'+aUser+'" ENCODING = ''UTF8'' CONNECTION LIMIT = -1;');
+      FConnection.Close();
+      FConnection.DatabaseName:=aDatabase;
     end;
   FConnection.Connected:=True;
   Result := FConnection.Connected;
@@ -1743,7 +1733,7 @@ begin
     aConnection := MainConnection;
   with TSQLDbDBDataSet(Result) do
     begin
-      Connection := TSQLConnection(aConnection);
+      aConnection := TSQLConnector(aConnection);
       FTableNames := aTables;
       aTable.DefineFields(Result);
       aTable.DefineDefaultFields(Result,Assigned(Masterdata));
@@ -1756,7 +1746,6 @@ begin
               TSQLDbDBDataSet(MasterData).MasterDataSource.DataSet := MasterData;
             end;
           DataSource := TSQLDbDBDataSet(MasterData).MasterDataSource;
-          MasterSource := TSQLDbDBDataSet(MasterData).MasterDataSource;
           with Masterdata as IBaseSubDataSets do
             RegisterSubDataSet(aTable);
         end;
@@ -1771,7 +1760,7 @@ begin
   with TSQLDbDBDataSet(Result) do
     begin
       FOrigTable := aOrigtable;
-      Connection := TSQLConnection(aConnection);
+      aConnection := TSQLConnection(aConnection);
       SQL.Text := aSQL;
       FSQL:=aSQL;
       if Assigned(Masterdata) then
@@ -1782,7 +1771,6 @@ begin
               TSQLDbDBDataSet(MasterData).MasterDataSource.DataSet := MasterData;
             end;
           DataSource := TSQLDbDBDataSet(MasterData).MasterDataSource;
-          MasterSource := TSQLDbDBDataSet(MasterData).MasterDataSource;
         end;
     end;
 end;
@@ -1790,10 +1778,9 @@ end;
 procedure TSQLDbDBDM.DestroyDataSet(DataSet: TDataSet);
 begin
   try
-    if Assigned(DataSet) and Assigned(TSQLDbDBDataSet(DataSet).MasterSource) then
+    if Assigned(DataSet) and Assigned(TSQLDbDBDataSet(DataSet).DataSource) then
       begin
-        TSQLDbDBDataSet(DataSet).MasterSource.DataSet.DataSource.Free;
-        TSQLDbDBDataSet(DataSet).MasterSource := nil;
+        TSQLDbDBDataSet(DataSet).DataSource.DataSet.DataSource.Free;
         TSQLDbDBDataSet(DataSet).DataSource := nil;
       end;
   except
@@ -1807,27 +1794,19 @@ var
   atime: Integer;
 begin
   Result := True;
-  try
-    if (copy(TSQLConnection(aConnection).Protocol,0,6)<>'sqlite')
-    and (copy(TSQLConnection(aConnection).Protocol,0,5)<>'mssql')
-    then
-      Result := TSQLConnection(aConnection).Ping
-    else Result := True;
-  except
-    if copy(TSQLConnection(aConnection).Protocol,0,6)<>'sqlite' then
-      Result := PingHost(TSQLConnection(aConnection).HostName)>-1;//Unsupported
-  end;
+  //if copy(TSQLConnector(aConnection).ConnectorType,0,6)<>'sqlite' then
+  //  Result := PingHost(TSQLConnection(aConnection).HostName)>-1;//Unsupported
 end;
 function TSQLDbDBDM.DateToFilter(aValue: TDateTime): string;
 begin
-  if FMainConnection.Protocol = 'mssql' then
+  if FMainConnection.ConnectorType = 'mssql' then
     Result := QuoteValue(FormatDateTime('YYYYMMDD',aValue))
   else
     Result:=inherited DateToFilter(aValue);
 end;
 function TSQLDbDBDM.DateTimeToFilter(aValue: TDateTime): string;
 begin
-  if FMainConnection.Protocol = 'mssql' then
+  if FMainConnection.ConnectorType = 'mssql' then
     Result := QuoteValue(FormatDateTime('YYYYMMDD HH:MM:SS.ZZZZ',aValue))
   else
     Result:=inherited DateTimeToFilter(aValue);
@@ -1855,13 +1834,13 @@ begin
       try
         while aId=Result do
           begin
-            if (copy(FMainConnection.Protocol,0,6) = 'sqlite') and (Assigned(aConnection)) then
+            if (copy(FMainConnection.ConnectorType,0,6) = 'sqlite') and (Assigned(aConnection)) then
               Statement := TSQLConnection(aConnection).DbcConnection.CreateStatement //we have global locking in sqlite so we must use the actual connection
             else
               Statement := TSQLConnection(MainConnection).DbcConnection.CreateStatement;
             if AutoInc then
               begin
-                if (copy(FMainConnection.Protocol,0,5) = 'mysql') then
+                if (copy(FMainConnection.ConnectorType,0,5) = 'mysql') then
                   begin
                     Statement.Execute('update '+QuoteField(Generator)+' set '+QuoteField('ID')+'='+QuoteField('ID')+'+1;')
                   end
@@ -2062,14 +2041,14 @@ end;
 function TSQLDbDBDM.QuoteField(aField: string): string;
 begin
   Result:=inherited QuoteField(aField);
-  if (copy(TSQLConnection(MainConnection).Protocol,0,5) = 'mysql') then
+  if (copy(TSQLConnection(MainConnection).ConnectorType,0,5) = 'mysql') then
     Result := '`'+aField+'`';
 end;
 
 function TSQLDbDBDM.QuoteValue(aField: string): string;
 begin
   Result:=inherited QuoteValue(aField);
-  if (copy(TSQLConnection(MainConnection).Protocol,0,5) = 'mysql') then
+  if (copy(TSQLConnection(MainConnection).ConnectorType,0,5) = 'mysql') then
     Result := ''''+aField+'''';
 end;
 
@@ -2086,11 +2065,11 @@ end;
 function TSQLDbDBDM.StartTransaction(aConnection: TComponent;ForceTransaction : Boolean = False): Boolean;
 begin
   TSQLConnection(aConnection).Tag := Integer(TSQLConnection(aConnection).TransactIsolationLevel);
-  if ForceTransaction and (copy(TSQLConnection(aConnection).Protocol,0,6) = 'sqlite') then
+  if ForceTransaction and (copy(TSQLConnection(aConnection).ConnectorType,0,6) = 'sqlite') then
     TSQLConnection(aConnection).TransactIsolationLevel:=tiReadCommitted
-  else if (copy(TSQLConnection(aConnection).Protocol,0,8) = 'postgres') then
+  else if (copy(TSQLConnection(aConnection).ConnectorType,0,8) = 'postgres') then
     TSQLConnection(aConnection).TransactIsolationLevel:=tiReadCommitted
-  else if (copy(TSQLConnection(aConnection).Protocol,0,5) = 'mssql') then
+  else if (copy(TSQLConnection(aConnection).ConnectorType,0,5) = 'mssql') then
     TSQLConnection(aConnection).TransactIsolationLevel:=tiReadUnCommitted;
   TSQLConnection(aConnection).StartTransaction;
 end;
@@ -2160,7 +2139,7 @@ begin
       aQuerry := TZReadOnlyQuery.Create(Self);
       aQuerry.Connection:=TSQLConnection(MainConnection);
       aQuerry.SQL.Text := 'select count(*) from '+aTableName;
-      if (FMainConnection.Protocol = 'mssql') then
+      if (FMainConnection.ConnectorType = 'mssql') then
         aQuerry.SQL.Text := '('+aQuerry.SQL.Text+')';
       try
         aQuerry.Open;
@@ -2188,17 +2167,17 @@ begin
     begin
       GeneralQuery := TSQLQuery.Create(Self);
       GeneralQuery.Connection:=TSQLConnection(MainConnection);
-      if (copy(FMainConnection.Protocol,0,10) = 'postgresql') then
+      if (copy(FMainConnection.ConnectorType,0,10) = 'postgresql') then
         begin
           GeneralQuery.SQL.Text:='select tgname from pg_trigger;';
           GeneralQuery.Open;
         end
-      else if (copy(FMainConnection.Protocol,0,6) = 'sqlite') then
+      else if (copy(FMainConnection.ConnectorType,0,6) = 'sqlite') then
         begin
           GeneralQuery.SQL.Text:='select name from sqlite_master where type=''trigger'';';
           GeneralQuery.Open;
         end
-      else if (FMainConnection.Protocol = 'mssql') then
+      else if (FMainConnection.ConnectorType = 'mssql') then
         begin
           GeneralQuery.SQL.Text:='SELECT trigger_name = name FROM sysobjects WHERE type = ''TR''';
           GeneralQuery.Open;
@@ -2234,7 +2213,7 @@ end;
 
 function TSQLDbDBDM.GetDBType: string;
 begin
-  Result:=TSQLConnection(MainConnection).Protocol;
+  Result:=TSQLConnection(MainConnection).ConnectorType;
   if copy(Result,0,8)='postgres' then Result := 'postgres';
   if Result='interbase' then Result := 'firebird';
   if Result='sqlite-3' then Result := 'sqlite';
@@ -2254,7 +2233,7 @@ begin
   GeneralQuery := TSQLQuery.Create(Self);
   GeneralQuery.Connection := TSQLConnection(MainConnection);
   if Assigned(aConnection) then GeneralQuery.Connection:=TSQLConnection(aConnection);
-  if (copy(FMainConnection.Protocol,0,10) = 'postgresql') then
+  if (copy(FMainConnection.ConnectorType,0,10) = 'postgresql') then
     begin
       if (aField <> '') and (aUpdateOn='UPDATE') then
         begin
@@ -2272,7 +2251,7 @@ begin
       //DebugLn(GeneralQuery.SQL.Text);
       GeneralQuery.ExecSQL;
     end
-  else if (FMainConnection.Protocol = 'mssql') then
+  else if (FMainConnection.ConnectorType = 'mssql') then
     begin
       if (aField <> '') and (aUpdateOn='UPDATE') then
         begin
@@ -2287,7 +2266,7 @@ begin
       //DebugLn(GeneralQuery.SQL.Text);
       GeneralQuery.ExecSQL;
     end
-{  else if (copy(FMainConnection.Protocol,0,6) = 'sqlite') then
+{  else if (copy(FMainConnection.ConnectorType,0,6) = 'sqlite') then
     begin
       GeneralQuery.SQL.Text :=
       'CREATE TRIGGER IF NOT EXISTS '+QuoteField(aTableName+'_'+aTriggerName)+' AFTER '+StringReplace(aUpdateOn,'or',',',[rfReplaceAll]);
@@ -2325,9 +2304,9 @@ begin
   case aType of
   ftString:
     begin
-      if (copy(FMainConnection.Protocol,0,8) = 'firebird')
-      or (copy(FMainConnection.Protocol,0,9) = 'interbase')
-      or (copy(FMainConnection.Protocol,0,10) = 'postgresql') then
+      if (copy(FMainConnection.ConnectorType,0,8) = 'firebird')
+      or (copy(FMainConnection.ConnectorType,0,9) = 'interbase')
+      or (copy(FMainConnection.ConnectorType,0,10) = 'postgresql') then
         Result := Result+' VARCHAR('+IntToStr(aSize)+')'
       else
         Result := Result+' NVARCHAR('+IntToStr(aSize)+')';
@@ -2340,32 +2319,32 @@ begin
     end;
   ftAutoInc:
     begin
-      if (FMainConnection.Protocol = 'mssql') then
+      if (FMainConnection.ConnectorType = 'mssql') then
         Result := Result+' INTEGER PRIMARY KEY IDENTITY'
-      else if (copy(FMainConnection.Protocol,0,6) = 'sqlite') then
+      else if (copy(FMainConnection.ConnectorType,0,6) = 'sqlite') then
         Result := Result+' INTEGER PRIMARY KEY AUTOINCREMENT'
       else Result := Result+' INTEGER PRIMARY KEY';
     end;
   ftFloat:
     begin
-      if (copy(FMainConnection.Protocol,0,8) = 'firebird')
-      or (copy(FMainConnection.Protocol,0,9) = 'interbase') then
+      if (copy(FMainConnection.ConnectorType,0,8) = 'firebird')
+      or (copy(FMainConnection.ConnectorType,0,9) = 'interbase') then
         Result := Result+' DOUBLE PRECISION'
       else
         Result := Result+' FLOAT';
     end;
   ftDate:
     begin
-      if (FMainConnection.Protocol = 'mssql') then
+      if (FMainConnection.ConnectorType = 'mssql') then
         Result := Result+' DATETIME'
       else
         Result := Result+' DATE';
     end;
   ftDateTime:
     begin
-      if (FMainConnection.Protocol = 'mssql')
-      or (copy(FMainConnection.Protocol,0,5) = 'mysql')
-      or (copy(FMainConnection.Protocol,0,6) = 'sqlite')
+      if (FMainConnection.ConnectorType = 'mssql')
+      or (copy(FMainConnection.ConnectorType,0,5) = 'mysql')
+      or (copy(FMainConnection.ConnectorType,0,6) = 'sqlite')
       then
         Result := Result+' DATETIME'
       else
@@ -2373,28 +2352,28 @@ begin
     end;
   ftTime:
     begin
-      if (FMainConnection.Protocol = 'mssql') then
+      if (FMainConnection.ConnectorType = 'mssql') then
         Result := Result+' DATETIME'
       else
         Result := Result+' TIME';
     end;
   ftBlob:
     begin
-      if (FMainConnection.Protocol = 'mssql') then
+      if (FMainConnection.ConnectorType = 'mssql') then
         Result := Result+' IMAGE'
-      else if (copy(FMainConnection.Protocol,0,10) = 'postgresql') then
+      else if (copy(FMainConnection.ConnectorType,0,10) = 'postgresql') then
         Result := Result+' BYTEA'
-      else if (copy(FMainConnection.Protocol,0,5) = 'mysql') then
+      else if (copy(FMainConnection.ConnectorType,0,5) = 'mysql') then
         Result := Result+' LONGBLOB'
       else
         Result := Result+' BLOB';
     end;
   ftMemo:
     begin;
-      if (copy(FMainConnection.Protocol,0,8) = 'firebird')
-      or (copy(FMainConnection.Protocol,0,9) = 'interbase') then
+      if (copy(FMainConnection.ConnectorType,0,8) = 'firebird')
+      or (copy(FMainConnection.ConnectorType,0,9) = 'interbase') then
         Result := Result+' BLOB SUB_TYPE 1'
-      else if (copy(FMainConnection.Protocol,0,5) = 'mysql') then
+      else if (copy(FMainConnection.ConnectorType,0,5) = 'mysql') then
         Result := Result+' LONGTEXT'
       else
         Result := Result+' TEXT';
@@ -2404,7 +2383,7 @@ begin
     Result := Result+' NOT NULL'
   else
     begin
-      if (FMainConnection.Protocol = 'mssql') then
+      if (FMainConnection.ConnectorType = 'mssql') then
         Result := Result+' NULL'
     end;
 end;
