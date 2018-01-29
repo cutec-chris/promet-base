@@ -740,7 +740,7 @@ begin
       end;
       aQuerry:=copy(aQuerry,2,length(aQuerry));
     end;
-  Result := bQuerry;
+  Result := ReplaceSQLFunctions(bQuerry);
   result := StringReplace(Result,'@USERID@',TBaseDBModule(DataModule).Users.Id.AsString,[rfReplaceAll]);
 end;
 
