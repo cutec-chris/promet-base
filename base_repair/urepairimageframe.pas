@@ -316,10 +316,14 @@ procedure TfRepairImageFrame.SetLanguage;
 begin
   cbOperation.Clear;
   cbOperation.Items.Add(strRepaired);
+  cbOperation.Items.Add(strunRepaired);
   cbOperation.Items.Add(strDiscarded);
   cbOperation.Items.Add(strWaitingforCustomer);
   cbOperation.Items.Add(strAssemblyexchanged);
   cbOperation.Items.Add(strIsNew);
+  cbOperation.Items.Add(strGoodwillRepair);
+  cbOperation.Items.Add(strGoodwillExchange);
+  cbOperation.Items.Add(strGoodwillCredit);
 end;
 
 procedure TfRepairImageFrame.SetArticle(aMasterdata: TMasterdata);

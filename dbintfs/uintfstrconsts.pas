@@ -35,6 +35,7 @@ resourcestring
   strSearchFromProjects         = 'Mit Öffnen wird das gewählte Projekt als Vorfahr übernommen';
   strCommandline                = 'Komandozeile';
   strRepaired                   = 'repariert';
+  strunRepaired                 = 'unrepariert';
   strDiscarded                  = 'entsorgt';
   strWaitingforCustomer         = 'wartet auf Kunden';
   strAssemblyexchanged          = 'Baugruppentausch';
