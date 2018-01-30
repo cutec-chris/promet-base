@@ -217,10 +217,10 @@ var
   s: string;
   CmdIndex : Integer = 0;
 begin
-  sock:=TTCPBlockSocket.create;
-  with BaseApplication as IBaseApplication do
-    Debug(IntToStr(Id)+':New Socket');
   try
+    sock:=TTCPBlockSocket.create;
+    with BaseApplication as IBaseApplication do
+      Debug(IntToStr(Id)+':New Socket');
     Sock.socket:=CSock;
     sock.GetSins;
     with sock do
