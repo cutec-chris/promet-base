@@ -1019,5 +1019,5 @@ begin
 end;
 
 initialization
-  RegisterdataSetClass('PERSON',TPerson);
+  RegisterdataSetClass('PERSONS',TPerson);
 end.

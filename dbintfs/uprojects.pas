@@ -831,6 +831,6 @@ begin
 end;
 
 initialization
-  RegisterdataSetClass('PROJECT',TProject);
+  RegisterdataSetClass('PROJECTS',TProject);
 end.
 
