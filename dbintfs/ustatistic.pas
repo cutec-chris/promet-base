@@ -99,12 +99,40 @@ resourcestring
 function ReplaceSQLFunctions(Str : string) : string;
 var
   aLmt: String;
+  tmp: String;
+  tmp1: String;
+  inKl: Integer;
 begin
   Result := Str;
   if Data.GetDBType='postgres' then
     begin
       Result := StringReplace(Result,'JULIANDAY(','cast(''17 may 1970'' as timestamp)+(',[rfReplaceAll,rfIgnoreCase]);
-      Result := StringReplace(Result,'CHARINDEX(','strpos(',[rfReplaceAll,rfIgnoreCase]);
+      while pos('CHARINDEX(',Uppercase(Result))>0 do
+        begin
+          tmp := Result;
+          Result := copy(tmp,0,pos('CHARINDEX(',Uppercase(Result))-1);
+          Result := Result+'position(';
+          tmp := copy(tmp,pos('CHARINDEX(',Uppercase(tmp))+10,length(tmp));
+          while ((copy(tmp,0,1) <> ',') or (inKl > 0)) do
+            begin
+              if copy(tmp,0,1)='(' then inc(inKl);
+              if copy(tmp,0,1)=')' then dec(inKl);
+              Result := Result+copy(tmp,0,1);
+              tmp := copy(tmp,2,length(tmp));
+            end;
+          tmp := copy(tmp,pos(',',tmp)+1,length(tmp));
+          Result := Result+' in ';
+          inKl := 0;
+          while (copy(tmp,0,1) <> ')') or (inKl > 0) do
+            begin
+              if copy(tmp,0,1)='(' then inc(inKl);
+              if copy(tmp,0,1)=')' then dec(inKl);
+              Result := Result+copy(tmp,0,1);
+              tmp := copy(tmp,2,length(tmp));
+            end;
+          Result := Result+tmp;
+        end;
+      Result := StringReplace(Result,'CHARINDEX(','position(',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'MONTH(','EXTRACT(MONTH FROM ',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'YEAR(','EXTRACT(YEAR FROM ',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'DAY(','EXTRACT(DAY FROM ',[rfReplaceAll,rfIgnoreCase]);
