@@ -4,6 +4,7 @@ object fVisualControls: TfVisualControls
   HorizontalOffset = 180
   VerticalOffset = 181
   Width = 230
+  PPI = 96
   object Images: TImageList
     left = 32
     top = 24

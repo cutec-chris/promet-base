@@ -67,20 +67,20 @@
     </i18n>
     <RequiredPkgs Count="11">
       <Item1>
-        <PackageName Value="pOptions"/>
-        <DefaultFilename Value="base_options\poptions.lpk"/>
+        <PackageName Value="laz_visualplanit"/>
+        <DefaultFilename Value="..\components\tvplanit\laz_visualplanit.lpk"/>
       </Item1>
       <Item2>
-        <PackageName Value="promet_dblayer_zeos"/>
-        <DefaultFilename Value="dblayer_zeos\promet_dblayer_zeos.lpk"/>
+        <PackageName Value="pOptions"/>
+        <DefaultFilename Value="base_options\poptions.lpk"/>
       </Item2>
       <Item3>
-        <PackageName Value="pscripts"/>
-        <DefaultFilename Value="base_scripts\pscripts.lpk"/>
+        <PackageName Value="promet_dblayer_zeos"/>
+        <DefaultFilename Value="dblayer_zeos\promet_dblayer_zeos.lpk"/>
       </Item3>
       <Item4>
-        <PackageName Value="v103_lazarus"/>
-        <DefaultFilename Value="..\components\tvplanit\packages\v103_lazarus.lpk"/>
+        <PackageName Value="pscripts"/>
+        <DefaultFilename Value="base_scripts\pscripts.lpk"/>
       </Item4>
       <Item5>
         <PackageName Value="ZVDateTimeCtrls"/>

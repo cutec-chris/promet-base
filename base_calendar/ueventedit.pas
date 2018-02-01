@@ -22,7 +22,7 @@ unit uEventEdit;
 interface
 uses
   LMessages, LCLProc, LCLType, LCLIntf,  SysUtils, Classes, Graphics,
-  Controls, Forms, Dialogs, StdCtrls, ExtCtrls, VpData, VpEdPop, VpDateEdit,
+  Controls, Forms, Dialogs, StdCtrls, ExtCtrls, VpData, {VpEdPop, VpDateEdit,}
   ComCtrls, VpBase, VpClock, VpBaseDS, VpDlg, VpConst, ZVDateTimePicker,
   uExtControls, Buttons, EditBtn, ButtonPanel, Spin, DbCtrls, Menus, ActnList,
   LR_DBSet, LR_Class, uIntfStrConsts, uCalendar, db, uBaseDbClasses,uBaseDatasetInterfaces;

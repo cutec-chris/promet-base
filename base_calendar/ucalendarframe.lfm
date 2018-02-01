@@ -3,8 +3,8 @@ inherited FCalendarFrame: TFCalendarFrame
   Width = 714
   ClientHeight = 551
   ClientWidth = 714
-  DesignLeft = 376
-  DesignTop = 190
+  DesignLeft = 0
+  DesignTop = 0
   object Panel1: TPanel[0]
     Left = 0
     Height = 364
@@ -15,6 +15,17 @@ inherited FCalendarFrame: TFCalendarFrame
     ClientHeight = 364
     ClientWidth = 714
     TabOrder = 0
+    object pListView: TPanel
+      Left = 0
+      Height = 364
+      Top = 0
+      Width = 714
+      Align = alClient
+      BevelOuter = bvNone
+      Caption = 'pListView'
+      TabOrder = 4
+      Visible = False
+    end
     object WeekView: TVpWeekView
       Left = 0
       Height = 364
@@ -28,16 +39,13 @@ inherited FCalendarFrame: TFCalendarFrame
       AllDayEventAttributes.EventBorderColor = clActiveBorder
       AllDayEventAttributes.EventBackgroundColor = cl3DLight
       AllDayEventAttributes.Font.Height = -12
-      Align = alClient
-      TabStop = True
-      TabOrder = 0
       DateLabelFormat = 'dddd, dd.mm.yyyy'
       DayHeadAttributes.Color = clInactiveBorder
       DayHeadAttributes.DateFormat = 'dddd mmmm, dd'
       DayHeadAttributes.Font.Height = -14
       DayHeadAttributes.Font.Name = 'Default'
       DayHeadAttributes.Bordered = False
-      DrawingStyle = dsNone
+      DrawingStyle = dsNoBorder
       EventFont.Height = -12
       HeadAttributes.Font.Height = -14
       HeadAttributes.Color = clWindow
@@ -45,6 +53,9 @@ inherited FCalendarFrame: TFCalendarFrame
       TimeFormat = tf24Hour
       ShowEventTime = True
       WeekStartsOn = dtMonday
+      Align = alClient
+      TabStop = True
+      TabOrder = 0
       OnOwnerEditEvent = DayViewOwnerEditEvent
     end
     object MonthView: TVpMonthView
@@ -57,21 +68,25 @@ inherited FCalendarFrame: TFCalendarFrame
       Align = alClient
       TabStop = True
       TabOrder = 1
-      KBNavigation = True
       DateLabelFormat = 'mmmm yyyy'
-      DayHeadAttributes.Color = clBtnFace
       DayHeadAttributes.Font.Height = -13
       DayHeadAttributes.Font.Name = 'Tahoma'
+      DayHeadAttributes.Color = clBtnFace
       DayNameStyle = dsShort
       DrawingStyle = dsFlat
       EventDayStyle = []
       EventFont.Height = -11
+      HeadAttributes.Color = clBtnFace
+      KBNavigation = True
       LineColor = clActiveBorder
-      TimeFormat = tf12Hour
       OffDayColor = clBtnFace
       SelectedDayColor = clRed
       ShowEvents = True
       ShowEventTime = False
+      TimeFormat = tf12Hour
+      TodayAttributes.Color = clBtnFace
+      TodayAttributes.BorderPen.Color = clRed
+      TodayAttributes.BorderPen.Width = 3
       WeekStartsOn = dtMonday
       OnEventDblClick = MonthViewEventDblClick
     end
@@ -104,7 +119,7 @@ inherited FCalendarFrame: TFCalendarFrame
         AllDayEventAttributes.EventBorderColor = cl3DDkShadow
         AllDayEventAttributes.EventBackgroundColor = clBtnFace
         ShowEventTimes = False
-        DrawingStyle = dsNone
+        DrawingStyle = dsFlat
         TimeSlotColors.Active = clWhite
         TimeSlotColors.Inactive = clWhite
         TimeSlotColors.Holiday = 16744703
@@ -160,7 +175,7 @@ inherited FCalendarFrame: TFCalendarFrame
         AllDayEventAttributes.EventBorderColor = cl3DDkShadow
         AllDayEventAttributes.EventBackgroundColor = clBtnFace
         ShowEventTimes = False
-        DrawingStyle = dsNone
+        DrawingStyle = dsFlat
         TimeSlotColors.Active = clWhite
         TimeSlotColors.Inactive = clWhite
         TimeSlotColors.Holiday = 16744703
@@ -186,17 +201,6 @@ inherited FCalendarFrame: TFCalendarFrame
         WrapStyle = wsNone
         OnOwnerEditEvent = DayViewOwnerEditEvent
       end
-    end
-    object pListView: TPanel
-      Left = 0
-      Height = 364
-      Top = 0
-      Width = 714
-      Align = alClient
-      BevelOuter = bvNone
-      Caption = 'pListView'
-      TabOrder = 4
-      Visible = False
     end
   end
   object ToolBar1: TPanel[1]
@@ -737,7 +741,7 @@ inherited FCalendarFrame: TFCalendarFrame
         Left = 6
         Height = 11
         Top = 0
-        Width = 21
+        Width = 18
         Caption = 'Filter'
         Font.Color = clMedGray
         Font.Height = 11
@@ -748,13 +752,13 @@ inherited FCalendarFrame: TFCalendarFrame
       object cbFilter: TComboBox
         AnchorSideLeft.Side = asrBottom
         Left = 6
-        Height = 21
+        Height = 23
         Hint = 'hier können Sie einen Filter wählen um die Liste einzuschränken'
         Top = 12
         Width = 316
         Anchors = [akTop, akLeft, akRight]
         BorderSpacing.Left = 8
-        ItemHeight = 13
+        ItemHeight = 15
         TabOrder = 0
       end
       object bEditFilter: TSpeedButton
@@ -830,9 +834,9 @@ inherited FCalendarFrame: TFCalendarFrame
       TabOrder = 0
       object cbMaxResults: TCheckBox
         Left = 9
-        Height = 17
+        Height = 19
         Top = 5
-        Width = 173
+        Width = 186
         Caption = 'Filterergebnisse begrenzen auf  '
         Checked = True
         State = cbChecked
@@ -981,9 +985,9 @@ inherited FCalendarFrame: TFCalendarFrame
       end
       object lFilterEdit: TLabel
         Left = 9
-        Height = 13
+        Height = 15
         Top = 33
-        Width = 74
+        Width = 84
         Caption = 'Filterbedingung'
         ParentColor = False
       end
@@ -999,7 +1003,7 @@ inherited FCalendarFrame: TFCalendarFrame
       end
       object eFilterIn: TEdit
         Left = 442
-        Height = 21
+        Height = 23
         Hint = 'Wenn Sie über mehrere Tabellen Filtern '#13#10'möchten füllen Sie dieses Feld'#13#10'z.b.'#13#10'Orders,OrderPos'
         Top = 80
         Width = 152
@@ -1017,8 +1021,8 @@ inherited FCalendarFrame: TFCalendarFrame
       object seMaxresults: TSpinEdit
         AnchorSideLeft.Control = cbMaxResults
         AnchorSideLeft.Side = asrBottom
-        Left = 182
-        Height = 21
+        Left = 195
+        Height = 23
         Hint = 'hier können Sie die Zahl der maximalen Filterergebnisse angeben'
         Top = 5
         Width = 52
