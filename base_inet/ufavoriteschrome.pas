@@ -16,7 +16,7 @@ SysUtils
  ,Windows
 {$ENDIF}
 {$if lcl_fullversion >= 01070000}
- {$IFDEF MSWINDOWS},{$endif}LazFileUtils
+ ,LazFileUtils
 {$endif}
 ;
 
