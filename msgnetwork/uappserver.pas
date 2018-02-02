@@ -88,15 +88,14 @@ begin
   inherited create(false);
   sock:=TTCPBlockSocket.create;
   Socks := TList.Create;
-  FreeOnTerminate:=true;
+  FreeOnTerminate:=false;
   ActId := 0;
 end;
 destructor TAppNetworkDaemon.Destroy;
 begin
-  Terminate;
-  WaitFor;
   FreeAndNil(Sock);
   Socks.Free;
+  inherited;
 end;
 procedure TAppNetworkDaemon.Execute;
 var
@@ -117,7 +116,9 @@ begin
                 ListenOk:=True;
                 listen;
                 if LastError<>0 then
-                  ListenOk:=False;
+                  ListenOk:=False
+                else
+                  WriteLn('accepting connections on Port 8085')
               end
             else
               begin
@@ -160,7 +161,6 @@ begin
               end;
           end;
       until Terminated;
-      Sock.CloseSocket;
     end;
 end;
 
@@ -219,20 +219,22 @@ var
 begin
   try
     sock:=TTCPBlockSocket.create;
-    with BaseApplication as IBaseApplication do
-      Debug(IntToStr(Id)+':New Socket');
+    if Assigned(BaseApplication) then
+      with BaseApplication as IBaseApplication do
+        Debug(IntToStr(Id)+':New Socket');
     Sock.socket:=CSock;
     sock.GetSins;
     with sock do
       begin
         repeat
-          if terminated then break;
+          if Terminated then break;
           if Close then break;
           s := RecvTerminated(5000,CRLF);
           if (lastError<>0) and (LastError<>WSAETIMEDOUT) then
             begin
-              with BaseApplication as IBaseApplication do
-                 Debug(IntToStr(Id)+':Socket Error1:'+LastErrorDesc);
+              if Assigned(BaseApplication) then
+                with BaseApplication as IBaseApplication do
+                   Debug(IntToStr(Id)+':Socket Error1:'+LastErrorDesc);
               break;
             end;
           if s <> '' then
@@ -243,10 +245,12 @@ begin
         until false;
       end;
   finally
+    Sock.CloseSocket;
     Sock.Free;
   end;
-  with BaseApplication as IBaseApplication do
-    Debug(IntToStr(Id)+':Socket closed');
+  if Assigned(BaseApplication) then
+    with BaseApplication as IBaseApplication do
+      Debug(IntToStr(Id)+':Socket closed');
 end;
 
 

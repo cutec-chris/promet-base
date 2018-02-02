@@ -81,7 +81,6 @@ end;
 destructor TPrometDiscoveryDaemon.Destroy;
 begin
   inherited Destroy;
-  Sock.Free;
   Clients.Free;
 end;
 procedure TPrometDiscoveryDaemon.SendDiscover;
@@ -199,7 +198,7 @@ initialization
 finalization
   Discovery.Terminate;
   NetworkDaemon.Terminate;
-  Discovery.WaitFor;
-  NetworkDaemon.WaitFor;
+  Discovery.Free;
+  NetworkDaemon.Free;
 end.
 
