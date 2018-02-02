@@ -334,5 +334,6 @@ end;
 initialization
   uappserverhttp.RegisterHTTPHandler(@HandleWikiRequest);
 finalization
+  FreeAndNil(fVisualControls);
 end.
 

@@ -94,6 +94,11 @@ end;
 destructor TAppNetworkDaemon.Destroy;
 begin
   FreeAndNil(Sock);
+  while Socks.Count>0 do
+    begin
+      TAppNetworkThrd(Socks[0]).Terminate;
+      TAppNetworkThrd(Socks[0]).WaitFor;
+    end;
   Socks.Free;
   inherited;
 end;
@@ -219,38 +224,26 @@ var
 begin
   try
     sock:=TTCPBlockSocket.create;
-    if Assigned(BaseApplication) then
-      with BaseApplication as IBaseApplication do
-        Debug(IntToStr(Id)+':New Socket');
     Sock.socket:=CSock;
     sock.GetSins;
-    with sock do
-      begin
-        repeat
-          if Terminated then break;
-          if Close then break;
-          s := RecvTerminated(5000,CRLF);
-          if (lastError<>0) and (LastError<>WSAETIMEDOUT) then
-            begin
-              if Assigned(BaseApplication) then
-                with BaseApplication as IBaseApplication do
-                   Debug(IntToStr(Id)+':Socket Error1:'+LastErrorDesc);
-              break;
-            end;
-          if s <> '' then
-            begin
-              DoCommand(s);
-              inc(CmdIndex);
-            end;
-        until false;
-      end;
+    repeat
+      if Terminated then break;
+      if Close then break;
+      s := Sock.RecvTerminated(100,CRLF);
+      if (Sock.lastError<>0) and (Sock.LastError<>WSAETIMEDOUT) then
+        begin
+          break;
+        end;
+      if s <> '' then
+        begin
+          DoCommand(s);
+          inc(CmdIndex);
+        end;
+    until false;
   finally
     Sock.CloseSocket;
     Sock.Free;
   end;
-  if Assigned(BaseApplication) then
-    with BaseApplication as IBaseApplication do
-      Debug(IntToStr(Id)+':Socket closed');
 end;
 
 

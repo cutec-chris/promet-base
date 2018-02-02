@@ -1460,6 +1460,7 @@ begin
 end;
 destructor TZeosDBDM.Destroy;
 begin
+  FreeAndNil(Monitor);
   try
     if FMainconnection.Connected then
       FMainConnection.Disconnect;

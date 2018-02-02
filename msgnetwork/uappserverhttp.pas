@@ -178,7 +178,7 @@ begin
       TAppNetworkThrd(Sender).sock.SendString(tmp+'/1.1 ' + IntTostr(aSock.Code) + ' '+ ResultStatusText + CRLF);
       if aSock.protocol <> '' then
       begin
-        //aSock.Close:=True;//TODO:find keep-alive bug and remove this
+        aSock.Close:=pos('keep-alive',lowercase(aSock.headers.Text))>0;
         aSock.headers.Add('Date: ' + Rfc822DateTime(LocalTimeToGMT(now)));
         aSock.headers.Add('Server: Avamm Internal Network');
         if aSock.Code<>304 then

@@ -1214,8 +1214,6 @@ begin
     begin
       FAutomation.ipHTML.Visible:=False;
       TreeData.ShowData;
-      FAutomation.ipHTML.Visible:=True;
-      FAutomation.ipHTML.Repaint;
       Application.ProcessMessages;
       if DoCompileScript<>nil then
         begin
@@ -1230,6 +1228,8 @@ begin
               FAutomation.acExecuteStep.Enabled:=FAutomation.acExecuteStep.Enabled and (not FAutomation.lStatusProblems.Color=clRed);
             end;
         end;
+      FAutomation.ipHTML.Visible:=True;
+      FAutomation.ipHTML.Repaint;
     end;
   Screen.Cursor:=crDefault;
 end;
