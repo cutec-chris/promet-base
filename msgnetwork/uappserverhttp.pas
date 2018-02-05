@@ -98,9 +98,9 @@ begin
       if aSock.protocol = '' then
         aSock.protocol := 'HTTP/1.1'; //direct command handler ??
       aSock.Command := aCmd;
-      //aSock.FSocket.Synchronize(aSock.FSocket,@aSock.ProcessHTTPRequest);
       with BaseApplication as IBaseApplication do
         Debug('Processing HTTP Request in Thread');
+      //aSock.FSocket.Synchronize(aSock.FSocket,@aSock.ProcessHTTPRequest);
       aSock.ProcessHTTPRequest;
       //ignore folder icons since they are not included in template
       if (pos('/favicon.',aSock.Url)=0)
