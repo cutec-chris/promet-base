@@ -1024,7 +1024,7 @@ begin
                     fWebReports.RegisterDataSet(Data.Users.DataSet,False);
                     fWebReports.RegisterDataSet(Data.PaymentTargets.DataSet,False);
                     fWebReports.RegisterDataSet(Data.MandantDetails.DataSet,False);
-                    if fWebReports.ExportToPNG(GetTempDir+'preport.png') then
+                    if fWebReports.ExportToImage(GetTempDir+'preport.png') then
                     //TreeData.WorkText.Text:='<pre>'+fWebReports.ExportToText+'</pre>';
                     TreeData.WorkText.Text:='<img src="file://'+GetTempDir+'preport.png'+'">';
                     TreeData.ShowData;
