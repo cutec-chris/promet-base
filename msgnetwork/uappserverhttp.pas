@@ -98,8 +98,9 @@ begin
       if aSock.protocol = '' then
         aSock.protocol := 'HTTP/1.1'; //direct command handler ??
       aSock.Command := aCmd;
-      with BaseApplication as IBaseApplication do
-        Debug('Processing HTTP Request in Thread');
+      if Assigned(BaseApplication) then
+        with BaseApplication as IBaseApplication do
+          Debug('Processing HTTP Request in Thread');
       //aSock.FSocket.Synchronize(aSock.FSocket,@aSock.ProcessHTTPRequest);
       aSock.ProcessHTTPRequest;
       //ignore folder icons since they are not included in template
@@ -108,8 +109,9 @@ begin
       then
         if (aSock.Code<>200) and (aSock.Code<>301) and (aSock.Code<>304) then
           begin
-            with BaseApplication as IBaseApplication do
-              Debug('Processing HTTP Handlers');
+            if Assigned(BaseApplication) then
+              with BaseApplication as IBaseApplication do
+                Debug('Processing HTTP Handlers');
             aReqTime := Now();
             for i := 0 to Length(HTTPHandlers)-1 do
               begin
@@ -126,8 +128,9 @@ begin
       tmp := aSock.protocol;
       ProtocolVersion := StrToFloatDef(StringReplace(copy(aSock.Protocol,pos('/',aSock.Protocol)+1,length(aSock.Protocol)),'.',DecimalSeparator,[]),0.9);
       tmp := copy(tmp,0,pos('/',tmp)-1);
-      with BaseApplication as IBaseApplication do
-        Debug('Sending Headers');
+      if Assigned(BaseApplication) then
+        with BaseApplication as IBaseApplication do
+          Debug('Sending Headers');
       if ResultStatusText = '' then
         begin
           case aSock.Code of
@@ -201,18 +204,21 @@ begin
       else
         with BaseApplication as IBaseApplication do
           Error('No protocoll ?! ...');
-      with BaseApplication as IBaseApplication do
-        Debug('Sending Body');
+      if Assigned(BaseApplication) then
+        with BaseApplication as IBaseApplication do
+          Debug('Sending Body');
       TAppNetworkThrd(Sender).Sock.SendBuffer(aSock.OutputData.Memory, aSock.OutputData.Size);
       if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
         begin
-          with BaseApplication as IBaseApplication do
-            Debug(IntToStr(TAppNetworkThrd(Sender).Id)+':Sock.LastError is '+TAppNetworkThrd(Sender).sock.LastErrorDesc);
+          if Assigned(BaseApplication) then
+            with BaseApplication as IBaseApplication do
+              Debug(IntToStr(TAppNetworkThrd(Sender).Id)+':Sock.LastError is '+TAppNetworkThrd(Sender).sock.LastErrorDesc);
           Exit;
         end;
       TAppNetworkThrd(Sender).Close:=aSock.Close;
-      with BaseApplication as IBaseApplication do
-        Debug('done.');
+      if Assigned(BaseApplication) then
+        with BaseApplication as IBaseApplication do
+          Debug('done.');
       Result:=True;
     end;
   end;
@@ -367,8 +373,9 @@ retry:
           end
         else if FileExists(aPath) and (pos('/.',aPath)=0) then
           begin
-            with BaseApplication as IBaseApplication do
-              Info('HTTP:'+Command+' '+url+' ('+aPath+')');
+            if Assigned(BaseApplication) then
+              with BaseApplication as IBaseApplication do
+                Info('HTTP:'+Command+' '+url+' ('+aPath+')');
             Headers.Clear;
             if Uppercase(Command)='OPTIONS' then
               begin
