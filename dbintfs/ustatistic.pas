@@ -141,6 +141,8 @@ begin
       Result := StringReplace(Result,'LENGTH(','LEN(',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'LEN(','CHAR_LENGTH(',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'(max)','',[rfReplaceAll,rfIgnoreCase]);
+      Result := StringReplace(Result,'IFNULL(','coalesce(',[rfReplaceAll,rfIgnoreCase]);
+      Result := StringReplace(Result,'ISNULL(','coalesce(',[rfReplaceAll,rfIgnoreCase]);
     end
   else if Data.GetDBType='mssql' then
     begin
