@@ -746,8 +746,8 @@ begin
             Add('INFORMPMANAGER',ftString,1,False);
             Add('GROSSPLANNING',ftString,1,False);
             Add('ISTEMPLATE',ftString,1,False);
-            Add('COSTCENTRE',ftString,10,False);//Kostenstelle
-            Add('ACCOUNT',ftString,10,False); //Fibu Konto
+            Add('COSTCENTRE',ftString,20,False);//Kostenstelle
+            Add('ACCOUNT',ftString,20,False); //Fibu Konto
             Add('ACCOUNTINGINFO',ftMemo,0,False); //Fibu Info
             Add('CATEGORY',ftString,60,False);
             Add('CLASS',ftString,60,False);
