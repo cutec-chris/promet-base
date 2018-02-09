@@ -121,28 +121,32 @@
       <OutDir Value="../../../languages"/>
       <EnableI18NForLFM Value="True"/>
     </i18n>
-    <RequiredPkgs Count="6">
+    <RequiredPkgs Count="7">
       <Item1>
-        <PackageName Value="lr_extexp"/>
+        <PackageName Value="fpreport_fcl"/>
+        <DefaultFilename Value="../../components/fpReport/fpreport_fcl.lpk"/>
       </Item1>
       <Item2>
-        <PackageName Value="pvisualframes"/>
-        <DefaultFilename Value="../base_frames/pvisualframes.lpk"/>
+        <PackageName Value="lr_extexp"/>
       </Item2>
       <Item3>
-        <PackageName Value="pdocuments"/>
-        <DefaultFilename Value="../base_documents/pdocuments.lpk"/>
+        <PackageName Value="pvisualframes"/>
+        <DefaultFilename Value="../base_frames/pvisualframes.lpk"/>
       </Item3>
       <Item4>
-        <PackageName Value="pPrometDBIntfs"/>
-        <DefaultFilename Value="../base/dbintfs/pprometdbintfs.lpk"/>
+        <PackageName Value="pdocuments"/>
+        <DefaultFilename Value="../base_documents/pdocuments.lpk"/>
       </Item4>
       <Item5>
-        <PackageName Value="LCL"/>
+        <PackageName Value="pPrometDBIntfs"/>
+        <DefaultFilename Value="../base/dbintfs/pprometdbintfs.lpk"/>
       </Item5>
       <Item6>
-        <PackageName Value="FCL"/>
+        <PackageName Value="LCL"/>
       </Item6>
+      <Item7>
+        <PackageName Value="FCL"/>
+      </Item7>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>
