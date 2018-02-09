@@ -1007,23 +1007,23 @@ begin
             begin
               fWebReports := TfWebReports.Create(nil);
               try
+                fWebReports.RegisterDataSet(TOrderPos(DataSet).Order.DataSet,False);
+                fWebReports.RegisterDataSet(Data.Users.DataSet,False);
+                fWebReports.RegisterDataSet(Data.PaymentTargets.DataSet,False);
+                fWebReports.RegisterDataSet(Data.MandantDetails.DataSet,False);
                 with Data.Reports.FieldByName('REPORT') as TBlobField do
                   if not Data.Reports.FieldByName('REPORT').IsNull then
                     begin
                       with BaseApplication as IBaseApplication do
                         begin
                           Data.BlobFieldToFile(Data.Reports.DataSet,'REPORT',GetInternalTempDir+'preport.lrf');
-                          fWebReports.Report.LoadFromFile(GetInternalTempDir+'preport.lrf');
+                          fWebReports.LoadFromFile(GetInternalTempDir+'preport.lrf');
                           SysUtils.DeleteFile(UniToSys(GetInternalTempDir+'preport.lrf'));
                           Result := True;
                         end;
                     end;
                 if Result then
                   begin
-                    fWebReports.RegisterDataSet(TOrderPos(DataSet).Order.DataSet,False);
-                    fWebReports.RegisterDataSet(Data.Users.DataSet,False);
-                    fWebReports.RegisterDataSet(Data.PaymentTargets.DataSet,False);
-                    fWebReports.RegisterDataSet(Data.MandantDetails.DataSet,False);
                     if fWebReports.ExportToImage(GetTempDir+'preport.png') then
                     //TreeData.WorkText.Text:='<pre>'+fWebReports.ExportToText+'</pre>';
                     TreeData.WorkText.Text:='<img src="file://'+GetTempDir+'preport.png'+'">';
