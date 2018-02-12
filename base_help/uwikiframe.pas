@@ -138,6 +138,7 @@ type
     procedure WikiDataChange(Sender: TObject; Field: TField);
     procedure WikiStateChange(Sender: TObject);
   private
+    FHasContent: Boolean;
     { private declarations }
     FHistory : THistory;
     lastRefresh: TDateTime;
@@ -173,6 +174,7 @@ type
     procedure DoRefresh(ForceRefresh : Boolean = False); override;
     property Variables : TStrings read FVariables;
     property LeftBar : Boolean read GetLeftBar write SetLeftBar;
+    property HasContent : Boolean read FHasContent;
   end;
 implementation
 uses uWiki,uData,WikiToHTML,uDocuments,Utils,LCLIntf,Variants,
@@ -540,9 +542,13 @@ begin
 end;
 
 procedure TfWikiFrame.DoOpen;
+var
+  aCont: String;
 begin
   TWikiList(DataSet).Variables.Assign(FVariables);
-  ipHTML.SetHtml(FEditor.GetHTML(TWikiList(DataSet).PageAsHtml(True,False)));
+  aCont := TWikiList(dataSet).PageAsHtml(True,False);
+  FHasContent:=aCont <> '';
+  ipHTML.SetHtml(FEditor.GetHTML(aCont));
 end;
 
 procedure TfWikiFrame.DoEnter;
@@ -606,10 +612,13 @@ procedure TfWikiFrame.Refresh;
 var
   aHTML: TIpHtml;
   aCanvas: TBitmap;
+  aCont: String;
 begin
   if (not Assigned(DataSet)) or (not DataSet.DataSet.Active) then exit;
   TWikiList(dataSet).Variables.Assign(FVariables);
-  aHTML := FEditor.GetHTML(TWikiList(dataSet).PageAsHtml(True,False));
+  aCont := TWikiList(dataSet).PageAsHtml(True,False);
+  FHasContent:=aCont <> '';
+  aHTML := FEditor.GetHTML(aCont);
   ipHTML.SetHtml(aHTML);
   aCanvas := TBitmap.Create;
   acanvas.Width:=200;
