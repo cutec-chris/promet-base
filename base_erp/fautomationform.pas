@@ -1025,6 +1025,7 @@ begin
                 if Result then
                   begin
                     if fWebReports.ExportToImage(GetTempDir+'preport.png') then
+                    //TreeData.WorkText.Text:=fWebReports.ExportToHTML;
                     //TreeData.WorkText.Text:='<pre>'+fWebReports.ExportToText+'</pre>';
                     TreeData.WorkText.Text:='<img src="file://'+GetTempDir+'preport.png'+'">';
                     TreeData.ShowData;
