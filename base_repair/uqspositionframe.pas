@@ -55,12 +55,15 @@ type
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure SpeedButton3Click(Sender: TObject);
+    procedure TfPositionDatasetTOrderPosQMTestDataSetAfterScroll(
+      DataSet: TDataSet);
   private
     { private declarations }
   public
     { public declarations }
     procedure SetupDB;
     procedure SetRights(Editable : Boolean);override;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -120,6 +123,13 @@ begin
   OrderQMTest.DataSet.Refresh;
 end;
 
+procedure TfQSPositionFrame.TfPositionDatasetTOrderPosQMTestDataSetAfterScroll(
+  DataSet: TDataSet);
+begin
+  if Assigned(Self) then
+    OrderQMtestDetails.DataSet.Last;
+end;
+
 procedure TfQSPositionFrame.SetupDB;
 begin
   if TfPosition(Owner).Dataset is TOrderPos then
@@ -130,6 +140,7 @@ begin
         QMTest.Open;
         OrderQMTestDetails.DataSet := QMTest.Details.DataSet;
         QMTest.Details.Open;
+        QMTest.DataSet.AfterScroll:=@TfPositionDatasetTOrderPosQMTestDataSetAfterScroll;
       end;
 end;
 
@@ -137,6 +148,17 @@ procedure TfQSPositionFrame.SetRights(Editable: Boolean);
 begin
   dgTest.ReadOnly := not Editable;
   dgSteps.ReadOnly := not Editable;
+end;
+
+destructor TfQSPositionFrame.Destroy;
+begin
+  try
+    if Assigned(Self) and Assigned(Owner) and (TfPosition(Owner).Dataset is TOrderPos) then
+      with TfPosition(Owner).DataSet as TorderPos do
+        QMTest.DataSet.AfterScroll:=nil
+  except
+  end;
+  inherited Destroy;
 end;
 
 end.
