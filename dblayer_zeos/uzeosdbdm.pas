@@ -1482,6 +1482,8 @@ var
   tmp: String;
   FConnection : TZConnection;
   actDir: String;
+  actVer: LongInt;
+  sl: TStringList;
 begin
   if Assigned(BaseApplication) then
     with BaseApplication as IBaseDBInterface do
@@ -1675,9 +1677,33 @@ begin
                   FConnection.ExecuteDirect(MandantDetails.FieldByName('DBSTATEMENTS').AsString);
                 SetCurrentDir(actDir);
               except
-
               end;
-            end;
+              actVer := MandantDetails.FieldByName('DBVER').AsInteger;
+              if actVer<(7*10000+437) then
+                actVer:=7*10000+437;
+              with BaseApplication as IBaseApplication do
+                begin
+                  try
+                    for actVer := actVer to round(AppVersion*10000+AppRevision) do
+                      begin
+                        if FileExists( AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'dbupdates')+IntToStr(actVer)+'.sql') then
+                          begin
+                            sl := TStringList.Create;
+                            sl.LoadFromFile(AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'dbupdates')+IntToStr(actVer)+'.sql');
+                            Preprocess(sl);
+                            FConnection.ExecuteDirect(sl.Text);
+                            sl.Free;
+                          end
+                        else Info(AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'dbupdates')+IntToStr(actVer)+'.sql not found, ignoring DB Update');
+                      end;
+                  except
+                    on e : Exception do
+                      begin
+                        Error(AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'dbupdates')+IntToStr(actVer)+'.sql Error:'+LineEnding+e.Message);
+                      end;
+                  end;
+                end;
+          end;
         end;
     end;
 end;

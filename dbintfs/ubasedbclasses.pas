@@ -2879,6 +2879,7 @@ begin
             Add('STAMP',ftLargeInt,0,False);
             Add('IMAGE',ftBlob,0,False);
             Add('DBSTATEMENTS',ftMemo,0,False);
+            Add('DBVER',ftInteger,0,False);
           end;
     end;
 end;

@@ -181,6 +181,7 @@ type
     function CreateTrigger(aTriggerName : string;aTableName : string;aUpdateOn : string;aSQL : string;aField : string = '';aConnection : TComponent = nil) : Boolean;virtual;
     function DropTable(aTableName : string) : Boolean;virtual;abstract;
     function GetColumns(TableName : string) : TStrings;virtual;abstract;
+    procedure Preprocess(aLines : TStrings);
     function CheckForInjection(aFilter : string) : Boolean;
     function DecodeFilter(aSQL : string;Parameters : TStringList;var NewSQL : string) : Boolean;virtual;
     function GetDBType : string;virtual;
@@ -1384,6 +1385,17 @@ function TBaseDBModule.CreateTrigger(aTriggerName: string; aTableName: string;
 begin
   Result := False;
 end;
+
+procedure TBaseDBModule.Preprocess(aLines: TStrings);
+var
+  i: Integer;
+begin
+  for i := 0 to aLines.Count-1 do
+    begin
+
+    end;
+end;
+
 function TBaseDBModule.CheckForInjection(aFilter: string): Boolean;
 begin
   Result := False;
