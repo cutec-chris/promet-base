@@ -388,7 +388,7 @@ procedure TFAutomation.acExecutePrepareStepExecute(Sender: TObject);
 var
   TreeData: TProdTreeData;
 begin
-  //CleanupLibs;
+  CleanupLibs;
   fLogWaitForm.Clear;
   if Assigned(tvStep.Selected) then
     begin
