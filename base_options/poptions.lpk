@@ -101,6 +101,7 @@
     <RequiredPkgs Count="2">
       <Item1>
         <PackageName Value="ZVDateTimeCtrls"/>
+        <DefaultFilename Value="..\..\components\zvdatetimectrls\zvdatetimectrls.lpk"/>
       </Item1>
       <Item2>
         <PackageName Value="pscripts"/>
