@@ -61,6 +61,7 @@ type
     function IsSQLDB : Boolean;override;
     function GetNewDataSet(aTable : TBaseDBDataSet;aConnection : TComponent = nil;MasterData : TDataSet = nil;aTables : string = '') : TDataSet;override;
     function GetNewDataSet(aSQL : string;aConnection : TComponent = nil;MasterData : TDataSet = nil;aOrigtable : TBaseDBDataSet = nil) : TDataSet;override;
+    function ExecuteDirect(aSQL: string; aConnection: TComponent=nil): Integer;override;
     procedure DestroyDataSet(DataSet : TDataSet);override;
     function Ping(aConnection : TComponent) : Boolean;override;
     function DateToFilter(aValue : TDateTime) : string;override;
@@ -1843,6 +1844,14 @@ begin
           MasterSource := TZeosDBDataSet(MasterData).MasterDataSource;
         end;
     end;
+end;
+
+function TZeosDBDM.ExecuteDirect(aSQL: string; aConnection: TComponent
+  ): Integer;
+begin
+  if not Assigned(aConnection) then
+    aConnection := MainConnection;
+  TZConnection(aConnection).ExecuteDirect(aSQL,Result);
 end;
 
 procedure TZeosDBDM.DestroyDataSet(DataSet: TDataSet);
