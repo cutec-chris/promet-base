@@ -60,7 +60,7 @@
       <OutDir Value="../../../languages"/>
       <EnableI18NForLFM Value="True"/>
     </i18n>
-    <RequiredPkgs Count="6">
+    <RequiredPkgs Count="3">
       <Item1>
         <PackageName Value="rtfconvert_pkg_vis"/>
         <DefaultFilename Value="../base_wiki/rtfconvert_pkg_vis.lpk"/>
@@ -72,17 +72,6 @@
       <Item3>
         <PackageName Value="MemDSLaz"/>
       </Item3>
-      <Item4>
-        <PackageName Value="phelp"/>
-        <DefaultFilename Value="../base/base_help/phelp.lpk"/>
-      </Item4>
-      <Item5>
-        <PackageName Value="pdocuments"/>
-        <DefaultFilename Value="../base/base_documents/pdocuments.lpk"/>
-      </Item5>
-      <Item6>
-        <PackageName Value="FCL"/>
-      </Item6>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

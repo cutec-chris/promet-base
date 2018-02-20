@@ -52,17 +52,11 @@
       <OutDir Value="../../../languages"/>
       <EnableI18NForLFM Value="True"/>
     </i18n>
-    <RequiredPkgs Count="3">
+    <RequiredPkgs Count="1">
       <Item1>
         <PackageName Value="perp"/>
         <DefaultFilename Value="../base_erp/perp.lpk"/>
       </Item1>
-      <Item2>
-        <PackageName Value="lcl"/>
-      </Item2>
-      <Item3>
-        <PackageName Value="FCL"/>
-      </Item3>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

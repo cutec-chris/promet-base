@@ -181,7 +181,7 @@
       <EnableI18N Value="True"/>
       <OutDir Value="..\..\..\languages"/>
     </i18n>
-    <RequiredPkgs Count="4">
+    <RequiredPkgs Count="3">
       <Item1>
         <PackageName Value="promet_db_lowlevel"/>
         <DefaultFilename Value="promet_db_lowlevel.lpk"/>
@@ -191,13 +191,9 @@
         <DefaultFilename Value="..\pthumbnails.lpk"/>
       </Item2>
       <Item3>
-        <PackageName Value="general_nogui"/>
-        <DefaultFilename Value="..\..\..\..\general\general_nogui.lpk"/>
-      </Item3>
-      <Item4>
         <PackageName Value="dexif_package"/>
         <DefaultFilename Value="..\..\components\dexif\dexif_package.lpk"/>
-      </Item4>
+      </Item3>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

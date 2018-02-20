@@ -43,7 +43,7 @@
       <OutDir Value="..\..\..\languages"/>
       <EnableI18NForLFM Value="True"/>
     </i18n>
-    <RequiredPkgs Count="4">
+    <RequiredPkgs Count="3">
       <Item1>
         <PackageName Value="general_python_script"/>
         <DefaultFilename Value="..\..\..\..\general\python_script\general_python_script.lpk"/>
@@ -56,9 +56,6 @@
         <PackageName Value="pPrometDBIntfs"/>
         <DefaultFilename Value="..\dbintfs\pprometdbintfs.lpk"/>
       </Item3>
-      <Item4>
-        <PackageName Value="FCL"/>
-      </Item4>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

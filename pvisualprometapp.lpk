@@ -65,7 +65,7 @@
       <EnableI18N Value="True"/>
       <EnableI18NForLFM Value="True"/>
     </i18n>
-    <RequiredPkgs Count="11">
+    <RequiredPkgs Count="6">
       <Item1>
         <PackageName Value="laz_visualplanit"/>
         <DefaultFilename Value="..\components\tvplanit\laz_visualplanit.lpk"/>
@@ -79,36 +79,17 @@
         <DefaultFilename Value="dblayer_zeos\promet_dblayer_zeos.lpk"/>
       </Item3>
       <Item4>
-        <PackageName Value="pscripts"/>
-        <DefaultFilename Value="base_scripts\pscripts.lpk"/>
-      </Item4>
-      <Item5>
-        <PackageName Value="ZVDateTimeCtrls"/>
-        <DefaultFilename Value="..\components\zvdatetimectrls\zvdatetimectrls.lpk"/>
-      </Item5>
-      <Item6>
         <PackageName Value="laz_twain"/>
         <DefaultFilename Value="..\components\scanning\laz_twain.lpk"/>
-      </Item6>
-      <Item7>
+      </Item4>
+      <Item5>
         <PackageName Value="pack_powerpdf"/>
         <DefaultFilename Value="..\components\powerpdf\pack_powerpdf.lpk"/>
-      </Item7>
-      <Item8>
+      </Item5>
+      <Item6>
         <PackageName Value="sanetools"/>
         <DefaultFilename Value="..\components\scanning\sanetools.lpk"/>
-      </Item8>
-      <Item9>
-        <PackageName Value="lazreport"/>
-      </Item9>
-      <Item10>
-        <PackageName Value="pPrometDBIntfs"/>
-        <DefaultFilename Value="dbintfs\pprometdbintfs.lpk"/>
-      </Item10>
-      <Item11>
-        <PackageName Value="general"/>
-        <DefaultFilename Value="..\..\..\general\general.lpk"/>
-      </Item11>
+      </Item6>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

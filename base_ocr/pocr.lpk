@@ -15,7 +15,7 @@
         <UnitName Value="uOCR"/>
       </Item1>
     </Files>
-    <RequiredPkgs Count="4">
+    <RequiredPkgs Count="2">
       <Item1>
         <PackageName Value="general"/>
         <DefaultFilename Value="../../../../general/general.lpk"/>
@@ -24,13 +24,6 @@
         <PackageName Value="pPrometDBIntfs"/>
         <DefaultFilename Value="../base/dbintfs/pprometdbintfs.lpk"/>
       </Item2>
-      <Item3>
-        <PackageName Value="laz_synapse"/>
-      </Item3>
-      <Item4>
-        <PackageName Value="FCL"/>
-        <MinVersion Major="1" Valid="True"/>
-      </Item4>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

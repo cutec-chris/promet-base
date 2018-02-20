@@ -36,22 +36,15 @@
       <OutDir Value="../../../languages"/>
       <EnableI18NForLFM Value="True"/>
     </i18n>
-    <RequiredPkgs Count="4">
+    <RequiredPkgs Count="2">
       <Item1>
         <PackageName Value="pvisualframes"/>
         <DefaultFilename Value="../base_frames/pvisualframes.lpk"/>
       </Item1>
       <Item2>
-        <PackageName Value="pdocuments"/>
-        <DefaultFilename Value="../base_documents/pdocuments.lpk"/>
-      </Item2>
-      <Item3>
         <PackageName Value="thumbctrl"/>
         <DefaultFilename Value="../../components/thumbs/thumbctrl.lpk"/>
-      </Item3>
-      <Item4>
-        <PackageName Value="FCL"/>
-      </Item4>
+      </Item2>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

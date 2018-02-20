@@ -121,7 +121,7 @@
       <OutDir Value="../../../languages"/>
       <EnableI18NForLFM Value="True"/>
     </i18n>
-    <RequiredPkgs Count="7">
+    <RequiredPkgs Count="3">
       <Item1>
         <PackageName Value="fpreport_fcl"/>
         <DefaultFilename Value="../../components/fpReport/fpreport_fcl.lpk"/>
@@ -133,20 +133,6 @@
         <PackageName Value="pvisualframes"/>
         <DefaultFilename Value="../base_frames/pvisualframes.lpk"/>
       </Item3>
-      <Item4>
-        <PackageName Value="pdocuments"/>
-        <DefaultFilename Value="../base_documents/pdocuments.lpk"/>
-      </Item4>
-      <Item5>
-        <PackageName Value="pPrometDBIntfs"/>
-        <DefaultFilename Value="../base/dbintfs/pprometdbintfs.lpk"/>
-      </Item5>
-      <Item6>
-        <PackageName Value="LCL"/>
-      </Item6>
-      <Item7>
-        <PackageName Value="FCL"/>
-      </Item7>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

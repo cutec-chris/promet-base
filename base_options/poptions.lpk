@@ -98,7 +98,7 @@
       <OutDir Value="..\..\..\languages"/>
       <EnableI18NForLFM Value="True"/>
     </i18n>
-    <RequiredPkgs Count="3">
+    <RequiredPkgs Count="2">
       <Item1>
         <PackageName Value="ZVDateTimeCtrls"/>
       </Item1>
@@ -106,9 +106,6 @@
         <PackageName Value="pscripts"/>
         <DefaultFilename Value="..\base_scripts\pscripts.lpk"/>
       </Item2>
-      <Item3>
-        <PackageName Value="FCL"/>
-      </Item3>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

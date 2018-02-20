@@ -126,7 +126,7 @@
         <UnitName Value="uSynEditFiler"/>
       </Item29>
     </Files>
-    <RequiredPkgs Count="5">
+    <RequiredPkgs Count="2">
       <Item1>
         <PackageName Value="pocr"/>
         <DefaultFilename Value="../base_ocr/pocr.lpk"/>
@@ -135,16 +135,6 @@
         <PackageName Value="pvisualbaseframes"/>
         <DefaultFilename Value="../base_frames/pvisualbaseframes.lpk"/>
       </Item2>
-      <Item3>
-        <PackageName Value="pOptions"/>
-        <DefaultFilename Value="../base_options/poptions.lpk"/>
-      </Item3>
-      <Item4>
-        <PackageName Value="LCL"/>
-      </Item4>
-      <Item5>
-        <PackageName Value="FCL"/>
-      </Item5>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>
