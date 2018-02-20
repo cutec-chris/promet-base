@@ -181,7 +181,7 @@ type
     function CreateTrigger(aTriggerName : string;aTableName : string;aUpdateOn : string;aSQL : string;aField : string = '';aConnection : TComponent = nil) : Boolean;virtual;
     function DropTable(aTableName : string) : Boolean;virtual;abstract;
     function GetColumns(TableName : string) : TStrings;virtual;abstract;
-    procedure Preprocess(aLines : TStrings);
+    function Preprocess(aLine : string) : string;
     function CheckForInjection(aFilter : string) : Boolean;
     function DecodeFilter(aSQL : string;Parameters : TStringList;var NewSQL : string) : Boolean;virtual;
     function GetDBType : string;virtual;
@@ -1386,14 +1386,54 @@ begin
   Result := False;
 end;
 
-procedure TBaseDBModule.Preprocess(aLines: TStrings);
+function TBaseDBModule.Preprocess(aLine: string): string;
 var
   i: Integer;
+  aLines: TStringList;
+  tmp: String;
+  aCondition: String;
+  ConditionTrue: Boolean;
+  WaitforEnd: Boolean;
+
+  function CheckCondition(Cond : string) : Boolean;
+  var
+    aLeft: String;
+  begin
+    case trim(lowercase(copy(Cond,0,pos('=',Cond)-1))) of
+    'dbtype':
+      begin
+        aLeft := lowercase(GetDBType);
+
+      end;
+    end;
+    Result := copy(Cond,pos('=',Cond)+1,length(Cond)) = aLeft;
+  end;
 begin
+  aLines := TStringList.Create;
+  aLines.Text := aLine;
   for i := 0 to aLines.Count-1 do
     begin
-
+      if lowercase(copy(aLines[i],0,4))= '--if' then
+        begin
+          tmp := copy(aLines[i],5,length(aLines[i]));
+          if pos('--endif',tmp)>0 then
+            aCondition := copy(tmp,0,pos('--endif',tmp)-1)
+          else
+            begin
+              WaitforEnd := True;
+              aCondition:=tmp;
+            end;
+          ConditionTrue := CheckCondition(aCondition);
+        end;
+      if lowercase(copy(aLines[i],0,7))= '--endif' then
+        begin
+          WaitforEnd := False;
+        end;
+      if WaitforEnd and not ConditionTrue then
+        aLines[i] := '--'+aLines[i];
     end;
+  Result := aLines.Text;
+  aLines.Free;
 end;
 
 function TBaseDBModule.CheckForInjection(aFilter: string): Boolean;

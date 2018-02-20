@@ -146,8 +146,8 @@ end;
 
 procedure TfQSPositionFrame.SetRights(Editable: Boolean);
 begin
-  dgTest.ReadOnly := not Editable;
-  dgSteps.ReadOnly := not Editable;
+  //dgTest.ReadOnly := not Editable;
+  //dgSteps.ReadOnly := not Editable;
 end;
 
 destructor TfQSPositionFrame.Destroy;

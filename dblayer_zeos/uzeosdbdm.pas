@@ -1690,7 +1690,7 @@ begin
                           begin
                             sl := TStringList.Create;
                             sl.LoadFromFile(AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'dbupdates')+IntToStr(actVer)+'.sql');
-                            Preprocess(sl);
+                            sl.Text := Preprocess(sl.Text);
                             FConnection.ExecuteDirect(sl.Text);
                             sl.Free;
                           end
