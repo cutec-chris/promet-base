@@ -40,7 +40,7 @@
         <UnitName Value="uVideoTest"/>
       </Item7>
     </Files>
-    <RequiredPkgs Count="8">
+    <RequiredPkgs Count="4">
       <Item1>
         <PackageName Value="pscript_video_functions"/>
         <DefaultFilename Value="..\..\scripts\plugins\video\pscript_video_functions.lpk"/>
@@ -54,20 +54,8 @@
       </Item3>
       <Item4>
         <PackageName Value="general"/>
+        <DefaultFilename Value="..\..\..\..\general\general.lpk"/>
       </Item4>
-      <Item5>
-        <PackageName Value="pPrometDBIntfs"/>
-        <DefaultFilename Value="..\dbintfs\pprometdbintfs.lpk"/>
-      </Item5>
-      <Item6>
-        <PackageName Value="SynEdit"/>
-      </Item6>
-      <Item7>
-        <PackageName Value="LCL"/>
-      </Item7>
-      <Item8>
-        <PackageName Value="FCL"/>
-      </Item8>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>
