@@ -1456,6 +1456,7 @@ var
 
 begin
   result := False;
+  FAutomation.acProduce.Enabled:=True;
   FAutomation.FScript := nil;
   FAutomation.acExecuteStep.Enabled:=False;
   FAutomation.acPrepare.Enabled:=PreText.Text<>'';
@@ -1494,7 +1495,10 @@ begin
         begin
           if Assigned(Script.Script) then
             if Script.Script.FindScriptFunction('CHECKPREPARE') then
-              FAutomation.bExecute.Action:=FAutomation.acCheckPrepare;
+              begin
+                FAutomation.bExecute.Action:=FAutomation.acCheckPrepare;
+                FAutomation.acProduce.Enabled:=False;
+              end;
         end;
     end
   else
