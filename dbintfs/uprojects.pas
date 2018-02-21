@@ -738,7 +738,7 @@ begin
             Add('COSTS',ftFloat,0,false);
             Add('CURRENCY',ftString,5,False);
             Add('COLOR',ftString,12,False);
-            Add('DESCRIPTION',ftMemo,0,false);
+            Add('DESCRIPTION',ftString,4000,false);
             Add('PARENT',ftLargeint,0,False);
             Add('PMANAGER',ftString,20,False);
             Add('PINITED',ftString,20,False);
@@ -761,7 +761,7 @@ begin
             Add('ID','ID',[]);
             Add('NAME','NAME',[]);
             Add('STATUS','STATUS',[]);
-            Add('DESCRIPTION','DESCRIPTION',[]);
+            //Add('DESCRIPTION','DESCRIPTION',[]);
             Add('TREEENTRY','TREEENTRY',[]);
           end;
       if Data.ShouldCheckTable(TableName) then
