@@ -923,6 +923,7 @@ begin
             Add('ACCOUNTNO','ACCOUNTNO',[ixUnique]);
             Add('MATCHCODE','MATCHCODE',[]);
             Add('NAME','NAME',[]);
+            Add('STATUS','STATUS',[]);
           end;
       if Data.ShouldCheckTable(TableName) then
         DefineUserFields(aDataSet);

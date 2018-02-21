@@ -1171,6 +1171,8 @@ begin
             Add('ID','TYPE;ID;VERSION;LANGUAGE',[ixUnique]);
             Add('BARCODE','BARCODE',[]);
             Add('SHORTTEXT','SHORTTEXT',[]);
+            Add('STATUS','STATUS',[]);
+            Add('MATCHCODE','MATCHCODE',[]);
           end;
       if Data.ShouldCheckTable(TableName) then
         DefineUserFields(aDataSet);

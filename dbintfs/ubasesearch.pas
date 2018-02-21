@@ -474,7 +474,7 @@ begin
             else
               aSQL := aSQL+' order by '+Data.QuoteField('TIMESTAMPD')+' desc';
             if FMaxResults>0 then
-              aSQL := uStatistic.AddSQLLimit(aSQL,FMaxResults*length(Lists))+LineEnding;
+              aSQL := uStatistic.AddSQLLimit(aSQL,FMaxResults)+LineEnding;
             with BaseApplication as IBaseApplication do
               Debug(aSQL);
             aDataSet := Data.GetNewDataSet(aSQL);
@@ -484,7 +484,7 @@ begin
               begin
                 inc(i);
                 FItemFound(aDataSet.FieldByName('ID').AsString,aDataSet.FieldByName('SHORTTEXT').AsString,aDataSet.FieldByName('STATUS').AsString,True,aDataSet.FieldByName('TABLE').AsString+'.ID@'+aDataSet.FieldByName('SQL_ID').AsString+'{'+aDataSet.FieldByName('SHORTTEXT').AsString+'}',0,nil);
-                if i > (FMaxResults*length(Lists)) then break;
+                if i > (FMaxResults) then break;
                 aDataSet.Next;
               end;
             aDataSet.Free;

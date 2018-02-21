@@ -760,6 +760,8 @@ begin
           begin
             Add('ID','ID',[]);
             Add('NAME','NAME',[]);
+            Add('STATUS','STATUS',[]);
+            Add('DESCRIPTION','DESCRIPTION',[]);
             Add('TREEENTRY','TREEENTRY',[]);
           end;
       if Data.ShouldCheckTable(TableName) then

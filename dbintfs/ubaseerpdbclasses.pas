@@ -1278,6 +1278,7 @@ begin
             Add('IDENT','IDENT',[]);
             Add('POSNO','POSNO',[]);
             Add('SHORTTEXT','SHORTTEXT',[]);
+            Add('SERIAL','SERIAL',[]);
           end;
       //UpdateChangedBy:=False;
     end;

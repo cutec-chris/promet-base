@@ -2083,6 +2083,7 @@ begin
             Add('STATUS','STATUS',[]);
             Add('CUSTNO','CUSTNO',[]);
             Add('CUSTNAME','CUSTNAME',[]);
+            Add('COMMISSION','COMMISSION',[]);
           end;
       if Data.ShouldCheckTable(TableName) then
         DefineUserFields(aDataSet);
