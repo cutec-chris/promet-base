@@ -504,7 +504,10 @@ begin
       TreeData := TProdTreeData(tvStep.Selected.Data);
       TreeData.Script.Script.Writeln:=@TreeData.ScriptPrepareWriteln;
       if Treedata.Script.Script.RunScriptFunction([],'CHECKPREPARE') then
-        acProduce.Execute;
+        begin
+          acProduce.Enabled := True;
+          acProduce.Execute;
+        end;
       TreeData.Script.Script.Writeln:=@TreeData.ScriptWriteln;
       bExecute.Down:=false;
     end;
