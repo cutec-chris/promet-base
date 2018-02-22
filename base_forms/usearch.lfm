@@ -260,7 +260,7 @@ object fSearch: TfSearch
       OnChange = seMaxresultsChange
       TabStop = False
       TabOrder = 5
-      Value = 100
+      Value = 30
     end
     object cbMaxResults: TCheckBox
       Left = 342
