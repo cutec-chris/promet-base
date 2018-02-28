@@ -738,7 +738,7 @@ begin
             Add('COSTS',ftFloat,0,false);
             Add('CURRENCY',ftString,5,False);
             Add('COLOR',ftString,12,False);
-            Add('DESCRIPTION',ftString,4000,false);
+            Add('DESCRIPTION',ftMemo,0,false);
             Add('PARENT',ftLargeint,0,False);
             Add('PMANAGER',ftString,20,False);
             Add('PINITED',ftString,20,False);
