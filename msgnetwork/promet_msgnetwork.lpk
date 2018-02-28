@@ -36,18 +36,14 @@
         <UnitName Value="uprometwikiserver"/>
       </Item6>
     </Files>
-    <RequiredPkgs Count="3">
+    <RequiredPkgs Count="2">
       <Item1>
-        <PackageName Value="pVisualPrometApp"/>
-        <DefaultFilename Value="../pvisualprometapp.lpk"/>
-      </Item1>
-      <Item2>
         <PackageName Value="pPrometDBIntfs"/>
         <DefaultFilename Value="../dbintfs/pprometdbintfs.lpk"/>
-      </Item2>
-      <Item3>
+      </Item1>
+      <Item2>
         <PackageName Value="laz_synapse"/>
-      </Item3>
+      </Item2>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, uappserverhttp, uWiki, syncobjs,uAppServer,uDocuments,
-  Utils, Graphics,IniFiles,wikitohtml,synautil,blcksock,uBaseVisualControls,
+  Utils, IniFiles,wikitohtml,synautil,blcksock,
   uBaseDBInterface;
 
 implementation
@@ -163,7 +163,6 @@ var
   sl: TStringList;
   aNumber: integer;
   ms: TMemoryStream;
-  aIcon: TPicture;
 begin
   try
     Code:=404;
@@ -207,39 +206,31 @@ begin
       end
     else
       begin
-        if not Assigned(fVisualControls) then
-          fVisualControls := TfVisualControls.Create(nil);
         Path := Url;
         Path := copy(Path,rpos('/',Path)+1,length(Path));
         if copy(uppercase(Path),0,5)='ICON(' then
           begin
-            if TryStrToInt(copy(Path,6,length(Path)-6),aNumber) then
+            if TryStrToInt(copy(Path,6,length(Path)-6),aNumber) and FileExists(AppendPathDelim('icons')+IntToStr(aNumber)+'.png') then
               begin
                 ms := TMemoryStream.Create;
+                ms.LoadFromFile(AppendPathDelim('icons')+IntToStr(aNumber)+'.png');
                 ms.Position:=0;
                 Result := ms;
-                aIcon := TPicture.Create;
-                fVisualControls.Images.GetBitmap(aNumber,aIcon.Bitmap);
-                aIcon.SaveToStreamWithFileExt(ms,'.png');
-                aIcon.Free;
                 NewHeaders.Add('Content-Type: image/png');
                 NewHeaders.Add('Last-Modified: '+Rfc822DateTime(100));
                 NewHeaders.Add('ETag: '+Rfc822DateTime(100));
                 Code := 200;
               end;
           end
-        else if copy(uppercase(Path),0,12)='HISTORYICON(' then
+        else if (copy(uppercase(Path),0,12)='HISTORYICON(') and FileExists(AppendPathDelim('histicons')+IntToStr(aNumber)+'.png') then
           begin
             tmp := copy(Path,13,length(Path)-13);
             if TryStrToInt(tmp,aNumber) then
               begin
                 ms := TMemoryStream.Create;
+                ms.LoadFromFile(AppendPathDelim('icons')+IntToStr(aNumber)+'.png');
                 ms.Position:=0;
                 Result := ms;
-                aIcon := TPicture.Create;
-                fVisualControls.HistoryImages.GetBitmap(aNumber,aIcon.Bitmap);
-                aIcon.SaveToStreamWithFileExt(ms,'.png');
-                aIcon.Free;
                 NewHeaders.Add('Content-Type: image/png');
                 NewHeaders.Add('Last-Modified: '+Rfc822DateTime(100));
                 NewHeaders.Add('ETag: '+Rfc822DateTime(100));
@@ -334,6 +325,5 @@ end;
 initialization
   uappserverhttp.RegisterHTTPHandler(@HandleWikiRequest);
 finalization
-  FreeAndNil(fVisualControls);
 end.
 
