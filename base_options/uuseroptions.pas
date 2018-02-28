@@ -180,12 +180,12 @@ begin
   aUsers.FieldByName('ACCOUNTNO').AsString := Data.Numbers.GetNewNumber('USERS');
   TUserTreeEntry(Node1.Data).Rec := aUsers.GetBookmark;
   TUserTreeEntry(Node1.Data).DataSource := UsersDS;
+  aUsers.FieldByName('NAME').AsString := 'New User';
+  aUsers.DataSet.Post;
   try
     tvRights.Selected := Node1;
   except
   end;
-  aUsers.FieldByName('NAME').AsString := 'New User';
-  aUsers.DataSet.Post;
   UpdateRights;
 end;
 procedure TfUserOptions.bResetPasswordClick(Sender: TObject);
@@ -283,6 +283,7 @@ var
 begin
   Node.DeleteChildren;
   aParent := TUserTreeEntry(Node.Data).Rec;
+  aUsers.DataSet.DisableControls;
   aUser := aUsers.GetBookmark;
   with aUsers.DataSet do
     begin
@@ -310,6 +311,7 @@ begin
         end;
     end;
   aUsers.GotoBookmark(aUser);
+  aUsers.DataSet.EnableControls;
 end;
 constructor TfUserOptions.Create(TheOwner: TComponent);
 begin
