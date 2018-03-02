@@ -909,7 +909,7 @@ begin
         end;
     end;
   TBaseDBModule(DataModule).Tree.DataSet.Filtered := False;
-  Result := DataSet.Active and (DataSet.Locate('TREEENTRY;NAME',VarArrayOf([aParent,PageName]),[]));
+  Result := DataSet.Active and (DataSet.Locate('TREEENTRY;NAME',VarArrayOf([aParent,PageName]),[loCaseInsensitive]));
   if not Result then
     begin
       with BaseApplication as IBaseApplication do
