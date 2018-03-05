@@ -62,7 +62,6 @@ type
       override;
     function GetErrorNum(e: EDatabaseError): Integer; override;
     procedure DeleteExpiredSessions;override;
-    function GetNewConnection: TComponent;override;
     function IsTransactionActive(aConnection : TComponent): Boolean;override;
     function GetDBType: string; override;
     function GetDBLayerType : string;override;
@@ -2051,15 +2050,6 @@ begin
   GeneralQuery.ExecSQL;
   GeneralQuery.Free;
 end;
-function TZeosDBDM.GetNewConnection: TComponent;
-begin
-  Result := TZConnection.Create(Self);
-  with Result as TZConnection do
-    begin
-      Setproperties(FProperties);
-    end;
-end;
-
 function TZeosDBDM.IsTransactionActive(aConnection: TComponent): Boolean;
 begin
   Result := TZConnection(aConnection).InTransaction;

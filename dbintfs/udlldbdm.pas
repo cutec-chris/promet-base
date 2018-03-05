@@ -45,7 +45,6 @@ type
       dStream: TStream;aSize : Integer = -1) : Boolean; override;
     function GetErrorNum(e: EDatabaseError): Integer; override;
     procedure DeleteExpiredSessions;override;
-    function GetNewConnection: TComponent;override;
     function QuoteField(aField: string): string; override;
     procedure Disconnect(aConnection : TComponent);override;
     function StartTransaction(aConnection : TComponent;ForceTransaction : Boolean = False): Boolean;override;
@@ -125,11 +124,6 @@ end;
 procedure TDLLDBDM.DeleteExpiredSessions;
 begin
   inherited DeleteExpiredSessions;
-end;
-
-function TDLLDBDM.GetNewConnection: TComponent;
-begin
-
 end;
 
 function TDLLDBDM.QuoteField(aField: string): string;
