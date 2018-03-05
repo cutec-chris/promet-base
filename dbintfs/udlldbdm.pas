@@ -61,9 +61,6 @@ type
     function CreateTrigger(aTriggerName: string; aTableName: string;
       aUpdateOn: string; aSQL: string;aField : string = ''; aConnection: TComponent=nil): Boolean;
       override;
-    function DropTable(aTableName : string) : Boolean;override;
-    function FieldToSQL(aName : string;aType : TFieldType;aSize : Integer;aRequired : Boolean) : string;
-    function GetColumns(TableName : string) : TStrings;override;
   end;
 
 implementation
@@ -201,22 +198,6 @@ function TDLLDBDM.CreateTrigger(aTriggerName: string; aTableName: string;
 begin
   Result:=inherited CreateTrigger(aTriggerName, aTableName, aUpdateOn, aSQL,
     aField, aConnection);
-end;
-
-function TDLLDBDM.DropTable(aTableName: string): Boolean;
-begin
-
-end;
-
-function TDLLDBDM.FieldToSQL(aName: string; aType: TFieldType; aSize: Integer;
-  aRequired: Boolean): string;
-begin
-
-end;
-
-function TDLLDBDM.GetColumns(TableName: string): TStrings;
-begin
-
 end;
 
 end.

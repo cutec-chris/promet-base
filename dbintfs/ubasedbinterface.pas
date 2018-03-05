@@ -166,8 +166,6 @@ type
     procedure UpdateTableVersion(aTableName: string);
     function GetFullTableName(aTable: string): string;override;
     function CreateTrigger(aTriggerName : string;aTableName : string;aUpdateOn : string;aSQL : string;aField : string = '';aConnection : TComponent = nil) : Boolean;virtual;
-    function DropTable(aTableName : string) : Boolean;virtual;abstract;
-    function GetColumns(TableName : string) : TStrings;virtual;abstract;
     function Preprocess(aLine : string) : string;
     function CheckForInjection(aFilter : string) : Boolean;
     function DecodeFilter(aSQL : string;Parameters : TStringList;var NewSQL : string) : Boolean;virtual;

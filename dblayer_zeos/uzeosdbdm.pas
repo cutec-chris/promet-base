@@ -70,9 +70,6 @@ type
     function CreateTrigger(aTriggerName: string; aTableName: string;
       aUpdateOn: string; aSQL: string;aField : string = ''; aConnection: TComponent=nil): Boolean;
       override;
-    function DropTable(aTableName : string) : Boolean;override;
-    function FieldToSQL(aName : string;aType : TFieldType;aSize : Integer;aRequired : Boolean) : string;
-    function GetColumns(TableName : string) : TStrings;override;
   end;
 
   { TZeosConnection }
@@ -99,6 +96,7 @@ type
     function IsConnected: Boolean;
     function GetLimitAfterSelect: Boolean;
     function GetLimitSTMT: string;
+    function GetColumns(aTableName: string): TStrings;
   protected
   end;
 
@@ -453,6 +451,21 @@ end;
 function TZeosConnection.GetLimitSTMT: string;
 begin
   Result := FLimitSTMT;
+end;
+
+function TZeosConnection.GetColumns(aTableName : string): TStrings;
+var
+  Metadata: IZDatabaseMetadata;
+begin
+  Metadata := DbcConnection.GetMetadata;
+  Result := TStringList.Create;
+  with Metadata.GetColumns(Catalog,'',aTableName,'') do
+   try
+     while Next do
+       Result.Add(GetStringByName('COLUMN_NAME'));
+   finally
+     Close;
+   end;
 end;
 
 procedure TZeosDBDataSet.TDateTimeFieldGetText(Sender: TField;
@@ -2158,124 +2171,6 @@ begin
   else
     Result:=inherited CreateTrigger(aTriggerName, aTableName, aUpdateOn, aSQL,aField, aConnection);
   GeneralQuery.Destroy;
-end;
-function TZeosDBDM.DropTable(aTableName: string): Boolean;
-var
-  GeneralQuery: TZQuery;
-begin
-  GeneralQuery := TZQuery.Create(Self);
-  GeneralQuery.Connection := TZConnection(MainConnection);
-  GeneralQuery.SQL.Text := 'drop table '+QuoteField(aTableName);
-  GeneralQuery.ExecSQL;
-  GeneralQuery.Destroy;
-  Result := True;
-  RemoveCheckTable(aTableName);
-end;
-function TZeosDBDM.FieldToSQL(aName: string; aType: TFieldType; aSize: Integer;
-  aRequired: Boolean): string;
-begin
-  if aName <> '' then
-    Result := QuoteField(aName)
-  else Result:='';
-  case aType of
-  ftString:
-    begin
-      if (copy(FMainConnection.Protocol,0,8) = 'firebird')
-      or (copy(FMainConnection.Protocol,0,9) = 'interbase')
-      or (copy(FMainConnection.Protocol,0,10) = 'postgresql') then
-        Result := Result+' VARCHAR('+IntToStr(aSize)+')'
-      else
-        Result := Result+' NVARCHAR('+IntToStr(aSize)+')';
-    end;
-  ftSmallint,
-  ftInteger:Result := Result+' INTEGER';
-  ftLargeInt:
-    begin
-      Result := Result+' BIGINT';
-    end;
-  ftAutoInc:
-    begin
-      if (FMainConnection.Protocol = 'mssql') then
-        Result := Result+' INTEGER PRIMARY KEY IDENTITY'
-      else if (copy(FMainConnection.Protocol,0,6) = 'sqlite') then
-        Result := Result+' INTEGER PRIMARY KEY AUTOINCREMENT'
-      else Result := Result+' INTEGER PRIMARY KEY';
-    end;
-  ftFloat:
-    begin
-      if (copy(FMainConnection.Protocol,0,8) = 'firebird')
-      or (copy(FMainConnection.Protocol,0,9) = 'interbase') then
-        Result := Result+' DOUBLE PRECISION'
-      else
-        Result := Result+' FLOAT';
-    end;
-  ftDate:
-    begin
-      if (FMainConnection.Protocol = 'mssql') then
-        Result := Result+' DATETIME'
-      else
-        Result := Result+' DATE';
-    end;
-  ftDateTime:
-    begin
-      if (FMainConnection.Protocol = 'mssql')
-      or (copy(FMainConnection.Protocol,0,5) = 'mysql')
-      or (copy(FMainConnection.Protocol,0,6) = 'sqlite')
-      then
-        Result := Result+' DATETIME'
-      else
-        Result := Result+' TIMESTAMP'
-    end;
-  ftTime:
-    begin
-      if (FMainConnection.Protocol = 'mssql') then
-        Result := Result+' DATETIME'
-      else
-        Result := Result+' TIME';
-    end;
-  ftBlob:
-    begin
-      if (FMainConnection.Protocol = 'mssql') then
-        Result := Result+' IMAGE'
-      else if (copy(FMainConnection.Protocol,0,10) = 'postgresql') then
-        Result := Result+' BYTEA'
-      else if (copy(FMainConnection.Protocol,0,5) = 'mysql') then
-        Result := Result+' LONGBLOB'
-      else
-        Result := Result+' BLOB';
-    end;
-  ftMemo:
-    begin;
-      if (copy(FMainConnection.Protocol,0,8) = 'firebird')
-      or (copy(FMainConnection.Protocol,0,9) = 'interbase') then
-        Result := Result+' BLOB SUB_TYPE 1'
-      else if (copy(FMainConnection.Protocol,0,5) = 'mysql') then
-        Result := Result+' LONGTEXT'
-      else
-        Result := Result+' TEXT';
-    end;
-  end;
-  if aRequired then
-    Result := Result+' NOT NULL'
-  else
-    begin
-      if (FMainConnection.Protocol = 'mssql') then
-        Result := Result+' NULL'
-    end;
-end;
-function TZeosDBDM.GetColumns(TableName: string): TStrings;
-var
-  Metadata: IZDatabaseMetadata;
-begin
-  Metadata := FMainConnection.DbcConnection.GetMetadata;
-  Result := TStringList.Create;
-  with Metadata.GetColumns(FMainConnection.Catalog,'',TableNAme,'') do
-   try
-     while Next do
-       Result.Add(GetStringByName('COLUMN_NAME'));
-   finally
-     Close;
-   end;
 end;
 
 initialization
