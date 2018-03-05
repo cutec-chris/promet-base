@@ -117,10 +117,6 @@ type
     procedure CleanupSession;
     procedure Connect(aConnection : TComponent);virtual;abstract;
     procedure Disconnect(aConnection : TComponent);virtual;abstract;
-    function StartTransaction(aConnection : TComponent;ForceTransaction : Boolean = False): Boolean;virtual;abstract;
-    function CommitTransaction(aConnection : TComponent): Boolean;virtual;abstract;
-    function RollbackTransaction(aConnection : TComponent): Boolean;virtual;abstract;
-    function IsTransactionActive(aConnection : TComponent): Boolean;virtual;abstract;
     procedure DeleteExpiredSessions;virtual;
     function SetProperties(aProp : string;Connection : TAbstractDBConnection = nil) : Boolean;override;
     property LastStatement : string read FLastStmt write FLastStmt;
