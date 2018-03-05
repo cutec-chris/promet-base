@@ -34,7 +34,6 @@ type
   public
     constructor Create(AOwner : TComponent;FType : string);
     destructor Destroy;override;
-    function SetProperties(aProp : string;Connection : TComponent = nil) : Boolean;override;
     function CreateDBFromProperties(aProp: string): Boolean; override;
     function IsSQLDB : Boolean;override;
     function GetNewDataSet(aTable : TBaseDBDataSet;aConnection : TComponent = nil;MasterData : TDataSet = nil;aTables : string = '') : TDataSet;override;
@@ -79,11 +78,6 @@ end;
 destructor TDLLDBDM.Destroy;
 begin
   inherited Destroy;
-end;
-
-function TDLLDBDM.SetProperties(aProp: string; Connection: TComponent): Boolean;
-begin
-  Result:=inherited SetProperties(aProp, Connection);
 end;
 
 function TDLLDBDM.CreateDBFromProperties(aProp: string): Boolean;
@@ -199,7 +193,6 @@ end;
 
 function TDLLDBDM.GetDBType: string;
 begin
-  Result:=inherited GetDBType;
 end;
 
 function TDLLDBDM.CreateTrigger(aTriggerName: string; aTableName: string;

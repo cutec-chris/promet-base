@@ -24,19 +24,19 @@ uses
   Classes, SysUtils, db, ZConnection, ZSqlMetadata,
   ZAbstractRODataset, ZDataset, ZSequence,ZAbstractConnection,
   uModifiedDS,ZSqlMonitor,Utils,uBaseDatasetInterfaces,syncobjs,
-  uBaseDBInterface,uBaseDbClasses,ZCompatibility,dateutils,pingsend;
+  uBaseDBInterface,uBaseDbClasses,ZCompatibility,dateutils,pingsend,
+  uAbstractDBLayer;
 type
   TUnprotectedDataSet = class(TDataSet);
+  TZeosConnection = class;
 
   { TZeosDBDM }
 
   TZeosDBDM = class(TBaseDBModule)
-    procedure FConnectionAfterConnect(Sender: TObject);
-    procedure FConnectionBeforeConnect(Sender: TObject);
     procedure MonitorTrace(Sender: TObject; Event: TZLoggingEvent;
       var LogTrace: Boolean);
   private
-    FMainConnection : TZConnection;
+    FMainConnection: TZeosConnection;
     FLimitAfterSelect : Boolean;
     FLimitSTMT : string;
     FDBTyp : string;
@@ -45,8 +45,7 @@ type
     FEData : Boolean;
     FDatabaseDir : Ansistring;
     Monitor : TZSQLMonitor;
-    function GetConnection: TComponent;override;
-    function DBExists : Boolean;
+    function GetConnection: TAbstractDBConnection; override;
   protected
     Sequence : TZSequence;
     function GetSyncOffset: Integer;override;
@@ -56,16 +55,12 @@ type
   public
     constructor Create(AOwner : TComponent);override;
     destructor Destroy;override;
-    function SetProperties(aProp : string;Connection : TComponent = nil) : Boolean;override;
     function CreateDBFromProperties(aProp: string): Boolean; override;
     function IsSQLDB : Boolean;override;
     function GetNewDataSet(aTable : TBaseDBDataSet;aConnection : TComponent = nil;MasterData : TDataSet = nil;aTables : string = '') : TDataSet;override;
     function GetNewDataSet(aSQL : string;aConnection : TComponent = nil;MasterData : TDataSet = nil;aOrigtable : TBaseDBDataSet = nil) : TDataSet;override;
-    function ExecuteDirect(aSQL: string; aConnection: TComponent=nil): Integer;override;
     procedure DestroyDataSet(DataSet : TDataSet);override;
     function Ping(aConnection : TComponent) : Boolean;override;
-    function DateToFilter(aValue : TDateTime) : string;override;
-    function DateTimeToFilter(aValue : TDateTime) : string;override;
     function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';Tablename : string = '';AutoInc : Boolean = True) : Variant;override;
     procedure StreamToBlobField(Stream : TStream;DataSet : TDataSet;Fieldname : string;Tablename : string = '');override;
     function BlobFieldStream(DataSet: TDataSet; Fieldname: string;Tablename : string = ''): TStream;
@@ -73,17 +68,7 @@ type
     function GetErrorNum(e: EDatabaseError): Integer; override;
     procedure DeleteExpiredSessions;override;
     function GetNewConnection: TComponent;override;
-    function QuoteField(aField: string): string; override;
-    function QuoteValue(aField: string): string; override;
-    procedure Disconnect(aConnection : TComponent);override;
-    procedure Connect(aConnection: TComponent); override;
-    function StartTransaction(aConnection : TComponent;ForceTransaction : Boolean = False): Boolean;override;
-    function CommitTransaction(aConnection : TComponent): Boolean;override;
-    function RollbackTransaction(aConnection : TComponent): Boolean;override;
     function IsTransactionActive(aConnection : TComponent): Boolean;override;
-    function TableExists(aTableName : string;aConnection : TComponent = nil;AllowLowercase: Boolean = False) : Boolean;override;
-    function TriggerExists(aTriggerName: string; aConnection: TComponent=nil;
-       AllowLowercase: Boolean=False): Boolean; override;
     function GetDBType: string; override;
     function GetDBLayerType : string;override;
     function CreateTrigger(aTriggerName: string; aTableName: string;
@@ -92,6 +77,31 @@ type
     function DropTable(aTableName : string) : Boolean;override;
     function FieldToSQL(aName : string;aType : TFieldType;aSize : Integer;aRequired : Boolean) : string;
     function GetColumns(TableName : string) : TStrings;override;
+  end;
+
+  { TZeosConnection }
+
+  TZeosConnection = class(TZConnection,IBaseDBConnection)
+  private
+    FProperties: String;
+    FEData: Boolean;
+    FDatabaseDir: String;
+    FLimitAfterSelect: Boolean;
+    FLimitSTMT: String;
+    FDBTyp: String;
+    function DoExecuteDirect(aSQL: string): Integer;
+    function DoGetTableNames(aTables: TStrings): Boolean;
+    function DoGetTriggerNames(aTriggers: TStrings): Boolean;
+    function DoSetProperties(aProp : string) : Boolean;
+    function DoInitializeConnection: Boolean;
+    function DoStartTransaction(ForceTransaction : Boolean = False): Boolean;
+    function DoCommitTransaction: Boolean;
+    function DoRollbackTransaction: Boolean;
+    procedure DoDisconnect;
+    procedure DoConnect;
+    function GetDatabaseName: string;
+    function IsConnected: Boolean;
+  protected
   end;
 
   { TZeosDBDataSet }
@@ -222,6 +232,220 @@ uses ZDbcIntfs,uBaseApplication,uEncrypt;
 resourcestring
   strUnknownDbType                = 'Unbekannter Datenbanktyp';
   strDatabaseConnectionLost       = 'Die Datenbankverbindung wurde verlohren !';
+
+{ TZeosConnection }
+
+function TZeosConnection.DoSetProperties(aProp: string): Boolean;
+var
+  tmp: String;
+  actDir: String;
+  actVer: LongInt;
+  sl: TStringList;
+begin
+  if Assigned(BaseApplication) then
+    with BaseApplication as IBaseDBInterface do
+      LastError := '';
+  FProperties := aProp;
+  Result := True;
+  tmp := aProp;
+  try
+    //CleanupSession;
+    if Connected then
+      Disconnect;
+    Port:=0;
+    Properties.Clear;
+    Properties.Add('timeout=3');
+    Protocol:='';
+    User:='';
+    Password:='';
+    HostName:='';
+    Database:='';
+    Properties.Clear;
+    if copy(tmp,0,pos(';',tmp)-1) <> 'sqlite-3-edata' then
+      Protocol:=copy(tmp,0,pos(';',tmp)-1)
+    else
+      begin
+        Protocol:='sqlite-3';
+        FEData:=True;
+      end;
+    Assert(Protocol<>'',strUnknownDbType);
+    tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
+    HostName := copy(tmp,0,pos(';',tmp)-1);
+    if pos(':',HostName) > 0 then
+      begin
+        Port:=StrToInt(copy(HostName,pos(':',HostName)+1,length(HostName)));
+        HostName:=copy(HostName,0,pos(':',HostName)-1);
+      end
+    else if pos('/',HostName) > 0 then
+      begin
+        Port:=StrToInt(copy(HostName,pos('/',HostName)+1,length(HostName)));
+        HostName:=copy(HostName,0,pos('/',HostName)-1);
+      end;
+    tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
+    Database:=copy(tmp,0,pos(';',tmp)-1);
+    FDatabaseDir:=ExtractFileDir(ExpandFileName(Database));
+    tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
+    User := copy(tmp,0,pos(';',tmp)-1);
+    tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
+    if copy(tmp,0,1) = 'x' then
+      Password := Decrypt(copy(tmp,2,length(tmp)),99998)
+    else
+      Password := tmp;
+    if (copy(Protocol,0,6) = 'sqlite')
+    then
+      begin
+//        if Connection=MainConnection then //Dont check this on attatched db´s (we want to create them on the fly)
+//          if not FileExists(Database) then
+//            raise Exception.Create('Databasefile dosend exists');
+        TransactIsolationLevel:=tiNone;
+      end;
+    if (copy(Protocol,0,8) = 'postgres')
+    then
+      begin
+        Properties.Add('compression=true');
+        {$IFDEF CPUARM}
+        Properties.Add('sslmode=disable');
+        {$ENDIF}
+        TransactIsolationLevel:=tiNone;
+        AutoEncodeStrings:=true;
+      end
+    else if (copy(Protocol,0,8) = 'firebird')
+    or (copy(Protocol,0,9) = 'interbase')
+    then
+      begin
+        TransactIsolationLevel:=tiReadCommitted;
+      end
+    else if (copy(Protocol,0,5) = 'mysql') then
+      begin
+        TransactIsolationLevel:=tiReadUncommitted;
+        Properties.Clear;
+        Properties.Add('compression=true');
+        //Properties.Add('codepage=UTF8');
+        //Properties.Add('timeout=0');
+        Properties.Add('ValidateUpdateCount=-1');
+        Properties.Add('MYSQL_OPT_RECONNECT=TRUE');
+      end
+    else if (copy(Protocol,0,5) = 'mssql') then
+      begin
+        TransactIsolationLevel:=tiReadUncommitted;
+        AutoEncodeStrings:=true;
+      end;
+    Properties.Add('Undefined_Varchar_AsString_Length= 255');
+  finally
+  end;
+end;
+
+function TZeosConnection.DoInitializeConnection: Boolean;
+begin
+  Result := True;
+  FLimitAfterSelect := False;
+  FLimitSTMT := 'LIMIT %s';
+  if Protocol = 'sqlite-3' then
+    begin
+      //ExecuteDirect('PRAGMA synchronous = NORMAL;');
+      ExecuteDirect('PRAGMA cache_size = 5120;');
+      //ExecuteDirect('PRAGMA auto_vacuum = INCREMENTAL;');
+      //ExecuteDirect('PRAGMA journal_mode = TRUNCATE;');
+      ExecuteDirect('PRAGMA recursive_triggers = ON;');
+      ExecuteDirect('PRAGMA foreign_keys = ON;');
+      ExecuteDirect('PRAGMA case_sensitive_like = ON;');
+      //ExecuteDirect('PRAGMA secure_delete = ON;');
+      //ExecuteDirect('PRAGMA incremental_vacuum(50);');
+    end
+  else if (copy(Protocol,0,8) = 'firebird')
+       or (copy(Protocol,0,9) = 'interbase') then
+    begin
+      FDBTyp := 'firebird';
+      FLimitSTMT := 'ROWS 1 TO %s';
+      {
+      if not Assigned(Sequence) then
+        begin
+          Sequence := TZSequence.Create(Owner);
+        end;
+      }
+    end
+  else if Protocol = 'mssql' then
+    begin
+      FLimitAfterSelect := True;
+      FLimitSTMT := 'TOP %s';
+    end;
+end;
+
+function TZeosConnection.DoExecuteDirect(aSQL: string): Integer;
+begin
+  ExecuteDirect(aSQL);
+end;
+
+function TZeosConnection.DoStartTransaction(ForceTransaction: Boolean): Boolean;
+begin
+  Tag := Integer(TransactIsolationLevel);
+  if ForceTransaction and (copy(Protocol,0,6) = 'sqlite') then
+    TransactIsolationLevel:=tiReadCommitted
+  else if (copy(Protocol,0,8) = 'postgres') then
+    TransactIsolationLevel:=tiReadCommitted
+  else if (copy(Protocol,0,5) = 'mssql') then
+    TransactIsolationLevel:=tiReadUnCommitted;
+  StartTransaction;
+end;
+
+function TZeosConnection.DoCommitTransaction: Boolean;
+begin
+  if not AutoCommit then
+    Commit;
+  if TZTransactIsolationLevel(Tag) <> TransactIsolationLevel then
+    TransactIsolationLevel := TZTransactIsolationLevel(Tag);
+end;
+
+function TZeosConnection.DoRollbackTransaction: Boolean;
+begin
+  if not AutoCommit then
+    Rollback;
+  if TZTransactIsolationLevel(Tag) <> TransactIsolationLevel then
+   TransactIsolationLevel := TZTransactIsolationLevel(Tag);
+end;
+
+procedure TZeosConnection.DoDisconnect;
+begin
+  try
+    Disconnect;
+  except
+  end;
+end;
+
+procedure TZeosConnection.DoConnect;
+begin
+  try
+    Connect;
+  except on e : Exception do
+    begin
+      if Assigned(BaseApplication) then
+        with BaseApplication as IBaseDBInterface do
+          LastError := e.Message;
+    end;
+  end;
+end;
+
+function TZeosConnection.GetDatabaseName: string;
+begin
+  Result := Database;
+end;
+
+function TZeosConnection.DoGetTableNames(aTables: TStrings): Boolean;
+begin
+  Result := True;
+  GetTableNames('','',aTables);
+end;
+
+function TZeosConnection.DoGetTriggerNames(aTriggers: TStrings): Boolean;
+begin
+  Result := True;
+  Self.GetTriggerNames('','',aTriggers);
+end;
+
+function TZeosConnection.IsConnected: Boolean;
+begin
+  Result := Connected;
+end;
 
 procedure TZeosDBDataSet.TDateTimeFieldGetText(Sender: TField;
   var aText: string; DisplayText: Boolean);
@@ -1352,16 +1576,6 @@ begin
   Result := RowsAffected;
 end;
 
-procedure TZeosDBDM.FConnectionAfterConnect(Sender: TObject);
-begin
-  TZConnection(Sender).Password:=Encrypt(TZConnection(Sender).Password,9997);
-end;
-
-procedure TZeosDBDM.FConnectionBeforeConnect(Sender: TObject);
-begin
-  TZConnection(Sender).Password:=Decrypt(TZConnection(Sender).Password,9997);
-end;
-
 procedure TZeosDBDM.MonitorTrace(Sender: TObject; Event: TZLoggingEvent;
   var LogTrace: Boolean);
 begin
@@ -1382,13 +1596,9 @@ begin
         LastStatement:='';
       end;
 end;
-function TZeosDBDM.GetConnection: TComponent;
+function TZeosDBDM.GetConnection: TAbstractDBConnection;
 begin
-  Result := TComponent(FMainConnection);
-end;
-function TZeosDBDM.DBExists: Boolean;
-begin
-  Result := TableExists('USERS') and TableExists('GEN_SQL_ID') and TableExists('GEN_AUTO_ID');
+  Result := TAbstractDBConnection(FMainConnection);
 end;
 
 function TZeosDBDM.GetLimitAfterSelect: Boolean;
@@ -1446,7 +1656,7 @@ end;
 constructor TZeosDBDM.Create(AOwner: TComponent);
 begin
   FDataSetClass := TZeosDBDataSet;
-  FMainConnection := TZConnection.Create(AOwner);
+  FMainConnection := TZeosConnection.Create(AOwner);
   //if BaseApplication.HasOption('debug') or BaseApplication.HasOption('debug-sql') then
     begin
       Monitor := TZSQLMonitor.Create(FMainConnection);
@@ -1477,236 +1687,6 @@ begin
     inherited Destroy;
   except
   end;
-end;
-function TZeosDBDM.SetProperties(aProp: string;Connection : TComponent = nil): Boolean;
-var
-  tmp: String;
-  FConnection : TZConnection;
-  actDir: String;
-  actVer: LongInt;
-  sl: TStringList;
-begin
-  if Assigned(BaseApplication) then
-    with BaseApplication as IBaseDBInterface do
-      LastError := '';
-  FProperties := aProp;
-  FConnection := TZConnection(Connection);
-  if not Assigned(FConnection) then
-    FConnection := FMainConnection;
-  Result := True;
-  tmp := aProp;
-  try
-    CleanupSession;
-    if FConnection.Connected then
-      FConnection.Disconnect;
-    FConnection.Port:=0;
-    FConnection.Properties.Clear;
-    FConnection.Properties.Add('timeout=3');
-    FConnection.Protocol:='';
-    FConnection.User:='';
-    FConnection.Password:='';
-    FConnection.HostName:='';
-    FConnection.Database:='';
-    FConnection.Properties.Clear;
-    if copy(tmp,0,pos(';',tmp)-1) <> 'sqlite-3-edata' then
-      FConnection.Protocol:=copy(tmp,0,pos(';',tmp)-1)
-    else
-      begin
-        FConnection.Protocol:='sqlite-3';
-        FEData:=True;
-      end;
-    Assert(FConnection.Protocol<>'',strUnknownDbType);
-    tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
-    FConnection.HostName := copy(tmp,0,pos(';',tmp)-1);
-    if pos(':',FConnection.HostName) > 0 then
-      begin
-        FConnection.Port:=StrToInt(copy(FConnection.HostName,pos(':',FConnection.HostName)+1,length(FConnection.HostName)));
-        FConnection.HostName:=copy(FConnection.HostName,0,pos(':',FConnection.HostName)-1);
-      end
-    else if pos('/',FConnection.HostName) > 0 then
-      begin
-        FConnection.Port:=StrToInt(copy(FConnection.HostName,pos('/',FConnection.HostName)+1,length(FConnection.HostName)));
-        FConnection.HostName:=copy(FConnection.HostName,0,pos('/',FConnection.HostName)-1);
-      end;
-    tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
-    FConnection.Database:=copy(tmp,0,pos(';',tmp)-1);
-    FDatabaseDir:=ExtractFileDir(ExpandFileName(FConnection.Database));
-    tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
-    FConnection.User := copy(tmp,0,pos(';',tmp)-1);
-    tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
-    if copy(tmp,0,1) = 'x' then
-      FConnection.Password := Decrypt(copy(tmp,2,length(tmp)),99998)
-    else
-      FConnection.Password := tmp;
-    FConnection.Password:=Encrypt(FConnection.Password,9997);
-    FConnection.BeforeConnect:=@FConnectionBeforeConnect;
-    FConnection.AfterConnect:=@FConnectionAfterConnect;
-    if (copy(FConnection.Protocol,0,6) = 'sqlite')
-    then
-      begin
-        if Connection=MainConnection then //Dont check this on attatched db´s (we want to create them on the fly)
-          if not FileExists(FConnection.Database) then
-            raise Exception.Create('Databasefile dosend exists');
-        FConnection.TransactIsolationLevel:=tiNone;
-      end;
-    if (copy(FConnection.Protocol,0,8) = 'postgres')
-    then
-      begin
-        FConnection.Properties.Add('compression=true');
-        {$IFDEF CPUARM}
-        FConnection.Properties.Add('sslmode=disable');
-        {$ENDIF}
-        FConnection.TransactIsolationLevel:=tiNone;
-        FConnection.AutoEncodeStrings:=true;
-      end
-    else if (copy(FConnection.Protocol,0,8) = 'firebird')
-    or (copy(FConnection.Protocol,0,9) = 'interbase')
-    then
-      begin
-        FConnection.TransactIsolationLevel:=tiReadCommitted;
-      end
-    else if (copy(FConnection.Protocol,0,5) = 'mysql') then
-      begin
-        FConnection.TransactIsolationLevel:=tiReadUncommitted;
-        FConnection.Properties.Clear;
-        FConnection.Properties.Add('compression=true');
-        //FConnection.Properties.Add('codepage=UTF8');
-        //FConnection.Properties.Add('timeout=0');
-        FConnection.Properties.Add('ValidateUpdateCount=-1');
-        FConnection.Properties.Add('MYSQL_OPT_RECONNECT=TRUE');
-      end
-    else if (copy(FConnection.Protocol,0,5) = 'mssql') then
-      begin
-        FConnection.TransactIsolationLevel:=tiReadUncommitted;
-        FConnection.AutoEncodeStrings:=true;
-      end;
-    FConnection.Properties.Add('Undefined_Varchar_AsString_Length= 255');
-
-    inherited;
-
-    //*********Connect***********
-
-    FConnection.Connected:=True;
-
-    FLimitAfterSelect := False;
-    FLimitSTMT := 'LIMIT %s';
-    FDBTyp := FConnection.Protocol;
-    if FConnection.Protocol = 'sqlite-3' then
-      begin
-        //FConnection.ExecuteDirect('PRAGMA synchronous = NORMAL;');
-        FConnection.ExecuteDirect('PRAGMA cache_size = 5120;');
-        //FConnection.ExecuteDirect('PRAGMA auto_vacuum = INCREMENTAL;');
-        //FConnection.ExecuteDirect('PRAGMA journal_mode = TRUNCATE;');
-        FConnection.ExecuteDirect('PRAGMA recursive_triggers = ON;');
-        FConnection.ExecuteDirect('PRAGMA foreign_keys = ON;');
-        FConnection.ExecuteDirect('PRAGMA case_sensitive_like = ON;');
-        //FConnection.ExecuteDirect('PRAGMA secure_delete = ON;');
-        //FConnection.ExecuteDirect('PRAGMA incremental_vacuum(50);');
-      end
-    else if (copy(FConnection.Protocol,0,8) = 'firebird')
-         or (copy(FConnection.Protocol,0,9) = 'interbase') then
-      begin
-        FDBTyp := 'firebird';
-        FLimitSTMT := 'ROWS 1 TO %s';
-        if not Assigned(Sequence) then
-          begin
-            Sequence := TZSequence.Create(Owner);
-          end;
-      end
-    else if FConnection.Protocol = 'mssql' then
-      begin
-        FLimitAfterSelect := True;
-        FLimitSTMT := 'TOP %s';
-      end;
-  except on e : Exception do
-    begin
-      if Assigned(BaseApplication) then
-        with BaseApplication as IBaseDBInterface do
-          LastError := e.Message;
-      Result := False;
-    end;
-  end;
-  CheckedTables.Clear;
-  if Result then
-    begin
-      if not DBExists then //Create generators
-        begin
-          try
-            if (copy(FConnection.Protocol,0,8) = 'firebird')
-            or (copy(FConnection.Protocol,0,9) = 'interbase') then
-              begin
-                FConnection.ExecuteDirect('EXECUTE BLOCK AS BEGIN'+lineending
-                                         +'if (not exists(select 1 from rdb$generators where rdb$generator_name = ''GEN_SQL_ID'')) then'+lineending
-                                         +'execute statement ''CREATE SEQUENCE GEN_SQL_ID;'';'+lineending
-                                         +'END;');
-                FConnection.ExecuteDirect('EXECUTE BLOCK AS BEGIN'+lineending
-                                         +'if (not exists(select 1 from rdb$generators where rdb$generator_name = ''GEN_AUTO_ID'')) then'+lineending
-                                         +'execute statement ''CREATE SEQUENCE GEN_AUTO_ID;'';'+lineending
-                                         +'END;');
-              end
-            else if copy(FConnection.Protocol,0,6) = 'sqlite' then
-              begin
-                FConnection.ExecuteDirect('CREATE TABLE IF NOT EXISTS "GEN_SQL_ID"("SQL_ID" BIGINT NOT NULL PRIMARY KEY,ID BIGINT);');
-                FConnection.ExecuteDirect('CREATE TABLE IF NOT EXISTS "GEN_AUTO_ID"("SQL_ID" BIGINT NOT NULL PRIMARY KEY,ID BIGINT);');
-              end
-            else
-              begin
-                if not TableExists('GEN_SQL_ID') then
-                  FConnection.ExecuteDirect('CREATE TABLE '+QuoteField('GEN_SQL_ID')+'('+QuoteField('SQL_ID')+' BIGINT NOT NULL PRIMARY KEY,'+QuoteField('ID')+' BIGINT);');
-                if not TableExists('GEN_AUTO_ID') then
-                  FConnection.ExecuteDirect('CREATE TABLE '+QuoteField('GEN_AUTO_ID')+'('+QuoteField('SQL_ID')+' BIGINT NOT NULL PRIMARY KEY,'+QuoteField('ID')+' BIGINT);');
-              end
-          except on e : Exception do
-            begin
-              if Assigned(BaseApplication) then
-                with BaseApplication as IBaseDBInterface do
-                  LastError := e.Message;
-              Result := False;
-            end;
-          end;
-        end
-      else
-        begin
-          if Assigned(MandantDetails) then
-            begin
-              try
-                MandantDetails.Open;
-                DBTables.Open;
-                actDir := GetCurrentDir;
-                SetCurrentDir(ExtractFileDir(FConnection.Database));
-                if Assigned(MandantDetails.FieldByName('DBSTATEMENTS')) and (MandantDetails.FieldByName('DBSTATEMENTS').AsString<>'') then
-                  FConnection.ExecuteDirect(MandantDetails.FieldByName('DBSTATEMENTS').AsString);
-                SetCurrentDir(actDir);
-              except
-              end;
-              actVer := MandantDetails.FieldByName('DBVER').AsInteger;
-              if actVer<(7*10000+437) then
-                actVer:=7*10000+437;
-              with BaseApplication as IBaseApplication do
-                begin
-                  try
-                    for actVer := actVer to round(AppVersion*10000+AppRevision) do
-                      begin
-                        if FileExists( AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'dbupdates')+IntToStr(actVer)+'.sql') then
-                          begin
-                            sl := TStringList.Create;
-                            sl.LoadFromFile(AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'dbupdates')+IntToStr(actVer)+'.sql');
-                            sl.Text := Preprocess(sl.Text);
-                            FConnection.ExecuteDirect(sl.Text);
-                            sl.Free;
-                          end
-                        else Info(AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'dbupdates')+IntToStr(actVer)+'.sql not found, ignoring DB Update');
-                      end;
-                  except
-                    on e : Exception do
-                      begin
-                        Error(AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'dbupdates')+IntToStr(actVer)+'.sql Error:'+LineEnding+e.Message);
-                      end;
-                  end;
-                end;
-          end;
-        end;
-    end;
 end;
 function TZeosDBDM.CreateDBFromProperties(aProp: string): Boolean;
 var
@@ -1846,14 +1826,6 @@ begin
     end;
 end;
 
-function TZeosDBDM.ExecuteDirect(aSQL: string; aConnection: TComponent
-  ): Integer;
-begin
-  if not Assigned(aConnection) then
-    aConnection := MainConnection;
-  TZConnection(aConnection).ExecuteDirect(aSQL,Result);
-end;
-
 procedure TZeosDBDM.DestroyDataSet(DataSet: TDataSet);
 begin
   try
@@ -1884,20 +1856,6 @@ begin
     if copy(TZConnection(aConnection).Protocol,0,6)<>'sqlite' then
       Result := PingHost(TZConnection(aConnection).HostName)>-1;//Unsupported
   end;
-end;
-function TZeosDBDM.DateToFilter(aValue: TDateTime): string;
-begin
-  if FMainConnection.Protocol = 'mssql' then
-    Result := QuoteValue(FormatDateTime('YYYYMMDD',aValue))
-  else
-    Result:=inherited DateToFilter(aValue);
-end;
-function TZeosDBDM.DateTimeToFilter(aValue: TDateTime): string;
-begin
-  if FMainConnection.Protocol = 'mssql' then
-    Result := QuoteValue(FormatDateTime('YYYYMMDD HH:MM:SS.ZZZZ',aValue))
-  else
-    Result:=inherited DateTimeToFilter(aValue);
 end;
 function TZeosDBDM.GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';Tablename : string = '';AutoInc : Boolean = True): Variant;
 var
@@ -2122,181 +2080,13 @@ begin
   Result := TZConnection.Create(Self);
   with Result as TZConnection do
     begin
-      Setproperties(FProperties,Result);
+      Setproperties(FProperties);
     end;
-end;
-
-function TZeosDBDM.QuoteField(aField: string): string;
-begin
-  Result:=inherited QuoteField(aField);
-  if (copy(TZConnection(MainConnection).Protocol,0,5) = 'mysql') then
-    Result := '`'+aField+'`';
-end;
-
-function TZeosDBDM.QuoteValue(aField: string): string;
-begin
-  Result:=inherited QuoteValue(aField);
-  if (copy(TZConnection(MainConnection).Protocol,0,5) = 'mysql') then
-    Result := ''''+aField+'''';
-end;
-
-procedure TZeosDBDM.Disconnect(aConnection: TComponent);
-begin
-  TZConnection(aConnection).Disconnect;
-end;
-
-procedure TZeosDBDM.Connect(aConnection: TComponent);
-begin
-  TZConnection(aConnection).Connect;
-end;
-
-function TZeosDBDM.StartTransaction(aConnection: TComponent;ForceTransaction : Boolean = False): Boolean;
-begin
-  TZConnection(aConnection).Tag := Integer(TZConnection(aConnection).TransactIsolationLevel);
-  if ForceTransaction and (copy(TZConnection(aConnection).Protocol,0,6) = 'sqlite') then
-    TZConnection(aConnection).TransactIsolationLevel:=tiReadCommitted
-  else if (copy(TZConnection(aConnection).Protocol,0,8) = 'postgres') then
-    TZConnection(aConnection).TransactIsolationLevel:=tiReadCommitted
-  else if (copy(TZConnection(aConnection).Protocol,0,5) = 'mssql') then
-    TZConnection(aConnection).TransactIsolationLevel:=tiReadUnCommitted;
-  TZConnection(aConnection).StartTransaction;
-end;
-function TZeosDBDM.CommitTransaction(aConnection: TComponent): Boolean;
-begin
-  if not TZConnection(aConnection).AutoCommit then
-    TZConnection(aConnection).Commit;
-  if TZTransactIsolationLevel(TZConnection(aConnection).Tag) <> TZConnection(aConnection).TransactIsolationLevel then
-    TZConnection(aConnection).TransactIsolationLevel := TZTransactIsolationLevel(TZConnection(aConnection).Tag);
-end;
-function TZeosDBDM.RollbackTransaction(aConnection: TComponent): Boolean;
-begin
-  if not TZConnection(aConnection).AutoCommit then
-    TZConnection(aConnection).Rollback;
-  if TZTransactIsolationLevel(TZConnection(aConnection).Tag) <> TZConnection(aConnection).TransactIsolationLevel then
-    TZConnection(aConnection).TransactIsolationLevel := TZTransactIsolationLevel(TZConnection(aConnection).Tag);
 end;
 
 function TZeosDBDM.IsTransactionActive(aConnection: TComponent): Boolean;
 begin
   Result := TZConnection(aConnection).InTransaction;
-end;
-
-function TZeosDBDM.TableExists(aTableName: string;aConnection : TComponent = nil;AllowLowercase: Boolean = False): Boolean;
-var
-  aIndex: longint;
-  i: Integer;
-  tmp: String;
-  aQuerry: TZReadOnlyQuery;
-begin
-  Result := False;
-  if not FMainConnection.Connected then exit;
-  aTableName:=GetFullTableName(aTableName);
-  aTableName:=StringReplace(aTableName,copy(QuoteField(''),0,1),'',[rfReplaceAll]);
-  try
-    if Tables.Count = 0 then
-      begin
-        //Get uncached
-        if not Assigned(aConnection) then
-          aConnection := FMainConnection;
-        if FMainConnection.DbcConnection<>nil then
-          TZConnection(aConnection).DbcConnection.GetMetadata.ClearCache;
-        TZConnection(aConnection).GetTableNames('','',Tables);
-        TZConnection(aConnection).GetTriggerNames('','',Triggers);
-      end;
-  except
-  end;
-  if Tables.IndexOf(aTableName) > 0 then
-    begin
-      Result := True;
-      exit;
-    end;
-  for i := 0 to Tables.Count-1 do
-    begin
-      tmp := Tables[i];
-      if (Uppercase(tmp) = aTableName)
-      then
-        begin
-          Result := True;
-          break;
-        end;
-    end;
-  //Try to open the non existent Table since we dont know if its in another database
-  if not Result then
-    begin
-      aTableName:=GetFullTableName(aTableName);
-      aQuerry := TZReadOnlyQuery.Create(Self);
-      aQuerry.Connection:=TZConnection(MainConnection);
-      aQuerry.SQL.Text := 'select count(*) from '+aTableName;
-      if (FMainConnection.Protocol = 'mssql') then
-        aQuerry.SQL.Text := '('+aQuerry.SQL.Text+')';
-      try
-        aQuerry.Open;
-      except
-      end;
-      Result := aQuerry.Active;
-      if Result then
-        begin
-          aTableName:=StringReplace(aTableName,copy(QuoteField(''),0,1),'',[rfReplaceAll]);
-          if Tables.Count>0 then
-            Tables.Add(aTableName);
-        end;
-      aQuerry.Free;
-    end;
-end;
-
-function TZeosDBDM.TriggerExists(aTriggerName: string; aConnection: TComponent;
-  AllowLowercase: Boolean): Boolean;
-var
-  i: Integer;
-  tmp: String;
-  GeneralQuery: TZQuery;
-begin
-  if Triggers.Count= 0 then
-    begin
-      GeneralQuery := TZQuery.Create(Self);
-      GeneralQuery.Connection:=TZConnection(MainConnection);
-      if (copy(FMainConnection.Protocol,0,10) = 'postgresql') then
-        begin
-          GeneralQuery.SQL.Text:='select tgname from pg_trigger;';
-          GeneralQuery.Open;
-        end
-      else if (copy(FMainConnection.Protocol,0,6) = 'sqlite') then
-        begin
-          GeneralQuery.SQL.Text:='select name from sqlite_master where type=''trigger'';';
-          GeneralQuery.Open;
-        end
-      else if (FMainConnection.Protocol = 'mssql') then
-        begin
-          GeneralQuery.SQL.Text:='SELECT trigger_name = name FROM sysobjects WHERE type = ''TR''';
-          GeneralQuery.Open;
-        end;
-      if GeneralQuery.Active then
-        with GeneralQuery do
-          begin
-            First;
-            while not EOF do
-              begin
-                Triggers.Add(Fields[0].AsString);
-                Next;
-              end;
-          end;
-      GeneralQuery.Destroy;
-    end;
-  Result := False;
-  if Triggers.IndexOf(aTriggerName) > 0 then
-    begin
-      Result := True;
-      exit;
-    end;
-  for i := 0 to Triggers.Count-1 do
-    begin
-      tmp := Triggers[i];
-      if (Uppercase(tmp) = aTriggerName) then
-        begin
-          Result := True;
-          break;
-        end;
-    end;
 end;
 
 function TZeosDBDM.GetDBType: string;
@@ -2492,6 +2282,8 @@ end;
 
 initialization
   uBaseDBInterface.DatabaseLayers.Add(TZeosDBDM);
+  ConnectionClass:=TZConnection;
+  QueryClass:=TZeosDBDataSet;
 end.
 
 

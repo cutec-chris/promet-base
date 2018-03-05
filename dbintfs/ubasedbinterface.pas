@@ -24,7 +24,7 @@ uses
   Classes, SysUtils, DB, Typinfo, CustApp, Utils , memds,
   uBaseDbClasses, uIntfStrConsts,syncobjs,
   uBaseSearch,uBaseERPDbClasses,uDocuments,uOrder,Variants,uProcessManagement,
-  rttiutils,uBaseDatasetInterfaces,contnrs
+  rttiutils,uBaseDatasetInterfaces,contnrs,uAbstractDBLayer
   ;
 const
   MandantExtension = '.perml';
@@ -69,7 +69,7 @@ type
 
   { TBaseDBModule }
 
-  TBaseDBModule = class(TComponent)
+  TBaseDBModule = class(TAbstractDBModule)
   private
     FConnect: TNotifyEvent;
     FConnectionLost: TNotifyEvent;
@@ -82,7 +82,6 @@ type
     FTables: TStrings;
     FTriggers: TStrings;
     FUsersFilter: string;
-    FCheckedTables : TStringList;
     FLinkHandlers : array of LinkHandler;
     FIgnoreOpenRequests : Boolean;
     FCS : TCriticalSection;
@@ -119,12 +118,10 @@ type
     //_DocumentActions : TInternalDBDataSet;
     //_MimeTypes : TInternalDBDataSet;
     ProcessClient : TProcessClient;
-    constructor Create(AOwner : TComponent);virtual;
+    constructor Create(AOwner : TComponent);override;
     destructor Destroy;override;
-    function GetConnection: TComponent;virtual;abstract;
     property SessionID : LargeInt read FSessionID write FSessionID;
     property Users : TUser read GetUsers;
-    property MainConnection : TComponent read GetConnection;
     property UsersFilter : string read FUsersFilter;
     procedure CleanupSession;
     function GetNewConnection: TComponent;virtual;abstract;
@@ -135,7 +132,7 @@ type
     function RollbackTransaction(aConnection : TComponent): Boolean;virtual;abstract;
     function IsTransactionActive(aConnection : TComponent): Boolean;virtual;abstract;
     procedure DeleteExpiredSessions;virtual;
-    function SetProperties(aProp : string;Connection : TComponent = nil) : Boolean;virtual;
+    function SetProperties(aProp : string;Connection : TAbstractDBConnection = nil) : Boolean;override;
     function CreateDBFromProperties(aProp : string) : Boolean;virtual;
     property LastStatement : string read FLastStmt write FLastStmt;
     property LastTime : Int64 read FLastTime write FLastTime;
@@ -153,11 +150,6 @@ type
     function BlobFieldToStream(DataSet: TDataSet; Fieldname: string;
       dStream: TStream;aSize : Integer = -1) : Boolean; virtual;
     function BlobFieldStream(DataSet: TDataSet; Fieldname: string;Tablename : string = '') : TStream; virtual;
-    function QuoteField(aField : string) : string;virtual;
-    function QuoteValue(aValue : string) : string;virtual;
-    function EscapeString(aValue : string) : string;virtual;
-    function DateToFilter(aValue : TDateTime) : string;virtual;
-    function DateTimeToFilter(aValue : TDateTime) : string;virtual;
     function GetLinkDesc(aLink: string; Fast: Boolean=false): string; virtual;
     function GetLinkLongDesc(aLink : string) : string;virtual;
     function GetLinkIcon(aLink: string; GetRealIcon: Boolean=False): Integer;
@@ -173,19 +165,14 @@ type
     function GetErrorNum(e : EDatabaseError) : Integer;virtual;
     function RecordCount(aDataSet : TBaseDbDataSet) : Integer;
     function DeleteItem(aDataSet : TBaseDBDataSet) : Boolean;
-    function ShouldCheckTable(aTableName : string;SetChecked : Boolean = False) : Boolean;
     procedure UpdateTableVersion(aTableName: string);
-    function RemoveCheckTable(aTableName : string) : Boolean;
-    function GetFullTableName(aTable: string): string;
-    function TableExists(aTableName : string;aConnection : TComponent = nil;AllowLowercase: Boolean = False) : Boolean;virtual;abstract;
-    function TriggerExists(aTriggerName : string;aConnection : TComponent = nil;AllowLowercase: Boolean = False) : Boolean;virtual;
+    function GetFullTableName(aTable: string): string;override;
     function CreateTrigger(aTriggerName : string;aTableName : string;aUpdateOn : string;aSQL : string;aField : string = '';aConnection : TComponent = nil) : Boolean;virtual;
     function DropTable(aTableName : string) : Boolean;virtual;abstract;
     function GetColumns(TableName : string) : TStrings;virtual;abstract;
     function Preprocess(aLine : string) : string;
     function CheckForInjection(aFilter : string) : Boolean;
     function DecodeFilter(aSQL : string;Parameters : TStringList;var NewSQL : string) : Boolean;virtual;
-    function GetDBType : string;virtual;
     function GetDBLayerType : string;virtual;abstract;
     procedure SetFilter(DataSet : TbaseDBDataSet;aFilter : string;aLimit : Integer = 0;aOrderBy : string = '';aSortDirection : string = 'ASC';aLocalSorting : Boolean = False;aGlobalFilter : Boolean = True;aUsePermissions : Boolean = False;aFilterIn : string = '');
     procedure AppendUserToActiveList;
@@ -194,10 +181,7 @@ type
     procedure RemoveUserFromActiveList;
     procedure RegisterLinkHandlers(IgnoreRights : Boolean = False);
     property IgnoreOpenRequests : Boolean read FIgnoreOpenrequests write FIgnoreOpenrequests;
-    property Tables : TStrings read FTables;
     property Mandant : string read Fmandant;
-    property CheckedTables : TStringList read FCheckedTables;
-    property Triggers : TStrings read FTriggers;
     property LimitAfterSelect : Boolean read GetLimitAfterSelect;
     property LimitSTMT : string read GetLimitSTMT;
     property SyncOffset : Integer read GetSyncOffset write SetSyncOffset;
@@ -440,11 +424,17 @@ end;
 procedure TBaseDBModule.DeleteExpiredSessions;
 begin
 end;
-function TBaseDBModule.SetProperties(aProp: string; Connection: TComponent
+function TBaseDBModule.SetProperties(aProp: string;Connection: TAbstractDBConnection
   ): Boolean;
+var
+  actDir: String;
+  actVer: LongInt;
+  sl: TStringList;
 begin
+  Result := inherited;
+  if Connection=nil then
+    Connection := MainConnection;
   FProperies := aProp;
-  FTables.Clear;
   if not Assigned(Users) then
     begin
       FUsers := TUser.CreateEx(nil,Self);
@@ -469,6 +459,82 @@ begin
       Categories := TCategory.CreateEx(nil,Self);
       DeletedItems := TDeletedItems.CreateEx(nil,Self);
       ProcessClient := TProcessClient.CreateEx(nil,Self);
+    end;
+
+  if Result then
+    begin
+      if not DBExists then //Create generators
+        begin
+          try
+            if (GetDBType = 'firebird') then
+              begin
+                ExecuteDirect('EXECUTE BLOCK AS BEGIN'+lineending
+                                         +'if (not exists(select 1 from rdb$generators where rdb$generator_name = ''GEN_SQL_ID'')) then'+lineending
+                                         +'execute statement ''CREATE SEQUENCE GEN_SQL_ID;'';'+lineending
+                                         +'END;');
+                ExecuteDirect('EXECUTE BLOCK AS BEGIN'+lineending
+                                         +'if (not exists(select 1 from rdb$generators where rdb$generator_name = ''GEN_AUTO_ID'')) then'+lineending
+                                         +'execute statement ''CREATE SEQUENCE GEN_AUTO_ID;'';'+lineending
+                                         +'END;');
+              end
+            else if GetDBType = 'sqlite' then
+              begin
+                ExecuteDirect('CREATE TABLE IF NOT EXISTS "GEN_SQL_ID"("SQL_ID" BIGINT NOT NULL PRIMARY KEY,ID BIGINT);');
+                ExecuteDirect('CREATE TABLE IF NOT EXISTS "GEN_AUTO_ID"("SQL_ID" BIGINT NOT NULL PRIMARY KEY,ID BIGINT);');
+              end
+            else
+              begin
+                if not TableExists('GEN_SQL_ID') then
+                  ExecuteDirect('CREATE TABLE '+QuoteField('GEN_SQL_ID')+'('+QuoteField('SQL_ID')+' BIGINT NOT NULL PRIMARY KEY,'+QuoteField('ID')+' BIGINT);');
+                if not TableExists('GEN_AUTO_ID') then
+                  ExecuteDirect('CREATE TABLE '+QuoteField('GEN_AUTO_ID')+'('+QuoteField('SQL_ID')+' BIGINT NOT NULL PRIMARY KEY,'+QuoteField('ID')+' BIGINT);');
+              end
+          except on e : Exception do
+            begin
+//              if Assigned(BaseApplication) then
+//                with BaseApplication as IBaseDBInterface do
+//                  LastError := e.Message;
+              Result := False;
+            end;
+          end;
+        end;
+      if Assigned(MandantDetails) then
+        begin
+          try
+            MandantDetails.Open;
+            DBTables.Open;
+            actDir := GetCurrentDir;
+            SetCurrentDir(ExtractFileDir((Connection as IBaseDBConnection).GetDatabaseName));
+            if Assigned(MandantDetails.FieldByName('DBSTATEMENTS')) and (MandantDetails.FieldByName('DBSTATEMENTS').AsString<>'') then
+              ExecuteDirect(MandantDetails.FieldByName('DBSTATEMENTS').AsString);
+            SetCurrentDir(actDir);
+          except
+          end;
+          actVer := MandantDetails.FieldByName('DBVER').AsInteger;
+          if actVer<(7*10000+437) then
+            actVer:=7*10000+437;
+          with BaseApplication as IBaseApplication do
+            begin
+              try
+                for actVer := actVer to round(AppVersion*10000+AppRevision) do
+                  begin
+                    if FileExists( AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'dbupdates')+IntToStr(actVer)+'.sql') then
+                      begin
+                        sl := TStringList.Create;
+                        sl.LoadFromFile(AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'dbupdates')+IntToStr(actVer)+'.sql');
+                        sl.Text := Preprocess(sl.Text);
+                        ExecuteDirect(sl.Text);
+                        sl.Free;
+                      end;
+                  end;
+              except
+                on e : Exception do
+                  begin
+                    Error(AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'dbupdates')+IntToStr(actVer)+'.sql Error:'+LineEnding+e.Message);
+                  end;
+              end;
+            end;
+      end;
     end;
 end;
 function TBaseDBModule.CreateDBFromProperties(aProp: string): Boolean;
@@ -515,19 +581,14 @@ end;
 
 constructor TBaseDBModule.Create(AOwner: TComponent);
 begin
+  inherited;
   FUsers := nil;
   FCS := TCriticalSection.Create;
   FIgnoreOpenrequests := False;
-  FCheckedTables := TStringList.Create;
-  FTables := TStringList.Create;
-  FTriggers := TStringList.Create;
 end;
 destructor TBaseDBModule.Destroy;
 begin
   DBTables.Free;
-  FCheckedTables.Free;
-  FTables.Free;
-  FTriggers.Free;
   FUsers.Free;
   Numbers.Free;
   MandantDetails.Free;
@@ -685,28 +746,6 @@ begin
   Result := DataSet.CreateBlobStream(DataSet.FieldByName(Fieldname),bmRead);
 end;
 
-function TBaseDBModule.QuoteField(aField: string): string;
-begin
-  Result := '"'+aField+'"';
-end;
-function TBaseDBModule.QuoteValue(aValue: string): string;
-begin
-  Result := ''''+StringReplace(aValue,'''','''''',[rfReplaceAll])+'''';
-end;
-function TBaseDBModule.EscapeString(aValue: string): string;
-begin
-  Result := StringReplace(aValue,'''','',[rfReplaceAll]);
-end;
-function TBaseDBModule.DateToFilter(aValue: TDateTime): string;
-begin
-  Result := QuoteValue(FormatDateTime('YYYY-MM-DD',aValue));
-end;
-function TBaseDBModule.DateTimeToFilter(aValue: TDateTime): string;
-begin
-  if aValue>MaxDateTime then
-    aValue:=MaxDateTime;
-  Result := QuoteValue(FormatDateTime('YYYY-MM-DD HH:MM:SS',aValue));
-end;
 function TBaseDBModule.GetLinkDesc(aLink: string;Fast : Boolean = false): string;
 var
   tmp1: String;
@@ -1315,14 +1354,6 @@ begin
       DeletedItems.DataSet.Close;
     end;
 end;
-function TBaseDBModule.ShouldCheckTable(aTableName : string;SetChecked : Boolean): Boolean;
-begin
-  Result := FCheckedTables.IndexOf(aTableName) = -1;
-  if (aTableName='DBTABLES') or (not Result) then exit;
-  if SetChecked and TableExists(aTableName) and (FCheckedTables.IndexOf(aTableName) = -1) then
-    FCheckedTables.Add(aTableName);
-end;
-
 procedure TBaseDBModule.UpdateTableVersion(aTableName: string);
 var
   i: Integer;
@@ -1352,17 +1383,6 @@ begin
   end;
 end;
 
-function TBaseDBModule.RemoveCheckTable(aTableName: string): Boolean;
-begin
-  if FCheckedTables.IndexOf(aTableName) > -1 then
-    FCheckedTables.Delete(FCheckedTables.IndexOf(aTableName));
-  Tables.Clear;
-end;
-function TBaseDBModule.TriggerExists(aTriggerName: string;
-  aConnection: TComponent; AllowLowercase: Boolean): Boolean;
-begin
-  Result := False;
-end;
 function TBaseDBModule.GetFullTableName(aTable: string): string;
 begin
   if Assigned(DBTables) and (DBTables.Active) then
@@ -1487,11 +1507,6 @@ begin
       inc(i);
     end;
   NewSQL:=NewSQL+aSQL;
-end;
-
-function TBaseDBModule.GetDBType: string;
-begin
-  Result := '';
 end;
 
 procedure TBaseDBModule.SetFilter(DataSet: TbaseDBDataSet; aFilter: string;

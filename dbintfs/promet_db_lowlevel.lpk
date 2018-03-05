@@ -35,15 +35,19 @@
         <UnitName Value="uStatistic"/>
       </Item6>
     </Files>
-    <RequiredPkgs Count="2">
+    <RequiredPkgs Count="3">
       <Item1>
-        <PackageName Value="sql_parser"/>
-        <DefaultFilename Value="../../components/sqlparser/sql_parser.lpk"/>
+        <PackageName Value="avammdblayer"/>
+        <DefaultFilename Value="../../components/avamm-db-layer/avammdblayer.lpk"/>
       </Item1>
       <Item2>
+        <PackageName Value="sql_parser"/>
+        <DefaultFilename Value="../../components/sqlparser/sql_parser.lpk"/>
+      </Item2>
+      <Item3>
         <PackageName Value="wiki2html_pkg"/>
         <DefaultFilename Value="../base_wiki/wiki2html_pkg.lpk"/>
-      </Item2>
+      </Item3>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>
