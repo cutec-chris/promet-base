@@ -214,6 +214,7 @@ type
     procedure SetMasterdataSource(AValue: TDataSource);
     procedure SetTableNames(const AValue: string);
     procedure SetOrigTable(AValue: TComponent);
+    procedure SetDataSource(AValue: TDataSource);
     //IBaseSubDataSets
     function GetSubDataSet(aName : string): TComponent;
     procedure RegisterSubDataSet(aDataSet : TComponent);
@@ -1598,6 +1599,11 @@ end;
 procedure TZeosDBDataSet.SetOrigTable(AValue: TComponent);
 begin
   FOrigTable := TBaseDBDataset(AValue);
+end;
+
+procedure TZeosDBDataSet.SetDataSource(AValue: TDataSource);
+begin
+  DataSource := AValue;
 end;
 
 procedure TZeosDBDataSet.SetFieldData(Field: TField; Buffer: Pointer);

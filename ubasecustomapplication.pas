@@ -185,7 +185,7 @@ begin
       FMessagehandler.Terminate;
       sleep(20);
     end;
-  FDBInterface.Data.Free;
+  //FDBInterface.Data.Free;
   FLogger.Free;
   BaseApplication:=nil;
   inherited Destroy;
