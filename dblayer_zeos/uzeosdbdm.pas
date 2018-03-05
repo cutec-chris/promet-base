@@ -44,6 +44,8 @@ type
     FDatabaseDir : Ansistring;
     Monitor : TZSQLMonitor;
     function GetConnection: TAbstractDBConnection; override;
+    function GetDataSetClass : TDatasetClass;override;
+    function GetConnectionClass : TComponentClass;override;
   protected
     Sequence : TZSequence;
     function GetSyncOffset: Integer;override;
@@ -52,8 +54,6 @@ type
     constructor Create(AOwner : TComponent);override;
     destructor Destroy;override;
     function IsSQLDB : Boolean;override;
-    function GetNewDataSet(aTable : TBaseDBDataSet;aConnection : TComponent = nil;MasterData : TDataSet = nil;aTables : string = '') : TDataSet;override;
-    function GetNewDataSet(aSQL : string;aConnection : TComponent = nil;MasterData : TDataSet = nil;aOrigtable : TBaseDBDataSet = nil) : TDataSet;override;
     procedure DestroyDataSet(DataSet : TDataSet);override;
     function Ping(aConnection : TComponent) : Boolean;override;
     function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';Tablename : string = '';AutoInc : Boolean = True) : Variant;override;
@@ -84,6 +84,8 @@ type
     function DoExecuteDirect(aSQL: string): Integer;
     function DoGetTableNames(aTables: TStrings): Boolean;
     function DoGetTriggerNames(aTriggers: TStrings): Boolean;
+    function DoGetColumns(aTableName: string): TStrings;
+    function DoGetIndexes(aTableName: string): TStrings;
     function DoSetProperties(aProp : string) : Boolean;
     function DoCreateDBFromProperties(aProp : string) : Boolean;
     function DoInitializeConnection: Boolean;
@@ -96,7 +98,7 @@ type
     function IsConnected: Boolean;
     function GetLimitAfterSelect: Boolean;
     function GetLimitSTMT: string;
-    function GetColumns(aTableName: string): TStrings;
+    function DoGetDBLayerType: string;
   protected
   end;
 
@@ -208,6 +210,11 @@ type
     procedure SetUseIntegrity(AValue: Boolean);
     function GetAsReadonly: Boolean;
     procedure SetAsReadonly(AValue: Boolean);
+    procedure SetConnection(aConn: TComponent);
+    function GetMasterdataSource: TDataSource;
+    procedure SetMasterdataSource(AValue: TDataSource);
+    procedure SetTableNames(const AValue: string);
+    procedure SetOrigTable(AValue: TComponent);
     //IBaseSubDataSets
     function GetSubDataSet(aName : string): TComponent;
     procedure RegisterSubDataSet(aDataSet : TComponent);
@@ -478,19 +485,8 @@ begin
   Result := True;
   Self.GetTriggerNames('','',aTriggers);
 end;
-function TZeosConnection.IsConnected: Boolean;
-begin
-  Result := Connected;
-end;
-function TZeosConnection.GetLimitAfterSelect: Boolean;
-begin
-  Result := FLimitAfterSelect;
-end;
-function TZeosConnection.GetLimitSTMT: string;
-begin
-  Result := FLimitSTMT;
-end;
-function TZeosConnection.GetColumns(aTableName : string): TStrings;
+
+function TZeosConnection.DoGetColumns(aTableName: string): TStrings;
 var
   Metadata: IZDatabaseMetadata;
 begin
@@ -503,6 +499,39 @@ begin
    finally
      Close;
    end;
+end;
+
+function TZeosConnection.DoGetIndexes(aTableName: string): TStrings;
+var
+  Metadata: IZDatabaseMetadata;
+begin
+  Metadata := DbcConnection.GetMetadata;
+  Result := TStringList.Create;
+  with Metadata.GetIndexInfo(Catalog,'',aTableName,False,False) do
+   try
+     while Next do
+       Result.Add(GetStringByName('COLUMN_NAME'));
+   finally
+     Close;
+   end;
+end;
+
+function TZeosConnection.IsConnected: Boolean;
+begin
+  Result := Connected;
+end;
+function TZeosConnection.GetLimitAfterSelect: Boolean;
+begin
+  Result := FLimitAfterSelect;
+end;
+function TZeosConnection.GetLimitSTMT: string;
+begin
+  Result := FLimitSTMT;
+end;
+
+function TZeosConnection.DoGetDBLayerType: string;
+begin
+  Result := Protocol;
 end;
 
 procedure TZeosDBDataSet.TDateTimeFieldGetText(Sender: TField;
@@ -1547,6 +1576,31 @@ begin
   Self.ReadOnly:=AValue;
 end;
 
+procedure TZeosDBDataSet.SetConnection(aConn: TComponent);
+begin
+  Connection := TZConnection(aConn);
+end;
+
+function TZeosDBDataSet.GetMasterdataSource: TDataSource;
+begin
+  Result := MasterDataSource;
+end;
+
+procedure TZeosDBDataSet.SetMasterdataSource(AValue: TDataSource);
+begin
+  MasterDataSource := AValue;
+end;
+
+procedure TZeosDBDataSet.SetTableNames(const AValue: string);
+begin
+  FTableNames:=AValue;
+end;
+
+procedure TZeosDBDataSet.SetOrigTable(AValue: TComponent);
+begin
+  FOrigTable := TBaseDBDataset(AValue);
+end;
+
 procedure TZeosDBDataSet.SetFieldData(Field: TField; Buffer: Pointer);
 var
   tmp: String;
@@ -1657,6 +1711,16 @@ begin
   Result := TAbstractDBConnection(FMainConnection);
 end;
 
+function TZeosDBDM.GetDataSetClass: TDatasetClass;
+begin
+  Result := TZeosDBDataSet;
+end;
+
+function TZeosDBDM.GetConnectionClass: TComponentClass;
+begin
+  Result := TZeosConnection;
+end;
+
 function TZeosDBDM.GetSyncOffset: Integer;
 var
   Statement: IZStatement;
@@ -1738,59 +1802,6 @@ function TZeosDBDM.IsSQLDB: Boolean;
 begin
   Result:=True;
 end;
-function TZeosDBDM.GetNewDataSet(aTable: TBaseDBDataSet;
-  aConnection: TComponent; MasterData: TDataSet; aTables: string): TDataSet;
-begin
-  if IgnoreOpenrequests then exit;
-  Result := FDataSetClass.Create(Self);
-  if not Assigned(aConnection) then
-    aConnection := MainConnection;
-  with TZeosDBDataSet(Result) do
-    begin
-      Connection := TZConnection(aConnection);
-      FTableNames := aTables;
-      aTable.DefineFields(Result);
-      aTable.DefineDefaultFields(Result,Assigned(Masterdata));
-      FOrigTable := aTable;
-      if Assigned(Masterdata) then
-        begin
-          if not Assigned(TZeosDBDataSet(MasterData).MasterDataSource) then
-            begin
-              TZeosDBDataSet(MasterData).MasterDataSource := TDataSource.Create(Self);
-              TZeosDBDataSet(MasterData).MasterDataSource.DataSet := MasterData;
-            end;
-          DataSource := TZeosDBDataSet(MasterData).MasterDataSource;
-          MasterSource := TZeosDBDataSet(MasterData).MasterDataSource;
-          with Masterdata as IBaseSubDataSets do
-            RegisterSubDataSet(aTable);
-        end;
-    end;
-end;
-function TZeosDBDM.GetNewDataSet(aSQL: string; aConnection: TComponent;
-  MasterData : TDataSet = nil;aOrigtable : TBaseDBDataSet = nil): TDataSet;
-begin
-  Result := FDataSetClass.Create(Self);
-  if not Assigned(aConnection) then
-    aConnection := MainConnection;
-  with TZeosDBDataSet(Result) do
-    begin
-      FOrigTable := aOrigtable;
-      Connection := TZConnection(aConnection);
-      SQL.Text := aSQL;
-      FSQL:=aSQL;
-      if Assigned(Masterdata) then
-        begin
-          if not Assigned(TZeosDBDataSet(MasterData).MasterDataSource) then
-            begin
-              TZeosDBDataSet(MasterData).MasterDataSource := TDataSource.Create(Self);
-              TZeosDBDataSet(MasterData).MasterDataSource.DataSet := MasterData;
-            end;
-          DataSource := TZeosDBDataSet(MasterData).MasterDataSource;
-          MasterSource := TZeosDBDataSet(MasterData).MasterDataSource;
-        end;
-    end;
-end;
-
 procedure TZeosDBDM.DestroyDataSet(DataSet: TDataSet);
 begin
   try
@@ -2057,9 +2068,6 @@ end;
 function TZeosDBDM.GetDBType: string;
 begin
   Result:=TZConnection(MainConnection).Protocol;
-  if copy(Result,0,8)='postgres' then Result := 'postgres';
-  if Result='interbase' then Result := 'firebird';
-  if Result='sqlite-3' then Result := 'sqlite';
 end;
 
 function TZeosDBDM.GetDBLayerType: string;

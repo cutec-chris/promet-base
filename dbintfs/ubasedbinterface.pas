@@ -46,13 +46,6 @@ type
     function  ReadBoolean(const Ident: string; DefaultValue: Boolean): Boolean;
     procedure WriteBoolean(const Ident: string; Value: Boolean);
   end;
-  TInternalDBDataSet = class
-  private
-    FDataSet: TDataSet;
-  public
-    destructor Destroy;override;
-    property DataSet : TDataSet read FDataSet write FDataSet;
-  end;
   TOpenLinkEvent = function(aLink : string;Sender : TObject) : Boolean of object;
   TCreateFromLinkEvent = function(aLink : string;Sender : TObject) : TBaseDbDataSet of object;
   LinkHandler = record
@@ -136,9 +129,6 @@ type
     function IsSQLDB : Boolean;virtual;abstract;
     function ProcessTerm(aTerm : string;ForceLike : Boolean = False) : string;virtual;
     function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';Tablename : string = '';AutoInc : Boolean = True) : Variant;virtual;abstract;
-    function GetNewDataSet(aTable : TBaseDBDataSet;aConnection : TComponent = nil;MasterData : TDataSet = nil;aTables : string = '') : TDataSet;virtual;abstract;
-    function GetNewDataSet(aSQL : string;aConnection : TComponent = nil;MasterData : TDataSet = nil;aOrigtable : TBaseDBDataSet = nil) : TDataSet;virtual;
-    function ExecuteDirect(aSQL : string;aConnection : TComponent = nil) : Integer;virtual;abstract;
     procedure DestroyDataSet(DataSet : TDataSet);virtual;abstract;
     function Ping(aConnection : TComponent) : Boolean;virtual;abstract;
     function BlobFieldToFile(DataSet : TDataSet;Fieldname : string;Filename : string;aSize : Integer = -1) : Boolean;virtual;
@@ -168,7 +158,6 @@ type
     function Preprocess(aLine : string) : string;
     function CheckForInjection(aFilter : string) : Boolean;
     function DecodeFilter(aSQL : string;Parameters : TStringList;var NewSQL : string) : Boolean;virtual;
-    function GetDBLayerType : string;virtual;abstract;
     procedure SetFilter(DataSet : TbaseDBDataSet;aFilter : string;aLimit : Integer = 0;aOrderBy : string = '';aSortDirection : string = 'ASC';aLocalSorting : Boolean = False;aGlobalFilter : Boolean = True;aUsePermissions : Boolean = False;aFilterIn : string = '');
     procedure AppendUserToActiveList;
     procedure RefreshUsersFilter;
@@ -336,12 +325,6 @@ uses uBaseApplication, uWiki, uMessages, uprocessmanager,uRTFtoTXT,
 
 { TDBConfig }
 
-destructor TInternalDBDataSet.Destroy;
-begin
-  if Assigned(FDataSet) then
-    FDataSet.Free;
-  inherited Destroy;
-end;
 function TDBConfig.ReadString(const ASection, Ident, DefaultValue: string
   ): string;
 begin
@@ -597,11 +580,6 @@ begin
   FreeAndNil(FUsers);
 end;
 
-function TBaseDBModule.GetNewDataSet(aSQL: string; aConnection: TComponent;
-  MasterData : TDataSet = nil;aOrigtable : TBaseDBDataSet = nil): TDataSet;
-begin
-  raise Exception.Create(strNotSupported);
-end;
 function TBaseDBModule.BlobFieldToFile(DataSet: TDataSet; Fieldname: string;
   Filename: string; aSize: Integer): Boolean;
 var

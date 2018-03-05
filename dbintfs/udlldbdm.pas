@@ -35,8 +35,6 @@ type
     constructor Create(AOwner : TComponent;FType : string);
     destructor Destroy;override;
     function IsSQLDB : Boolean;override;
-    function GetNewDataSet(aTable : TBaseDBDataSet;aConnection : TComponent = nil;MasterData : TDataSet = nil;aTables : string = '') : TDataSet;override;
-    function GetNewDataSet(aSQL : string;aConnection : TComponent = nil;MasterData : TDataSet = nil;aOrigtable : TBaseDBDataSet = nil) : TDataSet;override;
     procedure DestroyDataSet(DataSet : TDataSet);override;
     function Ping(aConnection : TComponent) : Boolean;override;
     function DateToFilter(aValue : TDateTime) : string;override;
@@ -79,16 +77,6 @@ end;
 function TDLLDBDM.IsSQLDB: Boolean;
 begin
 
-end;
-
-function TDLLDBDM.GetNewDataSet(aTable: TBaseDBDataSet;
-  aConnection: TComponent; MasterData: TDataSet; aTables: string): TDataSet;
-begin
-end;
-
-function TDLLDBDM.GetNewDataSet(aSQL: string; aConnection: TComponent;
-  MasterData: TDataSet; aOrigtable: TBaseDBDataSet): TDataSet;
-begin
 end;
 
 procedure TDLLDBDM.DestroyDataSet(DataSet: TDataSet);
