@@ -34,7 +34,6 @@ type
   public
     constructor Create(AOwner : TComponent;FType : string);
     destructor Destroy;override;
-    function CreateDBFromProperties(aProp: string): Boolean; override;
     function IsSQLDB : Boolean;override;
     function GetNewDataSet(aTable : TBaseDBDataSet;aConnection : TComponent = nil;MasterData : TDataSet = nil;aTables : string = '') : TDataSet;override;
     function GetNewDataSet(aSQL : string;aConnection : TComponent = nil;MasterData : TDataSet = nil;aOrigtable : TBaseDBDataSet = nil) : TDataSet;override;
@@ -75,11 +74,6 @@ end;
 destructor TDLLDBDM.Destroy;
 begin
   inherited Destroy;
-end;
-
-function TDLLDBDM.CreateDBFromProperties(aProp: string): Boolean;
-begin
-  Result:=inherited CreateDBFromProperties(aProp);
 end;
 
 function TDLLDBDM.IsSQLDB: Boolean;

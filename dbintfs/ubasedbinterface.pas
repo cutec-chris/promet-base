@@ -131,7 +131,6 @@ type
     function IsTransactionActive(aConnection : TComponent): Boolean;virtual;abstract;
     procedure DeleteExpiredSessions;virtual;
     function SetProperties(aProp : string;Connection : TAbstractDBConnection = nil) : Boolean;override;
-    function CreateDBFromProperties(aProp : string) : Boolean;virtual;
     property LastStatement : string read FLastStmt write FLastStmt;
     property LastTime : Int64 read FLastTime write FLastTime;
     function IsSQLDB : Boolean;virtual;abstract;
@@ -530,11 +529,6 @@ begin
             end;
       end;
     end;
-end;
-function TBaseDBModule.CreateDBFromProperties(aProp: string): Boolean;
-begin
-  FProperies := aProp;
-  Result := False;
 end;
 
 function TBaseDBModule.ProcessTerm(aTerm: string; ForceLike: Boolean): string;

@@ -51,7 +51,6 @@ type
   public
     constructor Create(AOwner : TComponent);override;
     destructor Destroy;override;
-    function CreateDBFromProperties(aProp: string): Boolean; override;
     function IsSQLDB : Boolean;override;
     function GetNewDataSet(aTable : TBaseDBDataSet;aConnection : TComponent = nil;MasterData : TDataSet = nil;aTables : string = '') : TDataSet;override;
     function GetNewDataSet(aSQL : string;aConnection : TComponent = nil;MasterData : TDataSet = nil;aOrigtable : TBaseDBDataSet = nil) : TDataSet;override;
@@ -86,6 +85,7 @@ type
     function DoGetTableNames(aTables: TStrings): Boolean;
     function DoGetTriggerNames(aTriggers: TStrings): Boolean;
     function DoSetProperties(aProp : string) : Boolean;
+    function DoCreateDBFromProperties(aProp : string) : Boolean;
     function DoInitializeConnection: Boolean;
     function DoStartTransaction(ForceTransaction : Boolean = False): Boolean;
     function DoCommitTransaction: Boolean;
@@ -330,7 +330,57 @@ begin
   finally
   end;
 end;
-
+function TZeosConnection.DoCreateDBFromProperties(aProp: string): Boolean;
+var
+  aDatabase: String;
+  aUser: String;
+  aPassword: String;
+begin
+  DoSetProperties(aProp);
+  aDatabase := Database;
+  aUser := User;
+  aPassword := Password;
+  if (copy(Protocol,0,8) = 'postgres')
+  then
+    begin
+      Database:='postgres';
+    end
+    else if (copy(Protocol,0,5) = 'mssql') then
+      Properties.Add('CreateNewDatabase=CREATE DATABASE "'+aDatabase+'"')
+    else if (copy(Protocol,0,8) = 'firebird')
+    or (copy(Protocol,0,9) = 'interbase')
+    then
+      begin
+        if HostName <> '' then
+          Properties.Add('CreateNewDatabase=CREATE DATABASE '''+HostName+':'+aDatabase+''' USER '''+aUser+''' PASSWORD '''+aPassword+''' PAGE_SIZE = 4096 DEFAULT CHARACTER SET UTF8')
+        else
+          Properties.Add('CreateNewDatabase=CREATE DATABASE '''+aDatabase+''' USER '''+aUser+''' PASSWORD '''+aPassword+''' PAGE_SIZE = 4096 DEFAULT CHARACTER SET UTF8');
+      end
+    else if (copy(Protocol,0,6) = 'sqlite') then
+      begin
+        ForceDirectories(ExtractFileDir(Database));
+      end;
+    try
+      Connected:=True;
+    except
+      on e : Exception do
+      if Assigned(BaseApplication) then
+        with BaseApplication as IBaseDBInterface do
+          begin
+            LastError := e.Message;
+          end;
+    end;
+    if (copy(Protocol,0,8) = 'postgres')
+    then
+      begin
+        Result := ExecuteDirect('CREATE DATABASE "'+aDatabase+'" WITH OWNER = "'+aUser+'" ENCODING = ''UTF8'' CONNECTION LIMIT = -1;');
+        Disconnect;
+        Database:=aDatabase;
+      end;
+    Connected:=True;
+    Result := Connected;
+    Disconnect;
+end;
 function TZeosConnection.DoInitializeConnection: Boolean;
 begin
   Result := True;
@@ -366,12 +416,10 @@ begin
       FLimitSTMT := 'TOP %s';
     end;
 end;
-
 function TZeosConnection.DoExecuteDirect(aSQL: string): Integer;
 begin
   ExecuteDirect(aSQL);
 end;
-
 function TZeosConnection.DoStartTransaction(ForceTransaction: Boolean): Boolean;
 begin
   Tag := Integer(TransactIsolationLevel);
@@ -383,7 +431,6 @@ begin
     TransactIsolationLevel:=tiReadUnCommitted;
   StartTransaction;
 end;
-
 function TZeosConnection.DoCommitTransaction: Boolean;
 begin
   if not AutoCommit then
@@ -391,7 +438,6 @@ begin
   if TZTransactIsolationLevel(Tag) <> TransactIsolationLevel then
     TransactIsolationLevel := TZTransactIsolationLevel(Tag);
 end;
-
 function TZeosConnection.DoRollbackTransaction: Boolean;
 begin
   if not AutoCommit then
@@ -399,7 +445,6 @@ begin
   if TZTransactIsolationLevel(Tag) <> TransactIsolationLevel then
    TransactIsolationLevel := TZTransactIsolationLevel(Tag);
 end;
-
 procedure TZeosConnection.DoDisconnect;
 begin
   try
@@ -407,7 +452,6 @@ begin
   except
   end;
 end;
-
 procedure TZeosConnection.DoConnect;
 begin
   try
@@ -420,39 +464,32 @@ begin
     end;
   end;
 end;
-
 function TZeosConnection.GetDatabaseName: string;
 begin
   Result := Database;
 end;
-
 function TZeosConnection.DoGetTableNames(aTables: TStrings): Boolean;
 begin
   Result := True;
   GetTableNames('','',aTables);
 end;
-
 function TZeosConnection.DoGetTriggerNames(aTriggers: TStrings): Boolean;
 begin
   Result := True;
   Self.GetTriggerNames('','',aTriggers);
 end;
-
 function TZeosConnection.IsConnected: Boolean;
 begin
   Result := Connected;
 end;
-
 function TZeosConnection.GetLimitAfterSelect: Boolean;
 begin
   Result := FLimitAfterSelect;
 end;
-
 function TZeosConnection.GetLimitSTMT: string;
 begin
   Result := FLimitSTMT;
 end;
-
 function TZeosConnection.GetColumns(aTableName : string): TStrings;
 var
   Metadata: IZDatabaseMetadata;
@@ -479,7 +516,6 @@ begin
         aText := FormatDateTime(ShortDateFormat+' '+ShortTimeFormat,Sender.AsDateTime);
     end;
 end;
-
 procedure TZeosDBDataSet.SetNewIDIfNull;
 begin
   if (FieldDefs.IndexOf('AUTO_ID') = -1) and (FieldDefs.IndexOf('SQL_ID') > -1) and  FieldByName('SQL_ID').IsNull then
@@ -495,7 +531,6 @@ begin
       FHasNewID:=True;
     end;
 end;
-
 function TZeosDBDataSet.BuildSQL : string;
 var
   DoQuote : Boolean = False;
@@ -1698,87 +1733,6 @@ begin
     inherited Destroy;
   except
   end;
-end;
-function TZeosDBDM.CreateDBFromProperties(aProp: string): Boolean;
-var
-  FConnection: TZConnection;
-  tmp: String;
-  aPassword: String;
-  aUser: String;
-  aDatabase: String;
-begin
-  FConnection := TZConnection.Create(Self);
-  if Assigned(BaseApplication) then
-    with BaseApplication as IBaseDBInterface do
-      LastError := '';
-  tmp := aProp;
-  FConnection.Protocol:=copy(tmp,0,pos(';',tmp)-1);
-  Assert(FConnection.Protocol<>'',strUnknownDbType);
-  tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
-  FConnection.HostName := copy(tmp,0,pos(';',tmp)-1);
-  if pos(':',FConnection.HostName) > 0 then
-    begin
-      FConnection.Port:=StrToInt(copy(FConnection.HostName,pos(':',FConnection.HostName)+1,length(FConnection.HostName)));
-      FConnection.HostName:=copy(FConnection.HostName,0,pos(':',FConnection.HostName)-1);
-    end
-  else if pos('/',FConnection.HostName) > 0 then
-    begin
-      FConnection.Port:=StrToInt(copy(FConnection.HostName,pos('/',FConnection.HostName)+1,length(FConnection.HostName)));
-      FConnection.HostName:=copy(FConnection.HostName,0,pos('/',FConnection.HostName)-1);
-    end;
-  tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
-  aDatabase:=copy(tmp,0,pos(';',tmp)-1);
-  tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
-  aUser := copy(tmp,0,pos(';',tmp)-1);
-  FConnection.User:=aUser;
-  tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
-  FConnection.Database:=aDatabase;
-  if copy(tmp,0,1) = 'x' then
-    aPassword := Decrypt(copy(tmp,2,length(tmp)),99998)
-  else
-    aPassword := tmp;
-  FConnection.Password:=aPassword;
-  if (copy(FConnection.Protocol,0,8) = 'postgres')
-  then
-    begin
-      FConnection.Database:='postgres';
-    end
-    else if (copy(FConnection.Protocol,0,5) = 'mssql') then
-      FConnection.Properties.Add('CreateNewDatabase=CREATE DATABASE "'+aDatabase+'"')
-    else if (copy(FConnection.Protocol,0,8) = 'firebird')
-    or (copy(FConnection.Protocol,0,9) = 'interbase')
-    then
-      begin
-        if FConnection.HostName <> '' then
-          FConnection.Properties.Add('CreateNewDatabase=CREATE DATABASE '''+FConnection.HostName+':'+aDatabase+''' USER '''+aUser+''' PASSWORD '''+aPassword+''' PAGE_SIZE = 4096 DEFAULT CHARACTER SET UTF8')
-        else
-          FConnection.Properties.Add('CreateNewDatabase=CREATE DATABASE '''+aDatabase+''' USER '''+aUser+''' PASSWORD '''+aPassword+''' PAGE_SIZE = 4096 DEFAULT CHARACTER SET UTF8');
-      end
-    else if (copy(FConnection.Protocol,0,6) = 'sqlite') then
-      begin
-        ForceDirectories(ExtractFileDir(FConnection.Database));
-      end;
-  try
-    FConnection.Connected:=True;
-  except
-    on e : Exception do
-    if Assigned(BaseApplication) then
-      with BaseApplication as IBaseDBInterface do
-        begin
-          LastError := e.Message;
-          //debugln(LastError);
-        end;
-  end;
-  if (copy(FConnection.Protocol,0,8) = 'postgres')
-  then
-    begin
-      Result := FConnection.ExecuteDirect('CREATE DATABASE "'+aDatabase+'" WITH OWNER = "'+aUser+'" ENCODING = ''UTF8'' CONNECTION LIMIT = -1;');
-      FConnection.Disconnect;
-      FConnection.Database:=aDatabase;
-    end;
-  FConnection.Connected:=True;
-  Result := FConnection.Connected;
-  FConnection.Free;
 end;
 function TZeosDBDM.IsSQLDB: Boolean;
 begin
