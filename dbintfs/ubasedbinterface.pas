@@ -92,8 +92,6 @@ type
     FDataSetClass : TDataSetClass;
     function GetSyncOffset: Integer;virtual;abstract;
     procedure SetSyncOffset(const AValue: Integer);virtual;abstract;
-    function GetLimitAfterSelect: Boolean;virtual;
-    function GetLimitSTMT: string;virtual;
   public
     DBTables : TBaseDBTables;
     ActiveUsers : TActiveUsers;
@@ -182,8 +180,6 @@ type
     procedure RegisterLinkHandlers(IgnoreRights : Boolean = False);
     property IgnoreOpenRequests : Boolean read FIgnoreOpenrequests write FIgnoreOpenrequests;
     property Mandant : string read Fmandant;
-    property LimitAfterSelect : Boolean read GetLimitAfterSelect;
-    property LimitSTMT : string read GetLimitSTMT;
     property SyncOffset : Integer read GetSyncOffset write SetSyncOffset;
     property OnConnectionLost : TNotifyEvent read FConnectionLost write FConnectionLost;
     property OnConnect : TNotifyEvent read FConnect write FConnect;
@@ -567,16 +563,6 @@ begin
       Result.Open;
       Result.Locate('SQL_ID',FLoggedInUser,[]);
     end;
-end;
-
-function TBaseDBModule.GetLimitAfterSelect: Boolean;
-begin
-  Result := False;
-end;
-
-function TBaseDBModule.GetLimitSTMT: string;
-begin
-  Result := '';
 end;
 
 constructor TBaseDBModule.Create(AOwner: TComponent);

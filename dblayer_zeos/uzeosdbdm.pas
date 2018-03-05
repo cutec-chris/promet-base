@@ -37,8 +37,6 @@ type
       var LogTrace: Boolean);
   private
     FMainConnection: TZeosConnection;
-    FLimitAfterSelect : Boolean;
-    FLimitSTMT : string;
     FDBTyp : string;
     FProperties : string;
     FPassword : string;
@@ -50,8 +48,6 @@ type
     Sequence : TZSequence;
     function GetSyncOffset: Integer;override;
     procedure SetSyncOffset(const AValue: Integer);override;
-    function GetLimitAfterSelect: Boolean;override;
-    function GetLimitSTMT: string;override;
   public
     constructor Create(AOwner : TComponent);override;
     destructor Destroy;override;
@@ -101,6 +97,8 @@ type
     procedure DoConnect;
     function GetDatabaseName: string;
     function IsConnected: Boolean;
+    function GetLimitAfterSelect: Boolean;
+    function GetLimitSTMT: string;
   protected
   end;
 
@@ -445,6 +443,16 @@ end;
 function TZeosConnection.IsConnected: Boolean;
 begin
   Result := Connected;
+end;
+
+function TZeosConnection.GetLimitAfterSelect: Boolean;
+begin
+  Result := FLimitAfterSelect;
+end;
+
+function TZeosConnection.GetLimitSTMT: string;
+begin
+  Result := FLimitSTMT;
 end;
 
 procedure TZeosDBDataSet.TDateTimeFieldGetText(Sender: TField;
@@ -1599,16 +1607,6 @@ end;
 function TZeosDBDM.GetConnection: TAbstractDBConnection;
 begin
   Result := TAbstractDBConnection(FMainConnection);
-end;
-
-function TZeosDBDM.GetLimitAfterSelect: Boolean;
-begin
-  Result := FLimitAfterSelect;
-end;
-
-function TZeosDBDM.GetLimitSTMT: string;
-begin
-  Result := FLimitSTMT;
 end;
 
 function TZeosDBDM.GetSyncOffset: Integer;
