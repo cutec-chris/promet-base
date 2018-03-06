@@ -65,7 +65,7 @@ type
     constructor Create(aSearchTypes : TFullTextSearchTypes;aSearchLocations : TSearchLocations;aUseContains : Boolean = False;aMaxresults : Integer = 0);
     destructor Destroy;override;
     function Start(SearchText: string;aLevel : Integer = 0) : Boolean;
-    procedure DoStart(SearchText: string; SearchUnsharp: Boolean=True);
+    procedure DoStart(SearchText: string;UseDescription : Boolean = True;StartsWidth : Boolean = False;SearchUnsharp: Boolean=True);
     procedure DoStartAllObjectsSearch(SearchText : string);
     procedure DoStartHistorySearch(SearchText : string);
     procedure Abort;
@@ -215,13 +215,16 @@ begin
       FCount := 0;
     end;
   case aLevel of
-  0:DoStart(SearchText,False);
-  1:DoStart(SearchText,True);
+  0:DoStart(SearchText,False,True,False);
+  1:DoStart(SearchText,False,False,False);
+  2:DoStart(SearchText,False,True,True);
+  3:DoStart(SearchText,True,False,True);
   else Result := False;
   end;
 end;
 
-procedure TSearch.DoStart(SearchText: string; SearchUnsharp: Boolean);
+procedure TSearch.DoStart(SearchText: string; UseDescription: Boolean;
+  StartsWidth: Boolean; SearchUnsharp: Boolean);
 var
   i: Integer;
   aFilter: String;
@@ -245,6 +248,8 @@ var
   begin
     if FUseContains and SearchUnsharp then
       Result := Data.QuoteValue('*'+Data.EscapeString(Val)+'*')
+    else if SearchUnsharp then
+      Result := Data.QuoteValue(Data.EscapeString(Val)+'*')
     else
       Result := Data.QuoteValue(Data.EscapeString(Val));
     Result := 'UPPER('+Result+')';
@@ -316,7 +321,7 @@ begin
                     aFilter += Data.QuoteField(Lists[i].GetStatusFieldName)+' as '+Data.QuoteField('STATUS')+','
                   else
                     aFilter += Data.QuoteValue('')+' as '+Data.QuoteField('STATUS')+',';
-                  if SearchUnsharp then
+                  if UseDescription then
                     begin
                       if (aType = fsDescription) and (fsDescription in FSearchTypes)  then
                         aFilter += Data.QuoteField(Lists[i].GetDescriptionFieldName)+' as '+Data.QuoteField('SHORTTEXT')+','

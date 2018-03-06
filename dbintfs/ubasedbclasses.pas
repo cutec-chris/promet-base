@@ -31,64 +31,36 @@ type
 
   TBaseDBDataset = class(TAbstractDBDataset)
   private
-    FDataSet: TDataSet;
-    FDisplayLabelsWasSet : Boolean;
     FOnChanged: TNotifyEvent;
     FOnRemoved: TNotifyEvent;
-    FParent: TBaseDBDataset;
-    FSecModified: Boolean;
-    FUseIntegrity : Boolean;
-    FWasOpen : Boolean;
-    function GetActive: Boolean;
-    function GetCanEdit: Boolean;
-    function GetCaption: string;
-    function GetConnection: TComponent;
-    function GetCount: Integer;
-    function GetFilter: string;
-    function GetFRows: Integer;
-    function GetFullCount: Integer;
-    function GetID: TField;
-    function GetIsReadOnly: Boolean;
-    function GetLimit: Integer;
-    function GetSortDirection: TSortDirection;
-    function GetSortFields: string;
-    function GetState: TDataSetState;
-    function GetTableName: string;
+    FDisplayLabelsWasSet : Boolean;
     function GetTimestamp: TField;
+    function GetID: TField;
     procedure DataSetToJSON(ADataSet: TDataSet; AJSON: TJSONArray;
       const ADateAsString: Boolean; Fields: TStringList);
-    procedure SetActive(AValue: Boolean);
-    procedure SetFilter(AValue: string);
-    procedure SetFRows(AValue: Integer);
-    procedure SetLimit(AValue: Integer);
-    procedure SetIsReadOnly(AValue: Boolean);
-    procedure SetSortDirection(AValue: TSortDirection);
-    procedure SetSortFields(AValue: string);
   public
-    constructor CreateExIntegrity(aOwner : TComponent;DM : TComponent;aUseIntegrity : Boolean;aConnection : TComponent = nil;aMasterdata : TDataSet = nil);virtual;
-    constructor CreateEx(aOwner : TComponent;DM : TComponent;aConnection : TComponent = nil;aMasterdata : TDataSet = nil);virtual;
-    constructor Create(aOwner : TComponent);override;
-    destructor Destroy;override;
-    property DataSet : TDataSet read FDataSet write FDataSet;
-    procedure Open;virtual;
-    procedure Close;virtual;
-    function CreateTable : Boolean;virtual;
+    constructor Create(aOwner: TComponent); override;
+    constructor CreateEx(aOwner: TComponent; DM: TComponent;
+      aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
+    destructor Destroy; override;
+    procedure Open; override;
+    function CreateTable : Boolean;override;
     procedure DefineFields(aDataSet: TDataSet); override;
     procedure DefineDefaultFields(aDataSet : TDataSet;HasMasterSource : Boolean);override;
     procedure DefineUserFields(aDataSet: TDataSet);override;
     procedure FillDefaults(aDataSet : TDataSet);override;
     procedure Select(aID : Variant);virtual;
     procedure SelectChangedSince(aDate : TDateTime);virtual;
+    procedure Append;override;
+    procedure Insert;override;
     procedure SetDisplayLabelName(aDataSet: TDataSet;aField, aName: string);
     procedure SetDisplayLabels(aDataSet : TDataSet);override;
-    property Id : TField read GetID;
-    property TimeStamp : TField read GetTimestamp;
-    property Count : Integer read GetCount;
-    property FullCount : Integer read GetFullCount;
     function GetBookmark: variant;
     function GotoBookmark(aRec : Variant) : Boolean;
-    function GetLink : string;
     procedure FreeBookmark(aRec : Variant);
+    property Id : TField read GetID;
+    property TimeStamp : TField read GetTimestamp;
+    function GetLink : string;
     function ExportToXML: string;virtual;
     function ExportToJSON: string;virtual;
     procedure ImportFromXML(XML : string;OverrideFields : Boolean = False;ReplaceFieldFunc : TReplaceFieldFunc = nil);virtual;
@@ -96,38 +68,8 @@ type
     procedure ObjectToJSON(AObject: TBaseDBDataSet; AJSON: TJSONObject;
       const ADateAsString: Boolean);virtual;
     procedure DuplicateRecord(DoPost : Boolean = False);virtual;
-    property Connection : TComponent read GetConnection;
-    property State : TDataSetState read GetState;
-    property Caption : string read GetCaption;
-    property TableName : string read GetTableName;
-    procedure CascadicPost;virtual;
-    procedure CascadicCancel;virtual;
-    function Delete : Boolean;virtual;
-    procedure Insert;virtual;
-    procedure Append;virtual;
-    procedure First;virtual;
-    procedure Last;virtual;
-    procedure Next;virtual;
-    procedure Prior;virtual;
-    procedure Post;virtual;
-    procedure Edit;virtual;
-    procedure Cancel;virtual;
-    function Locate(const keyfields: string; const keyvalues: Variant; options: TLocateOptions) : boolean; virtual;
-    function EOF : Boolean;virtual;
-    function FieldByName(const aFieldName : string) : TField;virtual;
     procedure Assign(Source: TPersistent); override;
     procedure DirectAssign(Source : TPersistent);virtual;
-    procedure Filter(aFilter : string;aLimit : Integer = 0);virtual;
-    procedure FilterEx(aFilter : string;aLimit : Integer = 0;aOrderBy : string = '';aSortDirection : string = 'ASC';aLocalSorting : Boolean = False;aGlobalFilter : Boolean = True;aUsePermissions : Boolean = False;aFilterIn : string = '');virtual;
-    property ActualFilter : string read GetFilter write SetFilter;
-    property ActualLimit : Integer read GetLimit write SetLimit;
-    property SortFields : string read GetSortFields write SetSortFields;
-    property SortDirection : TSortDirection read GetSortDirection write SetSortDirection;
-    property FetchRows : Integer read GetFRows write SetFRows;
-    property Parent : TBaseDBDataSet read FParent;
-    property CanEdit : Boolean read GetCanEdit;
-    property IsReadOnly : Boolean read GetIsReadOnly write SetIsReadOnly;
-    property Active : Boolean read GetActive write SetActive;
   end;
 
   { TBaseDbList }
@@ -652,7 +594,7 @@ begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
   with BaseApplication as IBaseDbInterface do
     begin
-      with FDataSet as IBaseDBFilter do
+      with DataSet as IBaseDBFilter do
         Limit := 0;
     end;
 end;
@@ -810,10 +752,10 @@ constructor TObjects.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FHistory := TBaseHistory.CreateEx(Self,DM,aConnection,DataSet);
-  FImages := TImages.CreateEx(Self,DM,aConnection,DataSet);
-  FLinks := TLinks.CreateEx(Self,DM,aConnection);
-  FMeasurement := TMeasurement.CreateEx(Self,DM,aConnection,DataSet);
+  FHistory := TBaseHistory.CreateEx(Self,DataModule,aConnection,DataSet);
+  FImages := TImages.CreateEx(Self,DataModule,aConnection,DataSet);
+  FLinks := TLinks.CreateEx(Self,DataModule,aConnection);
+  FMeasurement := TMeasurement.CreateEx(Self,DataModule,aConnection,DataSet);
   with BaseApplication as IBaseDbInterface do
     begin
       with DataSet as IBaseDBFilter do
@@ -1120,10 +1062,10 @@ begin
     begin
       with DataSet as IBaseDBFilter do
         begin
-        if Assigned(FParent) and Assigned(FParent.Id) then
+        if Assigned(Parent) and Assigned(TBaseDBDataSet(Parent).Id) then
           begin
-            if not FParent.Id.IsNull then
-              BaseFilter := TBaseDBModule(DataModule).QuoteField('RREF_ID')+'='+TBaseDBModule(DataModule).QuoteValue(FParent.Id.AsString)
+            if not TBaseDBDataSet(Parent).Id.IsNull then
+              BaseFilter := TBaseDBModule(DataModule).QuoteField('RREF_ID')+'='+TBaseDBModule(DataModule).QuoteValue(TBaseDBDataSet(Parent).Id.AsString)
             else
               BaseFilter := TBaseDBModule(DataModule).QuoteField('RREF_ID')+'= 0';
           end;
@@ -1197,10 +1139,10 @@ var
 begin
   Result := True;
   if not Assigned(Status) then exit;
-  if not TBaseDBModule(DataModule).States.DataSet.Locate('TYPE;STATUS',VarArrayOf([GetTyp,FDataSet.FieldByName('STATUS').AsString]),[loCaseInsensitive]) then
+  if not TBaseDBModule(DataModule).States.DataSet.Locate('TYPE;STATUS',VarArrayOf([GetTyp,DataSet.FieldByName('STATUS').AsString]),[loCaseInsensitive]) then
     begin
       TBaseDBModule(DataModule).SetFilter(Data.States,'');
-      aFound := TBaseDBModule(DataModule).States.DataSet.Locate('TYPE;STATUS',VarArrayOf([GetTyp,FDataSet.FieldByName('STATUS').AsString]),[loCaseInsensitive]);
+      aFound := TBaseDBModule(DataModule).States.DataSet.Locate('TYPE;STATUS',VarArrayOf([GetTyp,DataSet.FieldByName('STATUS').AsString]),[loCaseInsensitive]);
     end
   else aFound := True;
   if aFound then Result := TBaseDBModule(DataModule).States.FieldByName('ACTIVE').AsBoolean;
@@ -1291,7 +1233,7 @@ begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
   with BaseApplication as IBaseDbInterface do
     begin
-      with FDataSet as IBaseDBFilter do
+      with DataSet as IBaseDBFilter do
         begin
           BaseSortFields := 'TIMESTAMPD';
           SortFields := 'TIMESTAMPD';
@@ -1412,6 +1354,46 @@ begin
       end;
 end;
 
+function TBaseDBDataset.GetBookmark: variant;
+begin
+  if (not Assigned(Id)) or Id.IsNull then
+    Result := 0
+  else
+    Result := Id.AsVariant;
+end;
+function TBaseDBDataset.GotoBookmark(aRec: Variant): Boolean;
+begin
+  Result := DataSet.Active;
+  if Result then
+    begin
+      Result := DataSet.FieldByName('SQL_ID').AsVariant = aRec;
+      if not Result then
+        Result := DataSet.Locate('SQL_ID',aRec,[]);
+    end;
+end;
+procedure TBaseDBDataset.FreeBookmark(aRec: Variant);
+begin
+end;
+
+procedure TBaseDBDataset.Insert;
+begin
+  if not DataSet.Active then
+    begin
+      Select(0);
+      Open;
+    end;
+  DataSet.Insert;
+end;
+procedure TBaseDBDataset.Append;
+begin
+  if not DataSet.Active then
+    begin
+      Select(0);
+      Open;
+    end;
+  DataSet.Append;
+end;
+
 procedure TBaseDBDataset.SelectChangedSince(aDate: TDateTime);
 var
   aFilter: String;
@@ -1527,6 +1509,43 @@ begin
     ADataSet.Next;
   end;
 end;
+
+constructor TBaseDBDataset.Create(aOwner: TComponent);
+begin
+  CreateEx(aOwner,uData.Data,nil,nil);
+end;
+
+constructor TBaseDBDataset.CreateEx(aOwner: TComponent; DM: TComponent;
+  aConnection: TComponent; aMasterdata: TDataSet);
+begin
+  FDisplayLabelsWasSet:=False;
+  if DM = nil then
+    DM := uData.Data;
+  inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
+end;
+
+destructor TBaseDBDataset.Destroy;
+begin
+  if Assigned(DataModule) and (not TBaseDBModule(DataModule).IgnoreOpenRequests) then
+    begin
+      try
+        if Assigned(DataSet) and Assigned(DataModule) then
+          TBaseDBModule(DataModule).DestroyDataSet(DataSet);
+      except
+        with BaseApplication as IBaseApplication do
+          debug('Error Freeing: '+ClassName);
+      end;
+    end;
+  inherited Destroy;
+end;
+
+procedure TBaseDBDataset.Open;
+begin
+  inherited Open;
+  if DataSet.Active and FDisplayLabelsWasSet then
+    SetDisplayLabels(DataSet);
+end;
+
 procedure TBaseDBDataset.ObjectToJSON(AObject: TBaseDBDataSet; AJSON: TJSONObject;
   const ADateAsString: Boolean);
 var
@@ -1930,99 +1949,6 @@ begin
     end;
 end;
 
-function TBaseDBDataset.Delete: Boolean;
-begin
-  Result := False;
-  if FDataSet.Active and (Count > 0) then
-    begin
-      Change;
-      FDataSet.Delete;
-      Result := True;
-    end;
-end;
-
-procedure TBaseDBDataset.Insert;
-begin
-  if not DataSet.Active then
-    begin
-      Select(0);
-      Open;
-    end;
-  DataSet.Insert;
-end;
-procedure TBaseDBDataset.Append;
-begin
-  if not DataSet.Active then
-    begin
-      Select(0);
-      Open;
-    end;
-  DataSet.Append;
-end;
-
-procedure TBaseDBDataset.First;
-begin
-  DataSet.First;
-end;
-
-procedure TBaseDBDataset.Last;
-begin
-  DataSet.Last;
-end;
-
-procedure TBaseDBDataset.Next;
-begin
-  DataSet.Next;
-end;
-procedure TBaseDBDataset.Prior;
-begin
-  DataSet.Prior;
-end;
-
-procedure TBaseDBDataset.Post;
-begin
-  if CanEdit then
-    FDataSet.Post;
-end;
-
-procedure TBaseDBDataset.Edit;
-begin
-  if not CanEdit then
-    DataSet.Edit;
-end;
-
-procedure TBaseDBDataset.Cancel;
-begin
-  if Assigned(FDataSet) and (FDataSet.Active) then
-    FDataSet.Cancel;
-end;
-
-function TBaseDBDataset.Locate(const keyfields: string;
-  const keyvalues: Variant; options: TLocateOptions): boolean;
-begin
-  Result := False;
-  if DataSet.Active then
-    Result := DataSet.Locate(keyfields,keyvalues,options);
-end;
-
-function TBaseDBDataset.EOF: Boolean;
-begin
-  Result := True;
-  if Assigned(FDataSet) and (FDataSet.Active) then
-    Result := FDataSet.EOF;
-end;
-
-function TBaseDBDataset.FieldByName(const aFieldName: string): TField;
-begin
-  Result := nil;
-  if Assigned(DataSet) then
-    begin
-      if not DataSet.Active and FWasOpen then
-        Open;
-      if DataSet.FieldDefs.IndexOf(aFieldName)>=0 then
-        Result := DataSet.FieldByName(aFieldname);
-    end;
-end;
 procedure TBaseDBDataset.Assign(Source: TPersistent);
 begin
   if Source is Self.ClassType then
@@ -2045,33 +1971,6 @@ begin
         DataSet.FieldByName(TBaseDBDataSet(Source).DataSet.Fields[i].FieldName).AsVariant:=TBaseDBDataSet(Source).DataSet.Fields[i].AsVariant;
 end;
 
-procedure TBaseDBDataset.FilterEx(aFilter: string; aLimit: Integer;
-  aOrderBy: string; aSortDirection: string; aLocalSorting: Boolean;
-  aGlobalFilter: Boolean; aUsePermissions: Boolean; aFilterIn: string);
-begin
-  with DataSet as IBaseDbFilter do
-    begin
-      UsePermissions := aUsePermissions;
-      if (aOrderBy <> '') then
-        begin
-          SortFields:=aOrderBy;
-          if aSortDirection = 'DESC' then
-            SortDirection := sdDescending
-          else
-            SortDirection := sdAscending;
-        end;
-      Limit := aLimit;
-      Filter := aFilter;
-    end;
-  Open;
-end;
-
-procedure TBaseDBDataset.Filter(aFilter: string; aLimit: Integer);
-begin
-  if (not ((ActualFilter=aFilter) and (aLimit=ActualLimit))) or (not DataSet.Active) then
-    FilterEx(aFilter,aLimit);
-end;
-
 procedure TBaseHistory.OpenItem(AccHistory: Boolean);
 begin
   //Dont add Item
@@ -2087,7 +1986,7 @@ begin
     begin
       with DataSet as IBaseManageDB do
         UseIntegrity:=False;
-      with FDataSet as IBaseDBFilter do
+      with DataSet as IBaseDBFilter do
         Limit := 50;
     end;
 end;
@@ -3008,12 +2907,12 @@ constructor TUser.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FOptions := TOptions.CreateEx(Owner,DM,aConnection,DataSet);
-  FRights := TRights.CreateEx(Owner,DM,aConnection,DataSet);
-  FFollows := TFollowers.CreateEx(Owner,DM,aConnection,DataSet);
+  FOptions := TOptions.CreateEx(Owner,DataModule,aConnection,DataSet);
+  FRights := TRights.CreateEx(Owner,DataModule,aConnection,DataSet);
+  FFollows := TFollowers.CreateEx(Owner,DataModule,aConnection,DataSet);
   FRights.Users := Self;
-  FHistory := TBaseHistory.CreateEx(Self,DM,aConnection,DataSet);
-  FPayGroups := TPayGroups.CreateEx(Self,DM,aConnection);
+  FHistory := TBaseHistory.CreateEx(Self,DataModule,aConnection,DataSet);
+  FPayGroups := TPayGroups.CreateEx(Self,DataModule,aConnection);
   with BaseApplication as IBaseDbInterface do
     begin
       with DataSet as IBaseDBFilter do
@@ -3204,269 +3103,9 @@ begin
     Result := DataSet.FieldByName('SQL_ID');
 end;
 
-function TBaseDBDataset.GetLimit: Integer;
-begin
-  result := -1;
-  if not Assigned(DataSet) then exit;
-  with DataSet as IBaseDbFilter do
-    Result := Limit;
-end;
-
-function TBaseDBDataset.GetIsReadOnly: Boolean;
-begin
-  with DataSet as IBaseManageDB do
-    Result := AsReadonly;
-end;
-
-function TBaseDBDataset.GetSortDirection: TSortDirection;
-begin
-  if not Assigned(DataSet) then exit;
-  with DataSet as IBaseDbFilter do
-    Result := GetSortDirection;
-end;
-
-function TBaseDBDataset.GetSortFields: string;
-begin
-  if not Assigned(DataSet) then exit;
-  with DataSet as IBaseDbFilter do
-    Result := GetSortFields;
-end;
-
-function TBaseDBDataset.GetState: TDataSetState;
-begin
-  if Assigned(FDataSet) then
-    Result := FDataSet.State;
-end;
-
-function TBaseDBDataset.GetTableName: string;
-begin
-  Result := '';
-  if Supports(FDataSet,IBaseManageDB) then
-    with FDataSet as IBaseManageDB do
-      Result := GetTableName;
-end;
-
-function TBaseDBDataset.GetConnection: TComponent;
-begin
-  with FDataSet as IBaseManageDB do
-    Result := GetConnection;
-end;
-function TBaseDBDataset.GetCaption: string;
-begin
-  with FDataSet as IBaseManageDB do
-    Result := GetTableCaption;
-end;
-function TBaseDBDataset.GetCanEdit: Boolean;
-begin
-  Result := Assigned(Self) and (Self is TBaseDBDataSet) and Assigned(fdataSet) and (FDataSet.State = dsEdit) or (FDataSet.State = dsInsert);
-end;
-
-function TBaseDBDataset.GetActive: Boolean;
-begin
-  Result := False;
-  if Assigned(FDataSet) then
-    Result := FDataSet.Active;
-end;
-
-function TBaseDBDataset.GetCount: Integer;
-begin
-  if DataSet.Active then
-    Result := DataSet.RecordCount
-  else
-    Result := -1;
-end;
-
-function TBaseDBDataset.GetFilter: string;
-begin
-  result := '';
-  if not Assigned(DataSet) then exit;
-  with DataSet as IBaseDbFilter do
-    Result := Filter;
-end;
-function TBaseDBDataset.GetFRows: Integer;
-begin
-  result := -1;
-  if not Assigned(DataSet) then exit;
-  with DataSet as IBaseDbFilter do
-    Result := FetchRows;
-end;
-function TBaseDBDataset.GetFullCount: Integer;
-var
-  aDS: TDataSet;
-  aFilter: String;
-begin
-  if TBaseDBModule(DataModule).IsSQLDB then
-    begin
-      with FDataSet as IBaseManageDB,FDataSet as IBaseDbFilter do
-        begin
-          aDS := TBaseDBModule(DataModule).GetNewDataSet('select count(*) from '+TBaseDBModule(DataModule).QuoteField(GetTableName),Connection);
-        end;
-      aDS.Open;
-      if aDS.RecordCount>0 then
-        Result := aDS.Fields[0].AsInteger;
-      aDS.Free;
-    end
-  else
-    Result := Count;
-end;
 function TBaseDBDataset.GetTimestamp: TField;
 begin
   Result := DataSet.FieldByName('TIMESTAMPD');
-end;
-
-procedure TBaseDBDataset.SetActive(AValue: Boolean);
-begin
-  if (not AValue) and Active then
-    Close
-  else if AValue and (not Active) then
-    Open;
-end;
-procedure TBaseDBDataset.SetFilter(AValue: string);
-begin
-  with DataSet as IBaseDbFilter do
-    Filter := AValue;
-end;
-procedure TBaseDBDataset.SetFRows(AValue: Integer);
-begin
-  with DataSet as IBaseDbFilter do
-    FetchRows := aValue;
-end;
-
-procedure TBaseDBDataset.SetLimit(AValue: Integer);
-begin
-  with DataSet as IBaseDbFilter do
-    Limit := aValue;
-end;
-
-procedure TBaseDBDataset.SetIsReadOnly(AValue: Boolean);
-begin
-  with DataSet as IBaseManageDB do
-    AsReadonly := AValue;
-end;
-
-procedure TBaseDBDataset.SetSortDirection(AValue: TSortDirection);
-begin
-  if not Assigned(DataSet) then exit;
-  with DataSet as IBaseDbFilter do
-    SetSortDirection(AValue);
-end;
-
-procedure TBaseDBDataset.SetSortFields(AValue: string);
-begin
-  if not Assigned(DataSet) then exit;
-  with DataSet as IBaseDbFilter do
-    SetSortFields(AValue);
-end;
-
-constructor TBaseDBDataset.CreateExIntegrity(aOwner: TComponent; DM: TComponent;
-  aUseIntegrity: Boolean; aConnection: TComponent; aMasterdata: TDataSet);
-begin
-  inherited Create(aOwner);
-  FWasOpen:=False;
-  Fparent := nil;
-  DataModule := DM;
-  if DataModule=nil then
-    DataModule:=Data;
-  FSecModified := True;
-  FDisplayLabelsWasSet:=False;
-  FUseIntegrity:=aUseIntegrity;
-  FOnChanged := nil;
-  if Assigned(aOwner) and (aOwner is TBaseDBDataSet) then
-    FParent := TBaseDBDataSet(aOwner);
-  with BaseApplication as IBaseDbInterface do
-    begin
-      with DataModule as TBaseDbModule do
-        FDataSet := GetNewDataSet(Self,aConnection,aMasterdata);
-      with FDataSet as IBaseManageDB do
-        UseIntegrity := FUseIntegrity;
-      with FDataSet as IBaseDBFilter do
-        begin
-          Limit := 100;
-          FetchRows:=20;
-        end;
-    end;
-end;
-constructor TBaseDBDataset.CreateEx(aOwner: TComponent; DM: TComponent;
-  aConnection: TComponent; aMasterdata: TDataSet);
-begin
-  CreateExIntegrity(aOwner,DM,True,aConnection,aMasterdata);
-end;
-
-constructor TBaseDBDataset.Create(aOwner: TComponent);
-begin
-  CreateEx(aOwner,uData.Data,nil,nil);
-end;
-
-destructor TBaseDBDataset.Destroy;
-begin
-  if not TBaseDBModule(DataModule).IgnoreOpenRequests then
-    begin
-      try
-        if Assigned(FDataSet) and Assigned(DataModule) then
-          TBaseDBModule(DataModule).DestroyDataSet(FDataSet);
-      except
-        with BaseApplication as IBaseApplication do
-          debug('Error Freeing: '+ClassName);
-      end;
-      inherited Destroy;
-    end;
-end;
-procedure TBaseDBDataset.Open;
-var
-  Retry: Boolean = False;
-  aCreated: Boolean = False;
-  aOldFilter: String = '';
-  aOldLimit: Integer;
-  aErr, OldFields: String;
-  OldLimit: Integer;
-begin
-  if not Assigned(FDataSet) then exit;
-  if FDataSet.Active then
-    begin
-      FDataSet.Refresh;
-      exit;
-    end;
-  try
-  with FDataSet as IBaseManageDB do
-    if (Assigned(DataModule)) and (TBaseDBModule(DataModule).ShouldCheckTable(TableName,True)) then
-      begin
-        if not Self.CreateTable then
-          begin
-            with FDataSet as IBaseDbFilter do
-              begin
-                OldFields := Fields;
-                Fields := '';
-                OldLimit := Limit;
-                Limit := 1;
-              end;
-            with DataSet as IBaseManageDB do
-              FDataSet.Open;
-            if (not TBaseDBModule(DataModule).IsTransactionActive(Connection)) and AlterTable then
-            else if (not TBaseDBModule(DataModule).IsTransactionActive(Connection)) then
-              begin
-                with BaseApplication as IBaseApplication do
-                  Info('Table "'+TableName+'" altering failed ');
-              end;
-            with FDataSet as IBaseDbFilter do
-              begin
-                Fields := OldFields;
-                Limit := OldLimit;
-              end;
-          end;
-      end;
-  except
-  end;
-  with DataSet as IBaseManageDB do
-    FDataSet.Open;
-  if DataSet.Active and FDisplayLabelsWasSet then
-    SetDisplayLabels(DataSet);
-  if FDataSet.Active then FWasOpen:=True;
-end;
-
-procedure TBaseDBDataset.Close;
-begin
-  if not Assigned(FDataSet) then exit;
-  FDataSet.Close;
 end;
 
 function TBaseDBDataset.CreateTable: Boolean;
@@ -3476,7 +3115,7 @@ var
   aTableName: String;
   aField: String;
 begin
-  with FDataSet as IBaseManageDB do
+  with DataSet as IBaseManageDB do
     begin
       Result := False;
       if not TBaseDBModule(DataModule).TableExists(TableName,Connection) then
@@ -3706,32 +3345,12 @@ begin
   SetDisplayLabelName(aDataSet,'NEEDSACTION',strNeedsAction);
   SetDisplayLabelName(aDataSet,'COSTCENTRE',strCostcentre);
 end;
-function TBaseDBDataset.GetBookmark: variant;
-begin
-  if (not Assigned(Id)) or Id.IsNull then
-    Result := 0
-  else
-    Result := Id.AsVariant;
-end;
-function TBaseDBDataset.GotoBookmark(aRec: Variant): Boolean;
-begin
-  Result := DataSet.Active;
-  if Result then
-    begin
-      Result := DataSet.FieldByName('SQL_ID').AsVariant = aRec;
-      if not Result then
-        Result := DataSet.Locate('SQL_ID',aRec,[]);
-    end;
-end;
 
 function TBaseDBDataset.GetLink: string;
 begin
-  Result := TBaseDBModule(DataModule).BuildLink(FDataSet);
+  Result := TBaseDBModule(DataModule).BuildLink(DataSet);
 end;
 
-procedure TBaseDBDataset.FreeBookmark(aRec: Variant);
-begin
-end;
 procedure TBaseDBDataset.DuplicateRecord(DoPost: Boolean);
 var
   Data : array of string;
@@ -3754,22 +3373,6 @@ begin
       DataSet.fields[i].AsString := Data[i];
   if DoPost then
     DataSet.Post;
-end;
-procedure TBaseDBDataset.CascadicPost;
-begin
-  if CanEdit then
-    Post;
-  UnChange;
-  if Assigned(FOnChanged) then
-    FOnChanged(Self);
-end;
-procedure TBaseDBDataset.CascadicCancel;
-begin
-  if (FDataSet.State = dsEdit) or (FDataSet.State = dsInsert) then
-    FDataSet.Cancel;
-  UnChange;
-  if Assigned(FOnChanged) then
-    FOnChanged(Self);
 end;
 procedure TMeasurement.DataSetAfterPost(aDataSet: TDataSet);
 var
@@ -3822,7 +3425,7 @@ constructor TMeasurement.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FMesdata := TMeasurementData.CreateEx(Self,DM,aConnection,DataSet);
+  FMesdata := TMeasurementData.CreateEx(Self,DataModule,aConnection,DataSet);
   FDS := TDataSource.Create(Self);
   FDS.DataSet := DataSet;
   FDS.OnDataChange:=@FDSDataChange;

@@ -346,7 +346,7 @@ end;
 
 procedure TfSearch.DoSearch(Sender: TObject);
 begin
-  if (bSearch.Caption = strAbort) then
+  if (bSearch.Caption = strAbort) and (Sender <> nil) then
     begin
       SearchLevel := 0;
       if Sender = nil then exit;

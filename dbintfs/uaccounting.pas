@@ -154,7 +154,7 @@ constructor TAccounts.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FExchange := TAccountExchange.CreateEx(Owner,DM,aConnection,DataSet);
+  FExchange := TAccountExchange.CreateEx(Owner,DataModule,aConnection,DataSet);
 end;
 procedure TAccounts.Open;
 begin

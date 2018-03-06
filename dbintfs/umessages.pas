@@ -186,8 +186,8 @@ constructor TMessage.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FHistory := TBaseHistory.CreateEx(Self,DM,aConnection,DataSet);
-  FDocuments := TDocuments.CreateEx(Owner,DM,aConnection);
+  FHistory := TBaseHistory.CreateEx(Self,DataModule,aConnection,DataSet);
+  FDocuments := TDocuments.CreateEx(Owner,DataModule,aConnection);
   FSubMessages := nil;
 end;
 destructor TMessage.Destroy;

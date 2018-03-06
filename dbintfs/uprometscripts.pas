@@ -400,8 +400,8 @@ begin
   FDataSource.OnDataChange:=@FDataSourceDataChange;
   FSelectedName := Null;
   FDataSource.DataSet := DataSet;
-  FHistory := TBaseHistory.CreateEx(Self,DM,aConnection,DataSet);
-  FLinks := TScriptLinks.CreateEx(Self,DM,aConnection);
+  FHistory := TBaseHistory.CreateEx(Self,DataModule,aConnection,DataSet);
+  FLinks := TScriptLinks.CreateEx(Self,DataModule,aConnection);
   DataSet.AfterScroll:=@DataSetAfterScroll;
 end;
 

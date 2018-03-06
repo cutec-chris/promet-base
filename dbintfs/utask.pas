@@ -400,7 +400,7 @@ constructor TTask.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FLinks := TTaskLinks.CreateEx(Self,DM,aConnection);
+  FLinks := TTaskLinks.CreateEx(Self,DataModule,aConnection);
 end;
 destructor TTask.Destroy;
 begin
@@ -1788,12 +1788,12 @@ begin
       if Assigned(Data.Users) and Data.Users.Active then
         SelectActiveByUser(data.Users.FieldByName('ACCOUNTNO').AsString);
     end;
-  FTempUsers := TUser.CreateEx(aOwner,DM);
-  FHistory := TBaseHistory.CreateEx(Self,DM,aConnection,DataSet);
-  FSnapshots := TTaskSnapshots.CreateEx(Self,DM,aConnection,DataSet);
-  FDependencies := TDependencies.CreateEx(Self,DM,aConnection,DataSet);
+  FTempUsers := TUser.CreateEx(aOwner,DataModule);
+  FHistory := TBaseHistory.CreateEx(Self,DataModule,aConnection,DataSet);
+  FSnapshots := TTaskSnapshots.CreateEx(Self,DataModule,aConnection,DataSet);
+  FDependencies := TDependencies.CreateEx(Self,DataModule,aConnection,DataSet);
   FDependencies.FTask:=Self;
-  FWorkflow := TTaskWorkflow.CreateEx(Self,DM,aConnection,Self.DataSet);
+  FWorkflow := TTaskWorkflow.CreateEx(Self,DataModule,aConnection,Self.DataSet);
 end;
 
 destructor TTaskList.Destroy;

@@ -236,7 +236,7 @@ constructor TSupplier.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FPrices := TSupplierPrices.CreateEx(Owner,DM,aConnection,DataSet);
+  FPrices := TSupplierPrices.CreateEx(Owner,DataModule,aConnection,DataSet);
 end;
 destructor TSupplier.Destroy;
 begin
@@ -283,7 +283,7 @@ constructor TRepairAssembly.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FParts := TRepairParts.CreateEx(Self,DM,aConnection,DataSet);
+  FParts := TRepairParts.CreateEx(Self,DataModule,aConnection,DataSet);
 end;
 destructor TRepairAssembly.Destroy;
 begin
@@ -761,20 +761,20 @@ begin
           UsePermissions:=False;
         end;
     end;
-  FPosition := TMDPos.CreateEx(Self, DM,aConnection,DataSet);
+  FPosition := TMDPos.CreateEx(Self, DataModule,aConnection,DataSet);
   FPosition.Masterdata:=Self;
-  FStorage := TStorage.CreateEx(Self,DM,aConnection,DataSet);
-  FHistory := TMasterdataHistory.CreateEx(Self,DM,aConnection,DataSet);
-  FImages := TImages.CreateEx(Self,DM,aConnection,DataSet);
-  FLinks := TMasterdataLinks.CreateEx(Self,DM,aConnection);
-  FTexts := TMasterdataTexts.CreateEx(Self,DM,aConnection,DataSet);
-  FPrices := TMasterdataPrices.CreateEx(Self,DM,aConnection,DataSet);
+  FStorage := TStorage.CreateEx(Self,DataModule,aConnection,DataSet);
+  FHistory := TMasterdataHistory.CreateEx(Self,DataModule,aConnection,DataSet);
+  FImages := TImages.CreateEx(Self,DataModule,aConnection,DataSet);
+  FLinks := TMasterdataLinks.CreateEx(Self,DataModule,aConnection);
+  FTexts := TMasterdataTexts.CreateEx(Self,DataModule,aConnection,DataSet);
+  FPrices := TMasterdataPrices.CreateEx(Self,DataModule,aConnection,DataSet);
   FPrices.Masterdata:=Self;
-  FProperties := TMdProperties.CreateEx(Self,DM,aConnection,DataSet);
-  FAssembly := TRepairAssembly.CreateEx(Self,DM,aConnection,DataSet);
-  FSupplier := TSupplier.CreateEx(Self,DM,aConnection,DataSet);
-  FSerials := TSerials.CreateEx(Self,DM,aConnection,DataSet);
-  FMeasurement := TMeasurement.CreateEx(Self,DM,aConnection,DataSet);
+  FProperties := TMdProperties.CreateEx(Self,DataModule,aConnection,DataSet);
+  FAssembly := TRepairAssembly.CreateEx(Self,DataModule,aConnection,DataSet);
+  FSupplier := TSupplier.CreateEx(Self,DataModule,aConnection,DataSet);
+  FSerials := TSerials.CreateEx(Self,DataModule,aConnection,DataSet);
+  FMeasurement := TMeasurement.CreateEx(Self,DataModule,aConnection,DataSet);
   FDS := TDataSource.Create(Self);
   FDS.DataSet := DataSet;
   FDS.OnDataChange:=@FDSDataChange;

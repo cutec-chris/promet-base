@@ -1,6 +1,7 @@
 ﻿Build 438 (nicht veröffentlicht)
       - PAppserver:Reports werden nun über fpReport ausgegebn (kaum Serverseitige Abhängigkeiten und genaere PDF,PNG,HTML Reports)
       - Sync_db:Synchronisation wird nun hirarchich durchgeführt um Master/Detail Synchronisationsprobleme zu vermeiden
+      - Suche opimiert
 Build 437 (18.02.2018)
       - Wiki:diverse verbesserungen für PAppserver wenn dieser das Wiki per HTTP ausliefert
       - Scripte:Constructor auf 64bit funktionieren nun auf allen plattformen

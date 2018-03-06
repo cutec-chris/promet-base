@@ -674,7 +674,7 @@ begin
           Limit := 0;
         end;
     end;
-  FHistory := TBaseHistory.CreateEx(Self,DM,aConnection,DataSet);
+  FHistory := TBaseHistory.CreateEx(Self,DataModule,aConnection,DataSet);
   FDS := TDataSource.Create(Self);
   FDS.DataSet := DataSet;
   FDS.OnDataChange:=@FDSDataChange;

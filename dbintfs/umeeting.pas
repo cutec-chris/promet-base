@@ -110,7 +110,7 @@ begin
           SortDirection:=sdAscending;
         end;
     end;
-  FTempUsers := TUser.CreateEx(aOwner,DM);
+  FTempUsers := TUser.CreateEx(aOwner,DataModule);
 end;
 
 destructor TMeetingEntrys.Destroy;
@@ -216,11 +216,11 @@ constructor TMeetings.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FEntrys := TMeetingEntrys.CreateEx(aOwner,DM,aConnection,DataSet);
+  FEntrys := TMeetingEntrys.CreateEx(aOwner,DataModule,aConnection,DataSet);
   FEntrys.FMeeting := Self;
-  FUsers := TMeetingUsers.CreateExIntegrity(aOwner,DM,False,aConnection,DataSet);
+  FUsers := TMeetingUsers.CreateExIntegrity(aOwner,DataModule,False,aConnection,DataSet);
   FUsers.FMeeting := Self;
-  FLinks := TMeetingLinks.CreateEx(Self,DM,aConnection);
+  FLinks := TMeetingLinks.CreateEx(Self,DataModule,aConnection);
   with BaseApplication as IBaseDbInterface do
     begin
       with DataSet as IBaseDBFilter do

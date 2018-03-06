@@ -190,6 +190,8 @@ type
     procedure SetUseBaseSorting(AValue: Boolean);
     function GetfetchRows: Integer;
     procedure SetfetchRows(AValue: Integer);
+    function GetParameterValue(const aName: string): Variant;
+    procedure SetParameterValue(const aName: string; AValue: Variant);
     //IBaseManageDB
     function GetManagedFieldDefs: TFieldDefs;
     function GetManagedIndexDefs: TIndexDefs;
@@ -1509,6 +1511,17 @@ procedure TZeosDBDataSet.SetfetchRows(AValue: Integer);
 begin
   FetchRow:=AValue;
 end;
+
+function TZeosDBDataSet.GetParameterValue(const aName: string): Variant;
+begin
+  Result := ParamByName(aName).Value;
+end;
+
+procedure TZeosDBDataSet.SetParameterValue(const aName: string; AValue: Variant);
+begin
+  ParamByName(aName).Value := AValue;
+end;
+
 function TZeosDBDataSet.GetManagedFieldDefs: TFieldDefs;
 begin
   Result := FManagedFieldDefs;

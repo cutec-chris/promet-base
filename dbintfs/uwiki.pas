@@ -97,8 +97,8 @@ begin
         begin
         if Assigned(Parent) then
           begin
-            if not Parent.Id.IsNull then
-              Filter := Data.QuoteField('REF_ID_ID')+'='+Data.QuoteValue(Parent.Id.AsString)
+            if not TBaseDBDataSet(Parent).Id.IsNull then
+              Filter := Data.QuoteField('REF_ID_ID')+'='+Data.QuoteValue(TBaseDBDataSet(Parent).Id.AsString)
             else
               Filter := Data.QuoteField('REF_ID_ID')+'= 0';
             end;
@@ -1058,7 +1058,7 @@ constructor TWikiList.CreateEx(aOwner: TComponent; DM: TComponent;
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
   FVariables := TStringList.Create;
-  FKeywords := TKeywords.CreateEx(Self,DM,aConnection);
+  FKeywords := TKeywords.CreateEx(Self,DataModule,aConnection);
   FKeywords.DataSet.AfterInsert:=@FKeywordsDataSetAfterInsert;
 end;
 

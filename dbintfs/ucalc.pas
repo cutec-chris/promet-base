@@ -211,7 +211,7 @@ constructor TCalcEnviroments.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FVariables := TCalcVariables.CreateEx(Owner,DM,aConnection,DataSet);
+  FVariables := TCalcVariables.CreateEx(Owner,DataModule,aConnection,DataSet);
 end;
 
 destructor TCalcEnviroments.Destroy;

@@ -135,7 +135,7 @@ constructor TEvent.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FLinks := TEventLinks.CreateEx(Self,DM,aConnection);
+  FLinks := TEventLinks.CreateEx(Self,DataModule,aConnection);
 end;
 destructor TEvent.Destroy;
 begin
@@ -443,11 +443,11 @@ constructor TCalendar.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FHistory := TBaseHistory.CreateEx(Self,DM,aConnection,DataSet);
+  FHistory := TBaseHistory.CreateEx(Self,DataModule,aConnection,DataSet);
   FDS := TDataSource.Create(Self);
   FDS.DataSet := DataSet;
   FDS.OnDataChange:=@FDSDataChange;
-  FUsers := TMeetingUsers.CreateExIntegrity(aOwner,DM,False,aConnection,DataSet);
+  FUsers := TMeetingUsers.CreateExIntegrity(aOwner,DataModule,False,aConnection,DataSet);
   FUsers.FMeeting := Self;
 end;
 

@@ -121,7 +121,6 @@ type
     function SetProperties(aProp : string;Connection : TAbstractDBConnection = nil) : Boolean;override;
     property LastStatement : string read FLastStmt write FLastStmt;
     property LastTime : Int64 read FLastTime write FLastTime;
-    function IsSQLDB : Boolean;virtual;abstract;
     function ProcessTerm(aTerm : string;ForceLike : Boolean = False) : string;virtual;
     function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';Tablename : string = '';AutoInc : Boolean = True) : Variant;virtual;abstract;
     procedure DestroyDataSet(DataSet : TDataSet);virtual;abstract;
@@ -151,8 +150,6 @@ type
     function GetFullTableName(aTable: string): string;override;
     function CreateTrigger(aTriggerName : string;aTableName : string;aUpdateOn : string;aSQL : string;aField : string = '';aConnection : TComponent = nil) : Boolean;virtual;
     function Preprocess(aLine : string) : string;
-    function CheckForInjection(aFilter : string) : Boolean;
-    function DecodeFilter(aSQL : string;Parameters : TStringList;var NewSQL : string) : Boolean;virtual;
     procedure SetFilter(DataSet : TbaseDBDataSet;aFilter : string;aLimit : Integer = 0;aOrderBy : string = '';aSortDirection : string = 'ASC';aLocalSorting : Boolean = False;aGlobalFilter : Boolean = True;aUsePermissions : Boolean = False;aFilterIn : string = '');
     procedure AppendUserToActiveList;
     procedure RefreshUsersFilter;
@@ -301,7 +298,6 @@ const
   ACICON_EXTERNALCHANGED   = 14;
 resourcestring
   strGuest                       = 'Gast';
-  strSQLInjection                = 'Versuchte SQL Injection !';
   strWebsite                     = 'Webseite';
   strScreenshotName              = 'Screenshot Name';
   strEnterAnName                 = 'enter an Name';
@@ -1406,58 +1402,6 @@ begin
     end;
   Result := aLines.Text;
   aLines.Free;
-end;
-
-function TBaseDBModule.CheckForInjection(aFilter: string): Boolean;
-begin
-  Result := False;
-  if (pos('insert into',lowercase(aFilter)) > 0)
-//  or (pos('update ',lowercase(aFilter)) > 0)
-  or (pos('delete table',lowercase(aFilter)) > 0)
-  or (pos('delete from',lowercase(aFilter)) > 0)
-  or (pos('alter table',lowercase(aFilter)) > 0)
-  or (pos('union select ',lowercase(aFilter)) > 0)
-  or (pos('select if ',lowercase(aFilter)) > 0)
-  or (pos(' into outfile',lowercase(aFilter)) > 0)
-  or (pos(' into dumpfile',lowercase(aFilter)) > 0)
-  then
-    begin
-      raise Exception.Create(strSQLInjection);
-      Result := True;
-    end;
-end;
-
-function TBaseDBModule.DecodeFilter(aSQL: string; Parameters: TStringList;
-  var NewSQL: string): Boolean;
-var
-  aQuotes: String;
-  i: Integer;
-  aParamCont: String;
-begin
-  aQuotes := QuoteValue('');
-  aQuotes := copy(aQuotes,0,1);
-  i := 0;
-  NewSQL := '';
-  Parameters.Clear;
-  while pos(aQuotes,aSQL)>0 do
-    begin
-      NewSQL:=NewSQL+copy(aSQL,0,pos(aQuotes,aSQL)-1);
-      aSQL := copy(aSQL,pos(aQuotes,aSQL)+1,length(aSQL));
-      NewSQL:=NewSQL+':Param'+IntToStr(i);
-      aParamCont := copy(aSQL,0,pos(aQuotes,aSQL)-1);
-      aSQL := copy(aSQL,pos(aQuotes,aSQL)+1,length(aSQL));
-      if copy(aSQL,0,1)=aQuotes then
-        begin
-          aParamCont += aQuotes+copy(aSQL,0,pos(aQuotes,aSQL)-1);
-          aSQL := copy(aSQL,pos(aQuotes,aSQL)+1,length(aSQL));
-          aParamCont += aQuotes+copy(aSQL,0,pos(aQuotes,aSQL)-1);
-          aSQL := copy(aSQL,pos(aQuotes,aSQL)+1,length(aSQL));
-        end;
-      Parameters.Values['Param'+IntToStr(i)]:=aParamCont;
-      NewSQL:=NewSQL;
-      inc(i);
-    end;
-  NewSQL:=NewSQL+aSQL;
 end;
 
 procedure TBaseDBModule.SetFilter(DataSet: TbaseDBDataSet; aFilter: string;

@@ -725,7 +725,7 @@ constructor TSyncDB.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FTables := TSyncTable.CreateEx(Self,DM,aConnection,DataSet);
+  FTables := TSyncTable.CreateEx(Self,DataModule,aConnection,DataSet);
   with BaseApplication as IBaseDbInterface do
     begin
       with DataSet as IBaseDBFilter do

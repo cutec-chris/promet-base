@@ -76,8 +76,8 @@ constructor TSessions.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FHistory := TSessionHistory.CreateEx(Owner,DM,aConnection,DataSet);
-  FVariables := TSessionVariables.CreateEx(Owner,DM,aConnection,DataSet);
+  FHistory := TSessionHistory.CreateEx(Owner,DataModule,aConnection,DataSet);
+  FVariables := TSessionVariables.CreateEx(Owner,DataModule,aConnection,DataSet);
   with DataSet as IBaseDBFilter do
     begin
       SortFields := 'AUTO_ID';

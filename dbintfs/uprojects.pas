@@ -277,15 +277,15 @@ begin
           begin
             if Filter <> '' then
               begin
-                if not Parent.Id.IsNull then
-                  Filter := Filter+' AND '+Data.QuoteField('PROJECTID')+'='+Data.QuoteValue(Parent.Id.AsString)
+                if not TBaseDBDataSet(Parent).Id.IsNull then
+                  Filter := Filter+' AND '+Data.QuoteField('PROJECTID')+'='+Data.QuoteValue(TBaseDBDataSet(Parent).Id.AsString)
                 else
                   Filter := Filter+' AND '+Data.QuoteField('PROJECTID')+'= 0';
               end
             else
               begin
-              if not Parent.Id.IsNull then
-                Filter := Data.QuoteField('PROJECTID')+'='+Data.QuoteValue(Parent.Id.AsString)
+              if not TBaseDBDataSet(Parent).Id.IsNull then
+                Filter := Data.QuoteField('PROJECTID')+'='+Data.QuoteValue(TBaseDBDataSet(Parent).Id.AsString)
               else
                 Filter := Data.QuoteField('PROJECTID')+'= 0';
               end;
@@ -395,18 +395,18 @@ begin
           UsePermissions:=False;
         end;
     end;
-  FHistory := TProjectHistory.CreateEx(Self,DM,aConnection,DataSet);
-  FPositions := TProjectPositions.CreateEx(Self,DM,aConnection,DataSet);
+  FHistory := TProjectHistory.CreateEx(Self,DataModule,aConnection,DataSet);
+  FPositions := TProjectPositions.CreateEx(Self,DataModule,aConnection,DataSet);
   FPositions.FProject := Self;
-  FImages := TImages.CreateEx(Self,DM,aConnection,DataSet);
-  FLinks := TProjectLinks.CreateEx(Self,DM,aConnection);
+  FImages := TImages.CreateEx(Self,DataModule,aConnection,DataSet);
+  FLinks := TProjectLinks.CreateEx(Self,DataModule,aConnection);
   with Self.DataSet as IBaseSubDataSets do
     RegisterSubDataSet(FLinks);
-  FTasks := TProjectTasks.CreateEx(Self,DM,aConnection);
+  FTasks := TProjectTasks.CreateEx(Self,DataModule,aConnection);
   with Self.DataSet as IBaseSubDataSets do
     RegisterSubDataSet(FTasks);
   FTasks.FProject := Self;
-  FMeasurement := TMeasurement.CreateEx(Self,DM,aConnection,DataSet);
+  FMeasurement := TMeasurement.CreateEx(Self,DataModule,aConnection,DataSet);
   FDS := TDataSource.Create(Self);
   FDS.DataSet := DataSet;
   FDS.OnDataChange:=@FDSDataChange;
@@ -659,15 +659,15 @@ begin
           begin
             if Filter <> '' then
               begin
-                if not Parent.Id.IsNull then
-                  Filter := Filter+' AND '+Data.QuoteField('RREF_ID')+'='+Data.QuoteValue(Parent.Id.AsString)
+                if not TBaseDBDataSet(Parent).Id.IsNull then
+                  Filter := Filter+' AND '+Data.QuoteField('RREF_ID')+'='+Data.QuoteValue(TBaseDBDataSet(Parent).Id.AsString)
                 else
                   Filter := Filter+' AND '+Data.QuoteField('RREF_ID')+'= 0';
               end
             else
               begin
-              if not Parent.Id.IsNull then
-                Filter := Data.QuoteField('RREF_ID')+'='+Data.QuoteValue(Parent.Id.AsString)
+              if not TBaseDBDataSet(Parent).Id.IsNull then
+                Filter := Data.QuoteField('RREF_ID')+'='+Data.QuoteValue(TBaseDBDataSet(Parent).Id.AsString)
               else
                 Filter := Data.QuoteField('RREF_ID')+'= 0';
               end;

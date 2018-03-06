@@ -331,7 +331,7 @@ begin
           acExecuteStep.Caption:=strRunning;
           Application.ProcessMessages;
           TreeData.ScriptOutput.Clear;
-          TreeData.Script.ActualObject := DataSet.Parent;
+          TreeData.Script.ActualObject := TBaseDBDataset(DataSet.Parent);
           TreeData.Script.Script.OnRunLine:=@TreeDataScriptScriptRunLine;
           if Assigned(TreeData.Script) then
             begin
@@ -399,7 +399,7 @@ begin
           acExecutePrepareStep.Checked:=True;
           Application.ProcessMessages;
           TreeData.ScriptOutput.Clear;
-          TreeData.Preparescript.ActualObject := DataSet.Parent;
+          TreeData.Preparescript.ActualObject := TBaseDBDataset(DataSet.Parent);
           TreeData.Preparescript.Script.OnRunLine:=@TreeDataScriptScriptRunLine;
           TreeData.PrepareOutput.Clear;
           if Assigned(TreeData.Preparescript) then
@@ -1092,7 +1092,7 @@ begin
     begin
       nOrder := TOrder.Create(nil);
       //Unseren Auftrag nochmal öffnen damit wir die Position wechseln können
-      nOrder.Select(DataSet.Parent.Id.AsVariant);
+      nOrder.Select(TBaseDBDataSet(DataSet.Parent).Id.AsVariant);
       nOrder.Open;
       nOrder.Positions.Open;
       if nOrder.Positions.Locate('SQL_ID',DataSet.FieldByName('PARENT').AsVariant,[]) then //Vorgängerposition finden (zu fertigender Artikel)

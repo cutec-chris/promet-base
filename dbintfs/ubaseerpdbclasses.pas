@@ -317,7 +317,7 @@ constructor TInventorys.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(AOwner,DM,aConnection,aMasterdata);
-  FPos := TInventoryPos.CreateEx(Owner,DM,aConnection,DataSet);
+  FPos := TInventoryPos.CreateEx(Owner,DataModule,aConnection,DataSet);
   FPos.FInv := Self;
 end;
 destructor TInventorys.Destroy;
@@ -1153,8 +1153,8 @@ begin
   FUseRTF:=False;
   UpdateFloatFields:=True;
   FPosFormat := '%d';
-  FPosTyp := TPositionTyp.CreateEx(Owner,DM,aConnection);
-  FImages := TImages.CreateEx(Self,DM,aConnection,DataSet);
+  FPosTyp := TPositionTyp.CreateEx(Owner,DataModule,aConnection);
+  FImages := TImages.CreateEx(Self,DataModule,aConnection,DataSet);
   FImages.ActualFilter := TBaseDBModule(DataModule).QuoteField('REF_ID')+'='+':'+TBaseDBModule(DataModule).QuoteField('IMAGEREF');
   with BaseApplication as IBaseDbInterface do
     begin
@@ -1165,7 +1165,7 @@ begin
           SortDirection:=sdAscending;
         end;
     end;
-  FPosCalc := TPositionCalc.CreateExIntegrity(Self,DM,False,aConnection,DataSet);
+  FPosCalc := TPositionCalc.CreateExIntegrity(Self,DataModule,False,aConnection,DataSet);
   FIntDataSource := TDataSource.Create(Self);
   FIntDataSource.DataSet := DataSet;
   FIntDataSource.OnDataChange:=@FIntDataSourceDataChange;

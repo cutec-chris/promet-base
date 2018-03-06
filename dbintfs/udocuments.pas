@@ -254,8 +254,8 @@ begin
           UsePermissions:=False;
         end;
     end;
-  FMimeTypes := TMimeTypes.CreateEx(Self,DM,aConnection,nil);
-  FDocumentActions := TDocumentActions.CreateEx(Self,DM,aConnection,nil);
+  FMimeTypes := TMimeTypes.CreateEx(Self,DataModule,aConnection,nil);
+  FDocumentActions := TDocumentActions.CreateEx(Self,DataModule,aConnection,nil);
 end;
 
 destructor TDocument.Destroy;

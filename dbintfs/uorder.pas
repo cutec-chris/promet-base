@@ -296,10 +296,10 @@ constructor TOrderRepairImages.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FHistory := TBaseHistory.CreateEx(Self,DM,aConnection,DataSet);
-  FImages := TImages.CreateEx(Self,DM,aConnection,DataSet);
-  FLinks := TRepairImageLinks.CreateEx(Self,DM,aConnection);
-  FDetail := TOrderRepairDetail.CreateExIntegrity(Self,DM,False,aConnection,DataSet);
+  FHistory := TBaseHistory.CreateEx(Self,DataModule,aConnection,DataSet);
+  FImages := TImages.CreateEx(Self,DataModule,aConnection,DataSet);
+  FLinks := TRepairImageLinks.CreateEx(Self,DataModule,aConnection);
+  FDetail := TOrderRepairDetail.CreateExIntegrity(Self,DataModule,False,aConnection,DataSet);
   FDS := TDataSource.Create(Self);
   FDS.DataSet := DataSet;
   FDS.OnDataChange:=@FDSDataChange;
@@ -608,7 +608,7 @@ begin
       SortDirection := sdDescending;
       Limit:=0;
     end;
-  FDetails := TOrderQMTestDetails.CreateEx(aOwner,DM,aConnection,DataSet);
+  FDetails := TOrderQMTestDetails.CreateEx(aOwner,DataModule,aConnection,DataSet);
 end;
 destructor TOrderQMTest.Destroy;
 begin
@@ -675,12 +675,12 @@ begin
           UsePermissions:=False;
         end;
     end;
-  FOrderAddress := TOrderAddress.CreateEx(Self,DM,aConnection,DataSet);
+  FOrderAddress := TOrderAddress.CreateEx(Self,DataModule,aConnection,DataSet);
   FOrderAddress.Order := Self;
-  FOrderPos := TOrderPos.CreateEx(Self,DM,aConnection,DataSet);
+  FOrderPos := TOrderPos.CreateEx(Self,DataModule,aConnection,DataSet);
   FOrderPos.Order:=Self;
-  FLinks := TOrderLinks.CreateEx(Self,DM,aConnection);
-  FCurrency := TCurrency.CreateEx(Self,DM,aConnection);
+  FLinks := TOrderLinks.CreateEx(Self,DataModule,aConnection);
+  FCurrency := TCurrency.CreateEx(Self,DataModule,aConnection);
 end;
 destructor TOrder.Destroy;
 begin
@@ -1764,8 +1764,8 @@ constructor TOrderPos.CreateEx(aOwner: TComponent; DM : TComponent;aConnection: 
   aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM,aConnection, aMasterdata);
-  FQMTest := TOrderQMTest.CreateEx(Owner,DM,aConnection,DataSet);
-  FOrderRepair := TOrderRepair.CreateEx(Owner,DM,aConnection,DataSet);
+  FQMTest := TOrderQMTest.CreateEx(Owner,DataModule,aConnection,DataSet);
+  FOrderRepair := TOrderRepair.CreateEx(Owner,DataModule,aConnection,DataSet);
 end;
 destructor TOrderPos.Destroy;
 begin
@@ -1885,8 +1885,8 @@ constructor TOrderList.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FHistory := TBaseHistory.CreateEx(Self,DM,aConnection,DataSet);
-  FOrderTyp := TOrderTyp.CreateEx(Self,DM,aConnection);
+  FHistory := TBaseHistory.CreateEx(Self,DataModule,aConnection,DataSet);
+  FOrderTyp := TOrderTyp.CreateEx(Self,DataModule,aConnection);
   with BaseApplication as IBaseDbInterface do
     begin
       with DataSet as IBaseDBFilter do
