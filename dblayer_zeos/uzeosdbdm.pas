@@ -53,7 +53,6 @@ type
   public
     constructor Create(AOwner : TComponent);override;
     destructor Destroy;override;
-    function IsSQLDB : Boolean;override;
     procedure DestroyDataSet(DataSet : TDataSet);override;
     function Ping(aConnection : TComponent) : Boolean;override;
     function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';Tablename : string = '';AutoInc : Boolean = True) : Variant;override;
@@ -123,7 +122,6 @@ type
     FUsePermissions : Boolean;
     FTableCaption : string;
     FDistinct : Boolean;
-    DoCheck: Boolean;
     FUpStdFields : Boolean;
     FUpChangedBy : Boolean;
     FBaseSortFields : string;
@@ -197,9 +195,6 @@ type
     function GetManagedIndexDefs: TIndexDefs;
     function GetTableName: string;
     procedure SetTableName(const AValue: string);
-    function CreateTable : Boolean;
-    function CheckTable : Boolean;
-    function AlterTable : Boolean;
     function GetConnection: TComponent;
     function GetTableCaption: string;
     procedure SetTableCaption(const AValue: string);
@@ -819,215 +814,6 @@ begin
     end;
 end;
 
-function TZeosDBDataSet.CreateTable : Boolean;
-var
-  aSQL: String;
-  i: Integer;
-  bConnection: TZAbstractConnection = nil;
-//  bConnection: TZConnection = nil;
-  GeneralQuery: TZQuery;
-  RestartTransaction: Boolean = False;
-  NewTableName: String;
-begin
-  Result := False;
-  with TBaseDBModule(Owner) do
-    begin
-      if Assigned(FOrigTable) and (FFields = '') then
-        begin
-          if FFields = '' then
-            DoCheck := True;
-          bConnection := Connection;
-          Result := True;
-          NewTableName := GetFullTableName(GetTableName);
-          aSQL := 'CREATE TABLE '+NewTableName+' ('+lineending;
-          if FUpStdFields then
-            begin
-              if FManagedFieldDefs.IndexOf('AUTO_ID') = -1 then
-                aSQL += TZeosDBDM(Self.Owner).FieldToSQL('SQL_ID',ftLargeInt,0,True)+' PRIMARY KEY,'+lineending
-              else
-                begin
-                  aSQL += TZeosDBDM(Self.Owner).FieldToSQL('AUTO_ID',ftLargeInt,0,True)+' PRIMARY KEY,'+lineending;
-                end;
-            end;
-          if Assigned(MasterSource) and (FManagedFieldDefs.IndexOf('REF_ID')=-1) then
-            begin
-              aSQL += TZeosDBDM(Self.Owner).FieldToSQL('REF_ID',ftLargeInt,0,True);
-              if FUseIntegrity
-              and (pos('.',NewTableName)=-1) //Wenn eigene Tabelle in externer Datenbank, keine Ref. Intigrität
-              and (pos('.',GetFullTableName(TZeosDBDataSet(MasterSource.DataSet).DefaultTableName))=-1) then //Wenn übergeordnete Tabelle in externer Datenbank, keine Ref. Intigrität
-                begin
-                  with MasterSource.DataSet as IBaseManageDB do
-                    begin
-                      if ManagedFieldDefs.IndexOf('AUTO_ID') = -1 then
-                        aSQL += ' REFERENCES '+QuoteField(TZeosDBDataSet(MasterSource.DataSet).DefaultTableName)+'('+QuoteField('SQL_ID')+') ON DELETE CASCADE'
-                      else
-                        aSQL += ' REFERENCES '+QuoteField(TZeosDBDataSet(MasterSource.DataSet).DefaultTableName)+'('+QuoteField('AUTO_ID')+') ON DELETE CASCADE';
-                    end;
-                  if (copy(TZConnection(TBaseDBModule(Self.Owner).MainConnection).Protocol,0,6) = 'sqlite') then
-                    aSQL += ' DEFERRABLE INITIALLY DEFERRED';
-                end;
-              aSQL+=','+lineending;
-            end;
-          for i := 0 to FManagedFieldDefs.Count-1 do
-            if FManagedFieldDefs[i].Name <> 'AUTO_ID' then
-              aSQL += TZeosDBDM(Self.Owner).FieldToSQL(FManagedFieldDefs[i].Name,FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,FManagedFieldDefs[i].Required)+','+lineending;
-          if FUpStdFields then
-            aSQL += TZeosDBDM(Self.Owner).FieldToSQL('TIMESTAMPD',ftDateTime,0,True)+');'
-          else
-            aSql := copy(aSQL,0,length(aSQL)-2)+');';
-          with BaseApplication as IBaseApplication do
-            Debug(aSQL);
-          TZConnection(bConnection).ExecuteDirect(aSQL);
-          //TODO:reconnect to DB and reopen all tables that WAS open
-          //TZConnection(bConnection).Disconnect;
-          //TZConnection(bConnection).Connect;
-        end;
-    end;
-  Close;
-end;
-function TZeosDBDataSet.CheckTable: Boolean;
-var
-  i: Integer;
-begin
-  Result := False;
-  with TBaseDBModule(Owner) do
-    begin
-      if DoCheck or (FFields = '') then
-          begin
-            for i := 0 to FManagedFieldDefs.Count-1 do
-              begin
-                if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name) = -1) and (FManagedFieldDefs[i].Name <> 'AUTO_ID') then
-                  begin
-                    Result := True;
-                  end
-                else if FieldDefs.IndexOf(FManagedFieldDefs[i].Name)>-1 then
-                  begin
-                    if FieldByName(FManagedFieldDefs[i].Name).Size<FManagedFieldDefs[i].Size then
-                      Result := True;
-                  end;
-              end;
-            if Assigned(FManagedIndexDefs) then
-              for i := 0 to FManagedIndexDefs.Count-1 do                                           //Primary key
-                if (not IndexExists(Uppercase(Self.DefaultTableName+'_'+FManagedIndexDefs.Items[i].Name))) and (FManagedIndexDefs.Items[i].Name <>'SQL_ID') then
-                  begin
-                    Result := True;
-                  end;
-          end;
-      if not Result then
-        begin
-          TBaseDBModule(Self.Owner).UpdateTableVersion(Self.FDefaultTableName);
-        end;
-    end;
-end;
-function TZeosDBDataSet.AlterTable: Boolean;
-var
-  i: Integer;
-  aSQL: String;
-  GeneralQuery: TZQuery;
-  Changed: Boolean = False;
-  aConnection : TZAbstractConnection;
-  tmpSize: Integer;
-begin
-  Result := True;
-  with BaseApplication as IBaseApplication do
-    Debug('AlterTable:'+FDefaultTableName);
-  try
-    if FFields <> '' then exit;
-    with TBaseDBModule(Owner) do
-      begin
-        for i := 0 to FManagedFieldDefs.Count-1 do
-          begin
-            if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name) = -1) and (FManagedFieldDefs[i].Name <> 'AUTO_ID') then
-              begin
-                aSQL := 'ALTER TABLE '+GetFullTableName(FDefaultTableName)+' ADD '+TZeosDBDM(Self.Owner).FieldToSQL(FManagedFieldDefs[i].Name,FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
-                with BaseApplication as IBaseApplication do
-                  Debug(aSQL);
-                aConnection := Connection;
-                try
-                  TZConnection(aConnection).ExecuteDirect(aSQL);
-                  Changed := True;
-                  Result := True;
-                except
-                end;
-              end
-            else if (FieldDefs.IndexOf(FManagedFieldDefs[i].Name)>-1) then
-              begin
-                tmpSize := FieldByName(FManagedFieldDefs[i].Name).DisplayWidth;
-                if (tmpSize<FManagedFieldDefs[i].Size)
-                and (tmpSize<>255) //mssql workaround we have no field that has 255 chars size
-                then
-                  begin
-                    with BaseApplication as IBaseApplication do
-                      Debug(FManagedFieldDefs[i].Name+': ist '+IntToStr(tmpSize)+' soll '+IntToStr(FManagedFieldDefs[i].Size));
-                    if (copy(Connection.Protocol,0,8) = 'postgres') then
-                      aSQL := 'ALTER TABLE '+GetFullTableName(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' TYPE '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';'
-                    else if (copy(Connection.Protocol,0,6) = 'sqlite') then
-                    else
-                      aSQL := 'ALTER TABLE '+GetFullTableName(FDefaultTableName)+' ALTER COLUMN '+QuoteField(FManagedFieldDefs[i].Name)+' '+TZeosDBDM(Self.Owner).FieldToSQL('',FManagedFieldDefs[i].DataType,FManagedFieldDefs[i].Size,False)+';';
-                    with BaseApplication as IBaseApplication do
-                      Debug(aSQL);
-                    aConnection := Connection;
-                    if aSQL<>'' then
-                      begin
-                        with BaseApplication as IBaseApplication do
-                          Debug(aSQL);
-                        try
-                          TZConnection(aConnection).ExecuteDirect(aSQL);
-                          Changed := True;
-                          Result := True;
-                        except
-                        end;
-                      end;
-                  end;
-              end;
-          end;
-        aSQL := '';
-        if Assigned(FManagedIndexDefs) then
-          for i := 0 to FManagedIndexDefs.Count-1 do                                           //Primary key
-            begin
-              try
-                if (not IndexExists(Uppercase(Self.DefaultTableName+'_'+FManagedIndexDefs.Items[i].Name))) and (FManagedIndexDefs.Items[i].Name <>'SQL_ID') and (pos('.',GetFullTableName(Self.DefaultTableName))=0) then
-                  begin
-                    aSQL := 'CREATE ';
-                    if ixUnique in FManagedIndexDefs.Items[i].Options then
-                      aSQL := aSQL+'UNIQUE ';
-                    aSQL := aSQL+'INDEX '+QuoteField(Uppercase(Self.DefaultTableName+'_'+FManagedIndexDefs.Items[i].Name))+' ON '+GetFullTableName(Self.DefaultTableName)+' ('+QuoteField(StringReplace(FManagedIndexDefs.Items[i].Fields,';',QuoteField(','),[rfReplaceAll]))+');'+lineending;
-                    if aSQL <> '' then
-                      begin
-                        with BaseApplication as IBaseApplication do
-                          Debug(aSQL);
-                        TZConnection(Connection).ExecuteDirect(aSQL);
-                      end;
-                    Result := True;
-                  end;
-              except
-              end;
-            end;
-      end;
-  except
-    on e : Exception do
-      begin
-        with BaseApplication as IBaseApplication do
-          Error('Altering failed:'+e.Message);
-        Result := False;
-      end;
-  end;
-  if Result and Changed and (Self.FDefaultTableName<>'TABLEVERSIONS') then
-    begin
-      with BaseApplication as IBaseApplication do
-        Info('Table '+Self.FDefaultTableName+' resetting Metadata Infos...');
-      try
-        Connection.DbcConnection.GetMetadata.ClearCache;
-      except
-      end;
-    end;
-  if Changed then
-    begin
-      TBaseDBModule(Self.Owner).UpdateTableVersion(Self.FDefaultTableName);
-      Self.Unprepare;
-    end;
-end;
-
 procedure TZeosDBDataSet.InternalOpen;
 var
   a: Integer;
@@ -1061,7 +847,8 @@ begin
                     begin
                       TZeosDBDM(Owner).CheckedTables.Delete(TZeosDBDM(Owner).CheckedTables.IndexOf(Self.GetTableName));
                       if TZeosDBDM(Owner).Ping(Connection) then
-                        CreateTable;
+                        if Assigned(FOrigTable) then
+                          ForigTable.CreateTable;
                     end;
                   inherited InternalOpen;
                 except
@@ -1664,7 +1451,6 @@ begin
   inherited Create(AOwner);
   FFirstOpen:=True;
   FSQL := '';
-  DoCheck := False;
   fBaseSorting := '%s';
   FChangeUni:=False;
   FUseBaseSorting:=False;
@@ -1815,10 +1601,6 @@ begin
     inherited Destroy;
   except
   end;
-end;
-function TZeosDBDM.IsSQLDB: Boolean;
-begin
-  Result:=True;
 end;
 procedure TZeosDBDM.DestroyDataSet(DataSet: TDataSet);
 begin
