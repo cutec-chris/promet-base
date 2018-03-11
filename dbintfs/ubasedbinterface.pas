@@ -64,20 +64,12 @@ type
 
   TBaseDBModule = class(TAbstractDBModule)
   private
-    FConnect: TNotifyEvent;
-    FConnectionLost: TNotifyEvent;
-    FKeepAlive: TNotifyEvent;
-    FLastStmt: string;
-    FLastTime: Int64;
     Fmandant: string;
     FProperies: string;
     FSessionID: LargeInt;
     FTables: TStrings;
     FTriggers: TStrings;
-    FUsersFilter: string;
     FLinkHandlers : array of LinkHandler;
-    FIgnoreOpenRequests : Boolean;
-    FCS : TCriticalSection;
     FUsers : TUser;
     FLoggedInUser : Variant;
     function GetUsers: TUser;
@@ -113,18 +105,14 @@ type
     destructor Destroy;override;
     property SessionID : LargeInt read FSessionID write FSessionID;
     property Users : TUser read GetUsers;
-    property UsersFilter : string read FUsersFilter;
     procedure CleanupSession;
     procedure Connect(aConnection : TComponent);virtual;abstract;
     procedure Disconnect(aConnection : TComponent);virtual;abstract;
     procedure DeleteExpiredSessions;virtual;
     function SetProperties(aProp : string;Connection : TAbstractDBConnection = nil) : Boolean;override;
-    property LastStatement : string read FLastStmt write FLastStmt;
-    property LastTime : Int64 read FLastTime write FLastTime;
     function ProcessTerm(aTerm : string;ForceLike : Boolean = False) : string;virtual;
     function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';Tablename : string = '';AutoInc : Boolean = True) : Variant;virtual;abstract;
     procedure DestroyDataSet(DataSet : TDataSet);virtual;abstract;
-    function Ping(aConnection : TComponent) : Boolean;virtual;abstract;
     function BlobFieldToFile(DataSet : TDataSet;Fieldname : string;Filename : string;aSize : Integer = -1) : Boolean;virtual;
     procedure FileToBlobField(Filename : string;DataSet : TDataSet;Fieldname : string);virtual;
     procedure StreamToBlobField(Stream : TStream;DataSet : TDataSet;Fieldname : string;Tablename : string = '');virtual;
@@ -156,13 +144,8 @@ type
     procedure ModifyUsersFilter(aNewFilter : string);
     procedure RemoveUserFromActiveList;
     procedure RegisterLinkHandlers(IgnoreRights : Boolean = False);
-    property IgnoreOpenRequests : Boolean read FIgnoreOpenrequests write FIgnoreOpenrequests;
     property Mandant : string read Fmandant;
     property SyncOffset : Integer read GetSyncOffset write SetSyncOffset;
-    property OnConnectionLost : TNotifyEvent read FConnectionLost write FConnectionLost;
-    property OnConnect : TNotifyEvent read FConnect write FConnect;
-    property OnDisconnectKeepAlive : TNotifyEvent read FKeepAlive write FKeepAlive;
-    property CriticalSection : TCriticalSection read FCS;
     property Properties : string read FProperies;
   end;
   TBaseDBModuleClass = class of TBaseDBModule;
@@ -535,7 +518,6 @@ constructor TBaseDBModule.Create(AOwner: TComponent);
 begin
   inherited;
   FUsers := nil;
-  FCS := TCriticalSection.Create;
   FIgnoreOpenrequests := False;
 end;
 destructor TBaseDBModule.Destroy;
@@ -562,7 +544,6 @@ begin
   PaymentTargets.Free;
   ProcessClient.Free;
   ActiveUsers.Free;
-  FCS.Free;
   inherited Destroy;
 end;
 
