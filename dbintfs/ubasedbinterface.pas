@@ -518,7 +518,6 @@ constructor TBaseDBModule.Create(AOwner: TComponent);
 begin
   inherited;
   FUsers := nil;
-  FIgnoreOpenrequests := False;
 end;
 destructor TBaseDBModule.Destroy;
 begin
@@ -1399,7 +1398,7 @@ begin
     ActiveUsers.Select(FSessionID);
     ActiveUsers.Open;
     if ActiveUsers.IsReadOnly then exit;
-    FUsersFilter:='';
+    UsersFilter:='';
     if ActiveUsers.GotoBookmark(FSessionID) then
       begin
         with ActiveUsers.DataSet do
@@ -1462,19 +1461,19 @@ begin
       aUser := Users.GetBookmark;
       aUsers := '';
       RecursiveGetRight;
-      FUsersFilter:=copy(aUsers,4,length(aUsers));
+      UsersFilter:=copy(aUsers,4,length(aUsers));
       Users.GotoBookmark(aUser);
     end;
 end;
 
 procedure TBaseDBModule.ModifyUsersFilter(aNewFilter: string);
 begin
-  FUsersFilter:=aNewFilter;
+  UsersFilter:=aNewFilter;
 end;
 
 procedure TBaseDBModule.RemoveUserFromActiveList;
 begin
-  if FIgnoreOpenRequests then exit;
+  if IgnoreOpenRequests then exit;
   try
     if not Assigned(ActiveUsers) then exit;
     with ActiveUsers.DataSet as IBaseManageDB do

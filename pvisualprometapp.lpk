@@ -75,8 +75,8 @@
         <DefaultFilename Value="base_options\poptions.lpk"/>
       </Item2>
       <Item3>
-        <PackageName Value="promet_dblayer_zeos"/>
-        <DefaultFilename Value="dblayer_zeos\promet_dblayer_zeos.lpk"/>
+        <PackageName Value="avamm_dblayer_zeos"/>
+        <DefaultFilename Value="..\components\avamm-db-layer\dblayer_zeos\avamm_dblayer_zeos.lpk"/>
       </Item3>
       <Item4>
         <PackageName Value="laz_twain"/>
