@@ -112,7 +112,6 @@ type
     function SetProperties(aProp : string;Connection : TAbstractDBConnection = nil) : Boolean;override;
     function ProcessTerm(aTerm : string;ForceLike : Boolean = False) : string;virtual;
     function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';Tablename : string = '';AutoInc : Boolean = True) : Variant;virtual;abstract;
-    procedure DestroyDataSet(DataSet : TDataSet);virtual;abstract;
     function BlobFieldToFile(DataSet : TDataSet;Fieldname : string;Filename : string;aSize : Integer = -1) : Boolean;virtual;
     procedure FileToBlobField(Filename : string;DataSet : TDataSet;Fieldname : string);virtual;
     procedure StreamToBlobField(Stream : TStream;DataSet : TDataSet;Fieldname : string;Tablename : string = '');virtual;
@@ -1640,14 +1639,7 @@ var
 begin
   if (FDbTyp = AValue) and Assigned(FDB) then exit;
   FreeAndNil(FDB);
-  for i := 0 to DatabaseLayers.Count-1 do
-    begin
-      FDB := TBaseDBModuleClass(DatabaseLayers[i]).Create(nil{,trim(AValue)});
-      tmp := FDB.GetDBLayerType;
-      if copy(AValue,0,length(tmp))<>tmp then
-        FreeAndNil(FDB)
-      else break;
-    end;
+  FDB := TBaseDBModule.Create(nil);
   if not Assigned(FDB) then Exception.Create('Database Layer not supported !');
   FDbTyp := AValue;
 end;
