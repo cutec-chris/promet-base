@@ -177,6 +177,7 @@ type
   { TBaseDBInterface }
 
   TBaseDBInterface = class(TInterfacedObject,IBaseDBInterface)
+    procedure FDBLog(Sender: TComponent; aLog: string);
   private
     FDB : TBaseDBModule;
     FConfigPath : string;
@@ -1625,6 +1626,12 @@ begin
   AddSearchAbleDataSet(TBaseScript);
 end;
 
+procedure TBaseDBInterface.FDBLog(Sender: TComponent; aLog: string);
+begin
+  with BaseApplication as IBaseApplication do
+    Debug('SQL:'+aLog);
+end;
+
 function TBaseDBInterface.GetMandantPath: string;
 begin
   Result := FConfigPath
@@ -1641,6 +1648,7 @@ begin
   FreeAndNil(FDB);
   FDB := TBaseDBModule.Create(nil);
   if not Assigned(FDB) then Exception.Create('Database Layer not supported !');
+  FDB.OnLog:=@FDBLog;
   FDbTyp := AValue;
 end;
 function TBaseDBInterface.GetDB: TBaseDBModule;
