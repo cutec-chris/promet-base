@@ -23,8 +23,7 @@
     </Files>
     <RequiredPkgs Count="3">
       <Item1>
-        <PackageName Value="promet_dblayer_zeos"/>
-        <DefaultFilename Value="dblayer_zeos/promet_dblayer_zeos.lpk"/>
+        <PackageName Value="avamm_dblayer_zeos"/>
       </Item1>
       <Item2>
         <PackageName Value="msgclient"/>
