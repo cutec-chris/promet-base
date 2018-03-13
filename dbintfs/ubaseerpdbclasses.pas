@@ -322,7 +322,6 @@ begin
 end;
 destructor TInventorys.Destroy;
 begin
-  FPos.Destroy;
   inherited Destroy;
 end;
 function TInventorys.CreateTable : Boolean;
