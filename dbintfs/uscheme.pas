@@ -49,7 +49,7 @@ implementation
 
 function TSchemeList.GetDescriptionFieldName: string;
 begin
-  Result:='DESCRIPTION';
+  Result:='DESC';
 end;
 
 function TSchemeList.GetTextFieldName: string;
@@ -84,7 +84,7 @@ begin
             Add('NAME',ftString,250,True);
             Add('STATUS',ftString,4,False);
             Add('VERSION',ftString,25,False);
-            Add('DESCRIPTION',ftMemo,0,false);
+            Add('DESC',ftMemo,0,false);
             Add('TREEENTRY',ftLargeint,0,False);
             Add('DATA',ftBlob,0,false);
             Add('CHANGEDBY',ftString,4,false);

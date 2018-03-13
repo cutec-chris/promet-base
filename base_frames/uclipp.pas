@@ -92,7 +92,7 @@ begin
           begin
             Add('NAME',ftString,100,True);
             Add('TREEENTRY',ftLargeint,0,False);
-            Add('DESCRIPTION',ftMemo,0,False);
+            Add('DESC',ftMemo,0,False);
             Add('DATA',ftBlob,0,False);
             Add('CREATEDBY',ftString,4,False);
             Add('CHANGEDBY',ftString,4,False);

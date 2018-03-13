@@ -625,7 +625,7 @@ end;
 
 function TStatistic.GetDescriptionFieldName: string;
 begin
-  Result:='DESCRIPTION';
+  Result:='DESC';
 end;
 
 procedure TStatistic.DefineFields(aDataSet: TDataSet);
@@ -638,7 +638,7 @@ begin
         with ManagedFieldDefs do
           begin
             Add('NAME',ftString,40,True);
-            Add('DESCRIPTION',ftMemo,0,False);
+            Add('DESC',ftMemo,0,False);
             Add('STATUS',ftString,4,false);
             Add('QUERRY',ftMemo,0,False);
             Add('DETAIL',ftMemo,0,False);
