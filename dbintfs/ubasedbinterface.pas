@@ -75,8 +75,6 @@ type
     function GetUsers: TUser;
   protected
     FDataSetClass : TDataSetClass;
-    function GetSyncOffset: Integer;virtual;abstract;
-    procedure SetSyncOffset(const AValue: Integer);virtual;abstract;
   public
     DBTables : TBaseDBTables;
     ActiveUsers : TActiveUsers;
@@ -111,7 +109,6 @@ type
     procedure DeleteExpiredSessions;virtual;
     function SetProperties(aProp : string;Connection : TAbstractDBConnection = nil) : Boolean;override;
     function ProcessTerm(aTerm : string;ForceLike : Boolean = False) : string;virtual;
-    function GetUniID(aConnection : TComponent = nil;Generator : string = 'GEN_SQL_ID';Tablename : string = '';AutoInc : Boolean = True) : Variant;virtual;abstract;
     function GetLinkDesc(aLink: string; Fast: Boolean=false): string; virtual;
     function GetLinkLongDesc(aLink : string) : string;virtual;
     function GetLinkIcon(aLink: string; GetRealIcon: Boolean=False): Integer;
@@ -138,7 +135,6 @@ type
     procedure RemoveUserFromActiveList;
     procedure RegisterLinkHandlers(IgnoreRights : Boolean = False);
     property Mandant : string read Fmandant;
-    property SyncOffset : Integer read GetSyncOffset write SetSyncOffset;
     property Properties : string read FProperies;
   end;
   TBaseDBModuleClass = class of TBaseDBModule;
