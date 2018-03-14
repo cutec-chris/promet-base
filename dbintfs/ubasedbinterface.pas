@@ -450,29 +450,32 @@ begin
             SetCurrentDir(actDir);
           except
           end;
-          actVer := MandantDetails.FieldByName('DBVER').AsInteger;
-          if actVer<(7*10000+437) then
-            actVer:=7*10000+437;
-          with BaseApplication as IBaseApplication do
+          if MandantDetails.Active then
             begin
-              try
-                for actVer := actVer to round(AppVersion*10000+AppRevision) do
-                  begin
-                    if FileExists( AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'dbupdates')+IntToStr(actVer)+'.sql') then
+              actVer := MandantDetails.FieldByName('DBVER').AsInteger;
+              if actVer<(7*10000+437) then
+                actVer:=7*10000+437;
+              with BaseApplication as IBaseApplication do
+                begin
+                  try
+                    for actVer := actVer to round(AppVersion*10000+AppRevision) do
                       begin
-                        sl := TStringList.Create;
-                        sl.LoadFromFile(AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'dbupdates')+IntToStr(actVer)+'.sql');
-                        sl.Text := Preprocess(sl.Text);
-                        ExecuteDirect(sl.Text);
-                        sl.Free;
+                        if FileExists( AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'dbupdates')+IntToStr(actVer)+'.sql') then
+                          begin
+                            sl := TStringList.Create;
+                            sl.LoadFromFile(AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'dbupdates')+IntToStr(actVer)+'.sql');
+                            sl.Text := Preprocess(sl.Text);
+                            ExecuteDirect(sl.Text);
+                            sl.Free;
+                          end;
+                      end;
+                  except
+                    on e : Exception do
+                      begin
+                        Error(AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'dbupdates')+IntToStr(actVer)+'.sql Error:'+LineEnding+e.Message);
                       end;
                   end;
-              except
-                on e : Exception do
-                  begin
-                    Error(AppendPathDelim(AppendPathDelim(ExtractFileDir(SysToUni(ParamStr(0))))+'dbupdates')+IntToStr(actVer)+'.sql Error:'+LineEnding+e.Message);
-                  end;
-              end;
+                end;
             end;
       end;
     end;

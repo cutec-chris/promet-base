@@ -32,7 +32,7 @@ implementation
 
 uses usync,uBaseDatasetInterfaces,uData;
 
-function HandleDataRequest(Sender : TAppNetworkThrd;Method, URL: string;Headers : TStringList;Input,Output : TMemoryStream; ResultStatusText : string): Integer;
+function HandleDataRequest(Sender : TAppNetworkThrd;Method, URL: string;SID : string;Parameters,Headers : TStringList;Input,Output : TMemoryStream; ResultStatusText : string): Integer;
 var
   aClassType: TBaseDBDatasetClass;
   aClass: TBaseDBDataset;

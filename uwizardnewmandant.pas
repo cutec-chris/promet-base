@@ -318,10 +318,10 @@ begin
   cbExistingDatabase.Checked:=True;
   with Application as IBaseDBInterface do
     begin
-      if FileExists(AppendPathDelim(MandantPath)+eMandantname.Text+MandantExtension) then
+      if FileExists(UniToSys(AppendPathDelim(MandantPath)+eMandantname.Text)+MandantExtension) then
         begin
           mSettings := TStringList.Create;
-          mSettings.LoadFromFile(AppendPathDelim(MandantPath)+eMandantname.Text+MandantExtension);
+          mSettings.LoadFromFile(UniToSys(AppendPathDelim(MandantPath)+eMandantname.Text)+MandantExtension);
           if mSettings[0] = 'SQL' then
             begin
               tmp := mSettings[1];
@@ -555,7 +555,7 @@ begin
       mSettings.Add('SQL');
       aSettings := cbSQLType.text+';'+eSQLServer.text+';'+UniToSys(eSQLDatabase.text)+';'+eSQLUser.text+';x'+Encrypt(eSQLPassword.Text,99998);
       mSettings.Add(aSettings);
-      mSettings.SaveToFile(AppendPathDelim(MandantPath)+eMandantname.Text+MandantExtension);
+      mSettings.SaveToFile(UniToSys(AppendPathDelim(MandantPath)+eMandantname.Text)+MandantExtension);
       mSettings.Free;
     end;
   pCont0.Visible := False;
@@ -783,7 +783,7 @@ begin
         begin
           Result := 2;
           with Application as IBaseDBInterface do
-            if FileExists(AppendPathDelim(MandantPath)+eMandantname.Text+MandantExtension) then
+            if FileExists(UniToSys(AppendPathDelim(MandantPath)+eMandantname.Text)+MandantExtension) then
               Result := 5;
         end;
       if rbDelete.Checked then
@@ -832,7 +832,7 @@ begin
         end;
       Result := 2;
       with Application as IBaseDBInterface do
-        if FileExists(AppendPathDelim(MandantPath)+eMandantname.Text+MandantExtension) then
+        if FileExists(UniToSys(AppendPathDelim(MandantPath)+eMandantname.Text)+MandantExtension) then
           Result := 5;
       if Application.HasOption('silent') or IsSilent then
         Result := 6;

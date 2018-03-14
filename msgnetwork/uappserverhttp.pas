@@ -27,26 +27,29 @@ uses
   Classes, SysUtils, synautil, uAppServer, blcksock, uhttputil, uBaseApplication;
 
 type
-  THTTPHandlerProc = function(Sender : TAppNetworkThrd;Method,URL : string;Headers : TStringList;Input,Output : TMemoryStream;StatusText : string) : Integer;
+  THTTPHandlerProc = function(Sender : TAppNetworkThrd;Method,URL : string;SID : string;Headers,Parameters : TStringList;Input,Output : TMemoryStream;StatusText : string) : Integer;
 
   { THTTPSession }
 
   THTTPSession = class
   private
     FSocket: TAppNetworkThrd;
+    FUrl: string;
     procedure SetSocket(AValue: TAppNetworkThrd);
+    procedure SetURL(AValue: string);
   public
-    Url : string;
     Code : Integer;
     Command : string;
     Protocol : string;
     NewHeaders : string;
     Close : Boolean;
     Result : TFileStream;
-    headers: TStringList;
+    Headers: TStringList;
+    Parameters : TStringList;
     InputData: TMemoryStream;
     OutputData: TMemoryStream;
     property Socket : TAppNetworkThrd read FSocket write SetSocket;
+    property Url : string read FUrl write SetURL;
 
     constructor Create;
     destructor Destroy; override;
@@ -115,7 +118,7 @@ begin
             aReqTime := Now();
             for i := 0 to Length(HTTPHandlers)-1 do
               begin
-                aSock.Code := HTTPHandlers[i](Sender,aCmd, aSock.Url, aSock.Headers, aSock.InputData, aSock.OutputData, ResultStatusText);
+                aSock.Code := HTTPHandlers[i](Sender,aCmd, aSock.Url,aSock.Parameters.Values['sid'],aSock.Parameters, aSock.Headers, aSock.InputData, aSock.OutputData, ResultStatusText);
                 if aSock.Code<>404 then
                   begin
                     writeln(aCmd+' '+aSock.Url+'=>'+IntToStr(aSock.Code)+' in '+IntToStr(round((Now()-aReqTime)*MSecsPerDay))+' ms');
@@ -250,9 +253,25 @@ begin
   FSocket:=AValue;
 end;
 
+procedure THTTPSession.SetURL(AValue: string);
+var
+  aParams: String;
+begin
+  if FUrl=AValue then Exit;
+  FUrl:=AValue;
+  if pos('?',FUrl)>0 then
+    begin
+      aParams := copy(FUrl,pos('?',FUrl)+1,length(FUrl));
+      Parameters.Delimiter:='&';
+      Parameters.DelimitedText:=aParams;
+    end;
+
+end;
+
 constructor THTTPSession.Create;
 begin
   Headers := TStringList.Create;
+  Parameters := TStringList.Create;
   InputData := TMemoryStream.Create;
   OutputData := TMemoryStream.Create;
   Close:=False;
@@ -263,6 +282,7 @@ begin
   InputData.Free;
   OutputData.Free;
   Headers.Free;
+  Parameters.Free;
   inherited Destroy;
 end;
 

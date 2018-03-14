@@ -44,7 +44,6 @@ type
       aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
     destructor Destroy; override;
     procedure Open; override;
-    function CreateTable : Boolean;override;
     procedure DefineFields(aDataSet: TDataSet); override;
     procedure DefineDefaultFields(aDataSet : TDataSet;HasMasterSource : Boolean);override;
     procedure DefineUserFields(aDataSet: TDataSet);override;
@@ -3106,24 +3105,6 @@ end;
 function TBaseDBDataset.GetTimestamp: TField;
 begin
   Result := DataSet.FieldByName('TIMESTAMPD');
-end;
-
-function TBaseDBDataset.CreateTable: Boolean;
-var
-  aOldFilter: String;
-  aOldLimit: Integer;
-  aTableName: String;
-  aField: String;
-begin
-  with DataSet as IBaseManageDB do
-    begin
-      Result := False;
-      if not TBaseDBModule(DataModule).TableExists(TableName,Connection) then
-        begin
-          Result := CreateTable;
-          TBaseDBModule(DataModule).Tables.Clear;
-        end;
-    end;
 end;
 
 procedure TBaseDBDataset.DefineFields(aDataSet: TDataSet);

@@ -62,7 +62,7 @@ type
     procedure OpenConfig;
   end;
 
-function HandleWikiRequest(Sender : TAppNetworkThrd;Method, URL: string;Headers : TStringList;Input,Output : TMemoryStream;ResultStatusText : string): Integer;
+function HandleWikiRequest(Sender : TAppNetworkThrd;Method, URL: string;SID : string;Parameters,Headers : TStringList;Input,Output : TMemoryStream;ResultStatusText : string): Integer;
 var
   lOut: TStringList;
   i: Integer;
