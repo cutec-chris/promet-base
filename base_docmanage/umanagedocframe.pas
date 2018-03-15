@@ -1854,6 +1854,7 @@ begin
     ThumbControl1.MultiThreaded:=False;
   ThumbControl1.BorderStyle:=bsNone;
   DataSet := TDocPagesList.Create(nil);
+  DataSet.CreateTable;
   FTempPath := uthumbnails.GetThumbTempDir;
   ForceDirectories(UniToSys(FtempPath));
   FtempPath := AppendPathDelim(FtempPath);
