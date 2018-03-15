@@ -255,7 +255,7 @@ begin
                   With aInfo do
                     begin
                       If (Attr and faDirectory) <> faDirectory then
-                        cbMandant.Items.Add(copy(Name,0,length(Name)-length(MandantExtension)));
+                        cbMandant.Items.Add(SysToUni(copy(Name,0,length(Name)-length(MandantExtension))));
                     end;
                 Until FindNext(ainfo)<>0;
               FindClose(aInfo);

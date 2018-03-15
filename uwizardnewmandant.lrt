@@ -1,35 +1,4 @@
 TFWIZARDNEWMANDANT.CAPTION=Neuen Mandanten erstellen
-TFWIZARDNEWMANDANT.LDESCRIPTION2.CAPTION=Um Daten abzulegen wird eine Datenbank benötigt. Dafür werden verschiedene große Datenbanksysteme unterstützt. Wähen Sie zunächst zwischen:
-TFWIZARDNEWMANDANT.BNEXT2.CAPTION=bNext0
-TFWIZARDNEWMANDANT.BPREV2.CAPTION=bPrev0
-TFWIZARDNEWMANDANT.BABORT2.CAPTION=bAbort0
-TFWIZARDNEWMANDANT.LABEL3.CAPTION=Persönliche Datenbank: Die Daten werden nur auf Ihrem Computer gespeichert und sind nicht aus dem Netzwerk zugänglich. Benutzen Sie diese version wenn Sie hauptsächlich allein arbeiten möchten oder das Programm testen. 
-TFWIZARDNEWMANDANT.LABEL4.CAPTION=Datenbankserver: Für diese Option müssen Sie einen Datenbankserver haben/einrichten. Dafür können Sie dann aber mit mehreren Nutzern im Netzwerk am selben Datenbestand gleichzeitig arbeiten.
-TFWIZARDNEWMANDANT.LDESCRIPTION0.CAPTION=Mit diesem Assistenten können Sie einen neuen Mandanten erstellen, wählen Sie dazu im ersten Schritt eine Sprache für den mandanten aus, und geben Sie darunter einen Namen an. Weiterhin müssen Sie hier auswählen ob die Datenbank mit Vorgabedaten gefüllt werden soll oder nicht.
-TFWIZARDNEWMANDANT.LMANDANTNAME.CAPTION=Mandantenname
-TFWIZARDNEWMANDANT.LLANGUAGE.CAPTION=Sprache
-TFWIZARDNEWMANDANT.BNEXT0.CAPTION=bNext0
-TFWIZARDNEWMANDANT.BPREV0.CAPTION=bPrev0
-TFWIZARDNEWMANDANT.BABORT0.CAPTION=bAbort0
-TFWIZARDNEWMANDANT.CBLANGUAGE.TEXT=Deutsch
-TFWIZARDNEWMANDANT.CBNEWDATABASE.HINT=Benutzen Sie diese Einstellung, wenn sie eine neue Datenbank anlegen möchten
-Im folgenden Dialog können Sie ein Profil mit Standardeinstellungen für diese
-Datenbank wählen
-TFWIZARDNEWMANDANT.CBNEWDATABASE.CAPTION=Neue Datenbank (mit Einstellungen füllen)
-TFWIZARDNEWMANDANT.CBEXISTINGDATABASE.HINT=wählen Sie diese Einstellung, wenn Sie eine Datenbankverknüpfung
-zu einer schon existierenden Datenbank anlegen möchten,
-z.b. wenn Sie einen weiteren Client-PC einrichten möchten.
-TFWIZARDNEWMANDANT.CBEXISTINGDATABASE.CAPTION=exitierende Datenbank (keine Einstellungen einfügen)
-TFWIZARDNEWMANDANT.RBDELETE.HINT=Mit deiser Einstellung können Sie eine Datenbankverknüpfung löschen
-(löscht nicht die Datenbank !!)
-TFWIZARDNEWMANDANT.RBDELETE.CAPTION=Datenbankverknüpfung löschen
-TFWIZARDNEWMANDANT.RBFROMFILE.HINT=Mit dieser Einstellung können Sie die Datenbankeinstellungen aus einer Datei (.perml) laden.
-Sie finden diese Dateien nach einer Einrichrung mit diesem Assistenten
-unter Windows in
-Benuterprofil\Lokale Einstellungen\Anwendungsdaten\prometerp\*.perml
-Unter Unix in
-Benuterprofil\.prometerp\*.perml
-TFWIZARDNEWMANDANT.RBFROMFILE.CAPTION=aus Datei erstellen
 TFWIZARDNEWMANDANT.LDESCRIPTION1.CAPTION=Wählen Sie hier ein Profil mit Vorgabewerten aus
 TFWIZARDNEWMANDANT.LPROFILE.CAPTION=Profil
 TFWIZARDNEWMANDANT.BNEXT1.CAPTION=bNext0
@@ -105,3 +74,34 @@ hier möglich (Benutzerverwaltung,Prozesse).
 Sie können die Einstellungen auch jederzeit in den 
 Optionen nachholen
 TFWIZARDNEWMANDANT.BABORT6.CAPTION=Schliessen
+TFWIZARDNEWMANDANT.LDESCRIPTION2.CAPTION=Um Daten abzulegen wird eine Datenbank benötigt. Dafür werden verschiedene große Datenbanksysteme unterstützt. Wähen Sie zunächst zwischen:
+TFWIZARDNEWMANDANT.BNEXT2.CAPTION=bNext0
+TFWIZARDNEWMANDANT.BPREV2.CAPTION=bPrev0
+TFWIZARDNEWMANDANT.BABORT2.CAPTION=bAbort0
+TFWIZARDNEWMANDANT.LABEL3.CAPTION=Persönliche Datenbank: Die Daten werden nur auf Ihrem Computer gespeichert und sind nicht aus dem Netzwerk zugänglich. Benutzen Sie diese version wenn Sie hauptsächlich allein arbeiten möchten oder das Programm testen. 
+TFWIZARDNEWMANDANT.LABEL4.CAPTION=Datenbankserver: Für diese Option müssen Sie einen Datenbankserver haben/einrichten. Dafür können Sie dann aber mit mehreren Nutzern im Netzwerk am selben Datenbestand gleichzeitig arbeiten.
+TFWIZARDNEWMANDANT.LDESCRIPTION0.CAPTION=Mit diesem Assistenten können Sie einen neuen Mandanten erstellen, wählen Sie dazu im ersten Schritt eine Sprache für den mandanten aus, und geben Sie darunter einen Namen an. Weiterhin müssen Sie hier auswählen ob die Datenbank mit Vorgabedaten gefüllt werden soll oder nicht.
+TFWIZARDNEWMANDANT.LMANDANTNAME.CAPTION=Mandantenname
+TFWIZARDNEWMANDANT.LLANGUAGE.CAPTION=Sprache
+TFWIZARDNEWMANDANT.BNEXT0.CAPTION=bNext0
+TFWIZARDNEWMANDANT.BPREV0.CAPTION=bPrev0
+TFWIZARDNEWMANDANT.BABORT0.CAPTION=bAbort0
+TFWIZARDNEWMANDANT.CBLANGUAGE.TEXT=Deutsch
+TFWIZARDNEWMANDANT.CBNEWDATABASE.HINT=Benutzen Sie diese Einstellung, wenn sie eine neue Datenbank anlegen möchten
+Im folgenden Dialog können Sie ein Profil mit Standardeinstellungen für diese
+Datenbank wählen
+TFWIZARDNEWMANDANT.CBNEWDATABASE.CAPTION=Neue Datenbank (mit Einstellungen füllen)
+TFWIZARDNEWMANDANT.CBEXISTINGDATABASE.HINT=wählen Sie diese Einstellung, wenn Sie eine Datenbankverknüpfung
+zu einer schon existierenden Datenbank anlegen möchten,
+z.b. wenn Sie einen weiteren Client-PC einrichten möchten.
+TFWIZARDNEWMANDANT.CBEXISTINGDATABASE.CAPTION=exitierende Datenbank (keine Einstellungen einfügen)
+TFWIZARDNEWMANDANT.RBDELETE.HINT=Mit deiser Einstellung können Sie eine Datenbankverknüpfung löschen
+(löscht nicht die Datenbank !!)
+TFWIZARDNEWMANDANT.RBDELETE.CAPTION=Datenbankverknüpfung löschen
+TFWIZARDNEWMANDANT.RBFROMFILE.HINT=Mit dieser Einstellung können Sie die Datenbankeinstellungen aus einer Datei (.perml) laden.
+Sie finden diese Dateien nach einer Einrichrung mit diesem Assistenten
+unter Windows in
+Benuterprofil\Lokale Einstellungen\Anwendungsdaten\prometerp\*.perml
+Unter Unix in
+Benuterprofil\.prometerp\*.perml
+TFWIZARDNEWMANDANT.RBFROMFILE.CAPTION=aus Datei erstellen

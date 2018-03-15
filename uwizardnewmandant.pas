@@ -899,7 +899,7 @@ begin
           With aInfo do
             begin
               If (Attr and faDirectory) <> faDirectory then
-                eMandantname.Items.Add(copy(Name,0,length(Name)-length(MandantExtension)));
+                eMandantname.Items.Add(SysToUni(copy(Name,0,length(Name)-length(MandantExtension))));
             end;
         Until FindNext(ainfo)<>0;
       FindClose(aInfo);
