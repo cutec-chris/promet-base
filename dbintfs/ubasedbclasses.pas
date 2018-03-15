@@ -2652,7 +2652,6 @@ constructor TRights.CreateEx(aOwner: TComponent; DM: TComponent;
 begin
   inherited CreateEx(aOwner,DM, aConnection, aMasterdata);
   FCachedRights := TStringList.Create;
-//  IsReadOnly:=True;
 end;
 destructor TRights.Destroy;
 begin
@@ -2662,6 +2661,7 @@ end;
 
 procedure TRights.Open;
 begin
+  ResetCache;
   with BaseApplication as IBaseDbInterface do
     begin
       with DataSet as IBaseDBFilter do

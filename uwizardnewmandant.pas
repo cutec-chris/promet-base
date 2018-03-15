@@ -345,7 +345,7 @@ end;
 procedure TfWizardNewMandant.FormCloseQuery(Sender: TObject;
   var CanClose: boolean);
 begin
-  fOptions.Free;
+  FreeAndNil(fOptions);
   with Application as IBaseDBInterface do
     DBLogout;
   CanClose:=True;
