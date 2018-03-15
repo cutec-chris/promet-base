@@ -599,30 +599,34 @@ begin
             begin
               aSyncDB := TSyncDB.CreateEx(Self,Data);
               aSyncDB.CreateTable;
-              aSyncDB.Insert;
-              aSyncDB.FieldByName('NAME').AsString:='Help';
-              aSyncDB.FieldByName('PROPERTIES').AsString:='SQL:sqlite-3;localhost;help.db;;x';
-              aSyncDB.FieldByName('ACTIVE').AsString:='Y';
-              aSyncDB.DataSet.Post;
-              aSyncDB.Tables.Insert;
-              aSyncDB.Tables.FieldByName('NAME').AsString:='WIKI';
-              aSyncDB.Tables.FieldByName('ACTIVE').AsString:='Y';
-              aSyncDB.Tables.DataSet.Post;
-              aSyncDB.Tables.Insert;
-              aSyncDB.Tables.FieldByName('NAME').AsString:='DOCUMENTS';
-              aSyncDB.Tables.FieldByName('ACTIVE').AsString:='Y';
-              aSyncDB.Tables.FieldByName('FILTERIN').AsString:=Data.QuoteField('TYPE')+'='+Data.QuoteValue('W');
-              aSyncDB.Tables.DataSet.Post;
-              aSyncDB.Tables.Insert;
-              aSyncDB.Tables.FieldByName('NAME').AsString:='TREE';
-              aSyncDB.Tables.FieldByName('ACTIVE').AsString:='Y';
-              aSyncDB.Tables.FieldByName('FILTERIN').AsString:=Data.QuoteField('TYPE')+'='+Data.QuoteValue('W');
-              aSyncDB.Tables.DataSet.Post;
-              aSyncDB.Tables.Insert;
-              aSyncDB.Tables.FieldByName('NAME').AsString:='SCRIPTS';
-              aSyncDB.Tables.FieldByName('ACTIVE').AsString:='Y';
-              aSyncDB.Tables.FieldByName('FILTERIN').AsString:=Data.ProcessTerm(Data.QuoteField('NAME')+'='+Data.QuoteValue('CmdLn.*'))+' OR '+Data.ProcessTerm(Data.QuoteField('NAME')+'='+Data.QuoteValue('Import*'))+' OR '+Data.ProcessTerm(Data.QuoteField('NAME')+'='+Data.QuoteValue('Export*'));
-              aSyncDB.Tables.DataSet.Post;
+              aSyncDB.Open;
+              if not aSyncDB.Locate('NAME','Help',[]) then
+                begin
+                  aSyncDB.Insert;
+                  aSyncDB.FieldByName('NAME').AsString:='Help';
+                  aSyncDB.FieldByName('PROPERTIES').AsString:='SQL:sqlite-3;localhost;help.db;;x';
+                  aSyncDB.FieldByName('ACTIVE').AsString:='Y';
+                  aSyncDB.DataSet.Post;
+                  aSyncDB.Tables.Insert;
+                  aSyncDB.Tables.FieldByName('NAME').AsString:='WIKI';
+                  aSyncDB.Tables.FieldByName('ACTIVE').AsString:='Y';
+                  aSyncDB.Tables.DataSet.Post;
+                  aSyncDB.Tables.Insert;
+                  aSyncDB.Tables.FieldByName('NAME').AsString:='DOCUMENTS';
+                  aSyncDB.Tables.FieldByName('ACTIVE').AsString:='Y';
+                  aSyncDB.Tables.FieldByName('FILTERIN').AsString:=Data.QuoteField('TYPE')+'='+Data.QuoteValue('W');
+                  aSyncDB.Tables.DataSet.Post;
+                  aSyncDB.Tables.Insert;
+                  aSyncDB.Tables.FieldByName('NAME').AsString:='TREE';
+                  aSyncDB.Tables.FieldByName('ACTIVE').AsString:='Y';
+                  aSyncDB.Tables.FieldByName('FILTERIN').AsString:=Data.QuoteField('TYPE')+'='+Data.QuoteValue('W');
+                  aSyncDB.Tables.DataSet.Post;
+                  aSyncDB.Tables.Insert;
+                  aSyncDB.Tables.FieldByName('NAME').AsString:='SCRIPTS';
+                  aSyncDB.Tables.FieldByName('ACTIVE').AsString:='Y';
+                  aSyncDB.Tables.FieldByName('FILTERIN').AsString:=Data.ProcessTerm(Data.QuoteField('NAME')+'='+Data.QuoteValue('CmdLn.*'))+' OR '+Data.ProcessTerm(Data.QuoteField('NAME')+'='+Data.QuoteValue('Import*'))+' OR '+Data.ProcessTerm(Data.QuoteField('NAME')+'='+Data.QuoteValue('Export*'));
+                  aSyncDB.Tables.DataSet.Post;
+                end;
               aSyncDB.Free;
             end;
           DoImportTable(Data.Numbers);
@@ -637,45 +641,51 @@ begin
           DoImportTable(Data.MandantDetails);
           Data.ProcessClient.CreateTable;
           Data.ProcessClient.Open;
-          with Data.ProcessClient.DataSet do
+          if not Data.ProcessClient.Locate('NAME',GetSystemName,[]) then
             begin
-              Insert;
-              FieldByName('NAME').AsString:=GetSystemName;
-              FieldByName('STATUS').AsString:='N';
-              Post;
+              with Data.ProcessClient.DataSet do
+                begin
+                  Insert;
+                  FieldByName('NAME').AsString:=GetSystemName;
+                  FieldByName('STATUS').AsString:='N';
+                  Post;
+                end;
+              Data.ProcessClient.Processes.Open;
+              with Data.ProcessClient.Processes.DataSet do
+                begin
+                  Insert;
+                  FieldByName('NAME').AsString:='sync_db';
+                  FieldByName('INTERVAL').AsInteger:=1000;
+                  Post;
+                end;
             end;
-          Data.ProcessClient.Processes.Open;
-          with Data.ProcessClient.Processes.DataSet do
+          if not Data.ProcessClient.Locate('NAME','*',[]) then
             begin
-              Insert;
-              FieldByName('NAME').AsString:='sync_db';
-              FieldByName('INTERVAL').AsInteger:=1000;
-              Post;
-            end;
-          with Data.ProcessClient.DataSet do
-            begin
-              Insert;
-              FieldByName('NAME').AsString:='*';
-              FieldByName('STATUS').AsString:='N';
-              Post;
-            end;
-          Data.ProcessClient.Processes.Open;
-          with Data.ProcessClient.Processes.DataSet do
-            begin
-              Insert;
-              FieldByName('NAME').AsString:='pop3receiver';
-              FieldByName('INTERVAL').AsInteger:=10;
-              Insert;
-              FieldByName('NAME').AsString:='smtpsender';
-              FieldByName('INTERVAL').AsInteger:=3;
-              Insert;
-              FieldByName('NAME').AsString:='feedreceiver';
-              FieldByName('INTERVAL').AsInteger:=20;
-              Post;
-              Insert;
-              FieldByName('NAME').AsString:='twitterreceiver';
-              FieldByName('INTERVAL').AsInteger:=10;
-              Post;
+              with Data.ProcessClient.DataSet do
+                begin
+                  Insert;
+                  FieldByName('NAME').AsString:='*';
+                  FieldByName('STATUS').AsString:='N';
+                  Post;
+                end;
+              Data.ProcessClient.Processes.Open;
+              with Data.ProcessClient.Processes.DataSet do
+                begin
+                  Insert;
+                  FieldByName('NAME').AsString:='pop3receiver';
+                  FieldByName('INTERVAL').AsInteger:=10;
+                  Insert;
+                  FieldByName('NAME').AsString:='smtpsender';
+                  FieldByName('INTERVAL').AsInteger:=3;
+                  Insert;
+                  FieldByName('NAME').AsString:='feedreceiver';
+                  FieldByName('INTERVAL').AsInteger:=20;
+                  Post;
+                  Insert;
+                  FieldByName('NAME').AsString:='twitterreceiver';
+                  FieldByName('INTERVAL').AsInteger:=10;
+                  Post;
+                end;
             end;
 
           DoImport(TSyncDB);
