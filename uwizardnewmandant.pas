@@ -267,6 +267,8 @@ begin
 end;
 procedure TfWizardNewMandant.Button1Click(Sender: TObject);
 begin
+  if not Assigned(fOptions) then
+    Application.CreateForm(TfOptions,fOptions);
   fOptions.tvMain.Selected := fOptions.tvMain.Items.FindNodeWithText(strMandant);
   fOptions.Showmodal;
 end;

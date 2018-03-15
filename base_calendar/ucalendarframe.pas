@@ -611,9 +611,9 @@ end;
 destructor TfCalendarFrame.Destroy;
 begin
   FList.Free;
-  if Assigned(DataStore.Resource) then
+  if Assigned(DataStore) and Assigned(DataStore.Resource) then
     DataStore.Resource.Free;
-  DataStore.Free;
+  FreeAndNil(DataStore);
   inherited Destroy;
 end;
 function TfCalendarFrame.OpenFromLink(aLink: string) : Boolean;
