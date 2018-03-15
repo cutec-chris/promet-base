@@ -171,6 +171,7 @@ type
     function OpenWikiPage(PageName : string;CreateIfNotExists : Boolean = False) : Boolean;
     procedure Refresh;
     procedure ShowFrame;override;
+    procedure ShowHTML(aHtml : string);
     procedure DoRefresh(ForceRefresh : Boolean = False); override;
     property Variables : TStrings read FVariables;
     property LeftBar : Boolean read GetLeftBar write SetLeftBar;
@@ -631,6 +632,11 @@ procedure TfWikiFrame.ShowFrame;
 begin
   inherited ShowFrame;
   DoRefresh;
+end;
+
+procedure TfWikiFrame.ShowHTML(aHtml: string);
+begin
+  ipHTML.SetHtml(FEditor.GetHTML(aHtml))
 end;
 
 procedure TfWikiFrame.DoRefresh(ForceRefresh: Boolean);
