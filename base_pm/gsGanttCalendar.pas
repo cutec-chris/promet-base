@@ -4099,7 +4099,8 @@ begin
     FTextEdit.Text := CurrInterval.Task;
     FTextEdit.SelectAll;
     FTextEdit.BringToFront;
-    FTextEdit.SetFocus;
+    if FTextEdit.CanFocus then
+      FTextEdit.SetFocus;
     FEditInterval := CurrInterval;
   end;  
 end;

@@ -156,7 +156,7 @@ end;
 procedure TfPassword.cbUserSelect(Sender: TObject);
 begin
   ePasswort.Enabled := True;
-  if Visible then
+  if ePasswort.CanFocus then
     ePasswort.SetFocus;
   with Application as IBaseDBInterface do
     lFirstLogin.Visible:=Data.Users.DataSet.Locate('NAME',cbUser.text,[])
@@ -180,7 +180,8 @@ procedure TfPassword.FormShow(Sender: TObject);
 begin
   if Visible and (cbMandant.Text <> '') and (cbUser.Text <> '') then
     begin
-      ePasswort.SetFocus;
+      if ePasswort.CanFocus then
+        ePasswort.SetFocus;
       //Self.BringToFront;
       //IdleTimer1.Enabled:=True;
     end;

@@ -85,7 +85,8 @@ end;
 
 procedure TfHistoryAddItem.FormShow(Sender: TObject);
 begin
-  eAction.SetFocus;
+  if eAction.CanFocus then
+    eAction.SetFocus;
 end;
 
 function TfHistoryAddItem.fSearchOpenItem(aLink: string): Boolean;

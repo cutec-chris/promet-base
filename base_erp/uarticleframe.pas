@@ -774,8 +774,8 @@ begin
                           or (not DataSet.FieldByName('ACCOUNTINGINFO').IsNull),strFinance,@AddFinance);
   if Assigned(TMasterdata(DataSet).FieldByName('SCRIPT')) then
     pcPages.NewFrame(TfAutomationframe,TMasterdata(DataSet).FieldByName('SCRIPT').AsString<>'',strAutomation,@AddAutomation);
-
-  mShorttext.SetFocus;
+  if mShortText.CanFocus then
+    mShorttext.SetFocus;
   with Application as TBaseVisualApplication do
     AddTabClasses('ART',pcPages);
   with Application as TBaseVisualApplication do
@@ -832,7 +832,8 @@ procedure TfArticleFrame.AddPositions(Sender: TObject);
 begin
   TfArticlePositionFrame(Sender).SetDataSet(TMasterdata(FDataSet).Positions);
   TPrometInplaceFrame(Sender).SetRights(FEditable);
-  TfArticlePositionFrame(Sender).SetFocus;
+  if TfArticlePositionFrame(Sender).CanFocus then
+    TfArticlePositionFrame(Sender).SetFocus;
 end;
 procedure TfArticleFrame.AddList(Sender: TObject);
 var

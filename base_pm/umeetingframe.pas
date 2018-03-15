@@ -700,7 +700,8 @@ begin
   FGridView.DataSet.FieldByName('LINK').AsString:=aLink;
   FGridView.Post;
   FGridView.SyncActiveRow(FGridView.DataSet.Id.AsVariant,False,True);
-  FGridView.SetFocus;
+  if FGridView.CanFocus then
+    FGridView.SetFocus;
 end;
 
 function TfMeetingFrame.fSearchOpenUserItem(aLink: string): Boolean;
@@ -756,7 +757,8 @@ begin
     end
   ;
   pSearch.Visible:=False;
-  FGridView.SetFocus;
+  if FGridView.CanFocus then
+    FGridView.SetFocus;
   Key := VK_TAB;
   Shift := [];
   THackCustomGrid(FGridView.gList).KeyDown(Key,Shift);

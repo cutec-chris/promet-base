@@ -163,12 +163,14 @@ begin
       if cbFormat.Items.Count = 0 then
         begin
           lInfo.Caption:=strCreateAnFormat;
-          bChangeFormat.SetFocus;
+          if bChangeFormat.CanFocus then
+            bChangeFormat.SetFocus;
         end
       else
         begin
           lInfo.Caption:=strSelectAnFormat;
-          cbFormat.SetFocus;
+          if cbFormat.CanFocus then
+            cbFormat.SetFocus;
         end;
       ShowInfo := True;
     end
@@ -176,7 +178,8 @@ begin
     begin
       lInfo.Caption:=strConfigureDataSource;
       ShowInfo := True;
-      bSourceOptions.SetFocus;
+      if bSourceOptions.CanFocus then
+        bSourceOptions.SetFocus;
       bpButtons.OKButton.Enabled:=True;
     end;
   lInfo.Visible := ShowInfo;

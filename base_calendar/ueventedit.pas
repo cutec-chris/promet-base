@@ -478,7 +478,8 @@ begin
 end;
 procedure TfEventEdit.FormShow(Sender: TObject);
 begin
-  DescriptionEdit.SetFocus;
+  if DescriptionEdit.CanFocus then
+    DescriptionEdit.SetFocus;
 end;
 
 procedure TfEventEdit.sbMenueClick(Sender: TObject);

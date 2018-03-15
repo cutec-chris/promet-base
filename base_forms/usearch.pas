@@ -518,7 +518,8 @@ begin
       cbAutomaticSearch.Checked:=DBConfig.ReadString('SEARCHWHILETYPING','YES') <> 'NO';
       cbAutomaticSearch.OnChange(Self);
       cbWildgards.Checked:=DBConfig.ReadString('WILDGARDSEARCH','NO') = 'YES';
-      eContains.SetFocus;
+      if eContains.CanFocus then
+        eContains.SetFocus;
       eContains.SelectAll;
     end;
 end;

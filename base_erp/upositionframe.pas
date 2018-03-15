@@ -522,7 +522,8 @@ begin
     FGridView.Refresh
   else
     FGridView.SyncActiveRow(DataSet.GetBookmark,False,True,True);
-  FGridView.SetFocus;
+  if FGridView.CanFocus then
+    FGridView.SetFocus;
   aMD.Free;
   pSearch.Visible:=False;
   Key := VK_TAB;
@@ -532,7 +533,8 @@ begin
 end;
 procedure TfPosition.acAddPosExecute(Sender: TObject);
 begin
-  FGridView.SetFocus;
+  if FGridView.CanFocus then
+    FGridView.SetFocus;
   FGridView.InsertAfter;
 end;
 
@@ -1335,7 +1337,8 @@ procedure TfPosition.SetFocus;
 begin
   if CanFocus and Visible then
     inherited;
-  FGridView.SetFocus;
+  if FGridView.CanFocus then
+    FGridView.SetFocus;
   if FGridView.IsVisible and FFirstShow then
     begin
       Application.QueueAsyncCall(@DoAsyncInit,0);

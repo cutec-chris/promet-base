@@ -916,7 +916,8 @@ begin
     begin
       gList.EditorMode:=False;
       TUnprotectedGrid(gList).KeyDown(Key,Shift);
-      gList.SetFocus;
+      if gList.CanFocus then
+        gList.SetFocus;
     end;
 end;
 procedure TfGridView.mInplaceResize(Sender: TObject);
@@ -936,7 +937,7 @@ begin
           aCur := mInplace.SelStart;
           mInplace.ScrollBars:=ssAutoVertical;
           mInplace.SelStart:=aCur;
-          if mInplace.Visible then
+          if mInplace.Visible and mInplace.CanFocus then
             mInplace.SetFocus;
         end;
     end

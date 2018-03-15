@@ -73,7 +73,8 @@ procedure TfDocumentAddOptions.FormShow(Sender: TObject);
 begin
   if eName.Enabled then
     begin
-      eName.SetFocus;
+      if eName.CanFocus then
+        eName.SetFocus;
       eName.SelectAll;
     end;
 end;

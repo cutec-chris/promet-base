@@ -165,7 +165,7 @@ begin
   Data.Reports.DataSet.Refresh;
   SetupDB;
   bPreview.Enabled := (Data.Reports.Count > 0) and (not Data.Reports.FieldByName('REPORT').IsNull);
-  if bPreview.Enabled then
+  if bPreview.Enabled and bPreview.CanFocus then
     bPreview.SetFocus;
   bDesign.Visible := Data.Users.Rights.Right('REPORTS') > RIGHT_READ;
   dnReport.Visible := Data.Users.Rights.Right('REPORTS') > RIGHT_READ;
@@ -485,7 +485,8 @@ begin
       with Application as IBaseConfig do
         Config.WriteRect('ReportPreview',pv.BoundsRect);
       pv.Free;
-      bPrint.Setfocus;
+      if bPrint.CanFocus then
+        bPrint.Setfocus;
       Screen.Cursor:=crDefault;
     end;
 end;

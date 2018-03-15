@@ -128,7 +128,7 @@ end;
 
 procedure TfSelectTemplate.SetEditFocus(Data: PtrInt);
 begin
-  if Visible then
+  if eName.CanFocus then
     eName.SetFocus;
 end;
 

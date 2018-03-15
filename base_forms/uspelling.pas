@@ -93,7 +93,8 @@ begin
       aMemo.SelStart:=aEntry.Offset;
       aMemo.SelEnd:=amemo.SelStart+length(aEntry.Word);
       cbWords.Text:=aEntry.Word;
-      FMemo.SetFocus;
+      if FMemo.CanFocus then
+        FMemo.SetFocus;
       if ShowModal = mrAbort then break;
     end;
   aList.Free;

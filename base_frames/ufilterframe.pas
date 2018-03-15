@@ -383,7 +383,8 @@ begin
     if gHeader.CanFocus then
       begin
         gHeader.Col := gList.SelectedIndex+1;
-        gHeader.SetFocus;
+        if gHeader.CanFocus then
+          gHeader.SetFocus;
         gHeader.EditorMode:=True;
       end;
   if (Key = VK_RETURN) then

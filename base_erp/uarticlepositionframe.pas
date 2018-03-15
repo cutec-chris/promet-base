@@ -86,7 +86,8 @@ end;
 procedure TfArticlePositionFrame.SetFocus;
 begin
   if CanFocus and Visible then
-    inherited;
+    inherited
+  else exit;
   FPosFrame.SetFocus;
 end;
 

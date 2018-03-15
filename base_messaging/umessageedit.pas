@@ -877,9 +877,10 @@ begin
   pcTabs.AddTabClass(TfDocumentFrame,strAttatchments,@AddDocuments);
   IsModified := False;
   Show;
-  if receiver <> '' then
+  if (receiver <> '') and eSubject.CanFocus then
     eSubject.SetFocus
-  else cbTo.SetFocus;
+  else if cbto.CanFocus then
+    cbTo.SetFocus;
 end;
 procedure TfMessageEdit.SendMailToWithDoc(Receiver: string; Subject: string;
   Msg: string; Document: string; DeleteFile: Boolean);

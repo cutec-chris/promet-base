@@ -1239,7 +1239,8 @@ begin
          end;
      if not Found then
        begin
-         ed.SetFocus;
+         if ed.CanFocus then
+           ed.SetFocus;
        end;
    end;
  except
