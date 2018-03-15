@@ -3406,6 +3406,7 @@ constructor TMeasurement.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
+  (DataSet as IBaseManageDB).UseIntegrity:=False;
   FMesdata := TMeasurementData.CreateEx(Self,DataModule,aConnection,DataSet);
   FDS := TDataSource.Create(Self);
   FDS.DataSet := DataSet;
