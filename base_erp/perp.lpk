@@ -121,18 +121,22 @@
       <OutDir Value="../../../languages"/>
       <EnableI18NForLFM Value="True"/>
     </i18n>
-    <RequiredPkgs Count="3">
+    <RequiredPkgs Count="4">
       <Item1>
-        <PackageName Value="fpreport_fcl"/>
-        <DefaultFilename Value="../../components/fpreport/fpreport_fcl.lpk"/>
+        <PackageName Value="msgclient"/>
+        <DefaultFilename Value="../msgclient/msgclient.lpk"/>
       </Item1>
       <Item2>
-        <PackageName Value="lr_extexp"/>
+        <PackageName Value="fpreport_fcl"/>
+        <DefaultFilename Value="../../components/fpreport/fpreport_fcl.lpk"/>
       </Item2>
       <Item3>
+        <PackageName Value="lr_extexp"/>
+      </Item3>
+      <Item4>
         <PackageName Value="pvisualframes"/>
         <DefaultFilename Value="../base_frames/pvisualframes.lpk"/>
-      </Item3>
+      </Item4>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

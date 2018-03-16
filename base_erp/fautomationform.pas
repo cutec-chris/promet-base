@@ -28,7 +28,7 @@ uses
   Dialogs, ExtCtrls, StdCtrls, Buttons, ActnList, ComCtrls, Menus, DbCtrls,
   Spin, DBGrids, uBaseDbClasses, uBaseERPDBClasses, uprometscripts, uDocuments,
   uprometpascalscript, genpascalscript, genscript, db, simpleipc, blcksock,
-  synsock, uprometscriptprinting, uImageCache,base64,uChangeStatus;
+  synsock, uprometscriptprinting, uImageCache,base64,uChangeStatus,uprometmsgclient;
 
 type
   TTCPCommandDaemon = class(TThread)
@@ -159,6 +159,7 @@ type
     procedure tvStepSelectionChanged(Sender: TObject);
     function ExecuteServerFunction(aFunc : string) : Variant;
   private
+    FMsgClient : TPrometMsgClient;
     LastRunLineDate : TDateTime;
     FActNode: TIpHtmlNode;
     FDataSet: TBaseDBPosition;
@@ -176,6 +177,8 @@ type
     { private declarations }
   public
     { public declarations }
+    constructor Create(TheOwner: TComponent); override;
+    destructor Destroy; override;
     property DataSet : TBaseDBPosition read FDataSet write SetDataSet;
     procedure Clear;
     procedure DoOpen;
@@ -253,6 +256,11 @@ resourcestring
   strProblemSend                        = 'Die Störung wurde Eingetragen !';
   strProblemAt                          = 'Störung %s bei %s';
   strAbortWarning                       = 'Achtung das Abbrechen des Ablaufes kann zu unerwünschten Nebenwirkungen führen, wirklich abbrechen ?';
+
+procedure MsgOnPublish(Topic, Value: string);
+begin
+  Showmessage(Topic+':'+Value);
+end;
 
 procedure TTCPCommandDaemon.DoData;
 begin
@@ -1237,6 +1245,20 @@ begin
       FAutomation.ipHTML.Repaint;
     end;
   Screen.Cursor:=crDefault;
+end;
+
+constructor TFAutomation.Create(TheOwner: TComponent);
+begin
+  inherited Create(TheOwner);
+  FMsgClient := TPrometMsgClient.Create;
+  FMsgClient.Sub('/'+GetSystemName+'/avad/*');
+  FMsgClient.OnPublish:=@MsgOnPublish;
+end;
+
+destructor TFAutomation.Destroy;
+begin
+  FMSgClient.Free;
+  inherited Destroy;
 end;
 
 procedure TFAutomation.Clear;
