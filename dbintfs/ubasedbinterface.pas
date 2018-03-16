@@ -113,6 +113,7 @@ type
     function GetLinkLongDesc(aLink : string) : string;virtual;
     function GetLinkIcon(aLink: string; GetRealIcon: Boolean=False): Integer;
       virtual;
+    function GetUSerCode: string; override;
     function BuildLink(aDataSet : TDataSet) : string;virtual;
     function GotoLink(const aLink : string) : Boolean;virtual;
     function DataSetFromName(aName: string;var aClass : TBaseDBDatasetClass): Boolean;
@@ -844,6 +845,14 @@ begin
   else if (copy(aLink, 0, 6) = 'SCHEME') then   Result := 130
   ;
 end;
+
+function TBaseDBModule.GetUSerCode: string;
+begin
+  Result:=inherited GetUSerCode;
+  if Users.Active then
+    Result := USers.FieldByName('IDCODE').AsString;
+end;
+
 function TBaseDBModule.BuildLink(aDataSet: TDataSet): string;
 var
   aTable : TDataSet;
