@@ -196,7 +196,7 @@ begin
         Sender.AddMethod(Self,@TPrometPascalScript.InternalSetReportVariable,'procedure SetReportVariable(Name : string;Value : string);');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalGetNumberFromNumberset,'function GetNumberFromNumberset(Numberset : string) : string;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalSaveFilefromDocuments,'function SaveFilefromDocuments(Filename,OutPath : string) : Boolean;');
-        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TComponent'),TBaseDBDataset) do
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TComponent'),TAbstractDBDataset) do
           begin
             RegisterMethod('procedure Open;');
             RegisterMethod('procedure Close;');
@@ -210,13 +210,10 @@ begin
             RegisterMethod('procedure Post;');
             RegisterMethod('procedure Edit;');
             RegisterMethod('procedure Cancel;');
-            RegisterMethod('function GetBookmark: Variant;');
-            RegisterMethod('function GotoBookmark(aRec : Variant) : Boolean;');
             RegisterMethod('function Locate(const keyfields: string; const keyvalues: Variant; options: TLocateOptions) : boolean;');
             RegisterMethod('function EOF : Boolean;');
             RegisterMethod('function FieldByName(const aFieldName : string) : TField;');
             RegisterMethod('procedure Filter(aFilter : string;aLimit : Integer);');
-            RegisterMethod('procedure Select(aID : Variant);');
             RegisterProperty('ActualFilter','String',iptRW);
             RegisterProperty('ActualLimit','Integer',iptRW);
             RegisterProperty('DataSet','TDataSet',iptRW);
@@ -224,31 +221,40 @@ begin
             RegisterProperty('CanEdit','Boolean',iptRW);
             RegisterProperty('Active','Boolean',iptRW);
           end;
-        with Sender.ClassImporter.Add(TBaseDBDataset) do
+        with Sender.ClassImporter.Add(TAbstractDBDataset) do
           begin
-            RegisterVirtualMethod(@TBaseDBDataset.Open, 'OPEN');
-            RegisterVirtualMethod(@TBaseDBDataset.Close, 'CLOSE');
-            RegisterVirtualMethod(@TBaseDBDataset.Insert, 'INSERT');
-            RegisterVirtualMethod(@TBaseDBDataset.Append, 'APPEND');
-            RegisterVirtualMethod(@TBaseDBDataset.Delete, 'DELETE');
-            RegisterVirtualMethod(@TBaseDBDataset.First, 'FIRST');
-            RegisterVirtualMethod(@TBaseDBDataset.Last, 'LAST');
-            RegisterVirtualMethod(@TBaseDBDataset.Next, 'NEXT');
-            RegisterVirtualMethod(@TBaseDBDataset.Prior, 'PRIOR');
-            RegisterVirtualMethod(@TBaseDBDataset.Post, 'POST');
-            RegisterVirtualMethod(@TBaseDBDataset.Edit, 'EDIT');
-            RegisterVirtualMethod(@TBaseDBDataset.Cancel, 'CANCEL');
-            RegisterVirtualMethod(@TBaseDBDataset.Locate, 'LOCATE');
-            RegisterVirtualMethod(@TBaseDBDataset.EOF, 'EOF');
-            RegisterVirtualMethod(@TBaseDBDataset.FieldByName, 'FIELDBYNAME');
-            RegisterVirtualMethod(@TBaseDBDataset.Filter, 'FILTER');
-            RegisterVirtualMethod(@TBaseDBDataset.Select, 'SELECT');
-            RegisterVirtualMethod(@TBaseDBDataset.GetBookmark, 'GETBOOKMARK');
-            RegisterVirtualMethod(@TBaseDBDataset.GotoBookmark, 'GOTOBOOKMARK');
+            RegisterVirtualMethod(@TAbstractDBDataset.Open, 'OPEN');
+            RegisterVirtualMethod(@TAbstractDBDataset.Close, 'CLOSE');
+            RegisterVirtualMethod(@TAbstractDBDataset.Insert, 'INSERT');
+            RegisterVirtualMethod(@TAbstractDBDataset.Append, 'APPEND');
+            RegisterVirtualMethod(@TAbstractDBDataset.Delete, 'DELETE');
+            RegisterVirtualMethod(@TAbstractDBDataset.First, 'FIRST');
+            RegisterVirtualMethod(@TAbstractDBDataset.Last, 'LAST');
+            RegisterVirtualMethod(@TAbstractDBDataset.Next, 'NEXT');
+            RegisterVirtualMethod(@TAbstractDBDataset.Prior, 'PRIOR');
+            RegisterVirtualMethod(@TAbstractDBDataset.Post, 'POST');
+            RegisterVirtualMethod(@TAbstractDBDataset.Edit, 'EDIT');
+            RegisterVirtualMethod(@TAbstractDBDataset.Cancel, 'CANCEL');
+            RegisterVirtualMethod(@TAbstractDBDataset.Locate, 'LOCATE');
+            RegisterVirtualMethod(@TAbstractDBDataset.EOF, 'EOF');
+            RegisterVirtualMethod(@TAbstractDBDataset.FieldByName, 'FIELDBYNAME');
+            RegisterVirtualMethod(@TAbstractDBDataset.Filter, 'FILTER');
             RegisterPropertyHelper(@TBaseDBDatasetPropertyDataSetR,nil,'DATASET');
             RegisterPropertyHelper(@TBaseDBDatasetPropertyCountR,nil,'COUNT');
             RegisterPropertyHelper(@TBaseDBDatasetPropertyCanEditR,nil,'CANEDIT');
             RegisterPropertyHelper(@TBaseDBDatasetPropertyActiveR,@TBaseDBDatasetPropertyActiveW,'ACTIVE');
+          end;
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TAbstractDBDataset'),TBaseDBDataset) do
+          begin
+            RegisterMethod('procedure Select(aID : Variant);');
+            RegisterMethod('function GetBookmark: Variant;');
+            RegisterMethod('function GotoBookmark(aRec : Variant) : Boolean;');
+          end;
+        with Sender.ClassImporter.Add(TBaseDBDataset) do
+          begin
+            RegisterVirtualMethod(@TBaseDBDataset.Select, 'SELECT');
+            RegisterVirtualMethod(@TBaseDBDataset.GetBookmark, 'GETBOOKMARK');
+            RegisterVirtualMethod(@TBaseDBDataset.GotoBookmark, 'GOTOBOOKMARK');
           end;
         Sender.AddMethod(Self,@TPrometPascalScript.ActualObject,'function ActualObject : TBaseDBDataSet;');
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBDataSet'),TBaseDbList) do

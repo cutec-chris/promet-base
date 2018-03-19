@@ -1,6 +1,6 @@
 ﻿Build 438 (nicht veröffentlicht)
       - PAppserver:Reports werden nun über fpReport ausgegebn (kaum Serverseitige Abhängigkeiten und genaere PDF,PNG,HTML Reports)
-      - Sync_db:Synchronisation wird nun hirarchich durchgeführt um Master/Detail Synchronisationsprobleme zu vermeiden
+      - Sync_db:Synchronisation wird nun hirarchisch durchgeführt um Master/Detail Synchronisationsprobleme zu vermeiden
       - Suche opimiert
       - Umzug auf generisches Datenbanklayer das viele redundanzen auflöst, und Abfragen über mehrere (auch unterschiedliche) Datenbanken(quellen) erlauben soll
 Build 437 (18.02.2018)
