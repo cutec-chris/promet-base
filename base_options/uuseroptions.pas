@@ -41,11 +41,11 @@ type
     bNewGroup: TSpeedButton;
     bNewUser: TSpeedButton;
     bResetPassword: TSpeedButton;
-    bSaveUser: TSpeedButton;
-    bSaveUser1: TSpeedButton;
+    bDeleteUser: TSpeedButton;
     cbPosition: TDBComboBox;
     DBCheckBox1: TDBCheckBox;
     DBCheckBox2: TDBCheckBox;
+    DBNavigator1: TDBNavigator;
     eCustomerNumber2: TDBEdit;
     eCustomerNumber3: TDBEdit;
     eWorktime: TDBEdit;
@@ -91,7 +91,7 @@ type
     procedure bNewGroupClick(Sender: TObject);
     procedure bNewUserClick(Sender: TObject);
     procedure bResetPasswordClick(Sender: TObject);
-    procedure bSaveUserClick(Sender: TObject);
+    procedure bDeleteUserClick(Sender: TObject);
     procedure eUsernameChange(Sender: TObject);
     procedure miRightsClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
@@ -145,7 +145,7 @@ var
   Node1: TTreeNode;
 begin
   Node1 := tvUsers.Items.AddChildObject(nil,'New Group',TUserTreeEntry.Create);
-  tvRights.Selected := Node1;
+  tvUsers.Selected := Node1;
   Node1.ImageIndex:=18;
   Node1.SelectedIndex:=18;
   aUsers.DataSet.Append;
@@ -173,6 +173,7 @@ var
   Node1: TTreeNode;
 begin
   Node1 := tvUsers.Items.AddChildObject(nil,strNewUser,TUserTreeEntry.Create);
+  tvUsers.Selected := Node1;
   Node1.ImageIndex:=21;
   Node1.SelectedIndex:=21;
   aUsers.DataSet.Append;
@@ -194,7 +195,7 @@ begin
   aUsers.FieldByName('PASSWORD').AsString := '';
   aUsers.DataSet.Post;
 end;
-procedure TfUserOptions.bSaveUserClick(Sender: TObject);
+procedure TfUserOptions.bDeleteUserClick(Sender: TObject);
 begin
   if (aUsers.State = dsInsert) or (aUsers.State = dsEdit) then
     aUsers.dataSet.Post;
@@ -368,11 +369,17 @@ begin
 end;
 procedure TfUserOptions.CommitTransaction;
 begin
+  if (UsersDS.DataSet.State = dsInsert)
+  or (UsersDS.DataSet.State = dsEdit) then
+    UsersDS.DataSet.Post;
   //Data.CommitTransaction(aConnection);
   inherited;
 end;
 procedure TfUserOptions.RollbackTransaction;
 begin
+  if (UsersDS.DataSet.State = dsInsert)
+  or (UsersDS.DataSet.State = dsEdit) then
+    UsersDS.DataSet.Cancel;
   //Data.RollbackTransaction(aConnection);
   inherited;
 end;
