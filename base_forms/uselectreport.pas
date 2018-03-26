@@ -31,7 +31,7 @@ uses
   LR_E_CSV, lr_e_pdf, LRDialogControls, Variants, UTF8process,
   ExtCtrls, DbCtrls, LCLType, uExtControls, FileUtil, uBaseApplication, uOrder,
   lr_richview, lr_tachart, SynBeautifier, PrintersDlgs,uBaseERPDBClasses,uBaseDbClasses,
-  Utils,uBaseDatasetInterfaces;
+  Utils,uBaseDatasetInterfaces, fpreportformexport;
 
 type
   TfrDesignerHackForm = TfrDesignerForm;
@@ -49,6 +49,9 @@ type
     bDesign: TBitBtn;
     cbPrinter: TComboBox;
     cbInfo: TComboBox;
+    eCC: TDBEdit;
+    eMail: TDBEdit;
+    FPreportPreviewExport1: TFPreportPreviewExport;
     frBarCodeObject1: TfrBarCodeObject;
     frChartObject1: TfrChartObject;
     frCheckBoxObject1: TfrCheckBoxObject;
@@ -63,7 +66,10 @@ type
     frTextExport1: TfrTextExport;
     frTNPDFExport1: TfrTNPDFExport;
     gReports: TExtDBGrid;
+    IdleTimer1: TIdleTimer;
     Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
     LRDialogControls1: TLRDialogControls;
     PrinterSetupDialog1: TPrinterSetupDialog;
     Reports: TDatasource;
@@ -76,7 +82,6 @@ type
     SaveDialog: TSaveDialog;
     eCopies: TSpinEdit;
     SpeedButton1: TSpeedButton;
-    PreviewTimer: TTimer;
     procedure ApplicationIBaseDBInterfaceReportsAfterInsert(DataSet: TDataSet);
     procedure ApplicationIBaseDBInterfaceReportsDataSetAfterScroll(
       DataSet: TDataSet);
@@ -86,7 +91,6 @@ type
     procedure bBookClick(Sender: TObject);
     procedure bEditTextClick(Sender: TObject);
     procedure bShippingOutputClick(Sender: TObject);
-    procedure DataReportsDataSetAfterScroll(DataSet: TDataSet);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormShow(Sender: TObject);
@@ -175,6 +179,8 @@ begin
   dnReport.Visible := Data.Users.Rights.Right('REPORTS') > RIGHT_READ;
   bEditText.Visible := Data.Users.Rights.Right('REPORTS') > RIGHT_READ;
   gReports.ReadOnly:=not (Data.Users.Rights.Right('REPORTS') > RIGHT_READ);
+  eMail.Enabled:=Data.Users.Rights.Right('REPORTS') > RIGHT_READ;
+  eCC.Enabled:=Data.Users.Rights.Right('REPORTS') > RIGHT_READ;
 end;
 procedure TfSelectReport.bShippingOutputClick(Sender: TObject);
 var
@@ -183,11 +189,6 @@ begin
   if Assigned(FDS) then
     if Supports(FDS, IShipableDataSet, SH) then
       SH.ShippingOutput;
-end;
-
-procedure TfSelectReport.DataReportsDataSetAfterScroll(DataSet: TDataSet);
-begin
-  PreviewTimer.Enabled:=True;
 end;
 
 procedure TfSelectReport.FormClose(Sender: TObject;
@@ -308,6 +309,8 @@ begin
   cbInfo.Text:=copy(tmp,0,pos(';',tmp)-1);
   tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
   eCopies.Value:=StrToIntDef(copy(tmp,0,pos(';',tmp)-1),1);
+  frPreview1.Clear;
+  IdleTimer1.Enabled:=True;
 end;
 procedure TfSelectReport.ApplicationIBaseDBInterfaceReportsDataSetBeforeScroll(
   DataSet: TDataSet);
@@ -518,12 +521,18 @@ var
   {$ENDIF}
   aDocument : TDocument;
   SH : IPostableDataSet;
-  eMail: String;
+  eMailAddr: String;
   aUser: TUser;
   a: Integer;
   aFile: String;
 begin
   Res := false;
+  eMailAddr := eMail.Text;
+  if (FDS is TOrder) then
+    begin
+      if eMailAddr='' then
+        eMailAddr:=FDS.FieldByName('EMAIL').AsString;
+    end;
   if not Assigned(fLogWaitForm) then
     Application.CreateForm(TfLogWaitForm,fLogWaitForm);
   fLogWaitForm.Clear;
@@ -624,47 +633,22 @@ begin
         end
       else if cbPrinter.Text = '<'+streMail+'>' then
         begin
-          eMail := '';
           fLogWaitform.ShowInfo('e-Mail wird generiert...');
-          aCustomer := TPerson.CreateEx(Self,Data);
-          if (FDS is TOrder) and (TOrder(FDS).Address.Count > 0) then
-            begin
-              aCustomer.SelectByAccountNo(TOrder(FDS).Address.FieldByName('ACCOUNTNO').AsString);
-              aCustomer.Open;
-              aCustomer.ContactData.Open;
-              if aCustomer.ContactData.DataSet.Locate('TYPE','MAIL',[]) then
-                begin
-                  eMail := aCustomer.ContactData.FieldByName('DATA').AsString;
-                end;
-            end;
-          aCustomer.Destroy;
           if Assigned(FOnSendMessage) then
             begin
-              FOnSendMessage(Report,eMail,Report.Title,Data.Reports.FieldByName('TEXT').AsString,isPrepared);
+              FOnSendMessage(Report,eMailAddr,Report.Title,Data.Reports.FieldByName('TEXT').AsString,isPrepared);
               Res := True;
             end;
         end
       else if cbPrinter.Text = '<'+strExterneMail+'>' then
         begin
-          eMail:='';
-          aCustomer := TPerson.CreateEx(Self,Data);
-          if (FDS is TOrder) and (TOrder(FDS).Address.Count > 0) then
-            begin
-              aCustomer.SelectByAccountNo(TOrder(FDS).Address.FieldByName('ACCOUNTNO').AsString);
-              aCustomer.Open;
-              aCustomer.ContactData.Open;
-              if aCustomer.ContactData.DataSet.Locate('TYPE','MAIL',[]) then
-                begin
-                  eMail := aCustomer.ContactData.FieldByName('DATA').AsString;
-                end;
-            end;
-          aCustomer.Destroy;
           aName := 'Document';
           if (copy(fType,0,2) = 'OR') and (FDS is TOrder) then
             aName := TOrder(FDS).OrderType.FieldByName('STATUSNAME').AsString+' '+TOrder(FDS).FieldByName('NUMBER').AsString;
           if FDS is TMeetings then
             begin
               Report.Title := strMeeting+' '+TMeetings(FDS).Text.AsString;
+              eMailAddr := '';
               with TMeetings(FDS).Users do
                 begin
                   First;
@@ -675,10 +659,10 @@ begin
                       aUser.Open;
                       if (aUser.Count=1) and (aUser.Id.AsVariant<>Data.Users.Id.AsVariant) then
                         if aUser.FieldByName('EMAIL').AsString<>'' then
-                          eMail:=eMail+','+aUser.FieldByName('EMAIL').AsString;
+                          eMailAddr:=eMailAddr+','+aUser.FieldByName('EMAIL').AsString;
                       next;
                     end;
-                  eMail:=copy(eMail,2,length(eMail));
+                  eMailAddr:=copy(eMailAddr,2,length(eMailAddr));
                   aUser.Free;
                 end;
             end;
@@ -701,7 +685,7 @@ begin
                   {$ELSE}
                   Report.ExportTo(frFilters[i].ClassRef,aFile);
                   {$ENDIF}
-                  DoSendMail(Report.Title,Data.Reports.FieldByName('TEXT').AsString, aFile,'','','',eMail);
+                  DoSendMail(Report.Title,Data.Reports.FieldByName('TEXT').AsString, aFile,'','',eMailAddr,eCC.Text);
                   res := True;
                 end
               else fError.ShowWarning(strCantPrepareReport);
@@ -769,24 +753,10 @@ begin
           if cbInfo.Text = '<'+streMail+'>' then
             begin
               fLogWaitform.ShowInfo('e-Mail wird generiert...');
-              aCustomer := TPerson.CreateEx(Self,Data);
-              if (FDS is TOrder) and (TOrder(FDS).Address.Count > 0) then
+              if Assigned(FOnSendMessage) then
                 begin
-                  aCustomer.SelectByAccountNo(TOrder(FDS).Address.FieldByName('ACCOUNTNO').AsString);
-                  aCustomer.Open;
-                  aCustomer.ContactData.Open;
-                  if aCustomer.ContactData.DataSet.Locate('TYPE;ACTIVE',VarArrayOf(['MAIL','Y']),[])
-                  or aCustomer.ContactData.DataSet.Locate('TYPE',VarArrayOf(['MAIL']),[])
-                  then
-                    begin
-                      if Assigned(FOnSendMessage) then
-                        begin
-                          FOnSendMessage(Report,aCustomer.ContactData.FieldByName('DATA').AsString,aName,Data.Reports.FieldByName('TEXT').AsString,isPrepared);
-                          Res := True;
-                        end;
-                    end
-                  else
-                    ShowMessage(strNoMailAddress);
+                  FOnSendMessage(Report,eMailAddr,aName,Data.Reports.FieldByName('TEXT').AsString,isPrepared);
+                  Res := True;
                 end;
               aCustomer.Destroy;
             end;
@@ -825,11 +795,14 @@ var
   BaseApplication : IBaseApplication;
   NewRect: TRECT;
 begin
+  IdleTimer1.Enabled:=False;
+  Report.Preview := nil;
   if not Supports(Application, IBaseApplication, BaseApplication) then exit;
   Screen.Cursor:=crHourglass;
+  try
   with Application as IBaseDbInterface do
     begin
-      LoadReport;
+      if not LoadReport then exit;
       Printer.PrinterIndex:=-1;//Default Printer
       if cbPrinter.Text = '<'+strFileExport+'>' then
       else if cbPrinter.Text = '<'+streMail+'>' then
@@ -845,23 +818,20 @@ begin
             end;
         end;
 
-      try
+        Report.ShowProgress:=False;
         Report.Preview := frPreview1;
         if Report.PrepareReport then
           begin
             Report.ShowReport;
             Report.Preview.Zoom:=60;
+            Report.Preview := nil;
             Screen.Cursor:=crDefault;
           end;
-      except
-        on e : Exception do
-          begin
-            fError.ShowError(e.Message);
-            Screen.Cursor:=crDefault;
-          end;
-      end;
       Screen.Cursor:=crDefault;
     end;
+  except
+    Screen.Cursor:=crDefault;
+  end;
 end;
 
 procedure TfSelectReport.SpeedButton1Click(Sender: TObject);
@@ -1032,8 +1002,7 @@ begin
     Report.PreviewButtons:=[pbZoom, pbFind, pbExit]
   else if Assigned(Report) then
     Report.PreviewButtons:=[pbZoom, pbSave, pbPrint, pbFind, pbExit];
-  PreviewTimerTimer(Self);
-  Data.Reports.DataSet.AfterScroll:=@DataReportsDataSetAfterScroll;
+  IdleTimer1.Enabled:=True;
   Show;
   Application.ProcessMessages; // Preview ist meisst Modal unter diversen Umständen gibts Probleme mit 2 Modalen Forms übereinander
   while Visible do
@@ -1042,7 +1011,6 @@ begin
       sleep(100);
     end;
   Result := ModalResult = mrOK;
-  Data.Reports.DataSet.AfterScroll:=nil;
   FDS := nil;
   if not Result then
     begin

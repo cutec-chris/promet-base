@@ -338,9 +338,13 @@ type
   public
     procedure DefineFields(aDataSet : TDataSet);override;
   end;
+
+  { TReports }
+
   TReports = class(TBaseDBDataSet)
   public
     procedure DefineFields(aDataSet : TDataSet);override;
+    procedure Open; override;
   end;
 
   { TOptions }
@@ -2352,7 +2356,7 @@ begin
           Add('REF_ID_ID','REF_ID_ID',[]);
     end;
 end;
-procedure Treports.DefineFields(aDataSet: TDataSet);
+procedure TReports.DefineFields(aDataSet: TDataSet);
 begin
   with aDataSet as IBaseManageDB do
     begin
@@ -2373,6 +2377,11 @@ begin
             Add('TEXT',ftMemo,0,False);
           end;
     end;
+end;
+
+procedure TReports.Open;
+begin
+  inherited Open;
 end;
 
 constructor TFilters.Create(aOwner: TComponent);

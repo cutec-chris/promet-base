@@ -27,12 +27,12 @@ uses
   ;
 
 function DoSendMail(Subject, Body, FileName, SenderName, SenderEMail,
-                  RecepientName, RecepientEMail: String) : Integer;
+                  RecepientEMail,RecepientCC: String) : Integer;
 
 implementation
 {$IFDEF WINDOWS}
 function DoSendMail(Subject, Body, FileName, SenderName, SenderEMail,
-                  RecepientName, RecepientEMail: String) : Integer;
+                  RecepientEMail,RecepientCC: String) : Integer;
 var
   message: TMapiMessage;
   lpSender : TMapiRecipDesc;
@@ -83,14 +83,24 @@ begin
       begin
         lpRecepient[nRecipCount].ulRecipClass := MAPI_TO;
         MailName[nRecipCount] := copy(tmpMail,0,pos(',',tmpMail)-1);
-        if (RecepientName='') then
-        begin
-          lpRecepient[nRecipCount].lpszName := PChar(UniToSys(MailName[nRecipCount]))
-        end
-        else
-        begin
-          lpRecepient[nRecipCount].lpszName := PChar(RecepientName)
-        end;
+        lpRecepient[nRecipCount].lpszName := PChar(UniToSys(MailName[nRecipCount]));
+        MailAddr[nRecipCount] := 'SMTP:'+copy(tmpMail,0,pos(',',tmpMail)-1);
+        lpRecepient[nRecipCount].lpszAddress := PChar(MailAddr[nRecipCount]);
+        lpRecepient[nRecipCount].ulReserved := 0;
+        lpRecepient[nRecipCount].ulEIDSize := 0;
+        lpRecepient[nRecipCount].lpEntryID := nil;
+        nRecipCount := nRecipCount+1;
+        lpRecips := @lpRecepient;
+        tmpMail := copy(tmpMail,pos(',',tmpMail)+1,length(tmpMail));
+      end;
+    tmpMail := RecepientCC;
+    if pos('@',tmpMail)>0 then
+      tmpMail:=tmpMail+',';
+    while pos(',',tmpMail)>0 do
+      begin
+        lpRecepient[nRecipCount].ulRecipClass := MAPI_CC;
+        MailName[nRecipCount] := copy(tmpMail,0,pos(',',tmpMail)-1);
+        lpRecepient[nRecipCount].lpszName := PChar(UniToSys(MailName[nRecipCount]));
         MailAddr[nRecipCount] := 'SMTP:'+copy(tmpMail,0,pos(',',tmpMail)-1);
         lpRecepient[nRecipCount].lpszAddress := PChar(MailAddr[nRecipCount]);
         lpRecepient[nRecipCount].ulReserved := 0;
@@ -151,7 +161,7 @@ begin
 end;
 {$ELSE}
 function DoSendMail(Subject, Body, FileName, SenderName, SenderEMail,
-                  RecepientName, RecepientEMail: String) : Integer;
+                  RecepientEMail,RecepientCC: String) : Integer;
 var
   aProc: TProcessUTF8;
   NoTB: Boolean = False;

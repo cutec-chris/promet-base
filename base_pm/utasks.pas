@@ -958,7 +958,7 @@ begin
       if FGridView.DataSet.FieldByName('DUEDATE').AsString<>'' then
         aDesc := strDue+':'+#9#9#9#9+FGridView.DataSet.FieldByName('DUEDATE').AsString+LineEnding+aDesc;
       aDesc := strTask+':'+#9#9#9+FGridView.DataSet.FieldByName('SUMMARY').AsString+LineEnding+aDesc;
-      DoSendMail(strTask+':'+Data.GetLinkDesc(aLink),aDesc, aFile,'','','',FSearcheMail);
+      DoSendMail(strTask+':'+Data.GetLinkDesc(aLink),aDesc, aFile,'','',FSearcheMail,'');
     end;
 end;
 

@@ -340,7 +340,7 @@ begin
       sl.Add(aLink);
       sl.SaveToFile(aFile);
       sl.Free;
-      DoSendMail(Data.GetLinkDesc(aLink),Data.GetLinkLongDesc(aLink), aFile,'','','',FSearcheMail);
+      DoSendMail(Data.GetLinkDesc(aLink),Data.GetLinkLongDesc(aLink), aFile,'','',FSearcheMail,'');
     end;
 end;
 
