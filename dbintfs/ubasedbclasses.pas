@@ -2366,6 +2366,9 @@ begin
             Add('STANDARD',ftString,1,False);
             Add('CHANGEDBY',ftString,4,False);
             Add('LANGUAGE',ftString,3,True);
+            Add('EMAIL',ftString,200,False);
+            Add('EMAILCC',ftString,200,False);
+            Add('EMAILBCC',ftString,200,False);
             Add('REPORT',ftBlob,0,False);
             Add('TEXT',ftMemo,0,False);
           end;

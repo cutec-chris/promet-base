@@ -55,6 +55,7 @@ type
     frCSVExport1: TfrCSVExport;
     frDesigner1: TfrDesigner;
     frHTMExport1: TfrHTMExport;
+    frPreview1: TfrPreview;
     frRichViewObject1: TfrRichViewObject;
     frRoundRectObject1: TfrRoundRectObject;
     frShapeObject1: TfrShapeObject;
@@ -75,6 +76,7 @@ type
     SaveDialog: TSaveDialog;
     eCopies: TSpinEdit;
     SpeedButton1: TSpeedButton;
+    PreviewTimer: TTimer;
     procedure ApplicationIBaseDBInterfaceReportsAfterInsert(DataSet: TDataSet);
     procedure ApplicationIBaseDBInterfaceReportsDataSetAfterScroll(
       DataSet: TDataSet);
@@ -84,6 +86,7 @@ type
     procedure bBookClick(Sender: TObject);
     procedure bEditTextClick(Sender: TObject);
     procedure bShippingOutputClick(Sender: TObject);
+    procedure DataReportsDataSetAfterScroll(DataSet: TDataSet);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormShow(Sender: TObject);
@@ -96,6 +99,7 @@ type
     procedure cbPrinterSelect(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure GetReportVar(const ParName: String; var ParValue: Variant);
+    procedure PreviewTimerTimer(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
   private
     FBooked: Boolean;
@@ -180,6 +184,12 @@ begin
     if Supports(FDS, IShipableDataSet, SH) then
       SH.ShippingOutput;
 end;
+
+procedure TfSelectReport.DataReportsDataSetAfterScroll(DataSet: TDataSet);
+begin
+  PreviewTimer.Enabled:=True;
+end;
+
 procedure TfSelectReport.FormClose(Sender: TObject;
   var CloseAction: TCloseAction);
 begin
@@ -452,6 +462,7 @@ begin
               Prn.PrinterIndex := cbPrinter.ItemIndex-DefaultPrinterTypes;
             end;
         end;
+
       pv := TfrPreviewForm.Create(Self);
       pv.WindowState:=wsNormal;
       with Application as IBaseConfig do
@@ -809,6 +820,50 @@ begin
   ;
 end;
 
+procedure TfSelectReport.PreviewTimerTimer(Sender: TObject);
+var
+  BaseApplication : IBaseApplication;
+  NewRect: TRECT;
+begin
+  if not Supports(Application, IBaseApplication, BaseApplication) then exit;
+  Screen.Cursor:=crHourglass;
+  with Application as IBaseDbInterface do
+    begin
+      LoadReport;
+      Printer.PrinterIndex:=-1;//Default Printer
+      if cbPrinter.Text = '<'+strFileExport+'>' then
+      else if cbPrinter.Text = '<'+streMail+'>' then
+      else if cbPrinter.Text = '<'+strExterneMail+'>' then
+      else if cbPrinter.Text = '<'+strDefaultPrinter+'>' then
+      else if cbPrinter.Text = '<'+strDocumentDefaultPrinter+'>' then
+      else if cbPrinter.Text = '<'+strNoOutput+'>' then
+      else
+        begin
+          if cbPrinter.ItemIndex > -1 then
+            begin
+              Prn.PrinterIndex := cbPrinter.ItemIndex-DefaultPrinterTypes;
+            end;
+        end;
+
+      try
+        Report.Preview := frPreview1;
+        if Report.PrepareReport then
+          begin
+            Report.ShowReport;
+            Report.Preview.Zoom:=60;
+            Screen.Cursor:=crDefault;
+          end;
+      except
+        on e : Exception do
+          begin
+            fError.ShowError(e.Message);
+            Screen.Cursor:=crDefault;
+          end;
+      end;
+      Screen.Cursor:=crDefault;
+    end;
+end;
+
 procedure TfSelectReport.SpeedButton1Click(Sender: TObject);
 begin
   if PrinterSetupDialog1.Execute then
@@ -977,6 +1032,8 @@ begin
     Report.PreviewButtons:=[pbZoom, pbFind, pbExit]
   else if Assigned(Report) then
     Report.PreviewButtons:=[pbZoom, pbSave, pbPrint, pbFind, pbExit];
+  PreviewTimerTimer(Self);
+  Data.Reports.DataSet.AfterScroll:=@DataReportsDataSetAfterScroll;
   Show;
   Application.ProcessMessages; // Preview ist meisst Modal unter diversen Umständen gibts Probleme mit 2 Modalen Forms übereinander
   while Visible do
@@ -985,6 +1042,7 @@ begin
       sleep(100);
     end;
   Result := ModalResult = mrOK;
+  Data.Reports.DataSet.AfterScroll:=nil;
   FDS := nil;
   if not Result then
     begin
