@@ -494,18 +494,6 @@ object fSelectReport: TfSelectReport
     ParentColor = False
     ParentFont = False
   end
-  object frPreview1: TfrPreview
-    Left = 296
-    Height = 698
-    Top = 16
-    Width = 500
-    Anchors = [akTop, akLeft, akRight, akBottom]
-    BevelOuter = bvLowered
-    Color = clWhite
-    ParentColor = False
-    TabOrder = 13
-    ScrollBars = ssBoth
-  end
   object Label2: TLabel
     Left = 9
     Height = 15
@@ -531,7 +519,7 @@ object fSelectReport: TfSelectReport
     DataSource = Reports
     CharCase = ecNormal
     MaxLength = 0
-    TabOrder = 14
+    TabOrder = 13
   end
   object eCC: TDBEdit
     Left = 152
@@ -542,7 +530,29 @@ object fSelectReport: TfSelectReport
     DataSource = Reports
     CharCase = ecNormal
     MaxLength = 0
+    TabOrder = 14
+  end
+  object Panel1: TPanel
+    Left = 296
+    Height = 709
+    Top = 8
+    Width = 498
+    BevelOuter = bvLowered
+    Caption = 'keine Vorschau'
+    ClientHeight = 709
+    ClientWidth = 498
+    Color = clWhite
+    ParentColor = False
     TabOrder = 15
+    object Image1: TImage
+      Left = 1
+      Height = 707
+      Top = 1
+      Width = 496
+      Align = alClient
+      Proportional = True
+      Stretch = True
+    end
   end
   object SaveDialog: TSaveDialog
     FilterIndex = 0
@@ -605,9 +615,8 @@ object fSelectReport: TfSelectReport
     left = 246
     top = 184
   end
-  object FPreportPreviewExport1: TFPreportPreviewExport
-    AutoRun = False
-    left = 335
-    top = 53
+  object frImageExport1: TfrImageExport
+    left = 246
+    top = 56
   end
 end

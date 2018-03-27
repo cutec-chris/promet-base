@@ -28,7 +28,7 @@ uses
   Classes, SysUtils,  Forms, Controls, Graphics, Dialogs, StdCtrls,
   Buttons, DBGrids, db, Printers, LR_Class, LR_Desgn, LR_View, Spin, LR_DBSet,
   Process, LR_Prntr, LR_ChBox, LR_Shape, LR_RRect, LR_BarC, LR_E_TXT, LR_E_HTM,
-  LR_E_CSV, lr_e_pdf, LRDialogControls, Variants, UTF8process,
+  LR_E_CSV, lr_e_pdf, LRDialogControls, LR_e_img, Variants, UTF8process,
   ExtCtrls, DbCtrls, LCLType, uExtControls, FileUtil, uBaseApplication, uOrder,
   lr_richview, lr_tachart, SynBeautifier, PrintersDlgs,uBaseERPDBClasses,uBaseDbClasses,
   Utils,uBaseDatasetInterfaces, fpreportformexport;
@@ -51,14 +51,13 @@ type
     cbInfo: TComboBox;
     eCC: TDBEdit;
     eMail: TDBEdit;
-    FPreportPreviewExport1: TFPreportPreviewExport;
     frBarCodeObject1: TfrBarCodeObject;
     frChartObject1: TfrChartObject;
     frCheckBoxObject1: TfrCheckBoxObject;
     frCSVExport1: TfrCSVExport;
     frDesigner1: TfrDesigner;
     frHTMExport1: TfrHTMExport;
-    frPreview1: TfrPreview;
+    frImageExport1: TfrImageExport;
     frRichViewObject1: TfrRichViewObject;
     frRoundRectObject1: TfrRoundRectObject;
     frShapeObject1: TfrShapeObject;
@@ -67,10 +66,12 @@ type
     frTNPDFExport1: TfrTNPDFExport;
     gReports: TExtDBGrid;
     IdleTimer1: TIdleTimer;
+    Image1: TImage;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     LRDialogControls1: TLRDialogControls;
+    Panel1: TPanel;
     PrinterSetupDialog1: TPrinterSetupDialog;
     Reports: TDatasource;
     dnReport: TDBNavigator;
@@ -309,7 +310,7 @@ begin
   cbInfo.Text:=copy(tmp,0,pos(';',tmp)-1);
   tmp := copy(tmp,pos(';',tmp)+1,length(tmp));
   eCopies.Value:=StrToIntDef(copy(tmp,0,pos(';',tmp)-1),1);
-  frPreview1.Clear;
+  Image1.Picture.Clear;
   IdleTimer1.Enabled:=True;
 end;
 procedure TfSelectReport.ApplicationIBaseDBInterfaceReportsDataSetBeforeScroll(
@@ -794,9 +795,10 @@ procedure TfSelectReport.PreviewTimerTimer(Sender: TObject);
 var
   BaseApplication : IBaseApplication;
   NewRect: TRECT;
+  aFile: String;
+  i: Integer;
 begin
   IdleTimer1.Enabled:=False;
-  Report.Preview := nil;
   if not Supports(Application, IBaseApplication, BaseApplication) then exit;
   Screen.Cursor:=crHourglass;
   try
@@ -818,15 +820,28 @@ begin
             end;
         end;
 
-        Report.ShowProgress:=False;
-        Report.Preview := frPreview1;
-        if Report.PrepareReport then
-          begin
-            Report.ShowReport;
-            Report.Preview.Zoom:=60;
-            Report.Preview := nil;
-            Screen.Cursor:=crDefault;
-          end;
+      {$IF ((LCL_MAJOR >= 1) and (LCL_MINOR > 5))}
+      FOR i := 0 TO ExportFilters.Count - 1 DO
+         if pos('PNG',Uppercase(ExportFilters[i].FilterDesc)) > 0 then
+      {$ELSE}
+      FOR i := 0 TO frFiltersCount - 1 DO
+         if pos('PNG',Uppercase(frFilters[i].FilterDesc)) > 0 then
+      {$ENDIF}
+           begin
+             DataSet.DataSet.DisableControls;
+             if Report.PrepareReport then
+               begin
+                 with BaseApplication as IBaseApplication do
+                   aFile := GetInternalTempDir+ValidateFileName(Report.Title)+'.png';
+                 {$IF ((LCL_MAJOR >= 1) and (LCL_MINOR > 5))}
+                 Report.ExportTo(ExportFilters[i].ClassRef,aFile);
+                 {$ELSE}
+                 Report.ExportTo(frFilters[i].ClassRef,aFile);
+                 {$ENDIF}
+                 Image1.Picture.LoadFromFile(aFile);
+               end;
+             DataSet.DataSet.EnableControls;
+           end;
       Screen.Cursor:=crDefault;
     end;
   except
