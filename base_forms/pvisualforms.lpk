@@ -115,27 +115,24 @@
       <OutDir Value="../../../languages"/>
       <EnableI18NForLFM Value="True"/>
     </i18n>
-    <RequiredPkgs Count="6">
+    <RequiredPkgs Count="5">
       <Item1>
         <PackageName Value="lr_extexp"/>
       </Item1>
       <Item2>
-        <PackageName Value="lclfpreport"/>
-      </Item2>
-      <Item3>
         <PackageName Value="pVisualPrometApp"/>
         <DefaultFilename Value="../pvisualprometapp.lpk"/>
-      </Item3>
-      <Item4>
+      </Item2>
+      <Item3>
         <PackageName Value="lazreport_addons"/>
         <DefaultFilename Value="../../components/lazreport/lazreport_addons.lpk"/>
+      </Item3>
+      <Item4>
+        <PackageName Value="lr_DialogDesign"/>
       </Item4>
       <Item5>
-        <PackageName Value="lr_DialogDesign"/>
-      </Item5>
-      <Item6>
         <PackageName Value="lazreportpdfexport"/>
-      </Item6>
+      </Item5>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>
