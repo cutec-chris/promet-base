@@ -824,7 +824,8 @@ end;
 
 procedure TOrder.CascadicPost;
 begin
-  Recalculate;
+  if FOrderPos.CanEdit or CanEdit then
+    Recalculate;
   FOrderAddress.CascadicPost;
   FHistory.CascadicPost;
   FOrderPos.CascadicPost;

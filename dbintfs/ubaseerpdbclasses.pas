@@ -374,37 +374,40 @@ var
   saType: String;
   aField: TField;
 begin
-  if CanEdit then Post;
-  if UpdateHistory and Supports(Self, IBaseHistory, Hist) then
+  if CanEdit then
     begin
-      if not Hist.History.DataSet.Active then Hist.History.Open;
-      if (Hist.History.Count=0) or (DataSet.State = dsInsert) then
+      Post;
+      if UpdateHistory and Supports(Self, IBaseHistory, Hist) then
         begin
-          sType := strCreated;
-        end
-      else
-        begin
-          sType := strEdited;
-          if not Hist.History.ChangedDuringSession then
+          if not Hist.History.DataSet.Active then Hist.History.Open;
+          if (Hist.History.Count=0) or (DataSet.State = dsInsert) then
             begin
-              try
-                saType:=' (';
-                for i := 0 to DataSet.Fields.Count-1 do
-                  begin
-                    aField := DataSet.Fields[i];
-                    if aField.OldValue<>aField.NewValue then
-                      saType := saType+','+aField.FieldName;
+              sType := strCreated;
+            end
+          else
+            begin
+              sType := strEdited;
+              if not Hist.History.ChangedDuringSession then
+                begin
+                  try
+                    saType:=' (';
+                    for i := 0 to DataSet.Fields.Count-1 do
+                      begin
+                        aField := DataSet.Fields[i];
+                        if aField.OldValue<>aField.NewValue then
+                          saType := saType+','+aField.FieldName;
+                      end;
+                    saType:=Stringreplace(saType,'(,','(',[rfReplaceAll])+')';
+                    saType:=Stringreplace(saType,'()','',[rfReplaceAll]);
+                  except
+                    saType:='';
                   end;
-                saType:=Stringreplace(saType,'(,','(',[rfReplaceAll])+')';
-                saType:=Stringreplace(saType,'()','',[rfReplaceAll]);
-              except
-                saType:='';
-              end;
+                end;
             end;
+          sType:=sType+saType;
+          Hist.History.AddItem(Self.DataSet,sType,'','',nil,0,'',True,True,False);
+          Hist.History.ChangedDuringSession := False;
         end;
-      sType:=sType+saType;
-      Hist.History.AddItem(Self.DataSet,sType,'','',nil,0,'',True,True,False);
-      Hist.History.ChangedDuringSession := False;
     end;
   inherited CascadicPost;
 end;
