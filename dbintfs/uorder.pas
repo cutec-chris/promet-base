@@ -471,6 +471,12 @@ begin
       if not Order.CanEdit then
         Order.DataSet.Edit;
       Order.FieldByName('CUSTNO').AsString := Person.FieldByName('ACCOUNTNO').AsString;
+      Person.ContactData.Open;
+      if Person.ContactData.Locate('TYPE','MLB',[loPartialKey])
+      or Person.ContactData.Locate('TYPE','MAIL',[loPartialKey])
+      or Person.ContactData.Locate('TYPE','MLP',[loPartialKey])
+      then
+        Order.FieldByName('EMAIL').AsString := Person.ContactData.FieldByName('DATA').AsString;
     end;
 end;
 
