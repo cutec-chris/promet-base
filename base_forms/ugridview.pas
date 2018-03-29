@@ -3018,6 +3018,11 @@ begin
         begin
           if Assigned(gList.Objects[0,gList.Row]) then
             TRowObject(gList.Objects[0,gList.Row]).Rec := Bookmark;
+          if Bookmark = 0 then
+            begin
+              gList.RowCount:=gList.RowCount-1;
+              Showmessage('Invalid Row ID, cant add row !');
+            end;
           {$ifdef debug}
           debugln('Sync Bookmark=',IntToStr(Bookmark));
           {$endif}
@@ -3069,7 +3074,14 @@ begin
             end;
     end;
   if Result and Assigned(gList.Objects[0,gList.Row]) and (TRowObject(gList.Objects[0,gList.Row]).Rec = 0) then
-    TRowObject(gList.Objects[0,gList.Row]).Rec := Bookmark;
+    begin
+      TRowObject(gList.Objects[0,gList.Row]).Rec := Bookmark;
+      if Bookmark = 0 then
+        begin
+          gList.RowCount:=gList.RowCount-1;
+          Showmessage('Invalid Row ID, cant add row !');
+        end;
+    end;
   if UpdateData then
     begin
       for i := 1 to gList.ColCount-1 do
