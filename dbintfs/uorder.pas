@@ -45,6 +45,7 @@ type
     function GetBookNumberFieldName : string;override;
     function GetStatusFieldName : string;override;
     function GetCommissionFieldName: string;override;
+    function GetBarcodeFieldName: string;override;
   public
     constructor CreateEx(aOwner: TComponent; DM: TComponent; aConnection: TComponent=nil;
       aMasterdata: TDataSet=nil); override;
@@ -1882,6 +1883,12 @@ function TOrderList.GetCommissionFieldName: string;
 begin
   Result:='COMMISSION';
 end;
+
+function TOrderList.GetBarcodeFieldName: string;
+begin
+  Result:='CUSTZIP';
+end;
+
 constructor TOrderList.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin

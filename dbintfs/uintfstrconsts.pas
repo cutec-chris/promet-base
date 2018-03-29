@@ -183,7 +183,7 @@ resourcestring
   strSearch                     = 'Suche';
   strContinueSearch             = 'weitersuchen';
   strSerial                     = 'Serienummer';
-  strBarcode                    = 'Barcode';
+  strBarcode                    = 'Barcode/PLZ';
   strCommission                 = 'Komission';
   strID                         = 'ID';
   strShortname                  = 'Kurztext';
