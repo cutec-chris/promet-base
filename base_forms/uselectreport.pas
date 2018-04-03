@@ -798,6 +798,7 @@ var
   aFile: String;
   i: Integer;
 begin
+  if not Visible then exit;
   IdleTimer1.Enabled:=False;
   if not Supports(Application, IBaseApplication, BaseApplication) then exit;
   Screen.Cursor:=crHourglass;
@@ -828,7 +829,8 @@ begin
          if pos('PNG',Uppercase(frFilters[i].FilterDesc)) > 0 then
       {$ENDIF}
            begin
-             DataSet.DataSet.DisableControls;
+             if Assigned(DataSet) then
+               DataSet.DataSet.DisableControls;
              if Report.PrepareReport then
                begin
                  with BaseApplication as IBaseApplication do
@@ -840,7 +842,8 @@ begin
                  {$ENDIF}
                  Image1.Picture.LoadFromFile(aFile);
                end;
-             DataSet.DataSet.EnableControls;
+             if Assigned(DataSet) then
+               DataSet.DataSet.EnableControls;
            end;
       Screen.Cursor:=crDefault;
     end;
