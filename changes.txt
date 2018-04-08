@@ -1,4 +1,5 @@
-﻿Build 438 (nicht veröffentlicht)
+﻿Build 439 (nicht veröffentlicht)
+Build 438 (08.04.2018)
       - PAppserver:Reports werden nun über fpReport ausgegebn (kaum Serverseitige Abhängigkeiten und genaere PDF,PNG,HTML Reports)
       - Sync_db:Synchronisation wird nun hirarchisch durchgeführt um Master/Detail Synchronisationsprobleme zu vermeiden
       - Suche opimiert
