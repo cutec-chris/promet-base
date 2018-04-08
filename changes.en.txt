@@ -1,3 +1,11 @@
+Build 438 (2018-04-08)
+      - PAppserver:Reporting without gtk/X dependencies
+      - Sync_db:synchronisation is done hirarchically do avoid master/detail sync problems
+      - optimized Search
+      - New generic Databaselayer
+      - Report Dialog has preview included now. Also e-Mails are per report avalible
+
+...
 Build 167
       - quoting Messagemanager arguments correct
 Build 166
