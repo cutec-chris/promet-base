@@ -1565,7 +1565,7 @@ begin
     begin
       FAutomation.acExecutePrepareStep.Enabled:=FAutomation.acExecutePrepareStep.Enabled and (FAutomation.lStatusProblems.Color<>clRed);
       FAutomation.acExecuteStep.Enabled:=FAutomation.acExecuteStep.Enabled and (FAutomation.lStatusProblems.Color<>clRed);
-      if Assigned(TOrderPos(FAutomation.DataSet).Order) and (TOrderPos(FAutomation.FDataSet).Order.Active) then
+      if (FAutomation.DataSet is TOrderPos) and Assigned(TOrderPos(FAutomation.DataSet).Order) and (TOrderPos(FAutomation.FDataSet).Order.Active) then
         if TOrderPos(FAutomation.FDataSet).Order.OrderType.FieldByName('CHANGEABLE').AsString='N' then
           FAutomation.acExecuteStep.Enabled:=False;
     end;
