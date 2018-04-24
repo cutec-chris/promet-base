@@ -210,32 +210,32 @@ begin
         Path := copy(Path,rpos('/',Path)+1,length(Path));
         if copy(uppercase(Path),0,5)='ICON(' then
           begin
+            ms := TMemoryStream.Create;
             if TryStrToInt(copy(Path,6,length(Path)-6),aNumber) and FileExists(AppendPathDelim('icons')+IntToStr(aNumber)+'.png') then
               begin
-                ms := TMemoryStream.Create;
                 ms.LoadFromFile(AppendPathDelim('icons')+IntToStr(aNumber)+'.png');
                 ms.Position:=0;
                 Result := ms;
-                NewHeaders.Add('Content-Type: image/png');
-                NewHeaders.Add('Last-Modified: '+Rfc822DateTime(100));
-                NewHeaders.Add('ETag: '+Rfc822DateTime(100));
-                Code := 200;
               end;
+            NewHeaders.Add('Content-Type: image/png');
+            NewHeaders.Add('Last-Modified: '+Rfc822DateTime(100));
+            NewHeaders.Add('ETag: '+Rfc822DateTime(100));
+            Code := 200;
           end
-        else if (copy(uppercase(Path),0,12)='HISTORYICON(') and FileExists(AppendPathDelim('histicons')+IntToStr(aNumber)+'.png') then
+        else if (copy(uppercase(Path),0,12)='HISTORYICON(') then
           begin
+            ms := TMemoryStream.Create;
             tmp := copy(Path,13,length(Path)-13);
-            if TryStrToInt(tmp,aNumber) then
+            if TryStrToInt(tmp,aNumber) and FileExists(AppendPathDelim('histicons')+IntToStr(aNumber)+'.png') then
               begin
-                ms := TMemoryStream.Create;
                 ms.LoadFromFile(AppendPathDelim('icons')+IntToStr(aNumber)+'.png');
                 ms.Position:=0;
                 Result := ms;
-                NewHeaders.Add('Content-Type: image/png');
-                NewHeaders.Add('Last-Modified: '+Rfc822DateTime(100));
-                NewHeaders.Add('ETag: '+Rfc822DateTime(100));
-                Code := 200;
               end;
+            NewHeaders.Add('Content-Type: image/png');
+            NewHeaders.Add('Last-Modified: '+Rfc822DateTime(100));
+            NewHeaders.Add('ETag: '+Rfc822DateTime(100));
+            Code := 200;
           end
         else if Assigned(Document) then
           begin
