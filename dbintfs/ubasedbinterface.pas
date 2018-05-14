@@ -1585,6 +1585,7 @@ var
   mSettings: TStringList;
   FCategory: TCategory;
   aNumHelper: TNumberHelper;
+  Found: Boolean;
 begin
   Result := False;
   with BaseApplication as IBaseApplication do
@@ -1612,6 +1613,20 @@ begin
           Open;
           if not Locate('NAME',aUser,[]) then
             begin
+              with FDB.MandantDetails.AuthSources do
+                begin
+                  First;
+                  Found := False;
+                  while not EOF do
+                    begin
+                      if Authenticate(aUser,'') then
+                        begin
+                          Found := True;
+                          break;
+                        end;
+                      Next;
+                    end;
+                end;
               FLastError := 'User not found ('+aUser+') !';
               exit;
             end;

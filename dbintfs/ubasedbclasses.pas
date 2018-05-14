@@ -298,9 +298,26 @@ type
   public
     procedure DefineFields(aDataSet : TDataSet);override;
   end;
-  TMandantDetails = class(TBaseDBDataSet)
+
+  { TAuthSources }
+
+  TAuthSources = class(TBaseDBDataset)
   public
     procedure DefineFields(aDataSet : TDataSet);override;
+    function Authenticate(aUser,aPassword : string) : Boolean;
+  end;
+
+  { TMandantDetails }
+
+  TMandantDetails = class(TBaseDBDataSet)
+  private
+    FAuthSources: TAuthSources;
+  public
+    constructor CreateEx(aOwner : TComponent;DM : TComponent=nil;aConnection : TComponent = nil;aMasterdata : TDataSet = nil);override;
+    function CreateTable: Boolean; override;
+    destructor Destroy; override;
+    procedure DefineFields(aDataSet : TDataSet);override;
+    property AuthSources : TAuthSources read FAuthSources;
   end;
   TRights = class(TBaseDBDataSet)
   private
@@ -457,7 +474,7 @@ type
 var ImportAble : TClassList;
 implementation
 uses uBaseDBInterface, uBaseApplication, uBaseSearch,XMLRead,XMLWrite,Utils,
-  md5,sha1,uData,uthumbnails,base64,uMeasurement,usync;
+  md5,sha1,uData,uthumbnails,base64,uMeasurement,usync,ldapsend;
 resourcestring
   strNumbersetDontExists        = 'Nummernkreis "%s" existiert nicht !';
   strNumbersetEmpty             = 'Nummernkreis "%s" ist leer !';
@@ -559,6 +576,24 @@ resourcestring
   strAvalible                   = 'Verfügbar';
   strNeedsAction                = 'benötigt Hilfe';
   strCostCentre                 = 'Kostenstelle';
+
+{ TAuthSources }
+
+procedure TAuthSources.DefineFields(aDataSet: TDataSet);
+begin
+  with aDataSet as IBaseManageDB do
+    begin
+      TableName := 'AUTHSOURCES';
+      if Assigned(ManagedFieldDefs) then
+        with ManagedFieldDefs do
+          begin
+            Add('TYPE',ftString,4,True);//LDAP
+            Add('SERVER',ftString,255,True);
+            Add('USER',ftString,255,True);
+            Add('PASSWORD',ftString,255,True);
+          end;
+    end;
+end;
 
 { TDatabaseTables }
 
@@ -2756,6 +2791,26 @@ begin
     Result := -1;
   end;
 end;
+
+constructor TMandantDetails.CreateEx(aOwner: TComponent; DM: TComponent;
+  aConnection: TComponent; aMasterdata: TDataSet);
+begin
+  inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
+  FAuthSources := TAuthSources.CreateEx(Self,DataModule,aConnection,DataSet);
+end;
+
+function TMandantDetails.CreateTable: Boolean;
+begin
+  Result:=inherited CreateTable;
+  FAuthSources.CreateTable;
+end;
+
+destructor TMandantDetails.Destroy;
+begin
+  FAuthSources.Destroy;
+  inherited Destroy;
+end;
+
 procedure TMandantDetails.DefineFields(aDataSet : TDataSet);
 begin
   with aDataSet as IBaseManageDB do
@@ -2793,6 +2848,12 @@ begin
           end;
     end;
 end;
+
+function TAuthSources.Authenticate(aUser, aPassword: string): Boolean;
+begin
+  Result := False;
+end;
+
 procedure TNumbersets.DefineFields(aDataSet : TDataSet);
 begin
   with aDataSet as IBaseManageDB do
