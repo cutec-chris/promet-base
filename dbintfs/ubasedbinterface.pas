@@ -1515,6 +1515,7 @@ begin
   Result := False;
   Result := (Users.Active)
   and ((Users.FieldByName('NAME').AsString=aUser) or (Users.FieldByName('LOGINNAME').AsString=aUser))
+  and (Users.FieldByName('AUTHSOURCE').AsString='')
   and (Users.CheckUserPasswort(aPassword));
   if not Result then
     begin
@@ -1535,12 +1536,16 @@ begin
               if Authenticate(aUser,aPassword) then
                 begin
                   Result := True;
-                  exit;
+                  break;
                 end;
               Next;
             end;
         end;
     end;
+  Result := Result
+        and Users.Leaved.IsNull
+        and (Users.FieldByName('TYPE').AsString <> 'G')
+        and ((not Assigned(Users.FieldByName('LOGINACTIVE'))) or (Users.FieldByName('LOGINACTIVE').AsString<>'N'));
 end;
 procedure TBaseDBInterface.FDBLog(Sender: TComponent; aLog: string);
 begin
