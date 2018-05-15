@@ -1036,6 +1036,7 @@ var
   rAutoLogin: String;
   aRec: LargeInt;
   i: Integer;
+  Authenticated: Boolean = False;
   function IsAutoLogin : Boolean;
   begin
     result := (rMandant='Standard') and (rUser='Administrator') and ((rAutoLogin='0') or (rAutoLogin=''));
@@ -1107,12 +1108,10 @@ begin
                     Result := False;
                     exit;
                   end;
-                if not Data.Users.DataSet.Locate('NAME',fPassword.cbUser.Text,[]) then
-                  begin
-                    if Data.Authenticate(fPassword.cbUser.Text,fPassword.ePasswort.Text) then
-                      Result := True;
-                  end;
-                if not Data.Users.DataSet.Locate('NAME',fPassword.cbUser.Text,[]) then
+                if not Data.Authenticate(fPassword.cbUser.Text,fPassword.ePasswort.Text) then
+                  Result := False
+                else Authenticated := True;
+                if (not Authenticated) and (not Data.Users.DataSet.Locate('NAME',fPassword.cbUser.Text,[])) then
                   begin
                     Config.WriteInteger('AUTOMATICLOGIN',0);
                     Exception.Create(strUsernotFound);
@@ -1123,7 +1122,7 @@ begin
                   begin
                     Data.Users.SetPasswort(fPassword.ePasswort.Text);
                   end;
-                if (not Result) and (not (Data.Users.CheckUserPasswort(fPassword.ePasswort.text))) then
+                if (not Authenticated) and (not (Data.Users.CheckUserPasswort(fPassword.ePasswort.text))) then
                   begin
                     Config.WriteInteger('AUTOMATICLOGIN',0);
                     raise Exception.Create(strWrongPasswort);

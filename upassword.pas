@@ -45,6 +45,7 @@ type
     lMandant: TLabel;
     SpeedButton1: TSpeedButton;
     procedure cbMandantSelect(Sender: TObject);
+    procedure cbUserExit(Sender: TObject);
     procedure cbUserSelect(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormShow(Sender: TObject);
@@ -144,7 +145,6 @@ begin
             cbUser.Items.Add(Data.Users.UserName.AsString);
           Data.Users.DataSet.Next;
         end;
-      cbUser.Enabled:=cbUser.Items.Count > 0;
       if cbUSer.Items.IndexOf(aUSer) > 0 then
         begin
           cbUser.ItemIndex:=cbUSer.Items.IndexOf(aUSer);
@@ -153,6 +153,13 @@ begin
     end;
   lFirstLoginResize(nil);
 end;
+
+procedure TfPassword.cbUserExit(Sender: TObject);
+begin
+  ePasswort.Enabled := cbUser.Text<>'';
+  ePasswort.SetFocus;
+end;
+
 procedure TfPassword.cbUserSelect(Sender: TObject);
 begin
   ePasswort.Enabled := True;
@@ -293,7 +300,7 @@ begin
         end;
     end;
   cbMandant.Enabled:=FUserSelectable;
-  cbUser.Enabled:=FUserSelectable;
+  cbUser.Enabled:=True;
   ePasswort.Text:='';
   if FSHint <> '' then
     begin

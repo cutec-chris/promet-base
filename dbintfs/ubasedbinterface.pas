@@ -1510,7 +1510,7 @@ function TBaseDBModule.Authenticate(aUser, aPassword: string): Boolean;
 begin
   Result := False;
   Result := (Users.Active)
-  and (Users.FieldByName('NAME').AsString=aUser) or (Users.FieldByName('LOGINNAME').AsString=aUser)
+  and ((Users.FieldByName('NAME').AsString=aUser) or (Users.FieldByName('LOGINNAME').AsString=aUser))
   and (Users.CheckUserPasswort(aPassword));
   if not Result then
     begin
@@ -1642,23 +1642,11 @@ begin
     begin
       with FDB.Users do
         begin
-          Open;
-          if not Locate('NAME',aUser,[]) then
+          if (FDB.Users.FieldByName('NAME').AsString=aUser)
+          or (FDB.Users.FieldByName('LOGINNAME').AsString=aUser)
+          or (FDB.Users.FieldByName('EMAIL').AsString=aUser) then
+          else if (not Locate('NAME',aUser,[])) and (not Locate('LOGINNAME',aUser,[])) and (not Locate('EMAIL',aUser,[])) then
             begin
-              with FDB.MandantDetails.AuthSources do
-                begin
-                  First;
-                  Found := False;
-                  while not EOF do
-                    begin
-                      if Authenticate(aUser,'') then
-                        begin
-                          Found := True;
-                          break;
-                        end;
-                      Next;
-                    end;
-                end;
               FLastError := 'User not found ('+aUser+') !';
               exit;
             end;

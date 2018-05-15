@@ -590,9 +590,12 @@ begin
         with ManagedFieldDefs do
           begin
             Add('TYPE',ftString,4,True);//LDAP
+            Add('NAME',ftString,255,True);
             Add('SERVER',ftString,255,True);
-            Add('USER',ftString,255,True);
-            Add('PASSWORD',ftString,255,True);
+            Add('USER',ftString,255,False);
+            Add('PASSWORD',ftString,255,False);
+            Add('FILTER',ftString,255,False);
+            Add('BASE',ftString,255,False);
           end;
     end;
 end;
@@ -2852,8 +2855,69 @@ begin
 end;
 
 function TAuthSources.Authenticate(aUser, aPassword: string): Boolean;
+var
+  ldap: TLDAPSend;
+  l: TStringList;
+  tmp: String;
 begin
   Result := False;
+  if FieldByName('TYPE').AsString='LDAP' then
+    begin
+      ldap := TLDAPSend.Create;
+      try
+        if pos(':',FieldByName('SERVER').AsString)>0 then
+          begin
+            ldap.TargetHost:=copy(FieldByName('SERVER').AsString,0,pos(':',FieldByName('SERVER').AsString)-1);
+            ldap.TargetPort:=copy(FieldByName('SERVER').AsString,pos(':',FieldByName('SERVER').AsString)+1,length(FieldByName('SERVER').AsString));
+          end
+        else
+          ldap.TargetHost:=FieldByName('SERVER').AsString;
+        ldap.UserName:=Stringreplace(FieldByName('USER').AsString,'%s',aUser,[rfReplaceAll]); //cn=admin,dc=tcsapps,dc=de
+        ldap.Password:=Stringreplace(FieldByName('PASSWORD').AsString,'%s',aPassword,[rfReplaceAll]);
+        if ldap.Login then
+          begin
+            if ldap.BindSasl or ldap.Bind then
+              begin
+                Result := True;
+                l := TStringList.Create;
+                l.Add('displayname');
+                l.Add('description');
+                l.Add('givenName');
+                l.Add('*');
+                tmp := '(|(uid=%s))';
+                if FieldByName('FILTER').AsString<>'' then
+                  tmp := FieldByName('FILTER').AsString;
+                tmp := StringReplace(tmp,'%s',aUser,[rfReplaceAll]);
+                if ldap.Search(FieldByName('BASE').AsString, False,tmp , l) then
+                  if ldap.SearchResult.Count=1 then
+                    begin
+                      if TBaseDBModule(DataModule).Users.Locate('NAME',ldap.SearchResult.Items[0].Attributes.Get('cn'),[])
+                      or TBaseDBModule(DataModule).Users.Locate('LOGINNAME',ldap.SearchResult.Items[0].Attributes.Get('uid'),[])
+                      or TBaseDBModule(DataModule).Users.Locate('LOGINNAME',ldap.SearchResult.Items[0].Attributes.Get('sAMAccountName'),[])
+                      or TBaseDBModule(DataModule).Users.Locate('EMAIL',ldap.SearchResult.Items[0].Attributes.Get('mail'),[])
+                      then
+                        TBaseDBModule(DataModule).Users.Edit
+                      else
+                        begin
+                          TBaseDBModule(DataModule).Users.Append;
+                          TBaseDBModule(DataModule).Users.FieldByName('NAME').AsString:=ldap.SearchResult.Items[0].Attributes.Get('cn');
+                          if ldap.SearchResult.Items[0].Attributes.Get('uid')<>'' then
+                            TBaseDBModule(DataModule).Users.FieldByName('LOGINNAME').AsString:=ldap.SearchResult.Items[0].Attributes.Get('uid')
+                          else
+                            TBaseDBModule(DataModule).Users.FieldByName('LOGINNAME').AsString:=ldap.SearchResult.Items[0].Attributes.Get('sAMAccountName');
+                          TBaseDBModule(DataModule).Users.FieldByName('EMAIL').AsString := ldap.SearchResult.Items[0].Attributes.Get('mail');
+                        end;
+                      TBaseDBModule(DataModule).Users.FieldByName('AUTHSOURCE').AsString:=FieldByName('NAME').AsString;
+                      TBaseDBModule(DataModule).Users.Post;
+                      Result := True;
+                    end;
+                l.Free;
+              end;
+          end;
+      finally
+        ldap.Free;
+      end;
+    end;
 end;
 
 procedure TNumbersets.DefineFields(aDataSet : TDataSet);
