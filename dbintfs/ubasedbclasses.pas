@@ -2878,7 +2878,6 @@ begin
           begin
             if ldap.BindSasl or ldap.Bind then
               begin
-                Result := True;
                 l := TStringList.Create;
                 l.Add('displayname');
                 l.Add('description');
@@ -2891,10 +2890,10 @@ begin
                 if ldap.Search(FieldByName('BASE').AsString, False,tmp , l) then
                   if ldap.SearchResult.Count=1 then
                     begin
-                      if TBaseDBModule(DataModule).Users.Locate('NAME',ldap.SearchResult.Items[0].Attributes.Get('cn'),[])
-                      or TBaseDBModule(DataModule).Users.Locate('LOGINNAME',ldap.SearchResult.Items[0].Attributes.Get('uid'),[])
-                      or TBaseDBModule(DataModule).Users.Locate('LOGINNAME',ldap.SearchResult.Items[0].Attributes.Get('sAMAccountName'),[])
-                      or TBaseDBModule(DataModule).Users.Locate('EMAIL',ldap.SearchResult.Items[0].Attributes.Get('mail'),[])
+                      if (TBaseDBModule(DataModule).Users.Locate('NAME',ldap.SearchResult.Items[0].Attributes.Get('cn'),[]))
+                      or ((ldap.SearchResult.Items[0].Attributes.Get('uid')<>'') and (TBaseDBModule(DataModule).Users.Locate('LOGINNAME',ldap.SearchResult.Items[0].Attributes.Get('uid'),[])))
+                      or ((ldap.SearchResult.Items[0].Attributes.Get('sAMAccountName')<>'') and (TBaseDBModule(DataModule).Users.Locate('LOGINNAME',ldap.SearchResult.Items[0].Attributes.Get('sAMAccountName'),[])))
+                      or ((ldap.SearchResult.Items[0].Attributes.Get('mail')<>'') and (TBaseDBModule(DataModule).Users.Locate('EMAIL',ldap.SearchResult.Items[0].Attributes.Get('mail'),[])))
                       then
                         TBaseDBModule(DataModule).Users.Edit
                       else

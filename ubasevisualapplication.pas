@@ -75,6 +75,7 @@ type
     FAppRevision : Integer;
     aParent: TWinControl;
     FQuickHelp : Boolean;
+    AuthLastError : string;
     procedure SetMessagemanager(AValue: TProcess);
     procedure SetProcessmanager(AValue: TProcess);
     procedure UserTabAdded(Sender : TObject);
@@ -1037,6 +1038,7 @@ var
   aRec: LargeInt;
   i: Integer;
   Authenticated: Boolean = False;
+  fPWres: Integer;
   function IsAutoLogin : Boolean;
   begin
     result := (rMandant='Standard') and (rUser='Administrator') and ((rAutoLogin='0') or (rAutoLogin=''));
@@ -1098,8 +1100,9 @@ begin
               else
                 Config.WriteInteger('AUTOMATICLOGIN',0);
             end;
+          fPWres := fPassword.Execute(AuthLastError);
           with Self as IBaseDBInterface do
-            if fPassword.Execute then
+            if fPWres = mrOK then
               begin
                 if not Assigned(Data) then
                   begin
@@ -1111,10 +1114,10 @@ begin
                 if not Data.Authenticate(fPassword.cbUser.Text,fPassword.ePasswort.Text) then
                   Result := False
                 else Authenticated := True;
-                if (not Authenticated) and (not Data.Users.DataSet.Locate('NAME',fPassword.cbUser.Text,[])) then
+                if (not Authenticated) and (not Data.Users.DataSet.Locate('NAME',fPassword.cbUser.Text,[])) and (not Data.Users.DataSet.Locate('LOGINNAME',fPassword.cbUser.Text,[])) and (not Data.Users.DataSet.Locate('EMAIL',fPassword.cbUser.Text,[])) then
                   begin
                     Config.WriteInteger('AUTOMATICLOGIN',0);
-                    Exception.Create(strUsernotFound);
+                    AuthLastError := strUsernotFound;
                     Result := False;
                     exit;
                   end;
@@ -1125,7 +1128,7 @@ begin
                 if (not Authenticated) and (not (Data.Users.CheckUserPasswort(fPassword.ePasswort.text))) then
                   begin
                     Config.WriteInteger('AUTOMATICLOGIN',0);
-                    raise Exception.Create(strWrongPasswort);
+                    AuthLastError := strWrongPasswort;
                     Result := False;
                     exit;
                   end;
@@ -1135,7 +1138,7 @@ begin
                   if not DBLogin(Config.ReadString('LOGINMANDANT',''),Config.ReadString('LOGINUSER',''),True,True) then
                     begin
                       Config.WriteInteger('AUTOMATICLOGIN',0);
-                      raise Exception.Create('');
+                      AuthLastError := strUsernotFound+' (DBLogin)';
                       Result := False;
                       exit;
                     end;
@@ -1146,6 +1149,12 @@ begin
                 uData.Data := Data;
                 StartProcessManager(Self.HasOption('t','terminateprocesses'));
                 fPassword.ePasswort.Text := '';
+              end
+            else if fPWres = mrCancel then
+              begin
+                Application.Terminate;
+                Result := False;
+                exit;
               end
             else
               begin
@@ -1182,7 +1191,7 @@ end;
 function TBaseVisualApplication.ChangePasswort: Boolean;
 begin
   Result := False;
-  if fPassword.Execute(strGiveOldPasswort,false)
+  if (fPassword.Execute(strGiveOldPasswort,false) = mrOK)
   and Data.Data.Users.CheckUserPasswort(fPassword.ePasswort.Text) then
     begin
       with Data.Data.Users do
@@ -1193,7 +1202,7 @@ begin
           DataSet.Post;
           fPassword.cbUserSelect(nil);
         end;
-      if fPassword.Execute(strFirstLogin,false) then
+      if (fPassword.Execute(strFirstLogin,false) = mrOK) then
         begin
           Data.Data.Users.SetPasswort(fPassword.ePasswort.Text);
           fPassword.ePasswort.Text := '';

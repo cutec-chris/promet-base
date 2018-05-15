@@ -501,12 +501,16 @@ end;
 
 function TBaseDBModule.GetUsers: TUser;
 begin
-  Result := FUsers;
-  if Assigned(FUsers) and (not Result.Active) then
-    begin
-      Result.Open;
-      Result.Locate('SQL_ID',FLoggedInUser,[]);
-    end;
+  try
+    if not Assigned(Self) then exit;
+    Result := FUsers;
+    if Assigned(FUsers) and (not Result.Active) then
+      begin
+        Result.Open;
+        Result.Locate('SQL_ID',FLoggedInUser,[]);
+      end;
+  except
+  end;
 end;
 
 constructor TBaseDBModule.Create(AOwner: TComponent);

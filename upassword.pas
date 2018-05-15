@@ -62,7 +62,7 @@ type
     procedure RefreshList;
   public
     { public declarations }
-    function Execute(aHint: string=''; aUserSelectable: Boolean=True): Boolean;
+    function Execute(aHint: string=''; aUserSelectable: Boolean=True): Integer;
   end; 
 
 var
@@ -157,7 +157,8 @@ end;
 procedure TfPassword.cbUserExit(Sender: TObject);
 begin
   ePasswort.Enabled := cbUser.Text<>'';
-  ePasswort.SetFocus;
+  if Visible and ePasswort.Enabled and ePasswort.CanFocus then
+    ePasswort.SetFocus;
 end;
 
 procedure TfPassword.cbUserSelect(Sender: TObject);
@@ -311,9 +312,9 @@ begin
     end;
 end;
 
-function TfPassword.Execute(aHint : string = '';aUserSelectable : Boolean = True): Boolean;
+function TfPassword.Execute(aHint : string = '';aUserSelectable : Boolean = True): Integer;
 begin
-  Result := False;
+  Result := mrCancel;
   if not Assigned(Self) then
     begin
       Application.CreateForm(TfPassword,fPassword);
@@ -322,7 +323,7 @@ begin
   FSHint := aHint;
   FUserSelectable := aUserSelectable;
   RefreshList;
-  Result := Showmodal = mrOK;
+  Result := Showmodal;
 end;
 initialization
 end.
