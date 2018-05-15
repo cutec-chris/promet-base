@@ -135,6 +135,7 @@ type
     procedure ModifyUsersFilter(aNewFilter : string);
     procedure RemoveUserFromActiveList;
     procedure RegisterLinkHandlers(IgnoreRights : Boolean = False);
+    function Authenticate(aUser,aPassword : string) : Boolean;
     property Mandant : string read Fmandant;
     property Properties : string read FProperies;
   end;
@@ -1505,7 +1506,38 @@ begin
     end;
   AddSearchAbleDataSet(TBaseScript);
 end;
-
+function TBaseDBModule.Authenticate(aUser, aPassword: string): Boolean;
+begin
+  Result := False;
+  Result := (Users.Active)
+  and (Users.FieldByName('NAME').AsString=aUser) or (Users.FieldByName('LOGINNAME').AsString=aUser)
+  and (Users.CheckUserPasswort(aPassword));
+  if not Result then
+    begin
+      Users.Open;
+      if Users.Locate('NAME',aUser,[loCaseInsensitive])
+      or Users.Locate('LOGINNAME',aUser,[loCaseInsensitive])
+      then
+        Result := Users.CheckUserPasswort(aPassword);
+    end;
+  if not Result then
+    begin
+      with MandantDetails.AuthSources do
+        begin
+          Open;
+          First;
+          while not EOF do
+            begin
+              if Authenticate(aUser,aPassword) then
+                begin
+                  Result := True;
+                  exit;
+                end;
+              Next;
+            end;
+        end;
+    end;
+end;
 procedure TBaseDBInterface.FDBLog(Sender: TComponent; aLog: string);
 begin
   with BaseApplication as IBaseApplication do

@@ -1107,9 +1107,10 @@ begin
                     Result := False;
                     exit;
                   end;
-                if Data.Users.Passwort.IsNull or (Data.Users.Passwort.AsString = '') then
+                if not Data.Users.DataSet.Locate('NAME',fPassword.cbUser.Text,[]) then
                   begin
-                    Data.Users.SetPasswort(fPassword.ePasswort.Text);
+                    if Data.Authenticate(fPassword.cbUser.Text,fPassword.ePasswort.Text) then
+                      Result := True;
                   end;
                 if not Data.Users.DataSet.Locate('NAME',fPassword.cbUser.Text,[]) then
                   begin
@@ -1118,7 +1119,11 @@ begin
                     Result := False;
                     exit;
                   end;
-                if not (Data.Users.CheckPasswort(fPassword.ePasswort.text)) then
+                if (not Result) and (Data.Users.Passwort.IsNull or (Data.Users.Passwort.AsString = '')) then
+                  begin
+                    Data.Users.SetPasswort(fPassword.ePasswort.Text);
+                  end;
+                if (not Result) and (not (Data.Users.CheckUserPasswort(fPassword.ePasswort.text))) then
                   begin
                     Config.WriteInteger('AUTOMATICLOGIN',0);
                     raise Exception.Create(strWrongPasswort);
@@ -1179,7 +1184,7 @@ function TBaseVisualApplication.ChangePasswort: Boolean;
 begin
   Result := False;
   if fPassword.Execute(strGiveOldPasswort,false)
-  and Data.Data.Users.CheckPasswort(fPassword.ePasswort.Text) then
+  and Data.Data.Users.CheckUserPasswort(fPassword.ePasswort.Text) then
     begin
       with Data.Data.Users do
         begin

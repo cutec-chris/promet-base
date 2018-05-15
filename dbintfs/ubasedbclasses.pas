@@ -230,6 +230,9 @@ type
   TFollowers = class;
   TRights = class;
   TPayGroups = class;
+
+  { TUser }
+
   TUser = class(TBaseDbList,IBaseHistory)
   private
     FFollows: TFollowers;
@@ -267,8 +270,7 @@ type
     property Follows : TFollowers read FFollows;
     procedure SetPasswort(aPasswort : string);
     function GetRandomSalt : string;
-    function CheckPasswort(aPasswort : string) : Boolean;
-    function CheckSHA1Passwort(aPasswort : string) : Boolean;
+    function CheckUserPasswort(aPasswort : string) : Boolean;
     procedure LoginWasOK;
     procedure SelectByAccountno(aAccountno : string);virtual;
     function GetLeaderAccountno : string;
@@ -3047,6 +3049,7 @@ begin
             Add('LOGINACTIVE',ftString,1,false);
             Add('REMOTEACCESS',ftString,1,false);
             Add('LASTLOGIN',ftDateTime,0,false);
+            Add('AUTHSOURCE',ftString,10,false);
           end;
       if Assigned(ManagedIndexdefs) then
         with ManagedIndexDefs do
@@ -3107,7 +3110,7 @@ begin
   Result := aSalt;
 end;
 
-function TUser.CheckPasswort(aPasswort: string): Boolean;
+function TUser.CheckUserPasswort(aPasswort: string): Boolean;
 var
   aRes: String;
   aSalt: String;
@@ -3120,14 +3123,6 @@ begin
       aRes := '$'+SHA1Print(SHA1String(SHA1Print(SHA1String(MergeSalt(aPasswort,aSalt)))));
       Result := (copy(aRes,0,length(Passwort.AsString)) = Passwort.AsString) and (length(Passwort.AsString) > 30);
     end;
-end;
-
-function TUser.CheckSHA1Passwort(aPasswort : string): Boolean;
-var
-  aRes: String;
-begin
-  aRes := '$'+SHA1Print(SHA1String(aPasswort));
-  Result := (copy(aRes,0,length(Passwort.AsString)) = Passwort.AsString) and (length(Passwort.AsString) > 30);
 end;
 
 procedure TUser.LoginWasOK;
