@@ -407,9 +407,12 @@ begin
 end;
 destructor TBaseVisualApplication.Destroy;
 begin
-  LazLogger.GetDebugLogger.OnDebugLn:=nil;
-  Properties.Free;
-  inherited Destroy;
+  try
+    LazLogger.GetDebugLogger.OnDebugLn:=nil;
+    Properties.Free;
+    inherited Destroy;
+  except
+  end;
 end;
 
 function TBaseVisualApplication.RegisterForm(aForm: TFrameClass): Boolean;
