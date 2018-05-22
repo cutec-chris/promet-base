@@ -192,8 +192,7 @@ end;
 procedure TfUserOptions.bResetPasswordClick(Sender: TObject);
 begin
   aUsers.DataSet.Edit;
-  aUsers.FieldByName('PASSWORD').AsString := '';
-  aUsers.DataSet.Post;
+  aUsers.FieldByName('PASSWORD').Clear;
 end;
 procedure TfUserOptions.bDeleteUserClick(Sender: TObject);
 begin
