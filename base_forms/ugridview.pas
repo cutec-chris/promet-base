@@ -3074,7 +3074,7 @@ begin
       if (Bookmark = 0) and (DataSet.State<>dsInsert) then
         begin
           gList.RowCount:=gList.RowCount-1;
-          Showmessage('Invalid Row ID, cant add row !');
+          //Showmessage('Invalid Row ID, cant add row !');
         end;
     end;
   if UpdateData then
