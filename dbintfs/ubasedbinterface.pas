@@ -1197,7 +1197,7 @@ end;
 
 function TBaseDBModule.GetFullTableName(aTable: string): string;
 begin
-  if Assigned(DBTables) and (DBTables.Active) then
+  if Assigned(DBTables) and (DBTables.Active) and (aTable <> DBTables.TableName) then
     begin
       if pos('.',aTable)>0 then
         aTable:=copy(aTable,rpos('.',aTable)+1,length(aTable));
