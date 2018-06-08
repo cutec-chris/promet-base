@@ -1372,6 +1372,7 @@ begin
       end;
     if ActiveUsers.DataSet.Active and ActiveUsers.GotoBookmark(FSessionID) then
       ActiveUsers.DataSet.Delete;
+    ActiveUsers.Close;
   except
   end;
 end;
