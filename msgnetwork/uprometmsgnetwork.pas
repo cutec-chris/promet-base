@@ -55,6 +55,8 @@ type
     procedure Execute; override;
   end;
 
+  procedure InitMsgNetwork;
+
 var
   Discovery : TPrometDiscoveryDaemon;
   NetworkDaemon : TAppNetworkDaemon;
@@ -189,12 +191,15 @@ begin
   Result := 404;
 end;
 }
-
-initialization
+procedure InitMsgNetwork;
+begin
   NetworkDaemon := TAppNetworkDaemon.Create;
-  uAppServer.RegisterCommandHandler(@HandlePrometCommand);
   uAppServer.NetworkDaemon := NetworkDaemon;
   Discovery := TPrometDiscoveryDaemon.Create;
+end;
+
+initialization
+  uAppServer.RegisterCommandHandler(@HandlePrometCommand);
 finalization
   Discovery.Terminate;
   NetworkDaemon.Terminate;
