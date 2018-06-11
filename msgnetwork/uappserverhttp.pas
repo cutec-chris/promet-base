@@ -109,6 +109,7 @@ begin
       //ignore folder icons since they are not included in template
       if (pos('/favicon.',aSock.Url)=0)
       and (pos('/folder.',aSock.Url)=0)
+      and (pos('appbase/',aSock.Url)=0)
       then
         if (aSock.Code<>200) and (aSock.Code<>301) and (aSock.Code<>304) then
           begin
