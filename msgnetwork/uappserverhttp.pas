@@ -104,6 +104,7 @@ begin
       if Assigned(BaseApplication) then
         with BaseApplication as IBaseApplication do
           Debug('Processing HTTP Request in Thread');
+      aReqTime := Now();
       //aSock.FSocket.Synchronize(aSock.FSocket,@aSock.ProcessHTTPRequest);
       aSock.ProcessHTTPRequest;
       //ignore folder icons since they are not included in template
@@ -117,7 +118,6 @@ begin
             if Assigned(BaseApplication) then
               with BaseApplication as IBaseApplication do
                 Debug('Processing HTTP Handlers');
-            aReqTime := Now();
             for i := 0 to Length(HTTPHandlers)-1 do
               begin
                 aSock.Code := HTTPHandlers[i](Sender,aCmd, aSock.Url,aSock.Parameters.Values['sid'],aSock.Parameters, aSock.Headers, aSock.InputData, aSock.OutputData, ResultStatusText);
@@ -328,7 +328,7 @@ begin
           Close := True;
       until s = '';
     end;
-    Code:=500;
+    Code:=404;
     //recv document...
     if size >= 0 then
     begin
@@ -418,7 +418,7 @@ retry:
                       OutputData.CopyFrom(Result,0);
                       OutputData.Position:=0;
                       Result.Free;
-                      if Code=500 then
+                      if Code=404 then
                         Code:=200;
                     except
                     end;
