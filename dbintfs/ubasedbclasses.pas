@@ -26,7 +26,7 @@ uses
   ;
 type
   { TBaseDBDataset }
-
+  TJSONExportMode = (emStandard,emDhtmlX,emExtJS);
   TReplaceFieldFunc = procedure(aField : TField;aOldValue : string;var aNewValue : string) of object;
 
   TBaseDBDataset = class(TAbstractDBDataset)
@@ -61,7 +61,7 @@ type
     property TimeStamp : TField read GetTimestamp;
     function GetLink : string;
     function ExportToXML: string;virtual;
-    function ExportToJSON: string;virtual;
+    function ExportToJSON(mode : TJSONExportMode = emStandard): string;virtual;
     procedure ImportFromXML(XML : string;OverrideFields : Boolean = False;ReplaceFieldFunc : TReplaceFieldFunc = nil);virtual;
     procedure ImportFromJSON(JSON : string;OverrideFields : Boolean = False;ReplaceFieldFunc : TReplaceFieldFunc = nil);virtual;
     procedure ObjectToJSON(AObject: TBaseDBDataSet; AJSON: TJSONObject;
@@ -1620,7 +1620,7 @@ begin
       end;
 end;
 
-function TBaseDBDataset.ExportToJSON: string;
+function TBaseDBDataset.ExportToJSON(mode: TJSONExportMode): string;
 var
   aObj: TJSONObject;
   aData: TJSONData;
