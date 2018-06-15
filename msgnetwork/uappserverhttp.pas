@@ -189,8 +189,13 @@ begin
         aSock.Close:=pos('keep-alive',lowercase(aSock.headers.Text))>0;
         aSock.headers.Add('Date: ' + Rfc822DateTime(LocalTimeToGMT(now)));
         aSock.headers.Add('Server: Avamm Internal Network');
-        if aSock.Code<>304 then
-          aSock.headers.Add('Content-length: ' + IntTostr(aSock.OutputData.Size));
+        for i := 0 to aSock.Headers.Count-1 do
+          if pos('CONTENT-LENGTH:',uppercase(aSock.headers[i]))<>0 then
+            begin
+              aSock.Headers.Delete(i);
+              break;
+            end;
+        aSock.Headers.Add('Content-length: ' + IntTostr(aSock.OutputData.Size));
         if (ProtocolVersion < 1.1) or aSock.close then
           aSock.headers.Add('Connection: close')
         else
@@ -273,6 +278,7 @@ end;
 constructor THTTPSession.Create;
 begin
   Headers := TStringList.Create;
+  Headers.Duplicates:=dupError;
   Parameters := TStringList.Create;
   InputData := TMemoryStream.Create;
   OutputData := TMemoryStream.Create;
@@ -318,14 +324,14 @@ begin
         s := Socket.sock.RecvString(HeaderTimeout);
         if Socket.sock.lasterror <> 0 then
           Exit;
-        if s <> '' then
-          Headers.add(s);
         if Pos('CONTENT-LENGTH:', Uppercase(s)) = 1 then
-          Size := StrToIntDef(SeparateRight(s, ' '), -1);
-        if Pos('IF-MODIFIED-SINCE:', Uppercase(s)) = 1 then
-          ModifiedSince := synautil.DecodeRfcDateTime(SeparateRight(s, ' '));
-        if Pos('CONNECTION:CLOSE', Uppercase(StringReplace(s,' ','',[rfReplaceAll]))) = 1 then
-          Close := True;
+          Size := StrToIntDef(SeparateRight(s, ' '), -1)
+        else if Pos('IF-MODIFIED-SINCE:', Uppercase(s)) = 1 then
+          ModifiedSince := synautil.DecodeRfcDateTime(SeparateRight(s, ' '))
+        else if Pos('CONNECTION:CLOSE', Uppercase(StringReplace(s,' ','',[rfReplaceAll]))) = 1 then
+          Close := True
+        else if s <> '' then
+          Headers.add(s);
       until s = '';
     end;
     Code:=404;
