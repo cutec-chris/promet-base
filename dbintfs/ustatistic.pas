@@ -615,7 +615,8 @@ var
 begin
   inherited Open;
   if not Active then exit;
-  FStatus:=Status.AsString;
+  if Assigned(Status) then
+    FStatus:=Status.AsString;
 end;
 
 function TStatistic.GetNumberFieldName: string;

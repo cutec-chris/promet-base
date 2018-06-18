@@ -1247,7 +1247,7 @@ begin
   if not Assigned(Self) then exit;
   if not Active then exit;
   aField := GetStatusFieldName;
-  if aField <> '' then
+  if (aField <> '') and (DataSet.FieldDefs.IndexOf(aField)>-1) then
     Result := DataSet.FieldByName(aField);
 end;
 function TBaseDbList.GetText: TField;
