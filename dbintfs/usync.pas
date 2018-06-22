@@ -69,6 +69,7 @@ type
     procedure DefineFields(aDataSet: TDataSet); override;
   end;
 procedure FieldsToJSON(AFields: TFields; AJSON: TJSONObject; const ADateAsString: Boolean; bFields: TStringList = nil);
+procedure MetadataToJSON(aDataSet : TDataSet;aFields : TJSONArray);
 function JSONToFields(AJSON: TJSONObject; AFields: TFields; const ADateAsString: Boolean; const AddFields: Boolean = True) : Boolean;
 resourcestring
   strSynchedOut                                      = 'Synchronisation ausgehend %s';
@@ -153,6 +154,42 @@ begin
       end;
   end;
 end;
+
+procedure MetadataToJSON(aDataSet: TDataSet; aFields: TJSONArray);
+var
+  i: Integer;
+begin
+  for i := 0 to aDataSet.FieldDefs.Count-1 do
+    begin
+      if aDataSet.FieldDefs[i].Name = 'SQL_ID' then
+        aFields.Add(TJSONObject.Create(['name','sql_id','type','int']))
+      else
+        begin
+          case aDataSet.FieldDefs[i].DataType of
+          ftString,
+          ftWideString,ftMemo,ftWideMemo:
+            begin
+              if aDataSet.FieldDefs[i].Size>0 then
+                aFields.Add(TJSONObject.Create(['name',aDataSet.FieldDefs[i].Name,'type','string','maxlen',aDataSet.FieldByName(aDataSet.FieldDefs[i].Name).DisplayWidth]))
+              else
+                aFields.Add(TJSONObject.Create(['name',aDataSet.FieldDefs[i].Name,'type','string']));
+            end;
+          ftInteger,ftSmallint,ftLargeint:
+            aFields.Add(TJSONObject.Create(['name',aDataSet.FieldDefs[i].Name,'type','int']));
+          ftDateTime,ftDate:
+            aFields.Add(TJSONObject.Create(['name',aDataSet.FieldDefs[i].Name,'type','date']));
+          ftFloat:
+            aFields.Add(TJSONObject.Create(['name',aDataSet.FieldDefs[i].Name,'type','float']));
+          else
+            begin
+              //writeln('Unknown Fieldtype:'+IntToStr(Integer(aDataSet.FieldDefs[i].DataType)));
+              aFields.Add(TJSONObject.Create(['name',aDataSet.FieldDefs[i].Name,'type','auto']));
+            end;
+          end;
+        end;
+    end;
+end;
+
 function JSONToFields(AJSON: TJSONObject; AFields: TFields;
   const ADateAsString: Boolean; const AddFields: Boolean): Boolean;
 var

@@ -65,7 +65,7 @@ type
     procedure ImportFromXML(XML : string;OverrideFields : Boolean = False;ReplaceFieldFunc : TReplaceFieldFunc = nil);virtual;
     procedure ImportFromJSON(JSON : string;OverrideFields : Boolean = False;ReplaceFieldFunc : TReplaceFieldFunc = nil);virtual;
     procedure ObjectToJSON(AObject: TBaseDBDataSet; AJSON: TJSONObject;
-      const ADateAsString: Boolean);virtual;
+      const ADateAsString: Boolean;mode : TJSONExportMode);virtual;
     procedure DuplicateRecord(DoPost : Boolean = False);virtual;
     procedure Assign(Source: TPersistent); override;
     procedure DirectAssign(Source : TPersistent);virtual;
@@ -1589,35 +1589,68 @@ begin
     SetDisplayLabels(DataSet);
 end;
 
-procedure TBaseDBDataset.ObjectToJSON(AObject: TBaseDBDataSet; AJSON: TJSONObject;
-  const ADateAsString: Boolean);
+procedure TBaseDBDataset.ObjectToJSON(AObject: TBaseDBDataSet;
+  AJSON: TJSONObject; const ADateAsString: Boolean; mode: TJSONExportMode);
 var
   aArray: TJSONArray;
   aNewObj, VJSON: TJSONObject;
   i: Integer;
 begin
-  VJSON := TJSONObject.Create;
-  FieldsToJSON(AObject.DataSet.Fields, VJSON, ADateAsString);
-  AJSON.Add('Fields',VJSON);
-  if not Supports(AObject.DataSet,IBaseManageDB) then exit;
-  with AObject.DataSet as IBaseSubDataSets do
-    for i := 0 to GetCount-1 do
-      begin
-        TBaseDBDataSet(SubDataSet[i]).Open;
-        TBaseDBDataSet(SubDataSet[i]).First;
-        if not TBaseDBDataSet(SubDataSet[i]).EOF then
+  if mode = emStandard then
+    begin
+      VJSON := TJSONObject.Create;
+      FieldsToJSON(AObject.DataSet.Fields, VJSON, ADateAsString);
+      AJSON.Add('Fields',VJSON);
+      if not Supports(AObject.DataSet,IBaseManageDB) then exit;
+      with AObject.DataSet as IBaseSubDataSets do
+        for i := 0 to GetCount-1 do
           begin
-            aArray := TJSONArray.Create;
-            while not TBaseDBDataSet(SubDataSet[i]).EOF do
+            TBaseDBDataSet(SubDataSet[i]).Open;
+            TBaseDBDataSet(SubDataSet[i]).First;
+            if not TBaseDBDataSet(SubDataSet[i]).EOF then
               begin
-                aNewObj := TJSONObject.Create;
-                ObjectToJSON(TBaseDBDataSet(SubDataSet[i]),aNewObj,ADateAsString);
-                aArray.Add(aNewObj);
-                TBaseDBDataSet(SubDataSet[i]).Next;
+                aArray := TJSONArray.Create;
+                while not TBaseDBDataSet(SubDataSet[i]).EOF do
+                  begin
+                    aNewObj := TJSONObject.Create;
+                    ObjectToJSON(TBaseDBDataSet(SubDataSet[i]),aNewObj,ADateAsString,mode);
+                    aArray.Add(aNewObj);
+                    TBaseDBDataSet(SubDataSet[i]).Next;
+                  end;
+                AJSON.Add(TBaseDBDataSet(SubDataSet[i]).TableName,aArray);
               end;
-            AJSON.Add(TBaseDBDataSet(SubDataSet[i]).TableName,aArray);
           end;
-      end;
+    end
+  else if mode = emExtJS then
+    begin
+      VJSON := TJSONObject.Create;
+      aArray := TJSONArray.Create;
+      MetadataToJSON(AObject.DataSet,aArray);
+      VJSON.Add('fields',aArray);
+      AJSON.Add('Metadata',VJSON);
+      VJSON := TJSONObject.Create;
+      FieldsToJSON(AObject.DataSet.Fields, VJSON, ADateAsString);
+      AJSON.Add('Fields',VJSON);
+      if not Supports(AObject.DataSet,IBaseManageDB) then exit;
+      with AObject.DataSet as IBaseSubDataSets do
+        for i := 0 to GetCount-1 do
+          begin
+            TBaseDBDataSet(SubDataSet[i]).Open;
+            TBaseDBDataSet(SubDataSet[i]).First;
+            if not TBaseDBDataSet(SubDataSet[i]).EOF then
+              begin
+                aArray := TJSONArray.Create;
+                while not TBaseDBDataSet(SubDataSet[i]).EOF do
+                  begin
+                    aNewObj := TJSONObject.Create;
+                    ObjectToJSON(TBaseDBDataSet(SubDataSet[i]),aNewObj,ADateAsString,mode);
+                    aArray.Add(aNewObj);
+                    TBaseDBDataSet(SubDataSet[i]).Next;
+                  end;
+                AJSON.Add(TBaseDBDataSet(SubDataSet[i]).TableName,aArray);
+              end;
+          end;
+    end;
 end;
 
 function TBaseDBDataset.ExportToJSON(mode: TJSONExportMode): string;
@@ -1627,7 +1660,7 @@ var
 begin
   aObj := TJSONObject.Create;
   try
-    ObjectToJSON(Self,aObj,True);
+    ObjectToJSON(Self,aObj,True,mode);
     Result := aObj.FormatJSON;
   finally
     aObj.Free;
