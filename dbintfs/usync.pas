@@ -132,23 +132,25 @@ begin
       begin
         try
         if VField.DataType = ftBoolean then
-          AJSON.Add(lowercase(VFieldName), VField.AsBoolean)
+          AJSON.Add(VFieldName, VField.AsBoolean)
         else if VField.DataType = ftDateTime then
           begin
             if ADateAsString then
-              AJSON.Add(lowercase(VFieldName), Rfc822DateTime(VField.AsDateTime))
+              AJSON.Add(VFieldName, Rfc822DateTime(VField.AsDateTime))
             else
-              AJSON.Add(lowercase(VFieldName), VField.AsFloat);
+              AJSON.Add(VFieldName, VField.AsFloat);
           end
+        else if VField.FieldName = 'SQL_ID' then
+          AJSON.Add('sql_id', VField.AsInteger)
         else if VField.DataType = ftFloat then
-          AJSON.Add(lowercase(VFieldName), VField.AsFloat)
+          AJSON.Add(VFieldName, VField.AsFloat)
         else if (VField.DataType = ftInteger) then
-          AJSON.Add(lowercase(VFieldName), VField.AsInteger)
+          AJSON.Add(VFieldName, VField.AsInteger)
         else if (VField.DataType = ftLargeint) then
-          AJSON.Add(lowercase(VFieldName), VField.AsString)
+          AJSON.Add(VFieldName, VField.AsString)
         else if (VField.DataType = ftBlob) then
         else
-          AJSON.Add(lowercase(VFieldName), CleanupString(VField.AsString))
+          AJSON.Add(VFieldName, CleanupString(VField.AsString))
         except
         end;
       end;

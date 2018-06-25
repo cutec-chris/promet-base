@@ -1596,6 +1596,7 @@ var
   aNewObj, VJSON: TJSONObject;
   i: Integer;
   aSubObj: TJSONObject;
+  aMetadata: TJSONObject;
 begin
   if mode = emStandard then
     begin
@@ -1635,8 +1636,10 @@ begin
               begin
                 aSubObj := TJSONObject.Create;
                 aArray := TJSONArray.Create;
-                MetadataToJSON(AObject.DataSet,aArray);
-                aSubObj.Add('Metadata',aArray);
+                MetadataToJSON(TBaseDBDataSet(SubDataSet[i]).DataSet,aArray);
+                aMetadata := TJSONObject.Create();
+                aMetadata.Add('fields',aArray);
+                aSubObj.Add('Metadata',aMetadata);
                 aArray := TJSONArray.Create;
                 while not TBaseDBDataSet(SubDataSet[i]).EOF do
                   begin
@@ -1659,6 +1662,7 @@ var
   aSubObj: TJSONObject;
   aArray: TJSONArray;
   aSSubObj: TJSONObject;
+  aMetadata: TJSONObject;
 begin
   aObj := TJSONObject.Create;
   try
@@ -1668,7 +1672,9 @@ begin
         aSSubObj := TJSONObject.Create;
         aArray := TJSONArray.Create;
         MetadataToJSON(DataSet,aArray);
-        aSubObj.Add('Metadata',aArray);
+        aMetadata := TJSONObject.Create();
+        aMetadata.Add('fields',aArray);
+        aSubObj.Add('Metadata',aMetadata);
         aArray := TJSONArray.Create;
         ObjectToJSON(Self,aSSubObj,True,mode);
         aArray.Add(aSSubObj);
