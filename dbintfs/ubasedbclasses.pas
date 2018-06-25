@@ -1632,15 +1632,15 @@ begin
           begin
             TBaseDBDataSet(SubDataSet[i]).Open;
             TBaseDBDataSet(SubDataSet[i]).First;
+            aSubObj := TJSONObject.Create;
+            aArray := TJSONArray.Create;
+            MetadataToJSON(TBaseDBDataSet(SubDataSet[i]).DataSet,aArray);
+            aMetadata := TJSONObject.Create();
+            aMetadata.Add('fields',aArray);
+            aSubObj.Add('Metadata',aMetadata);
+            aArray := TJSONArray.Create;
             if not TBaseDBDataSet(SubDataSet[i]).EOF then
               begin
-                aSubObj := TJSONObject.Create;
-                aArray := TJSONArray.Create;
-                MetadataToJSON(TBaseDBDataSet(SubDataSet[i]).DataSet,aArray);
-                aMetadata := TJSONObject.Create();
-                aMetadata.Add('fields',aArray);
-                aSubObj.Add('Metadata',aMetadata);
-                aArray := TJSONArray.Create;
                 while not TBaseDBDataSet(SubDataSet[i]).EOF do
                   begin
                     aNewObj := TJSONObject.Create;
@@ -1648,9 +1648,9 @@ begin
                     aArray.Add(aNewObj);
                     TBaseDBDataSet(SubDataSet[i]).Next;
                   end;
-                aSubObj.Add('Data',aArray);
-                AJSON.Add(TBaseDBDataSet(SubDataSet[i]).TableName,aSubObj);
               end;
+            aSubObj.Add('Data',aArray);
+            AJSON.Add(TBaseDBDataSet(SubDataSet[i]).TableName,aSubObj);
           end;
     end;
 end;
