@@ -1249,118 +1249,129 @@ begin
       aOrderType := StrToIntDef(trim(copy(OrderType.FieldByName('TYPE').AsString,0,2)),0);
       if trim(OrderType.FieldByName('TYPE').AsString) = '' then
         exit;
-      History.Open;
-      History.AddItem(Self.DataSet,Format(strStatusChanged,[Status.AsString,aNewStatus]),'','',nil,ACICON_STATUSCH);
-      if not (OrderType.FieldByName('ISDERIVATE').AsString = 'Y') then
-        begin
-          DataSet.Edit;
-          DataSet.FieldByName('DONE').AsString := 'Y';
-          DataSet.Post;
-        end;
-      if (not Assigned(OrderType.FieldByName('DOCOPY'))) or (OrderType.FieldByName('DOCOPY').AsString <> 'N') then
-        begin //Copy Order
-          with DataSet as IBaseDBFilter do
-            OldFilter := Filter;
-          OldRec := GetBookmark;
-          with DataSet as IBaseDBFilter do
-            Filter := Data.QuoteField('ORDERNO')+'='+Data.QuoteValue(DataSet.FieldByName('ORDERNO').AsString);
-          DataSet.Open;
-          Copied := ExportToXML;
-          Select(DataSet.FieldByName('ORDERNO').AsString);
-          Open;
-          if not GotoBookmark(OldRec) then
-            begin
-              raise Exception.Create('OldRec not found');
-              exit;
-            end;
-          Positions.DisableCalculation;
-          BM := GetBookmark;
-          DataSet.Last;
-          newnumber := copy(DataSet.FieldByName('ORDERNO').AsString,  length(DataSet.FieldByName('ORDERNO').AsString)-1,2);
-          if NewNumber = '' then
-            begin
-              raise Exception.Create('NewNumber is NULL');
-              exit;
-            end;
-          newnumber := copy(DataSet.FieldByName('ORDERNO').AsString,0,length(DataSet.FieldByName('ORDERNO').AsString)-2)+Format('%.2d',[StrToIntDef(newnumber,0)+1]);
-          GotoBookmark(BM);
-          with DataSet do
-            begin
-              Append;
-              FieldByName('ORDERNO').AsString := newnumber;
-              FieldByName('STATUS').AsString := aNewStatus;
-              FieldByName('DOAFQ').Clear;
-              FieldByName('DWISH').Clear;
-              FieldByName('VATH').Clear;
-              FieldByName('VATF').Clear;
-              FieldByName('NETPRICE').Clear;
-              FieldByName('DISCOUNT').Clear;
-              FieldByName('GROSSPRICE').Clear;
-            end;
-          ImportFromXML(Copied,False,@ReplaceParentFields);
-          with DataSet do
-            begin
-              Edit;
-              FieldByName('NUMBER').Clear;
-              FieldByName('DATE').Clear;
-              if aOrderType <> 3 then
-                FieldByName('ODATE').Clear;
-              Post;
-            end;
-          Positions.EnableCalculation;
-          with Positions.DataSet do
-            begin
-              First;
-              while not EOF do
-                begin
-                  Edit;
-                  if aOrderType = 3 then
-                    begin
-                      if FieldByName('QUANTITYO').IsNull then
-                        FieldByName('QUANTITYO').AsFloat := FieldByName('QUANTITY').AsFloat;
-                      if FieldByName('QUANTITYD').IsNull then
-                        FieldByName('QUANTITY').AsFloat := FieldByName('QUANTITY').AsFloat-FieldByName('QUANTITYC').AsFloat
-                      else
-                        FieldByName('QUANTITY').AsFloat := FieldByName('QUANTITYD').AsFloat-FieldByName('QUANTITYC').AsFloat
-                    end
-                  else
-                    FieldByName('QUANTITY').AsFloat := FieldByName('QUANTITY').AsFloat-FieldByName('QUANTITYD').AsFloat;
-                  Post;
-                  Next;
-                end;
-            end;
-          Result:=True;
-        end
-      else
-        begin
-          with DataSet do
-            begin
-              Edit;
-              FieldByName('STATUS').AsString := aNewStatus;
-              FieldByName('DOAFQ').Clear;
-              FieldByName('DWISH').Clear;
-              FieldByName('VATH').Clear;
-              FieldByName('VATF').Clear;
-              FieldByName('NETPRICE').Clear;
-              FieldByName('DISCOUNT').Clear;
-              FieldByName('GROSSPRICE').Clear;
-              FieldByName('NUMBER').Clear;
-              FieldByName('DATE').Clear;
-              if aOrderType <> 3 then
-                FieldByName('ODATE').Clear;
-              Post;
-            end;
-          Result:=True;
-        end;
-      if not (OrderType.FieldByName('ISDERIVATE').AsString = 'Y') then
-        begin //Auftrag geändert
-          DataSet.Edit;
-          DataSet.FieldByName('DONE').AsString := 'N';
-          DataSet.Post;
-        end;
-      RefreshActive;
+      TBaseDBModule(DataModule).StartTransaction(Connection);
+      try
+        History.Open;
+        History.AddItem(Self.DataSet,Format(strStatusChanged,[Status.AsString,aNewStatus]),'','',nil,ACICON_STATUSCH);
+        if not (OrderType.FieldByName('ISDERIVATE').AsString = 'Y') then
+          begin
+            DataSet.Edit;
+            DataSet.FieldByName('DONE').AsString := 'Y';
+            DataSet.Post;
+          end;
+        if (not Assigned(OrderType.FieldByName('DOCOPY'))) or (OrderType.FieldByName('DOCOPY').AsString <> 'N') then
+          begin //Copy Order
+            with DataSet as IBaseDBFilter do
+              OldFilter := Filter;
+            OldRec := GetBookmark;
+            with DataSet as IBaseDBFilter do
+              Filter := Data.QuoteField('ORDERNO')+'='+Data.QuoteValue(DataSet.FieldByName('ORDERNO').AsString);
+            DataSet.Open;
+            Copied := ExportToXML;
+            Select(DataSet.FieldByName('ORDERNO').AsString);
+            Open;
+            if not GotoBookmark(OldRec) then
+              begin
+                raise Exception.Create('OldRec not found');
+                exit;
+              end;
+            Positions.DisableCalculation;
+            BM := GetBookmark;
+            DataSet.Last;
+            newnumber := copy(DataSet.FieldByName('ORDERNO').AsString,  length(DataSet.FieldByName('ORDERNO').AsString)-1,2);
+            if NewNumber = '' then
+              begin
+                raise Exception.Create('NewNumber is NULL');
+                exit;
+              end;
+            newnumber := copy(DataSet.FieldByName('ORDERNO').AsString,0,length(DataSet.FieldByName('ORDERNO').AsString)-2)+Format('%.2d',[StrToIntDef(newnumber,0)+1]);
+            GotoBookmark(BM);
+            with DataSet do
+              begin
+                Append;
+                FieldByName('ORDERNO').AsString := newnumber;
+                FieldByName('STATUS').AsString := aNewStatus;
+                FieldByName('DOAFQ').Clear;
+                FieldByName('DWISH').Clear;
+                FieldByName('VATH').Clear;
+                FieldByName('VATF').Clear;
+                FieldByName('NETPRICE').Clear;
+                FieldByName('DISCOUNT').Clear;
+                FieldByName('GROSSPRICE').Clear;
+              end;
+            ImportFromXML(Copied,False,@ReplaceParentFields);
+            with DataSet do
+              begin
+                Edit;
+                FieldByName('NUMBER').Clear;
+                FieldByName('DATE').Clear;
+                if aOrderType <> 3 then
+                  FieldByName('ODATE').Clear;
+                Post;
+              end;
+            Positions.EnableCalculation;
+            with Positions.DataSet do
+              begin
+                First;
+                while not EOF do
+                  begin
+                    Edit;
+                    if aOrderType = 3 then
+                      begin
+                        if FieldByName('QUANTITYO').IsNull then
+                          FieldByName('QUANTITYO').AsFloat := FieldByName('QUANTITY').AsFloat;
+                        if FieldByName('QUANTITYD').IsNull then
+                          FieldByName('QUANTITY').AsFloat := FieldByName('QUANTITY').AsFloat-FieldByName('QUANTITYC').AsFloat
+                        else
+                          FieldByName('QUANTITY').AsFloat := FieldByName('QUANTITYD').AsFloat-FieldByName('QUANTITYC').AsFloat
+                      end
+                    else
+                      FieldByName('QUANTITY').AsFloat := FieldByName('QUANTITY').AsFloat-FieldByName('QUANTITYD').AsFloat;
+                    Post;
+                    Next;
+                  end;
+              end;
+            Result:=True;
+          end
+        else
+          begin
+            with DataSet do
+              begin
+                Edit;
+                FieldByName('STATUS').AsString := aNewStatus;
+                FieldByName('DOAFQ').Clear;
+                FieldByName('DWISH').Clear;
+                FieldByName('VATH').Clear;
+                FieldByName('VATF').Clear;
+                FieldByName('NETPRICE').Clear;
+                FieldByName('DISCOUNT').Clear;
+                FieldByName('GROSSPRICE').Clear;
+                FieldByName('NUMBER').Clear;
+                FieldByName('DATE').Clear;
+                if aOrderType <> 3 then
+                  FieldByName('ODATE').Clear;
+                Post;
+              end;
+            Result:=True;
+          end;
+        if not (OrderType.FieldByName('ISDERIVATE').AsString = 'Y') then
+          begin //Auftrag geändert
+            DataSet.Edit;
+            DataSet.FieldByName('DONE').AsString := 'N';
+            DataSet.Post;
+          end;
+        TBaseDBModule(DataModule).CommitTransaction(Connection);
+        RefreshActive;
+        OpenItem(False);
+      except
+        on e : Exception do
+          begin
+            TBaseDBModule(DataModule).RollbackTransaction(Connection);
+            GotoBookmark(OldRec);
+            raise;
+          end;
+      end;
     end;
-  OpenItem(False);
 end;
 procedure TOrder.ShippingOutput;
 var

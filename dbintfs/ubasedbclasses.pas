@@ -1732,7 +1732,10 @@ var
                                 ThisDataSet.dataSet.FieldByName('OLD_ID').AsString := aNewValue;
                             end
                           else if ThisDataSet.FieldByName(aFieldName).IsBlob then
-                            ThisDataSet.FieldByName(aFieldName).AsString := DecodeStringBase64(aNewValue)
+                            begin
+                              if aNewValue<>'' then
+                                ThisDataSet.FieldByName(aFieldName).AsString := DecodeStringBase64(aNewValue)
+                            end
                           else if ThisDataSet.dataSet.FieldDefs.IndexOf(aFieldName)>-1 then
                             ThisDataSet.FieldByName(aFieldName).AsString := aNewValue;
                         end;
