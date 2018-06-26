@@ -56,7 +56,7 @@ type
     Label2: TLabel;
     lCustomerNumber3: TLabel;
     lCustomerNumber4: TLabel;
-    MenuItem4: TMenuItem;
+    miViewNoMenu: TMenuItem;
     Paygroups: TDatasource;
     DBLookupComboBox1: TDBLookupComboBox;
     eCustomerNumber: TDBEdit;
@@ -226,7 +226,7 @@ begin
             aUsers.Rights.DataSet.Edit;
           aUsers.Rights.FieldByName('RIGHTS').AsInteger := TMenuItem(Sender).ImageIndex;
           aUsers.Rights.DataSet.Post;
-          if TMenuItem(Sender).ImageIndex = -1 then
+          if TMenuItem(Sender).ImageIndex = -2 then
             aUsers.Rights.DataSet.Delete;
         end;
       aNode := aNode.GetNext;

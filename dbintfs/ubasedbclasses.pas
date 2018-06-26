@@ -2810,7 +2810,7 @@ var
   begin
     if aRec>20 then
       begin
-        Result := -1;
+        Result := -2;
         exit;
       end;
     if DataSet.Locate('RIGHTNAME',VarArrayOf([Element]),[loCaseInsensitive]) then
@@ -2824,10 +2824,10 @@ var
                 if (Recursive) and UserTable.GotoBookmark(UserTable.FieldByName('PARENT').AsInteger) then
                   RecursiveGetRight(aRec+1)
                 else
-                  Result := -1;
+                  Result := -2;
               end
             else
-              Result := -1;
+              Result := -2;
           end;
       end;
   end;

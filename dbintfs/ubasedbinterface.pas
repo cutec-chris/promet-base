@@ -202,7 +202,8 @@ type
   end;
 
 const
-  RIGHT_NONE  = 0;
+  RIGHT_NONE  = -1;
+  RIGHT_VIEW  = 0;
   RIGHT_READ  = 1;
   RIGHT_WRITE = 2;
   RIGHT_DELETE= 3;

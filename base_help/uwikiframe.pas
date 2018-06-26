@@ -338,7 +338,7 @@ begin
   if Assigned(IpHtml.HotNode) and (ipHTML.HotNode is TIpHtmlNodeA) then
     begin
       aLink := StringReplace(TIpHtmlNodeA(IpHtml.HotNode).HRef,'\','/',[rfReplaceAll]);//Ipro changes Links from / to \ on windows automatically
-      PageName := SysToUni(StringReplace(aLink,' ','_',[rfReplaceAll]));
+      PageName := (StringReplace(aLink,' ','_',[rfReplaceAll]));
       for i := 0 to FVariables.Count-1 do
         pageName := StringReplace(PageName,'@VARIABLES.'+FVariables.Names[i]+'@',FVariables.ValueFromIndex[i],[rfReplaceAll,rfIgnoreCase]);
       if OpenWikiPage(PageName) or OpenWikiPage(lowercase(PageName)) then
@@ -537,6 +537,10 @@ begin
   FEditor.Visible := True;
   eName.Enabled:=True;
   tmp := DataSet.FieldByName('DATA').AsString;
+  if DataSet.FieldByName('NAME').AsString='Administrator' then
+    begin
+      OpenWikiPage('Promet-ERP-Help/users/'+StringReplace(Data.Users.FieldByName('NAME').AsString,' ','_',[rfReplaceAll]),true);
+    end;
   FEditor.Open(tmp,DataSet.Id.AsVariant,'W',DataSet.FieldByName('NAME').AsString);
   acEdit.Checked:=True;
   pEntry.Visible:=True;
