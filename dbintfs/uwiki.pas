@@ -845,8 +845,6 @@ begin
   if not Assigned(Self) then exit;
   with FKeywords.DataSet as IBaseDbFilter do
     Filter := '';
-  with BaseApplication as IBaseApplication do
-    Debug('FindWikiPage:'+PageName);
   aParent := 0;
   FActiveTreeID := aParent;
   PageName := Utils.HTMLDecode(PageName);
