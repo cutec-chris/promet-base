@@ -94,7 +94,7 @@ begin
             url := copy(url,0,pos('?',url)-1);
           end;
         aSock.Url := copy(url,7,length(url));
-        Sender.Synchronize(Sender,@aSock.ProcessWikiRequest);
+        Sender.InternalSynchronize(Sender,@aSock.ProcessWikiRequest);
         Result := aSock.Code;
         if Assigned(aSock.Result) then
           Output.CopyFrom(aSock.Result,0);

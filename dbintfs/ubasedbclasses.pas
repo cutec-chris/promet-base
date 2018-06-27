@@ -1184,7 +1184,7 @@ begin
   if not Assigned(Status) then exit;
   if not TBaseDBModule(DataModule).States.DataSet.Locate('TYPE;STATUS',VarArrayOf([GetTyp,DataSet.FieldByName('STATUS').AsString]),[loCaseInsensitive]) then
     begin
-      TBaseDBModule(DataModule).SetFilter(Data.States,'');
+      TBaseDBModule(DataModule).SetFilter(TBaseDBModule(DataModule).States,'');
       aFound := TBaseDBModule(DataModule).States.DataSet.Locate('TYPE;STATUS',VarArrayOf([GetTyp,DataSet.FieldByName('STATUS').AsString]),[loCaseInsensitive]);
     end
   else aFound := True;

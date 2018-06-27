@@ -66,6 +66,7 @@ type
     destructor Destroy; override;
     procedure Execute; override;
     property Objects : TList read FObjects;
+    procedure InternalSynchronize(Sender:TThread;AMethod: TThreadMethod);
   end;
 
 procedure RegisterCommandHandler(aHandler : TCommandHandlerProc);
@@ -73,6 +74,7 @@ procedure RegisterCommandHandler(aHandler : TCommandHandlerProc);
 var
   NetworkDaemon : TAppNetworkDaemon;
   CommandHandlers : array of TCommandHandlerProc;
+  GlobalLock : TRTLCriticalSection;
 
 implementation
 
@@ -169,6 +171,14 @@ begin
     end;
 end;
 
+procedure TAppNetworkThrd.InternalSynchronize(Sender: TThread;
+  AMethod: TThreadMethod);
+begin
+  EnterCriticalsection(GlobalLock);
+  AMethod();
+  LeaveCriticalsection(GlobalLock);
+end;
+
 procedure RegisterCommandHandler(aHandler: TCommandHandlerProc
   );
 begin
@@ -246,6 +256,9 @@ begin
   end;
 end;
 
-
+initialization
+  InitCriticalSection(GlobalLock);
+finalization
+  DoneCriticalsection(GlobalLock);
 end.
 

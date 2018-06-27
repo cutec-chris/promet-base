@@ -472,8 +472,8 @@ var
       end;
     if pos('--mandant',lowercase(cmd)) = 0 then
       cmd := cmd+' "--mandant='+BaseApplication.GetOptionValue('m','mandant')+'"';
-    if Data.Users.DataSet.Active then
-      cmd := cmd+' "--user='+Data.Users.FieldByName('NAME').AsString+'"';
+    if TBaseDBModule(DataModule).Users.DataSet.Active then
+      cmd := cmd+' "--user='+TBaseDBModule(DataModule).Users.FieldByName('NAME').AsString+'"';
     if BaseApplication.HasOption('c','config-path') then
       cmd := cmd+' "--config-path='+BaseApplication.GetOptionValue('c','config-path')+'"';
   end;
@@ -704,6 +704,7 @@ var
 begin
   aLog := TStringList.Create;
   try
+
     aNow := Now();
     if aNow>0 then
       begin
