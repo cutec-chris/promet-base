@@ -274,6 +274,7 @@ procedure TWikiSession.CreateDataModule;
 var
   aType: TBaseDBModuleClass;
 begin
+  EnterCriticalsection(GlobalLock);
   if Assigned(Data) then exit;
   {
   aType := TBaseDBModuleClass(uData.Data.ClassType);
@@ -294,6 +295,7 @@ begin
   TBaseDBModule(Data).RefreshUsersFilter;
   }
   TBaseDBModule(Data).RegisterLinkHandlers;
+  LeaveCriticalsection(GlobalLock);
 end;
 
 procedure TWikiSession.OpenConfig;
