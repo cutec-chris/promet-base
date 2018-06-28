@@ -75,6 +75,7 @@ var
   ResultStatusText , tmp: string;
   ProtocolVersion: Extended;
   Close : Boolean = False;
+  m1: Cardinal;
 begin
   Result := False;
   if pos(' ',FCommand)>0 then
@@ -105,6 +106,7 @@ begin
         if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
           Debug('Processing HTTP Request in Thread');
       aReqTime := Now();
+      m1 := GetHeapStatus.TotalAllocated;
       //aSock.FSocket.Synchronize(aSock.FSocket,@aSock.ProcessHTTPRequest);
       aSock.ProcessHTTPRequest;
       //ignore folder icons since they are not included in template
@@ -230,6 +232,8 @@ begin
       if Assigned(BaseApplication) then
         if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
           Debug('done.');
+      if GetHeapStatus.TotalAllocated<>m1 then
+        writeln('Memory Leak ',GetHeapStatus.TotalAllocated-m1);
       Result:=True;
     end;
   end;
@@ -288,9 +292,9 @@ end;
 
 destructor THTTPSession.Destroy;
 begin
-  InputData.Free;
-  OutputData.Free;
-  Headers.Free;
+  FreeAndNil(InputData);
+  FreeAndNil(OutputData);
+  FreeAndNil(Headers);
   Parameters.Free;
   inherited Destroy;
 end;
