@@ -120,7 +120,7 @@ begin
                 Debug('Processing HTTP Handlers');
             for i := 0 to Length(HTTPHandlers)-1 do
               begin
-                if not Assigned(BaseApplication) then break;
+                if not Assigned(BaseApplication) then exit;
                 aSock.Code := HTTPHandlers[i](Sender,aCmd, aSock.Url,aSock.Parameters.Values['sid'],aSock.Parameters, aSock.Headers, aSock.InputData, aSock.OutputData, ResultStatusText);
                 if aSock.Code<>404 then
                   begin

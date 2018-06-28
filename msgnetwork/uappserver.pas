@@ -175,8 +175,8 @@ procedure TAppNetworkThrd.InternalSynchronize(Sender: TThread;
   AMethod: TThreadMethod);
 begin
   EnterCriticalsection(GlobalLock);
-
-  AMethod();
+  if Assigned(BaseApplication) then
+    AMethod();
   LeaveCriticalsection(GlobalLock);
 end;
 
@@ -239,6 +239,7 @@ begin
     sock.GetSins;
     repeat
       if Terminated then break;
+      if not Assigned(BaseApplication) then break;
       if Close then break;
       s := Sock.RecvTerminated(100,CRLF);
       if (Sock.lastError<>0) and (Sock.LastError<>WSAETIMEDOUT) then
