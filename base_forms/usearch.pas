@@ -820,7 +820,7 @@ begin
         end;
       Options := DBConfig.ReadString('SEARCHTP:'+OptionSet,Options);
     end;
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('Search:Loading Options for '+OptionSet+':'+Options);
   i := 0;
   for i := 0 to cbSearchType.Items.Count-1 do
@@ -852,7 +852,7 @@ begin
     end;
   with Application as IBaseDbInterface do
     Options := DBConfig.ReadString('SEARCHIN:'+OptionSet,Options);
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('Search:Loading Searchin for '+OptionSet+':'+Options);
   while pos(';',Options) > 0 do
     begin

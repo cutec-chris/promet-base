@@ -585,7 +585,7 @@ var
   aWiki: TWikiList;
 begin
   PageName:=HTMLDecode(SysToUni(PageName));
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('OpenWikiPage:'+PageName);
   aWiki := TWikiList.Create(nil);
   Result := aWiki.FindWikiPage(pageName);
@@ -609,7 +609,7 @@ begin
       DataSet.FieldByName('TREEENTRY').AsVariant := aParent;
       DoEdit;
    end;
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('OpenWikiPage:'+PageName+' -> done');
 end;
 

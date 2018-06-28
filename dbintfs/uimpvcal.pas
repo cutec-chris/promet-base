@@ -216,7 +216,7 @@ begin
                 end
               else
                 begin
-                  with BaseApplication as IbaseApplication do
+                  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
                     debug('Field Unknown:'+tmp)
                 end;
               ;
@@ -416,7 +416,7 @@ begin
                 end
               else
                 begin
-                  with BaseApplication as IbaseApplication do
+                  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
                     debug('Field Unknown:'+tmp)
                 end;
             end;

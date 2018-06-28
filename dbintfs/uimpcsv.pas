@@ -90,7 +90,7 @@ begin
   header := TStringList.Create;
   AssignFile(f,Filename);
   Reset(f);
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('Importing:'+Filename);
   try
   readln(f,tmp);
@@ -158,7 +158,7 @@ begin
     on e : Exception do
       begin
         Result := False;
-        with BaseApplication as IBaseApplication do
+        if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
           Error('Zeile:'+tmp+' Fehler:'+e.Message);
       end;
   end;

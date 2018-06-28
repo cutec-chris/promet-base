@@ -145,7 +145,7 @@ begin
   except
     on e : Exception do
       begin
-        with BaseApplication as IBaseApplication do
+        if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
           Error(e.Message);
       end;
   end;

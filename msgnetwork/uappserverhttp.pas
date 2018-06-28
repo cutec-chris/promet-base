@@ -102,7 +102,7 @@ begin
         aSock.protocol := 'HTTP/1.1'; //direct command handler ??
       aSock.Command := aCmd;
       if Assigned(BaseApplication) then
-        with BaseApplication as IBaseApplication do
+        if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
           Debug('Processing HTTP Request in Thread');
       aReqTime := Now();
       //aSock.FSocket.Synchronize(aSock.FSocket,@aSock.ProcessHTTPRequest);
@@ -116,10 +116,11 @@ begin
         if (aSock.Code<>200) and (aSock.Code<>301) and (aSock.Code<>304) then
           begin
             if Assigned(BaseApplication) then
-              with BaseApplication as IBaseApplication do
+              if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
                 Debug('Processing HTTP Handlers');
             for i := 0 to Length(HTTPHandlers)-1 do
               begin
+                if not Assigned(BaseApplication) then break;
                 aSock.Code := HTTPHandlers[i](Sender,aCmd, aSock.Url,aSock.Parameters.Values['sid'],aSock.Parameters, aSock.Headers, aSock.InputData, aSock.OutputData, ResultStatusText);
                 if aSock.Code<>404 then
                   begin
@@ -134,7 +135,7 @@ begin
       ProtocolVersion := StrToFloatDef(StringReplace(copy(aSock.Protocol,pos('/',aSock.Protocol)+1,length(aSock.Protocol)),'.',DecimalSeparator,[]),0.9);
       tmp := copy(tmp,0,pos('/',tmp)-1);
       if Assigned(BaseApplication) then
-        with BaseApplication as IBaseApplication do
+        if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
           Debug('Sending Headers');
       if ResultStatusText = '' then
         begin
@@ -212,22 +213,22 @@ begin
           end;
       end
       else
-        with BaseApplication as IBaseApplication do
+        if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
           Error('No protocoll ?! ...');
       if Assigned(BaseApplication) then
-        with BaseApplication as IBaseApplication do
+        if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
           Debug('Sending Body');
       TAppNetworkThrd(Sender).Sock.SendBuffer(aSock.OutputData.Memory, aSock.OutputData.Size);
       if TAppNetworkThrd(Sender).sock.lasterror <> 0 then
         begin
           if Assigned(BaseApplication) then
-            with BaseApplication as IBaseApplication do
+            if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
               Debug(IntToStr(TAppNetworkThrd(Sender).Id)+':Sock.LastError is '+TAppNetworkThrd(Sender).sock.LastErrorDesc);
           Exit;
         end;
       TAppNetworkThrd(Sender).Close:=aSock.Close;
       if Assigned(BaseApplication) then
-        with BaseApplication as IBaseApplication do
+        if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
           Debug('done.');
       Result:=True;
     end;
@@ -394,7 +395,7 @@ retry:
                 OutputData.CopyFrom(Result,0);
                 OutputData.Position:=0;
                 Result.Free;
-                with BaseApplication as IBaseApplication do
+                if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
                   Info('HTTP: using '+url+'index.html');
                 Code := 200;
               end;
@@ -402,7 +403,7 @@ retry:
         else if FileExists(aPath) and (pos('/.',aPath)=0) then
           begin
             if Assigned(BaseApplication) then
-              with BaseApplication as IBaseApplication do
+              if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
                 Info('HTTP:'+Command+' '+url+' ('+aPath+')');
             Headers.Clear;
             if Uppercase(Command)='OPTIONS' then
@@ -450,7 +451,7 @@ retry:
               end;
           end
         else
-//          with BaseApplication as IBaseApplication do
+//          if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
 //            Info('HTTP:'+aCmd+' '+uri+' not found')
           ;
       end;

@@ -72,7 +72,7 @@ begin
 end;
 procedure VTableUnregister(connection: PDBusConnection; user_data: Pointer); cdecl;
 begin
- with BaseApplication as IBaseApplication do
+ if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
    debug('VTableUnregister!')
 end;
 {$ENDIF}

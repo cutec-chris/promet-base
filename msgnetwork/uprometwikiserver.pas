@@ -65,10 +65,28 @@ type
 function HandleWikiRequest(Sender : TAppNetworkThrd;Method, URL: string;SID : string;Parameters,Headers : TStringList;Input,Output : TMemoryStream;ResultStatusText : string): Integer;
 var
   lOut: TStringList;
-  i: Integer;
   aSock: TWikiSession = nil;
   sl: TStringList;
   aParams: String;
+  Path: String;
+  ms: TMemoryStream;
+  aNumber: integer;
+  tmp: String;
+
+  procedure FindSocket;
+  var
+    i: Integer;
+  begin
+    for i := 0 to Sender.Objects.Count-1 do
+      if TObject(Sender.Objects[i]) is TWikiSession then
+        aSock := TWikiSession(Sender.Objects[i]);
+    if not Assigned(aSock) then
+      begin
+        aSock := TWikiSession.Create;
+        aSock.Socket := Sender;
+        Sender.Objects.Add(aSock);
+      end;
+  end;
 begin
   Result := 404;
   ResultStatusText := '';
@@ -76,18 +94,45 @@ begin
   http://www.odata.org/
   /wiki/folder1/page2
   }
-  if (copy(lowercase(url),0,6)='/wiki/') or (pos('icon(',lowercase(url))>0) or (pos('historyicon(',lowercase(url))>0) then
+  if (pos('icon(',lowercase(url))>0) or (pos('historyicon(',lowercase(url))>0) then
+    begin
+      FindSocket;
+      Path := Url;
+      Path := copy(Path,rpos('/',Path)+1,length(Path));
+      if copy(uppercase(Path),0,5)='ICON(' then
+        begin
+          ms := TMemoryStream.Create;
+          if TryStrToInt(copy(Path,6,length(Path)-6),aNumber) and FileExists(AppendPathDelim('icons')+IntToStr(aNumber)+'.png') then
+            begin
+              ms.LoadFromFile(AppendPathDelim('icons')+IntToStr(aNumber)+'.png');
+              ms.Position:=0;
+              aSock.Result := ms;
+            end;
+          aSock.NewHeaders.Add('Content-Type: image/png');
+          aSock.NewHeaders.Add('Last-Modified: '+Rfc822DateTime(100));
+          aSock.NewHeaders.Add('ETag: '+Rfc822DateTime(100));
+          aSock.Code := 200;
+        end
+      else if (copy(uppercase(Path),0,12)='HISTORYICON(') then
+        begin
+          ms := TMemoryStream.Create;
+          tmp := copy(Path,13,length(Path)-13);
+          if TryStrToInt(tmp,aNumber) and FileExists(AppendPathDelim('histicons')+IntToStr(aNumber)+'.png') then
+            begin
+              ms.LoadFromFile(AppendPathDelim('icons')+IntToStr(aNumber)+'.png');
+              ms.Position:=0;
+              aSock.Result := ms;
+            end;
+          aSock.NewHeaders.Add('Content-Type: image/png');
+          aSock.NewHeaders.Add('Last-Modified: '+Rfc822DateTime(100));
+          aSock.NewHeaders.Add('ETag: '+Rfc822DateTime(100));
+          aSock.Code := 200;
+        end
+    end
+  else if (copy(lowercase(url),0,6)='/wiki/') then
     begin
       try
-        for i := 0 to Sender.Objects.Count-1 do
-          if TObject(Sender.Objects[i]) is TWikiSession then
-            aSock := TWikiSession(Sender.Objects[i]);
-        if not Assigned(aSock) then
-          begin
-            aSock := TWikiSession.Create;
-            aSock.Socket := Sender;
-            Sender.Objects.Add(aSock);
-          end;
+        FindSocket;
         if pos('?',url)>0 then
           begin
             aParams := copy(url,pos('?',url)+1,length(url));
@@ -208,36 +253,7 @@ begin
       begin
         Path := Url;
         Path := copy(Path,rpos('/',Path)+1,length(Path));
-        if copy(uppercase(Path),0,5)='ICON(' then
-          begin
-            ms := TMemoryStream.Create;
-            if TryStrToInt(copy(Path,6,length(Path)-6),aNumber) and FileExists(AppendPathDelim('icons')+IntToStr(aNumber)+'.png') then
-              begin
-                ms.LoadFromFile(AppendPathDelim('icons')+IntToStr(aNumber)+'.png');
-                ms.Position:=0;
-                Result := ms;
-              end;
-            NewHeaders.Add('Content-Type: image/png');
-            NewHeaders.Add('Last-Modified: '+Rfc822DateTime(100));
-            NewHeaders.Add('ETag: '+Rfc822DateTime(100));
-            Code := 200;
-          end
-        else if (copy(uppercase(Path),0,12)='HISTORYICON(') then
-          begin
-            ms := TMemoryStream.Create;
-            tmp := copy(Path,13,length(Path)-13);
-            if TryStrToInt(tmp,aNumber) and FileExists(AppendPathDelim('histicons')+IntToStr(aNumber)+'.png') then
-              begin
-                ms.LoadFromFile(AppendPathDelim('icons')+IntToStr(aNumber)+'.png');
-                ms.Position:=0;
-                Result := ms;
-              end;
-            NewHeaders.Add('Content-Type: image/png');
-            NewHeaders.Add('Last-Modified: '+Rfc822DateTime(100));
-            NewHeaders.Add('ETag: '+Rfc822DateTime(100));
-            Code := 200;
-          end
-        else if Assigned(Document) then
+        if Assigned(Document) then
           begin
             Document.Filter(TBaseDBModule(Data).QuoteField('TYPE')+'=''W'' and '+TBaseDBModule(Data).QuoteField('NAME')+'='+TBaseDBModule(Data).QuoteValue(copy(ExtractFileName(Path),0,rpos('.',ExtractFileName(Path))-1)),1);
             if Document.DataSet.RecordCount > 0 then

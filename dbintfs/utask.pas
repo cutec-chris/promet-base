@@ -420,7 +420,7 @@ begin
   if aLevel>3 then exit;//recoursion check we may have an circulating dependency
   for i := 0 to aLevel-1 do
   tmp := tmp+' ';
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     debug(tmp+'CheckDependencies:'+DataSet.FieldByName('SUMMARY').AsString);
   if not Dependencies.DataSet.Active then
     Dependencies.Open;
@@ -556,7 +556,7 @@ var
   aTime: TDateTime;
   lastDeps : string = '';
 begin
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     debug('CheckDependtasks:'+DataSet.FieldByName('SUMMARY').AsString);
   HasTrigger := Data.TriggerExists('TASKS_INS_DEPEND');
   aDeps := TDependencies.CreateEx(Self,DataModule,Connection);
@@ -569,7 +569,7 @@ begin
     begin
       if (pos(aDeps.FieldByName('LINK').AsString+',',lastDeps)>0) or (aDeps.FieldByName('REF_ID').AsVariant=Id.AsVariant) then
         begin
-          with BaseApplication as IBaseApplication do
+          if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
             Warning('  Would delete task:'+aDeps.DataSet.FieldByName('NAME').AsString);
         //aDeps.Delete
           aDeps.Next;
@@ -764,7 +764,7 @@ begin
       aStartDate:=FieldByName('EARLIEST').AsDateTime;
   if aStartDate<aEarliest then
     aStartDate:=aEarliest;
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     debug('Earliest Task Start: '+DateToStr(aStartDate));
   //Calculate duration
   aUser := TUser.CreateEx(nil,Data);
@@ -790,7 +790,7 @@ begin
   //Collect Tasks
   aIntervals := TList.Create;
   //Find first free Slot
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     debug('Collect Tasks start');
   bTasks := TTaskList.CreateEx(nil,DataModule,Connection);
   if aUser.FieldByName('TYPE').AsString<>'G' then
@@ -812,7 +812,7 @@ begin
                 if not DependsOnMe(bTasks,2) then
                   begin
                     aInt := bTasks.GetInterval;
-                    with BaseApplication as IBaseApplication do
+                    if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
                       debug('  Task: '+aInt.Name+' ('+DateToStr(aInt.StartDate)+'-'+DateToStr(aInt.DueDate)+')');
 
                     if aInt.StartDate<Now() then
@@ -826,13 +826,13 @@ begin
                           end
                         else
                           aInt.StartDate:=Now()-(aUsedTime*(1/ResourceTimePerDay));
-                        with BaseApplication as IBaseApplication do
+                        if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
                           debug('    changed:  ('+DateToStr(aInt.StartDate)+'-'+DateToStr(aInt.DueDate)+')');
                       end;
                     if (aInt.DueDate<Now()) and (aInt.StartDate+(aInt.PlanTime*(1/ResourceTimePerDay))>Now()) then
                       begin
                         aInt.DueDate:=aInt.StartDate+(aInt.PlanTime*(1/ResourceTimePerDay));
-                        with BaseApplication as IBaseApplication do
+                        if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
                           debug('    changed:  ('+DateToStr(aInt.StartDate)+'-'+DateToStr(aInt.DueDate)+')');
                       end;
                     aIntervals.Add(aInt);
@@ -882,7 +882,7 @@ begin
     begin
       if (not ((DayOfWeek(aNow)=1) or (DayOfWeek(aNow)=7))) then
         begin
-          with BaseApplication as IBaseApplication do
+          if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
             debug('Day: '+DateToStr(aNow));
           aPercent := 0;
           for i := 1 to aIntervals.Count-1 do
@@ -892,7 +892,7 @@ begin
               and (trunc(Int2.DueDate)>aNow)) then
                 begin
                   aPercent := aPercent+((Int2.PlanTime/(Int2.DueDate-Int2.StartDate))*(1/ResourceTimePerDay));
-                  with BaseApplication as IBaseApplication do
+                  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
                     debug('  Task: '+Int2.Name+' ActPercent:'+FloatToStr(aPercent));
                 end;
             end;
@@ -901,7 +901,7 @@ begin
               begin
                 aFound := True;
                 aActStartDate:=aNow;
-                with BaseApplication as IBaseApplication do
+                if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
                   debug('  New Task starts here !');
               end;
           if aFound then
@@ -912,7 +912,7 @@ begin
               if TimeNeeded<=0 then
                 begin
                   aActEndDate := aNow+0.99999;
-                  with BaseApplication as IBaseApplication do
+                  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
                     debug('  New Task ends here !');
                   break;
                 end;

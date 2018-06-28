@@ -190,7 +190,7 @@ begin
     end;
   if Assigned(FDataSet) then
     begin
-      with BaseApplication as IBaseApplication do
+      if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
         Debug('DataSet Assigned !'+Self.ClassName);
     end;
   inherited Destroy;

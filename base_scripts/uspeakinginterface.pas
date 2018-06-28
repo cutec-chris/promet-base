@@ -63,7 +63,7 @@ begin
       except
         on e : Exception do
           begin
-            with BaseApplication as IBaseApplication do
+            if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
               debug('Error running script:'+FieldByName('NAME').AsString+':'+e.Message);
             Result := false;
           end;

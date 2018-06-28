@@ -452,7 +452,7 @@ var
   bId : Variant;
   procedure DoLog(aStr: string;bLog : TStringList;SysLog : Boolean);
   begin
-    with BaseApplication as IBaseApplication do
+    if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
       if Syslog then
         Log(TimeToStr(Now())+':'+aStr);
     if bLog.Count>100 then

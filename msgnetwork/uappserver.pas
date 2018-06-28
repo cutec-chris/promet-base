@@ -175,6 +175,7 @@ procedure TAppNetworkThrd.InternalSynchronize(Sender: TThread;
   AMethod: TThreadMethod);
 begin
   EnterCriticalsection(GlobalLock);
+
   AMethod();
   LeaveCriticalsection(GlobalLock);
 end;

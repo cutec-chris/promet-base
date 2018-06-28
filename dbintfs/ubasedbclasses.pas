@@ -1575,7 +1575,7 @@ begin
         if Assigned(DataSet) and Assigned(DataModule) then
           TBaseDBModule(DataModule).DestroyDataSet(DataSet);
       except
-        with BaseApplication as IBaseApplication do
+        if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
           debug('Error Freeing: '+ClassName);
       end;
     end;
@@ -1714,7 +1714,7 @@ var
       with ThisDataSet.DataSet as IBaseManageDB do
         if (TableName = aNode.Attributes.GetNamedItem('NAME').NodeValue) then
           begin
-            with BaseApplication as IBaseApplication do
+            if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
               debug('Importing from: '+TableName);
             ThisDataSet.Open;
             ThisDataSet.Tag:=111;

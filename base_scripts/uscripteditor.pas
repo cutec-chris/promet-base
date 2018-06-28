@@ -577,7 +577,7 @@ begin
      begin
        Linemark.Visible:=True;
        Linemark.Line:=Row;
-       with BaseApplication as IBaseApplication do
+       if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
          begin
            Debug('Script:'+Module+':'+IntToStr(Row));
          end;
@@ -604,7 +604,7 @@ begin
      end
    else
      begin
-       with BaseApplication as IBaseApplication do Debug('Script:'+Module+':'+IntToStr(Row));
+       if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do Debug('Script:'+Module+':'+IntToStr(Row));
        if LineMark.Visible then
          begin
            mo := TMessageObject.Create;

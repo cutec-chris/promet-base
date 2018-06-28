@@ -138,7 +138,7 @@ var
   aVersion,aIName: String;
 begin
   Result:=False;
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('Uses start:'+aName);
   if aName = 'SYSTEM' then
     begin
@@ -679,7 +679,7 @@ begin
               aVersion := copy(aIName,pos('_',aIName)+1,length(aIName));
               aIName := copy(aIName,0,pos('_',aIName)-1);
             end;
-          with BaseApplication as IBaseApplication do
+          if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
             Debug('Uses get Unit from Database:'+aName);
           if aVersion = '' then
             aScript.Filter(Data.ProcessTerm('UPPER('+Data.QuoteField('NAME')+')=UPPER('+Data.QuoteValue(aIName)+') AND '+Data.QuoteField('ACTIVE')+'='+Data.QuoteValue('Y')))
@@ -701,7 +701,7 @@ begin
     end;
   if not OnlyAdditional then
     begin
-      with BaseApplication as IBaseApplication do
+      if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
         begin
           if Result then
             Debug('Uses end:'+aName+' successfully')

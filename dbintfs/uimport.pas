@@ -106,7 +106,7 @@ begin
   aFooter := copy(aFooter,0,pos('[/footer]',lowercase(aFooter))-1);
   if Assigned(aData) then
     begin
-      with BaseApplication as IBaseApplication do
+      if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
         Info(Format('%d records to export',[aData.RecordCount]));
       aStream := TFileStream.Create(aFilename,fmCreate);
       aStream.WriteBuffer(aHeader[1],length(aHeader));

@@ -608,7 +608,7 @@ begin
       if aMod.LoadModule then
         if (pos('EXT="'+Uppercase(e)+'"',aMod.CallListGetDetectString)>0) or (pos('EXT="*"',aMod.CallListGetDetectString)>0) then
           begin
-            with BaseApplication as IBaseApplication do
+            if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
               debug('GallListGetText from "'+aMod.FileName+'"');
             try
               aText := aMod.CallListGetText(aFileName,'');

@@ -1551,7 +1551,7 @@ begin
 end;
 procedure TBaseDBInterface.FDBLog(Sender: TComponent; aLog: string);
 begin
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('SQL:'+aLog);
 end;
 
@@ -1631,7 +1631,7 @@ var
   Found: Boolean;
 begin
   Result := False;
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Info('Login to Mandant '+aMandant+' as '+aUser);
   //Check if FDB already is our Mandant
   if FMandantFile <> AppendPathDelim(FConfigPath)+aMandant+MandantExtension then
@@ -1734,7 +1734,7 @@ begin
   except
     on e : Exception do
       begin
-        with BaseApplication as IBaseApplication do
+        if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
           Warning('LoadMandants:'+e.Message);
         Result := False;
       end;

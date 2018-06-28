@@ -406,7 +406,7 @@ end;
 
 function TfMainTree.OpenLink(aLink: string; Sender: TObject): Boolean;
 begin
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Info('OpenLink:'+aLink);
   Result := False;
   if Assigned(FLinkOpen) then
@@ -415,7 +415,7 @@ end;
 function TfMainTree.NewFromLink(aLink: string; Sender: TObject
   ): TBaseDBdataSet;
 begin
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Info('NewFromLink:'+aLink);
   result := nil;
   if Assigned(FLinkNew) then
@@ -439,20 +439,20 @@ begin
   etAction:
     begin
       DataT.Action.Execute;
-      with BaseApplication as IBaseApplication do
+      if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
         Info('Action Open:'+DataT.Action.Name);
     end;
   etSearch:
     begin
       acSearch.Execute;
-      with BaseApplication as IBaseApplication do
+      if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
         Info('Action Open:'+acSearch.Name);
     end
   else
     begin
       if Assigned(FOpen) then
         FOpen(DataT);
-      with BaseApplication as IBaseApplication do
+      if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
         Info('Open:'+DataT.Link);
     end;
   end;

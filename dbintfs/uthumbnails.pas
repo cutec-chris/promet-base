@@ -213,7 +213,7 @@ begin
       aOrigName:=aFileName;
       aFileName:=aThumbFile;
     end;
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('Generate Thumbnail:Enter');
     Found := False;
 Redo:
@@ -370,7 +370,7 @@ Redo:
   except
     Result := False;
   end;
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('Generate Thumbnail:Exit');
 end;
 

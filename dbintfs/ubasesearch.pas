@@ -269,13 +269,13 @@ begin
   if FSearchTypes=[] then exit;
   if SearchUnsharp then
     begin
-      with BaseApplication as IBaseApplication do
+      if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
         Debug('Search:StartSearch unsharp');
       aPrio := 1000;
     end
   else
     begin
-      with BaseApplication as IBaseApplication do
+      if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
         Debug('Search:StartSearch sharp');
       aPrio := 2000;
     end;
@@ -480,7 +480,7 @@ begin
               aSQL := aSQL+' order by '+Data.QuoteField('TIMESTAMPD')+' desc';
             if FMaxResults>0 then
               aSQL := uStatistic.AddSQLLimit(aSQL,FMaxResults)+LineEnding;
-            with BaseApplication as IBaseApplication do
+            if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
               Debug(aSQL);
             aDataSet := Data.GetNewDataSet(aSQL);
             aDataSet.Open;
@@ -500,7 +500,7 @@ begin
     end;
   FActive := False;
   if Assigned(FFullEndSearch) then FFullEndSearch(Self);
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('Search:StartSearch End');
 end;
 
@@ -536,7 +536,7 @@ var
   end;
 begin
   if not Assigned(FItemFound) then exit;
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('Search:StartAllObjectsSearch');
   FActive:=True;
   aObjects := TObjects.Create(nil);
@@ -603,7 +603,7 @@ begin
   aObjects.Free;
   FActive := False;
   if Assigned(FFullEndSearch) then FFullEndSearch(Self);
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('Search:EndAllObjectsSearch');
 end;
 
@@ -622,7 +622,7 @@ var
 
 begin
   if not Assigned(FItemFound) then exit;
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('Search:StartHistorySearch');
   FActive:=True;
   if Data.IsSQLDB then
@@ -670,7 +670,7 @@ begin
     end;
   FActive := False;
   if Assigned(FFullEndSearch) then FFullEndSearch(Self);
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('Search:EndHistorySearch');
 end;
 

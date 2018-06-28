@@ -1719,7 +1719,7 @@ var
   aTime: DWORD;
 begin
   URL := FURL;
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('WaitForImage   :'+URL);
   aTime := GetTickCount;
   while (not FileExists(FtempPath+URL)) do
@@ -1727,7 +1727,7 @@ begin
       if GetTickCount-aTime>1000 then break;
       Application.ProcessMessages;
     end;
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('WaitForImageEnd:'+URL);
 end;
 procedure TfManageDocFrame.RebuidThumb;
@@ -1937,7 +1937,7 @@ end;
 
 procedure TfManageDocFrame.OpenDir(aDir: Variant);
 begin
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('TfManageDocFrame:OpenDir enter');
   if aDir = Null then
     FFilter := Data.QuoteField('TYPE')+'='+Data.QuoteValue(FTyp)
@@ -1974,7 +1974,7 @@ begin
   bShowDetail.Enabled:=DataSet.Count>0;
   pSave.Enabled:=DataSet.Count>0;
   ThumbControl1.Arrange;
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('TfManageDocFrame:OpenDir leave');
 end;
 

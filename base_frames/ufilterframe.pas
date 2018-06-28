@@ -1101,7 +1101,7 @@ begin
         eFilterIn.Text:='';
         if cbFilter.ItemIndex=0 then
           begin
-            with BaseApplication as IBaseApplication do
+            if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
               Debug('no Filter:'+DefaultFilter);
             Filter := DefaultFilter;
             SortDirection := FDefaultSortDirection;
@@ -1122,7 +1122,7 @@ begin
                 end;
             FilterIn := Data.Filters.FieldByName('FILTERIN').AsString;
             eFilterIn.Text:=FilterIn;
-            with BaseApplication as IBaseApplication do
+            if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
               Debug('New Filter:'+Data.Filters.FieldByName('FILTER').AsString);
             Filter := Data.Filters.FieldByName('FILTER').AsString;
             SortField := Data.Filters.FieldByName('SORTFIELD').AsString;

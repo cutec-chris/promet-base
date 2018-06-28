@@ -472,7 +472,7 @@ begin
       end;
   except
     on e : Exception do
-      with BaseApplication as IBaseApplication do
+      if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
         Warning('Reset Script Internal Error '+FieldByName('NAME').AsString+':'+e.Message);
   end;
 end;

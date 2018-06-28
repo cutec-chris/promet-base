@@ -468,7 +468,7 @@ var
     FSQLStream.Free;
   end;
 begin
-  with BaseApplication as IBaseApplication do
+  if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
     Debug('WikiInclude:'+Inp);
   if pos('datathere(',lowercase(Inp))>0 then
     aDataThere:=False;
@@ -862,12 +862,12 @@ begin
           if TBaseDBModule(DataModule).Tree.Id.AsVariant<>Null then
             aParent := TBaseDBModule(DataModule).Tree.Id.AsVariant
           else aParent:=0;
-          with BaseApplication as IBaseApplication do
+          if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
             Debug('Parent found:'+IntToStr(aParent));
         end
       else
         begin
-          with BaseApplication as IBaseApplication do
+          if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
             Debug('Parent not found, re-filter ('+copy(PageName,0,pos('/',PageName)-1)+','+IntToStr(aParent)+',W)');
           TBaseDBModule(DataModule).Tree.DataSet.Filtered := False;
           if (TBaseDBModule(DataModule).Tree.ActualFilter<>'') or (not TBaseDBModule(DataModule).Tree.Active) then
@@ -880,12 +880,12 @@ begin
               if TBaseDBModule(DataModule).Tree.Id.AsVariant<>Null then
                 aParent := TBaseDBModule(DataModule).Tree.Id.AsVariant
               else aParent:=0;
-              with BaseApplication as IBaseApplication do
+              if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
                 Debug('Parent found:'+IntToStr(aParent));
             end
           else if aDocreate then
             begin
-              with BaseApplication as IBaseApplication do
+              if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
                 Debug('Parent not found creating path');
               with TBaseDBModule(DataModule).Tree.DataSet do
                 begin
@@ -910,13 +910,13 @@ begin
   Result := DataSet.Active and (DataSet.Locate('TREEENTRY;NAME',VarArrayOf([aParent,PageName]),[loCaseInsensitive]));
   if not Result then
     begin
-      with BaseApplication as IBaseApplication do
+      if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
         Debug('Page not found, re-filter');
       TBaseDBModule(DataModule).SetFilter(Self,TBaseDBModule(DataModule).QuoteField('TREEENTRY')+'='+TBaseDBModule(DataModule).QuoteValue(IntToStr(aParent)));
       Result := DataSet.Locate('TREEENTRY;NAME',VarArrayOf([aParent,PageName]),[loCaseInsensitive]);
       if not Result then
         begin
-          with BaseApplication as IBaseApplication do
+          if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
             Debug('Page not found, re-filter 2');
           TBaseDBModule(DataModule).SetFilter(Self,TBaseDBModule(DataModule).QuoteField('NAME')+'='+TBaseDBModule(DataModule).QuoteValue(PageName));
           Result := DataSet.Locate('TREEENTRY;NAME',VarArrayOf([Null,PageName]),[loCaseInsensitive]);
@@ -925,7 +925,7 @@ begin
   if Result then
     begin
       Keywords.Open;
-      with BaseApplication as IBaseApplication do
+      if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
         Debug('Page found!');
     end;
   FActiveTreeID := aParent;
