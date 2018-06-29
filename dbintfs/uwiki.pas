@@ -1077,7 +1077,6 @@ procedure TWikiList.WikiListWikiLink(Inp: string; var Outp: string;
   aLevel: Integer=0);
 var
   tmp: String;
-  sl: TStringList;
   aFN: String;
 begin
   Outp := FOutSub+'/'+Inp+FOutExt;
@@ -1086,7 +1085,6 @@ begin
   tmp := StringReplace(tmp,'/',DirectorySeparator,[rfReplaceAll]);
   tmp := StringReplace(tmp,DirectorySeparator+DirectorySeparator,DirectorySeparator,[rfReplaceAll]);
   ForceDirectories(tmp);
-  sl := TStringList.Create;
   aFN := StringReplace(StringReplace(FOutDir+'/'+Outp,'/',DirectorySeparator,[rfReplaceAll]),'//','/',[rfReplaceAll]);
   if FOutTodo.IndexOf(Inp)=-1 then
     FOutTodo.Values[Inp] := GetFullPath;
@@ -1104,6 +1102,7 @@ var
   aRemPath: String;
   tmp: String;
 begin
+  Result:=True;
   WikiToHtml.OnWikiLink:=@WikiListWikiLink;
   WikiToHtml.OnWikiInclude:=aInclude;
   FOutDir := ExtractFileDir(aFile);
