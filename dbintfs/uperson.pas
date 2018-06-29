@@ -704,7 +704,7 @@ begin
 end;
 destructor TPerson.Destroy;
 begin
-  FDS.Free;
+  FreeAndNil(FDS);
   FreeAndNil(FEmployees);
   FreeAndNil(FLinks);
   FreeAndNil(FBanking);

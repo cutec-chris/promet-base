@@ -1184,7 +1184,7 @@ begin
               end;
           end;
         //Kundenhistorie buchen
-        Person := TPerson.CreateEx(Owner,DataModule,Connection);
+        Person := TPerson.CreateEx(Self,DataModule,Connection);
         with Person.DataSet as IBaseDBFilter do
           Filter := Data.QuoteField('ACCOUNTNO')+'='+Data.QuoteValue(Address.FieldByName('ACCOUNTNO').AsString);
         Person.Open;
@@ -1218,12 +1218,12 @@ begin
           end;
       end;
     end;
-  FreeAndnil(Orders);
-  FreeAndNil(MasterdataList);
-  FreeAndNil(AccountingJournal);
-  FreeAndNil(MainOrder);
   FreeAndNil(Person);
   FreeAndNil(aNumbers);
+  FreeAndNil(AccountingJournal);
+  FreeAndnil(Orders);
+  FreeAndNil(MasterdataList);
+  FreeAndNil(MainOrder);
 end;
 
 function TOrder.FailMessage: string;

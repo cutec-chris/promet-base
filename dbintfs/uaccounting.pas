@@ -42,6 +42,9 @@ type
     function CreateTable : Boolean;override;
     property Exchange : TAccountExchange read FExchange;
   end;
+
+  { TAccountingJournal }
+
   TAccountingJournal = class(TBaseDBDataSet)
   private
     FirstOpen: Boolean;

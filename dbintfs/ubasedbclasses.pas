@@ -42,7 +42,6 @@ type
     constructor Create(aOwner: TComponent); override;
     constructor CreateEx(aOwner: TComponent; DM: TComponent;
       aConnection: TComponent=nil; aMasterdata: TDataSet=nil); override;
-    destructor Destroy; override;
     procedure Open; override;
     procedure DefineFields(aDataSet: TDataSet); override;
     procedure DefineDefaultFields(aDataSet : TDataSet;HasMasterSource : Boolean);override;
@@ -290,11 +289,15 @@ type
   public
     procedure DefineFields(aDataSet : TDataSet);override;
   end;
+
+  { TNumbersets }
+
   TNumbersets = class(TBaseDBDataSet)
   public
     procedure DefineFields(aDataSet : TDataSet);override;
     function GetNewNumber(Numberset : string) : string;
     function HasNumberSet(Numberset : string) : Boolean;
+    destructor Destroy; override;
   end;
   TPayGroups = class(TBaseDBDataSet)
   public
@@ -1565,21 +1568,6 @@ begin
   if DM = nil then
     DM := uData.Data;
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-end;
-
-destructor TBaseDBDataset.Destroy;
-begin
-  if Assigned(DataModule) and (not TBaseDBModule(DataModule).IgnoreOpenRequests) then
-    begin
-      try
-        if Assigned(DataSet) and Assigned(DataModule) then
-          TBaseDBModule(DataModule).DestroyDataSet(DataSet);
-      except
-        if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
-          debug('Error Freeing: '+ClassName);
-      end;
-    end;
-  inherited Destroy;
 end;
 
 procedure TBaseDBDataset.Open;
@@ -3035,6 +3023,11 @@ begin
     TBaseDBModule(DataModule).SetFilter(Self, TBaseDBModule(DataModule).QuoteField('TABLENAME')+'='+TBaseDBModule(DataModule).QuoteValue(numberset));
   Result := Count > 0;
 end;
+
+destructor TNumbersets.Destroy;
+begin
+end;
+
 function TUser.GetLeaved: TField;
 begin
   Result := DataSet.FieldByName('LEAVED');
