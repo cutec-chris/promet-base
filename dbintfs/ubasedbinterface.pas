@@ -521,6 +521,7 @@ begin
 end;
 destructor TBaseDBModule.Destroy;
 begin
+  SetLength(FLinkHandlers,0);
   DBTables.Free;
   FUsers.Free;
   Numbers.Free;
@@ -1323,7 +1324,7 @@ begin
     RefreshUsersFilter;
   except
   end;
-  ActiveUsers.DataSet.Close;
+  ActiveUsers.Close;
   RegisterLinkHandlers;
 end;
 
@@ -1800,5 +1801,6 @@ initialization
   DataBaseLayers := TClassList.Create;
 finalization
   DatabaseLayers.Free;
+  SetLength(DatasetClasses,0);
 end.
 
