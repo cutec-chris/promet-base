@@ -182,7 +182,7 @@ procedure TWikiSession.SetSocket(AValue: TAppNetworkThrd);
 begin
   if FSocket=AValue then Exit;
   FSocket:=AValue;
-  FSocket.Synchronize(FSocket,@CreateWikiList);
+  FSocket.InternalSynchronize(FSocket,@CreateWikiList);
 end;
 
 constructor TWikiSession.Create;
@@ -195,7 +195,7 @@ end;
 
 destructor TWikiSession.Destroy;
 begin
-  FSocket.Synchronize(FSocket,@DestroyWikiList);
+  FSocket.InternalSynchronize(FSocket,@DestroyWikiList);
   if Assigned(Config) then Config.Free;
   Template.Free;
   NewHeaders.Free;
