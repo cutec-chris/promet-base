@@ -913,6 +913,7 @@ var
   Vat: TVat;
 begin
   Vat := TVat.Create(nil);
+  Positions.DataSet.DisableControls;
   Positions.Open;
   Positions.First;
   while not Positions.EOF do
@@ -952,6 +953,7 @@ begin
   FieldByName('NETPRICE').AsFloat:=Round(aPos);
   FieldByName('GROSSPRICE').AsFloat:=Round(aGrossPos);
   if CanEdit then DataSet.Post;
+  Positions.DataSet.EnableControls;
   Vat.Free;
 end;
 
