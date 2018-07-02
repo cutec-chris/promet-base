@@ -886,13 +886,16 @@ end;
 procedure TFAutomation.tvStepSelectionChanged(Sender: TObject);
 var
   Res: Boolean;
+  aPos: Int64;
 begin
   if Assigned(FSelStep) then FSelStep(tvStep);
   StepChanged := True;
   if Assigned(tvStep.Selected) then
     begin
       acExecuteStep.Enabled:=False;
-      if DataSet.Locate('SQL_ID',TProdTreeData(tvStep.Selected.Data).Position,[]) then
+      aPos := TProdTreeData(tvStep.Selected.Data).Position;
+      if not DataSet.Active then DataSet.Open;
+      if DataSet.Locate('SQL_ID',aPos,[]) then
         Res := LoadStep
       else Res := False;
       if not Res then
@@ -1698,10 +1701,12 @@ var
 begin
   if tvStep.Items.Count>1 then
     begin
+      tvStep.OnSelectionChanged:=nil;
       tvStep.Selected:=tvStep.Items[0];
       tvStep.Items[0].Expanded:=True;
       if not LoadStep then
         FindNextStep;
+      tvStep.OnSelectionChanged:=@tvStepSelectionChanged;
     end
   else if tvStep.Items.Count=1 then
     begin
