@@ -1123,8 +1123,8 @@ begin
             Add('ACTIVE',ftString,1,True);
             Add('STATUS',ftString,4,false);
             Add('BARCODE',ftString,20,False);
-            Add('MATCHCODE',ftString,20,False);
-            Add('SHORTTEXT',ftString,100,False);
+            Add('MATCHCODE',ftString,200,False);
+            Add('SHORTTEXT',ftString,240,False);
             Add('TREEENTRY',ftLargeint,0,True);
             Add('QUANTITYU',ftString,10,False);//Mengeneinheit
             Add('VAT',ftString,1,True);        //Mehrwertsteuer

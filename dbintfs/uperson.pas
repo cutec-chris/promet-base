@@ -897,7 +897,7 @@ begin
         with ManagedFieldDefs do
           begin
             Add('ACCOUNTNO',ftString,20,True);
-            Add('MATCHCODE',ftString,20,False);
+            Add('MATCHCODE',ftString,200,False);
             Add('STATUS',ftString,4,false);
             Add('NAME',ftString,200,False);
             Add('TREEENTRY',ftLargeInt,0,True);
