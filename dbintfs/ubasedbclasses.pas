@@ -2097,7 +2097,7 @@ begin
           begin
             Add('REF_ID',ftLargeInt,0,true);
             Add('ACTIONICON',ftInteger,0,False);
-            Add('SUMMARY',ftString,120,False);
+            Add('SUMMARY',ftString,220,False);
             Add('ACTION',ftMemo,0,True);
             Add('REFERENCE', ftString,150,False);
             Add('LINK',ftString,400,False);

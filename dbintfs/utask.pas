@@ -1558,7 +1558,7 @@ begin
             Add('CHECKED',ftString,1,True);
             Add('HASCHILDS',ftString,1,True);
             Add('SEEN',ftString,1,False);
-            Add('SUMMARY',ftString,220,False);
+            Add('SUMMARY',ftString,420,False);
             Add('GPRIORITY',ftLargeint,0,False);
             Add('LPRIORITY',ftInteger,0,False);
             Add('PLANTIME',ftFloat,0,False); //geplante Zeit

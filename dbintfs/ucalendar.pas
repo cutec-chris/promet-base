@@ -230,7 +230,7 @@ begin
             Add('ID',ftLargeint,0,True);
             Add('CLASS',ftString,1,False); //classification
             Add('STATUS',ftString,4,False); //classification
-            Add('SUMMARY',ftString,120,False);
+            Add('SUMMARY',ftString,420,False);
             Add('PROJECT',ftString,260,False);
             Add('LOCATION',ftString,30,False);
             Add('CALENDART',ftString,15,False);
