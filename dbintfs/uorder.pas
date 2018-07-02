@@ -981,9 +981,9 @@ begin
   Result := prFailed;
   CascadicPost;
   Recalculate;
-  Orders := TOrderList.CreateEx(Owner,DataModule,Connection);
-  MasterdataList := TMasterdataList.CreateEx(Owner,DataModule,Connection);
-  MainOrder := TOrder.CreateEx(Owner,DataModule,Connection);
+  Orders := TOrderList.CreateEx(nil,DataModule,Connection);
+  MasterdataList := TMasterdataList.CreateEx(nil,DataModule,Connection);
+  MainOrder := TOrder.CreateEx(nil,DataModule,Connection);
   MainOrder.Select(Self.FieldByName('ORDERNO').AsString);
   MainOrder.Open;
   Data.StorageType.Open;
@@ -1021,7 +1021,7 @@ begin
       Data.Numbers.Open;
       if Data.Numbers.Count = 0 then
         raise Exception.Create(strNumbersetnotfound);
-      Accountingjournal := TAccountingjournal.CreateEx(Owner,DataModule,Connection);
+      Accountingjournal := TAccountingjournal.CreateEx(nil,DataModule,Connection);
       Accountingjournal.CreateTable;
       with Accountingjournal.DataSet as IBaseDBFilter do
         begin
@@ -1040,7 +1040,7 @@ begin
           end;
         //Belegnummer und Datum vergeben
         DataSet.Edit;
-        aNumbers := TNumberSets.CreateEx(Owner,Data,Connection);
+        aNumbers := TNumberSets.CreateEx(nil,Data,Connection);
         with aNumbers.DataSet as IBaseDBFilter do
           Filter := Data.QuoteField('TABLENAME')+'='+Data.QuoteValue(OrderType.FieldByName('NUMBERSET').AsString);
         aNumbers.Open;
@@ -1186,7 +1186,7 @@ begin
               end;
           end;
         //Kundenhistorie buchen
-        Person := TPerson.CreateEx(Self,DataModule,Connection);
+        Person := TPerson.CreateEx(nil,DataModule,Connection);
         with Person.DataSet as IBaseDBFilter do
           Filter := Data.QuoteField('ACCOUNTNO')+'='+Data.QuoteValue(Address.FieldByName('ACCOUNTNO').AsString);
         Person.Open;
@@ -1451,7 +1451,7 @@ begin
       try
         Result := True;
         OrderTyp := StrToIntDef(trim(copy(OrderType.FieldByName('TYPE').AsString, 0, 2)), 0);
-        Masterdata := TMasterdata.CreateEx(Owner,DataModule,Connection);
+        Masterdata := TMasterdata.CreateEx(nil,DataModule,Connection);
         Masterdata.CreateTable;
         Masterdata.Select(aID,aVersion,aLanguage);
         Masterdata.Open;
@@ -1539,7 +1539,7 @@ begin
           end;
       end;
       finally
-        Masterdata.Free;
+        FreeAndNil(Masterdata);
       end;
     end;
 end;
