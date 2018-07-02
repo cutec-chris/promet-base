@@ -46,6 +46,7 @@ destructor TPrometMsgClient.Destroy;
 begin
   Terminate;
   WaitFor;
+  Sock.Free;
   inherited Destroy;
 end;
 
