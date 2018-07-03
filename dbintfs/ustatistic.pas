@@ -140,6 +140,7 @@ begin
       Result := StringReplace(Result,'GETDATE()','CURRENT_DATE',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'LENGTH(','LEN(',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'LEN(','CHAR_LENGTH(',[rfReplaceAll,rfIgnoreCase]);
+      Result := StringReplace(Result,'varchar(max)','text',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'(max)','',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'IFNULL(','coalesce(',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'ISNULL(','coalesce(',[rfReplaceAll,rfIgnoreCase]);
