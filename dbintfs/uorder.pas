@@ -786,47 +786,53 @@ var
   MainOrder: TOrderList;
 begin
   if not DataSet.Active then exit;
-  MainOrder := TOrderList.CreateEx(Owner,DataModule,Connection);
-  MainOrder.Select(Self.FieldByName('ORDERNO').AsString);
-  Mainorder.SortDirection:=sdDescending;
-  MainOrder.SortFields:='ORDERNO';
-  MainOrder.Open;
-  MainOrder.First;
-  OrderType.Open;
-  while not MainOrder.DataSet.EOF do
+  try
+  if Self.FieldByName('ORDERNO').AsString <> '' then
     begin
-      OrderType.DataSet.Locate('STATUS',MainOrder.FieldByName('STATUS').AsString,[]);
-      if (OrderType.FieldByName('ISDERIVATE').AsString<>'Y')
-      and not Found then
+      MainOrder := TOrderList.CreateEx(Owner,DataModule,Connection);
+      MainOrder.Select(Self.FieldByName('ORDERNO').AsString);
+      Mainorder.SortDirection:=sdDescending;
+      MainOrder.SortFields:='ORDERNO';
+      MainOrder.Open;
+      MainOrder.First;
+      OrderType.Open;
+      while not MainOrder.DataSet.EOF do
         begin
-          if MainOrder.FieldByName('ACTIVE').AsString<>'Y' then
+          OrderType.DataSet.Locate('STATUS',MainOrder.FieldByName('STATUS').AsString,[]);
+          if (OrderType.FieldByName('ISDERIVATE').AsString<>'Y')
+          and not Found then
             begin
-              if not MainOrder.CanEdit then MainOrder.Edit;
-              MainOrder.FieldByName('ACTIVE').AsString := 'Y';
-              MainOrder.Post;
-            end;
-          Found := True;
-        end
-      else
-        begin
-          if MainOrder.FieldByName('ACTIVE').AsString<>'N' then
+              if MainOrder.FieldByName('ACTIVE').AsString<>'Y' then
+                begin
+                  if not MainOrder.CanEdit then MainOrder.Edit;
+                  MainOrder.FieldByName('ACTIVE').AsString := 'Y';
+                  MainOrder.Post;
+                end;
+              Found := True;
+            end
+          else
             begin
-              if not MainOrder.CanEdit then MainOrder.Edit;
-              MainOrder.FieldByName('ACTIVE').AsString := 'N';
-              MainOrder.Post;
+              if MainOrder.FieldByName('ACTIVE').AsString<>'N' then
+                begin
+                  if not MainOrder.CanEdit then MainOrder.Edit;
+                  MainOrder.FieldByName('ACTIVE').AsString := 'N';
+                  MainOrder.Post;
+                end;
             end;
+          MainOrder.Next;
         end;
-      MainOrder.Next;
+      if (not Found) and (MainOrder.Count>0) then //no order active ??
+        begin
+          MainOrder.Last;
+          if not MainOrder.CanEdit then MainOrder.Edit;
+          MainOrder.FieldByName('ACTIVE').AsString := 'Y';
+          MainOrder.Post;
+        end;
+      OrderType.DataSet.Locate('STATUS',DataSet.FieldByName('STATUS').AsString,[]);
+      MainOrder.Free;
     end;
-  if (not Found) and (MainOrder.Count>0) then //no order active ??
-    begin
-      MainOrder.Last;
-      if not MainOrder.CanEdit then MainOrder.Edit;
-      MainOrder.FieldByName('ACTIVE').AsString := 'Y';
-      MainOrder.Post;
-    end;
-  OrderType.DataSet.Locate('STATUS',DataSet.FieldByName('STATUS').AsString,[]);
-  MainOrder.Free;
+  except
+  end;
 end;
 
 procedure TOrder.CascadicPost;
