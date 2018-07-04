@@ -3309,6 +3309,11 @@ procedure TBaseDBDataset.DefineDefaultFields(aDataSet: TDataSet;
 begin
   with aDataSet as IBaseManageDB do
     begin
+      if Assigned(ManagedFieldDefs) then
+        begin
+          if ManagedFieldDefs.IndexOf('LOCKEDAT')=-1 then
+            ManagedFieldDefs.Add('LOCKEDAT',ftDateTime,0,False);
+        end;
       if Assigned(ManagedIndexdefs) then
         begin
           if (ManagedFieldDefs.IndexOf('REF_ID') > -1) or (HasMasterSource and (ManagedFieldDefs.IndexOf('REF_ID')>-1)) then
