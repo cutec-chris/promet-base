@@ -164,6 +164,7 @@ begin
     end
   else if Data.GetDBType='sqlite' then
     begin
+      Result := StringReplace(Result,'(max)','',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'LEN(','LENGTH(',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'CHARINDEX(','instr(',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'MONTH(','strftime("%m",',[rfReplaceAll,rfIgnoreCase]);
