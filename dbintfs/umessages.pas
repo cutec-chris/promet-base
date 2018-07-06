@@ -192,7 +192,7 @@ destructor TMessage.Destroy;
 begin
   FreeAndNil(FHistory);
   FreeAndNil(FSubMessages);
-  FDocuments.Free;
+  FreeAndNil(FDocuments);
   inherited Destroy;
 end;
 procedure TMessage.Select(aID: Variant);
