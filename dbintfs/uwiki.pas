@@ -977,11 +977,13 @@ var
 begin
   aTree := TTree.CreateEx(Self,DataModule);
   Result := FieldByName('NAME').AsString;
-  aTree.Filter(TBaseDBModule(DataModule).QuoteField('SQL_ID')+'='+TBaseDBModule(DataModule).QuoteValue(DataSet.FieldByName('TREEENTRY').AsString));
+  aTree.Select(DataSet.FieldByName('TREEENTRY').AsVariant);
+  aTree.Open;
   while aTree.Count>0 do
     begin
       Result := aTree.FieldByName('NAME').AsString+'/'+Result;
-      aTree.Filter(TBaseDBModule(DataModule).QuoteField('SQL_ID')+'='+TBaseDBModule(DataModule).QuoteValue(aTree.FieldByName('PARENT').AsString));
+      aTree.Select(aTree.FieldByName('PARENT').AsVariant);
+      aTree.Open;
     end;
   aTree.Free;
 end;
