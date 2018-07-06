@@ -193,9 +193,10 @@ type
     function CreateTable : Boolean;override;
     procedure FillDefaults(aDataSet : TDataSet);override;
     procedure Open;override;
-    procedure RefreshActive;
+    procedure RefreshActive(Orderno: string='');
     procedure CascadicPost;override;
     procedure CascadicCancel;override;
+    function Delete: Boolean; override;
     property Commission : TField read GetCommission;
     property Address : TOrderAddress read FOrderAddress;
     property Positions : TOrderPos read FOrderPos;
@@ -779,15 +780,17 @@ begin
   SelectCurrency;
 end;
 
-procedure TOrder.RefreshActive;
+procedure TOrder.RefreshActive(Orderno : string = '');
 var
   aRec: TBookmark;
   Found: Boolean = False;
   MainOrder: TOrderList;
 begin
   if not DataSet.Active then exit;
+  if Orderno = '' then
+    Orderno := Self.FieldByName('ORDERNO').AsString;
   try
-  if Self.FieldByName('ORDERNO').AsString <> '' then
+  if Orderno <> '' then
     begin
       MainOrder := TOrderList.CreateEx(Owner,DataModule,Connection);
       MainOrder.Select(Self.FieldByName('ORDERNO').AsString);
@@ -852,6 +855,15 @@ begin
   FOrderPos.CascadicCancel;
   FLinks.CascadicCancel;
   inherited CascadicCancel;
+end;
+
+function TOrder.Delete: Boolean;
+var
+  aOrderno: String;
+begin
+  aOrderno := FieldByName('ORDERNO').AsString;
+  Result:=inherited Delete;
+  RefreshActive(aOrderno);
 end;
 
 function TOrder.CombineItems(aRemoteLink: string): Boolean;
