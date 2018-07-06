@@ -774,8 +774,6 @@ begin
   DataSet.Locate('ORDERNO',FOrigID,[]);
   OrderType.Open;
   OrderType.DataSet.Locate('STATUS',DataSet.FieldByName('STATUS').AsString,[]);
-  if not CanEdit then
-    RefreshActive;
   Address.Open;
   SelectCurrency;
 end;
@@ -846,6 +844,7 @@ begin
   FHistory.CascadicPost;
   FOrderPos.CascadicPost;
   FLinks.CascadicPost;
+  RefreshActive;
   inherited CascadicPost;
 end;
 procedure TOrder.CascadicCancel;
@@ -1227,6 +1226,7 @@ begin
         Data.CommitTransaction(Connection);
         Positions.First;
         Result := prSuccess;
+        RefreshActive;
       except
         on e : Exception do
           begin
