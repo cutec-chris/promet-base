@@ -125,11 +125,11 @@ begin
                 if LastError<>0 then
                   ListenOk:=False
                 else
-                  WriteLn('accepting connections on Port 8085')
+                  WriteLn('accepting connections on Port 8085 (1)')
               end
             else
               begin
-                bind('127.0.0.1','8085');
+                bind('0.0.0.0','8085');
                 if LastError=0 then
                   begin
                     ListenOk:=True;
@@ -140,7 +140,7 @@ begin
                         ListenOk:=False
                       end
                     else
-                      WriteLn('accepting connections on Port 8085')
+                      WriteLn('accepting connections on Port 8085 (r)')
                   end
                 else
                   begin
