@@ -174,10 +174,11 @@ end;
 procedure TAppNetworkThrd.InternalSynchronize(Sender: TThread;
   AMethod: TThreadMethod);
 begin
-  EnterCriticalsection(GlobalLock);
-  if Assigned(BaseApplication) then
-    AMethod();
-  LeaveCriticalsection(GlobalLock);
+  //EnterCriticalsection(GlobalLock);
+  //if Assigned(BaseApplication) then
+  //  AMethod();
+  Synchronize(AMethod);
+  //LeaveCriticalsection(GlobalLock);
 end;
 
 procedure RegisterCommandHandler(aHandler: TCommandHandlerProc
