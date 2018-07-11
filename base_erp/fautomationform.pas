@@ -1698,13 +1698,15 @@ var
   Result: Boolean = False;
   aHTML: TSimpleIpHtml;
   ss: TStringStream;
+  aPos: Int64;
 begin
   if tvStep.Items.Count>1 then
     begin
       tvStep.OnSelectionChanged:=nil;
       tvStep.Selected:=tvStep.Items[0];
       tvStep.Items[0].Expanded:=True;
-      if not LoadStep then
+      aPos := TProdTreeData(tvStep.Selected.Data).Position;
+      if (not DataSet.Locate('SQL_ID',aPos,[])) or (not LoadStep) then
         FindNextStep;
       tvStep.OnSelectionChanged:=@tvStepSelectionChanged;
     end
@@ -1713,7 +1715,9 @@ begin
       tvStep.Selected:=tvStep.Items[0];
       if Assigned(tvStep.Selected) then
         begin
-          Result := LoadStep;// or (tvStep.Selected.ImageIndex=49);
+          aPos := TProdTreeData(tvStep.Selected.Data).Position;
+          if DataSet.Locate('SQL_ID',aPos,[]) then
+            Result := LoadStep;// or (tvStep.Selected.ImageIndex=49);
           if Result then acReady.Enabled:=True;
         end;
       if not Result then
