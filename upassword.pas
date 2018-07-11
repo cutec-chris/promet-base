@@ -136,14 +136,15 @@ begin
         begin
           if not DoOpenMandant(AppendPathDelim(MandantPath)+cbMandant.Text+MandantExtension) then exit;
         end;
-      Data.Users.CreateTable;
-      Data.Users.Open;
-      Data.Users.First;
-      while not Data.Users.DataSet.EOF do
+      uData.Data := GetDB;
+      GetDB.Users.CreateTable;
+      GetDB.Users.Open;
+      GetDB.Users.First;
+      while not GetDB.Users.DataSet.EOF do
         begin
-          if Data.Users.Leaved.IsNull and (Data.Users.FieldByName('TYPE').AsString <> 'G') and ((not Assigned(Data.Users.FieldByName('LOGINACTIVE'))) or (Data.Users.FieldByName('LOGINACTIVE').AsString<>'N')) then
-            cbUser.Items.Add(Data.Users.UserName.AsString);
-          Data.Users.DataSet.Next;
+          if GetDB.Users.Leaved.IsNull and (GetDB.Users.FieldByName('TYPE').AsString <> 'G') and ((not Assigned(GetDB.Users.FieldByName('LOGINACTIVE'))) or (GetDB.Users.FieldByName('LOGINACTIVE').AsString<>'N')) then
+            cbUser.Items.Add(GetDB.Users.UserName.AsString);
+          GetDB.Users.DataSet.Next;
         end;
       if cbUSer.Items.IndexOf(aUSer) > 0 then
         begin

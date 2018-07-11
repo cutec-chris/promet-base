@@ -1107,6 +1107,8 @@ begin
           with Self as IBaseDBInterface do
             if fPWres = mrOK then
               begin
+                rMandant := fPassword.cbMandant.Text;
+                rUser:=fPassword.cbUser.Text;
                 if not Assigned(Data) then
                   begin
                     Config.WriteInteger('AUTOMATICLOGIN',0);
@@ -1116,7 +1118,11 @@ begin
                   end;
                 if not Data.Authenticate(fPassword.cbUser.Text,fPassword.ePasswort.Text) then
                   Result := False
-                else Authenticated := True;
+                else
+                  begin
+                    Authenticated := True;
+                    rUser:=fPassword.cbUser.Text;
+                  end;
                 if (not Authenticated) and (not Data.Users.DataSet.Locate('NAME',fPassword.cbUser.Text,[])) and (not Data.Users.DataSet.Locate('LOGINNAME',fPassword.cbUser.Text,[])) and (not Data.Users.DataSet.Locate('EMAIL',fPassword.cbUser.Text,[])) then
                   begin
                     Config.WriteInteger('AUTOMATICLOGIN',0);
@@ -1138,7 +1144,7 @@ begin
                 Debug('User: '+Data.Users.Id.AsString);
                 aRec := Data.Users.GetBookmark;
                 with Self as IBaseDBInterface do
-                  if not DBLogin(Config.ReadString('LOGINMANDANT',''),Config.ReadString('LOGINUSER',''),True,True) then
+                  if not DBLogin(rMandant,rUser,True,True) then
                     begin
                       Config.WriteInteger('AUTOMATICLOGIN',0);
                       AuthLastError := strUsernotFound+' (DBLogin)';

@@ -402,6 +402,10 @@ begin
       Categories := TCategory.CreateEx(nil,Self);
       DeletedItems := TDeletedItems.CreateEx(nil,Self);
       ProcessClient := TProcessClient.CreateEx(nil,Self);
+    end
+  else
+    begin
+      Users.Close;
     end;
 
   if Result then
@@ -1568,7 +1572,8 @@ var
   i: Integer;
   tmp: String;
 begin
-  if (FDbTyp = AValue) and Assigned(FDB) then exit;
+  //!!Warning dont compare if AValue has changed
+  //in sqlite unpreparing dont work in Zeos so we cleanup Database Layer to unprepare all Datasets
   FreeAndNil(FDB);
   FDB := TBaseDBModule.Create(nil);
   if not Assigned(FDB) then Exception.Create('Database Layer not supported !');
