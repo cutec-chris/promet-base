@@ -788,16 +788,19 @@ begin
                aPicture.LoadFromStreamWithFileExt(ms,aDoc.FieldByName('EXTENSION').AsString);
                Picture := TPicture.Create;
                Picture.Bitmap.Width := TIpHtmlNodeIMG(FActNode).Width.LengthValue;
-               Aspect := aPicture.Height/aPicture.Width;
-               Picture.Bitmap.Height := round(TIpHtmlNodeIMG(FActNode).Width.LengthValue*Aspect);
-               Picture.Bitmap.Canvas.AntialiasingMode:= amOn;
-               Picture.Bitmap.Canvas.StretchDraw(Classes.Rect(0,0,Picture.Width,Picture.Height),aPicture.Graphic);
-               aPicture.Free;
+               if aPicture.Width >0 then
+                 begin
+                   Aspect := aPicture.Height/aPicture.Width;
+                   Picture.Bitmap.Height := round(TIpHtmlNodeIMG(FActNode).Width.LengthValue*Aspect);
+                   Picture.Bitmap.Canvas.AntialiasingMode:= amOn;
+                   Picture.Bitmap.Canvas.StretchDraw(Classes.Rect(0,0,Picture.Width,Picture.Height),aPicture.Graphic);
+                 end;
                ms.Free;
                ms := TMemoryStream.Create;
                Picture.SaveToStreamWithFileExt(ms,'png');
                NewPath := Copy(Path,0,length(path)-length(ExtractFileExt(Path)))+'.png';
                ms.Position:=0;
+               aPicture.Free;
                Picture.Free;
              except
              end;
