@@ -244,6 +244,9 @@ begin
         result := TMemoryStream.Create;
         sl.SaveToStream(result);
         sl.Free;
+        NewHeaders.Add('Access-Control-Allow-Headers: Authorization,X-Requested-With');
+        NewHeaders.Add('Access-Control-Allow-Methods: GET, OPTIONS');
+        NewHeaders.Add('Access-Control-Allow-Origin: *');
         NewHeaders.Add('Content-Type: text/html');
         NewHeaders.Add('Last-Modified: '+Rfc822DateTime(WikiList.TimeStamp.AsDateTime));
         NewHeaders.Add('ETag: '+Rfc822DateTime(WikiList.TimeStamp.AsDateTime));
