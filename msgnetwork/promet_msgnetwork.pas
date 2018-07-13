@@ -4,12 +4,11 @@
 
 unit promet_msgnetwork;
 
-{$warn 5023 off : no warning about unused units}
 interface
 
 uses
-  uprometmsgnetwork, uprometdataserver, uAppServer, uappserverhttp, 
-  uappserverpubsub, uprometwikiserver;
+  uprometmsgnetwork, uAppServer, uappserverhttp, uappserverpubsub, 
+  uprometwikiserver;
 
 implementation
 

@@ -63,7 +63,7 @@ var
 
 implementation
 
-uses Utils,uBaseApplication,uprometdataserver;
+uses Utils,uBaseApplication;
 
 { TDiscoveryDaemon }
 procedure TPrometDiscoveryDaemon.AddLog;

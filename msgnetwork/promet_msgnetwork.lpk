@@ -10,31 +10,27 @@
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="6">
+    <Files Count="5">
       <Item1>
         <Filename Value="uprometmsgnetwork.pas"/>
         <UnitName Value="uprometmsgnetwork"/>
       </Item1>
       <Item2>
-        <Filename Value="uprometdataserver.pas"/>
-        <UnitName Value="uprometdataserver"/>
-      </Item2>
-      <Item3>
         <Filename Value="uappserver.pas"/>
         <UnitName Value="uAppServer"/>
-      </Item3>
-      <Item4>
+      </Item2>
+      <Item3>
         <Filename Value="uappserverhttp.pas"/>
         <UnitName Value="uappserverhttp"/>
-      </Item4>
-      <Item5>
+      </Item3>
+      <Item4>
         <Filename Value="uappserverpubsub.pas"/>
         <UnitName Value="uappserverpubsub"/>
-      </Item5>
-      <Item6>
+      </Item4>
+      <Item5>
         <Filename Value="uprometwikiserver.pas"/>
         <UnitName Value="uprometwikiserver"/>
-      </Item6>
+      </Item5>
     </Files>
     <RequiredPkgs Count="2">
       <Item1>
