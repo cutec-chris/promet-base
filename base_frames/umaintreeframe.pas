@@ -1922,7 +1922,7 @@ begin
       bTree.Free;
       Data.Tree.DataSet.Filtered:=False;
       //Add Entrys
-      if (Typ = 'C') and (Data.Users.Rights.Right('CUSTOMERS') > RIGHT_NONE) then //Contacts
+      if (Typ = 'C') and (Data.Users.Rights.Right('CUSTOMERS') > RIGHT_VIEW) then //Contacts
         begin
           aList := TPersonList.CreateEx(Self,Data);
           aTyp := etCustomer;
@@ -1970,7 +1970,7 @@ begin
           aPerson.Free;
           aList.Free;
         end
-      else if (Typ = 'M') and ((Data.Users.Rights.Right('MASTERDATA') > RIGHT_NONE)) then //Masterdata
+      else if (Typ = 'M') and ((Data.Users.Rights.Right('MASTERDATA') > RIGHT_VIEW)) then //Masterdata
         begin
           aList := TMasterdataList.CreateEx(Self,Data);
           aTyp := etArticle;
@@ -1983,7 +1983,7 @@ begin
             end;
           aList.Free;
         end
-      else if (Typ = 'P') and ((Data.Users.Rights.Right('PROJECTS') > RIGHT_NONE)) then //Projekte
+      else if (Typ = 'P') and ((Data.Users.Rights.Right('PROJECTS') > RIGHT_VIEW)) then //Projekte
         begin
           aList := TProjectList.CreateEx(Self,Data);
           aTyp := etProject;
@@ -1999,7 +1999,7 @@ begin
             end;
           aList.Free;
         end
-      else if (Typ = 'W') and (Data.Users.Rights.Right('WIKI') > RIGHT_NONE) then //Wiki
+      else if (Typ = 'W') and (Data.Users.Rights.Right('WIKI') > RIGHT_VIEW) then //Wiki
         begin
           aList := TWikiList.CreateEx(Self,Data);
           aTyp := etWikiPage;
@@ -2012,7 +2012,7 @@ begin
             end;
           aList.Free;
         end
-      else if (Typ = 'S') and (Data.Users.Rights.Right('STATISTICS') > RIGHT_NONE) then //Statistics
+      else if (Typ = 'S') and (Data.Users.Rights.Right('STATISTICS') > RIGHT_VIEW) then //Statistics
         begin
           aList := TStatistic.CreateEx(Self,Data);
           aTyp := etStatistic;

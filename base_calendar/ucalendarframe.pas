@@ -294,8 +294,9 @@ var
   end;
 begin
   if Data.Users.Rights.Right('CALENDAR') > RIGHT_NONE then
+    Data.RegisterLinkHandler('CALENDAR',@fMainTreeFrame.OpenLink,TCalendar);
+  if Data.Users.Rights.Right('CALENDAR') > RIGHT_VIEW then
     begin
-      Data.RegisterLinkHandler('CALENDAR',@fMainTreeFrame.OpenLink,TCalendar);
       Node := FCalendarNode;
       Node1 := fMainTreeFrame.tvMain.Items.AddChildObject(Node,'',TTreeEntry.Create);
       TTreeEntry(Node1.Data).Typ := etAction;

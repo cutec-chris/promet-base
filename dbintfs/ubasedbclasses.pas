@@ -2823,8 +2823,8 @@ begin
   try
     Result := -1;
     if not Assigned(FCachedRights) then exit;
-    if (FCachedRights.Values[Element] <> '') and UseCache then
-      Result := StrToInt(FCachedRights.Values[Element])
+    if (FCachedRights.Values[UpperCase(Element)] <> '') and UseCache then
+      Result := StrToInt(FCachedRights.Values[UpperCase(Element)])
     else
       begin
         with BaseApplication as IBaseDBInterface do
@@ -2836,7 +2836,7 @@ begin
             RecursiveGetRight;
             UserTable.GotoBookmark(aUser);
           end;
-        FCachedRights.Values[Element] := IntToStr(Result);
+        FCachedRights.Values[UpperCase(Element)] := IntToStr(Result);
       end;
   except
     Result := -1;

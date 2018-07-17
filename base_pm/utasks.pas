@@ -2030,7 +2030,7 @@ var
   end;
 
 begin
-  if (Data.Users.Rights.Right('TASKS') > RIGHT_NONE) then
+  if (Data.Users.Rights.Right('TASKS') > RIGHT_VIEW) then
     begin
       Node := aNode;
       Node1 := fMainTreeFrame.tvMain.Items.AddChildObject(Node,'',TTreeEntry.Create);

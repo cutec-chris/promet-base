@@ -136,7 +136,7 @@ begin
   aNode := tvRights.Items[0];
   while Assigned(aNode) do
     begin
-      aNode.StateIndex:=aUsers.Rights.Right(aNode.Text,False,False);
+      aNode.StateIndex:=aUsers.Rights.Right(aNode.Text,False,False)+1;
       aNode := aNode.GetNext;
     end;
 end;
@@ -224,9 +224,9 @@ begin
             end
           else
             aUsers.Rights.DataSet.Edit;
-          aUsers.Rights.FieldByName('RIGHTS').AsInteger := TMenuItem(Sender).ImageIndex;
+          aUsers.Rights.FieldByName('RIGHTS').AsInteger := TMenuItem(Sender).ImageIndex-1;
           aUsers.Rights.DataSet.Post;
-          if TMenuItem(Sender).ImageIndex = -2 then
+          if TMenuItem(Sender).ImageIndex = -1 then
             aUsers.Rights.DataSet.Delete;
         end;
       aNode := aNode.GetNext;
