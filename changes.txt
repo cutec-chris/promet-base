@@ -1,4 +1,5 @@
 ﻿Build 440 (nicht veröffentlicht)
+      - Recht "View" wird korrekt beachtet
 Build 439 (13.07.2018)
       - mehrere Authentifizierungsquellen möglich
       - LDAP/Active Directory Login möglich
