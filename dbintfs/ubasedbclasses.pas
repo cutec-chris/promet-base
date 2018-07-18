@@ -3095,9 +3095,9 @@ constructor TUser.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FOptions := TOptions.CreateEx(Owner,DataModule,aConnection,DataSet);
-  FRights := TRights.CreateEx(Owner,DataModule,aConnection,DataSet);
-  FFollows := TFollowers.CreateEx(Owner,DataModule,aConnection,DataSet);
+  FOptions := TOptions.CreateEx(Self,DataModule,aConnection,DataSet);
+  FRights := TRights.CreateEx(Self,DataModule,aConnection,DataSet);
+  FFollows := TFollowers.CreateEx(Self,DataModule,aConnection,DataSet);
   FRights.Users := Self;
   FHistory := TBaseHistory.CreateEx(Self,DataModule,aConnection,DataSet);
   FPayGroups := TPayGroups.CreateEx(Self,DataModule,aConnection);
@@ -3112,12 +3112,10 @@ end;
 
 destructor TUser.Destroy;
 begin
-  FPayGroups.Free;
-  Options.Free;
-  Rights.Free;
-  FFollows.Free;
-  FHistory.Free;
-  inherited Destroy;
+  try
+    inherited Destroy;
+  except
+  end;
 end;
 
 procedure TUser.Open;

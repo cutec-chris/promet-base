@@ -310,13 +310,12 @@ begin
   if FProcessmessages then
     Priority:=tpLower;
   FreeOnTerminate:=True;
-  FUserDS := TUser.CreateEx(nil,Data);
+  FUserDS := TUser.CreateEx(aPlan,Data);
   inherited Create(True);
 end;
 
 destructor TCollectThread.Destroy;
 begin
-  FUserDS.Free;
   inherited Destroy;
 end;
 
@@ -1108,7 +1107,7 @@ var
           end;
       end;
   end;
-begin
+begin exit;
   aCanvas.Brush.Style:=bsSolid;
   aCanvas.Brush.Color:=$00FFE6E6;
   aCanvas.FillRect(aRect);
