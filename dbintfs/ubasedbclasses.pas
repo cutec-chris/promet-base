@@ -2956,9 +2956,18 @@ begin
                       TBaseDBModule(DataModule).Users.Post;
                       Result := True;
                     end;
+                if not Result then
+                  begin
+                    with BaseApplication as IBaseApplication do
+                      Warning('LDAP User not found with Filter "'+tmp+'"');
+                  end;
                 l.Free;
-              end;
-          end;
+              end
+            else with BaseApplication as IBaseApplication do
+             Warning('LDAP Bind failed to Server "'+ldap.TargetHost+'"');
+          end
+        else with BaseApplication as IBaseApplication do
+          Warning('LDAP Connection failed to Server "'+ldap.TargetHost+'"');
       finally
         ldap.Free;
       end;
