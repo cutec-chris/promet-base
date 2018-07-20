@@ -2954,12 +2954,17 @@ begin
                         end;
                       TBaseDBModule(DataModule).Users.FieldByName('AUTHSOURCE').AsString:=FieldByName('NAME').AsString;
                       TBaseDBModule(DataModule).Users.Post;
-                      Result := True;
+                      with BaseApplication as IBaseApplication do
+                        Debug(LDAPResultDump(ldap.SearchResult));
+                      Ldap.Logout;
+                      ldap.UserName := ldap.SearchResult.Items[0].ObjectName;
+                      ldap.Password:=aPassword;
+                      Result := ldap.Login;
                     end;
                 if not Result then
                   begin
                     with BaseApplication as IBaseApplication do
-                      Warning('LDAP User not found with Filter "'+tmp+'"');
+                      Warning('LDAP User not found or Login failed with Filter "'+tmp+'"');
                   end;
                 l.Free;
               end
