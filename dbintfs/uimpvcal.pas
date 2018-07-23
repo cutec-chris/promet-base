@@ -26,6 +26,7 @@ function VCalImport(Calendar : TCalendar;vIn : TStrings;IsUTF8 : Boolean = False
 function VCalExport(Calendar : TCalendar;vOut : TStrings) : Boolean;
 function VTodoImport(Task : TTaskList;vIn : TStrings;IsUTF8 : Boolean = False) : Boolean;
 function VTodoExport(Task : TTaskList;vOut : TStrings) : Boolean;
+function ConvertISODate(Str : string; ReturnUTC: Boolean = True) : TDateTime;
 implementation
 const
   WebFormatSettings : TFormatSettings = (
