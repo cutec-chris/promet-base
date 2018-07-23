@@ -312,6 +312,7 @@ label
   retry;
 begin
   try
+    InputData.Clear;
     OutputData.Clear;
     ModifiedSince:=MinDateTime;
     size := -1;
