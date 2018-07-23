@@ -367,7 +367,7 @@ var
                       aTableName := TSQLSimpleTableReference(aTable).ObjectName.Name;
                       aRight := UpperCase(aTableName);
                       aRightInt := TBaseDBModule(DataModule).Users.Rights.Right(aRight);
-                      if (aRightInt>-1) and (aRightInt<RIGHT_READ) then
+                      if (aRightInt<RIGHT_VIEW) then
                         NoRights := True;
                     end;
                 end;
