@@ -20,8 +20,8 @@ unit uimpvcal;
 {$mode objfpc}{$H+}
 interface
 uses
-  {$ifdef WINDOWS}Windows,{$else}UnixUtil,{$endif}Classes, SysUtils, uVTools, uCalendar,
-  utilsDate,utask,uBaseApplication;
+  {$ifdef WINDOWS}Windows,{$else}UnixUtil,{$endif}Classes,dateutils, SysUtils, uVTools, uCalendar,
+  utilsDate,utask,uBaseApplication,synautil;
 function VCalImport(Calendar : TCalendar;vIn : TStrings;IsUTF8 : Boolean = False) : Boolean;
 function VCalExport(Calendar : TCalendar;vOut : TStrings) : Boolean;
 function VTodoImport(Task : TTaskList;vIn : TStrings;IsUTF8 : Boolean = False) : Boolean;
@@ -228,9 +228,20 @@ begin
   Result := True;
 end;
 function BuildISODate(aDate : TDateTime;DateOnly : Boolean = False) : string;
+var
+  bias: Integer;
+  h, m: Integer;
 begin
+  bias := TimeZoneBias;
+  if bias >= 0 then
+    Result := '+'
+  else
+    Result := '-';
+  bias := Abs(bias);
+  h := bias div 60;
+  m := bias mod 60;
   if not DateOnly then
-    Result := FormatDateTime('yyyy-mm-dd',aDate)+'T'+FormatDateTime('hh:nn:ss',aDate,WebFormatSettings)+'Z'
+    Result := FormatDateTime('yyyy-mm-dd',aDate)+'T'+FormatDateTime('hh:nn:ss',aDate,WebFormatSettings)+ Result + SysUtils.Format('%.2d:%.2d', [h, m])
   else
     Result := FormatDateTime('yyyy-mm-dd',aDate);
 end;
