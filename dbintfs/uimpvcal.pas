@@ -27,6 +27,7 @@ function VCalExport(Calendar : TCalendar;vOut : TStrings) : Boolean;
 function VTodoImport(Task : TTaskList;vIn : TStrings;IsUTF8 : Boolean = False) : Boolean;
 function VTodoExport(Task : TTaskList;vOut : TStrings) : Boolean;
 function ConvertISODate(Str : string; ReturnUTC: Boolean = True) : TDateTime;
+function BuildISODate(aDate : TDateTime;DateOnly : Boolean = False) : string;
 implementation
 const
   WebFormatSettings : TFormatSettings = (
