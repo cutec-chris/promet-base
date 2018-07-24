@@ -2919,7 +2919,10 @@ begin
         else
           ldap.TargetHost:=FieldByName('SERVER').AsString;
         ldap.UserName:=Stringreplace(FieldByName('USER').AsString,'%s',aUser,[rfReplaceAll]); //cn=admin,dc=tcsapps,dc=de
-        ldap.Password:=Stringreplace(FieldByName('PASSWORD').AsString,'%s',aPassword,[rfReplaceAll]);
+        if FieldByName('PASSWORD').AsString <> '' then
+          ldap.Password:=Stringreplace(FieldByName('PASSWORD').AsString,'%s',aPassword,[rfReplaceAll])
+        else
+          ldap.Password:=aPassword;
         if ldap.Login then
           begin
             if ldap.BindSasl or ldap.Bind then
@@ -2959,7 +2962,7 @@ begin
                       Ldap.Logout;
                       ldap.UserName := ldap.SearchResult.Items[0].ObjectName;
                       ldap.Password:=aPassword;
-                      Result := ldap.Login;
+                      Result := ldap.Login and (ldap.BindSasl or ldap.Bind);
                     end;
                 if not Result then
                   begin
