@@ -176,6 +176,7 @@ begin
       Document.Free;
       WikiList.Free;
     end;
+  TBaseDBModule(Data).CriticalSection.Leave;
 end;
 
 procedure TWikiSession.SetSocket(AValue: TAppNetworkThrd);
@@ -293,7 +294,6 @@ procedure TWikiSession.CreateDataModule;
 var
   aType: TBaseDBModuleClass;
 begin
-  EnterCriticalsection(GlobalLock);
   if Assigned(Data) then exit;
   {
   aType := TBaseDBModuleClass(uData.Data.ClassType);
@@ -303,7 +303,7 @@ begin
       SetProperties(uData.Data.Properties);
     end;
   }
-  Data := uData.Data;
+  Data := uData.GetData;
   //TODO:select rigth User
   {
   if not TBaseDBModule(Data).Users.Locate('SQL_ID',aSocket.User,[]) then
@@ -314,7 +314,6 @@ begin
   TBaseDBModule(Data).RefreshUsersFilter;
   }
   TBaseDBModule(Data).RegisterLinkHandlers;
-  LeaveCriticalsection(GlobalLock);
 end;
 
 procedure TWikiSession.OpenConfig;

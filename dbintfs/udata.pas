@@ -28,8 +28,46 @@ uses
 
 var
   Data : TBaseDBModule = nil;
+  MultiData : array of TBaseDBModule;
+
+procedure InitMultiData(const Cnt : Integer);
+function GetData : TBaseDBModule;
 
 implementation
 
+function GetData : TBaseDBModule;
+var
+  i: Integer;
+begin
+  Result := nil;
+  for i := 0 to length(MultiData)-1 do
+    begin
+      if MultiData[i].CriticalSection.TryEnter then
+        begin
+          Result := MultiData[i];
+          break;
+        end;
+    end;
+  if not Assigned(Result) then Result := Data;
+end;
+
+procedure InitMultiData(const Cnt : Integer);
+var
+  actLenght: Integer;
+begin
+  actLenght := length(MultiData);
+  while length(MultiData)>Cnt do
+    begin
+      MultiData[length(MultiData)-1].Free;
+      SetLength(MultiData,length(MultiData)-1);
+    end;
+  while length(MultiData)<Cnt do
+    begin
+      SetLength(MultiData,Length(MultiData)+1);
+      MultiData[length(MultiData)-1] := TBaseDBModule.Create(nil);
+      MultiData[length(MultiData)-1].SetProperties(Data.Properties);
+    end;
+end;
+
 end.
-
+
