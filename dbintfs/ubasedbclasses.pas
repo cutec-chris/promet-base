@@ -1842,7 +1842,10 @@ var
                       aField := aDataSet.FieldByName(TJSONObject(TJSONObject(aNode).Items[i]).Names[a]);
                       if Assigned(aField) then
                         begin
-                          aField.AsString:=TJSONObject(TJSONObject(aNode).Items[i]).Items[a].AsString;
+                          if TJSONObject(TJSONObject(aNode).Items[i]).Items[a].IsNull then
+                            aField.Clear
+                          else
+                            aField.AsString:=TJSONObject(TJSONObject(aNode).Items[i]).Items[a].AsString;
                         end
                       else
                         begin
