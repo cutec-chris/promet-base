@@ -92,7 +92,12 @@ implementation
 
 uses uPerson,uMasterdata,uBaseERPDBClasses,uProjects,uMessages,
   uDocuments,utask,uOrder,uData,variants,uBaseApplication,uStatistic,
-  uBaseDatasetInterfaces;
+  uBaseDatasetInterfaces
+  {$IFDEF WINDOWS}
+  ,uPSC_comobj
+  ,uPSR_comobj
+  {$endif}
+  ;
 
 procedure TBaseDbListPropertyTextR(Self: TBaseDbList; var T: TField); begin T := Self.Text; end;
 procedure TBaseDbListPropertyNumberR(Self: TBaseDbList; var T: TField); begin T := Self.Number; end;
@@ -666,6 +671,14 @@ begin
         Result := False; // will halt compilation
       end;
     end
+  {$ifdef WINDOWS}
+  else if aName = 'COMOBJ' then
+    begin
+      Result := True;
+      SIRegister_ComObj(Sender.Compiler);
+      RIRegister_ComObj(Sender.Runtime);
+    end
+  {$endif}
   else if not OnlyAdditional then
     begin
       try
