@@ -24,28 +24,35 @@ unit uData;
 interface
 
 uses
-  Classes, SysUtils, uBaseDbInterface;
+  Classes, SysUtils, uBaseDbInterface,Utils;
 
 var
   Data : TBaseDBModule = nil;
   MultiData : array of TBaseDBModule;
 
 procedure InitMultiData(const Cnt : Integer);
-function GetData : TBaseDBModule;
+function GetData(Timeout : Integer = 6000) : TBaseDBModule;
 
 implementation
 
-function GetData : TBaseDBModule;
+function GetData(Timeout : Integer) : TBaseDBModule;
 var
   i: Integer;
+  aTime: Int64;
 begin
   Result := nil;
-  for i := 0 to length(MultiData)-1 do
+  aTime := GetTicks;
+  while (not Assigned(Result))
+    and (GetTicks-aTime < Timeout) do
     begin
-      if MultiData[i].CriticalSection.TryEnter then
+      for i := 0 to length(MultiData)-1 do
         begin
-          Result := MultiData[i];
-          break;
+          if MultiData[i].CriticalSection.TryEnter then
+            begin
+              writeln('>>Multidata found at '+IntToStr(i));
+              Result := MultiData[i];
+              break;
+            end;
         end;
     end;
   if not Assigned(Result) then Result := Data;
