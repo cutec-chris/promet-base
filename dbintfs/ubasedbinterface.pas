@@ -1526,7 +1526,8 @@ begin
   and (Users.CheckUserPasswort(aPassword));
   if not Result then
     begin
-      Users.Open;
+      if not Users.Active then
+        Users.Open;
       if Users.Locate('NAME',aUser,[loCaseInsensitive])
       or Users.Locate('LOGINNAME',aUser,[loCaseInsensitive])
       then

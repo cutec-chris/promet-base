@@ -1354,7 +1354,7 @@ var
 begin
   Result:=False;
   try
-    aObj := TObjects.Create(nil);
+    aObj := TObjects.CreateEx(nil,DataModule);
     if not TBaseDBModule(DataModule).TableExists(aObj.TableName) then
       begin
         aObj.CreateTable;
@@ -1890,7 +1890,7 @@ begin
   if ((Self.Count=0) and (State<>dsInsert)) or (not Assigned(Id)) then exit;
   try
     try
-      aObj := TObjects.Create(nil);
+      aObj := TObjects.CreateEx(nil,DataModule);
       with aObj.DataSet as IBaseDbFilter do
         UsePermissions:= False;
       if DataSet.State<>dsInsert then

@@ -35,6 +35,8 @@ function GetData(Timeout : Integer = 6000) : TBaseDBModule;
 
 implementation
 
+uses uBaseApplication;
+
 function GetData(Timeout : Integer) : TBaseDBModule;
 var
   i: Integer;
@@ -54,7 +56,9 @@ begin
             end;
         end;
     end;
-  if not Assigned(Result) then Result := Data;
+  if not Assigned(Result) then
+    with BaseApplication as IBaseApplication do
+      Warning('MultiData not Assigned !!');
 end;
 
 procedure InitMultiData(const Cnt : Integer);
