@@ -49,7 +49,6 @@ begin
         begin
           if MultiData[i].CriticalSection.TryEnter then
             begin
-              writeln('>>Multidata found at '+IntToStr(i));
               Result := MultiData[i];
               break;
             end;
