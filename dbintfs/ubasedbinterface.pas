@@ -289,7 +289,8 @@ var
 
 implementation
 uses uBaseApplication, uWiki, uMessages, uprocessmanager,uRTFtoTXT,
-  utask,uPerson,uMasterdata,uProjects,umeeting,uStatistic,usync,uprometscripts;
+  utask,uPerson,uMasterdata,uProjects,umeeting,uStatistic,usync,uprometscripts,
+  uData;
 
 { TDBConfig }
 
@@ -1622,6 +1623,7 @@ begin
 end;
 procedure TBaseDBInterface.DBLogout;
 begin
+  InitMultiData(0);
   if Assigned(FDB) then
     FDB.RemoveUserFromActiveList;
 end;

@@ -2832,6 +2832,7 @@ begin
       begin
         with BaseApplication as IBaseDBInterface do
           begin
+            if not UserTable.Active then UserTable.Open;
             aUser := UserTable.GetBookmark;
             with Self.DataSet as IBaseDBFilter do
               Filter := TBaseDBModule(DataModule).QuoteField('RIGHTNAME')+'='+TBaseDBModule(DataModule).QuoteValue(UpperCase(Element));
