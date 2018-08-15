@@ -27,20 +27,22 @@ uses
   Classes, SysUtils, uBaseDbInterface,Utils;
 
 var
-  Data : TBaseDBModule = nil;
+  DataM : TBaseDBModule = nil;
   MultiData : array of TBaseDBModule;
 
+function Data : TBaseDBModule;
 procedure InitMultiData(const Cnt : Integer);
-function GetData(Timeout : Integer = 6000) : TBaseDBModule;
+function GetData(aUser : Int64 = 0;Timeout : Integer = 6000) : TBaseDBModule;
 
 implementation
 
 uses uBaseApplication;
 
-function GetData(Timeout : Integer) : TBaseDBModule;
+function GetData(aUser: Int64; Timeout: Integer): TBaseDBModule;
 var
   i: Integer;
   aTime: Int64;
+  Runs : Integer = 0;
 begin
   Result := nil;
   aTime := GetTicks;
@@ -49,16 +51,26 @@ begin
     begin
       for i := 0 to length(MultiData)-1 do
         begin
-          if MultiData[i].CriticalSection.TryEnter then
+          if ((aUser = 0) or (Runs>1) or (MultiData[i].LoggedInUser=aUser)) //try to use an DBModule that is logged in already on this user
+          and (MultiData[i].CriticalSection.TryEnter) then
             begin
               Result := MultiData[i];
               break;
             end;
         end;
+      Runs := Runs+1;
     end;
   if not Assigned(Result) then
-    with BaseApplication as IBaseApplication do
-      Warning('MultiData not Assigned !!');
+    begin
+      with BaseApplication as IBaseApplication do
+        Warning('MultiData not Assigned !!');
+      Result := uData.DataM;
+    end;
+end;
+
+function Data: TBaseDBModule;
+begin
+  Result := DataM;
 end;
 
 procedure InitMultiData(const Cnt : Integer);
@@ -75,7 +87,7 @@ begin
     begin
       SetLength(MultiData,Length(MultiData)+1);
       MultiData[length(MultiData)-1] := TBaseDBModule.Create(nil);
-      MultiData[length(MultiData)-1].SetProperties(Data.Properties);
+      MultiData[length(MultiData)-1].SetProperties(DataM.Properties);
     end;
 end;
 

@@ -138,6 +138,7 @@ type
     function Authenticate(aUser,aPassword : string) : Boolean;
     property Mandant : string read Fmandant;
     property Properties : string read FProperies;
+    property LoggedInUser : Variant read FLoggedInUser;
   end;
   TBaseDBModuleClass = class of TBaseDBModule;
   IBaseDBInterface = interface['{A2AB4BAB-38DF-4D4E-BCE5-B7D57E115ED5}']
@@ -509,12 +510,15 @@ begin
   try
     if not Assigned(Self) then exit;
     Result := FUsers;
+    {
     if Assigned(FUsers) and (not Result.Active) then
       begin
         Result.Open;
         Result.Locate('SQL_ID',FLoggedInUser,[]);
       end;
+    }
   except
+    Result := nil;
   end;
 end;
 
