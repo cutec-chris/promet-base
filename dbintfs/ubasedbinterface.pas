@@ -511,13 +511,11 @@ begin
   try
     if not Assigned(Self) then exit;
     Result := FUsers;
-    {
     if Assigned(FUsers) and (not Result.Active) then
       begin
         Result.Open;
         Result.Locate('SQL_ID',FLoggedInUser,[]);
       end;
-    }
   except
     Result := nil;
   end;
