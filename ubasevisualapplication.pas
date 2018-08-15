@@ -1080,7 +1080,7 @@ begin
                   if IsAutoLogin and (Data.Users.Passwort.IsNull) then
                     begin
                       Data.DeleteExpiredSessions;
-                      uData.Data := Data;
+                      uData.DataM := Data;
                       udata.Data.OnConnectionLost:=@DataDataConnectionLost;
                       udata.Data.OnDisconnectKeepAlive:=@DataDataDisconnectKeepAlive;
                       udata.Data.OnConnect:=@DataDataConnect;
@@ -1090,7 +1090,7 @@ begin
                   else if not IsAutologin then
                     begin
                       Data.DeleteExpiredSessions;
-                      uData.Data := Data;
+                      uData.DataM := Data;
                       StartProcessManager(Self.HasOption('t','terminateprocesses'));
                       udata.Data.OnConnectionLost:=@DataDataConnectionLost;
                       udata.Data.OnDisconnectKeepAlive:=@DataDataDisconnectKeepAlive;
@@ -1155,7 +1155,7 @@ begin
                 data.Users.DataSet.BeforeScroll:=@IBaseApplicationIBaseConfigIBaseApplicationIBaseDBInterfaceDataUsersDataSetBeforeScroll;
                 Debug('Logged in with User '+Data.Users.Id.AsString);
                 Data.DeleteExpiredSessions;
-                uData.Data := Data;
+                uData.DataM := Data;
                 StartProcessManager(Self.HasOption('t','terminateprocesses'));
                 fPassword.ePasswort.Text := '';
               end
@@ -1195,7 +1195,7 @@ begin
         begin
         end;
     end;
-  if not Result then uData.Data := nil;
+  if not Result then uData.DataM := nil;
 end;
 function TBaseVisualApplication.ChangePasswort: Boolean;
 begin
@@ -1222,7 +1222,7 @@ end;
 procedure TBaseVisualApplication.Logout;
 begin
   LazLogger.GetDebugLogger.OnDebugLn:=nil;
-  uData.Data := nil;
+  uData.DataM := nil;
   DoExit;
   with Self as IBaseConfig do
     begin

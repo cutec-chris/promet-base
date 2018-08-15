@@ -136,7 +136,7 @@ begin
         begin
           if not DoOpenMandant(AppendPathDelim(MandantPath)+cbMandant.Text+MandantExtension) then exit;
         end;
-      uData.Data := GetDB;
+      uData.DataM := GetDB;
       GetDB.Users.CreateTable;
       GetDB.Users.Open;
       GetDB.Users.First;
