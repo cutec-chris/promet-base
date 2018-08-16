@@ -7,7 +7,7 @@
     <CompilerOptions>
       <Version Value="11"/>
       <SearchPaths>
-        <IncludeFiles Value="msgclient"/>
+        <IncludeFiles Value="msgclient;../components/avamm-db-layer/dblayer_sqldb"/>
         <UnitOutputDirectory Value="lib/cmd/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -23,8 +23,7 @@
     </Files>
     <RequiredPkgs Count="3">
       <Item1>
-        <PackageName Value="avamm_dblayer_zeos"/>
-        <DefaultFilename Value="../components/avamm-db-layer/dblayer_zeos/avamm_dblayer_zeos.lpk"/>
+        <PackageName Value="avamm_dblayer_sqldb"/>
       </Item1>
       <Item2>
         <PackageName Value="msgclient"/>
