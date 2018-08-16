@@ -3344,10 +3344,10 @@ end;
 procedure TBaseDBDataset.DefineUserFields(aDataSet: TDataSet);
 var
   UserFields: TUserfielddefs;
-begin
+begin exit;
   with BaseApplication as IBaseDbInterface do
     begin
-      UserFields := GetDB.Userfielddefs;
+      UserFields := TBaseDBModule(DataModule).Userfielddefs;
       if Assigned(UserFields) then
         begin
           if not UserFields.DataSet.Active then
