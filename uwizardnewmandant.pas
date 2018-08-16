@@ -580,7 +580,7 @@ begin
           exit;
         end;
       if Res then
-        uData.Data := Data;
+        uData.DataM := Data;
     end;
   iDatabaseCreated.Visible := True;
   Application.ProcessMessages;
