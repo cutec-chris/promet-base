@@ -32,7 +32,7 @@ var
 
 function Data : TBaseDBModule;
 procedure InitMultiData(const Cnt : Integer);
-function GetData(aUser : Int64 = 0;Timeout : Integer = 6000) : TBaseDBModule;
+function GetData(aUser : Int64 = 0;Timeout : Integer = 100) : TBaseDBModule;
 
 implementation
 
@@ -45,25 +45,29 @@ var
   Runs : Integer = 0;
 begin
   Result := nil;
-  aTime := GetTicks;
-  while (not Assigned(Result))
-    and (GetTicks-aTime < Timeout) do
+  if Length(MultiData)>0 then
     begin
-      for i := 0 to length(MultiData)-1 do
+      aTime := GetTicks;
+      while (not Assigned(Result))
+        and (GetTicks-aTime < Timeout) do
         begin
-          if ((aUser = 0) or (Runs>1) or (MultiData[i].LoggedInUser=aUser)) //try to use an DBModule that is logged in already on this user
-          and (MultiData[i].CriticalSection.TryEnter) then
+          for i := 0 to length(MultiData)-1 do
             begin
-              Result := MultiData[i];
-              break;
+              if ((aUser = 0) or (Runs>1) or (MultiData[i].LoggedInUser=aUser)) //try to use an DBModule that is logged in already on this user
+              and (MultiData[i].CriticalSection.TryEnter) then
+                begin
+                  Result := MultiData[i];
+                  break;
+                end;
             end;
+          Runs := Runs+1;
         end;
-      Runs := Runs+1;
     end;
   if not Assigned(Result) then
     begin
       with BaseApplication as IBaseApplication do
-        Warning('MultiData not Assigned !!');
+        if Length(MultiData)>0 then
+          Warning('dbpool empty !!');
       Result := uData.DataM;
     end;
 end;

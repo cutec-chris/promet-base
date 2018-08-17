@@ -1206,10 +1206,10 @@ end;
 
 function TBaseDBModule.GetFullTableName(aTable: string): string;
 begin
+  if pos('.',aTable)>0 then
+    aTable:=copy(aTable,rpos('.',aTable)+1,length(aTable));
   if Assigned(DBTables) and (DBTables.Active) and (aTable <> DBTables.TableName) then
     begin
-      if pos('.',aTable)>0 then
-        aTable:=copy(aTable,rpos('.',aTable)+1,length(aTable));
       if not DBTables.Locate('NAME',aTable,[]) then
         DBTables.Filter('');
       if (DBTables.Locate('NAME',aTable,[])) then
