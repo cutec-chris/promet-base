@@ -68,6 +68,7 @@ type
     FProperies: string;
     FSessionID: LargeInt;
     FTables: TStrings;
+    FFullTables : TStrings;
     FTriggers: TStrings;
     FLinkHandlers : array of LinkHandler;
     FUsers : TUser;
@@ -126,7 +127,7 @@ type
     function RecordCount(aDataSet : TBaseDbDataSet) : Integer;
     function DeleteItem(aDataSet : TBaseDBDataSet) : Boolean;
     procedure UpdateTableVersion(aTableName: string);
-    function GetFullTableName(aTable: string): string;override;
+    function GetFullTableName(aTable: string): string; override;
     function CreateTrigger(aTriggerName : string;aTableName : string;aUpdateOn : string;aSQL : string;aField : string = '';aConnection : TComponent = nil) : Boolean;virtual;
     function Preprocess(aLine : string) : string;
     procedure SetFilter(DataSet : TbaseDBDataSet;aFilter : string;aLimit : Integer = 0;aOrderBy : string = '';aSortDirection : string = 'ASC';aLocalSorting : Boolean = False;aGlobalFilter : Boolean = True;aUsePermissions : Boolean = False;aFilterIn : string = '');
@@ -525,10 +526,12 @@ constructor TBaseDBModule.Create(AOwner: TComponent);
 begin
   inherited;
   FUsers := nil;
+  FFullTables := TStringList.Create;
 end;
 destructor TBaseDBModule.Destroy;
 begin
   SetLength(FLinkHandlers,0);
+  FFullTables.Free;
   DBTables.Free;
   FUsers.Free;
   Numbers.Free;
@@ -1178,7 +1181,7 @@ end;
 procedure TBaseDBModule.UpdateTableVersion(aTableName: string);
 var
   i: Integer;
-begin
+begin exit;
   if aTableName='DBTABLES' then exit;
   try
     if DBTables.DataSet.State=dsInsert then DBTables.DataSet.Cancel;
@@ -1205,7 +1208,15 @@ begin
 end;
 
 function TBaseDBModule.GetFullTableName(aTable: string): string;
+var
+  bTable: String;
 begin
+  bTable := aTable;
+  if FFullTables.Values[bTable]<>'' then
+    begin
+      Result := FFullTables.Values[bTable];
+      exit;
+    end;
   if pos('.',aTable)>0 then
     aTable:=copy(aTable,rpos('.',aTable)+1,length(aTable));
   if Assigned(DBTables) and (DBTables.Active) and (aTable <> DBTables.TableName) then
@@ -1221,6 +1232,7 @@ begin
   if copy(aTable,0,1)<>copy(QuoteField(''),0,1) then
     aTable:=QuoteField(aTable);
   Result := aTable;
+  FFullTables.Values[bTable] := Result;
 end;
 function TBaseDBModule.CreateTrigger(aTriggerName: string; aTableName: string;
   aUpdateOn: string; aSQL: string;aField : string = ''; aConnection: TComponent=nil): Boolean;
