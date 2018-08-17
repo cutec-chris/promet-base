@@ -641,7 +641,10 @@ begin
   with BaseApplication as IBaseDbInterface do
     begin
       with DataSet as IBaseDBFilter do
-        Limit := 0;
+        begin
+          Limit := 0;
+          FetchRows:=0;
+        end;
     end;
 end;
 
