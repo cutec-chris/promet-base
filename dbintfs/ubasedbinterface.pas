@@ -1212,6 +1212,7 @@ function TBaseDBModule.GetFullTableName(aTable: string; DoLookup: Boolean
 var
   bTable: String;
 begin
+  aTable := StringReplace(aTable,copy(QuoteField(''),0,1),'',[rfReplaceAll]);
   bTable := aTable;
   if FFullTables.Values[bTable]<>'' then
     begin
@@ -1220,7 +1221,7 @@ begin
     end;
   if Assigned(Data) and (Self <> Data) and (DoLookup) and (Data.Properties=Self.Properties) then
     begin
-      Result := Data.GetFullTableName(aTable,False); //Check if Base Datamodule knows the Table already
+      Result := Data.GetFullTableName(bTable,False); //Check if Base Datamodule knows the Table already
       aTable := Result;
     end;
   if (Result = '') and DoLookup then
@@ -1240,6 +1241,8 @@ begin
       if copy(aTable,0,1)<>copy(QuoteField(''),0,1) then
         aTable:=QuoteField(aTable);
     end;
+  if aTable = bTable then
+    aTable := QuoteField(aTable);
   Result := aTable;
   FFullTables.Values[bTable] := Result;
 end;

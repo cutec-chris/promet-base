@@ -91,6 +91,7 @@ begin
     begin
       SetLength(MultiData,Length(MultiData)+1);
       MultiData[length(MultiData)-1] := TBaseDBModule.Create(nil);
+      MultiData[length(MultiData)-1].ParameteriseSQL:=False;
       MultiData[length(MultiData)-1].SetProperties(DataM.Properties);
     end;
 end;

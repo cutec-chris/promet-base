@@ -2771,6 +2771,7 @@ begin
       with DataSet as IBaseDBFilter do
         begin
           Limit := 0;
+          FetchRows:=0;
         end;
     end;
   inherited Open;
@@ -3136,10 +3137,7 @@ end;
 
 destructor TUser.Destroy;
 begin
-  try
-    inherited Destroy;
-  except
-  end;
+  inherited Destroy;
 end;
 
 procedure TUser.Open;
@@ -3149,6 +3147,7 @@ begin
       with DataSet as IBaseDBFilter do
         begin
           Limit := 0;
+          FetchRows:=0;
         end;
     end;
   inherited Open;

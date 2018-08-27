@@ -677,7 +677,7 @@ begin
           Limit := 0;
         end;
     end;
-  FHistory := TBaseHistory.CreateEx(Self,DataModule,aConnection,DataSet);
+  FHistory := TBaseHistory.CreateEx(nil,DataModule,aConnection,DataSet);
   FDS := TDataSource.Create(Self);
   FDS.DataSet := DataSet;
   FDS.OnDataChange:=@FDSDataChange;
@@ -685,8 +685,6 @@ end;
 
 destructor TStatistic.Destroy;
 begin
-  FDS.Free;
-  FHistory.Free;
   inherited Destroy;
 end;
 
