@@ -982,6 +982,7 @@ begin
   while aTree.Count>0 do
     begin
       Result := aTree.FieldByName('NAME').AsString+'/'+Result;
+      aTree.Close;
       aTree.Select(aTree.FieldByName('PARENT').AsVariant);
       aTree.Open;
     end;
