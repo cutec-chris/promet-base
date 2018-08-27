@@ -127,7 +127,7 @@ type
     function RecordCount(aDataSet : TBaseDbDataSet) : Integer;
     function DeleteItem(aDataSet : TBaseDBDataSet) : Boolean;
     procedure UpdateTableVersion(aTableName: string);
-    function GetFullTableName(aTable: string): string; override;
+    function GetFullTableName(aTable: string;DoLookup : Boolean = True): string; override;
     function CreateTrigger(aTriggerName : string;aTableName : string;aUpdateOn : string;aSQL : string;aField : string = '';aConnection : TComponent = nil) : Boolean;virtual;
     function Preprocess(aLine : string) : string;
     procedure SetFilter(DataSet : TbaseDBDataSet;aFilter : string;aLimit : Integer = 0;aOrderBy : string = '';aSortDirection : string = 'ASC';aLocalSorting : Boolean = False;aGlobalFilter : Boolean = True;aUsePermissions : Boolean = False;aFilterIn : string = '');
@@ -1207,7 +1207,8 @@ begin exit;
   end;
 end;
 
-function TBaseDBModule.GetFullTableName(aTable: string): string;
+function TBaseDBModule.GetFullTableName(aTable: string; DoLookup: Boolean
+  ): string;
 var
   bTable: String;
 begin
@@ -1217,20 +1218,25 @@ begin
       Result := FFullTables.Values[bTable];
       exit;
     end;
-  if pos('.',aTable)>0 then
-    aTable:=copy(aTable,rpos('.',aTable)+1,length(aTable));
-  if Assigned(DBTables) and (DBTables.Active) and (aTable <> DBTables.TableName) then
+  if Assigned(Data) and (Self <> Data) and (DoLookup) and (Data.Properties=Self.Properties) then
+    Result := Data.GetFullTableName(aTable,False); //Check if Base Datamodule knows the Table already
+  if (Result = '') and DoLookup then
     begin
-      if not DBTables.Locate('NAME',aTable,[]) then
-        DBTables.Filter('');
-      if (DBTables.Locate('NAME',aTable,[])) then
-        if DBTables.FieldByName('SHEMA').AsString<>'' then
-          begin
-            aTable := QuoteField(StringReplace(DBTables.FieldByName('SHEMA').AsString,'.',QuoteField('.'),[rfReplaceAll]))+'.'+QuoteField(aTable);
-          end;
+      if pos('.',aTable)>0 then
+        aTable:=copy(aTable,rpos('.',aTable)+1,length(aTable));
+      if Assigned(DBTables) and (DBTables.Active) and (aTable <> DBTables.TableName) then
+        begin
+          if not DBTables.Locate('NAME',aTable,[]) then
+            DBTables.Filter('');
+          if (DBTables.Locate('NAME',aTable,[])) then
+            if DBTables.FieldByName('SHEMA').AsString<>'' then
+              begin
+                aTable := QuoteField(StringReplace(DBTables.FieldByName('SHEMA').AsString,'.',QuoteField('.'),[rfReplaceAll]))+'.'+QuoteField(aTable);
+              end;
+        end;
+      if copy(aTable,0,1)<>copy(QuoteField(''),0,1) then
+        aTable:=QuoteField(aTable);
     end;
-  if copy(aTable,0,1)<>copy(QuoteField(''),0,1) then
-    aTable:=QuoteField(aTable);
   Result := aTable;
   FFullTables.Values[bTable] := Result;
 end;
