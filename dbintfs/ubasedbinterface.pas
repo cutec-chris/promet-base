@@ -1219,7 +1219,10 @@ begin
       exit;
     end;
   if Assigned(Data) and (Self <> Data) and (DoLookup) and (Data.Properties=Self.Properties) then
-    Result := Data.GetFullTableName(aTable,False); //Check if Base Datamodule knows the Table already
+    begin
+      Result := Data.GetFullTableName(aTable,False); //Check if Base Datamodule knows the Table already
+      aTable := Result;
+    end;
   if (Result = '') and DoLookup then
     begin
       if pos('.',aTable)>0 then
@@ -1390,8 +1393,6 @@ begin
     if not Assigned(ActiveUsers) then exit;
     with ActiveUsers.DataSet as IBaseManageDB do
       UpdateStdFields := False;
-    if ActiveUsers.DataSet.Active then
-      ActiveUsers.DataSet.Refresh;
     if (not ActiveUsers.DataSet.Active) or (not ActiveUsers.GotoBookmark(FSessionID)) then
       begin
         ActiveUsers.Select(FSessionID);

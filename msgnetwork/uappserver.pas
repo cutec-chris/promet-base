@@ -267,6 +267,6 @@ end;
 initialization
   InitCriticalSection(GlobalLock);
 finalization
-  DoneCriticalsection(GlobalLock);
+//  DoneCriticalsection(GlobalLock);
 end.
 
