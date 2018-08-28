@@ -303,6 +303,7 @@ var
     FSQLScanner := TSQLScanner.Create(FSQLStream);
     FSQLParser := TSQLParser.Create(FSQLScanner);
     try
+    try
       aFilter:='';
       aStmt := FSQLParser.Parse;
       a := 0;
@@ -382,6 +383,7 @@ var
                     aSQL := AddSQLLimit(aSQL,aLimit);
                   aRDS := TBaseDBModule(DataModule).GetNewDataSet(aSQL);
                   try
+                  try
                     aRDS.Open;
                     if IncHeader then
                       AddHeader(aStmt);
@@ -401,6 +403,9 @@ var
                         Outp+='error:'+e.Message+'<br>';
                         aDataThere:=True;
                       end;
+                  end;
+                  finally
+                    aRDS.Free;
                   end;
                 end;
             end;
@@ -466,9 +471,11 @@ var
           aDataThere:=True;
         end;
     end;
-    FSQLScanner.Free;
-    FSQLParser.Free;
-    FSQLStream.Free;
+    finally
+      FSQLScanner.Free;
+      FSQLParser.Free;
+      FSQLStream.Free;
+    end;
   end;
 begin
   if Assigned(BaseApplication) then with BaseApplication as IBaseApplication do
