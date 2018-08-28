@@ -279,50 +279,56 @@ var
   aSubInt: TProjectInterval;
   aDepartment: TIntDepartment;
 begin
-  Synchronize(@StartFilling);
-  aConn := Data.GetNewConnection;
-  aProjects :=  TProjectList.CreateEx(nil,Data,aConn);
-  with aProjects.DataSet as IBaseDbFilter do
-    Data.SetFilter(aProjects,Data.ProcessTerm(Data.QuoteField('GROSSPLANNING')+'='+Data.QuoteValue('Y')),0,'GPRIORITY','ASC');
-  aState := TStates.CreateEx(nil,Data,aConn);
-  aState.Open;
-  aUsers := TUser.CreateEx(nil,Data,aConn);
-  aUsers.Open;
-  while (not aProjects.EOF) and (not Terminated) do
-    begin
-      if aState.DataSet.Locate('STATUS;TYPE',VarArrayOf([trim(aProjects.FieldByName('STATUS').AsString),'P']),[]) then
-        if aState.DataSet.FieldByName('ACTIVE').AsString<>'N' then
-          begin
-            aInt := TInterval.Create(FFrame.FRough);
-            aInt.Id:=aProjects.Id.AsVariant;
-            FFrame.CollectActualProject(aProjects,aInt,aConn,aUsers);
-            Synchronize(@AddInterval);
-          end;
-      aProjects.Next;
-    end;
-  aProjects.Free;
-  aState.Free;
-  aUsers.Free;
-  aConn.Free;
-  for b := 0 to FFrame.FRough.IntervalCount-1 do
-    begin
-      aInt := FFrame.FRough.Interval[b];
-      for i := 0 to aInt.IntervalCount-1 do
+  try
+    Synchronize(@StartFilling);
+    aConn := Data.GetNewConnection;
+    aProjects :=  TProjectList.CreateEx(nil,Data,aConn);
+    aState := TStates.CreateEx(nil,Data,aConn);
+    aUsers := TUser.CreateEx(nil,Data,aConn);
+    try
+      with aProjects.DataSet as IBaseDbFilter do
+        Data.SetFilter(aProjects,Data.ProcessTerm(Data.QuoteField('GROSSPLANNING')+'='+Data.QuoteValue('Y')),0,'GPRIORITY','ASC');
+      aState.Open;
+      aUsers.Open;
+      while (not aProjects.EOF) and (not Terminated) do
         begin
-          aSubInt := TProjectInterval(aInt.Interval[i]);
-          if aSubInt.DepartmentCount>0 then
-            begin
-              for a := 0 to aSubInt.DepartmentCount-1 do
-                begin
-                  aDepartment := aSubInt.Departments[a];
-                  if aDepartment.FullTime=-1 then
-                    aDepartment.FullTime := FFRame.GetAvalibeTimeInRange(aDepartment.Accountno,aInt.Interval[i].StartDate,aInt.Interval[i].FinishDate);
-                end;
-            end;
+          if aState.DataSet.Locate('STATUS;TYPE',VarArrayOf([trim(aProjects.FieldByName('STATUS').AsString),'P']),[]) then
+            if aState.DataSet.FieldByName('ACTIVE').AsString<>'N' then
+              begin
+                aInt := TInterval.Create(FFrame.FRough);
+                aInt.Id:=aProjects.Id.AsVariant;
+                FFrame.CollectActualProject(aProjects,aInt,aConn,aUsers);
+                Synchronize(@AddInterval);
+              end;
+          aProjects.Next;
         end;
+    finally
+      aProjects.Free;
+      aState.Free;
+      aUsers.Free;
+      aConn.Free;
     end;
-  Synchronize(@RoughVisible);
-  FFrame.aThread:=nil;
+    for b := 0 to FFrame.FRough.IntervalCount-1 do
+      begin
+        aInt := FFrame.FRough.Interval[b];
+        for i := 0 to aInt.IntervalCount-1 do
+          begin
+            aSubInt := TProjectInterval(aInt.Interval[i]);
+            if aSubInt.DepartmentCount>0 then
+              begin
+                for a := 0 to aSubInt.DepartmentCount-1 do
+                  begin
+                    aDepartment := aSubInt.Departments[a];
+                    if aDepartment.FullTime=-1 then
+                      aDepartment.FullTime := FFRame.GetAvalibeTimeInRange(aDepartment.Accountno,aInt.Interval[i].StartDate,aInt.Interval[i].FinishDate);
+                  end;
+              end;
+          end;
+      end;
+  finally
+    Synchronize(@RoughVisible);
+    FFrame.aThread:=nil;
+  end;
 end;
 constructor TFillingThread.Create(aFrame: TfRoughPlanningFrame);
 begin

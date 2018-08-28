@@ -116,7 +116,7 @@ constructor TfScriptOptions.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
   aConnection := Data.GetNewConnection;
-  FScripts := TBaseScript.CreateEx(nil,Data,aConnection);
+  FScripts := TBaseScript.CreateEx(Self,Data,aConnection);
   FScripts.CreateTable;
   Scripts.DataSet := FScripts.DataSet;
 end;

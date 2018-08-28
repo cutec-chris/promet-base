@@ -241,7 +241,7 @@ begin
     aMessage.Header.ReplyTo:=DataSet.FieldByName('REPLYTO').AsString;
   if not DataSet.FieldByName('PARENT').IsNull then
     begin
-      aParent := TMessageList.CreateEx(nil,DataModule);
+      aParent := TMessageList.CreateEx(Self,DataModule);
       aParent.SelectByMsgID(DataSet.FieldByName('PARENT').AsVariant);
       aParent.Open;
       if aParent.Count>0 then

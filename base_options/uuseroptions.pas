@@ -319,7 +319,7 @@ begin
   aConnection := Data.GetNewConnection;
   aUsers := TUser.CreateEx(Self,Data,aConnection);
   UsersDS.DataSet := aUsers.DataSet;
-  aPaygroups := TPayGroups.CreateEx(nil,Data,aConnection);
+  aPaygroups := TPayGroups.CreateEx(Self,Data,aConnection);
   aPaygroups.CreateTable;
   Paygroups.DataSet := aPaygroups.DataSet;
 end;

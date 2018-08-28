@@ -321,39 +321,42 @@ var
               if IncHeader then
                 AddHeader(aStmt);
               if aType=1 then Outp+='<tbody align="left" valign="top" align="left">';
-              aDs := TBaseDBDataset(aClass.Create(nil));
-              if Assigned(TSQLSelectStatement(aStmt).Where) then
-                aFilter:=TSQLSelectStatement(aStmt).Where.GetAsSQL([sfoDoubleQuoteIdentifier]);
-              if Assigned(TSQLSelectStatement(aStmt).Orderby) and (TSQLSelectStatement(aStmt).Orderby.Count>0) then
-                begin
-                  aOrder:=TSQLIdentifierName(TSQLOrderByElement(TSQLSelectStatement(aStmt).Orderby.Elements[0]).Field).Name;
-                  aOrderDir := TSQLOrderByElement(TSQLSelectStatement(aStmt).Orderby.Elements[0]).OrderBy;
-                end;
-              if ((TBaseDBModule(DataModule).Users.Rights.Right(aRight)>RIGHT_READ) or (TBaseDBModule(DataModule).Users.Rights.Right(aRight)=-1)) and (Assigned(aDS)) then
-                begin
-                  if aOrder<>'' then
-                    begin
-                      if aOrderDir=obAscending then
-                        aOrderDirStr := 'ASC'
-                      else aOrderDirStr := 'DESC';
-                    end;
-                  if (aDs.ActualFilter<>'') and (aFilter<>'') then
-                    aDs.Filter('('+aDs.ActualFilter+') AND ('+aFilter+')',aLimit)
-                  else if (aFilter = '') and (aDs.ActualFilter<>'') then
-                    aDs.FilterEx('('+aDs.ActualFilter+')',aLimit,aOrder,aOrderDirStr)
-                  else
-                    aDs.FilterEx(aFilter,aLimit,aOrder,aOrderDirStr);
-                  while not aDS.EOF do
-                    begin
-                      case aType of
-                      0:BuildLinkRow(aDs.DataSet);
-                      1:Outp+=BuildTableRow(aDs.DataSet,aStmt);
+              aDs := TBaseDBDataset(aClass.Create(Self));
+              try
+                if Assigned(TSQLSelectStatement(aStmt).Where) then
+                  aFilter:=TSQLSelectStatement(aStmt).Where.GetAsSQL([sfoDoubleQuoteIdentifier]);
+                if Assigned(TSQLSelectStatement(aStmt).Orderby) and (TSQLSelectStatement(aStmt).Orderby.Count>0) then
+                  begin
+                    aOrder:=TSQLIdentifierName(TSQLOrderByElement(TSQLSelectStatement(aStmt).Orderby.Elements[0]).Field).Name;
+                    aOrderDir := TSQLOrderByElement(TSQLSelectStatement(aStmt).Orderby.Elements[0]).OrderBy;
+                  end;
+                if ((TBaseDBModule(DataModule).Users.Rights.Right(aRight)>RIGHT_READ) or (TBaseDBModule(DataModule).Users.Rights.Right(aRight)=-1)) and (Assigned(aDS)) then
+                  begin
+                    if aOrder<>'' then
+                      begin
+                        if aOrderDir=obAscending then
+                          aOrderDirStr := 'ASC'
+                        else aOrderDirStr := 'DESC';
                       end;
-                      aDataThere:=True;
-                      aDs.Next;
-                    end;
-                end;
-              aDS.Free;
+                    if (aDs.ActualFilter<>'') and (aFilter<>'') then
+                      aDs.Filter('('+aDs.ActualFilter+') AND ('+aFilter+')',aLimit)
+                    else if (aFilter = '') and (aDs.ActualFilter<>'') then
+                      aDs.FilterEx('('+aDs.ActualFilter+')',aLimit,aOrder,aOrderDirStr)
+                    else
+                      aDs.FilterEx(aFilter,aLimit,aOrder,aOrderDirStr);
+                    while not aDS.EOF do
+                      begin
+                        case aType of
+                        0:BuildLinkRow(aDs.DataSet);
+                        1:Outp+=BuildTableRow(aDs.DataSet,aStmt);
+                        end;
+                        aDataThere:=True;
+                        aDs.Next;
+                      end;
+                  end;
+              finally
+                aDS.Free;
+              end;
               if aType=1 then Outp+='</tbody>';
             end
           else //pure SQL
@@ -605,10 +608,11 @@ begin
       FSQLParser := TSQLParser.Create(FSQLScanner);
       Inp := copy(Inp,rpos(' ',Inp)+1,length(Inp));
       aStatistic := nil;
+      aStatistic := TStatistic.Create(Self);
+      aRDs := nil;
       try
         aFilter:='';
         bStmt := FSQLParser.Parse;
-        aStatistic := TStatistic.Create(nil);
         if pos('(',Inp)>0 then
           begin
             tmp := copy(Inp,pos('(',Inp)+1,length(Inp)-1);

@@ -212,8 +212,8 @@ end;
 
 destructor TProcesses.Destroy;
 begin
-  FScripts.Free;
-  FProcessParameters.Destroy;
+  //FScripts.Free;
+  //FProcessParameters.Destroy;
   inherited Destroy;
 end;
 
@@ -276,7 +276,7 @@ var
   i: Integer;
 begin
   Pubsub.Free;
-  FProcesses.Destroy;
+  //FProcesses.Destroy;
   inherited Destroy;
 end;
 

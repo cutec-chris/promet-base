@@ -310,7 +310,7 @@ begin
       for i := 0 to fHistoryAddItem.lbAdditional.Count-1 do
         if Data.ListDataSetFromLink(fHistoryAddItem.lbAdditional.Items[i],aClass) then
           begin
-            aObj := aClass.CreateEx(nil, Data);
+            aObj := aClass.CreateEx(Self, Data);
             if aObj is TBaseDbList then
               begin
                 TBaseDBList(aObj).SelectFromLink(fHistoryAddItem.lbAdditional.Items[i]);

@@ -360,9 +360,9 @@ destructor TBaseScript.Destroy;
 begin
   FStatusProblems.Free;
   ResetScript;
-  FLinks.Free;
-  FHistory.Free;
-  FDataSource.Destroy;
+  //FLinks.Free;
+  //FHistory.Free;
+  //FDataSource.Destroy;
   inherited Destroy;
 end;
 

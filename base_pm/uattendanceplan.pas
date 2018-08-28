@@ -776,13 +776,13 @@ var
   gView : TfGanttView;
   aCat: TCategory;
 begin
-  aUser := TUser.CreateEx(nil,Data,aConnection);
+  aUser := TUser.CreateEx(Self,Data,aConnection);
   aUser.SelectByAccountno(asUser);
   aUser.Open;
   aResource.Resource := aUser.Text.AsString;
   aUser.Free;
   aResource.Accountno := asUSer;
-  aCalendar := TCalendar.CreateEx(nil,Data,aConnection);
+  aCalendar := TCalendar.CreateEx(Self,Data,aConnection);
   aCalendar.SelectPlanedByUserAndTime(asUser,aFrom,aTo);
   aCalendar.Open;
   with aCalendar.DataSet do

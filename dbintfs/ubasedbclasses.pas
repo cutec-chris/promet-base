@@ -2855,7 +2855,7 @@ constructor TMandantDetails.CreateEx(aOwner: TComponent; DM: TComponent;
   aConnection: TComponent; aMasterdata: TDataSet);
 begin
   inherited CreateEx(aOwner, DM, aConnection, aMasterdata);
-  FAuthSources := TAuthSources.CreateEx(Self,DataModule,aConnection,DataSet);
+  FAuthSources := TAuthSources.CreateEx(nil,DataModule,aConnection,DataSet);
 end;
 
 function TMandantDetails.CreateTable: Boolean;
@@ -2866,7 +2866,7 @@ end;
 
 destructor TMandantDetails.Destroy;
 begin
-  FAuthSources.Destroy;
+  FAuthSources.Free;
   inherited Destroy;
 end;
 
