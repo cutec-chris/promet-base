@@ -201,9 +201,12 @@ end;
 initialization
   uAppServer.RegisterCommandHandler(@HandlePrometCommand);
 finalization
-  Discovery.Terminate;
-  NetworkDaemon.Terminate;
-  Discovery.Free;
-  NetworkDaemon.Free;
+  if Assigned(Discovery) then
+    begin
+      Discovery.Terminate;
+      NetworkDaemon.Terminate;
+      Discovery.Free;
+      NetworkDaemon.Free;
+    end;
 end.
 

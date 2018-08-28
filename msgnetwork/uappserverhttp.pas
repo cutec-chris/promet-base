@@ -455,6 +455,8 @@ retry:
 //            Info('HTTP:'+aCmd+' '+uri+' not found')
           ;
       end;
+    InputData.Clear;
+    OutputData.Clear;
   except
     on e : Exception do
       begin

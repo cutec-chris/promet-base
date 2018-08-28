@@ -1588,6 +1588,7 @@ var
   i: Integer;
   aSubObj: TJSONObject;
   aMetadata: TJSONObject;
+  WasOpen: Boolean;
 begin
   if mode = emStandard then
     begin
@@ -1598,6 +1599,7 @@ begin
       with AObject.DataSet as IBaseSubDataSets do
         for i := 0 to GetCount-1 do
           begin
+            WasOpen := TBaseDBDataSet(SubDataSet[i]).Active;
             TBaseDBDataSet(SubDataSet[i]).Open;
             TBaseDBDataSet(SubDataSet[i]).First;
             if not TBaseDBDataSet(SubDataSet[i]).EOF then
@@ -1612,6 +1614,8 @@ begin
                   end;
                 AJSON.Add(TBaseDBDataSet(SubDataSet[i]).TableName,aArray);
               end;
+            if not WasOpen then
+              TBaseDBDataSet(SubDataSet[i]).Close;
           end;
     end
   else if mode = emExtJS then
@@ -1621,6 +1625,7 @@ begin
       with AObject.DataSet as IBaseSubDataSets do
         for i := 0 to GetCount-1 do
           begin
+            WasOpen := TBaseDBDataSet(SubDataSet[i]).Active;
             TBaseDBDataSet(SubDataSet[i]).Open;
             TBaseDBDataSet(SubDataSet[i]).First;
             aSubObj := TJSONObject.Create;
@@ -1642,6 +1647,8 @@ begin
               end;
             aSubObj.Add('Data',aArray);
             AJSON.Add(TBaseDBDataSet(SubDataSet[i]).TableName,aSubObj);
+            if not WasOpen then
+              TBaseDBDataSet(SubDataSet[i]).Close;
           end;
     end;
 end;
@@ -1654,6 +1661,7 @@ var
   aArray: TJSONArray;
   aSSubObj: TJSONObject;
   aMetadata: TJSONObject;
+  aArray1: TJSONArray;
 begin
   aObj := TJSONObject.Create;
   try
@@ -1662,14 +1670,14 @@ begin
         aSubObj := TJSONObject.Create;
         aSSubObj := TJSONObject.Create;
         aArray := TJSONArray.Create;
+        aArray1 := TJSONArray.Create;
         MetadataToJSON(DataSet,aArray);
         aMetadata := TJSONObject.Create();
         aMetadata.Add('fields',aArray);
         aSubObj.Add('Metadata',aMetadata);
-        aArray := TJSONArray.Create;
         ObjectToJSON(Self,aSSubObj,True,mode);
-        aArray.Add(aSSubObj);
-        aSubObj.Add('Data',aArray);
+        aArray1.Add(aSSubObj);
+        aSubObj.Add('Data',aArray1);
         aObj.Add(TableName,aSubObj);
       end
     else
