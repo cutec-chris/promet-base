@@ -37,6 +37,7 @@ end;
 function PrometScriptPrint(aType,Reportname,Printer : string;Copies : Integer) : Boolean;
 var
   NotPrintable: Boolean = False;
+  i: Integer;
 begin
   try
     if not Assigned(FReport) then
@@ -67,6 +68,15 @@ begin
           if NotPrintable then result := False
           else
             begin
+              for i := 0 to FReportImages.Count-1 do
+                if FReport.FindObject(FReportImages.Names[i]) <> nil then
+                  begin
+                    try
+                      TfrPictureView(FReport.FindObject(FReportImages.Names[i])).Picture.LoadFromFile(FReportImages.ValueFromIndex[i]);
+                    except
+                      Result := False;
+                    end;
+                  end;
               Result := FReport.PrepareReport;
               if Result then
                 FReport.PrintPreparedReport('',Copies);

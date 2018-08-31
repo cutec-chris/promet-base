@@ -1643,7 +1643,6 @@ begin
 end;
 procedure TBaseDBInterface.DBLogout;
 begin
-  InitMultiData(0);
   if Assigned(FDB) then
     FDB.RemoveUserFromActiveList;
 end;

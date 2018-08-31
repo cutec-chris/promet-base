@@ -176,7 +176,7 @@ begin
       Document.Free;
       WikiList.Free;
     end;
-  TBaseDBModule(Data).CriticalSection.Leave;
+  //TBaseDBModule(Data).CriticalSection.Leave;
 end;
 
 procedure TWikiSession.SetSocket(AValue: TAppNetworkThrd);
@@ -303,7 +303,7 @@ begin
       SetProperties(uData.Data.Properties);
     end;
   }
-  Data := uData.GetData;
+  Data := uData.DataM;
   //TODO:select rigth User
   {
   if not TBaseDBModule(Data).Users.Locate('SQL_ID',aSocket.User,[]) then

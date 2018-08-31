@@ -24,77 +24,20 @@ unit uData;
 interface
 
 uses
-  Classes, SysUtils, uBaseDbInterface,Utils;
+  Classes, SysUtils, uBaseDbInterface;
 
 var
   DataM : TBaseDBModule = nil;
-  MultiData : array of TBaseDBModule;
 
 function Data : TBaseDBModule;
-procedure InitMultiData(const Cnt : Integer);
-function GetData(aUser : Int64 = 0;Timeout : Integer = 100) : TBaseDBModule;
 
 implementation
-
-uses uBaseApplication;
-
-function GetData(aUser: Int64; Timeout: Integer): TBaseDBModule;
-var
-  i: Integer;
-  aTime: Int64;
-  Runs : Integer = 0;
-begin
-  Result := nil;
-  if Length(MultiData)>0 then
-    begin
-      aTime := GetTicks;
-      while (not Assigned(Result))
-        and (GetTicks-aTime < Timeout) do
-        begin
-          for i := 0 to length(MultiData)-1 do
-            begin
-              if ((aUser = 0) or (Runs>1) or (MultiData[i].LoggedInUser=aUser)) //try to use an DBModule that is logged in already on this user
-              and (MultiData[i].CriticalSection.TryEnter) then
-                begin
-                  Result := MultiData[i];
-                  break;
-                end;
-            end;
-          Runs := Runs+1;
-        end;
-    end;
-  if not Assigned(Result) then
-    begin
-      with BaseApplication as IBaseApplication do
-        if Length(MultiData)>0 then
-          Warning('dbpool empty !!');
-      Result := uData.DataM;
-    end;
-end;
 
 function Data: TBaseDBModule;
 begin
   Result := DataM;
 end;
 
-procedure InitMultiData(const Cnt : Integer);
-var
-  actLenght: Integer;
-begin
-  actLenght := length(MultiData);
-  while length(MultiData)>Cnt do
-    begin
-      MultiData[length(MultiData)-1].Free;
-      SetLength(MultiData,length(MultiData)-1);
-    end;
-  while length(MultiData)<Cnt do
-    begin
-      SetLength(MultiData,Length(MultiData)+1);
-      MultiData[length(MultiData)-1] := TBaseDBModule.Create(nil);
-      MultiData[length(MultiData)-1].ParameteriseSQL:=False;
-      MultiData[length(MultiData)-1].SetProperties(DataM.Properties);
-    end;
-end;
-
 end.
+
 

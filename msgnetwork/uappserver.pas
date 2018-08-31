@@ -268,5 +268,6 @@ initialization
   InitCriticalSection(GlobalLock);
 finalization
 //  DoneCriticalsection(GlobalLock);
+  Setlength(CommandHandlers,0);
 end.
 

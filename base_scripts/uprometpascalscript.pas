@@ -70,6 +70,7 @@ type
 
     function InternalPrint(aType,Reportname,Printer : string;Copies : Integer) : Boolean;
     procedure InternalSetReportVariable(aName,Value : string);
+    function InternalSetReportImage(aName,aImage : string) : Boolean;
 
     function InternalGetNumberFromNumberset(Numberset : string) : string;
 
@@ -84,6 +85,7 @@ type
 var
   FContextDataSet : TDataSet;
   FVariables : TStringList;
+  FReportImages : TStringList;
   OnInternalPrint : TScriptInternalPrint;
   FReportVariables : TStringList;
   OnNumbersetEmpty : TScriptNumbersetEmpty;
@@ -199,6 +201,7 @@ begin
         Sender.AddMethod(Self,@TPrometPascalScript.InternalExecuteScript,'procedure ExecuteScript(Name,Client : string);');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalPrint,'function PrintReport(aType : string;aReportname : string;aPrinter : string;Copies : Integer) : Boolean;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalSetReportVariable,'procedure SetReportVariable(Name : string;Value : string);');
+        Sender.AddMethod(Self,@TPrometPascalScript.InternalSetReportImage,'procedure SetReportImage(aName,aImage : string) : Boolean;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalGetNumberFromNumberset,'function GetNumberFromNumberset(Numberset : string) : string;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalSaveFilefromDocuments,'function SaveFilefromDocuments(Filename,OutPath : string) : Boolean;');
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TComponent'),TAbstractDBDataset) do
@@ -929,6 +932,13 @@ begin
   FReportVariables.Values[aName] := Value;
 end;
 
+function TPrometPascalScript.InternalSetReportImage(aName, aImage: string
+  ): Boolean;
+begin
+  FReportImages.Values[aName] := aImage;
+  Result := True;
+end;
+
 function TPrometPascalScript.InternalGetNumberFromNumberset(Numberset: string
   ): string;
 begin
@@ -1003,6 +1013,7 @@ end;
 initialization
   RegisterScriptType(TPrometPascalScript);
   FVariables := TStringList.Create;
+  FReportImages := TStringList.Create;
   OnInternalPrint := nil;
 finalization
   FVariables.Free;
