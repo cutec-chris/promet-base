@@ -987,6 +987,7 @@ var
   aTree: TTree;
 begin
   aTree := TTree.CreateEx(Self,DataModule);
+  if not Active then exit;
   Result := FieldByName('NAME').AsString;
   aTree.Select(DataSet.FieldByName('TREEENTRY').AsVariant);
   aTree.Open;

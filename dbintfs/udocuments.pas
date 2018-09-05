@@ -1808,7 +1808,7 @@ var
 begin
   Result := False;
   if not DataSet.Active then exit;
-  DataSet.Refresh;
+  //DataSet.Refresh;
   if IsDir then
     begin
       aDocuments := TDocuments.CreateEx(Self,DataModule,Connection);
