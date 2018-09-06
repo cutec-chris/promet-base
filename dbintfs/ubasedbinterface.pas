@@ -460,7 +460,7 @@ begin
             SetCurrentDir(actDir);
           except
           end;
-          if MandantDetails.Active then
+          if MandantDetails.Active and Assigned(MandantDetails.FieldByName('DBVER')) then
             begin
               actVer := MandantDetails.FieldByName('DBVER').AsInteger;
               if actVer<(7*10000+437) then
