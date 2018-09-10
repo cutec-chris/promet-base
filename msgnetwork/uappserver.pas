@@ -174,6 +174,7 @@ end;
 procedure TAppNetworkThrd.InternalSynchronize(Sender: TThread;
   AMethod: TThreadMethod; DoLock: Boolean);
 begin
+  {
   if Assigned(BaseApplication) then
     begin
       if DoLock then
@@ -183,7 +184,7 @@ begin
         LeaveCriticalsection(GlobalLock);
     end
   else
-    Synchronize(AMethod);
+  }  Synchronize(AMethod);
 end;
 
 procedure RegisterCommandHandler(aHandler: TCommandHandlerProc
