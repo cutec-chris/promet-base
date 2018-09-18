@@ -20,7 +20,7 @@ unit uSendMail;
 {$mode delphi}{$H+}
 interface
 uses
-  Classes, SysUtils,UTF8Process,process,Dialogs,Utils
+  Classes, SysUtils,UTF8Process,process,Dialogs,Utils,rtf2html
   {$IFDEF WINDOWS}
   ,MAPI,windows,Forms
   {$ENDIF}
@@ -34,16 +34,20 @@ implementation
 function DoSendMail(Subject, Body, FileName, SenderName, SenderEMail,
                   RecepientEMail,RecepientCC: String) : Integer;
 var
-  message: TMapiMessage;
+{  message: TMapiMessage;
   lpSender : TMapiRecipDesc;
   MailName : array[0..30] of string;
   MailAddr : array[0..30] of string;
   lpRecepient : array[0..30] of TMapiRecipDesc;
   FileAttach: TMapiFileDesc;
   SM: TFNMapiSendMail;
-  MAPIModule: HModule;
+  MAPIModule: HModule;}
   tmpMail: String;
 begin
+  tmpMail:=HTTPEncode(Body);
+  tmpMail := 'mailto:'+Stringreplace(RecepientEMail,',',';',[rfReplaceAll])+'?subject='+Subject+'&body='+tmpMail+'&Attach='+HTTPEncode(FileName);
+  ShellExecute(0,'open',pchar(tmpMail),nil,nil,SW_SHOWDEFAULT);
+  {
   FillChar(message, SizeOf(message), 0);
   FillChar(lpRecepient, SizeOf(lpRecepient), 0);
   with message do
@@ -158,6 +162,7 @@ begin
   if Result<>0 then
   begin
   end;
+  }
 end;
 {$ELSE}
 function DoSendMail(Subject, Body, FileName, SenderName, SenderEMail,
