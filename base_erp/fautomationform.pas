@@ -511,6 +511,8 @@ begin
     begin
       TreeData := TProdTreeData(tvStep.Selected.Data);
       TreeData.Script.Script.Writeln:=@TreeData.ScriptPrepareWriteln;
+      TreeData.ScriptOutput.Clear;
+      TreeData.Script.ActualObject := TBaseDBDataset(DataSet.Parent);
       if Treedata.Script.Script.RunScriptFunction([],'CHECKPREPARE') then
         begin
           acProduce.Enabled := True;

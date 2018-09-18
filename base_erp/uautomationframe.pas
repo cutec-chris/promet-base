@@ -38,11 +38,8 @@ type
     eScript: TDBEdit;
     eScript1: TDBEdit;
     eScript2: TDBEdit;
-    eScript3: TDBEdit;
-    eScript4: TDBEdit;
     eScript5: TDBEdit;
     eVersion: TDBEdit;
-    eVersion1: TDBEdit;
     GroupBox1: TPanel;
     GroupBox2: TPanel;
     Label1: TLabel;
@@ -50,16 +47,12 @@ type
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
-    Label5: TLabel;
-    Label6: TLabel;
     Label7: TLabel;
     Label8: TLabel;
-    Label9: TLabel;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     Position: TDatasource;
     pToolbar: TPanel;
-    SpeedButton2: TBitBtn;
     SpeedButton3: TBitBtn;
     procedure acEditPrepareScriptExecute(Sender: TObject);
     procedure acEditScriptExecute(Sender: TObject);
