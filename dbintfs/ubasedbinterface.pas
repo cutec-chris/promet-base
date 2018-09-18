@@ -383,6 +383,7 @@ begin
   FProperies := aProp;
   if not Assigned(Users) then
     begin
+      DBTables :=  TBaseDBTables.CreateEx(nil,Self);
       FUsers := TUser.CreateEx(nil,Self);
       Numbers := TNumberSets.CreateEx(nil,Self);
       MandantDetails := TMandantDetails.CreateEx(nil,Self);
@@ -391,7 +392,6 @@ begin
       UserFieldDefs := TUserFieldDefs.CreateEx(nil,Self);
       Filters := TFilters.CreateEx(nil,Self);
       Reports := TReports.CreateEx(nil,Self);
-      DBTables :=  TBaseDBTables.CreateEx(nil,Self);
       ActiveUsers := TActiveUsers.CreateEx(nil,Self);
       Permissions := TPermissions.CreateEx(nil,Self);
       StorageTypes := TStorageTypes.CreateEx(nil,Self);
@@ -1228,7 +1228,7 @@ begin
     begin
       if pos('.',aTable)>0 then
         aTable:=copy(aTable,rpos('.',aTable)+1,length(aTable));
-      if Assigned(DBTables) and (DBTables.Active) and (aTable <> DBTables.TableName) then
+      if Assigned(DBTables) and (aTable <> DBTables.TableName) then
         begin
           if not DBTables.Locate('NAME',aTable,[]) then
             DBTables.Filter('');
@@ -1244,7 +1244,8 @@ begin
   if aTable = bTable then
     aTable := QuoteField(aTable);
   Result := aTable;
-  FFullTables.Values[bTable] := Result;
+  if Assigned(DBTables) then
+    FFullTables.Values[bTable] := Result;
 end;
 function TBaseDBModule.CreateTrigger(aTriggerName: string; aTableName: string;
   aUpdateOn: string; aSQL: string;aField : string = ''; aConnection: TComponent=nil): Boolean;
