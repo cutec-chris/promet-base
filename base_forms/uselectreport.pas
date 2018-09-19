@@ -118,6 +118,7 @@ type
     procedure SetDataSet(AValue: TBaseDBDataset);
     procedure SetReport(const AValue: TfrReport);
     procedure SetType(const AValue: string);
+    function BuildText(aText : string;DataSet: TBaseDBDataset): string;
     { private declarations }
   public
     { public declarations }
@@ -565,7 +566,7 @@ begin
               if FDS is TOrder then
                 begin
                   if (copy(fType,0,2) = 'OR') and TOrder(FDS).OrderType.DataSet.Locate('STATUS',copy(fType,3,length(fType)),[]) then
-                    aName := TOrder(FDS).OrderType.FieldByName('STATUSNAME').AsString+' '+TOrder(FDS).FieldByName('NUMBER').AsString;
+                    aName := BuildText(TOrder(FDS).OrderType.FieldByName('STATUSNAME').AsString+' '+TOrder(FDS).FieldByName('NUMBER').AsString,FDS);
                   isPrepared := True;
                   Stream := TmemoryStream.Create;
                   Report.EMFPages.SaveToStream(Stream);
@@ -599,7 +600,7 @@ begin
       fLogWaitForm.ShowInfo(strPrintingReport);
       aName := 'Document';
       if (copy(fType,0,2) = 'OR') and (FDS is TOrder) then
-        aName :=TOrder(FDS).OrderType.FieldByName('STATUSNAME').AsString+' '+TOrder(FDS).FieldByName('NUMBER').AsString;
+        aName := BuildText(TOrder(FDS).OrderType.FieldByName('STATUSNAME').AsString+' '+TOrder(FDS).FieldByName('NUMBER').AsString,FDS);
       if Report.Title='' then
         Report.Title:=aName;
       if cbPrinter.Text = '<'+strFileExport+'>' then
@@ -637,7 +638,7 @@ begin
           fLogWaitform.ShowInfo('e-Mail wird generiert...');
           if Assigned(FOnSendMessage) then
             begin
-              FOnSendMessage(Report,eMailAddr,Report.Title,Data.Reports.FieldByName('TEXT').AsString,isPrepared);
+              FOnSendMessage(Report,eMailAddr,BuildText(Report.Title,FDS),BuildText(Data.Reports.FieldByName('TEXT').AsString,FDS),isPrepared);
               Res := True;
             end;
         end
@@ -680,13 +681,13 @@ begin
                 begin
                   isPrepared := True;
                   with BaseApplication as IBaseApplication do
-                    aFile := GetInternalTempDir+StringReplace(ValidateFileName(Report.Title),' ','_',[rfReplaceAll])+'.pdf';
+                    aFile := GetInternalTempDir+StringReplace(ValidateFileName(BuildText(Report.Title,FDS)),' ','_',[rfReplaceAll])+'.pdf';
                   {$IF ((LCL_MAJOR >= 1) and (LCL_MINOR > 5))}
                   Report.ExportTo(ExportFilters[i].ClassRef,aFile);
                   {$ELSE}
                   Report.ExportTo(frFilters[i].ClassRef,aFile);
                   {$ENDIF}
-                  DoSendMail(Report.Title,Data.Reports.FieldByName('TEXT').AsString, aFile,'','',eMailAddr,eCC.Text);
+                  DoSendMail(BuildText(Report.Title,FDS),BuildText(Data.Reports.FieldByName('TEXT').AsString,FDS), aFile,'','',eMailAddr,eCC.Text);
                   res := True;
                 end
               else fError.ShowWarning(strCantPrepareReport);
@@ -756,7 +757,7 @@ begin
               fLogWaitform.ShowInfo('e-Mail wird generiert...');
               if Assigned(FOnSendMessage) then
                 begin
-                  FOnSendMessage(Report,eMailAddr,aName,Data.Reports.FieldByName('TEXT').AsString,isPrepared);
+                  FOnSendMessage(Report,eMailAddr,aName,BuildText(Data.Reports.FieldByName('TEXT').AsString,FDS),isPrepared);
                   Res := True;
                 end;
               aCustomer.Destroy;
@@ -834,7 +835,7 @@ begin
              if Report.PrepareReport then
                begin
                  with BaseApplication as IBaseApplication do
-                   aFile := GetInternalTempDir+ValidateFileName(Report.Title)+'.png';
+                   aFile := GetInternalTempDir+ValidateFileName(BuildText(Report.Title,FDS))+'.png';
                  {$IF ((LCL_MAJOR >= 1) and (LCL_MINOR > 5))}
                  Report.ExportTo(ExportFilters[i].ClassRef,aFile);
                  {$ELSE}
@@ -882,6 +883,18 @@ begin
       fType:=AValue;
     end;
 end;
+
+function TfSelectReport.BuildText(aText: string; DataSet: TBaseDBDataset
+  ): string;
+var
+  i: Integer;
+begin
+  Result := aText;
+  for i := 0 to DataSet.DataSet.FieldCount-1 do
+    if pos('@'+DataSet.DataSet.FieldDefs[i].Name+'@',Result)>0 then
+      Result := StringReplace(Result,'@'+DataSet.DataSet.FieldDefs[i].Name+'@',DataSet.FieldByName(DataSet.DataSet.FieldDefs[i].Name).AsString,[rfReplaceAll]);
+end;
+
 procedure TfSelectReport.SetReport(const AValue: TfrReport);
 begin
   if not Assigned(fSelectReport) then
