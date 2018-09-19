@@ -680,7 +680,7 @@ begin
                 begin
                   isPrepared := True;
                   with BaseApplication as IBaseApplication do
-                    aFile := GetInternalTempDir+ValidateFileName(Report.Title)+'.pdf';
+                    aFile := GetInternalTempDir+StringReplace(ValidateFileName(Report.Title),' ','_',[rfReplaceAll])+'.pdf';
                   {$IF ((LCL_MAJOR >= 1) and (LCL_MINOR > 5))}
                   Report.ExportTo(ExportFilters[i].ClassRef,aFile);
                   {$ELSE}
@@ -893,6 +893,7 @@ begin
   if FReport=AValue then exit;
   FReport:=AValue;
   if Assigned(FReport) then FReport.OnGetValue:=@GetReportVar;
+  FReport.ShowProgress := False;
 end;
 
 procedure TfSelectReport.SetDataSet(AValue: TBaseDBDataset);

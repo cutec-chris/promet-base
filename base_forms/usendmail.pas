@@ -22,7 +22,7 @@ interface
 uses
   Classes, SysUtils,UTF8Process,process,Dialogs,Utils,rtf2html
   {$IFDEF WINDOWS}
-  ,MAPI,windows,Forms
+  ,Mapi,windows,Forms
   {$ENDIF}
   ;
 
@@ -34,20 +34,16 @@ implementation
 function DoSendMail(Subject, Body, FileName, SenderName, SenderEMail,
                   RecepientEMail,RecepientCC: String) : Integer;
 var
-{  message: TMapiMessage;
+  message: TMapiMessage;
   lpSender : TMapiRecipDesc;
   MailName : array[0..30] of string;
   MailAddr : array[0..30] of string;
   lpRecepient : array[0..30] of TMapiRecipDesc;
   FileAttach: TMapiFileDesc;
   SM: TFNMapiSendMail;
-  MAPIModule: HModule;}
+  MAPIModule: HModule;
   tmpMail: String;
 begin
-  tmpMail:=HTTPEncode(Body);
-  tmpMail := 'mailto:'+Stringreplace(RecepientEMail,',',';',[rfReplaceAll])+'?subject='+Subject+'&body='+tmpMail+'&Attach='+HTTPEncode(FileName);
-  ShellExecute(0,'open',pchar(tmpMail),nil,nil,SW_SHOWDEFAULT);
-  {
   FillChar(message, SizeOf(message), 0);
   FillChar(lpRecepient, SizeOf(lpRecepient), 0);
   with message do
@@ -59,7 +55,8 @@ begin
     end;
     if (Body<>'') then
     begin
-      lpszNoteText := PChar(UniToSys(Body))
+      Body := UniToSys(Body);
+      lpszNoteText := PChar(Body)
     end;
     if (SenderEMail<>'') then
     begin
@@ -86,8 +83,8 @@ begin
     while pos(',',tmpMail)>0 do
       begin
         lpRecepient[nRecipCount].ulRecipClass := MAPI_TO;
-        MailName[nRecipCount] := copy(tmpMail,0,pos(',',tmpMail)-1);
-        lpRecepient[nRecipCount].lpszName := PChar(UniToSys(MailName[nRecipCount]));
+        MailName[nRecipCount] := UniToSys(copy(tmpMail,0,pos(',',tmpMail)-1));
+        lpRecepient[nRecipCount].lpszName := PChar(MailName[nRecipCount]);
         MailAddr[nRecipCount] := 'SMTP:'+copy(tmpMail,0,pos(',',tmpMail)-1);
         lpRecepient[nRecipCount].lpszAddress := PChar(MailAddr[nRecipCount]);
         lpRecepient[nRecipCount].ulReserved := 0;
@@ -103,8 +100,8 @@ begin
     while pos(',',tmpMail)>0 do
       begin
         lpRecepient[nRecipCount].ulRecipClass := MAPI_CC;
-        MailName[nRecipCount] := copy(tmpMail,0,pos(',',tmpMail)-1);
-        lpRecepient[nRecipCount].lpszName := PChar(UniToSys(MailName[nRecipCount]));
+        MailName[nRecipCount] := UniToSys(copy(tmpMail,0,pos(',',tmpMail)-1));
+        lpRecepient[nRecipCount].lpszName := PChar(MailName[nRecipCount]);
         MailAddr[nRecipCount] := 'SMTP:'+copy(tmpMail,0,pos(',',tmpMail)-1);
         lpRecepient[nRecipCount].lpszAddress := PChar(MailAddr[nRecipCount]);
         lpRecepient[nRecipCount].ulReserved := 0;
@@ -128,6 +125,7 @@ begin
       nFileCount := 1;
       lpFiles := @FileAttach;
     end;
+    lpszMessageType := nil;
   end;
   MAPIModule := LoadLibrary(PChar(MAPIDLL));
   if MAPIModule=0 then
@@ -162,7 +160,6 @@ begin
   if Result<>0 then
   begin
   end;
-  }
 end;
 {$ELSE}
 function DoSendMail(Subject, Body, FileName, SenderName, SenderEMail,
