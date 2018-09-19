@@ -269,6 +269,7 @@ begin
         with ManagedFieldDefs do
           begin
             Add('NAME',ftString,100,True);
+            Add('CUSTNAME',ftString,100,False);
             Add('STATUS',ftString,4,false);
             Add('SYMTOMS',ftString,800,False);
             Add('CATEGORY',ftString,40,False);

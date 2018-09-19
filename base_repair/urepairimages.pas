@@ -39,7 +39,9 @@ type
     ButtonPanel1: TButtonPanel;
     cbStatus: TComboBox;
     eCategory: TDBEdit;
+    eName1: TDBEdit;
     eUser: TEditButton;
+    Label4: TLabel;
     lCategory: TLabel;
     lCategory1: TLabel;
     RepairImage: TDatasource;

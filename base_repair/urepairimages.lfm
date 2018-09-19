@@ -388,8 +388,8 @@ object fRepairImages: TfRepairImages
     end
     object tsAdditional: TTabSheet
       Caption = 'Zusätzlich'
-      ClientHeight = 402
-      ClientWidth = 499
+      ClientHeight = 410
+      ClientWidth = 498
       object lNotesforCustomer1: TLabel
         Left = 8
         Height = 15
@@ -400,9 +400,9 @@ object fRepairImages: TfRepairImages
       end
       object gProblems: TExtDBGrid
         Left = 8
-        Height = 109
+        Height = 117
         Top = 24
-        Width = 482
+        Width = 481
         Anchors = [akTop, akLeft, akRight, akBottom]
         AutoFillColumns = True
         BorderStyle = bsNone
@@ -420,7 +420,7 @@ object fRepairImages: TfRepairImages
           end        
           item
             Title.Caption = 'Fehler'
-            Width = 158
+            Width = 157
             FieldName = 'ERROR'
           end>
         DataSource = RepairDetail
@@ -434,9 +434,9 @@ object fRepairImages: TfRepairImages
       end
       object mInternalNotes: TDBMemo
         Left = 8
-        Height = 125
-        Top = 272
-        Width = 482
+        Height = 85
+        Top = 320
+        Width = 481
         Anchors = [akTop, akLeft, akRight, akBottom]
         DataField = 'INTNOTES'
         DataSource = RepairImage
@@ -446,8 +446,8 @@ object fRepairImages: TfRepairImages
       object lInternalNotes: TLabel
         Left = 8
         Height = 15
-        Top = 256
-        Width = 274
+        Top = 304
+        Width = 273
         Anchors = [akTop, akLeft, akRight]
         AutoSize = False
         Caption = 'Interne Notizen'
@@ -456,8 +456,8 @@ object fRepairImages: TfRepairImages
       object mNotes: TDBMemo
         Left = 8
         Height = 94
-        Top = 152
-        Width = 482
+        Top = 208
+        Width = 481
         Anchors = [akTop, akLeft, akRight]
         DataField = 'NOTES'
         DataSource = RepairImage
@@ -467,9 +467,29 @@ object fRepairImages: TfRepairImages
       object lNotesforCustomer: TLabel
         Left = 8
         Height = 15
-        Top = 136
+        Top = 191
         Width = 96
         Caption = 'Notizen für Kunde'
+        ParentColor = False
+      end
+      object eName1: TDBEdit
+        Left = 8
+        Height = 23
+        Top = 164
+        Width = 481
+        DataField = 'CUSTNAME'
+        DataSource = RepairImage
+        Anchors = [akTop, akLeft, akRight]
+        CharCase = ecNormal
+        MaxLength = 0
+        TabOrder = 3
+      end
+      object Label4: TLabel
+        Left = 8
+        Height = 15
+        Top = 148
+        Width = 87
+        Caption = 'Name für Kunde'
         ParentColor = False
       end
     end
