@@ -1708,6 +1708,7 @@ var
       b: Integer;
       aNewValue: String;
       aFieldName: DOMString;
+      aRec,aNRec : Variant;
     begin
       Result := False;
       with ThisDataSet.DataSet as IBaseManageDB do
@@ -1770,6 +1771,30 @@ var
                   if (ThisDataSet.State = dsEdit) then
                     ThisDataSet.Post;
                 end;
+            //change Parent
+            aNRec := ThisDataSet.GetBookmark;
+            ThisDataSet.First;
+            while not ThisDataSet.EOF do
+              begin
+                aRec := ThisDataSet.GetBookmark;
+                if ThisDataSet.dataSet.FieldDefs.IndexOf('OLD_ID')>-1 then
+                  begin
+                    if ThisDataSet.Locate('OLD_ID',ThisDataSet.FieldByName('PARENT').AsVariant,[]) then
+                      begin
+                        aNewValue:=ThisDataSet.FieldByName('SQL_ID').AsString;
+                        if ThisDataSet.GotoBookmark(aRec) then
+                          begin
+                            ThisDataSet.Edit;
+                            ThisDataSet.FieldByName('PARENT').AsString:=aNewValue;
+                            ThisDataSet.Post;
+                          end;
+                      end;
+                  end
+                else break;
+                ThisDataSet.GotoBookmark(aRec);
+                ThisDataSet.Next;
+              end;
+            ThisDataSet.GotoBookmark(aNRec);
             Result := True;
             ThisDataSet.Tag:=0;
           end;

@@ -1574,7 +1574,7 @@ begin
             Add('PROJECTID',ftLargeInt,0,False);
             Add('PROJECT',ftString,260,False);
             Add('LINK',ftString,400,False);
-            Add('ORIGID',ftLargeInt,0,False);
+            Add('OLD_ID',ftLargeInt,0,False);
             Add('ORIGIDS',ftString,200,False);
             Add('CLASS',ftString,1,True);
             Add('DEPDONE',ftString,1,True);

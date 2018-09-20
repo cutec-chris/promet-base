@@ -247,7 +247,7 @@ begin
             Add('ROTATION',ftSmallInt,0,false);
             Add('ROTTO',ftDate,0,false);     //Rotation to
             Add('ROTCUS',ftInteger,0,false);  //Rotation Custom Interval
-            Add('ORIGID',ftString,200,False);
+            Add('OLD_ID',ftString,200,False);
             Add('BUSYTYPE',ftString,2,False);
             Add('CRDATE',ftDate,0,False);
             Add('CHDATE',ftDate,0,False);

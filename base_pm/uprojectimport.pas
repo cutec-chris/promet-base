@@ -106,7 +106,7 @@ var
                 if (not Tasks.FieldByName('STARTDATE').IsNull) then
                   Tasks.FieldByName('DUEDATE').AsDateTime:=StrToDateTime(aTask.Attributes.GetNamedItem('start').NodeValue,myFormat)+(StrToInt(aTask.Attributes.GetNamedItem('duration').NodeValue));
                 if not tasks.CanEdit then Tasks.DataSet.Edit;
-                Tasks.FieldByName('ORIGID').AsString:=aTask.Attributes.GetNamedItem('id').NodeValue;
+                Tasks.FieldByName('OLD_ID').AsString:=aTask.Attributes.GetNamedItem('id').NodeValue;
                 if not tasks.CanEdit then Tasks.DataSet.Edit;
                 if Tasks.State = dsInsert then
                   if aTask.Attributes.GetNamedItem('complete').NodeValue = '1' then
@@ -150,9 +150,9 @@ var
                 for b := 0 to aTask.ChildNodes.Count-1 do
                   if aTask.ChildNodes[b].NodeName = 'depend' then
                   begin
-                    if Tasks.DataSet.Locate('ORIGID',aTask.Attributes.GetNamedItem('id').NodeValue,[]) then
+                    if Tasks.DataSet.Locate('OLD_ID',aTask.Attributes.GetNamedItem('id').NodeValue,[]) then
                       aLink := Data.BuildLink(Tasks.DataSet);
-                    if Tasks.DataSet.Locate('ORIGID',aTask.ChildNodes[b].Attributes.GetNamedItem('id').NodeValue,[]) then
+                    if Tasks.DataSet.Locate('OLD_ID',aTask.ChildNodes[b].Attributes.GetNamedItem('id').NodeValue,[]) then
                       begin
                         bTask := TTask.CreateEx(nil,Data,Tasks.Connection);
                         bTask.Select(Tasks.Id.AsVariant);

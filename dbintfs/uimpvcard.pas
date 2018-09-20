@@ -64,7 +64,7 @@ begin
               Customers.ContactData.Active := True;
               Customers.Address.Active := True;
               if IsField('UID',tmp) then
-                FieldByName('ORIGID').AsString := GetValue(tmp)
+                FieldByName('OLD_ID').AsString := GetValue(tmp)
               else if IsField('N',tmp) then
                 NField := GetValue(tmp)
               else if IsField('FN',tmp) then
@@ -246,10 +246,10 @@ begin
     begin
       vOut.Add('BEGIN:VCARD');
       WriteField('VERSION','2.1','','');
-      if FieldByName('ORIGID').IsNull then
+      if FieldByName('OLD_ID').IsNull then
         WriteField('UID',FieldByName('SQL_ID').AsString,'','')
       else
-        WriteField('UID',FieldByName('ORIGID').AsString,'','');
+        WriteField('UID',FieldByName('OLD_ID').AsString,'','');
       WriteField('FN',FieldByName('NAME').AsString);
       if not FieldByName('INFO').IsNull then
         WriteField('NOTE',VEncodeString(FieldByName('INFO').AsString),'QUOTED-PRINTABLE');
@@ -336,4 +336,4 @@ begin
 end;
 
 end.
-
+

@@ -160,7 +160,7 @@ begin
           else if InBody then
             begin
               if IsField('UID',tmp) then
-                FieldByName('ORIGID').AsString := GetValue(tmp)
+                FieldByName('OLD_ID').AsString := GetValue(tmp)
               else if IsField('DTSTART',tmp) then
                 begin
                   FieldByName('STARTDATE').AsDateTime := GMTToLocalTime(ConvertISODate(GetValue(tmp)));
@@ -281,10 +281,10 @@ begin
       while not EOF do
         begin
           vOut.Add('BEGIN:VEVENT');
-          if FieldByName('ORIGID').IsNull then
+          if FieldByName('OLD_ID').IsNull then
             vOut.Add('UID:'+FieldByName('SQL_ID').AsString)
           else
-            vOut.Add('UID:'+FieldByName('ORIGID').AsString);
+            vOut.Add('UID:'+FieldByName('OLD_ID').AsString);
           vOut.Add('DTSTAMP:'+FixDate(BuildISODate(FieldByName('TIMESTAMPD').AsDateTime)));
           if FieldByName('ALLDAY').AsString='Y' then
             begin
