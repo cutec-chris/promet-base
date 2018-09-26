@@ -707,6 +707,10 @@ begin
                 Event.Color:=StringToColor(Data.Categories.FieldByName('COLOR').AsString)
               else Event.Color:=clNone;
               Event.Changed:=False;
+              if (DataSet.Users.Count=0) or (FieldByName('CREATEDBY').AsString=Data.Users.FieldByName('IDCODE').AsString) then
+                Event.UserField9 := 'ok'
+              else
+                Event.UserField9 := 'readonly';
               Event.Loading := false;
             end;
           Next;

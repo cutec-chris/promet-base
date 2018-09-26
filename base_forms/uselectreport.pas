@@ -165,6 +165,7 @@ resourcestring
   strPrintBook                  = 'Ausgabe+Buchen';
   strPostingFailed              = 'Fehler beim Buchen !';
   strMeeting                    = 'Besprechung';
+  strNoPreview                  = 'keine Vorschau';
 procedure TfSelectReport.bCloseClick(Sender: TObject);
 begin
   Close;
@@ -800,6 +801,7 @@ var
   i: Integer;
 begin
   if not Visible then exit;
+  Panel1.Caption:=strNoPreview;
   IdleTimer1.Enabled:=False;
   if not Supports(Application, IBaseApplication, BaseApplication) then exit;
   Screen.Cursor:=crHourglass;
@@ -835,13 +837,15 @@ begin
              if Report.PrepareReport then
                begin
                  with BaseApplication as IBaseApplication do
-                   aFile := GetInternalTempDir+ValidateFileName(BuildText(Report.Title,FDS))+'.png';
+                   aFile := GetInternalTempDir+ValidateFileName(Report.Title)+'.png';
                  {$IF ((LCL_MAJOR >= 1) and (LCL_MINOR > 5))}
                  Report.ExportTo(ExportFilters[i].ClassRef,aFile);
                  {$ELSE}
                  Report.ExportTo(frFilters[i].ClassRef,aFile);
                  {$ENDIF}
                  Image1.Picture.LoadFromFile(aFile);
+                 Panel1.Caption:='';
+                 DeleteFile(aFile);
                end;
              if Assigned(DataSet) then
                DataSet.DataSet.EnableControls;
@@ -890,9 +894,10 @@ var
   i: Integer;
 begin
   Result := aText;
-  for i := 0 to DataSet.DataSet.FieldCount-1 do
-    if pos('@'+DataSet.DataSet.FieldDefs[i].Name+'@',Result)>0 then
-      Result := StringReplace(Result,'@'+DataSet.DataSet.FieldDefs[i].Name+'@',DataSet.FieldByName(DataSet.DataSet.FieldDefs[i].Name).AsString,[rfReplaceAll]);
+  if DataSet.Active then
+    for i := 0 to DataSet.DataSet.FieldCount-1 do
+      if pos('@'+DataSet.DataSet.FieldDefs[i].Name+'@',Result)>0 then
+        Result := StringReplace(Result,'@'+DataSet.DataSet.FieldDefs[i].Name+'@',DataSet.FieldByName(DataSet.DataSet.FieldDefs[i].Name).AsString,[rfReplaceAll]);
 end;
 
 procedure TfSelectReport.SetReport(const AValue: TfrReport);

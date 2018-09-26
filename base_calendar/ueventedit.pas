@@ -72,11 +72,11 @@ type
     NotesMemo: TMemo;
     Panel1: TPanel;
     Panel4: TPanel;
-    Panel6: TPanel;
-    Panel7: TPanel;
+    pDesc: TPanel;
+    pWhere: TPanel;
     lMessage: TLabel;
     FileDialog: TOpenDialog;
-    Panel8: TPanel;
+    pAlarm: TPanel;
     Panel9: TPanel;
     pgEvent: TPageControl;
     PHistory: TfrDBDataSet;
@@ -97,7 +97,7 @@ type
     ToolButton2: TBitBtn;
     tsNotes: TTabSheet;
     ToolBar1: TPanel;
-    ToolBar2: TPanel;
+    tbEdits: TPanel;
     Users: TDatasource;
     procedure acDeleteExecute(Sender: TObject);
     procedure acRightsExecute(Sender: TObject);
@@ -273,8 +273,15 @@ begin
 end;
 
 procedure TfEventEdit.SetRights;
+var
+  Editable: Boolean;
 begin
-
+  Editable := Event.UserField9<>'readonly';
+  pDesc.Enabled:=Editable;
+  pWhere.Enabled:=Editable;
+  pAlarm.Enabled:=Editable;
+  NotesMemo.ReadOnly:=not Editable;
+  tbEdits.Enabled:=Editable;
 end;
 
 procedure TfEventEdit.PopLists;

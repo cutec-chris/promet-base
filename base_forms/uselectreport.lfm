@@ -538,7 +538,6 @@ object fSelectReport: TfSelectReport
     Top = 8
     Width = 498
     BevelOuter = bvLowered
-    Caption = 'keine Vorschau'
     ClientHeight = 709
     ClientWidth = 498
     Color = clWhite
