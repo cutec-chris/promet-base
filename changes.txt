@@ -1,5 +1,6 @@
 ﻿Build 440 (nicht veröffentlicht)
       - Recht "View" wird korrekt beachtet (Benutzer darf Einträge sehen hat aber selbst keinen Menüeintrag dafür und kann nicht sehen welche Einträge dieser Art es gibt bzw suchen)
+      - geteilte Kalendereinträge werden von nicht-Erstellern read-only geöffnet
 Build 439 (13.07.2018)
       - mehrere Authentifizierungsquellen möglich
       - LDAP/Active Directory Login möglich
