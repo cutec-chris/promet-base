@@ -411,12 +411,12 @@ begin
             Add('TYPE',ftString,3,True);
             Add('TITLE',ftString,8,False);
             Add('NAME',ftString,200,false);
-            Add('CNAME',ftString,30,false);
+            Add('CNAME',ftString,40,false);
             Add('ADDITIONAL',ftString,200,False);
             Add('ADDRESS',ftMemo,0,False);
-            Add('CITY',ftString,30,False);
-            Add('ZIP',ftString,8,False);
-            Add('STATE',ftString,30,False);
+            Add('CITY',ftString,40,False);
+            Add('ZIP',ftString,10,False);
+            Add('STATE',ftString,50,False);
             Add('COUNTRY',ftString,3,False);
             Add('POBOX',ftInteger,0,False);
           end;
