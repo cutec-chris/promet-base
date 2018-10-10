@@ -627,8 +627,8 @@ begin
   while i > 0 do
     begin
       tmp := trim(Addr[i]);
-      tmp1 := copy(tmp,pos(' ',tmp)+1,length(tmp));
-      if length(tmp1)>3 then
+      tmp1 := copy(tmp,0,pos(' ',tmp)-1);
+      if (length(tmp1)>3) then
         begin
           DataSet.FieldByName('ZIP').AsString := copy(trim(tmp),0,pos(' ',trim(tmp))-1);
           DataSet.FieldByName('CITY').AsString := copy(trim(tmp),pos(' ',trim(tmp))+1,length(trim(tmp)));
@@ -637,6 +637,8 @@ begin
         end
       else if (CountPos(' ',tmp) = 2) or (CountPos(' ',tmp) = 3) then
         begin
+          DataSet.FieldByName('COUNTRY').AsString := tmp1;
+          tmp1 := copy(tmp,pos(' ',tmp)+1,length(tmp));
           DataSet.FieldByName('ZIP').AsString := copy(tmp1,0,pos(' ',tmp1)-1);
           tmp := copy(tmp,pos(DataSet.FieldByName('ZIP').AsString,tmp)+length(DataSet.FieldByName('ZIP').AsString)+1,length(tmp));
           DataSet.FieldByName('CITY').AsString := tmp;
