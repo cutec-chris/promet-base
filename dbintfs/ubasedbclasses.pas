@@ -479,7 +479,7 @@ type
 var ImportAble : TClassList;
 implementation
 uses uBaseDBInterface, uBaseApplication, uBaseSearch,XMLRead,XMLWrite,Utils,
-  md5,sha1,uData,uthumbnails,base64,uMeasurement,usync,ldapsend;
+  md5,sha1,uData,uthumbnails,base64,uMeasurement,usync,ldapsend,uimpvcal;
 resourcestring
   strNumbersetDontExists        = 'Nummernkreis "%s" existiert nicht !';
   strNumbersetEmpty             = 'Nummernkreis "%s" ist leer !';
@@ -1880,6 +1880,8 @@ var
                         begin
                           if TJSONObject(TJSONObject(aNode).Items[i]).Items[a].IsNull then
                             aField.Clear
+                          else if aField.DataType = ftDateTime then
+                            aField.AsDateTime:=ConvertISODate(TJSONObject(TJSONObject(aNode).Items[i]).Items[a].AsString)
                           else
                             aField.AsString:=TJSONObject(TJSONObject(aNode).Items[i]).Items[a].AsString;
                         end
