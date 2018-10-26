@@ -1562,6 +1562,7 @@ begin
             Add('GPRIORITY',ftLargeint,0,False);
             Add('LPRIORITY',ftInteger,0,False);
             Add('PLANTIME',ftFloat,0,False); //geplante Zeit
+            Add('PLANCOSTS',ftFloat,0,False);
             Add('TIME',ftFloat,0,False);     //benötigte Zeit
             Add('BUFFERTIME',ftFloat,0,False);//Wartezeit (wann darf nächste Aufgabe frühestens starten)
             Add('PLANTASK',ftString,1,False);
