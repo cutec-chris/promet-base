@@ -901,7 +901,7 @@ begin
             Add('ACCOUNTNO',ftString,20,True);
             Add('MATCHCODE',ftString,200,False);
             Add('STATUS',ftString,4,false);
-            Add('NAME',ftString,200,False);
+            Add('NAME',ftString,200,True);
             Add('TREEENTRY',ftLargeInt,0,True);
             Add('DISCOUNT',ftFloat,0,False);
             Add('DISCOUNTGR',ftString,2,False);
