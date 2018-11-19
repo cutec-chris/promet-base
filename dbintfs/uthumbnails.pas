@@ -249,6 +249,7 @@ Redo:
               if reader is TFPReaderJPEG then
                 begin
                 end;
+              Result := True;
             except
               begin
                 if aOrigName<>'' then
