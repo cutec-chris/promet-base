@@ -365,7 +365,10 @@ procedure TfArticleFrame.cbVersionSelect(Sender: TObject);
 var
   aId: String;
   aLanguage : Variant;
+  sOldPage: TCaption;
+  i: Integer;
 begin
+  sOldPage := pcPages.ActivePage.Caption;
   aId := TMasterdata(DataSet).Number.AsString;
   aLanguage := TMasterdata(DataSet).Language.AsVariant;
   CloseConnection;
@@ -388,6 +391,12 @@ begin
         end;
     end;
   DoOpen(False);
+  for i := 0 to pcPages.PageCount-1 do
+    if pcPages.Pages[i].Caption = sOldPage then
+      begin
+        pcPages.ActivePage := pcPages.Pages[i];
+        break;
+      end;
   DataSet.DataSet.EnableControls;
   Screen.Cursor:=crDefault;
 end;
@@ -702,8 +711,9 @@ begin
           aDocFrame.DataSet := aDocuments;
           aDocFrame.BaseElement := FDataSet;
         end;
-    end;
-
+    end
+  else
+    pcPages.EnableMenu(strFiles);
   TMasterdata(DataSet).Properties.Open;
   pcPages.NewFrame(TfListFrame,(FDataSet.State = dsInsert) or (TMasterdata(DataSet).Properties.Count > 0),strProperties,@AddList,False,strProperties);
 
