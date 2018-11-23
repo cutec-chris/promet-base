@@ -703,7 +703,10 @@ begin
       aDocuments.Select(DataSet.Id.AsLargeInt,GetType,DataSet.FieldByName('ID').AsString,DataSet.FieldByName('VERSION').AsVariant,DataSet.FieldByName('LANGUAGE').AsVariant);
       aDocuments.Open;
       if aDocuments.Count = 0 then
-        aDocuments.Free
+        begin
+          aDocuments.Free;
+          pcPages.EnableMenu(strFiles);
+        end
       else
         begin
           aDocFrame := TfDocumentFrame.Create(Self);
@@ -724,9 +727,11 @@ begin
   TMasterdata(DataSet).Supplier.Open;
   pcPages.NewFrame(TfArticleSupplierFrame,TMasterdata(DataSet).Supplier.Count > 0,strSupplier,@AddSupplier);
 
-  TMasterdata(DataSet).History.Open;
-  pcPages.NewFrame(TfHistoryFrame,TMasterdata(DataSet).History.Count > 0,strHistory,@AddHistory);
-
+  if RefreshVersions then
+    begin
+      TMasterdata(DataSet).History.Open;
+      pcPages.NewFrame(TfHistoryFrame,TMasterdata(DataSet).History.Count > 0,strHistory,@AddHistory);
+    end;
   pcPages.AddTabClass(TfMeasurementFrame,strMeasurement,@AddMeasurement);
   if not Reopen then
     begin
