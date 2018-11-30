@@ -2092,7 +2092,7 @@ begin
             Add('STORAGE',ftString,3,False);
             Add('CURRENCY',ftString,5,False);
             Add('PAYMENTTAR',ftString,2,False);
-            Add('PID',ftString,50,False);                   //Produktid wird mit Artikeln befüllt die hinzugefügt werden beim Produktionsauftrag = zu Fertigender Artikel
+            Add('PID',ftString,250,False);                   //Produktid wird mit Artikeln befüllt die hinzugefügt werden beim Produktionsauftrag = zu Fertigender Artikel
             Add('PVERSION',ftString,8,False);               //Version des zu fertigen Artikels
             Add('PLANGUAGE',ftString,4,False);              //Sprache des zu fertigen Artikels
             Add('PQUATITY',ftFloat,0,False);                //Fertigungsmenge
