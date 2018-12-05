@@ -341,15 +341,18 @@ begin
       PageName := (StringReplace(aLink,' ','_',[rfReplaceAll]));
       for i := 0 to FVariables.Count-1 do
         pageName := StringReplace(PageName,'@VARIABLES.'+FVariables.Names[i]+'@',FVariables.ValueFromIndex[i],[rfReplaceAll,rfIgnoreCase]);
-      if OpenWikiPage(PageName) or OpenWikiPage(lowercase(PageName)) then
-      else if (pos('@',PageName)>0) and Data.GotoLink(PageName) then
-        begin
-        end
-      else if ((Pos('://', aLink) > 0) or (pos('www',lowercase(aLink)) > 0)) then
+      if ((Pos('://', aLink) > 0) or (pos('www.',lowercase(aLink)) > 0)) then
         OpenURL(aLink)
-      else if (pos('@',PageName) = 0) and FEditable then
+      else
         begin
-          OpenWikiPage(PageName,True);
+          if OpenWikiPage(PageName) or OpenWikiPage(lowercase(PageName)) then
+          else if (pos('@',PageName)>0) and Data.GotoLink(PageName) then
+            begin
+            end
+          else if (pos('@',PageName) = 0) and FEditable then
+            begin
+              OpenWikiPage(PageName,True);
+            end;
         end;
     end;
 end;

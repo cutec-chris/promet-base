@@ -863,12 +863,15 @@ begin
       PageName := StringReplace(aLink,'\','/',[rfReplaceAll]);
       for i := 0 to FVariables.Count-1 do
         pageName := StringReplace(PageName,'@VARIABLES.'+FVariables.Names[i]+'@',FVariables.ValueFromIndex[i],[rfReplaceAll,rfIgnoreCase]);
-      if Data.GotoLink('WIKI@'+PageName) then
-      else if (pos('@',PageName)>0) and Data.GotoLink(PageName) then
+      if ((Pos('://', aLink) > 0) or (pos('www.',lowercase(aLink)) > 0)) then
+        OpenURL(aLink)
+      else
         begin
-        end
-      else if ((Pos('://', aLink) > 0) or (pos('www',lowercase(aLink)) > 0)) then
-        OpenURL(aLink);
+          if Data.GotoLink('WIKI@'+PageName) then
+          else if (pos('@',PageName)>0) and Data.GotoLink(PageName) then
+            begin
+            end
+        end;
     end;
 end;
 
