@@ -1600,19 +1600,26 @@ begin
         for i := 0 to GetCount-1 do
           begin
             WasOpen := TBaseDBDataSet(SubDataSet[i]).Active;
-            TBaseDBDataSet(SubDataSet[i]).Open;
-            TBaseDBDataSet(SubDataSet[i]).First;
-            if not TBaseDBDataSet(SubDataSet[i]).EOF then
+            if WasOpen
+            and (TBaseDBDataSet(SubDataSet[i]).TableName<>'TASKSNAPSHOTS')
+            and (TBaseDBDataSet(SubDataSet[i]).TableName<>'TASKWORKFLOW')
+            and (not ((AObject.TableName='TASKS') and (TBaseDBDataSet(SubDataSet[i]).TableName='HISTORY')))
+            then
               begin
-                aArray := TJSONArray.Create;
-                while not TBaseDBDataSet(SubDataSet[i]).EOF do
+                TBaseDBDataSet(SubDataSet[i]).Open;
+                TBaseDBDataSet(SubDataSet[i]).First;
+                if not TBaseDBDataSet(SubDataSet[i]).EOF then
                   begin
-                    aNewObj := TJSONObject.Create;
-                    ObjectToJSON(TBaseDBDataSet(SubDataSet[i]),aNewObj,ADateAsString,mode);
-                    aArray.Add(aNewObj);
-                    TBaseDBDataSet(SubDataSet[i]).Next;
+                    aArray := TJSONArray.Create;
+                    while not TBaseDBDataSet(SubDataSet[i]).EOF do
+                      begin
+                        aNewObj := TJSONObject.Create;
+                        ObjectToJSON(TBaseDBDataSet(SubDataSet[i]),aNewObj,ADateAsString,mode);
+                        aArray.Add(aNewObj);
+                        TBaseDBDataSet(SubDataSet[i]).Next;
+                      end;
+                    AJSON.Add(TBaseDBDataSet(SubDataSet[i]).TableName,aArray);
                   end;
-                AJSON.Add(TBaseDBDataSet(SubDataSet[i]).TableName,aArray);
               end;
             if not WasOpen then
               TBaseDBDataSet(SubDataSet[i]).Close;
@@ -1626,27 +1633,34 @@ begin
         for i := 0 to GetCount-1 do
           begin
             WasOpen := TBaseDBDataSet(SubDataSet[i]).Active;
-            TBaseDBDataSet(SubDataSet[i]).Open;
-            TBaseDBDataSet(SubDataSet[i]).First;
-            aSubObj := TJSONObject.Create;
-            aArray := TJSONArray.Create;
-            MetadataToJSON(TBaseDBDataSet(SubDataSet[i]).DataSet,aArray);
-            aMetadata := TJSONObject.Create();
-            aMetadata.Add('fields',aArray);
-            aSubObj.Add('Metadata',aMetadata);
-            aArray := TJSONArray.Create;
-            if not TBaseDBDataSet(SubDataSet[i]).EOF then
+            if WasOpen
+            and (TBaseDBDataSet(SubDataSet[i]).TableName<>'TASKSNAPSHOTS')
+            and (TBaseDBDataSet(SubDataSet[i]).TableName<>'TASKWORKFLOW')
+            and (not ((AObject.TableName='TASKS') and (TBaseDBDataSet(SubDataSet[i]).TableName='HISTORY')))
+            then
               begin
-                while not TBaseDBDataSet(SubDataSet[i]).EOF do
+                TBaseDBDataSet(SubDataSet[i]).Open;
+                TBaseDBDataSet(SubDataSet[i]).First;
+                aSubObj := TJSONObject.Create;
+                aArray := TJSONArray.Create;
+                MetadataToJSON(TBaseDBDataSet(SubDataSet[i]).DataSet,aArray);
+                aMetadata := TJSONObject.Create();
+                aMetadata.Add('fields',aArray);
+                aSubObj.Add('Metadata',aMetadata);
+                aArray := TJSONArray.Create;
+                if not TBaseDBDataSet(SubDataSet[i]).EOF then
                   begin
-                    aNewObj := TJSONObject.Create;
-                    ObjectToJSON(TBaseDBDataSet(SubDataSet[i]),aNewObj,ADateAsString,mode);
-                    aArray.Add(aNewObj);
-                    TBaseDBDataSet(SubDataSet[i]).Next;
+                    while not TBaseDBDataSet(SubDataSet[i]).EOF do
+                      begin
+                        aNewObj := TJSONObject.Create;
+                        ObjectToJSON(TBaseDBDataSet(SubDataSet[i]),aNewObj,ADateAsString,mode);
+                        aArray.Add(aNewObj);
+                        TBaseDBDataSet(SubDataSet[i]).Next;
+                      end;
                   end;
+                aSubObj.Add('Data',aArray);
+                AJSON.Add(TBaseDBDataSet(SubDataSet[i]).TableName,aSubObj);
               end;
-            aSubObj.Add('Data',aArray);
-            AJSON.Add(TBaseDBDataSet(SubDataSet[i]).TableName,aSubObj);
             if not WasOpen then
               TBaseDBDataSet(SubDataSet[i]).Close;
           end;
