@@ -34,6 +34,7 @@ type
     acIgnore: TAction;
     acRefresh: TAction;
     acShowAll: TAction;
+    acEditTags: TAction;
     ActionList1: TActionList;
     Bevel1: TBevel;
     Bevel2: TBevel;
@@ -53,10 +54,12 @@ type
     SpeedButton2: TSpeedButton;
     SpeedButton3: TSpeedButton;
     SpeedButton4: TSpeedButton;
+    SpeedButton5: TSpeedButton;
     procedure aButtonClick(Sender: TObject);
     procedure acAddExecute(Sender: TObject);
     procedure acAddLinkedExecute(Sender: TObject);
     procedure acDeleteExecute(Sender: TObject);
+    procedure acEditTagsExecute(Sender: TObject);
     procedure acIgnoreExecute(Sender: TObject);
     procedure acRefreshExecute(Sender: TObject);
     procedure acShowAllExecute(Sender: TObject);
@@ -123,7 +126,7 @@ const
                              RightToLeft:False);
 implementation
 uses uBaseVisualControls,uData,uBaseDbInterface,uHistoryAddItem,
-  uBaseERPDBClasses,uBaseVisualApplication,wikitohtml,uColors;
+  uBaseERPDBClasses,uBaseVisualApplication,wikitohtml,uColors,utageditorform;
 {$R *.lfm}
 resourcestring
   strHistory0                              = 'bearbeitet';
@@ -380,6 +383,14 @@ end;
 procedure TfHistoryFrame.acDeleteExecute(Sender: TObject);
 begin
   FTimeLine.Delete;
+end;
+
+procedure TfHistoryFrame.acEditTagsExecute(Sender: TObject);
+begin
+  if fTagEditor.execute then
+    begin
+
+    end;
 end;
 
 procedure TfHistoryFrame.acIgnoreExecute(Sender: TObject);

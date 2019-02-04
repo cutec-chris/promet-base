@@ -4,13 +4,12 @@
 
 unit pvisualframes;
 
-{$warn 5023 off : no warning about unused units}
 interface
 
 uses
   uHistoryFrame, uFilterFrame, uhistoryadditem, uListFrame, uclipp, 
   uLinkFrame, uImageFrame, uMainTreeFrame, uPrometFrames, umeasurements, 
-  uMeasurementOptions, uBoilerplate;
+  uMeasurementOptions, uBoilerplate, utageditorform;
 
 implementation
 

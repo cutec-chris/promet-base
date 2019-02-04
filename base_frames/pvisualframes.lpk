@@ -10,7 +10,7 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="23">
+    <Files Count="24">
       <Item1>
         <Filename Value="uhistoryframe.lfm"/>
         <Type Value="LFM"/>
@@ -103,17 +103,25 @@
         <Filename Value="uboilerplate.pas"/>
         <UnitName Value="uBoilerplate"/>
       </Item23>
+      <Item24>
+        <Filename Value="utageditorform.pas"/>
+        <UnitName Value="utageditorform"/>
+      </Item24>
     </Files>
     <i18n>
       <EnableI18N Value="True"/>
       <OutDir Value="..\..\..\languages"/>
       <EnableI18NForLFM Value="True"/>
     </i18n>
-    <RequiredPkgs Count="1">
+    <RequiredPkgs Count="2">
       <Item1>
+        <PackageName Value="tag_editor"/>
+        <DefaultFilename Value="..\..\components\tag_editor\tag_editor.lpk"/>
+      </Item1>
+      <Item2>
         <PackageName Value="phelp"/>
         <DefaultFilename Value="..\base_help\phelp.lpk"/>
-      </Item1>
+      </Item2>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

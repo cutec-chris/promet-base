@@ -1191,25 +1191,25 @@ var
   aFilter: TStringList;
   i: Integer;
 begin
-  if Visible then
-    begin
-      fRowEditor.GetGridSizes('FILTER'+FFilterType,List,gList,FDefaultRows,not FEditable,cbFilter.Text);
-      aFilter := TStringList.Create;
-      for i := 1 to gHeader.Columns.Count do
-        aFilter.Add(gHeader.Cells[i,1]);
-      gHeader.Columns.Assign(gList.Columns);
-      for i := 1 to gHeader.Columns.Count do
-        begin
-          if aFilter.Count >= i then
-            gHeader.Cells[i,1] := aFilter[i-1]
-          else
-            gHeader.Cells[i,1] := '';
-        end;
-      FAutoFilter := BuildAutoFilter(gList,gHeader);
-      aFilter.Free;
-      UpdateTitle;
-    end;
   try
+    if Visible then
+      begin
+        fRowEditor.GetGridSizes('FILTER'+FFilterType,List,gList,FDefaultRows,not FEditable,cbFilter.Text);
+        aFilter := TStringList.Create;
+        for i := 1 to gHeader.Columns.Count do
+          aFilter.Add(gHeader.Cells[i,1]);
+        gHeader.Columns.Assign(gList.Columns);
+        for i := 1 to gHeader.Columns.Count do
+          begin
+            if aFilter.Count >= i then
+              gHeader.Cells[i,1] := aFilter[i-1]
+            else
+              gHeader.Cells[i,1] := '';
+          end;
+        FAutoFilter := BuildAutoFilter(gList,gHeader);
+        aFilter.Free;
+        UpdateTitle;
+      end;
     if gList.CanFocus and gList.IsControlVisible then
       gList.SetFocus;
   except
