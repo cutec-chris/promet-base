@@ -387,9 +387,18 @@ end;
 
 procedure TfHistoryFrame.acEditTagsExecute(Sender: TObject);
 begin
-  if fTagEditor.execute then
+  if FTimeLine.GotoActiveRow then
     begin
-
+      with DataSet.DataSet as IBaseManageDB do
+        UpdateStdFields := False;
+      DataSet.Edit;
+      if fTagEditor.execute(DataSet.FieldByName('TAGS').AsString) then
+        begin
+          DataSet.FieldByName('TAGS').AsString:=fTagEditor.FEditor.Tags.Text;
+        end;
+      DataSet.Post;
+      with DataSet.DataSet as IBaseManageDB do
+        UpdateStdFields := True;
     end;
 end;
 

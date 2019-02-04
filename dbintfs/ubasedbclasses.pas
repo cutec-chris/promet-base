@@ -2131,7 +2131,10 @@ begin
       with DataSet as IBaseManageDB do
         UseIntegrity:=False;
       with DataSet as IBaseDBFilter do
-        Limit := 50;
+        begin
+          Limit := 50;
+          SortFields:='DATE';
+        end;
     end;
 end;
 procedure TBaseHistory.SetDisplayLabels(aDataSet: TDataSet);

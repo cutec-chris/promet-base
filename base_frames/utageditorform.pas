@@ -16,11 +16,12 @@ type
     ButtonPanel1: TButtonPanel;
     FEditor: TTagEditor;
     procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     { private declarations }
   public
     { public declarations }
-    function Execute : Boolean;
+    function Execute(aTags : string = '') : Boolean;
   end;
 
 var
@@ -36,18 +37,26 @@ procedure TfTagEditor.FormCreate(Sender: TObject);
 begin
   FEditor := TTagEditor.Create(Self);
   FEditor.Parent := Self;
-  FEditor.Align:=alTop;
-  FEditor.AutoHeight:=True;
+  FEditor.Align:=alClient;
+  FEditor.Visible:=True;
+  FEditor.MultiLine:=True;
+  FEditor.BorderStyle:=bsNone;
   FEditor.Show;
 end;
 
-function TfTagEditor.Execute: Boolean;
+procedure TfTagEditor.FormShow(Sender: TObject);
+begin
+  FEditor.SetFocus;
+end;
+
+function TfTagEditor.Execute(aTags: string): Boolean;
 begin
   if not Assigned(fTagEditor) then
     begin
       fTagEditor := TfTagEditor.Create(Application);
       Self := fTagEditor;
     end;
+  FEditor.Tags.Text:=aTags;
   Result := ShowModal = mrOK;
 end;
 
