@@ -1394,10 +1394,13 @@ begin
     begin
       while (PrepareOutput.Count>0) and (copy(PrepareOutput[PrepareOutput.Count-1],0,15)<>'<img src="ICON(') do
         PrepareOutput.Delete(PrepareOutput.Count-1);
-      aTxt := PrepareOutput[PrepareOutput.Count-1];
+      if PrepareOutput.Count>0 then
+        aTxt := PrepareOutput[PrepareOutput.Count-1]
+      else aTxt := '';
       aTxt := copy(aTxt,pos('<i>',aTxt)+3,length(aTxt));
       aTxt := copy(aTxt,0,pos('</i>',aTxt)-1);
-      PrepareOutput.Delete(PrepareOutput.Count-1);
+      if PrepareOutput.Count>0 then
+        PrepareOutput.Delete(PrepareOutput.Count-1);
       PrepareOutput.Add('<img src="ICON(75)"></img><b><span>'+aTxt+'</span> -> '+copy(s,9,length(s))+'</b><br>')
     end
   else PrepareOutput.Add(s);
