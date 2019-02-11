@@ -23,7 +23,7 @@ uses
   Classes, SysUtils, FileUtil, LR_DBSet, LR_Class, Forms, Controls, ExtCtrls,
   ActnList, ComCtrls, StdCtrls, DbCtrls, Buttons, Menus, db, uPrometFrames,
   uExtControls, uFilterFrame, uIntfStrConsts, Utils, Dialogs, variants,
-  uBaseDbClasses,uBaseDatasetInterfaces;
+  uBaseDbClasses,uBaseDatasetInterfaces,TagEditor;
 type
 
   { TfArticleFrame }
@@ -77,7 +77,6 @@ type
     eArticleNumber: TDBEdit;
     eBarcode: TDBEdit;
     eManufacturerNR: TDBEdit;
-    eMatchCode: TDBEdit;
     eRepairTime: TDBEdit;
     eUnit: TDBEdit;
     eWeight: TExtDBEdit;
@@ -85,6 +84,7 @@ type
     History: TDatasource;
     iArticle: TImage;
     Image3: TImage;
+    FTagEditor: TTagEditor;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
@@ -118,6 +118,7 @@ type
     miPaste: TMenuItem;
     miStartTimeregistering: TMenuItem;
     mShortText: TDBMemo;
+    pTags: TPanel;
     Panel4: TPanel;
     Panel6: TPanel;
     Panel7: TPanel;
@@ -162,6 +163,7 @@ type
     procedure cbStatusSelect(Sender: TObject);
     procedure cbVersionExit(Sender: TObject);
     procedure cbVersionSelect(Sender: TObject);
+    procedure FTagEditorChange(Sender: TObject);
     procedure MasterdataStateChange(Sender: TObject);
     procedure mShortTextChange(Sender: TObject);
     procedure mShortTextExit(Sender: TObject);
@@ -401,26 +403,22 @@ begin
   Screen.Cursor:=crDefault;
 end;
 
+procedure TfArticleFrame.FTagEditorChange(Sender: TObject);
+begin
+  if not DataSet.CanEdit then
+    DataSet.Edit;
+  DataSet.FieldByName('MATCHCODE').AsString:=FTagEditor.Tags.Text;
+end;
+
 procedure TfArticleFrame.MasterdataStateChange(Sender: TObject);
 begin
   acSave.Enabled := DataSet.CanEdit or DataSet.Changed;
   acCancel.Enabled:= DataSet.CanEdit or DataSet.Changed;
 end;
 procedure TfArticleFrame.mShortTextChange(Sender: TObject);
-var
-  tmp: AnsiString;
 begin
   if mShortText.Lines.Count > 0 then
     TabCaption := mShortText.Lines[0];
-  tmp := StringReplace(UpperCase(StringReplace(ValidateFileName(mShorttext.Text),'_','',[rfReplaceAll])),' ','',[rfReplaceAll]);
-  tmp := StringReplace(tmp,'-','',[rfReplaceAll]);
-  if (copy(tmp,0,length(eMatchCode.Text)) = eMatchCode.Text)
-  or ((length(tmp) < length(eMatchCode.text)) and (copy(eMatchCode.Text,0,length(tmp)) = tmp)) then
-    if Assigned(eMatchCode.Field) then
-      begin
-        tmp := copy(tmp,0,eMatchCode.Field.Size);
-        eMatchCode.Text := tmp;
-      end;
   acSave.Enabled := DataSet.CanEdit or DataSet.Changed;
   acCancel.Enabled:= DataSet.CanEdit or DataSet.Changed;
 end;
@@ -643,6 +641,7 @@ begin
         end;
     end;
 
+  FTagEditor.Tags.Text := DataSet.FieldByName('MATCHCODE').AsString;
   aType := GetType;
   cbStatus.Items.Clear;
   if not Data.States.DataSet.Locate('TYPE;STATUS',VarArrayOf([aType,FDataSet.FieldByName('STATUS').AsString]),[loCaseInsensitive]) then
@@ -1021,6 +1020,12 @@ begin
   {$ifdef DARWIN}
   cbStatus.Style:=csDropdown;
   {$endif}
+  FTagEditor := TTagEditor.Create(Self);
+  FTagEditor.Parent := pTags;
+  FTagEditor.Align:=alClient;
+  FTagEditor.MultiLine:=True;
+  FTagEditor.BorderStyle:=bsNone;
+  FTagEditor.OnChange:=@FTagEditorChange;
 end;
 destructor TfArticleFrame.Destroy;
 begin

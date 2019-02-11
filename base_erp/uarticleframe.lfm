@@ -140,26 +140,13 @@ inherited fArticleFrame: TfArticleFrame
       ParentColor = False
     end
     object lMatchCode: TLabel
-      Left = 282
+      Left = 216
       Height = 15
       Top = 0
-      Width = 61
+      Width = 103
       Anchors = [akTop, akRight]
-      Caption = 'Suchbegriff'
+      Caption = 'Suchbegriffe (Tags)'
       ParentColor = False
-    end
-    object eMatchCode: TDBEdit
-      Left = 282
-      Height = 23
-      Hint = 'Hier können Sie einen Suchbegriff angeben, '#13#10'um den Eintrag besser zu finden'
-      Top = 21
-      Width = 119
-      DataField = 'MATCHCODE'
-      DataSource = Masterdata
-      Anchors = [akTop, akRight]
-      CharCase = ecUppercase
-      MaxLength = 0
-      TabOrder = 1
     end
     object gbTree: TGroupBox
       Left = 409
@@ -199,13 +186,13 @@ inherited fArticleFrame: TfArticleFrame
       Height = 36
       Hint = 'Der Kurztext des Eintrags'
       Top = 21
-      Width = 217
+      Width = 152
       Anchors = [akTop, akLeft, akRight]
       DataField = 'SHORTTEXT'
       DataSource = Masterdata
       OnChange = mShortTextChange
       OnExit = mShortTextExit
-      TabOrder = 2
+      TabOrder = 1
     end
     object lShortText: TLabel
       Left = 56
@@ -227,6 +214,15 @@ inherited fArticleFrame: TfArticleFrame
       ItemHeight = 15
       MaxLength = 0
       Sorted = True
+      TabOrder = 2
+    end
+    object pTags: TPanel
+      Left = 216
+      Height = 41
+      Top = 16
+      Width = 192
+      Anchors = [akTop, akRight]
+      BevelOuter = bvNone
       TabOrder = 3
     end
   end
