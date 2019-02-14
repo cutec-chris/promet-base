@@ -80,6 +80,8 @@ type
     DBTables : TBaseDBTables;
     ActiveUsers : TActiveUsers;
     Numbers : TNumberSets;
+    NumberPools: TNumberPools;
+    NumberRanges: TNumberRanges;
     MandantDetails : TMandantDetails;
     Tree : TTree;
     Forms : TForms;
@@ -386,6 +388,8 @@ begin
       DBTables :=  TBaseDBTables.CreateEx(nil,Self);
       FUsers := TUser.CreateEx(nil,Self);
       Numbers := TNumberSets.CreateEx(nil,Self);
+      NumberPools := TNumberPools.CreateEx(nil,Self);
+      NumberRanges := TNumberRanges.CreateEx(nil,Self);
       MandantDetails := TMandantDetails.CreateEx(nil,Self);
       Tree := TTree.CreateEx(nil,Self);
       Forms := TForms.CreateEx(nil,Self);

@@ -299,6 +299,20 @@ type
     function HasNumberSet(Numberset : string) : Boolean;
     destructor Destroy; override;
   end;
+
+  { TNumberRanges }
+
+  TNumberRanges = class(TBaseDBDataSet)
+  public
+    procedure DefineFields(aDataSet : TDataSet);override;
+  end;
+
+  { TNumberPools }
+
+  TNumberPools = class(TBaseDBDataSet)
+  public
+    procedure DefineFields(aDataSet : TDataSet);override;
+  end;
   TPayGroups = class(TBaseDBDataSet)
   public
     procedure DefineFields(aDataSet : TDataSet);override;
@@ -581,6 +595,45 @@ resourcestring
   strAvalible                   = 'Verfügbar';
   strNeedsAction                = 'benötigt Hilfe';
   strCostCentre                 = 'Kostenstelle';
+
+{ TNumberPools }
+
+procedure TNumberPools.DefineFields(aDataSet: TDataSet);
+begin
+  with aDataSet as IBaseManageDB do
+    begin
+      TableName := 'NUMBERPOOLS';
+      if Assigned(ManagedFieldDefs) then
+        with ManagedFieldDefs do
+          begin
+            Add('NAME',ftString,25,True);//Numberset
+            Add('START',ftInteger,0,False);
+            Add('ACTUAL',ftInteger,0,False);
+            Add('STOP',ftInteger,0,False);
+          end;
+    end;
+end;
+
+{ TNumberRanges }
+
+procedure TNumberRanges.DefineFields(aDataSet: TDataSet);
+begin
+  with aDataSet as IBaseManageDB do
+    begin
+      TableName := 'NUMBERRANGES';
+      if Assigned(ManagedFieldDefs) then
+        with ManagedFieldDefs do
+          begin
+            Add('TABLENAME',ftString,25,True);//Numberset
+            Add('POOL',ftString,25,True);//NumberPool
+            Add('START',ftInteger,0,True);
+            Add('STOP',ftInteger,0,True);
+            Add('USE',ftString,200,False);
+            Add('NOTICE',ftmemo,0,False);
+            Add('CREATEDBY',ftString,4,False);
+          end;
+    end;
+end;
 
 { TAuthSources }
 
@@ -3056,6 +3109,7 @@ begin
             Add('INCR',ftInteger,0,False);
             Add('ACTUAL',ftInteger,0,False);
             Add('STOP',ftInteger,0,False);
+            Add('POOL',ftString,25,True);//NumberPool
           end;
     end;
 end;
