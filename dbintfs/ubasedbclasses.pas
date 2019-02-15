@@ -305,6 +305,10 @@ type
   TNumberRanges = class(TBaseDBDataSet)
   public
     procedure DefineFields(aDataSet : TDataSet);override;
+    function NewRangefromPool(aPool, aName: string; aCount: Integer; aUse,
+      aNotice: string): Boolean;
+    function NewRangewithoutPool(aName: string; aFrom, aCount: Integer; aUse,
+      aNotice: string; aPool: string=''): Boolean;
   end;
 
   { TNumberPools }
@@ -633,6 +637,45 @@ begin
             Add('CREATEDBY',ftString,4,False);
           end;
     end;
+end;
+
+function TNumberRanges.NewRangefromPool(aPool, aName: string;aCount : Integer; aUse,
+  aNotice: string): Boolean;
+begin
+  Data.NumberPools.Open;
+  Result := Data.NumberPools.Locate('NAME',aPool,[]);
+  if not Result then exit;
+  Result := NewRangewithoutPool(aName,Data.NumberPools.FieldByName('ACTUAL').AsInteger,aCount,aUse,aNotice,aPool);
+  if not Result then exit;
+  try
+    Data.NumberPools.Edit;
+    Data.NumberPools.FieldByName('ACTUAL').AsInteger:=Data.NumberPools.FieldByName('ACTUAL').AsInteger+aCount;
+    Data.NumberPools.Post;
+  except
+    Result := False;
+  end;
+end;
+
+function TNumberRanges.NewRangewithoutPool(aName: string; aFrom,
+  aCount: Integer; aUse, aNotice: string;aPool : string = ''): Boolean;
+begin
+  Result := False;
+  Filter(TBaseDBModule(DataModule).QuoteField('START')+'<'+IntToStr(aFrom)
++' AND '+TBaseDBModule(DataModule).QuoteField('STOP')+'>'+IntToStr(aFrom)
++' AND '+TBaseDBModule(DataModule).QuoteField('POOL')+'='+TBaseDBModule(DataModule).QuoteValue(aPool)
++' AND '+TBaseDBModule(DataModule).QuoteField('NAME')+'='+TBaseDBModule(DataModule).QuoteValue(aName)
+  );
+  if Count>0 then exit;//Start is already in an existing Range
+  Filter('');
+  Insert;
+  FieldByName('TABLENAME').AsString := aName;
+  FieldByName('POOL').AsString:=aPool;//NumberPool
+  FieldByName('START').AsInteger:=aFrom;
+  FieldByName('STOP').AsInteger:=aFrom+aCount;
+  FieldByName('USE').AsString := aUse;
+  FieldByName('NOTICE').AsString:=aNotice;
+  Post;
+  result := True;
 end;
 
 { TAuthSources }

@@ -117,6 +117,10 @@ procedure TUserPropertyFollowsR(Self: TUser; var T: TFollowers); begin T := Self
 procedure TUserPropertyOptionsR(Self: TUser; var T: TOptions); begin T := Self.Options; end;
 procedure TBaseDBDatasetPropertyDataSetR(Self: TBaseDBDataset; var T: TDataSet); begin T := Self.DataSet; end;
 procedure TBaseDBModulePropertyUsersR(Self: TBaseDBModule; var T: TUser); begin T := Self.Users; end;
+procedure TBaseDBModulePropertyNumbersR(Self: TBaseDBModule; var T: TNumbersets); begin T := Self.Numbers; end;
+procedure TBaseDBModulePropertyNumberPoolsR(Self: TBaseDBModule; var T: TNumberPools); begin T := Self.NumberPools; end;
+procedure TBaseDBModulePropertyNumberRangesR(Self: TBaseDBModule; var T: TNumberRanges); begin T := Self.NumberRanges; end;
+procedure TBaseDBModulePropertyPropertiesR(Self: TBaseDBModule; var T: string); begin T := Self.Properties; end;
 procedure TBaseDBDatasetPropertyCountR(Self: TBaseDBDataSet; var T: Integer); begin T := Self.Count; end;
 procedure TBaseDBDatasetPropertyCanEditR(Self: TBaseDBDataSet; var T: Boolean); begin T := Self.CanEdit; end;
 procedure TBaseDBDatasetPropertyActiveR(Self: TBaseDBDataSet; var T: Boolean); begin T := Self.Active; end;
@@ -189,6 +193,8 @@ begin
     begin
       Result := True;
       try
+        Sender.AddFunction(@Utils.SystemUserName,'function SystemUserName : string;');
+        Sender.AddFunction(@Utils.GetSystemName,'function GetSystemName : string;');
         Sender.InternalUses(Sender.Compiler,'DB');
         Sender.InternalUses(Sender.Compiler,'DATEUTILS');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalDataSet,'function DataSet(SQL : string) : TDataSet;');
@@ -627,6 +633,18 @@ begin
           begin
             RegisterConstructor(@TActiveUsers.Create,'CREATE');
           end;
+        with Sender.ClassImporter.Add(TNumbersets) do
+          begin
+            RegisterConstructor(@TNumbersets.Create,'CREATE');
+          end;
+        with Sender.ClassImporter.Add(TNumberPools) do
+          begin
+            RegisterConstructor(@TNumberPools.Create,'CREATE');
+          end;
+        with Sender.ClassImporter.Add(TNumberRanges) do
+          begin
+            RegisterConstructor(@TNumberRanges.Create,'CREATE');
+          end;
 
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TComponent'),TBaseDBModule) do
           begin
@@ -649,6 +667,12 @@ begin
             RegisterMethod('function DateTimeToFilter(aValue : TDateTime) : string;');
             RegisterMethod('function ProcessTerm(aTerm : string) : string;');
 
+            RegisterProperty('Properties','string',iptR);
+
+            RegisterProperty('Users','TUser',iptR);
+            RegisterProperty('Numbers','TNumberSets',iptR);
+            RegisterProperty('NumberPools','TNumberPools',iptR);
+            RegisterProperty('NumberRenges','TNumberRanges',iptR);
             RegisterProperty('Users','TUser',iptR);
           end;
         with Sender.ClassImporter.Add(TBaseDBModule) do
@@ -667,7 +691,12 @@ begin
             RegisterVirtualMethod(@TBaseDBModule.DateTimeToFilter, 'DATETIMETOFILTER');
             RegisterVirtualMethod(@TBaseDBModule.ProcessTerm, 'PROCESSTERM');
 
+            RegisterPropertyHelper(@TBaseDBModulePropertyPropertiesR,nil,'PROPERTIES');
+
             RegisterPropertyHelper(@TBaseDBModulePropertyUsersR,nil,'USERS');
+            RegisterPropertyHelper(@TBaseDBModulePropertyNumbersR,nil,'NUMBERS');
+            RegisterPropertyHelper(@TBaseDBModulePropertyNumberpoolsR,nil,'NUMBERPOOLS');
+            RegisterPropertyHelper(@TBaseDBModulePropertyNumberrangesR,nil,'NUMBERRANGES');
           end;
         Sender.AddMethod(Self,@TPrometPascalScript.InternalData,'function Data : TBaseDBModule');
       except
