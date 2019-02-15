@@ -641,7 +641,9 @@ begin
         end;
     end;
 
+  FTagEditor.OnChange:=nil;
   FTagEditor.Tags.Text := DataSet.FieldByName('MATCHCODE').AsString;
+  FTagEditor.OnChange:=@FTagEditorChange;
   aType := GetType;
   cbStatus.Items.Clear;
   if not Data.States.DataSet.Locate('TYPE;STATUS',VarArrayOf([aType,FDataSet.FieldByName('STATUS').AsString]),[loCaseInsensitive]) then
