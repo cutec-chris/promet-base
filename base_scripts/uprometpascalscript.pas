@@ -633,17 +633,33 @@ begin
           begin
             RegisterConstructor(@TActiveUsers.Create,'CREATE');
           end;
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbDataSet'),TNumbersets) do
+          begin
+            RegisterMethod('constructor Create(aOwner : TComponent);');
+          end;
         with Sender.ClassImporter.Add(TNumbersets) do
           begin
             RegisterConstructor(@TNumbersets.Create,'CREATE');
+          end;
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbDataSet'),TNumberPools) do
+          begin
+            RegisterMethod('constructor Create(aOwner : TComponent);');
           end;
         with Sender.ClassImporter.Add(TNumberPools) do
           begin
             RegisterConstructor(@TNumberPools.Create,'CREATE');
           end;
+        with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbDataSet'),TNumberRanges) do
+          begin
+            RegisterMethod('constructor Create(aOwner : TComponent);');
+            RegisterMethod('function NewRangefromPool(aPool, aName: string; aCount: Integer; aUse,aNotice: string): Boolean;');
+            RegisterMethod('function NewRangewithoutPool(aName: string; aFrom, aCount: Integer; aUse,aNotice: string): Boolean;');
+          end;
         with Sender.ClassImporter.Add(TNumberRanges) do
           begin
             RegisterConstructor(@TNumberRanges.Create,'CREATE');
+            RegisterMethod(@TNumberRanges.NewRangefromPool,'NEWRANGEFROMPOOL');
+            RegisterMethod(@TNumberRanges.NewRangewithoutPool,'NEWRANGEWITHOUTPOOL');
           end;
 
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TComponent'),TBaseDBModule) do

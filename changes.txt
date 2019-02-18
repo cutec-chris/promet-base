@@ -3,6 +3,8 @@
       - geteilte Kalendereinträge werden von nicht-Erstellern read-only geöffnet
       - Artikel: Dateien Tab wird re-aktiviert nach Versionswechsel wenn neue Version keine Dateien hat
       - Artikel: Tab wird bei Versionswechsel beibehalten wenn möglich
+      - Nummernkreise: bekommen "Pools" und "Ranges" um Nummernkreise aus Pools vergeben zu können und in Ranges zu loggen wann welcher Kreis aktiv war
+      - Scripte: Zugriff auf Nummernkreise
 Build 439 (13.07.2018)
       - mehrere Authentifizierungsquellen möglich
       - LDAP/Active Directory Login möglich
