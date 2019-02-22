@@ -549,7 +549,9 @@ end;
 
 procedure TFAutomation.acReadyExecute(Sender: TObject);
 begin
+  acReady.Enabled:=False;
   FindNextStep;
+  acReady.Enabled:=True;
 end;
 
 procedure TFAutomation.acRefreshExecute(Sender: TObject);
