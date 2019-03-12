@@ -1009,15 +1009,15 @@ var
   aScript: TBaseScript;
 begin
   Result := False;
-  aDocuments := TDocument.Create(nil);
-  aDocuments.Select(Id,'S',Id,Version,Null);
-  aDocuments.Open;
   aName := ExtractFileName(Filename);
   if rpos('.',aName)>0 then
     aName := copy(aName,0,rpos('.',aName)-1);
   aExt := ExtractFileExt(Filename);
   if pos('.',aExt)>0 then
     aExt := copy(aExt,pos('.',aExt)+1,length(aExt));
+  aDocuments := TDocument.Create(nil);
+  aDocuments.Select(Id,'S',Id,Version,Null);
+  aDocuments.Open;
   if aDocuments.Locate('NAME;EXTENSION',VarArrayOf([aName,aExt]),[loCaseInsensitive]) then
     begin
       aDocument := TDocument.Create(nil);
@@ -1027,6 +1027,26 @@ begin
       Result := aDocument.CheckoutToStream(aStream);
       aStream.Free;
       aDocument.Free;
+    end
+  else if Assigned(ActualObject) then
+    begin
+      if  (ActualObject is TBaseDbList)
+      and (ActualObject.FieldByName('VERSION')<>nil)
+      then
+        begin
+          aDocuments.Select(ActualObject.Id.AsLargeInt,TBaseDbList(ActualObject).GetTyp,ActualObject.Id.AsString,TBaseDbList(ActualObject).FieldByName('VERSION').AsVariant,Null);
+          aDocuments.Open;
+          if aDocuments.Locate('NAME;EXTENSION',VarArrayOf([aName,aExt]),[loCaseInsensitive]) then
+            begin
+              aDocument := TDocument.Create(nil);
+              aDocument.SelectByNumber(aDocuments.FieldByName('NUMBER').AsVariant);
+              aDocument.Open;
+              aStream := TFileStream.Create(OutPath,fmCreate);
+              Result := aDocument.CheckoutToStream(aStream);
+              aStream.Free;
+              aDocument.Free;
+            end
+        end;
     end;
   aDocuments.Free;
 end;
