@@ -1157,7 +1157,7 @@ begin
             Add('SCRIPTFUNC',ftString,60,False);
             Add('PRSCRIPT',ftString,60,False);
             Add('PRSCRIPTVER',ftString,8,False);
-            Add('PRSCRIPTFUNC',ftString,60,False);
+            Add('PRSCRIPTFUNC',ftString,160,False);
             Add('PREPTEXT',ftString,100,False);
             Add('WORKTEXT',ftString,100,False);
             Add('CRDATE',ftDate,0,False);
