@@ -894,7 +894,7 @@ var
   i: Integer;
 begin
   Result := aText;
-  if DataSet.Active then
+  if Assigned(DataSet) and (DataSet.Active) then
     for i := 0 to DataSet.DataSet.FieldCount-1 do
       if pos('@'+DataSet.DataSet.FieldDefs[i].Name+'@',Result)>0 then
         Result := StringReplace(Result,'@'+DataSet.DataSet.FieldDefs[i].Name+'@',DataSet.FieldByName(DataSet.DataSet.FieldDefs[i].Name).AsString,[rfReplaceAll]);
