@@ -202,6 +202,7 @@ type
     function TPascalScriptUses(Sender: TPascalScript; const aName: String;
       OnlyAdditional: Boolean): Boolean;
   private
+    FLastCompileStamp: int64;
     FOpenUnit: TOpenUnitEvent;
     FSearchFromCaret: boolean;
     FOldStatus : string;
@@ -718,7 +719,7 @@ var
 begin
   Linemark.Visible:=False;
   Linemark.Line:=0;
-  Application.Processmessages;
+  //Application.Processmessages;
   if Assigned(Script) and (Script.Status<>ssNone) then
     begin
       FActiveLine := 0;
@@ -782,13 +783,21 @@ begin
               Script.OnIdle:=@aScriptIdle;
               Script.OnCompileMessage:=@FscriptCompileMessage;
             end;
-          acSave.Execute;
-          if Script is TByteCodeScript then
-            TByteCodeScript(Script).ByteCode:='';
+          if ed.ChangeStamp<>FLastCompileStamp then
+            begin
+              acSave.Execute;
+              if Script is TByteCodeScript then
+                TByteCodeScript(Script).ByteCode:='';
+            end;
           Setlength(aParams,0);
           try
-            TBaseScript(FDataSet).Compile;
+            if TByteCodeScript(Script).ByteCode='' then
+              begin
+                TBaseScript(FDataSet).Compile;
+                FLastCompileStamp:=ed.ChangeStamp;
+              end;
             ButtonStatus(ssRunning);
+            Application.ProcessMessages;
             if eRunFunction.Text<>'' then
               begin
                 tmp := eRunFunction.Text;

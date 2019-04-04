@@ -6,6 +6,7 @@
       - Nummernkreise: bekommen "Pools" und "Ranges" um Nummernkreise aus Pools vergeben zu können und in Ranges zu loggen wann welcher Kreis aktiv war
       - Scripte: Zugriff auf Nummernkreise
       - Automation:Funktionsaufruffeld vergrössert
+      - Scripte: in IDE nur neukompilieren wenn sich etwas geändert hat
 Build 439 (13.07.2018)
       - mehrere Authentifizierungsquellen möglich
       - LDAP/Active Directory Login möglich

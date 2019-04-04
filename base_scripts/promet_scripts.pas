@@ -4,12 +4,10 @@
 
 unit promet_scripts;
 
-{$warn 5023 off : no warning about unused units}
 interface
 
 uses
-  uprometpascalscript, uspeakinginterface, uprometpythonscript, 
-  uprometcscript, uprometjavascriptscript, BESEN;
+  uprometpascalscript, uspeakinginterface, uprometpythonscript, uprometcscript;
 
 implementation
 

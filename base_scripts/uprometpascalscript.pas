@@ -611,6 +611,8 @@ begin
         Sender.ClassImporter.Add(TFollowers);
         Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBDataSet'),TOptions);
         Sender.ClassImporter.Add(TOptions);
+        Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDBList'),TBaseScript);
+        Sender.ClassImporter.Add(TBaseScript);
         with Sender.Compiler.AddClass(Sender.Compiler.FindClass('TBaseDbList'),TUser) do
           begin
             RegisterMethod('constructor Create(aOwner : TComponent);');
