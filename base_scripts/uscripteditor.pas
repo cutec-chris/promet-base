@@ -202,7 +202,6 @@ type
     function TPascalScriptUses(Sender: TPascalScript; const aName: String;
       OnlyAdditional: Boolean): Boolean;
   private
-    FLastCompileStamp: int64;
     FOpenUnit: TOpenUnitEvent;
     FSearchFromCaret: boolean;
     FOldStatus : string;
@@ -235,6 +234,7 @@ type
 
     property ActiveFile: string read FActiveFile write SetActiveFile;
   public
+    FLastCompileStamp: int64;
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
     property DataSet : TBaseDBDataSet read FDataSet write SetDataSet;
