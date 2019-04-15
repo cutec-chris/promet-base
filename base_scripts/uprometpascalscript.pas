@@ -65,6 +65,7 @@ type
 
     function InternalSHA1(aInput : string) : string;
     function InternalMD5(aInput : string) : string;
+    function InternalMD5File(aInputFile : string) : string;
     function InternalBase64Encode(aInput : string) : string;
     function InternalBase64FileEncode(aInputFile : string) : string;
     function InternalBase64Decode(aInput : string) : string;
@@ -178,6 +179,7 @@ begin
     begin
       Result := True;
       Sender.AddMethod(Self,@TPrometPascalScript.InternalMD5,'function MD5(aInput : string) : string;');
+      Sender.AddMethod(Self,@TPrometPascalScript.InternalMD5File,'function MD5File(aInputFile : string) : string;');
     end
   else if aName = 'SHA1' then
     begin
@@ -954,6 +956,11 @@ end;
 function TPrometPascalScript.InternalMD5(aInput: string): string;
 begin
   Result := md5.MD5Print(MD5String(aInput));
+end;
+
+function TPrometPascalScript.InternalMD5File(aInputFile: string): string;
+begin
+  Result := md5.MD5Print(md5.MD5File(aInputFile));
 end;
 
 function TPrometPascalScript.InternalBase64Encode(aInput: string): string;
