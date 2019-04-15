@@ -66,6 +66,7 @@ type
     function InternalSHA1(aInput : string) : string;
     function InternalMD5(aInput : string) : string;
     function InternalBase64Encode(aInput : string) : string;
+    function InternalBase64FileEncode(aInputFile : string) : string;
     function InternalBase64Decode(aInput : string) : string;
 
     function InternalPrint(aType,Reportname,Printer : string;Copies : Integer) : Boolean;
@@ -188,6 +189,7 @@ begin
       Result := True;
       Sender.AddMethod(Self,@TPrometPascalScript.InternalBase64Encode,'function Base64Encode(aInput : string) : string;');
       Sender.AddMethod(Self,@TPrometPascalScript.InternalBase64Decode,'function Base64Decode(aInput : string) : string;');
+      Sender.AddMethod(Self,@TPrometPascalScript.InternalBase64FileEncode,'function Base64FileEncode(aInputFile : string) : string;');
     end
   else if aName = 'PROMET' then
     begin
@@ -957,6 +959,29 @@ end;
 function TPrometPascalScript.InternalBase64Encode(aInput: string): string;
 begin
   Result := base64.EncodeStringBase64(aInput);
+end;
+
+function TPrometPascalScript.InternalBase64FileEncode(aInputFile: string
+  ): string;
+var
+  Outstream: TStringStream;
+  Encoder: TBase64EncodingStream;
+  InStream: TFileStream;
+begin
+  Outstream:=TStringStream.Create('');
+  InStream := TFileStream.Create(aInputFile,fmOpenRead);
+  try
+    Encoder:=TBase64EncodingStream.create(outstream);
+    try
+      Encoder.CopyFrom(InStream,0);
+    finally
+      Encoder.Free;
+      end;
+    Result:=Outstream.DataString;
+  finally
+    Outstream.free;
+    InStream.Free;
+  end;
 end;
 
 function TPrometPascalScript.InternalBase64Decode(aInput: string): string;
