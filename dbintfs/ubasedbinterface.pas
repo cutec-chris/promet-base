@@ -1337,24 +1337,28 @@ begin
       begin
         with ActiveUsers.DataSet do
           begin
-            Insert;
-            if Users.DataSet.Active then
-              begin
-                FieldByName('ACCOUNTNO').AsString:=Users.FieldByName('ACCOUNTNO').AsString;
-                FieldByName('NAME').AsString:=Users.FieldByName('NAME').AsString;
-              end
-            else
-              FieldByName('NAME').AsString:=ExtractFileName(Paramstr(0));
-            FieldByName('CLIENT').AsString:=ExtractFileName(Paramstr(0));
-            FieldByName('HOST').AsString:=GetSystemName;
-            with BaseApplication as IBaseApplication do
-              FieldByName('VERSION').AsString:=StringReplace(Format('Version %f Build %d',[AppVersion,AppRevision]),',','.',[rfReplaceAll]);
-            FieldByName('TIMESTAMPD').AsDateTime := Now();
-            FieldByName('EXPIRES').AsDateTime := Now()+0.5;
-            if FieldDefs.IndexOf('TIMESTAMPT') <> -1 then
-              FieldByName('TIMESTAMPT').AsFloat    := Frac(Now());
-            Post;
-            FSessionID := ActiveUsers.Id.AsVariant;
+            try
+              Insert;
+              if Users.DataSet.Active and (Users.Count>0) then
+                begin
+                  FieldByName('ACCOUNTNO').AsString:=Users.FieldByName('ACCOUNTNO').AsString;
+                  FieldByName('NAME').AsString:=Users.FieldByName('NAME').AsString;
+                end
+              else
+                FieldByName('NAME').AsString:=ExtractFileName(Paramstr(0));
+              FieldByName('CLIENT').AsString:=ExtractFileName(Paramstr(0));
+              FieldByName('HOST').AsString:=GetSystemName;
+              with BaseApplication as IBaseApplication do
+                FieldByName('VERSION').AsString:=StringReplace(Format('Version %f Build %d',[AppVersion,AppRevision]),',','.',[rfReplaceAll]);
+              FieldByName('TIMESTAMPD').AsDateTime := Now();
+              FieldByName('EXPIRES').AsDateTime := Now()+0.5;
+              if FieldDefs.IndexOf('TIMESTAMPT') <> -1 then
+                FieldByName('TIMESTAMPT').AsFloat    := Frac(Now());
+              Post;
+              FSessionID := ActiveUsers.Id.AsVariant;
+            except
+              Cancel;
+            end;
           end;
       end;
     RefreshUsersFilter;

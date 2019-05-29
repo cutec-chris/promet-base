@@ -3164,6 +3164,7 @@ begin
   with BaseApplication as IBaseDbInterface do
     begin
       TBaseDBModule(DataModule).SetFilter(Self, TBaseDBModule(DataModule).QuoteField('TABLENAME')+'='+TBaseDBModule(DataModule).QuoteValue(numberset));
+      DataSet.Refresh;//get sure data is actual
       if DataSet.Recordcount > 0 then
         begin
           if DataSet.FieldByName('TYPE').AsString = 'N' then
