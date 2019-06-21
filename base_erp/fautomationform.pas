@@ -246,7 +246,7 @@ uses Utils,uBaseVisualControls,uMasterdata,uData,uOrder,variants,uLogWait,
 resourcestring
   strDoPick                             = 'kommissionieren';
   strRunning                            = 'wird ausgeführt...';
-  strRun                                = 'Ausführen';
+  strRun                                = 'Ausführen [Leertaste]';
   strNotmoreSteps                       = 'Es sind keine (weiteren) Arbeitschritte vorhanden.<br><br>Um einen neuen Auftrag auswählen zu können müssen Sie den Auftrag (ab)schließen';
   strPartiallyProblematic               = 'Achtung Teile des Auftrages sind in nicht freigegebenem Zustand !';
   strLoading                            = 'Auftragsdaten werden geladen...';
@@ -380,6 +380,7 @@ begin
           acExecuteStep.Checked:=False;
           acExecuteStep.Caption:=strRun;
           tvStep.Enabled:=True;
+          Self.SetFocus;
         end
       else
         begin
@@ -544,6 +545,7 @@ begin
       TreeData := TProdTreeData(tvStep.Selected.Data);
       TreeData.Prepared:=True;
       TreeData.ShowData;
+      FAutomation.SetFocus;
     end;
 end;
 
