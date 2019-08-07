@@ -380,6 +380,7 @@ var
   sl: TStringList;
 begin
   Result := inherited;
+  if not Result then exit;
   if Connection=nil then
     Connection := MainConnection;
   FProperies := aProp;
