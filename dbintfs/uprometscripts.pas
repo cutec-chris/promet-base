@@ -428,7 +428,7 @@ begin
             Add('LASTRUN',ftDateTime,0,False);
             Add('SCRIPT',ftMemo,0,false);
             Add('NOTE',ftMemo,0,false);
-            Add('FOLDSTATE',ftString,200,false);
+            Add('FOLDSTATE',ftString,250,false);
             Add('LASTRESULT',ftMemo,0,false);
           end;
       if Assigned(ManagedIndexdefs) then

@@ -3416,9 +3416,13 @@ begin
   if (Count>0) and (FieldByName('LASTLOGIN') <> nil) and (FieldByName('LASTLOGIN').ReadOnly = False) then
     begin
       UpdateStdFields := False;
-      DataSet.Edit;
-      FieldByName('LASTLOGIN').AsDateTime:=Now();
-      DataSet.Post;
+      try
+        DataSet.Edit;
+        FieldByName('LASTLOGIN').AsDateTime:=Now();
+        DataSet.Post;
+      except
+        DataSet.Cancel;
+      end;
     end;
   with DataSet as IBaseManageDB do
     UpdateStdFields := True;

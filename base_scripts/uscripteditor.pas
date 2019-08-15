@@ -139,6 +139,7 @@ type
     ToolBar1: TToolBar;
     tbTools: TToolBar;
     bRun: TToolButton;
+    tbCollapse: TToolButton;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
     ToolButton5: TToolButton;
@@ -197,6 +198,7 @@ type
       AFiles: TStrings);
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
+    procedure tbCollapseClick(Sender: TObject);
     procedure tmDebugTimer(Sender: TObject);
     procedure TPascalScriptToolRegistering(const s: string);
     function TPascalScriptUses(Sender: TPascalScript; const aName: String;
@@ -1314,6 +1316,16 @@ end;
 procedure TfScriptEditor.SpeedButton2Click(Sender: TObject);
 begin
  ed.SearchReplace(eSearchC.Text,'',[ssoFindContinue,ssoBackwards]);
+end;
+
+procedure TfScriptEditor.tbCollapseClick(Sender: TObject);
+begin
+  if tbCollapse.Down then
+    ed.UnfoldAll
+  else
+    ed.FoldAll(1);
+  ed.Modified:=True;
+  edChange(ed);
 end;
 
 procedure TfScriptEditor.tmDebugTimer(Sender: TObject);

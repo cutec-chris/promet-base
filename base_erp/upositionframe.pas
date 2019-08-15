@@ -1002,9 +1002,12 @@ end;
 
 procedure TfPosition.PositionStateChange(Sender: TObject);
 begin
-  if (acViewDetails.Checked) and Assigned(FDataSet) and (not DataSet.DataSet.ControlsDisabled) and (FDataset.State=dsInsert) then
-    TabTimer.Enabled:=True;
-  acSavePos.Enabled := Assigned(FDataSet) and (not DataSet.DataSet.ControlsDisabled) and FDataset.CanEdit;
+  try
+    if (acViewDetails.Checked) and Assigned(FDataSet) and (not DataSet.DataSet.ControlsDisabled) and (FDataset.State=dsInsert) then
+      TabTimer.Enabled:=True;
+    acSavePos.Enabled := Assigned(FDataSet) and (not DataSet.DataSet.ControlsDisabled) and FDataset.CanEdit;
+  except
+  end;
 end;
 
 procedure TfPosition.DoAsyncRefresh(Data: PtrInt);

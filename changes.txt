@@ -7,6 +7,7 @@
       - Scripte: Zugriff auf Nummernkreise
       - Automation:Funktionsaufruffeld vergrössert
       - Scripte: in IDE nur neukompilieren wenn sich etwas geändert hat
+      - Scripte: Fold All Button
 Build 439 (13.07.2018)
       - mehrere Authentifizierungsquellen möglich
       - LDAP/Active Directory Login möglich
