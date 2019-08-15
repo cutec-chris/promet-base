@@ -455,7 +455,7 @@ inherited fFilter: TfFilter
         OnChange = seMaxresultsChange
         TabStop = False
         TabOrder = 2
-        Value = 500
+        Value = 100
       end
       inline eFilterEdit: TSynMemo
         Cursor = crIBeam

@@ -1942,7 +1942,7 @@ var
 begin
   inherited ShowFrame;
   if not Assigned(DataSet) then exit;
-  DoRefresh;
+  //DoRefresh;
   SetActive;
 end;
 
