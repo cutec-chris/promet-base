@@ -320,8 +320,8 @@ LazarusResources.Add('TFAutomation','FORMDATA',[
   +#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0
   +#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255
   +#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#255#255#255#0#11'ShowCa'
-  +'ption'#8#0#0#11'TActionList'#11'ActionList1'#6'Images'#7#22'fVisualControls'
-  ,'.Images'#4'left'#2#16#3'top'#2'H'#0#7'TAction'#13'acExecuteStep'#7'Caption'
+  +'ption'#8#0#0#11'TActionList'#12'alAutomation'#6'Images'#7#22'fVisualControl'
+  ,'s.Images'#4'left'#2#16#3'top'#2'H'#0#7'TAction'#13'acExecuteStep'#7'Caption'
   +#6#22'Ausf'#195#188'hren [Leertaste]'#18'DisableIfNoHandler'#8#7'Enabled'#8
   +#10'GroupIndex'#2't'#10'ImageIndex'#3#128#0#9'OnExecute'#7#20'acExecuteStepE'
   +'xecute'#8'ShortCut'#2' '#0#0#7'TAction'#9'acPrepare'#9'AutoCheck'#9#7'Capti'

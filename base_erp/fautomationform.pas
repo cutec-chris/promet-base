@@ -60,7 +60,7 @@ type
     acEdit: TAction;
     acRefresh: TAction;
     acCheckPrepare: TAction;
-    ActionList1: TActionList;
+    alAutomation: TActionList;
     Bevel3: TBevel;
     Bevel4: TBevel;
     Bevel5: TBevel;
@@ -600,6 +600,9 @@ begin
        end;
      aImages.Free;
     end;
+  if pBDE.Visible then
+    alAutomation.State:=asSuspended
+  else alAutomation.State:=asNormal;
 end;
 
 procedure TFAutomation.cbCategoryChange(Sender: TObject);

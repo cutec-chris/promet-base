@@ -737,7 +737,7 @@ object FAutomation: TFAutomation
     }
     ShowCaption = False
   end
-  object ActionList1: TActionList
+  object alAutomation: TActionList
     Images = fVisualControls.Images
     left = 16
     top = 72
