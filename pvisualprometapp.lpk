@@ -67,16 +67,16 @@
     </i18n>
     <RequiredPkgs Count="6">
       <Item1>
-        <PackageName Value="laz_visualplanit"/>
-        <DefaultFilename Value="..\components\tvplanit\laz_visualplanit.lpk"/>
-      </Item1>
-      <Item2>
-        <PackageName Value="pOptions"/>
-        <DefaultFilename Value="base_options\poptions.lpk"/>
-      </Item2>
-      <Item3>
         <PackageName Value="avamm_dblayer_zeos"/>
         <DefaultFilename Value="..\components\avamm-db-layer\dblayer_zeos\avamm_dblayer_zeos.lpk"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="laz_visualplanit"/>
+        <DefaultFilename Value="..\components\tvplanit\laz_visualplanit.lpk"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="pOptions"/>
+        <DefaultFilename Value="base_options\poptions.lpk"/>
       </Item3>
       <Item4>
         <PackageName Value="laz_twain"/>

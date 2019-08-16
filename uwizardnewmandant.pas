@@ -23,7 +23,7 @@ interface
 uses
   Classes, SysUtils,  Forms, Controls, Graphics, Dialogs, ExtCtrls,
   StdCtrls, Buttons, ComCtrls, uIntfStrConsts, EditBtn,
-  {VirtualStringTree, }FileUtil,db, ZConnection, DbCtrls, uData, uEncrypt,
+  {VirtualStringTree, }FileUtil,db, {ZConnection,} DbCtrls, uData, uEncrypt,
   ClipBrd, Spin,ProcessUtils,UTF8Process,process,lclproc,uBaseDatasetInterfaces;
 type
   TDirNode = record

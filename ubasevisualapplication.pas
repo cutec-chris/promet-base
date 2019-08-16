@@ -33,6 +33,7 @@ uses
   ,MacOSAll,CarbonProc
   {$ENDIF}
   ,uZeosDBDM
+  //,uSQLDBDM
   ;
 type
   { TBaseVisualApplication }
