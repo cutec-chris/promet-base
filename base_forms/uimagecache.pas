@@ -5,7 +5,7 @@ unit uImageCache;
 interface
 
 uses
-  Classes, SysUtils, CacheCls;
+  Classes, SysUtils, CacheCls, base64;
 type
   TGetFileEvent = function(Path : string;var NewPath : string;var ExpireDate : TDateTime) : TStream of object;
 
@@ -63,9 +63,23 @@ var
   aFile: TStream;
   aIdx: Integer;
   aExpireDate: TDateTime;
+  aStr: TStringStream;
 begin
   NewPath:=Path;
   Result := nil;
+  if copy(LowerCase(path),0,11)='data:image/' then
+    begin
+      path := copy(path,12,length(path));
+      NewPath:='.'+copy(Path,0,pos(';',Path)-1);
+      path := copy(path,pos(';',Path)+1,length(path));
+      path := copy(path,pos(',',Path)+1,length(path));
+      aMem := TMemoryStream.Create;
+      aStr := TStringStream.Create(base64.DecodeStringBase64(Path));
+      amem.CopyFrom(aStr,0);
+      aStr.Free;
+      Result := aMem;
+      exit;
+    end;
   aIdx := FURLList.IndexOf(Path);
   if (aIdx = -1) or (StrToDateTimeDef(FExpires[FExpires.IndexOfObject(FURLList.Objects[aIdx])],0)<Now()) then
     begin
