@@ -216,6 +216,7 @@ begin
         Sender.AddMethod(Self,@TPrometPascalScript.InternalMemoryGetValue,'function GetMemoryValue(Name : string) : string;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalExecuteScript,'procedure ExecuteScript(Name,Client : string);');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalPrint,'function PrintReport(aType : string;aReportname : string;aPrinter : string;Copies : Integer) : Boolean;');
+        Sender.AddMethod(Self,@TPrometPascalScript.InternalPrinterAvalible,'function PrinterAvalible(aPrinter : string) : Boolean;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalSetReportVariable,'procedure SetReportVariable(Name : string;Value : string);');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalSetReportImage,'procedure SetReportImage(aName,aImage : string) : Boolean;');
         Sender.AddMethod(Self,@TPrometPascalScript.InternalGetNumberFromNumberset,'function GetNumberFromNumberset(Numberset : string) : string;');
