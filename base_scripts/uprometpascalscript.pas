@@ -29,6 +29,7 @@ uses
 
 type
   TScriptInternalPrint = function (aType,Reportname,Printer : string;Copies : Integer) : Boolean;
+  TScriptInternalPrinterAvalible = function(Printer : string) : Boolean;
   TScriptNumbersetEmpty = function(aNumberset : string) : Boolean;
   { TPrometPascalScript }
 
@@ -72,6 +73,7 @@ type
     function InternalBase64Decode(aInput : string) : string;
 
     function InternalPrint(aType,Reportname,Printer : string;Copies : Integer) : Boolean;
+    function InternalPrinterAvalible(Printer : string) : Boolean;
     procedure InternalSetReportVariable(aName,Value : string);
     function InternalSetReportImage(aName,aImage : string) : Boolean;
 
@@ -90,6 +92,7 @@ var
   FVariables : TStringList;
   FReportImages : TStringList;
   OnInternalPrint : TScriptInternalPrint;
+  OnInternalPrinterAvalible : TScriptInternalPrinterAvalible;
   FReportVariables : TStringList;
   OnNumbersetEmpty : TScriptNumbersetEmpty;
 
@@ -1019,6 +1022,13 @@ begin
   Result := False;
   if Assigned(OnInternalPrint) then
     Result := OnInternalPrint(aType,ReportName,Printer,Copies);
+end;
+
+function TPrometPascalScript.InternalPrinterAvalible(Printer: string): Boolean;
+begin
+  Result := False;
+  if Assigned(OnInternalPrinterAvalible) then
+    Result := OnInternalPrinterAvalible(Printer);
 end;
 
 procedure TPrometPascalScript.InternalSetReportVariable(aName, Value: string);

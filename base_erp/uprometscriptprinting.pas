@@ -15,7 +15,7 @@ type
 
 implementation
 
-uses uData,db,uBaseApplication,dateutils;
+uses uData,db,uBaseApplication,dateutils,Printers;
 
 var
   FReport : TfrReport;
@@ -90,8 +90,14 @@ begin
   end;
 end;
 
+function PrometScriptPrinterAvalible(Printer : string) : Boolean;
+begin
+  Result := Printers.Printer.Printers.IndexOf(Printer) > -1;
+end;
+
 initialization
   uprometpascalscript.OnInternalPrint:=@PrometScriptPrint;
+  uprometpascalscript.OnInternalPrinterAvalible:=@PrometScriptPrinterAvalible;
   Barc := TfrBarCodeObject.Create(nil);
 end.
 
