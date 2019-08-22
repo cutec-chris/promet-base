@@ -384,7 +384,12 @@ begin
         end
       else
         begin
-          if MessageDlg(strAbort,strAbortWarning,mtWarning,[mbYes,mbNo],0) = mrYes then
+          if Treedata.Script.Script.RunScriptFunction([],'ABORTSCRIPT') then
+            begin
+              TreeData.Script.Script.Stop;
+              acExecuteStep.Caption:=strRun;
+            end
+          else if MessageDlg(strAbort,strAbortWarning,mtWarning,[mbYes,mbNo],0) = mrYes then
             begin
               TreeData.Script.Script.Stop;
               acExecuteStep.Caption:=strRun;
