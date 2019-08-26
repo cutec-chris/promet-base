@@ -1404,6 +1404,7 @@ destructor TfPosition.Destroy;
 var
   i: Integer;
 begin
+  Setlength(FChecks,0);
   for i := 0 to lbResults.Items.Count-1 do
     lbResults.Items.Objects[i].Free;
   if Assigned(ActiveSearch) then ActiveSearch.Free;

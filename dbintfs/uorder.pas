@@ -645,6 +645,7 @@ begin
             Add('RAWDATA',ftMemo,0,False);
             Add('TESTTIME',ftDateTime,0,False);
             Add('TESTEND',ftDateTime,0,False);
+            Add('DURATION',ftInteger,0,False);
           end;
       if Assigned(ManagedIndexdefs) then
         with ManagedIndexDefs do
