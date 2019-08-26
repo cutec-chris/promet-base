@@ -136,6 +136,9 @@ begin
       Result := StringReplace(Result,'MONTH(','EXTRACT(MONTH FROM ',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'YEAR(','EXTRACT(YEAR FROM ',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'DAY(','EXTRACT(DAY FROM ',[rfReplaceAll,rfIgnoreCase]);
+      Result := StringReplace(Result,'DATEPART(HOUR,','EXTRACT(HOUR FROM ',[rfReplaceAll,rfIgnoreCase]);
+      Result := StringReplace(Result,'DATEPART(MINUTE,','EXTRACT(MINUTE FROM ',[rfReplaceAll,rfIgnoreCase]);
+      Result := StringReplace(Result,'DATEPART(SECOND,','EXTRACT(SECOND FROM ',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'DAYOFWEEK(','EXTRACT(DOW FROM ',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'GETDATE()','CURRENT_DATE',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'LENGTH(','LEN(',[rfReplaceAll,rfIgnoreCase]);
@@ -171,6 +174,9 @@ begin
       Result := StringReplace(Result,'YEAR(','strftime("%Y",',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,' DAY(','strftime("%d",',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,',DAY(','strftime("%d",',[rfReplaceAll,rfIgnoreCase]);
+      Result := StringReplace(Result,'DATEPART(HOUR,','strftime("%h",',[rfReplaceAll,rfIgnoreCase]);
+      Result := StringReplace(Result,'DATEPART(MINUTE,','strftime("%m",',[rfReplaceAll,rfIgnoreCase]);
+      Result := StringReplace(Result,'DATEPART(SECOND,','strftime("%s",',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'DAYOFWEEK(','strftime("%w",',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'GETDATE()','date("now")',[rfReplaceAll,rfIgnoreCase]);
       Result := StringReplace(Result,'SUBSTRING(','substr(',[rfReplaceAll,rfIgnoreCase]);

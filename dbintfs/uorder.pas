@@ -646,6 +646,12 @@ begin
             Add('TESTTIME',ftDateTime,0,False);
             Add('TESTEND',ftDateTime,0,False);
           end;
+      if Assigned(ManagedIndexdefs) then
+        with ManagedIndexDefs do
+          begin
+            Add('TESTTIME','TESTTIME',[]);
+            Add('RESULT','RESULT',[]);
+          end;
     end;
 end;
 
