@@ -787,7 +787,8 @@ begin
             end;
           if ed.ChangeStamp<>FLastCompileStamp then
             begin
-              acSave.Execute;
+              if Assigned(DataSet) and (DataSet.State<>dsInsert) then
+                acSave.Execute;
               if Script is TByteCodeScript then
                 TByteCodeScript(Script).ByteCode:='';
             end;
