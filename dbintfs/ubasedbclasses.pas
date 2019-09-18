@@ -2860,6 +2860,7 @@ begin
     begin
       with DataSet as IBaseDBFilter do
         begin
+          Setlimit(0);
           SetFilter('');
         end;
     end;
