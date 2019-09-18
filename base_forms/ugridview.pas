@@ -2995,7 +2995,7 @@ begin
   if not DoGroup then AddNotFound:=True;
   if Bookmark = -1 then Bookmark := 0;
   if (((gList.Row >= gList.RowCount) and (gList.RowCount = gList.FixedRows))
-  or (Bookmark = 0) or (not Assigned(gList.Objects[0,gList.Row])) or (not (TRowObject(gList.Objects[0,gList.Row]).Rec = Bookmark)))
+  or (Bookmark = 0) or ((gList.Row>-1) and ((not Assigned(gList.Objects[0,gList.Row])) or (not (TRowObject(gList.Objects[0,gList.Row]).Rec = Bookmark)))))
   and ((TreeField = '') or (not DoGroup) or (FDataSet.FieldByName(TreeField).IsNull) or (FDataSet.FieldByName(TreeField).AsString='0')) then
     begin
       if DoInsert then
@@ -3057,7 +3057,7 @@ begin
                   end
               end;
           end;
-      if (not Found) and AddNotFound and ((gList.RowCount-gList.FixedRows <= gList.Row) or (Assigned(gList.Objects[0,gList.Row]) and (TRowObject(gList.Objects[0,gList.Row]).Rec <> 0))) then
+      if (not Found) and AddNotFound and ((gList.Row>-1) and ((gList.RowCount-gList.FixedRows <= gList.Row) or (Assigned(gList.Objects[0,gList.Row]) and (TRowObject(gList.Objects[0,gList.Row]).Rec <> 0)))) then
           if (gList.RowCount-gList.FixedRows <= gList.Row) or (TRowObject(gList.Objects[0,gList.Row]).Rec <> Bookmark) then
             begin
               gList.RowCount:=gList.RowCount+1;
@@ -3077,7 +3077,7 @@ begin
           //Showmessage('Invalid Row ID, cant add row !');
         end;
     end;
-  if UpdateData then
+  if UpdateData and (gList.Row>-1) then
     begin
       for i := 1 to gList.ColCount-1 do
         if (dgFake.Columns.Count>=(i-2)) and  Assigned(dgFake.Columns[i-1].Field) then
