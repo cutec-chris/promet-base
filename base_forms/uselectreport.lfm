@@ -1,13 +1,13 @@
 object fSelectReport: TfSelectReport
   Left = 449
-  Height = 723
+  Height = 721
   Top = 266
-  Width = 805
+  Width = 802
   Caption = 'Druckbeleg'
-  ClientHeight = 723
-  ClientWidth = 805
+  ClientHeight = 721
+  ClientWidth = 802
   Constraints.MinHeight = 300
-  Constraints.MinWidth = 430
+  Constraints.MinWidth = 290
   DefaultMonitor = dmMainForm
   KeyPreview = True
   OnClose = FormClose
@@ -61,7 +61,7 @@ object fSelectReport: TfSelectReport
     Left = 8
     Height = 35
     Hint = 'schließt das Fenster'
-    Top = 682
+    Top = 680
     Width = 277
     Anchors = [akLeft, akBottom]
     Caption = '&Schließen'
@@ -532,7 +532,7 @@ object fSelectReport: TfSelectReport
     MaxLength = 0
     TabOrder = 14
   end
-  object Panel1: TPanel
+  object pPreview: TPanel
     Left = 296
     Height = 709
     Top = 8
@@ -552,6 +552,17 @@ object fSelectReport: TfSelectReport
       Proportional = True
       Stretch = True
     end
+  end
+  object tbPreview: TToggleBox
+    Left = 152
+    Height = 25
+    Top = 336
+    Width = 133
+    Caption = 'Vorschau'
+    Checked = True
+    OnChange = tbPreviewChange
+    State = cbChecked
+    TabOrder = 16
   end
   object SaveDialog: TSaveDialog
     FilterIndex = 0

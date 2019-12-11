@@ -71,7 +71,7 @@ type
     Label2: TLabel;
     Label3: TLabel;
     LRDialogControls1: TLRDialogControls;
-    Panel1: TPanel;
+    pPreview: TPanel;
     PrinterSetupDialog1: TPrinterSetupDialog;
     Reports: TDatasource;
     dnReport: TDBNavigator;
@@ -83,6 +83,7 @@ type
     SaveDialog: TSaveDialog;
     eCopies: TSpinEdit;
     SpeedButton1: TSpeedButton;
+    tbPreview: TToggleBox;
     procedure ApplicationIBaseDBInterfaceReportsAfterInsert(DataSet: TDataSet);
     procedure ApplicationIBaseDBInterfaceReportsDataSetAfterScroll(
       DataSet: TDataSet);
@@ -106,6 +107,7 @@ type
     procedure GetReportVar(const ParName: String; var ParValue: Variant);
     procedure PreviewTimerTimer(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
+    procedure tbPreviewChange(Sender: TObject);
   private
     FBooked: Boolean;
     FDS: TBaseDBDataset;
@@ -801,7 +803,8 @@ var
   i: Integer;
 begin
   if not Visible then exit;
-  Panel1.Caption:=strNoPreview;
+  if not pPreview.Visible then exit;
+  pPreview.Caption:=strNoPreview;
   IdleTimer1.Enabled:=False;
   if not Supports(Application, IBaseApplication, BaseApplication) then exit;
   Screen.Cursor:=crHourglass;
@@ -844,7 +847,7 @@ begin
                  Report.ExportTo(frFilters[i].ClassRef,aFile);
                  {$ENDIF}
                  Image1.Picture.LoadFromFile(aFile);
-                 Panel1.Caption:='';
+                 pPreview.Caption:='';
                  DeleteFile(aFile);
                end;
              if Assigned(DataSet) then
@@ -864,6 +867,23 @@ begin
       cbPrinter.ItemIndex := Prn.PrinterIndex+DefaultPrinterTypes;
     end;
 end;
+
+procedure TfSelectReport.tbPreviewChange(Sender: TObject);
+begin
+  if tbPreview.Checked then
+    begin
+      Width := 800;
+      Height:= 722;
+      ppreview.Visible:=True;
+    end
+  else
+    begin
+      Width := 290;
+      Height:= 570;
+      ppreview.Visible:=False;
+    end;
+end;
+
 procedure TfSelectReport.SetType(const AValue: string);
 var
   tmp: String;

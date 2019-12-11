@@ -997,8 +997,11 @@ procedure TfScriptEditor.FormClose(Sender: TObject;
   var CloseAction: TCloseAction);
 begin
   acReset.Execute;
-  while Fscript.Status <> ssNone do
-    Application.ProcessMessages;
+  try
+    while Assigned(Fscript) and (Fscript.Status <> ssNone) do
+      Application.ProcessMessages;
+  except
+  end;
 end;
 
 procedure TfScriptEditor.FormCreate(Sender: TObject);
