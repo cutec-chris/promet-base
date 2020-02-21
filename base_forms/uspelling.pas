@@ -70,12 +70,13 @@ begin
 end;
 
 function TfSpellCheck.Execute(aMemo: Tsynedit; aStart: Integer): Boolean;
-var
+{var
   aProc: TAspellProcess;
   aList: TObjectList;
   i: Integer;
-  aEntry: TSpellingError;
+  aEntry: TSpellingError;}
 begin
+  {
   if not Assigned(Self) then
     begin
       Application.CreateForm(TfSpellCheck,fSpellCheck);
@@ -98,7 +99,7 @@ begin
       if ShowModal = mrAbort then break;
     end;
   aList.Free;
-  aProc.Free;
+  aProc.Free;  }
 end;
 
 end.

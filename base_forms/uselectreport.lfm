@@ -1,11 +1,11 @@
 object fSelectReport: TfSelectReport
   Left = 449
-  Height = 721
+  Height = 584
   Top = 266
-  Width = 802
+  Width = 290
   Caption = 'Druckbeleg'
-  ClientHeight = 721
-  ClientWidth = 802
+  ClientHeight = 584
+  ClientWidth = 290
   Constraints.MinHeight = 300
   Constraints.MinWidth = 290
   DefaultMonitor = dmMainForm
@@ -61,7 +61,7 @@ object fSelectReport: TfSelectReport
     Left = 8
     Height = 35
     Hint = 'schließt das Fenster'
-    Top = 680
+    Top = 543
     Width = 277
     Anchors = [akLeft, akBottom]
     Caption = '&Schließen'
@@ -543,6 +543,7 @@ object fSelectReport: TfSelectReport
     Color = clWhite
     ParentColor = False
     TabOrder = 15
+    Visible = False
     object Image1: TImage
       Left = 1
       Height = 707
@@ -558,10 +559,8 @@ object fSelectReport: TfSelectReport
     Height = 25
     Top = 336
     Width = 133
-    Caption = 'Vorschau'
-    Checked = True
+    Caption = 'life Vorschau'
     OnChange = tbPreviewChange
-    State = cbChecked
     TabOrder = 16
   end
   object SaveDialog: TSaveDialog
